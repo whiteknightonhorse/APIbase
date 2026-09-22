@@ -470,18 +470,12 @@ def advance_waiting_human():
         # T-0108 (2026-09-08): match+parse is now done ONCE here, route-
         # independent, instead of only inside the OPERATOR_FILE_ROUTE_CLASSES
         # branch below. Reason: HUMAN_KEY incidents (AUTH_FAILED/
-        # CREDENTIAL_EXPIRED — J3's own law says these do NOT get a generic
-        # operator file, connected_db.py's email contour is the one place for
-        # keys) were never scanned for a human-done file at all, so an
-        # operator who dropped one anyway (matching the SAME "INC-{sid} in
-        # filename" convention every other route uses — LAW #ONE-PLACE, no
-        # second naming rule invented here) got completely ignored: the 72h
-        # reminder below kept firing on a schedule with zero awareness the
-        # answer already existed (measured live: INC-fdac7d, operator file
-        # since 2026-09-06, reminder still fired 2026-09-08T09:41Z). The
-        # match/result themselves don't change what gets CONSUMED — that
-        # stays gated on route below, unchanged — only whether the 72h
-        # reminder (section 2) still has grounds to claim "нужно от вас".
+        # CREDENTIAL_EXPIRED) were never scanned for a human-done file at
+        # all, so an operator who dropped one anyway (matching the SAME
+        # "INC-{sid} in filename" convention every other route uses — LAW
+        # #ONE-PLACE, no second naming rule invented here) got completely
+        # ignored (measured live: INC-fdac7d, operator file since
+        # 2026-09-06).
         human_done_match = None
         human_done_result = None
         if os.path.isdir(ap.HUMAN_DONE_DIR):
@@ -498,17 +492,42 @@ def advance_waiting_human():
         # because THIS SPECIFIC incident got one as a documented one-off
         # exception (bridge_key_incident's "key already in .env but still
         # failing" fallback sets incidents.operator_file even for a
-        # HUMAN_KEY-routed incident — see that function). Checking the
-        # incident's own operator_file column, not just its macro route
-        # class, is what makes that fallback actually resolvable instead of
-        # a WAITING_HUMAN incident nothing ever watches again.
+        # HUMAN_KEY-routed incident — see that function), OR because a FILLED
+        # human-done file (human_done_result truthy — the marker line present
+        # AND non-empty, per parse_human_done()) already exists for this
+        # incident.
         #
-        # T-0108 (2026-09-08): this exact expression also decides what the
-        # 72h-reminder mute in section 2 below is allowed to CLAIM (a file
-        # sitting behind a real cap slot vs. a file section 1 will never
-        # touch at all) — computed once here so the two sections can't drift
-        # (LAW #ONE-PLACE: one rule, not a second copy of it).
-        can_auto_consume = route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file
+        # T-0216/zz03-16 (2026-09-22, supersedes T-0108's partial fix): the
+        # first version of this only ADDED the human-done scan above; it kept
+        # consumption gated on route/operator_file alone and left HUMAN_KEY
+        # muting the 72h reminder on evidence a DIFFERENT, unrelated
+        # condition (route class) would never let it act on — the reminder
+        # and the consumer diverged, and that gap is exactly what let
+        # INC-fdac7d sit WAITING_HUMAN for 7 days after T-0108 shipped: the
+        # reminder went quiet ("закрыть вручную: incident-cli.py
+        # resolve-request"), nobody ran the manual command, and nothing else
+        # ever came back to it. A human who filled in РЕЗУЛЬТАТ ОПЕРАТОРА and
+        # left the file under the exact naming convention every route
+        # already watches IS proof of operator intent, stronger than which
+        # bucket routing.json happened to sort this `kind` into — J3's
+        # "connected_db.py's email contour is the one place for keys" governs
+        # the outbound key-REQUEST letter (bridge_key_incident), not whether
+        # an already-written ANSWER ever gets read back. So route class is no
+        # longer the gate for HUMAN_KEY specifically: a filled file overrides
+        # it, same as the operator_file exception already does.
+        #
+        # This same expression also decides what the 72h-reminder mute in
+        # section 2 below is allowed to CLAIM — computed once here so the two
+        # sections can't drift (LAW #ONE-PLACE: one rule, not a second copy
+        # of it). With human_done_result folded in, section 1 below now
+        # ALWAYS `continue`s whenever human_done_result is truthy (consumed,
+        # or cap-blocked-retry-later — both branches end in `continue`),
+        # which makes section 2's old "mute but don't consume" branch for
+        # human_done_result structurally unreachable — removed below rather
+        # than left as dead code nothing exercises.
+        can_auto_consume = bool(
+            route in ap.OPERATOR_FILE_ROUTE_CLASSES or operator_file or human_done_result
+        )
         if can_auto_consume and not os.path.isdir(ap.HUMAN_DONE_DIR):
             # T-09 ruling-1: run() now mkdir -p's this at the top of every
             # tick, so this should be unreachable — but "unreachable" was
@@ -590,53 +609,18 @@ def advance_waiting_human():
         # 2. 72h reminder edge (F2: "напоминание раз в 72ч", C0.5: suppressed
         # reminder is a logged line, not silence).
         #
-        # T-0108 (2026-09-08): "Нужно от вас: …" is false the moment a
-        # human-done file with a filled РЕЗУЛЬТАТ ОПЕРАТОРА already exists for
-        # this incident. Muted here unconditionally either way (route class
-        # doesn't gate the MUTE — see human_done_match/human_done_result
-        # computed above) and logged under its own reason, so "quiet" stays
-        # visibly different from "broken" in notices.log. Does NOT touch the
-        # daily cap, does NOT archive the file, does NOT advance the
-        # incident's state — section 1 above remains the only place that
-        # consumes/archives/transitions (boundary: a file is the operator's
-        # answer, not proof of a fix).
-        #
-        # Fable ruling-1 (2026-09-08): the FIRST version of this mute claimed
-        # "инцидент ждёт свой daily fleet-task cap" unconditionally — false
-        # for a route section 1 will never pick up in the first place. It's
-        # actually stronger than "false for one route": section 1 above
-        # ALWAYS `continue`s whenever it sees human_done_result truthy AND
-        # can_auto_consume True (both its consume-succeeded and cap-blocked
-        # sub-branches end in `continue`) — so this point can only ever be
-        # reached with can_auto_consume False. The assert makes that
-        # invariant loud instead of leaving a second, unreachable "waiting on
-        # the cap" message here that nothing would ever exercise or catch if
-        # section 1's control flow ever changed.
-        if human_done_result:
-            assert not can_auto_consume, (
-                f"advance_waiting_human: {incident_id} reached section 2 with "
-                f"human_done_result truthy AND can_auto_consume True — section 1 above should "
-                f"have consumed/continued past this already; its control flow changed and this "
-                f"invariant is now stale"
-            )
-            # HUMAN_KEY whose bridge_key_incident() already ran once (idempotent
-            # guard, autopilot_common.py) never sets operator_file and is
-            # therefore permanently invisible to section 1's gate (`route in
-            # OPERATOR_FILE_ROUTE_CLASSES or operator_file`) — measured live:
-            # INC-fdac7d. There is no slot this file is queued for, so
-            # "waiting on the cap" would be a differently-shaped lie than
-            # "нужно от вас". Name the actual exit instead: resolve-request
-            # now accepts WAITING_HUMAN too (T-0108, incident-cli.py).
-            ap.notice_dedup(
-                incident_id, "ANSWER_ALREADY_IN_HUMAN_DONE",
-                f"молчу: {incident_id} ({provider}/{kind}) — ответ оператора уже лежит в "
-                f"{human_done_match}, 72h-напоминание подавлено, но маршрут {route} не входит "
-                f"в OPERATOR_FILE_ROUTE_CLASSES и operator_file для этого инцидента пуст — файл "
-                f"НИКОГДА не будет подхвачен секцией 1 (это не про cap, слота для него нет). "
-                f"Закрыть вручную: incident-cli.py resolve-request --id {incident_id} "
-                f"--actor operator --result \"...\"",
-            )
-            continue
+        # T-0216/zz03-16 (2026-09-22): there used to be a branch here that
+        # muted the reminder for a FILLED human-done file without consuming
+        # it (T-0108, 2026-09-08) -- the two conditions ("is the reminder
+        # allowed to stay quiet" and "does section 1 actually pick this file
+        # up") were computed from different inputs and could drift; that
+        # drift is exactly how INC-fdac7d stayed WAITING_HUMAN for 7 days
+        # after T-0108 shipped ("quiet" was true, "consumed" never became
+        # true). Now that can_auto_consume itself folds in human_done_result
+        # (see section 1 above), that branch is structurally unreachable:
+        # section 1 always `continue`s past this point whenever
+        # human_done_result is truthy. Removed rather than left as dead code
+        # nothing would ever exercise (LAW #ONE-PLACE).
         try:
             attempts = json.loads(attempts_raw)
         except Exception:
@@ -2001,19 +1985,23 @@ def selftest_db():
         print("world 11c (human-done file present but unfilled/corrupted marker -> incident stays "
               "WAITING_HUMAN, logged as a refusal not silence): OK")
 
-        # World 20 (T-0108, 2026-09-08): the 72h "Нужно от вас" reminder must
-        # NOT fire for a HUMAN_KEY-routed incident (AUTH_FAILED/
-        # CREDENTIAL_EXPIRED) once an operator has dropped a matching
-        # human-done/INC-{sid}*.md file, even though HUMAN_KEY is NOT in
-        # OPERATOR_FILE_ROUTE_CLASSES and never gets the file CONSUMED here
-        # (J3's law: connected_db.py's email contour is the one place for
-        # keys, not a fleet-task follow-up). Reproduces INC-fdac7d live
-        # (marketcheck/AUTH_FAILED, operator file since 2026-09-06, reminder
-        # still fired 2026-09-08T09:41Z with the file sitting right there).
+        # World 20 (T-0108, 2026-09-08 -- superseded by T-0216/zz03-16,
+        # 2026-09-22): T-0108's own fix only made the 72h reminder HONEST
+        # about a HUMAN_KEY incident's filled human-done file (mute + "close
+        # manually via resolve-request" notice) -- it never actually
+        # consumed the file, so nothing ever came back for it once the
+        # reminder itself fell quiet. That gap is why INC-fdac7d sat
+        # WAITING_HUMAN for 7 days after T-0108 shipped. can_auto_consume now
+        # folds in human_done_result (see advance_waiting_human() section 1),
+        # so a filled human-done file for a HUMAN_KEY incident is consumed
+        # exactly like world 11's HUMAN_GENERIC case -- route class no
+        # longer blocks it once the operator has actually answered.
+        # Mutation control: reverting can_auto_consume to drop the
+        # `or human_done_result` term makes the REMEDIATION_QUEUED assertion
+        # below fail (state stays WAITING_HUMAN, reproducing INC-fdac7d).
         # Control (world 20b): an identical HUMAN_KEY incident with NO file
-        # must still get its reminder -- the fix must mute on evidence the
-        # operator answered, not on route class alone, or this would have
-        # just turned off HUMAN_KEY reminders entirely.
+        # must still get its reminder and NOT auto-advance -- the fix reacts
+        # to evidence of an answer, not to route class alone.
         if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
             os.remove(ap.DAILY_TASK_COUNTER_FILE)
         sent20 = []
@@ -2052,44 +2040,39 @@ def selftest_db():
             new_notices20 = notices_after20[len(notices_before20):]
 
             inc20b = ap.get_incident(id20)
-            assert inc20b["state"] == "WAITING_HUMAN", (
-                f"world 20: a human-done file for a HUMAN_KEY incident must NOT be consumed/advanced "
-                f"here (that stays connected_db.py's job) -- got {inc20b['state']}"
+            assert inc20b["state"] == "REMEDIATION_QUEUED", (
+                f"world 20: a filled human-done file for a HUMAN_KEY incident must now be "
+                f"AUTO-CONSUMED (same as HUMAN_GENERIC/world 11), route class alone must not "
+                f"block it -- got {inc20b['state']} (this is INC-fdac7d's actual bug: staying "
+                f"WAITING_HUMAN here means the fix regressed)"
+            )
+            assert inc20b["fleet_task_id"], "world 20: expected a follow-up fleet_task_id"
+            followup_path20 = os.path.join(ap.TASKLOOP_QUEUE_DIR, inc20b["fleet_task_id"])
+            assert os.path.isfile(followup_path20), f"world 20: follow-up task file missing: {followup_path20}"
+            followup_body20 = open(followup_path20, encoding="utf-8").read()
+            assert "ключ перевыпущен" in followup_body20, (
+                "world 20: follow-up task must quote the operator's actual answer as data"
+            )
+            assert any(a["action"] == "human-done" for a in inc20b["attempts"]), inc20b["attempts"]
+            assert not os.path.exists(human_done_path_20), (
+                "world 20: a consumed HUMAN_KEY human-done file must be archived out of the watch "
+                "directory, exactly like world 11's HUMAN_GENERIC path"
             )
             assert not any(a["action"] == "waiting-human-reminder" for a in inc20b["attempts"]), (
-                f"world 20: reminder must be MUTED once the answer file exists, got {inc20b['attempts']}"
-            )
-            assert os.path.isfile(human_done_path_20), (
-                "world 20: the human-done file must NOT be archived by the mute path -- it isn't "
-                "consumed, only referenced"
+                f"world 20: no reminder should ever have fired -- the incident left WAITING_HUMAN "
+                f"before any reminder edge could trigger, got {inc20b['attempts']}"
             )
             assert not any(ap.short_id(id20) in t and "напоминание" in t for t in sent20), (
                 f"world 20: the [напоминание] tg_send must NOT fire for INC-{sid20} once its "
                 f"answer file exists (the OPEN-time SEV2 page from open_or_merge_incident is a "
                 f"separate, legitimate send and is excluded from this check), sent={sent20}"
             )
-            assert (f"{id20}" in new_notices20 and "напоминание подавлено" in new_notices20), (
-                f"world 20: the mute must be a LOGGED line (C0.5), not silence -- got:\n{new_notices20}"
-            )
-            # Fable ruling-1 (2026-09-08): the mute's own text must be truthful
-            # about WHY it's quiet. HUMAN_KEY here never got the exception's
-            # operator_file (asserted above), so section 1 will never pick this
-            # file up -- claiming a "daily fleet-task cap" wait would be false;
-            # it must instead name the real (and, per world 20c below, actually
-            # working) exit.
-            id20_lines = "\n".join(
-                ln for ln in new_notices20.splitlines() if id20 in ln
-            )
-            assert "daily fleet-task cap" not in id20_lines, (
-                f"world 20: HUMAN_KEY-with-no-operator_file has no cap slot queued -- the mute "
-                f"must not claim one, got:\n{id20_lines}"
-            )
-            assert "resolve-request" in id20_lines and "--id" in id20_lines, (
-                f"world 20: the mute must name the real manual exit (incident-cli.py "
-                f"resolve-request), got:\n{id20_lines}"
-            )
 
             inc20c = ap.get_incident(id20b)
+            assert inc20c["state"] == "WAITING_HUMAN", (
+                f"world 20b (control): no answer file exists for this incident -- must NOT "
+                f"auto-advance, got {inc20c['state']}"
+            )
             assert any(a["action"] == "waiting-human-reminder" for a in inc20c["attempts"]), (
                 f"world 20b (control): a HUMAN_KEY incident with NO answer file must still get its "
                 f"72h reminder -- got {inc20c['attempts']}"
@@ -2098,14 +2081,14 @@ def selftest_db():
                 f"world 20b (control): the [напоминание] tg_send must fire for the file-less "
                 f"control incident, sent={sent20}"
             )
-            print("world 20 (72h reminder muted once a human-done answer file exists for a HUMAN_KEY "
-                  "incident, even though that route never consumes the file here; control incident "
-                  "with no file still gets paged, T-0108/INC-fdac7d): OK")
+            print("world 20 (filled human-done file now auto-consumed for a HUMAN_KEY incident, "
+                  "overriding route classification -- INC-fdac7d's actual bug, T-0216/zz03-16; "
+                  "control incident with no file still WAITING_HUMAN + paged): OK")
 
-            # World 20c (Fable ruling-1, point 2): the mute above names an
-            # exit -- prove it actually closes the incident, since "the
-            # normal path with a probe" (boundary 2) doesn't exist for
-            # HUMAN_KEY in WAITING_HUMAN until this. Exercises the real CLI
+            # World 20c: resolve-request's WAITING_HUMAN support (T-0108)
+            # remains the manual override for the genuinely file-less case --
+            # there is still no automated path for an incident nobody has
+            # answered at all (world 20b/id20b). Exercises the real CLI
             # entry point (same pattern as world 15), not a hand-rolled
             # equivalent.
             import argparse as _argparse20
@@ -2116,15 +2099,14 @@ def selftest_db():
             _cli20 = _ilu20.module_from_spec(_cli_spec20)
             _cli_spec20.loader.exec_module(_cli20)
 
-            inc20_pre = ap.get_incident(id20)
-            assert inc20_pre["fleet_task_id"] is None, (
-                "world 20c setup: id20 must have no fleet_task_id -- otherwise this exercises "
+            assert inc20c["fleet_task_id"] is None, (
+                "world 20c setup: id20b must have no fleet_task_id -- otherwise this exercises "
                 "the fleet-owned note-only branch (world 15), not the manual-close branch"
             )
             rc20c = _cli20.cmd_resolve_request(_argparse20.Namespace(
-                id=id20, actor="operator", result="ключ перевыпущен, human-done подтверждён"))
+                id=id20b, actor="operator", result="ключ перевыпущен вручную, без human-done файла"))
             assert rc20c == 0, f"world 20c: resolve-request should succeed on WAITING_HUMAN (exit {rc20c})"
-            inc20d = ap.get_incident(id20)
+            inc20d = ap.get_incident(id20b)
             assert inc20d["state"] == "VERIFYING", (
                 f"world 20c: resolve-request on a fleet_task_id-less WAITING_HUMAN incident must "
                 f"transition straight to VERIFYING (same manual path as OPEN), got {inc20d['state']}"
@@ -2135,25 +2117,25 @@ def selftest_db():
             # VERIFYING transition (boundary 2: a file is not proof of a fix) --
             # a probe from before it must not resolve anything.
             advance_verifying()
-            inc20e = ap.get_incident(id20)
+            inc20e = ap.get_incident(id20b)
             assert inc20e["state"] == "VERIFYING", (
                 f"world 20c: no fresh probe yet -- must still be VERIFYING, got {inc20e['state']}"
             )
             ap.psql(
                 "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
                 "probe_interval_s, last_probe_result, last_probe_at) VALUES "
-                "('keyprovreminder', 'HEALTHY', now(), now(), 300, 'OK', now()) "
+                "('keyprovreminderctrl', 'HEALTHY', now(), now(), 300, 'OK', now()) "
                 "ON CONFLICT (provider) DO UPDATE SET state = 'HEALTHY', last_probe_result = 'OK', "
                 "last_probe_at = now()"
             )
             advance_verifying()
-            inc20f = ap.get_incident(id20)
+            inc20f = ap.get_incident(id20b)
             assert inc20f["state"] == "RESOLVED", (
                 f"world 20c: a fresh healthy probe after resolve-request's VERIFYING must close "
-                f"INC-fdac7d's real-world equivalent, got {inc20f['state']}"
+                f"the file-less manual case, got {inc20f['state']}"
             )
-            print("world 20c (resolve-request now closes a HUMAN_KEY WAITING_HUMAN incident the "
-                  "mute names as its exit -- INC-fdac7d's actual closing path, T-0108): OK")
+            print("world 20c (resolve-request still closes a file-less HUMAN_KEY WAITING_HUMAN "
+                  "incident by hand, T-0108, unaffected by the auto-consume fix): OK")
         finally:
             ap.tg_send = _orig_tg_send20
 
