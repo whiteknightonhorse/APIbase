@@ -299,7 +299,11 @@ try:
 except FileNotFoundError: pass
 PY
 
-  DESC="One MCP + REST endpoint to ${TOOLS} tools from ${PROV} providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo)."
+  # GH-1 (docs/03-SPECIFICATION.md §16, ZZ-03-13): GitHub About is a THIRD-PARTY-cached
+  # page like npm/Official Registry (see D-2 above) -- POS-1's no-numbers variant, not the
+  # numbered README/llms.txt sentence, so a stale count here can never happen again the
+  # same way SERVER_INFO's did (M-2). Do not swap this back to the ${TOOLS}/${PROV} form.
+  DESC="One MCP + REST endpoint to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt). No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo)."
   gh repo edit whiteknightonhorse/APIbase --description "$DESC" >/dev/null 2>&1 && echo "  updated GitHub About" || echo "  (GitHub About skipped)"
 fi
 

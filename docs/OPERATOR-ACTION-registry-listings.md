@@ -112,6 +112,23 @@ expected, not a bug to chase.
    and sends. Do not have the fleet send outreach email directly (see
    `reference_outreach_gmail.md`: draft-only, operator sends).
 
+## R7 — mcp.so / G2 AI Marketplace (P2, not gated on R4-R6)
+
+Two more listings with stale, account-bound descriptions, lower priority than R4-R6
+(`03-SPECIFICATION.md` §10 D-2, "R7 mcp.so/G2 — P2") — do these only after R4-R6, and
+only when picked up as their own dispatched task; nothing here is queued yet.
+
+- **mcp.so** (`mcp.so/servers/APIbase`) — listed, HTTP 200, meta description reads
+  "1108 tools, 307 providers" against the live count. No submission/edit flow has been
+  confirmed yet (02-RESEARCH.md §2.12/§2.16.1 marks the correction path UNKNOWN, not
+  established) — first step for whoever picks this up is finding out whether mcp.so
+  even offers a self-serve edit, before drafting anything.
+- **G2 AI Marketplace** (`ai.g2.com/marketplace/tools/apibase`) — listed with
+  "Unified MCP gateway for 1100+ pay-per-call tools" against the live count. G2 listings
+  are normally managed through a G2 seller/vendor account; confirm which APIbase account
+  (if any) already owns this listing before attempting a correction — do not create a
+  new one if one already exists, that would split the listing in two.
+
 ## R3 — Glama Unhealthy diagnosis (tracked, not this document's action)
 
 `glama_health` in `docs/external-drift.json` tracks the escalation clock for Glama's
