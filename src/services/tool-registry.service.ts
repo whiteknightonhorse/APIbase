@@ -4,6 +4,7 @@ import { zodToJsonSchema } from '../utils/zod-to-json-schema';
 import { getPrisma } from './prisma.service';
 import { ensureRedisConnected } from './redis.service';
 import { buildToolQuality, type ToolQualityResult } from './tool-quality.service';
+import { getAlternativesForTool, type AlternativeTool } from './alternatives.service';
 
 /**
  * Tool registry service (§6.15, §12.114, §12.39).
@@ -120,6 +121,16 @@ export interface ToolCatalogEntry {
   status: string;
   /** ZZ-03-03: live provider- and tool-level quality. Additive — never breaks a pre-existing consumer. */
   quality: ToolQuality;
+  /**
+   * T-0207 (ZZ-03-07): healthy, same-capability, same-scope tools the agent could call instead
+   * — advisory only, nothing here changes what THIS entry costs or how it's served. Only ever
+   * populated on the single-tool GET (getToolById) — the spec names `GET /api/v1/tools/<id>`
+   * specifically, and computing it for every row of the 1000+-tool catalog/discovery pages
+   * would be a per-row DB-cache join for a field ~96% of tools return empty for anyway.
+   * Undefined (not `[]`) on catalog/discovery list entries — distinguishes "not computed here"
+   * from "computed, no alternatives found".
+   */
+  alternatives?: AlternativeTool[];
 }
 
 export interface PublicCatalog {
@@ -366,5 +377,6 @@ export async function getToolById(toolId: string): Promise<ToolCatalogEntry | nu
   const tool = await db.tool.findUnique({ where: { tool_id: toolId } });
   if (!tool) return null;
   const [entry] = await toEntries([tool]);
+  entry.alternatives = await getAlternativesForTool(toolId);
   return entry;
 }

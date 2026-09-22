@@ -6,6 +6,13 @@ import { recordProbeResult, type ProbeResult } from '../../jobs/provider-health.
 import { getPrisma } from '../../services/prisma.service';
 import { getSharedRedis } from '../../services/redis.service';
 import { PASSIVE_CALL_FAILURE_DEBOUNCE_S } from '../../config/autopilot';
+import { getAlternativesForTool, getCapabilityForTool } from '../../services/alternatives.service';
+import { apibaseCallLostWithAlternativeTotal } from '../../services/metrics.service';
+
+/** 503/502/504 — the three codes R-2's alternatives[] contract names explicitly (03-SPECIFICATION.md).
+ *  429/422/etc. are OUR routing/schema signals, not "the upstream is down", so they get no
+ *  alternatives — same exclusion logic T-09b's doc above already draws for the health signal. */
+const ALTERNATIVES_ELIGIBLE_CODES = new Set([502, 503, 504]);
 
 /**
  * PROVIDER_CALL stage (§12.43 stage 9).
@@ -115,14 +122,29 @@ export const providerCallStage: Stage = {
       // never an unhandled crash.
       await recordProviderCallFailure(providerError, toolId);
 
+      const code = typeof providerError.httpStatus === 'number' ? providerError.httpStatus : 502;
+
+      // T-0207 (ZZ-03-07): same advisory-alternatives contract as TOOL_STATUS's 503 above,
+      // for the other two codes a real provider failure can surface as (502 bad_gateway, 504
+      // provider_timeout — see src/adapters/base.adapter.ts's httpStatus mapping).
+      let alternatives: Awaited<ReturnType<typeof getAlternativesForTool>> = [];
+      if (ALTERNATIVES_ELIGIBLE_CODES.has(code)) {
+        alternatives = await getAlternativesForTool(toolId);
+        const capability = getCapabilityForTool(toolId);
+        if (capability && alternatives.length > 0) {
+          apibaseCallLostWithAlternativeTotal.inc({ capability, tool_id: toolId });
+        }
+      }
+
       return err({
-        code: typeof providerError.httpStatus === 'number' ? providerError.httpStatus : 502,
+        code,
         error: typeof providerError.code === 'string' ? providerError.code : 'bad_gateway',
         message:
           typeof providerError.message === 'string'
             ? providerError.message
             : 'Provider call failed',
         retryAfter: providerError.retryAfter,
+        ...(alternatives.length > 0 ? { extra: { alternatives } } : {}),
       });
     }
   },

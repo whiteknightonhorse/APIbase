@@ -7,12 +7,16 @@ tools:
   - tool_id: weather.get_current
     name: Current Weather
     provider: openweathermap
+    capability: weather.current
+    scope: global
     price_usd: "0.002"
     cache_ttl: 300
 
   - tool_id: weather.get_forecast
     name: Weather Forecast
     provider: openweathermap
+    capability: weather.forecast
+    scope: global
     price_usd: "0.003"
     cache_ttl: 600
 
@@ -31,6 +35,8 @@ tools:
   - tool_id: weather.air_quality
     name: Air Quality
     provider: openweathermap
+    capability: air_quality
+    scope: global
     price_usd: "0.002"
     cache_ttl: 300
 
@@ -510,6 +516,8 @@ tools:
   - tool_id: finance.exchange_rates
     name: Currency Exchange Rates
     provider: finance
+    capability: fx.latest
+    scope: global
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 86400
@@ -517,6 +525,9 @@ tools:
   - tool_id: finance.ecb_rates
     name: ECB Official Rates
     provider: finance
+    capability: fx.latest
+    scope: global
+    same_upstream_as: [frankfurter.latest, frankfurter.historical]
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 86400
@@ -662,6 +673,8 @@ tools:
   - tool_id: jobs.job_search
     name: Job Listings Search (CareerJet)
     provider: jobs
+    capability: jobs.search
+    scope: global
     price_usd: "0.003"
     cache_ttl: 14400
 
@@ -711,6 +724,8 @@ tools:
   - tool_id: education.doi_lookup
     name: DOI Lookup (CrossRef)
     provider: education
+    capability: research.doi_lookup
+    scope: global
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 2592000
@@ -719,12 +734,16 @@ tools:
   - tool_id: geo.geocode
     name: Geocode Address (Geoapify)
     provider: geo
+    capability: geo.geocode_forward
+    scope: global
     price_usd: "0.002"
     cache_ttl: 2592000
 
   - tool_id: geo.reverse_geocode
     name: Reverse Geocode (Geoapify)
     provider: geo
+    capability: geo.geocode_reverse
+    scope: global
     price_usd: "0.002"
     cache_ttl: 2592000
 
@@ -755,6 +774,8 @@ tools:
   - tool_id: geo.ip_geolocation
     name: IP Geolocation (Geoapify)
     provider: geo
+    capability: geo.ip_lookup
+    scope: global
     price_usd: "0.002"
     cache_ttl: 604800
 
@@ -1066,12 +1087,16 @@ tools:
   - tool_id: ip.lookup
     name: IP Address Lookup
     provider: ipapi
+    capability: geo.ip_lookup
+    scope: global
     price_usd: "0.002"
     cache_ttl: 3600
 
   - tool_id: ip.bulk_lookup
     name: Bulk IP Lookup
     provider: ipapi
+    capability: geo.ip_lookup
+    scope: global
     price_usd: "0.005"
     cache_ttl: 3600
 
@@ -1079,6 +1104,8 @@ tools:
   - tool_id: earthquake.search
     name: Earthquake Search
     provider: usgs-earthquake
+    capability: geo.earthquakes
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 60
@@ -1086,6 +1113,8 @@ tools:
   - tool_id: earthquake.feed
     name: Earthquake Real-Time Feed
     provider: usgs-earthquake
+    capability: geo.earthquakes
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 60
@@ -1093,6 +1122,8 @@ tools:
   - tool_id: earthquake.count
     name: Earthquake Count
     provider: usgs-earthquake
+    capability: geo.earthquakes
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 60
@@ -1186,6 +1217,8 @@ tools:
   - tool_id: exchangerate.latest
     name: Latest Exchange Rates
     provider: exchangerate
+    capability: fx.latest
+    scope: global
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -1199,6 +1232,8 @@ tools:
   - tool_id: calendarific.holidays
     name: World Holidays
     provider: calendarific
+    capability: holidays.public
+    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
@@ -1221,6 +1256,8 @@ tools:
   - tool_id: holidays.by_country
     name: Public Holidays by Country
     provider: nagerdate
+    capability: holidays.public
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 86400
@@ -1228,6 +1265,8 @@ tools:
   - tool_id: holidays.next
     name: Next Public Holidays
     provider: nagerdate
+    capability: holidays.public
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -1356,6 +1395,8 @@ tools:
   - tool_id: screenshot.capture
     name: Website Screenshot
     provider: apiflash
+    capability: web.screenshot
+    scope: global
     price_usd: "0.005"
     cache_ttl: 86400
 
@@ -1643,6 +1684,8 @@ tools:
   - tool_id: brasilapi.holidays
     name: Brazilian Holidays
     provider: brasilapi
+    capability: holidays.public
+    scope: regional:BR
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 86400
@@ -1707,12 +1750,16 @@ tools:
   - tool_id: bcb.usd_brl
     name: USD/BRL Daily FX (BCB)
     provider: bcb
+    capability: fx.latest
+    scope: regional:BR
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: bcb.eur_brl
     name: EUR/BRL Daily FX (BCB)
     provider: bcb
+    capability: fx.latest
+    scope: regional:BR
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -1753,12 +1800,16 @@ tools:
   - tool_id: sg.weather_forecast
     name: SG 2-Hour Weather Forecast
     provider: datagovsg
+    capability: weather.forecast
+    scope: regional:SG
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: sg.air_quality
     name: SG PM2.5 Air Quality
     provider: datagovsg
+    capability: air_quality
+    scope: regional:SG
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 300
@@ -1780,21 +1831,29 @@ tools:
   - tool_id: airnow.current_zip
     name: Current AQI by ZIP (AirNow)
     provider: airnow
+    capability: air_quality
+    scope: regional:US
     price_usd: "0.001"
     cache_ttl: 600
   - tool_id: airnow.current_latlng
     name: Current AQI by Coordinate (AirNow)
     provider: airnow
+    capability: air_quality
+    scope: regional:US
     price_usd: "0.001"
     cache_ttl: 600
   - tool_id: airnow.forecast_zip
     name: AQI Forecast by ZIP (AirNow)
     provider: airnow
+    capability: air_quality
+    scope: regional:US
     price_usd: "0.002"
     cache_ttl: 3600
   - tool_id: airnow.forecast_latlng
     name: AQI Forecast by Coordinate (AirNow)
     provider: airnow
+    capability: air_quality
+    scope: regional:US
     price_usd: "0.002"
     cache_ttl: 3600
 
@@ -2023,6 +2082,8 @@ tools:
   - tool_id: exa.search
     name: Semantic Web Search
     provider: exa
+    capability: search.web
+    scope: global
     price_usd: "0.012"
     cache_ttl: 300
 
@@ -2042,6 +2103,8 @@ tools:
   - tool_id: tavily.search
     name: AI Web Search
     provider: tavily
+    capability: search.web
+    scope: global
     price_usd: "0.010"
     cache_ttl: 300
 
@@ -2055,6 +2118,8 @@ tools:
   - tool_id: serper.web_search
     name: Google Web Search
     provider: serper
+    capability: search.web
+    scope: global
     price_usd: "0.002"
     cache_ttl: 300
 
@@ -2106,11 +2171,15 @@ tools:
   - tool_id: airquality.city
     name: Air Quality by City
     provider: iqair
+    capability: air_quality
+    scope: global
     price_usd: "0.002"
     cache_ttl: 300
   - tool_id: airquality.nearest
     name: Air Quality by Coordinates
     provider: iqair
+    capability: air_quality
+    scope: global
     price_usd: "0.002"
     cache_ttl: 300
 
@@ -2298,6 +2367,8 @@ tools:
   - tool_id: vatcomply.currencies
     name: ECB Exchange Rates
     provider: vatcomply
+    capability: fx.latest
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -2453,6 +2524,8 @@ tools:
   - tool_id: convert.web_to_pdf
     name: Web to PDF (ConvertAPI)
     provider: convertapi
+    capability: document.pdf_generate
+    scope: global
     price_usd: "0.005"
     cache_ttl: 0
 
@@ -2471,6 +2544,8 @@ tools:
   - tool_id: pdf.from_html
     name: HTML to PDF
     provider: api2pdf
+    capability: document.pdf_generate
+    scope: global
     price_usd: "0.005"
     upstream_cost_status: NOT_MEASURED
     upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
@@ -2479,6 +2554,8 @@ tools:
   - tool_id: pdf.from_url
     name: URL to PDF
     provider: api2pdf
+    capability: document.pdf_generate
+    scope: global
     price_usd: "0.005"
     upstream_cost_status: NOT_MEASURED
     upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; one reference call 2026-09-05 measured cost=$0.00058256 (example.com); needs 30d real traffic for p80"
@@ -2523,11 +2600,15 @@ tools:
   - tool_id: geocodio.geocode
     name: Geocode US/Canada Address
     provider: geocodio
+    capability: geo.geocode_forward
+    scope: regional:US_CA
     price_usd: "0.002"
     cache_ttl: 86400
   - tool_id: geocodio.reverse
     name: Reverse Geocode (US/Canada)
     provider: geocodio
+    capability: geo.geocode_reverse
+    scope: regional:US_CA
     price_usd: "0.002"
     cache_ttl: 86400
 
@@ -2814,6 +2895,8 @@ tools:
   - tool_id: adzuna.search
     name: Search Jobs
     provider: adzuna
+    capability: jobs.search
+    scope: regional:multi
     price_usd: "0.001"
     cache_ttl: 3600
   - tool_id: adzuna.categories
@@ -2848,6 +2931,8 @@ tools:
   - tool_id: postal.lookup
     name: Global Postal Code Lookup
     provider: zippopotamus
+    capability: geo.postal_lookup
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 86400
@@ -2863,6 +2948,8 @@ tools:
   - tool_id: ukpost.lookup
     name: UK Postcode Lookup
     provider: postcodes-io
+    capability: geo.postal_lookup
+    scope: regional:GB
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 86400
@@ -2903,11 +2990,15 @@ tools:
   - tool_id: weatherapi.current
     name: Current Weather
     provider: weatherapi
+    capability: weather.current
+    scope: global
     price_usd: "0.001"
     cache_ttl: 300
   - tool_id: weatherapi.forecast
     name: Weather Forecast
     provider: weatherapi
+    capability: weather.forecast
+    scope: global
     price_usd: "0.001"
     cache_ttl: 1800
   - tool_id: weatherapi.astronomy
@@ -2969,6 +3060,8 @@ tools:
   - tool_id: scrape.screenshot
     name: Web Page Screenshot
     provider: zyte
+    capability: web.screenshot
+    scope: global
     price_usd: "0.024"
     # Zyte publishes no distinct screenshot rate -- it bills as Browser rendered
     # (same render path as scrape.browser) plus an undocumented "additional costs
@@ -3242,6 +3335,8 @@ tools:
   - tool_id: spider.search
     name: Web Search + Scrape
     provider: spider
+    capability: search.web
+    scope: global
     price_usd: "0.005"
     cache_ttl: 1800
 
@@ -3271,6 +3366,8 @@ tools:
   - tool_id: remotive.search
     name: Search Remote Jobs
     provider: remotive
+    capability: jobs.search
+    scope: global
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -3279,6 +3376,8 @@ tools:
   - tool_id: reed.search
     name: Search UK Jobs
     provider: reed
+    capability: jobs.search
+    scope: regional:GB
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -3293,6 +3392,8 @@ tools:
   - tool_id: arbeitnow.jobs
     name: Browse EU Job Listings
     provider: arbeitnow
+    capability: jobs.search
+    scope: regional:EU
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -3301,6 +3402,8 @@ tools:
   - tool_id: jooble.search
     name: Search Jobs Worldwide
     provider: jooble
+    capability: jobs.search
+    scope: global
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -3308,6 +3411,8 @@ tools:
   - tool_id: theirstack.jobs
     name: Search Job Postings
     provider: theirstack
+    capability: jobs.search
+    scope: global
     price_usd: "0.002"
     cache_ttl: 3600
   - tool_id: theirstack.companies
@@ -3356,6 +3461,8 @@ tools:
   - tool_id: noaa.forecast
     name: NOAA 7-Day Forecast
     provider: noaa
+    capability: weather.forecast
+    scope: regional:US
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -3368,6 +3475,8 @@ tools:
   - tool_id: noaa.observation
     name: NOAA Latest Observation
     provider: noaa
+    capability: weather.current
+    scope: regional:US
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 300
@@ -4049,6 +4158,8 @@ tools:
   - tool_id: usajobs.search
     name: USAJOBS Federal Job Search
     provider: usajobs
+    capability: jobs.search
+    scope: regional:US
     price_usd: "0.002"
     cache_ttl: 1800
   - tool_id: usajobs.position_detail
@@ -4242,6 +4353,8 @@ tools:
   - tool_id: datacite.doi.lookup
     name: DataCite DOI Lookup
     provider: datacite
+    capability: research.doi_lookup
+    scope: global
     price_usd: "0.001"
     cache_ttl: 86400
   - tool_id: datacite.works.stats
@@ -4903,6 +5016,8 @@ tools:
   - tool_id: bankofcanada.fx_rates
     name: Bank of Canada CAD FX Rates
     provider: bankofcanada
+    capability: fx.latest
+    scope: regional:CA
     price_usd: "0.001"
     cache_ttl: 300
 
@@ -5153,6 +5268,8 @@ tools:
   - tool_id: geonames.postal.lookup
     name: GeoNames Postal Code Lookup
     provider: geonames
+    capability: geo.postal_lookup
+    scope: global
     price_usd: "0.001"
     cache_ttl: 86400
 
@@ -5197,18 +5314,24 @@ tools:
   - tool_id: opentopodata.point
     name: Open Topo Data — Single Point Elevation
     provider: opentopodata
+    capability: geo.elevation
+    scope: global
     price_usd: "0.001"
     cache_ttl: 86400
 
   - tool_id: opentopodata.batch
     name: Open Topo Data — Batch Elevation Query
     provider: opentopodata
+    capability: geo.elevation
+    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
   - tool_id: opentopodata.high_res
     name: Open Topo Data — High-Resolution Regional Elevation
     provider: opentopodata
+    capability: geo.elevation
+    scope: global
     price_usd: "0.001"
     cache_ttl: 86400
 
@@ -5222,6 +5345,8 @@ tools:
   - tool_id: metno.forecast
     name: MET Norway — 9-Day Hourly Weather Forecast
     provider: met-norway
+    capability: weather.forecast
+    scope: global
     price_usd: "0.002"
     cache_ttl: 1800
 
@@ -5247,6 +5372,8 @@ tools:
   - tool_id: frankfurter.latest
     name: Frankfurter — Latest ECB Exchange Rates
     provider: frankfurter
+    capability: fx.latest
+    scope: global
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -5502,6 +5629,8 @@ tools:
   - tool_id: norgesbank.fx.latest
     name: Norges Bank FX Rates (Latest)
     provider: norgesbank
+    capability: fx.latest
+    scope: regional:NO
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -5824,12 +5953,16 @@ tools:
   - tool_id: opentopo.elevation_point
     name: OpenTopography Point Elevation
     provider: opentopography
+    capability: geo.elevation
+    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
   - tool_id: opentopo.elevation_area
     name: OpenTopography Area Elevation Stats
     provider: opentopography
+    capability: geo.elevation
+    scope: global
     price_usd: "0.003"
     cache_ttl: 86400
 
@@ -5936,6 +6069,8 @@ tools:
   - tool_id: swissnbm.fx_rates
     name: SNB CHF FX Rates
     provider: swissnbm
+    capability: fx.latest
+    scope: regional:CH
     price_usd: "0.002"
     cache_ttl: 3600
 
@@ -6011,12 +6146,16 @@ tools:
   - tool_id: banxico.fx.fix_rate
     name: Banxico USD/MXN FIX Rate
     provider: banxico
+    capability: fx.latest
+    scope: regional:MX
     price_usd: "0.001"
     cache_ttl: 300
 
   - tool_id: banxico.fx.rates
     name: Banxico Multi-Currency MXN Rates
     provider: banxico
+    capability: fx.latest
+    scope: regional:MX
     price_usd: "0.001"
     cache_ttl: 300
 
@@ -6085,6 +6224,8 @@ tools:
   - tool_id: africa.markets.fx_rates
     name: Africa API — African FX Rates
     provider: africa
+    capability: fx.latest
+    scope: regional:Africa
     price_usd: "0.002"
     cache_ttl: 3600
 
@@ -6314,18 +6455,24 @@ tools:
   - tool_id: openmeteoaq.current
     name: Open-Meteo — Current Air Quality
     provider: openmeteoaq
+    capability: air_quality
+    scope: global
     price_usd: "0.001"
     cache_ttl: 1800
 
   - tool_id: openmeteoaq.forecast
     name: Open-Meteo — Air Quality Forecast
     provider: openmeteoaq
+    capability: air_quality
+    scope: global
     price_usd: "0.002"
     cache_ttl: 1800
 
   - tool_id: openmeteoaq.historical
     name: Open-Meteo — Historical Air Quality
     provider: openmeteoaq
+    capability: air_quality
+    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
@@ -6701,12 +6848,16 @@ tools:
   - tool_id: brightsky.current
     name: Bright Sky — Current Weather in Germany
     provider: brightsky
+    capability: weather.current
+    scope: regional:DE
     price_usd: "0.001"
     cache_ttl: 300
 
   - tool_id: brightsky.observations
     name: Bright Sky — Hourly Weather Observations / Forecast for Germany
     provider: brightsky
+    capability: weather.forecast
+    scope: regional:DE
     price_usd: "0.002"
     cache_ttl: 1800
 
@@ -6776,6 +6927,8 @@ tools:
   - tool_id: smhi.forecast
     name: SMHI — Point Weather Forecast
     provider: smhi
+    capability: weather.forecast
+    scope: regional:SE
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -7226,6 +7379,8 @@ tools:
   - tool_id: postcode-japan.lookup
     name: Japan Postcode Lookup
     provider: postcode-japan
+    capability: geo.postal_lookup
+    scope: regional:JP
     price_usd: "0.001"
     cache_ttl: 86400
 
@@ -7245,6 +7400,8 @@ tools:
   - tool_id: p2pquake.recent_quakes
     name: Japan Recent Earthquakes
     provider: p2pquake
+    capability: geo.earthquakes
+    scope: regional:JP
     price_usd: "0.001"
     cache_ttl: 60
 
@@ -7257,6 +7414,8 @@ tools:
   - tool_id: p2pquake.quake_history
     name: Japan Earthquake History
     provider: p2pquake
+    capability: geo.earthquakes
+    scope: regional:JP
     price_usd: "0.001"
     cache_ttl: 300
 
@@ -7264,6 +7423,8 @@ tools:
   - tool_id: jma-bosai.forecast
     name: JMA Weather Forecast
     provider: jma-bosai
+    capability: weather.forecast
+    scope: regional:JP
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -7282,6 +7443,8 @@ tools:
   - tool_id: jma-bosai.earthquakes
     name: JMA Recent Earthquakes
     provider: jma-bosai
+    capability: geo.earthquakes
+    scope: regional:JP
     price_usd: "0.001"
     cache_ttl: 60
 
@@ -7457,12 +7620,16 @@ tools:
   - tool_id: indec-georef.geocode
     name: Geocode Argentine Address
     provider: indec-georef
+    capability: geo.geocode_forward
+    scope: regional:AR
     price_usd: "0.001"
     cache_ttl: 86400
 
   - tool_id: indec-georef.reverse_geocode
     name: Reverse Geocode Argentine Coordinates
     provider: indec-georef
+    capability: geo.geocode_reverse
+    scope: regional:AR
     price_usd: "0.001"
     cache_ttl: 86400
 
@@ -7625,6 +7792,8 @@ tools:
   - tool_id: usgs-epqs.elevation
     name: USGS Elevation Point Query
     provider: usgs-epqs
+    capability: geo.elevation
+    scope: regional:US
     price_usd: "0.001"
     cache_ttl: 604800
 
@@ -7649,12 +7818,16 @@ tools:
   - tool_id: emsc.search_earthquakes
     name: Search EMSC Real-Time Earthquakes
     provider: emsc
+    capability: geo.earthquakes
+    scope: global
     price_usd: "0.002"
     cache_ttl: 60
 
   - tool_id: emsc.event_detail
     name: Get EMSC Earthquake Event Detail
     provider: emsc
+    capability: geo.earthquakes
+    scope: global
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -7753,12 +7926,16 @@ tools:
   - tool_id: gebco.elevation_point
     name: Get GEBCO Point Elevation
     provider: gebco
+    capability: geo.elevation
+    scope: global
     price_usd: "0.001"
     cache_ttl: 2592000
 
   - tool_id: gebco.elevation_profile
     name: Get GEBCO Elevation Profile
     provider: gebco
+    capability: geo.elevation
+    scope: global
     price_usd: "0.002"
     cache_ttl: 2592000
 
@@ -8375,6 +8552,8 @@ tools:
   - tool_id: bgs-ogcapi.earthquake_search
     name: BGS UK Earthquake Search
     provider: bgs-ogcapi
+    capability: geo.earthquakes
+    scope: regional:GB
     price_usd: "0.002"
     cache_ttl: 3600
 
@@ -8538,6 +8717,8 @@ tools:
   - tool_id: msc-geomet.aqhi_observations
     name: Canadian Air Quality Health Index Observations
     provider: msc-geomet
+    capability: air_quality
+    scope: regional:CA
     price_usd: "0.001"
     cache_ttl: 3600
 
@@ -8766,6 +8947,8 @@ tools:
   - tool_id: wmo-weather.forecast
     name: WMO Official City Forecast
     provider: wmo-weather
+    capability: weather.forecast
+    scope: global
     price_usd: "0.002"
     cache_ttl: 3600
 
@@ -8810,6 +8993,8 @@ tools:
   - tool_id: openalex.get_work
     name: OpenAlex Work Detail
     provider: openalex
+    capability: research.doi_lookup
+    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
@@ -8829,6 +9014,8 @@ tools:
   - tool_id: semanticscholar.get_paper
     name: Semantic Scholar Paper Detail
     provider: semanticscholar
+    capability: research.doi_lookup
+    scope: global
     price_usd: "0.002"
     cache_ttl: 86400
 
@@ -9041,6 +9228,8 @@ tools:
   - tool_id: nominatim-osm.search
     name: Geocode Address Or Place (Nominatim)
     provider: nominatim-osm
+    capability: geo.geocode_forward
+    scope: global
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 3600
@@ -9048,6 +9237,8 @@ tools:
   - tool_id: nominatim-osm.reverse
     name: Reverse Geocode Coordinates (Nominatim)
     provider: nominatim-osm
+    capability: geo.geocode_reverse
+    scope: global
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 3600

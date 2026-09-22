@@ -2,6 +2,11 @@ import { type Stage, ok, err, type PipelineError } from '../types';
 import { getPrisma } from '../../services/prisma.service';
 import { logger } from '../../config/logger';
 import marginConfig from '../../config/margin.json';
+import { getAlternativesForTool, getCapabilityForTool } from '../../services/alternatives.service';
+import {
+  apibaseCallAttemptedTotal,
+  apibaseCallLostWithAlternativeTotal,
+} from '../../services/metrics.service';
 
 /**
  * TOOL_STATUS stage (§12.43 stage 5, §12.114).
@@ -238,12 +243,25 @@ export const toolStatusStage: Stage = {
       });
     }
 
+    // T-0207 (ZZ-03-07, R2.4): "attempted" counts every call that reached a real tool_id in a
+    // declared capability group, regardless of what happens next — this is the denominator
+    // R-3's fallback-demand threshold divides lost-with-alternative by.
+    const capability = getCapabilityForTool(tool.tool_id);
+    if (capability) {
+      apibaseCallAttemptedTotal.inc({ capability });
+    }
+
     if (tool.status === 'unavailable') {
+      const alternatives = await getAlternativesForTool(tool.tool_id);
+      if (capability && alternatives.length > 0) {
+        apibaseCallLostWithAlternativeTotal.inc({ capability, tool_id: tool.tool_id });
+      }
       return err<PipelineError>({
         code: 503,
         error: 'provider_unavailable',
         message: `Tool ${ctx.toolId} is currently unavailable`,
         retryAfter: 30,
+        ...(alternatives.length > 0 ? { extra: { alternatives } } : {}),
       });
     }
 

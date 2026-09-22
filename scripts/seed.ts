@@ -66,6 +66,16 @@ interface ToolConfig {
   // F1/C-4: optional — absent means "not yet migrated", NOT "free". See
   // config/tool_provider_config.yaml header + scripts/migrate-upstream-cost.py.
   upstream_cost_usd?: string;
+  // T-0207 (ZZ-03-07): optional — absent means "not part of a declared capability group" (the
+  // overwhelming majority of tools). Backfills tools.capability/tools.scope (migration 0020),
+  // an SQL-queryable mirror of the same fields src/services/capability-registry.service.ts
+  // reads straight from this YAML at runtime. `same_upstream_as` (also declared in the YAML)
+  // has no DB column at all — see schema.prisma's Tool model comment — so it is read here only
+  // for gap-checking (a capability with no scope, or vice versa, is a broken declaration) and
+  // otherwise ignored by this script.
+  capability?: string;
+  scope?: string;
+  same_upstream_as?: string[];
 }
 
 interface ToolProviderConfig {
@@ -98,6 +108,17 @@ async function seedTools(): Promise<number> {
     }
     const namespace = namespaceOf(tool.tool_id, tool.provider);
 
+    // T-0207: capability and scope are always declared together or not at all — a tool_id with
+    // one but not the other is a broken YAML entry (the alternatives matcher treats a null
+    // scope as "never suggest", so a capability with no scope would silently never appear as
+    // anyone's alternative — fail loud instead of seeding that quietly).
+    if ((tool.capability === undefined) !== (tool.scope === undefined)) {
+      throw new Error(
+        `seedTools: '${tool.tool_id}' declares only one of capability/scope — both or neither ` +
+          `are required (config/tool_provider_config.yaml).`,
+      );
+    }
+
     await prisma.tool.upsert({
       where: { tool_id: tool.tool_id },
       create: {
@@ -110,6 +131,8 @@ async function seedTools(): Promise<number> {
         upstream_cost_usd: tool.upstream_cost_usd ?? null,
         category,
         namespace,
+        capability: tool.capability ?? null,
+        scope: tool.scope ?? null,
       },
       update: {
         name: tool.name,
@@ -121,6 +144,8 @@ async function seedTools(): Promise<number> {
           : {}),
         category,
         namespace,
+        capability: tool.capability ?? null,
+        scope: tool.scope ?? null,
       },
     });
     count++;

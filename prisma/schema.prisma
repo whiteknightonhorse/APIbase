@@ -226,6 +226,18 @@ model Tool {
   category  String
   namespace String
 
+  // T-0207 (2026-09-22, ZZ-03-07): advisory alternatives-routing registry (Q2 ruling-1 R2/P1,
+  // 03-SPECIFICATION.md R-2). Nullable columns for SQL-level introspection/reporting — the hot
+  // path (src/services/capability-registry.service.ts) reads capability/scope/same_upstream_as
+  // directly from config/tool_provider_config.yaml (the same source scripts/seed.ts backfills
+  // these columns from), not from this table, so a stale re-seed never desyncs the two: the
+  // YAML is the single source of truth, this column is a queryable mirror of it. NULL means
+  // "not part of a declared capability group yet" — never a guess, same posture as
+  // upstream_cost_usd above. `same_upstream_as` deliberately has NO column: it is an exclusion
+  // list (which OTHER tool_ids never to suggest), not a fact about this row, and stays YAML-only.
+  capability String?
+  scope      String?
+
   executions ExecutionLedger[]
 
   @@index([category])

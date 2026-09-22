@@ -120,6 +120,32 @@ export const ledgerWritesTotal = new client.Counter({
 });
 
 // ---------------------------------------------------------------------------
+// Capability/alternatives metrics (T-0207, ZZ-03-07, 03-SPECIFICATION.md R-2 R2.4)
+//
+// Permanent measurement of fallback demand, replacing the one-off 2026-09-14 live count (Q2
+// ruling-1: 13 timeouts / 12107 calls, 0.1%) that R-3's "10x that" threshold is judged against.
+// `capability` is a small, human-declared, closed set (config/tool_provider_config.yaml) —
+// bounded cardinality, not a §7 violation like agent_id/request_id would be. `tool_id` is
+// additionally allowed on the lost-with-alternative counter only, and only for tools that
+// already carry a declared capability (today ≈95 of ~1400) — still bounded, and needed to tell
+// WHICH tool in a capability group is losing calls, not just that the group is.
+// ---------------------------------------------------------------------------
+
+export const apibaseCallAttemptedTotal = new client.Counter({
+  name: 'apibase_call_attempted_total',
+  help: 'Total calls attempted for a tool with a declared capability (denominator for fallback-demand measurement)',
+  labelNames: ['capability'] as const,
+  registers: [register],
+});
+
+export const apibaseCallLostWithAlternativeTotal = new client.Counter({
+  name: 'apibase_call_lost_with_alternative_total',
+  help: 'Total calls that failed (503/502/504) while a healthy same-capability, same-scope alternative existed',
+  labelNames: ['capability', 'tool_id'] as const,
+  registers: [register],
+});
+
+// ---------------------------------------------------------------------------
 // MCP session metrics
 // ---------------------------------------------------------------------------
 
