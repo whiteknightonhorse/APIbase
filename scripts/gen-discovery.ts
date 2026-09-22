@@ -25,11 +25,33 @@
 import { PrismaClient } from '@prisma/client';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { createHash } from 'crypto';
+import { spawnSync } from 'child_process';
 import { resolve } from 'path';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 
 const prisma = new PrismaClient();
 const ROOT = resolve(__dirname, '..');
+
+// ZZ-03-06 attempt-3 (Fable REJECT, disputes/zz-03-apibase-design.q-7.ruling-1.md item 6):
+// sync-counts.sh --check used to grep 3-4 named JSON fields (tools_count, providers_count,
+// version, a couple of embedded-prose regexes) out of these files -- confirmed by Fable to
+// leave `sed 's/\b1380\b/999/g'` on agent-skills/index.json's or ai-capabilities.json's free
+// prose, or agent.json's description, completely invisible (green, rc=0): point checks can
+// never enumerate every place a stale number can hide in hand-written prose. `--check` makes
+// every writer below report a byte-for-byte mismatch against a freshly rebuilt candidate
+// instead of writing one — closes the whole class at once instead of adding a fifth regex.
+const CHECK_MODE = process.argv.includes('--check');
+const driftPaths: string[] = [];
+
+function reportDrift(path: string, candidateStr: string, existingRaw: string | null): void {
+  driftPaths.push(path);
+  console.error(`gen-discovery --check: DRIFT in ${path}`);
+  const diff = spawnSync('diff', ['-u', existingRaw !== null ? path : '/dev/null', '-'], {
+    input: candidateStr,
+    encoding: 'utf-8',
+  });
+  console.error(diff.stdout || diff.stderr || '(diff produced no output)');
+}
 
 const { version: PACKAGE_VERSION } = JSON.parse(
   readFileSync(resolve(ROOT, 'package.json'), 'utf8'),
@@ -183,6 +205,11 @@ function writeJsonIfChanged(
 
   if (candidateOldStr === existingRaw) return false;
 
+  if (CHECK_MODE) {
+    reportDrift(path, candidateOldStr, existingRaw);
+    return true;
+  }
+
   const candidateNew = build();
   setDate(candidateNew, today());
   writeFileSync(path, JSON.stringify(candidateNew, null, 2) + '\n');
@@ -193,6 +220,10 @@ function writeJsonIfChanged(
 function writeTextIfChanged(path: string, content: string): boolean {
   const existing = readExisting(path);
   if (existing === content) return false;
+  if (CHECK_MODE) {
+    reportDrift(path, content, existing);
+    return true;
+  }
   writeFileSync(path, content);
   console.log(`gen-discovery: wrote ${path}`);
   return true;
@@ -639,6 +670,20 @@ access for the rare cases that need it.
     )
   )
     changed++;
+
+  if (CHECK_MODE) {
+    if (driftPaths.length > 0) {
+      console.error(
+        `gen-discovery --check: DRIFT in ${driftPaths.length} file(s): ${driftPaths.join(', ')}`,
+      );
+      process.exitCode = 1;
+    } else {
+      console.log(
+        `gen-discovery --check: OK, 0 drift (${TOOLS} tools / ${PROV} providers / ${CATS} categories)`,
+      );
+    }
+    return;
+  }
 
   console.log(
     `gen-discovery: ${TOOLS} tools / ${PROV} providers / ${CATS} categories — ${changed} file(s) changed`,

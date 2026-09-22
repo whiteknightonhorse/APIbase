@@ -96,6 +96,32 @@ print('%s %s' % (t, p))
   fi
   echo "sync-counts: --check freshness OK (within ${FRESHNESS_TOLERANCE_PCT}% of live)"
   echo "sync-counts: --check mode — read-only, no file will be written"
+
+  # ZZ-03-06 attempt-3 (Fable REJECT, disputes/zz-03-apibase-design.q-7.ruling-1.md item 6):
+  # gen-discovery.ts/generate-openapi.ts --check do a byte-for-byte compare of every generated
+  # surface against a freshly rebuilt candidate (dates masked the same way self-heal's own
+  # idempotent write already does) instead of grepping 3-4 named fields -- this is what makes
+  # `sed 's/\b1380\b/999/g'` on agent-skills/index.json's or ai-capabilities.json's free-text
+  # description, or agent.json's description, show up as drift instead of staying invisible.
+  #
+  # Rebuilt from scripts/discovery-snapshot.tsv (tracked, committed by self-heal in the SAME
+  # commit as the files it fed) -- NOT a fresh live DB query. A fresh query would make this
+  # gate red between every self-heal run for free: AP-8 demotes/promotes providers continuously
+  # (T-05, 2026-09-04, ruling-1), so live counts always drift a little from what was last
+  # committed, and that drift is legitimate lag, not tampering -- exactly the false positive T-05
+  # already fixed once for the aggregate count and that a live-query byte-diff would reintroduce
+  # for the other seven surfaces (confirmed while building this: --check against a live snapshot
+  # flagged all seven files as "drifted" simply because live had moved from 1380 to 1387 tools
+  # since the last self-heal, with nothing actually wrong). Diffing against the SAME frozen input
+  # the current commit was generated from means 0 drift whenever nothing was hand-edited, and
+  # real drift whenever it was -- freshness (whether a new self-heal is now due) stays the
+  # separate check above, unchanged. No DB/.env access needed for this part of --check at all.
+  # `VAR=$(cmd)` with a failing cmd trips `set -e` on THIS line, before `GEN_..._RC=$?` below it
+  # ever runs -- same `&&`/`||` idiom sync-counts-cron.sh:231 already uses for the same reason.
+  GEN_DISCOVERY_CHECK_OUT="$(SYNC_COUNTS_SNAPSHOT="scripts/discovery-snapshot.tsv" npx tsx scripts/gen-discovery.ts --check 2>&1)" \
+    && GEN_DISCOVERY_CHECK_RC=0 || GEN_DISCOVERY_CHECK_RC=$?
+  GEN_OPENAPI_CHECK_OUT="$(SYNC_COUNTS_SNAPSHOT="scripts/discovery-snapshot.tsv" npx tsx scripts/generate-openapi.ts --check 2>&1)" \
+    && GEN_OPENAPI_CHECK_RC=0 || GEN_OPENAPI_CHECK_RC=$?
 else
   # Self-heal: one atomic point-in-time snapshot of every active tool_id+provider, not just an
   # aggregate count. T-05 (2026-09-04, ruling-1): gen-card.ts/gen-catalog-page.ts used to run
@@ -114,6 +140,19 @@ else
     || { echo "sync-counts: failed to read counts"; exit 1; }
   export SYNC_COUNTS_SNAPSHOT="$SNAPSHOT"
   echo "sync-counts: live active (status != unavailable) = $TOOLS tools / $PROV providers (snapshot $SNAPSHOT)"
+
+  # ZZ-03-06 attempt-3: persist this exact frozen tool_id/provider set to a TRACKED path,
+  # committed alongside the seven discovery surfaces + openapi.json it feeds -- this is what lets
+  # --check rebuild a byte-for-byte candidate from the SAME input the current commit used,
+  # instead of a fresh live query that would always show drift by the time the next self-heal
+  # runs (see the long comment on --check's own invocation of this, above). Idempotent: byte-
+  # identical to what's already committed whenever the active tool_id/provider set hasn't
+  # actually changed, so a no-op run touches 0 bytes here just like every other generated file.
+  DISCOVERY_SNAPSHOT_TRACKED="scripts/discovery-snapshot.tsv"
+  b=$(md5sum "$DISCOVERY_SNAPSHOT_TRACKED" 2>/dev/null | cut -d" " -f1 || echo "")
+  cp "$SNAPSHOT" "$DISCOVERY_SNAPSHOT_TRACKED"
+  [ "$(md5sum "$DISCOVERY_SNAPSHOT_TRACKED" | cut -d" " -f1)" != "$b" ] \
+    && { echo "  updated $DISCOVERY_SNAPSHOT_TRACKED"; CHANGED=$((CHANGED+1)); }
 
   for f in static/index.html static/terms.html static/frameworks.html static/contact.html \
            static/privacy.html static/dashboard.html static/pricing.html static/connect.html \
@@ -331,25 +370,19 @@ STALE_SYSMON=$(grep -hoE "PRV:</span><strong>[0-9]+</strong>|TOOLS:</span><stron
   | grep -vE "^PRV:</span><strong>${PROV}</strong>$|^TOOLS:</span><strong>${TOOLS}</strong>$" | sort -u || true)
 STALE_FOOTER_TOOLS=$(grep -hoE "TOOLS: [0-9]+<" static/index.html static/contact.html static/privacy.html static/dashboard.html 2>/dev/null \
   | grep -v "^TOOLS: ${TOOLS}<$" | sort -u || true)
-STALE_MCP_DESC=$(python3 -c "
-import json,re
-d=json.load(open('static/.well-known/mcp.json'))
-m=re.search(r'([0-9]+\+? API tools from [0-9]+\+? providers)', d.get('description',''))
-print(m.group(1) if m and m.group(1)!='${TOOLS} API tools from ${PROV} providers' else '')
-" 2>/dev/null || true)
+# ZZ-03-06 attempt-3 (Fable REJECT item 6): mcp.json/agent.json/ai-capabilities.json/ucp/
+# acp.json/agent-skills/index.json/agent-skills/discover-tools.md's counts, versions, embedded
+# prose numbers and sha256 hashes were, until this attempt, checked field-by-field here -- and
+# confirmed to miss a stale number sitting in free-text description prose (see
+# GEN_DISCOVERY_CHECK_RC below, which now replaces all of that with one byte-for-byte compare
+# against a freshly rebuilt candidate). What's left here is the one check that byte-diffing
+# gen-discovery.ts's OWN output can't cover: agreement between TWO INDEPENDENT generators
+# (openapi.json from generate-openapi.ts, server-card.json from gen-card.ts, outside this task's
+# scope) -- this is the exact shape of the confirmed 52-path surplus bug (1436 TOOL_DEFINITIONS
+# entries vs 1384 active tools), plus server-card.json's version, which nothing else checks.
+STALE_DISCOVERY=$(python3 - <<'PY' 2>&1
+import json
 
-# ZZ-03-06 (zz-03 Q7 ruling-1): the five machine-readable surfaces gen-discovery.ts now owns
-# wholesale (agent.json, ai-capabilities.json, ucp, acp.json, agent-skills/index.json) plus
-# openapi.json's path-count and every generated JSON's version were, before this task, checked
-# by NOTHING -- this whole gate only ever looked at mcp.json/ai.txt/llms.txt/api-catalog/
-# server-card.json/README. ai-capabilities.json sat stale at "1227 tools / 347 providers" (dated
-# 2026-04-01) the entire time this script reported "0 drift". One consolidated check for all of
-# them, same "compare against the $TOOLS/$PROV baseline established above" semantics as every
-# other STALE_* check in this file (baseline in --check mode, fresh snapshot in self-heal mode).
-STALE_DISCOVERY=$(python3 - "$TOOLS" "$PROV" <<'PY' 2>&1
-import json, re, sys
-
-TOOLS, PROV = int(sys.argv[1]), int(sys.argv[2])
 with open('package.json') as f:
     PKG_VERSION = json.load(f)['version']
 
@@ -363,57 +396,6 @@ def load(path):
         return None
 
 
-def check_counts_and_version(path, tools=None, providers=None, version=None):
-    d = load(path)
-    if d is None:
-        return
-    if tools is not None and tools(d) not in (None, TOOLS):
-        problems.append(f"{path}: tools_count {tools(d)} != baseline {TOOLS}")
-    if providers is not None and providers(d) not in (None, PROV):
-        problems.append(f"{path}: providers_count {providers(d)} != baseline {PROV}")
-    if version is not None and version(d) not in (None, PKG_VERSION):
-        problems.append(f"{path}: version {version(d)!r} != package.json {PKG_VERSION!r}")
-
-
-check_counts_and_version(
-    "static/.well-known/mcp.json",
-    lambda d: d.get("tools_count"),
-    lambda d: d.get("providers_count"),
-    lambda d: d.get("version"),
-)
-check_counts_and_version(
-    "static/.well-known/agent.json",
-    lambda d: d.get("tools_count"),
-    lambda d: d.get("providers_count"),
-    lambda d: d.get("version"),
-)
-check_counts_and_version(
-    "static/.well-known/ai-capabilities.json",
-    lambda d: d.get("tools_count"),
-    lambda d: d.get("providers_count"),
-    lambda d: d.get("version"),
-)
-
-# ucp's own "version"/"protocol_version" fields are the UCP PROTOCOL spec version ("1.0"),
-# not our software release -- same distinction as mcp.json's "protocolVersion" (MCP spec date)
-# vs its own "version" (ours). Nothing to check against package.json here by design.
-check_counts_and_version(
-    "static/.well-known/acp.json",
-    tools=lambda d: d.get("capabilities", {}).get("product_catalog", {}).get("count"),
-)
-
-# ucp/acp.json embed the tool/provider count only inside free prose, not a dedicated numeric
-# field -- same shape as mcp.json's own "description" field (see STALE_MCP_DESC above).
-ucp = load("static/.well-known/ucp")
-if ucp is not None:
-    desc = (ucp.get("ucp", {}).get("services") or [{}])[0].get("description", "")
-    m = re.search(r"([0-9]+) API tools from ([0-9]+) providers", desc)
-    if m and (int(m.group(1)) != TOOLS or int(m.group(2)) != PROV):
-        problems.append(f"static/.well-known/ucp: services[0].description embeds '{m.group(0)}', baseline is {TOOLS}/{PROV}")
-
-# openapi.json: path-count vs server-card.json tools length (Q7 ruling "Обязательный контроль"
-# #3 -- this is the exact shape of the confirmed 52-path surplus bug, 1436 TOOL_DEFINITIONS
-# entries vs 1384 active tools) + info.version.
 openapi = load("static/.well-known/openapi.json")
 server_card = load("static/.well-known/mcp/server-card.json")
 if openapi is not None and server_card is not None:
@@ -421,40 +403,8 @@ if openapi is not None and server_card is not None:
     card_tools = len(server_card.get("tools", []))
     if tool_paths != card_tools:
         problems.append(f"openapi.json has {tool_paths} tool paths, server-card.json has {card_tools} tools")
-    if openapi.get("info", {}).get("version") != PKG_VERSION:
-        problems.append(f"openapi.json info.version {openapi.get('info', {}).get('version')!r} != package.json {PKG_VERSION!r}")
 if server_card is not None and server_card.get("version") != PKG_VERSION:
     problems.append(f"server-card.json version {server_card.get('version')!r} != package.json {PKG_VERSION!r}")
-
-print("\n".join(problems))
-PY
-)
-
-# agent-skills/index.json sha256 -- recomputed from the ACTUAL bytes on disk right now, for
-# all three referenced skill files, not just the one gen-discovery.ts itself writes. Catches a
-# human hand-editing x402-payment.md/auto-register.md without recomputing the hash (Q7 ruling
-# acceptance criterion: "one byte in discover-tools.md without recomputing sha256 -> red by hash").
-STALE_SKILLS_SHA=$(python3 - <<'PY' 2>&1
-import hashlib, json, os
-
-idx_path = "static/.well-known/agent-skills/index.json"
-try:
-    idx = json.load(open(idx_path))
-except FileNotFoundError:
-    raise SystemExit
-
-problems = []
-for skill in idx.get("skills", []):
-    url = skill.get("url", "")
-    fname = url.rsplit("/", 1)[-1]
-    local_path = os.path.join("static/.well-known/agent-skills", fname)
-    try:
-        actual = hashlib.sha256(open(local_path, "rb").read()).hexdigest()
-    except FileNotFoundError:
-        problems.append(f"{idx_path}: {skill.get('name')} references missing file {local_path}")
-        continue
-    if actual != skill.get("sha256"):
-        problems.append(f"{idx_path}: {skill.get('name')} sha256 {skill.get('sha256')} != actual {actual} ({local_path})")
 
 print("\n".join(problems))
 PY
@@ -540,16 +490,18 @@ FAIL=0
 [ "$SERVER_CARD_LEN" != "$TOOLS" ] && { echo "sync-counts: server-card.json has $SERVER_CARD_LEN tools, DB says $TOOLS"; FAIL=1; }
 [ -n "$STALE_SYSMON" ] && { echo "sync-counts: STALE sys-monitor bar(s) remain:"; echo "$STALE_SYSMON"; FAIL=1; }
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
-[ -n "$STALE_MCP_DESC" ] && { echo "sync-counts: STALE mcp.json description remains: $STALE_MCP_DESC"; FAIL=1; }
 [ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }
 [ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
 [ -n "$STALE_README_BADGE_NUM" ] && { echo "sync-counts: README.md has a shields.io badge with a hand-typed number remaining:"; echo "$STALE_README_BADGE_NUM"; FAIL=1; }
 [ -n "$STALE_STAGE_COUNT" ] && { echo "sync-counts: STALE stage-count number in static/*.md or agent-skills/*.md (remove the number, don't update it):"; echo "$STALE_STAGE_COUNT"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
 [ -n "$STALE_DISCOVERY" ] && { echo "sync-counts: STALE discovery surface(s) remain:"; echo "$STALE_DISCOVERY"; FAIL=1; }
-[ -n "$STALE_SKILLS_SHA" ] && { echo "sync-counts: STALE agent-skills sha256 remain:"; echo "$STALE_SKILLS_SHA"; FAIL=1; }
 [ -n "$STALE_POSITIONING" ] && { echo "sync-counts: STALE_POSITIONING — canonical sentence disagrees with baseline:"; echo "$STALE_POSITIONING"; FAIL=1; }
 [ -n "$STALE_ROADMAP" ] && { echo "sync-counts: STALE_ROADMAP — docs/ROADMAP.md format/SHA/freshness violation(s):"; echo "$STALE_ROADMAP"; FAIL=1; }
+if [ "$CHECK" = "1" ]; then
+  [ "$GEN_DISCOVERY_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — gen-discovery.ts --check found byte-for-byte drift:"; echo "$GEN_DISCOVERY_CHECK_OUT"; FAIL=1; }
+  [ "$GEN_OPENAPI_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — generate-openapi.ts --check found byte-for-byte drift:"; echo "$GEN_OPENAPI_CHECK_OUT"; FAIL=1; }
+fi
 
 if [ "$FAIL" = "0" ]; then
   if [ "$CHECK" = "1" ]; then

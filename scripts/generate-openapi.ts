@@ -7,9 +7,10 @@
  * No new dependencies — inline Zod→JSON Schema converter.
  */
 
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { PrismaClient } from '@prisma/client';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 import { toolSchemas } from '../src/schemas/index';
@@ -284,10 +285,34 @@ async function generate(): Promise<void> {
   };
 
   const outPath = resolve(__dirname, '..', 'static', '.well-known', 'openapi.json');
-  writeFileSync(outPath, JSON.stringify(doc, null, 2) + '\n', 'utf-8');
-
+  const serialized = JSON.stringify(doc, null, 2) + '\n';
   const toolCount = activeDefs.length;
   const pathCount = Object.keys(paths).length;
+
+  // ZZ-03-06 attempt-3 (Fable REJECT item 6): same byte-for-byte "generated vs committed"
+  // comparison as gen-discovery.ts --check, applied to openapi.json — a hand/sed edit anywhere
+  // in this doc (paths, prose, version) now shows up as drift instead of only the two fields
+  // (path-count, info.version) the old sync-counts.sh point checks happened to name. No date
+  // field lives in this doc, so no masking is needed — a plain string comparison is exact.
+  if (process.argv.includes('--check')) {
+    const existing = existsSync(outPath) ? readFileSync(outPath, 'utf-8') : null;
+    if (serialized !== existing) {
+      console.error(`generate-openapi --check: DRIFT in ${outPath}`);
+      const diff = spawnSync('diff', ['-u', existing !== null ? outPath : '/dev/null', '-'], {
+        input: serialized,
+        encoding: 'utf-8',
+      });
+      console.error(diff.stdout || diff.stderr || '(diff produced no output)');
+      process.exitCode = 1;
+      return;
+    }
+    console.log(
+      `generate-openapi --check: OK, 0 drift (${pathCount} paths, ${toolCount} tools + 3 platform)`,
+    );
+    return;
+  }
+
+  writeFileSync(outPath, serialized, 'utf-8');
   console.log(`OpenAPI spec generated: ${pathCount} paths (${toolCount} tools + 3 platform)`);
   console.log(`Output: ${outPath}`);
 }

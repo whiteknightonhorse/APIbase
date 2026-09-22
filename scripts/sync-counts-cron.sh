@@ -166,7 +166,7 @@ FILES=(
   static/.well-known/agent.json static/.well-known/ai-capabilities.json
   static/.well-known/ucp static/.well-known/acp.json
   static/.well-known/agent-skills/index.json static/.well-known/agent-skills/discover-tools.md
-  static/.well-known/openapi.json
+  static/.well-known/openapi.json scripts/discovery-snapshot.tsv
 )
 
 PRE_DIRTY="$(git status --porcelain -- "${FILES[@]}")"
