@@ -1,7 +1,7 @@
 # APIbase — Universal API Hub for AI Agents
 # https://apibase.pro
 
-> One MCP + REST endpoint to 1385 tools from 396 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
+> One MCP + REST endpoint to 1378 tools from 395 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
 
 Why this endpoint instead of individual providers, and how discover/evaluate/pay/execute
 actually work: https://apibase.pro/why (Markdown: https://apibase.pro/why.md). Answers for
@@ -15,11 +15,11 @@ https://apibase.pro/company-research-intent.
   intent/category/max_price_usd — free ($0), ranked by relevance then quality then price,
   returns pricing/payment rails/availability/quality per match (ZZ-03-05)
 - Discover tools (REST, no auth): GET https://apibase.pro/api/v1/discover?intent=&category=&max_price_usd=&limit=
-- Full catalog: GET https://apibase.pro/api/v1/tools (all 1385 tools, JSON schemas)
+- Full catalog: GET https://apibase.pro/api/v1/tools (all 1378 tools, JSON schemas)
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
-1385 tools across 25 categories (TOOL_DEFINITIONS[].category — the single source of truth
+1378 tools across 25 categories (TOOL_DEFINITIONS[].category — the single source of truth
 shared by MCP apibase.discover, the REST ?category= filter, and this file, ZZ-03-01). Call
 apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - No args → best/most-relevant matches across the whole catalog
