@@ -26,6 +26,7 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
 import { mcpSessionsActive } from '../services/metrics.service';
 import { registerTools, type PaymentContext } from './tool-adapter';
+import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
 
 // ---------------------------------------------------------------------------
@@ -268,6 +269,9 @@ export function createMcpRouter(): express.Router {
           const fresh = extractPaymentFromReq(req);
           Object.assign(payCtx, fresh);
         }
+        // Alias resolver (T-0182): rewrite a tools/call body in place before the
+        // SDK sees it, so legacy names dispatch to the same registered mcpName.
+        resolveMcpToolAlias(req.body, (req.headers[X_REQUEST_ID] as string) || sessionId);
         await transport.handleRequest(req, res, req.body);
         return;
       }
@@ -508,6 +512,9 @@ export function createMcpRouter(): express.Router {
       const fresh = extractPaymentFromReq(req);
       Object.assign(payCtx, fresh);
     }
+
+    // Alias resolver (T-0182): same rewrite as the Streamable HTTP path above.
+    resolveMcpToolAlias(req.body, (req.headers[X_REQUEST_ID] as string) || sessionId);
 
     transport.handlePostMessage(req, res, req.body).catch((error: unknown) => {
       logger.error({ session_id: sessionId, err: error }, 'MCP POST message handling failed');
