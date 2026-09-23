@@ -205,7 +205,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
      if that request fails — never silently blank. -->
 <div class="sev-banner unknown" id="sev-banner">Loading…</div>
 <div class="system-monitor" id="system-monitor">
-<span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
+<span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">DOWN:</span><span class="val" id="t-down">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
 </div>
 <div class="payment-status" id="payment-status"></div>
 
@@ -851,6 +851,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     lastData = data;
     document.getElementById('t-providers').textContent = data.totals.providers;
     document.getElementById('t-tools').textContent = data.totals.tools;
+    document.getElementById('t-down').textContent = data.totals.providers_down;
     document.getElementById('t-calls').textContent = formatNum(data.totals.calls_24h);
     var genDate = new Date(data.generated_at); document.getElementById('gen-time').textContent = 'Updated: ' + genDate.toLocaleTimeString() + ' ' + genDate.toLocaleDateString() + ' UTC';
     renderPaymentStatus(data);
@@ -870,7 +871,8 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     html += '<span class="h-green">HEALTHY:' + hGreen + '</span>  ';
     if (hOrange > 0) html += '<span class="h-orange">WARN:' + hOrange + '</span>  ';
     if (hRed > 0) html += '<span class="h-red">CRIT:' + hRed + '</span>  ';
-    if (hUnknown > 0) html += '<span class="h-grey">PENDING:' + hUnknown + '</span>';
+    if (hUnknown > 0) html += '<span class="h-grey">PENDING:' + hUnknown + '</span>  ';
+    html += '<span class="h-grey">TRACKED:' + data.totals.providers_tracked + '</span>';
     html += '</div>';
 
     html += '<div class="latency-legend">STATUS: <span style="color:#27c93f">●</span> healthy  <span style="color:#ff9f43">●</span> slow  <span style="color:#ff5f56">●</span> down  <span style="color:#555">●</span> pending</div>';

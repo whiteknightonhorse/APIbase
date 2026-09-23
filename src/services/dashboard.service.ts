@@ -80,7 +80,17 @@ interface DashboardResponse {
   generated_at: string;
   providers: ProviderDashboardEntry[];
   totals: {
+    // Catalog definition (T-0175, ruling 0173 q-1 §1): providers with >=1
+    // tool that is actually in the catalog (status != 'unavailable') — same
+    // number scripts/sync-counts.sh publishes everywhere else and what
+    // /api/v1/tools serves. This is NOT providers.length any more.
     providers: number;
+    // Monitoring definition: every provider row the dashboard SQL surfaces,
+    // including autopilot-demoted DOWN providers kept visible on purpose
+    // (818-autopilot-score-dashboard-api.ruling-3). Was the old `providers`.
+    providers_tracked: number;
+    // providers_tracked - providers: tracked rows with zero catalog tools.
+    providers_down: number;
     tools: number;
     calls_24h: number;
   };
@@ -323,11 +333,16 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     }
   }
 
+  const providersTracked = providers.length;
+  const providersDown = providers.filter((p) => p.tool_count === 0).length;
+
   const response: DashboardResponse = {
     generated_at: new Date().toISOString(),
     providers,
     totals: {
-      providers: providers.length,
+      providers: providersTracked - providersDown,
+      providers_tracked: providersTracked,
+      providers_down: providersDown,
       tools: totalTools,
       calls_24h: totalCalls,
     },

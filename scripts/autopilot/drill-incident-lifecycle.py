@@ -278,8 +278,14 @@ def drill_down_provider(env):
         assert len(api["incidents"]) == 1 and api["incidents"][0]["state"] == "OPEN"
         assert api["dashboard_row"][0]["provider_state"] == "DOWN", api["dashboard_row"]
         assert int(api["dashboard_row"][0]["open_incidents"]) == 1
+        # T-0175 (0173 ruling-1 §1): tool_count==0 is exactly the row class
+        # dashboard.service.ts's providers_down counts (providers.filter(p =>
+        # p.tool_count === 0)) and totals.providers (catalog definition)
+        # excludes, while the row itself stays visible for incident
+        # management — one live row proves both halves of that split.
         assert int(api["dashboard_row"][0]["tool_count"]) == 0, (
-            "drill A: totals.tools must exclude the autopilot-demoted tool (T-8181 ruling-3 fix)")
+            "drill A: totals.tools must exclude the autopilot-demoted tool (T-8181 ruling-3 fix); "
+            "this same tool_count==0 row must land in totals.providers_down, not totals.providers (T-0175)")
         print("  OK: /api/v1/incidents + dashboard JOIN both see OPEN/DOWN/tool_count=0")
     else:
         print("  NOINFO: verify-api step did not run this pass (see stderr above) — "
