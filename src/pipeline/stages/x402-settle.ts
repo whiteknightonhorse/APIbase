@@ -7,11 +7,23 @@ const declareDiscoveryExtension = bazaarMod.declareDiscoveryExtension as (opts: 
   toolName: string;
   description: string;
   transport: string;
+  // T-0177: required by @x402/extensions' DeclareMcpDiscoveryExtensionConfig —
+  // omitting it produced an extension that fails the SDK's own
+  // validateDiscoveryExtension() with "/input: must have required property
+  // 'inputSchema'". Inert on the V1 settle path today (bazaarResourceServerExtension
+  // has no enrichSettlementResponse hook), but kept valid for V2 clients.
+  inputSchema: Record<string, unknown>;
 }) => Record<string, unknown>;
+const bazaarValidateDiscoveryExtension = bazaarMod.validateDiscoveryExtension as (extension: {
+  info: unknown;
+  schema: unknown;
+}) => { valid: boolean; errors?: string[] };
 import { getX402Config, buildServerX402Requirements } from '../../config/x402.config';
 import { getCdpConfig } from '../../config/cdp.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { TOOL_DEFINITIONS } from '../../mcp/tool-definitions';
+import { toolSchemas } from '../../schemas/index';
+import { zodToJsonSchema } from '../../utils/zod-to-json-schema';
 import { logger } from '../../config/logger';
 import { getPrisma } from '../../services/prisma.service';
 import type { PipelineContext } from '../types';
@@ -156,11 +168,26 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
     // Build Bazaar discovery extensions for CDP catalog auto-registration
     let bazaarExtensions: Record<string, unknown> | undefined;
     if (getCdpConfig().enabled && ctx.toolId) {
+      const toolZodSchema = toolSchemas[ctx.toolId];
+      const inputSchema = toolZodSchema ? zodToJsonSchema(toolZodSchema) : { type: 'object' };
       bazaarExtensions = declareDiscoveryExtension({
         toolName: ctx.toolId,
         description: `Tool invocation: ${ctx.toolId}`,
         transport: 'streamable-http',
+        inputSchema,
       });
+      const bazaarExt = bazaarExtensions[bazaarMod.BAZAAR.key] as
+        | { info: unknown; schema: unknown }
+        | undefined;
+      if (bazaarExt) {
+        const validation = bazaarValidateDiscoveryExtension(bazaarExt);
+        if (!validation.valid) {
+          logger.warn(
+            { requestId: ctx.requestId, toolId: ctx.toolId, errors: validation.errors },
+            'x402 settle: Bazaar discovery extension failed local validation',
+          );
+        }
+      }
     }
 
     const result = await server.settlePayment(
@@ -175,13 +202,26 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
         'x402 settle: payment settled successfully',
       );
     } else {
+      // T-0177: `result.errorMessage` alone was frequently undefined — the
+      // facilitator's actual diagnostic lives in `errorReason` (SettleError
+      // shape, @x402/core/dist/cjs/http/index.js) which we were dropping,
+      // recording every real-money settle failure as reason "unknown" and
+      // making the revenue-leak alert (F1/C-7) undiagnosable.
+      const resultAny = result as unknown as Record<string, unknown>;
+      const errorReason = resultAny.errorReason ?? resultAny.error;
       logger.warn(
-        { requestId: ctx.requestId, payer: ctx.x402Payer, error: result.errorMessage },
+        {
+          requestId: ctx.requestId,
+          payer: ctx.x402Payer,
+          errorMessage: result.errorMessage,
+          errorReason,
+          rawResult: resultAny,
+        },
         'x402 settle: settlement returned failure',
       );
       await recordSettleFailure(
         ctx,
-        `settle_returned_failure: ${result.errorMessage ?? 'unknown'}`,
+        `settle_returned_failure: ${String(errorReason ?? result.errorMessage ?? 'unknown')}`,
       );
     }
   } catch (error) {
