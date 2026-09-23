@@ -335,8 +335,12 @@ while IFS= read -r f; do
   for ex in "${STALE_EXEMPT[@]}"; do [ "$f" = "$ex" ] && { skip=1; break; }; done
   [ "$skip" = "0" ] && STALE_SCAN_FILES+=("$f")
 done < <(find static -type f \( -name "*.html" -o -name "*.md" -o -name "*.txt" \) | sort)
-STALE=$(grep -hoE "[0-9]{3,}\+?( [A-Za-z]+)? (tools|providers)" "${STALE_SCAN_FILES[@]}" 2>/dev/null \
-  | grep -vE "^${TOOLS} tools$|^${PROV} (upstream )?providers$|^${TOOLS} [A-Za-z]+ tools$" | sort -u || true)
+# T-0173 (attempt-3): -i on both the extraction and the exclusion -- without it this check
+# is blind to Title Case headings ("999 Tools Across 30 Categories"), the exact same class of
+# gap ruling-2 already found and fixed for STALE_STAGE_COUNT below (slide titles in this repo
+# are consistently Title Case, e.g. "13-Stage Request Pipeline").
+STALE=$(grep -hioE "[0-9]{3,}\+?( [A-Za-z]+)? (tools|providers)" "${STALE_SCAN_FILES[@]}" 2>/dev/null \
+  | grep -viE "^${TOOLS} tools$|^${PROV} (upstream )?providers$|^${TOOLS} [A-Za-z]+ tools$" | sort -u || true)
 # Dedicated checks for the three surfaces this task added but whose phrasing the generic
 # "<N> tools"/"<N> providers" pattern above cannot see: ai.txt's "Tools: N across" prose,
 # api-catalog's two prose titles, and server-card.json's actual array length.

@@ -15,13 +15,13 @@ body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New'
 .tool-call span{color:#ff7b72}
 </style></head><body>
 <div class="title">> Progressive Disclosure</div>
-<div class="subtitle">Agents discover relevant tools — not all 400 at once</div>
+<div class="subtitle">Progressive disclosure — agents discover tools by category, not all at once</div>
 
 <div class="chat">
 <div class="msg user">What tools do you have for travel?</div>
 <div class="msg assistant">
 <div class="tool-call"><span>tools/call</span> discover_tools category="travel"</div>
-Found <span style="color:#00ff41;font-weight:bold">17 travel tools</span> across 3 providers:<br><br>
+Found <span style="color:#00ff41;font-weight:bold">travel tools</span> across multiple providers:<br><br>
 <div class="cat">amadeus.flight_search <span class="cat-count">$0.035</span></div>
 <div class="cat">amadeus.flight_price <span class="cat-count">$0.020</span></div>
 <div class="cat">amadeus.flight_status <span class="cat-count">$0.005</span></div>
@@ -29,7 +29,7 @@ Found <span style="color:#00ff41;font-weight:bold">17 travel tools</span> across
 <div class="cat">aviasales.price_calendar <span class="cat-count">$0.002</span></div>
 <div class="cat">sabre.search_flights <span class="cat-count">$0.005</span></div>
 <div class="cat">amadeus.airport_search <span class="cat-count">$0.002</span></div>
-<div class="cat">+ 10 more</div>
+<div class="cat">+ more</div>
 </div>
 <div class="msg user">Search flights from NYC to London next week</div>
 <div class="msg assistant">
