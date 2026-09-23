@@ -378,6 +378,13 @@ edgar.company_search	edgar
 edgar.filings	edgar
 edgar.xbrl_concept	edgar
 edgar.xbrl_frames	edgar
+education.arxiv_search	education
+education.college_details	education
+education.college_search	education
+education.doi_lookup	education
+education.paper_details	education
+education.paper_search	education
+education.pubmed_search	education
 eia.electricity_retail	eia
 eia.natural_gas	eia
 eia.petroleum_spot	eia
