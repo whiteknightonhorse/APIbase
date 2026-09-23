@@ -329,6 +329,16 @@ jobs:
                            "--label", "external-drift"],
                           check=False,
                       )
+              elif status in ("unhealthy", "pending_republish", "wrong_content"):
+                  # visible but no tracking issue -- these statuses already have their own
+                  # doc/ledger (docs/external-drift.json, docs/OPERATOR-ACTION-registry-
+                  # listings.md), unlike "drift" which relies on the auto-issue as its
+                  # only record. Annotation only, so they aren't silently buried in the
+                  # job summary table that nobody reads.
+                  age = rec.get("age_days", "?")
+                  cls = rec.get("classification", "?")
+                  msg = f"{listing} status={status} (classification={cls}, first_seen age={age}d, blocking={blocking})"
+                  print(f"::warning::{msg}")
               elif status in ("ok", "ok_no_number"):
                   # zero drift -- close any open tracking issue for this listing.
                   found = subprocess.run(

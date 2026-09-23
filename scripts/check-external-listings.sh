@@ -28,6 +28,21 @@
 #                    third party's own cached page, "Not fixable from this repo" per the
 #                    file's own long-standing comment, so operator-only is the safe
 #                    default even for a brand-new listing).
+#   operator-declined -> never blocking, not checked by this script at all (a human
+#                    declined the fix on purpose, e.g. glama_server_listing — see that
+#                    entry's note in docs/external-drift.json). classify()'s blocking
+#                    formula below only ever sets blk=1 for repo-fixable or aged-out
+#                    operator-only, so this classification is a no-op for blocking by
+#                    construction, same as any classification string it doesn't recognize.
+#
+# `resolved` field (docs/external-drift.json, per-entry, optional): once an operator-only
+# defect is actually fixed, set `resolved` to that date instead of deleting the entry.
+# classify() below resets the 30-day clock to age=0 the moment `resolved` is present and
+# >= first_seen — first_seen stays as a historical record of when the clock originally
+# started, `resolved` is what the age math actually reads. If the SAME listing regresses
+# later despite a `resolved` date sitting in the file, that resolved date is stale and
+# must not keep resetting the clock forever — see the "recurred after resolved" note the
+# script emits in that case; the fix is to commit a fresh first_seen for the regression.
 #
 # Smithery-specific rule (Q2.3): once the listing's free-text description carries NO
 # tool-count number at all, this is treated as "no drift", permanently — a description
@@ -63,7 +78,7 @@
 set -uo pipefail
 ROOT="${ROOT:-/home/apibase/apibase}"; cd "$ROOT"
 DRIFT_JSON="docs/external-drift.json"
-TODAY=$(date -u +%Y-%m-%d)
+TODAY="${TODAY:-$(date -u +%F)}"
 
 TOOLS=$(docker exec apibase-postgres-1 psql -U apibase -d apibase -tAc \
   "select count(*) from tools where status != 'unavailable'")
@@ -71,6 +86,9 @@ TOOLS=$(docker exec apibase-postgres-1 psql -U apibase -d apibase -tAc \
 
 classify() {
   # arg: listing_key -> prints "classification|first_seen|age_days|blocking(0/1)"
+  # If the entry has a `resolved` date >= first_seen, the clock resets: fs becomes today
+  # and age=0, so a fixed operator-only defect doesn't sit there accruing age toward the
+  # 30-day blocking threshold off its original first_seen forever.
   python3 - "$1" "$DRIFT_JSON" "$TODAY" <<'PYEOF'
 import json, os, sys
 from datetime import date
@@ -80,9 +98,33 @@ d = json.load(open(path)) if os.path.exists(path) else {}
 entry = d.get(key, {})
 cls = entry.get("classification", "operator-only")
 fs = entry.get("first_seen", today)
-age = (date.fromisoformat(today) - date.fromisoformat(fs)).days
+resolved = entry.get("resolved")
+if resolved and resolved >= fs:
+    fs = today
+    age = 0
+else:
+    age = (date.fromisoformat(today) - date.fromisoformat(fs)).days
 blk = 1 if (cls == "repo-fixable" or (cls == "operator-only" and age > 30)) else 0
 print(f"{cls}|{fs}|{age}|{blk}")
+PYEOF
+}
+
+# arg: listing_key -> prints a "recurred after resolved <date>; commit a new first_seen"
+# note IF the entry has a `resolved` date but the caller is emitting this listing as
+# currently non-ok anyway (i.e. the resolved fix didn't stick) — empty otherwise. Kept
+# separate from classify() so classify()'s own pipe-delimited output format never grows
+# an optional trailing field.
+resolved_note() {
+  python3 - "$1" "$DRIFT_JSON" <<'PYEOF'
+import json, os, sys
+
+key, path = sys.argv[1], sys.argv[2]
+d = json.load(open(path)) if os.path.exists(path) else {}
+entry = d.get(key, {})
+resolved = entry.get("resolved")
+fs = entry.get("first_seen")
+if resolved and fs and resolved >= fs:
+    print(f"recurred after resolved {resolved}; commit a new first_seen")
 PYEOF
 }
 
@@ -231,7 +273,12 @@ else
   IFS='|' read -r CLS FS AGE BLK < <(classify glama_health)
   [ "$BLK" = "1" ] && BLOCKING=1
   BLK_JSON=$( [ "$BLK" = "1" ] && echo true || echo false )
-  echo "{\"listing\":\"glama_health\",\"status\":\"unhealthy\",\"listing_value\":\"$GLAMA_STATUS\",\"classification\":\"$CLS\",\"first_seen\":\"$FS\",\"age_days\":$AGE,\"blocking\":$BLK_JSON}"
+  NOTE=$(resolved_note glama_health)
+  if [ -n "$NOTE" ]; then
+    echo "{\"listing\":\"glama_health\",\"status\":\"unhealthy\",\"listing_value\":\"$GLAMA_STATUS\",\"classification\":\"$CLS\",\"first_seen\":\"$FS\",\"age_days\":$AGE,\"blocking\":$BLK_JSON,\"note\":\"$NOTE\"}"
+  else
+    echo "{\"listing\":\"glama_health\",\"status\":\"unhealthy\",\"listing_value\":\"$GLAMA_STATUS\",\"classification\":\"$CLS\",\"first_seen\":\"$FS\",\"age_days\":$AGE,\"blocking\":$BLK_JSON}"
+  fi
 fi
 
 # --- PulseMCP — Cloudflare-protected against automated fetches (confirmed repeatedly, see

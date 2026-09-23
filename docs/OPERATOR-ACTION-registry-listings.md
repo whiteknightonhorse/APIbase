@@ -49,16 +49,22 @@ downstream registry re-reads a still-stale upstream source and the fix has to be
    The latest entry's `description` must be the new no-number text, not
    `327 tools, 92 providers...`.
 
-### Step 3 — Glama (manual UI)
+### Step 3 — Glama (declined by operator, 2026-09-23)
 
-1. `https://glama.ai/mcp/servers/whiteknightonhorse/APIbase/admin/dockerfile` → **Deploy**
-   (rebuilds the inspection image, which `npm install -g apibase-mcp-client`s the version
-   published in Step 1) → **Create Release** once the build test passes.
-2. Glama's description mirrors the Official Registry record (Step 2), so no separate
-   text edit is needed here — only the rebuild/release action.
-3. Verify tool/provider counts on the connector page match production. Health status
-   (Unhealthy/Healthy) is tracked separately — see **R3** below; don't expect this step
-   alone to flip it.
+<a name="T-R4-GLAMA-OPERATOR-DECLINED"></a>
+
+Glama's **server listing** (`glama.ai/mcp/servers/whiteknightonhorse/APIbase`) — a
+different object from the **connector** page R3 tracks below — moved to a paid ($9)
+Deploy → Create Release flow. The operator declined to pay for this republish as of
+2026-09-23. This is a deliberate, standing decision: **do not open follow-up tasks for
+it**, do not build a scraper for the page, and do not treat it as blocking anything. The
+page currently mixes stale numbers (1381/390/618 across its tool/provider counts) and
+shows a D-grade quality widget; it has no Status field at all, and
+`check-external-listings.sh` never checked it in the first place — `glama_health` only
+reads the connector page's binary Status field (R3 below), which is unaffected by this
+decision. Tracked for the record only as `glama_server_listing` in
+`docs/external-drift.json` (`classification: operator-declined`, never blocking). See
+`disputes/0179-glama-operator-declined-drift-escalation.ruling-1.md`.
 
 ### Step 4 — Smithery (`/smithery` skill)
 
@@ -129,13 +135,41 @@ only when picked up as their own dispatched task; nothing here is queued yet.
   (if any) already owns this listing before attempting a correction — do not create a
   new one if one already exists, that would split the listing in two.
 
-## R3 — Glama Unhealthy diagnosis (tracked, not this document's action)
+## R3 — Glama Unhealthy diagnosis — RESOLVED 2026-09-22
 
-`glama_health` in `docs/external-drift.json` tracks the escalation clock for Glama's
-binary connector Status field (confirmed `Unhealthy` as of 2026-09-14). Diagnosing *why*
-is explicitly a separate task (R3, "diagnose as FACT, not guess") — this document doesn't
-prescribe a fix because the root cause isn't established yet. Do not assume R4 Step 3
-alone resolves it.
+Root cause found and fixed, not a guess. `src/mcp/server.ts` returned a hard `401` on the
+MCP `initialize` request whenever no `Authorization` header was present — exactly how
+Glama's own connector health-checker probes `/mcp`, so every probe failed before the
+handshake could even start. nginx access logs for the Glama prober (IP `40.160.65.14`, UA
+`node`) show the flip cleanly:
+
+```
+2026-09-09 .. 2026-09-21: POST /mcp -> 401, 62-218/day, zero 200s
+2026-09-22 before 02:52Z: 401 x8
+2026-09-22 from 02:52Z:   200 x390 / 202 x114 (full initialize 200 -> initialized 202 ->
+                          tools/list 200 handshake now succeeding)
+2026-09-23:               200 x237 / 202 x68
+```
+
+Fixed by commit `5df51566` (T-0211, ZZ-03-11), deployed 2026-09-22 02:52Z. Glama's
+connector Status field read **Healthy** at 2026-09-23 14:46Z — the first confirmed
+reading. Per the **Final acceptance** section below, ZZ-03-11 needs a second Healthy
+reading **≥6 hours later** (not before 2026-09-23 20:46Z) before this counts as durably
+fixed rather than a one-off lucky crawl; that second reading is a separate task (T-B), not
+part of this fix. Uptime% shown on the connector page is a rolling window over the prior
+35 days of 401s and will climb back up on its own — it is not a sign the fix didn't take.
+
+`docs/external-drift.json`'s `glama_health` entry carries a `resolved: "2026-09-22"`
+field so `check-external-listings.sh`'s `classify()` resets its 30-day escalation clock
+to age=0; if the connector ever regresses to Unhealthy again despite that field, the
+script surfaces a `"note":"recurred after resolved ..."` flag rather than silently
+treating the regression as brand new — the fix at that point is committing a fresh
+`first_seen`, not editing `resolved`.
+
+R4 Step 3 above (Glama server listing) is a **different Glama object** and is unrelated
+to this fix — it only rebuilds the inspection image, it never touched the health prober.
+See `disputes/0179-glama-operator-declined-drift-escalation.ruling-1.md` for the full
+investigation (nginx log excerpts, both Glama objects compared side by side).
 
 ## Final acceptance (all of R4/R5/R6 done)
 
