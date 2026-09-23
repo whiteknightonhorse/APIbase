@@ -438,7 +438,8 @@ model EmailEvent {
   received_at     DateTime @db.Timestamptz()
   from_domain     String
   provider_match  String?  // matched provider, or null
-  // enum §H3 + T-0168 (migration 0022): KEY_EXPIRES | KEY_REVOKED | DEPRECATION | SUNSET | ENDPOINT_CHANGE | PRICING_CHANGE | PAYMENT_FAILED | QUOTA | MAINTENANCE | SECURITY_CHANGE | ACCOUNT_ACTION | MARKETING | UNMATCHED | DEFERRED_BUDGET | LIMIT_CHANGE | PARTNER_REPLY
+  // T-0168 (migration 0022): added LIMIT_CHANGE, PARTNER_REPLY.
+  // enum §H3: KEY_EXPIRES | KEY_REVOKED | DEPRECATION | SUNSET | ENDPOINT_CHANGE | PRICING_CHANGE | PAYMENT_FAILED | QUOTA | MAINTENANCE | SECURITY_CHANGE | ACCOUNT_ACTION | MARKETING | UNMATCHED | DEFERRED_BUDGET | LIMIT_CHANGE | PARTNER_REPLY
   // UNMATCHED is an honest "didn't understand", not an error.
   class           String
   action_required Boolean

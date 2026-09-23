@@ -27,6 +27,13 @@ const migrationSql = readFileSync(
   join(repoRoot, 'prisma/migrations/0009_autopilot_schema/migration.sql'),
   'utf8',
 );
+// T-0168 (migration 0022): email_events_class_check was DROPped and re-ADDed
+// here to add LIMIT_CHANGE/PARTNER_REPLY, so it -- and only it -- must be
+// read from this later migration, not from 0009's now-superseded copy.
+const migration0022Sql = readFileSync(
+  join(repoRoot, 'prisma/migrations/0022_email_events_limit_change_partner_reply/migration.sql'),
+  'utf8',
+);
 const schemaPrisma = readFileSync(join(repoRoot, 'prisma/schema.prisma'), 'utf8');
 
 // ---------------------------------------------------------------------------
@@ -67,9 +74,9 @@ function parseEnumList(raw: string): string[] {
 // constraint's `IN (...)`. Our CHECK SQL never nests parens inside the value
 // list, so a non-greedy match up to the first `)` is exact, not a substring cheat.
 // ---------------------------------------------------------------------------
-function checkConstraintValues(constraintName: string): string[] {
+function checkConstraintValues(constraintName: string, sql: string = migrationSql): string[] {
   const re = new RegExp(`CONSTRAINT "${constraintName}"[\\s\\S]*?IN\\s*\\(([^)]+)\\)`, 'm');
-  const m = migrationSql.match(re);
+  const m = sql.match(re);
   if (!m) throw new Error(`CHECK constraint ${constraintName} not found in migration.sql`);
   return m[1]
     .split(',')
@@ -124,6 +131,8 @@ const EMAIL_CLASS = [
   'MARKETING',
   'UNMATCHED',
   'DEFERRED_BUDGET',
+  'LIMIT_CHANGE',
+  'PARTNER_REPLY',
 ];
 const TOOL_STATUS_SOURCE = ['manual', 'autopilot', 'seed'];
 
@@ -150,7 +159,8 @@ describe('AP-1 migration 0009 — enum value lists (schema comment == migration 
     '%s.%s: comment and CHECK constraint both equal the canonical list',
     (model, field, constraint, expected) => {
       expect(parseEnumList(fieldEnumComment(modelBlock(model), field))).toEqual(expected);
-      expect(checkConstraintValues(constraint)).toEqual(expected);
+      const sqlSource = constraint === 'email_events_class_check' ? migration0022Sql : migrationSql;
+      expect(checkConstraintValues(constraint, sqlSource)).toEqual(expected);
     },
   );
 
