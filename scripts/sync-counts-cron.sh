@@ -157,9 +157,19 @@ fi
 
 # Every path sync-counts.sh's self-heal pass is known to write (kept in sync with its own
 # `for f in ...` loops and hand-written surfaces -- see git blame if this list needs updating).
+# T-0173 (ruling-2, attempt-2): static/why.html, static/why.md, static/flight-search-intent.html,
+# static/image-generation-intent.html, static/company-research-intent.html were missing here --
+# sync-counts.sh's own first self-heal loop (its "for f in ..." at the top of the else branch)
+# writes all five, but this list only had them via static/index.md's neighbors, not themselves.
+# Found only because ruling-2 asked for the assertion below to actually exist; before that this
+# gap was silent (these 5 pages happen not to have carried a stale count recently, so the
+# whitelist ABORT at the bottom of this script never fired on them -- it would have, the first
+# time one did, and self-heal for ALL files would have aborted with it, not just these 5).
 FILES=(
   static/index.html static/terms.html static/frameworks.html static/contact.html
   static/privacy.html static/dashboard.html static/pricing.html static/connect.html
+  static/why.html static/why.md static/flight-search-intent.html
+  static/image-generation-intent.html static/company-research-intent.html
   static/llms.txt static/ai.txt static/policy-moderation.html static/index.md README.md
   static/.well-known/api-catalog static/.well-known/mcp.json
   static/.well-known/mcp/server-card.json static/catalog.html static/sitemap.xml
@@ -168,6 +178,32 @@ FILES=(
   static/.well-known/agent-skills/index.json static/.well-known/agent-skills/discover-tools.md
   static/.well-known/openapi.json scripts/discovery-snapshot.tsv
 )
+
+# T-0173 (ruling-2, attempt-2): FILES above is hand-maintained prose ("kept in sync with its own
+# for loops"), which is exactly how the 5 paths above went missing without anyone noticing --
+# a human has to remember to update this array every time sync-counts.sh's self-heal branch
+# gains a new write target, and nothing ever checked that they'd actually done it. This turns
+# that into a standing assertion: re-derive every literal path sync-counts.sh's self-heal (the
+# `else` branch of its own `if [ "$CHECK" = "1" ]`) branch can write, straight from its source,
+# and refuse to run at all if FILES is not a superset. A stale FILES array now fails loud here
+# instead of silently letting self-heal write an untracked-by-this-script surface that the
+# whitelist ABORT below would only catch the day that specific surface actually drifted.
+SELF_HEAL_PATHS="$(awk '/^else$/{p=1} p&&/^fi$/{exit} p' scripts/sync-counts.sh \
+  | grep -vE '^\s*#' \
+  | grep -oE '(static/[A-Za-z0-9_./-]+|README\.md|scripts/discovery-snapshot\.tsv)' \
+  | sort -u)"
+MISSING_FROM_FILES=""
+while IFS= read -r p; do
+  [ -z "$p" ] && continue
+  found=0
+  for a in "${FILES[@]}"; do [ "$p" = "$a" ] && found=1 && break; done
+  [ "$found" = 0 ] && MISSING_FROM_FILES="$MISSING_FROM_FILES $p"
+done <<<"$SELF_HEAL_PATHS"
+if [ -n "$MISSING_FROM_FILES" ]; then
+  clog "ABORT -- sync-counts.sh's self-heal branch writes path(s) missing from this script's FILES allow-list, refusing to run (FILES is stale, update it first):$MISSING_FROM_FILES"
+  calert "🔴 sync-counts-cron: FILES отстаёт от sync-counts.sh self-heal, отказ прибора -- see log."
+  exit 1
+fi
 
 PRE_DIRTY="$(git status --porcelain -- "${FILES[@]}")"
 if [ -n "$PRE_DIRTY" ]; then

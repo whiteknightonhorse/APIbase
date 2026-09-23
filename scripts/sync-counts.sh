@@ -386,7 +386,10 @@ STALE_README_BADGE_NUM=$(grep -oE 'shields\.io/badge/[^)]*' README.md 2>/dev/nul
 # slideshow's own pipeline slide is exactly this class of surface (a hand-typed stage count in
 # a title/caption) and had no guard against the same "13-stage" drift the rest of this check
 # already exists to catch.
-STALE_STAGE_COUNT=$(grep -rnoE '[0-9]{1,2}[ -]stages?\b' static/*.md static/.well-known/agent-skills/*.md static/video/templates/*.html 2>/dev/null || true)
+# T-0173 (ruling-2, attempt-2): -i added -- ruling-2's mutation "Multi-Stage Request Pipeline" ->
+# "13-Stage Request Pipeline" in slide_pipeline.html passed clean because slide titles are Title
+# Case and the regex was case-sensitive, so it never matched "13-Stage" (only lowercase "13-stage").
+STALE_STAGE_COUNT=$(grep -rinoE '[0-9]{1,2}[ -]stages?\b' static/*.md static/.well-known/agent-skills/*.md static/video/templates/*.html 2>/dev/null || true)
 # static/sitemap.xml must carry a <loc> for every static page + .well-known file we actually
 # serve -- this is what caught the sitemap sitting stale since 2026-04-22 missing /pricing,
 # /catalog, /connect, /policy/moderation (all shipped after that date). Read-only re-derivation
