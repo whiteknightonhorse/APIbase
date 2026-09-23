@@ -831,6 +831,10 @@ async function probeHead(
     const token = process.env.TELEGRAM_BOT_TOKEN ?? '';
     healthUrl = healthUrl.replace('TOKEN_FROM_ENV', token);
   }
+  if (healthUrl.includes('API_KEY_FROM_ENV') && provider === 'nasa') {
+    const apiKey = process.env.PROVIDER_KEY_NASA ?? 'DEMO_KEY';
+    healthUrl = healthUrl.replace('API_KEY_FROM_ENV', apiKey);
+  }
 
   // T-07/A6: a provider's `probe.method: "GET"` (provider-limits.json) skips
   // the HEAD attempt entirely — for a provider already proven to answer HEAD

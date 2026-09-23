@@ -627,7 +627,7 @@
   },
   "nasa": {
     "display_name": "NASA Open APIs",
-    "health_url": "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY",
+    "health_url": "https://api.nasa.gov/planetary/apod?api_key=API_KEY_FROM_ENV",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
