@@ -846,7 +846,13 @@ async function probeHead(
 
   // UC-682: BIS Statistics SDMX API requires specific Accept header (406 without it).
   // Include it in all probe headers for SDMX endpoints.
-  const probeHeaders: Record<string, string> = { 'User-Agent': 'APIbase-HealthCheck/2.0' };
+  // T-9611: education (OpenAlex) rate-limits APIbase-HealthCheck/2.0 User-Agent; use
+  // the adapter's own User-Agent to stay in the polite pool.
+  let probeUserAgent = 'APIbase-HealthCheck/2.0';
+  if (provider === 'education') {
+    probeUserAgent = 'APIbase/1.0 (https://apibase.pro; mailto:contact@apibase.pro)';
+  }
+  const probeHeaders: Record<string, string> = { 'User-Agent': probeUserAgent };
   if (provider === 'bis-stats' || isBisStatsHost(healthUrl)) {
     probeHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
   }
@@ -855,7 +861,7 @@ async function probeHead(
 
   if (initialMethod === 'HEAD' && shouldRetryWithGet(initial.outcome)) {
     const getHeaders: Record<string, string> = {
-      'User-Agent': 'APIbase-HealthCheck/2.0',
+      'User-Agent': probeUserAgent,
       Range: 'bytes=0-0',
     };
     // UC-682: preserve SDMX Accept header in GET retry as well
