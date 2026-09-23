@@ -46,6 +46,9 @@ export const ledgerWriteStage: Stage = {
           providerLatencyMs: ctx.providerDurationMs,
           upstreamCostUsd: ctx.upstreamCostUsd,
           cacheHit: ctx.cacheHit === true,
+          // T-0177: only x402 has a facilitator settle outcome to report;
+          // MPP settles differently (at verification, no facilitator here).
+          settleSucceeded: ctx.x402Paid ? ctx.x402SettleSucceeded : undefined,
           moderation: ctx.moderationBlocked
             ? {
                 ruleId: ctx.moderationRuleId ?? 'unknown',

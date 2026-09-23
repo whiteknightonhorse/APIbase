@@ -6,6 +6,7 @@ import { getX402Config } from '../config/x402.config';
 import { buildCdpAuthHeadersFn } from '../services/cdp-jwt.service';
 import { getOperatorWallet, weiToEth } from '../payments/operator-signer';
 import { x402OperatorEthBalance } from '../services/metrics.service';
+import { getPrisma } from '../services/prisma.service';
 
 /**
  * x402 Facilitator Health Check Job.
@@ -162,6 +163,55 @@ export async function run(redis: Redis): Promise<void> {
   await runOperatorBalanceProbe(redis).catch((err) => {
     logger.warn({ err }, 'x402 operator balance probe threw — ignored');
   });
+
+  // T-0177 (2026-09-23): recent x402 on-chain settle outcome, Telegram-independent.
+  await runLocalSettleHealthCheck(redis).catch((err) => {
+    logger.warn({ err }, 'x402 local settle health check threw — ignored');
+  });
+}
+
+/**
+ * Local settle health probe (T-0177).
+ * Counts execution_ledger.x402_onchain_settled outcomes over the trailing
+ * window and writes Redis hash x402:local_settle (TTL 2h) for the dashboard
+ * (see src/services/dashboard.service.ts) — a single query run once an hour
+ * from this job, not on every dashboard request. Exists because the
+ * Prometheus alert covering the same condition (#29 X402LocalSettleErrorRate)
+ * routes to Telegram, which is paused; this makes "100% of settles are
+ * failing" visible without depending on that channel.
+ */
+const LOCAL_SETTLE_WINDOW_MINUTES = 30;
+
+async function runLocalSettleHealthCheck(redis: Redis): Promise<void> {
+  const rows = await getPrisma().$queryRawUnsafe<Array<{ successes: bigint; failures: bigint }>>(`
+    SELECT
+      COUNT(*) FILTER (WHERE x402_onchain_settled = true) AS successes,
+      COUNT(*) FILTER (WHERE x402_onchain_settled = false) AS failures
+    FROM execution_ledger
+    WHERE created_at >= NOW() - INTERVAL '${LOCAL_SETTLE_WINDOW_MINUTES} minutes'
+      AND x402_onchain_settled IS NOT NULL
+  `);
+  const successes = Number(rows[0]?.successes ?? 0);
+  const failures = Number(rows[0]?.failures ?? 0);
+  const status = failures > 0 ? (successes > 0 ? 'orange' : 'red') : 'green';
+
+  try {
+    await redis.hmset('x402:local_settle', {
+      successes: String(successes),
+      failures: String(failures),
+      window_minutes: String(LOCAL_SETTLE_WINDOW_MINUTES),
+      status,
+      last_check: new Date().toISOString(),
+    });
+    await redis.expire('x402:local_settle', REDIS_TTL);
+  } catch (err) {
+    logger.warn({ err }, 'Failed to write x402 local settle health to Redis');
+  }
+
+  logger.info(
+    { job: 'x402-health', successes, failures, status },
+    'x402 local settle health check completed',
+  );
 }
 
 /**

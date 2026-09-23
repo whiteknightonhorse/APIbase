@@ -93,6 +93,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
 
     if (!parsed.success) {
       logger.warn({ requestId: ctx.requestId }, 'x402 settle: failed to re-parse payment payload');
+      ctx.x402SettleSucceeded = false;
       await recordSettleFailure(ctx, 'payload_reparse_failed');
       return;
     }
@@ -196,6 +197,8 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       bazaarExtensions as never,
     );
 
+    ctx.x402SettleSucceeded = result.success;
+
     if (result.success) {
       logger.info(
         { requestId: ctx.requestId, payer: ctx.x402Payer },
@@ -229,6 +232,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       { requestId: ctx.requestId, error: (error as Error).message },
       'x402 settle: settlement call failed (best-effort)',
     );
+    ctx.x402SettleSucceeded = false;
     await recordSettleFailure(ctx, `settle_threw: ${(error as Error).message}`);
   }
 }

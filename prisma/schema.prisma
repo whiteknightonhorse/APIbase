@@ -79,6 +79,18 @@ model ExecutionLedger {
   moderation_rule_id     String?
   moderation_category    String?
   moderation_appeal_id   String?   @db.Uuid
+  // T-0177 (2026-09-23): x402's actual on-chain facilitator settle outcome --
+  // true=confirmed on-chain, false=attempted and failed, NULL=not applicable
+  // (free/cache/MPP/no on-chain rail, or a row written before this column
+  // existed). billing_status stays 'PAID' regardless (§8.9): the client
+  // already had the data. Added after discovering the local facilitator had
+  // been failing 100% of settles since 2026-06-16 with no way to see that
+  // from the ledger alone (see project_x402_operator_gas_wallet_empty_since_20260616
+  // memory / incident). NOT backfilled for historical rows -- the real
+  // per-settle outcome for those only exists in outbox `x402_settle_failed`
+  // events, which the 7-day partition retention has already dropped for
+  // anything older than ~2026-09-16.
+  x402_onchain_settled   Boolean?
   created_at         DateTime  @default(now()) @db.Timestamptz()
   updated_at         DateTime? @db.Timestamptz()
 

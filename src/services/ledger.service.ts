@@ -76,6 +76,12 @@ export interface X402Entry extends LedgerEntryBase {
    *  it does (see execution_ledger.upstream_cost_usd doc comment). Only
    *  meaningful on a cache-miss, non-blocked call (provider actually ran). */
   upstreamCostUsd?: number;
+  /** T-0177 (2026-09-23): x402's actual on-chain settle outcome (see
+   *  PipelineContext.x402SettleSucceeded). Undefined for MPP rows — MPP
+   *  settles at verification time via a different mechanism, not this
+   *  facilitator path. billing_status stays 'PAID' either way (§8.9); this
+   *  is the field a report joins on to tell "PAID" from "actually collected". */
+  settleSucceeded?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -255,6 +261,7 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       moderation_category: blocked?.category ?? null,
       moderation_appeal_id: blocked?.appealId ?? null,
       upstream_cost_usd: isCacheHit || blocked ? null : (entry.upstreamCostUsd ?? null),
+      x402_onchain_settled: entry.settleSucceeded ?? null,
     },
   });
 

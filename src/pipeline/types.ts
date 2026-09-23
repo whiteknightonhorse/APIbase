@@ -118,6 +118,15 @@ export interface PipelineContext {
    *  (escrow-finalize.stage.ts) can name the original transaction — without
    *  it, a human resolving the refund has to re-derive it from logs. */
   mppTxHash?: string;
+  /** T-0177 (2026-09-23): set by settleX402() to the facilitator's actual
+   *  on-chain settle outcome — true=confirmed, false=attempted and failed.
+   *  Undefined when no settle attempt was made (free tool, no payment
+   *  header). billingStatus is set to 'PAID' unconditionally regardless of
+   *  this value (§8.9 — client already has the data); this field exists so
+   *  LEDGER_WRITE can record what actually happened on-chain instead of
+   *  every x402 row silently claiming success. See
+   *  project_x402_operator_gas_wallet_empty_since_20260616 memory. */
+  x402SettleSucceeded?: boolean;
 
   // MODERATION stage (F2/C-2/C-3, 2026-09-01)
   /** Set when MODERATION blocked this request. Read by ESCROW_FINALIZE

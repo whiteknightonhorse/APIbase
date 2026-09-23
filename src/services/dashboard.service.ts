@@ -64,6 +64,28 @@ interface ProviderDashboardEntry {
   open_incidents: number; // non-RESOLVED incidents for this provider right now
 }
 
+interface OperatorWalletStatus {
+  address: string;
+  balance_eth: number;
+  min_balance_eth: number;
+  below_threshold: boolean;
+  last_check: string;
+}
+
+interface LocalSettleHealth {
+  // T-0177 (2026-09-23): counted from execution_ledger.x402_onchain_settled
+  // (added by that migration) rather than Prometheus, so this shows up here
+  // even when Telegram/Alertmanager routing is paused — the gap that let the
+  // local facilitator run at 0% settle success from 2026-06-16 to 2026-09-23
+  // unnoticed (see project_x402_operator_gas_wallet_empty_since_20260616).
+  successes: number;
+  failures: number;
+  window_minutes: number;
+  // 'red' = failures>0 and zero successes in the window (the T-0177 case).
+  // 'orange' = a mix. 'green' = all success or no attempts to report on.
+  status: 'green' | 'orange' | 'red';
+}
+
 interface PaymentSystemStatus {
   mode_a: { status: 'green'; description: string };
   mode_b: {
@@ -74,6 +96,8 @@ interface PaymentSystemStatus {
     testnet: boolean;
     last_check: string | null;
   };
+  operator_wallet: OperatorWalletStatus | null;
+  local_settle_health: LocalSettleHealth | null;
 }
 
 interface DashboardResponse {
@@ -314,6 +338,8 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       testnet: false,
       last_check: null,
     },
+    operator_wallet: null,
+    local_settle_health: null,
   };
   if (redis) {
     try {
@@ -326,6 +352,45 @@ export async function getDashboardData(): Promise<DashboardResponse> {
           network: x402Data.network || '',
           testnet: x402Data.testnet === 'true',
           last_check: x402Data.last_check || null,
+        };
+      }
+    } catch {
+      // non-fatal
+    }
+
+    // T-0177: operator gas wallet balance, written by
+    // x402-health.job.ts's hourly runOperatorBalanceProbe (already existed —
+    // just wasn't surfaced anywhere Telegram-independent before this).
+    try {
+      const operatorData = await redis.hgetall('x402:operator');
+      if (operatorData && operatorData.address) {
+        paymentSystem.operator_wallet = {
+          address: operatorData.address,
+          balance_eth: parseFloat(operatorData.balance_eth || '0'),
+          min_balance_eth: parseFloat(operatorData.min_balance_eth || '0'),
+          below_threshold: operatorData.below_threshold === 'true',
+          last_check: operatorData.last_check || '',
+        };
+      }
+    } catch {
+      // non-fatal
+    }
+
+    // T-0177: recent x402 on-chain settle outcome. Computed once an hour by
+    // x402-health.job.ts (execution_ledger.x402_onchain_settled aggregate)
+    // and read from Redis here, NOT queried live — this dashboard's provider
+    // loop is already pinned to exactly one PG round trip per request
+    // (see tests/unit/dashboard-autopilot-status.test.ts), so a payment-health
+    // read belongs in the same Redis-cache pattern as x402:health/x402:operator
+    // above, not a second query on every /dashboard hit.
+    try {
+      const settleData = await redis.hgetall('x402:local_settle');
+      if (settleData && settleData.last_check) {
+        paymentSystem.local_settle_health = {
+          successes: parseInt(settleData.successes || '0', 10),
+          failures: parseInt(settleData.failures || '0', 10),
+          window_minutes: parseInt(settleData.window_minutes || '0', 10),
+          status: settleData.status as LocalSettleHealth['status'],
         };
       }
     } catch {

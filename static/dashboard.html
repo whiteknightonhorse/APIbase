@@ -814,6 +814,21 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     if (mb.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
     html += '<span class="separator">|</span>';
     html += '<span class="mode">' + statusDot('green') + 'MPP (Mode C) — Tempo/USDC</span>';
+    // T-0177 (2026-09-23): surface local-facilitator settle health and
+    // operator gas wallet balance here — this page is read directly by a
+    // human, unlike the Prometheus alerts covering the same two conditions
+    // (#28/#29 in prometheus/rules/alerts.yml), which route through
+    // Alertmanager -> Telegram and go unseen while Telegram is paused.
+    var lsh = ps.local_settle_health;
+    if (lsh) {
+      html += '<span class="separator">|</span>';
+      html += '<span class="mode">' + statusDot(lsh.status) + 'x402 local settle ' + lsh.successes + 'OK/' + lsh.failures + 'FAIL (' + lsh.window_minutes + 'm)</span>';
+    }
+    var ow = ps.operator_wallet;
+    if (ow && ow.below_threshold) {
+      html += '<span class="separator">|</span>';
+      html += '<span class="mode">' + statusDot('red') + 'operator wallet ' + ow.balance_eth.toExponential(2) + ' ETH &lt; ' + ow.min_balance_eth + ' min</span>';
+    }
     el.innerHTML = html;
   }
 
