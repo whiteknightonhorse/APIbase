@@ -44,29 +44,52 @@ Two fixes from ruling-2 (live re-check of attempt-2's normalized-hash fix):
 
 2. Vote every fetch, not just a post-baseline mismatch. attempt-2 treated a
    brand-new provider's FIRST successful fetch as ground truth outright —
-   but a handful of pages (celestrak request counters, worms/hunter build
-   timestamps, rotating "you may also like" widgets) carry per-request noise
-   IN THE VISIBLE TEXT itself, which normalize_body cannot and should not
-   strip (it's real page content, not markup). For those pages no single
-   fetch is representative, baseline or otherwise, and a naive first-fetch
-   baseline would either (a) never match again, escalating every month on
-   pure noise, or worse (b) happen to coincidentally re-match sometimes,
-   masking a REAL price change as "just more noise" forever. fetch_hash_voted
-   below refetches every provider up to 3x and requires 2-of-3 agreement
-   before treating any hash as trustworthy — for baseline establishment same
-   as for a later mismatch, both now go through the identical vote. A page
-   that never reaches 2-of-3 agreement is written to `pricing_source` as
-   `unstable:<url>`, distinct from a plain successful `<url>`, precisely so
-   the DB does not claim a verified check happened where the page's own
-   noise made verification impossible — and the run's summary line reports
-   how many providers landed there, so this doesn't silently point-solve
-   itself away in `WHERE pricing_source NOT LIKE 'fetch_failed:%'` reporting
-   that a human might later write assuming a bare URL always means "checked
-   clean". A provider that only *sometimes* lands here (e.g. it's a busy
-   page that just happened to be volatile this particular month) is coded
-   correctly: `unstable:` for that month, but its OLD known-hash baseline
-   is left untouched (see write-phase comment) so a later stable month can
-   still compare fresh against the same trusted value instead of drifting.
+   but a handful of pages (celestrak request counters, rotating "you may
+   also like" widgets) carry per-request noise IN THE VISIBLE TEXT itself,
+   which normalize_body cannot and should not strip (it's real page content,
+   not markup). For those pages no single fetch is representative, baseline
+   or otherwise, and a naive first-fetch baseline would either (a) never
+   match again, escalating every month on pure noise, or worse (b) happen to
+   coincidentally re-match sometimes, masking a REAL price change as "just
+   more noise" forever. fetch_hash_voted below refetches every provider up
+   to 3x and requires 2-of-3 agreement before treating any hash as
+   trustworthy — for baseline establishment same as for a later mismatch,
+   both now go through the identical vote. A page that never reaches 2-of-3
+   agreement is written to `pricing_source` as `unstable:<url>`, distinct
+   from a plain successful `<url>`, precisely so the DB does not claim a
+   verified check happened where the page's own noise made verification
+   impossible — and the run's summary line reports how many providers
+   landed there, so this doesn't silently point-solve itself away in
+   `WHERE pricing_source NOT LIKE 'fetch_failed:%'` reporting that a human
+   might later write assuming a bare URL always means "checked clean". A
+   provider that only *sometimes* lands here (e.g. it's a busy page that
+   just happened to be volatile this particular month) is coded correctly:
+   `unstable:` for that month, but its OLD known-hash baseline is left
+   untouched (see write-phase comment) so a later stable month can still
+   compare fresh against the same trusted value instead of drifting.
+
+3. Strip per-second wall-clock noise from visible text, don't rely on the
+   vote to catch it (ruling-3, live re-check of attempt-4's quorum fix).
+   attempt-4's own knowledge notes wrongly generalized worms/hunter into the
+   same "quorum catches it" bucket as celestrak/email_verify/rateapi above —
+   but a per-REQUEST noise source (a counter, a shuffled widget) differs
+   between fetches essentially always, so 2 of any 3 sequential fetches
+   reliably land on the SAME accidental non-match and correctly fall to
+   `unstable:`. A per-SECOND noise source (worms' rendered "HH:MM:SS+02:00"
+   server time; hunter.io's embedded API-example JSON with a live
+   `"made_at": "<ISO-8601>Z"`) is different in kind: three fetches issued
+   back-to-back by fetch_hash_voted typically complete within the same
+   wall-clock second, so all three hashes accidentally AGREE, the vote
+   passes 3-of-3, and the page gets written to `pricing_source` as a plain
+   verified `<url>` with a baseline hash containing that second's digits
+   baked in. The very next monthly run lands on a different second, the
+   hash no longer matches, and a false "pricing changed" WAITING_HUMAN opens
+   — indefinitely, once a month, forever, and a REAL change on a paid
+   provider like hunter.io would be indistinguishable from this noise.
+   Spacing the vote's fetches apart in time would work too, but costs wall-
+   clock on every run for every provider; stripping the timestamp text
+   itself (_TIME_OFFSET_RE, _ISO_DATETIME_RE above) is free and handles any
+   provider with this pattern, not just the two caught live so far.
 """
 import hashlib
 import json
@@ -156,6 +179,24 @@ _SERVER_INFO_RE = re.compile(
 )
 _TAG_RE = re.compile(r"<[^>]+>")
 _WHITESPACE_RE = re.compile(r"\s+")
+# A third noise class, distinct from both above: a live wall-clock timestamp
+# printed as VISIBLE TEXT that ticks every second (marinespecies.org/worms'
+# rendered "HH:MM:SS+02:00" server time; hunter.io's embedded API-example
+# JSON carrying a live "made_at": "<ISO-8601>Z" that regenerates per request)
+# — confirmed live (ruling-3): fetch_hash_voted's three sequential fetches of
+# either page land inside the SAME second often enough that all three hash
+# equal by accident, so the 2-of-3 vote (meant to catch per-request noise)
+# passes on pure luck; the very next run, a second later, hashes differently
+# and would escalate as a false "pricing changed" WAITING_HUMAN every month.
+# Stripped separately from generic tag/markup noise because this lives in the
+# page's own text, not in tags — the same reason _SERVER_INFO_RE couldn't be
+# handled by _TAG_RE either. Applied to both bare "HH:MM:SS+HH:MM" (worms)
+# and "YYYY-MM-DDTHH:MM:SS" (hunter) forms; a residual trailing "Z" or
+# "+HH:MM" is left in the T-prefixed case, but that suffix is constant across
+# fetches (a fixed UTC marker or timezone offset), so it never itself moves
+# the hash — only the digits that actually tick have to go.
+_TIME_OFFSET_RE = re.compile(r"\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}")
+_ISO_DATETIME_RE = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}")
 
 
 def normalize_body(body: bytes) -> str:
@@ -178,6 +219,8 @@ def normalize_body(body: bytes) -> str:
     text = _COMMENT_RE.sub(" ", text)
     text = _SERVER_INFO_RE.sub(" ", text)
     text = _TAG_RE.sub(" ", text)
+    text = _TIME_OFFSET_RE.sub(" ", text)
+    text = _ISO_DATETIME_RE.sub(" ", text)
     return _WHITESPACE_RE.sub(" ", text).strip()
 
 
