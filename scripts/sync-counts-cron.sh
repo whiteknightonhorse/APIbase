@@ -55,12 +55,33 @@ mkdir -p "$LOG_DIR"
 clog(){ echo "$(date -u +%FT%TZ) sync-counts-cron: $*" | tee -a "$LOG_DIR/sync-counts-cron.log" "$LOG_DIR/tick.log" >/dev/null; }
 # Best-effort Telegram alert, same shape as taskloop.sh's own tg() (state/tg.env, silently
 # no-ops if absent/unconfigured -- never fatal, never blocks the guardrails above/below it).
+#
+# T-0174 (2026-09-23, 0173 ruling-1 task B): this script used to only ever be launched by the
+# daily 05:00 cron entry, so every ABORT here fired at most once a day and dedup was pointless.
+# incident-engine.py's own reconcile_sync_counts() (T-0174) can now also launch this script from
+# EVERY autopilot tick (as often as every ~10 minutes) whenever the live catalog count disagrees
+# with what's published -- if this script itself is what's broken (config missing, wrong branch,
+# a stale FILES list, ...), that same disagreement never clears, and an un-deduped calert() would
+# page the same cause again on every single tick forever. `$2` (defaults to `$1`) names the CAUSE;
+# a marker file under STATE_DIR keyed on (cause, UTC day) makes this at most one Telegram message
+# per cause per day -- still catches a NEW cause immediately (different key), still re-alerts the
+# NEXT day if the cause is still unfixed, just kills the every-10-minutes cadence for a recurring
+# one. Fails safe toward SENDING (mkdir/marker-write failure never blocks the alert itself, only
+# the dedup bookkeeping around it) -- the failure direction that matters here is "too noisy", the
+# same posture ap.notice_dedup() documents for its own Python-side equivalent.
 calert(){
+  local msg="$1" cause="${2:-$1}" key marker
+  key="$(printf '%s' "$cause" | tr -c 'A-Za-z0-9' '-' | cut -c1-80)"
+  marker="$STATE_DIR/.calert-sent-${key}-${TODAY}"
+  [ -f "$marker" ] && return 0
   local envf="$HOME/taskloop/state/tg.env"
-  [ -f "$envf" ] || return 0
-  ( . "$envf"; [ -n "${TG_BOT_TOKEN:-}" ] && [ -n "${TG_CHAT_ID:-}" ] && \
-    curl -sS --max-time 30 -F "chat_id=$TG_CHAT_ID" -F "text=[sync-counts-cron] $1" \
-      "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" >/dev/null 2>&1 ) || true
+  if [ -f "$envf" ]; then
+    ( . "$envf"; [ -n "${TG_BOT_TOKEN:-}" ] && [ -n "${TG_CHAT_ID:-}" ] && \
+      curl -sS --max-time 30 -F "chat_id=$TG_CHAT_ID" -F "text=[sync-counts-cron] $msg" \
+        "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" >/dev/null 2>&1 ) || true
+  fi
+  mkdir -p "$STATE_DIR" 2>/dev/null || true
+  date -u +%FT%TZ > "$marker" 2>/dev/null || true
 }
 
 # Overridable only for the mutation-control tests in T-75's own writeup (a real cron/taskloop
@@ -83,14 +104,14 @@ MISS_FLAG="$STATE_DIR/.sync-counts-cron-missed-$TODAY"
 CONFIG_ENV="${SYNC_COUNTS_CRON_CONFIG_ENV:-$HOME/taskloop/config.env}"
 if [ ! -f "$CONFIG_ENV" ]; then
   clog "REFUSAL -- $CONFIG_ENV missing, cannot derive the lock-wait ceiling"
-  calert "🔴 sync-counts-cron: $CONFIG_ENV отсутствует -- отказ прибора, счётчики НЕ синхронизированы."
+  calert "🔴 sync-counts-cron: $CONFIG_ENV отсутствует -- отказ прибора, счётчики НЕ синхронизированы." "config-missing"
   exit 1
 fi
 . "$CONFIG_ENV"
 case "${TASK_TIMEOUT:-}" in
   ''|*[!0-9]*)
     clog "REFUSAL -- TASK_TIMEOUT in $CONFIG_ENV is not a positive integer ('${TASK_TIMEOUT:-}')"
-    calert "🔴 sync-counts-cron: TASK_TIMEOUT в $CONFIG_ENV не число -- отказ прибора."
+    calert "🔴 sync-counts-cron: TASK_TIMEOUT в $CONFIG_ENV не число -- отказ прибора." "task-timeout-invalid"
     exit 1
     ;;
 esac
@@ -125,7 +146,7 @@ clog "waiting for worktree-fleet.lock, up to ${MAX_WAIT_S}s (2*(TASK_TIMEOUT+600
 if ! flock -w "$MAX_WAIT_S" 9; then
   date -u +%FT%TZ > "$MISS_FLAG"
   clog "SKIPPED after ${MAX_WAIT_S}s -- worktree-fleet.lock still held by another writer. This cron is DAILY: today's self-heal is skipped, the next attempt is the ordinary tomorrow 05:00 firing, not \"the next tick\". Marked $MISS_FLAG."
-  calert "🔴 sync-counts-cron: суточный self-heal ПРОПУЩЕН после ${MAX_WAIT_S}s ожидания (worktree-fleet.lock busy) -- следующий штатный запуск завтра в 05:00."
+  calert "🔴 sync-counts-cron: суточный self-heal ПРОПУЩЕН после ${MAX_WAIT_S}s ожидания (worktree-fleet.lock busy) -- следующий штатный запуск завтра в 05:00 (или раньше, если реконсилер тика найдёт живой дрейф)." "lock-busy-skip"
   exit 1
 fi
 clog "worktree-fleet.lock acquired"
@@ -139,6 +160,7 @@ echo "$$" > "$LOCK.pid"
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$BRANCH" != "ci-staging" ]; then
   clog "ABORT -- fleet worktree is not on ci-staging (on '$BRANCH')"
+  calert "🔴 sync-counts-cron: рабочее дерево не на ci-staging (на '$BRANCH') -- отказ прибора." "wrong-branch"
   exit 1
 fi
 
@@ -147,11 +169,12 @@ fi
 # forever, exactly the next deadlock after the one T-705's wait-with-timeout already fixed on the
 # ACQUIRE side. `set -e` above still exits nonzero on a timeout (rc=124), this just names it.
 timeout 300 git fetch origin ci-staging --quiet \
-  || { clog "ABORT -- git fetch origin ci-staging timed out or failed (300s bound)"; exit 1; }
+  || { clog "ABORT -- git fetch origin ci-staging timed out or failed (300s bound)"; calert "🔴 sync-counts-cron: git fetch origin ci-staging упал/завис (300s) -- отказ прибора." "fetch-failed"; exit 1; }
 LOCAL_SHA="$(git rev-parse HEAD)"
 REMOTE_SHA="$(git rev-parse origin/ci-staging)"
 if [ "$LOCAL_SHA" != "$REMOTE_SHA" ] && ! git merge-base --is-ancestor "$REMOTE_SHA" "$LOCAL_SHA"; then
   clog "ABORT -- HEAD ($LOCAL_SHA) has diverged from origin/ci-staging ($REMOTE_SHA), refusing to commit on a stale/diverged base"
+  calert "🔴 sync-counts-cron: HEAD разошёлся с origin/ci-staging -- отказ прибора, коммит на устаревшей базе запрещён." "diverged"
   exit 1
 fi
 
@@ -201,7 +224,7 @@ while IFS= read -r p; do
 done <<<"$SELF_HEAL_PATHS"
 if [ -n "$MISSING_FROM_FILES" ]; then
   clog "ABORT -- sync-counts.sh's self-heal branch writes path(s) missing from this script's FILES allow-list, refusing to run (FILES is stale, update it first):$MISSING_FROM_FILES"
-  calert "🔴 sync-counts-cron: FILES отстаёт от sync-counts.sh self-heal, отказ прибора -- see log."
+  calert "🔴 sync-counts-cron: FILES отстаёт от sync-counts.sh self-heal, отказ прибора -- see log." "files-stale"
   exit 1
 fi
 
@@ -221,6 +244,7 @@ if [ -n "$PRE_DIRTY" ]; then
   LAST_ABORT_TS="$(grep -m1 'ABORT -- target file' "$LOG_DIR/sync-counts-cron.log" 2>/dev/null | awk '{print $1}' || true)"
   clog "ABORT -- target file(s) already have uncommitted changes, refusing to fold them into a cron commit: $(echo "$PRE_DIRTY" | tr '\n' ';')"
   clog "ABORT detail -- mtimes: $(echo "$MTIMES" | tr '\n' '; ') | previous ABORT at: ${LAST_ABORT_TS:-none recorded} | if these mtimes predate/cluster around a killed run (not a real in-progress edit), confirm then discard with: git -C '$HERE' checkout -- $DIRTY_PATHS"
+  calert "🔴 sync-counts-cron: целевые файлы уже грязные (не этим прогоном) -- отказ прибора, see log." "pre-dirty"
   exit 1
 fi
 
@@ -268,6 +292,7 @@ RUN_OUT="$(ROOT="$HERE" bash scripts/sync-counts.sh 2>&1)" && RUN_RC=0 || RUN_RC
 echo "$RUN_OUT"
 if [ "$RUN_RC" != 0 ]; then
   clog "ABORT -- sync-counts.sh exited $RUN_RC"
+  calert "🔴 sync-counts-cron: sync-counts.sh упал с кодом $RUN_RC -- отказ прибора, see log." "sync-counts-failed"
   exit 1
 fi
 COUNTS_MSG="$(echo "$RUN_OUT" | grep -m1 'live active' || true)"
@@ -292,6 +317,7 @@ for f in "${CHANGED[@]}"; do
   done
   if [ "$allowed" != 1 ]; then
     clog "ABORT -- sync-counts.sh touched an unexpected path outside the allow-list, refusing to commit anything this run: $f"
+    calert "🔴 sync-counts-cron: sync-counts.sh тронул путь вне allow-list ($f) -- отказ прибора, ничего не закоммичено." "unexpected-path"
     exit 1
   fi
 done
@@ -306,5 +332,5 @@ trap - EXIT ERR INT TERM
 # origin/ci-staging (still an ancestor, so the divergence guard above does not ABORT it), and the
 # next successful push carries it along.
 timeout 300 git push origin HEAD:ci-staging \
-  || { clog "ABORT -- git push origin HEAD:ci-staging timed out or failed (300s bound); commit $(git rev-parse --short HEAD) stays local, will push next run"; exit 1; }
+  || { clog "ABORT -- git push origin HEAD:ci-staging timed out or failed (300s bound); commit $(git rev-parse --short HEAD) stays local, will push next run"; calert "🔴 sync-counts-cron: git push упал/завис (300s) -- коммит остался локальным, попробует снова следующим запуском." "push-failed"; exit 1; }
 clog "committed and pushed $(git rev-parse --short HEAD) (${#CHANGED[@]} file(s): ${CHANGED[*]})"

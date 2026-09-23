@@ -21,10 +21,9 @@ Each tick, in order:
       (healthy|degraded|unavailable), status_source='autopilot', best-effort
       journal into whichever incident is currently open (any state !=
       RESOLVED) for that provider — usually the one detect() just opened or
-      merged into this same tick, but never required to exist — and
-      (best-effort, detached) kick sync-counts-cron.sh when a tool crosses
-      into/out of 'unavailable'. Independent of the routing steps below —
-      depends only on provider_status (AP-3), not on incident routing.
+      merged into this same tick, but never required to exist. Independent
+      of the routing steps below — depends only on provider_status (AP-3),
+      not on incident routing. Does NOT itself trigger sync-counts (see 7c).
   3. route_auto_incidents() (AP-6) — OPEN incidents whose kind routes to
      AUTO/MIXED get a real fleet task filed (I2, capped 3/day, severity-
      ordered so SEV1 never loses a slot to an older SEV3) and move to
@@ -57,6 +56,18 @@ Each tick, in order:
       re-pages a human every tick a still-down provider's re-probe fails,
       an infinite STUCK<->VERIFYING loop); nowhere -> stays STUCK but says
       so loudly, never silently reads as "confirmed still stuck").
+  7c. reconcile_sync_counts() (T-0174, 2026-09-23, 0173 ruling-1 task B) —
+      the ONE sync-counts trigger for the whole tick, last, after every
+      write above has had its chance to run. Replaces the old per-write
+      "crossed" trigger that used to live inside sync_tool_status() (T-05):
+      that only ever caught AP-8 availability crossings, so onboarding
+      (seed.ts INSERTs status='healthy' directly), deletions, and manual SQL
+      all changed the live count without ever notifying anyone until the
+      next 05:00 cron or an unrelated crossing happened to catch them up.
+      Compares the live catalog count against what's actually published
+      (HEAD:static/.well-known/mcp.json in the fleet worktree) and fires
+      trigger_sync_counts() with a reason string on any mismatch, whatever
+      caused it — exactly once per tick, since it's called exactly once.
   8. write_heartbeat().
 
 Why this file does NOT touch crontab or fleet-check.sh/fleet-pulse.sh
@@ -866,16 +877,6 @@ def _tool_status_for_state(state: str):
     return {"HEALTHY": "healthy", "DEGRADED": "degraded", "DOWN": "unavailable"}.get(state)
 
 
-def _availability_crossed(old_statuses, target: str) -> bool:
-    """Whether this batch of tool-status writes changed the COUNT of
-    available tools (sync-counts.sh's own query: `status != 'unavailable'`)
-    — true if the new target itself is 'unavailable' (a fresh demotion) or
-    any tool being written was PREVIOUSLY 'unavailable' (a promotion out of
-    it). A healthy<->degraded flip never changes that count, so it must not
-    trigger a sync-counts run for no reason."""
-    return target == "unavailable" or "unavailable" in old_statuses
-
-
 def sync_tool_status():
     """Self-healing reconciler, not edge-triggered off incident open/close —
     reads provider_status directly and runs every tick regardless of whether
@@ -925,18 +926,27 @@ def sync_tool_status():
         return
     if not out:
         return  # no provider has left UNKNOWN yet — genuinely nothing to sync
-    # T-05 (2026-09-04, ruling-1): trigger_sync_counts() used to fire from
+    # T-05 (2026-09-04, ruling-1) used to fire trigger_sync_counts() from
     # INSIDE this loop, once per provider that crossed the availability
-    # boundary this tick. A single tick demoting several providers back to
-    # back therefore launched several sync-counts-cron.sh instances seconds
-    # apart, each reading `tools` mid-write by the others still running in
-    # this same loop -- confirmed live (T-05 diagnosis): three DIFFERENT
-    # tool/provider counts captured six seconds apart out of one tick, and
-    # ~15 sync-counts-cron.sh processes started in that same minute while
-    # taskloop itself was idle. One tick must trigger AT MOST one sync, and
-    # only after every provider this tick touches has finished writing —
-    # tracked with `crossed` and fired once, after the loop.
-    crossed = False
+    # boundary this tick — a single tick demoting several providers back to
+    # back launched several sync-counts-cron.sh instances seconds apart, each
+    # reading `tools` mid-write by the others still running in this same loop
+    # (confirmed live: three DIFFERENT tool/provider counts captured six
+    # seconds apart out of one tick). T-05's own fix moved the trigger to
+    # once-after-the-loop via a `crossed` flag.
+    #
+    # T-0174 (2026-09-23, 0173 ruling-1 task B) replaces that flag entirely.
+    # It only ever caught changes THIS function itself made by crossing the
+    # availability boundary — onboarding (seed.ts INSERTs status='healthy'
+    # directly), deletions, and manual SQL all change the live count without
+    # this loop ever seeing a "crossing", and stayed stale until the next
+    # 05:00 cron or an unrelated AP-8 crossing happened to catch them up. The
+    # trigger decision now lives entirely in reconcile_sync_counts(), called
+    # once at the very end of run() (after every write the whole tick could
+    # have made, not just this function's own), which compares the live
+    # count against what's actually published rather than watching for a
+    # specific kind of write. This function no longer calls
+    # trigger_sync_counts() itself at all.
     for line in out.splitlines():
         provider, state, reason = (line.split(ap.SEP) + [None, None, None])[:3]
         target = _tool_status_for_state(state)
@@ -1007,7 +1017,6 @@ def sync_tool_status():
         if not out2:
             continue  # already converged — nothing eligible needed a change
         rows = [r.split(ap.SEP) for r in out2.splitlines()]
-        old_statuses = [r[1] for r in rows]
         ap.notice(f"tool-status-sync: {provider} -> {target} ({len(rows)} tool(s))")
 
         if has_incident:
@@ -1017,11 +1026,55 @@ def sync_tool_status():
             except Exception as e:
                 ap.notice(f"tool-status-sync: note_incident failed for {inc_row}: {e}")
 
-        if _availability_crossed(old_statuses, target):
-            crossed = True
 
-    if crossed:
-        ap.trigger_sync_counts()
+def reconcile_sync_counts():
+    """T-0174 (2026-09-23, 0173 ruling-1 task B): the ONE sync-counts trigger
+    for the whole tick, replacing sync_tool_status()'s old crossed-only
+    trigger (see that function's own T-0174 comment). Called once, at the
+    very end of run() — after sync_tool_status() and every other write this
+    tick could have made — so it sees the tick's FINAL state, not a
+    mid-write snapshot.
+
+    Compares the live catalog count (same source of truth sync-counts.sh's
+    own query uses: `status != 'unavailable'`) against the count actually
+    published last time sync-counts ran (HEAD:static/.well-known/mcp.json in
+    the fleet worktree — ap.published_head_counts(), read-only, no lock). A
+    mismatch, whatever caused it — an AP-8 availability crossing, a fresh
+    onboarding INSERT (status='healthy' directly, no crossing at all), a
+    deletion, or a manual SQL UPDATE — is one fact: "what's live no longer
+    matches what's public", and fires trigger_sync_counts() with a reason
+    string naming both sides. Equal counts fire nothing, including the
+    ordinary case where an earlier trigger this same tick (or a previous
+    tick, or last night's 05:00 cron) already caught up and pushed.
+
+    Best-effort: a failed live-count query or a failed HEAD read just skips
+    this tick's reconciliation (already logged by ap.psql/
+    ap.published_head_counts themselves) rather than raising — the next tick
+    ten minutes later tries again, same posture as every other self-healing
+    check in this module."""
+    out, rc = ap.psql(
+        "SELECT count(*), count(DISTINCT provider) FROM tools WHERE status != 'unavailable'"
+    )
+    if rc != 0 or not out:
+        ap.notice(f"reconcile-sync-counts: live count query failed: {out}")
+        return
+    try:
+        live_tools, live_providers = (int(x) for x in out.strip().split(ap.SEP))
+    except Exception as e:
+        ap.notice(f"reconcile-sync-counts: could not parse live count {out!r}: {e}")
+        return
+
+    head = ap.published_head_counts()
+    if head is None:
+        return  # already logged by published_head_counts() itself
+    head_tools, head_providers = head
+
+    if live_tools == head_tools and live_providers == head_providers:
+        return  # converged — nothing to do this tick
+
+    ap.trigger_sync_counts(
+        reason=f"live {live_tools}/{live_providers} != HEAD {head_tools}/{head_providers}"
+    )
 
 
 def write_heartbeat():
@@ -1115,6 +1168,10 @@ def run():
     advance_remediation_queued()
     advance_verifying()
     reconcile_stuck_incidents()
+    # T-0174: last, after every write above has had its chance to run this
+    # tick — see reconcile_sync_counts()'s own docstring for why it has to
+    # be here and not inside sync_tool_status() anymore.
+    reconcile_sync_counts()
     write_heartbeat()
     _log(f"incident-engine: tick complete, {opened} new incident(s) opened")
     return 0
@@ -1153,17 +1210,11 @@ def selftest():
     fn = ap.next_task_filename("PROVIDER_DOWN", "Test Provider!", "SEV1")
     assert fn.startswith("9") and fn.endswith("-autopilot-remediation-PROVIDER_DOWN-test-provider.md"), fn
 
-    # AP-8: pure F1-state -> Tool.status mapping + availability-crossing check.
+    # AP-8: pure F1-state -> Tool.status mapping.
     assert _tool_status_for_state("HEALTHY") == "healthy"
     assert _tool_status_for_state("DEGRADED") == "degraded"
     assert _tool_status_for_state("DOWN") == "unavailable"
     assert _tool_status_for_state("UNKNOWN") is None, "UNKNOWN is NOINFO, never a guessed status"
-    assert _availability_crossed(["healthy"], "unavailable") is True, "demotion INTO unavailable crosses"
-    assert _availability_crossed(["unavailable"], "healthy") is True, "promotion OUT OF unavailable crosses"
-    assert _availability_crossed(["unavailable"], "degraded") is True, "still a promotion out of unavailable"
-    assert _availability_crossed(["healthy"], "degraded") is False, "healthy<->degraded never changes the count"
-    assert _availability_crossed(["degraded"], "healthy") is False, "healthy<->degraded never changes the count"
-    assert _availability_crossed([], "degraded") is False, "no rows changed at all"
 
     # T-0152a (ruling-1 on 0152-gdelt-deprecation-assess-and-plan, Answer 2):
     # detect_from_provider_status() must skip a provider provider-limits.json
@@ -2186,9 +2237,24 @@ def selftest_db():
 
         # World 13 (AP-8): demote -> promote cycle, manual status AND legacy
         # status_source=NULL-but-non-healthy status never overwritten
-        # (ruling-1 REJECT), journal into the matching incident's attempts,
-        # and the sync-counts trigger firing ONLY on an availability-crossing
-        # change.
+        # (ruling-1 REJECT), journal into the matching incident's attempts.
+        #
+        # T-0174 (2026-09-23, 0173 ruling-1 task B): the sync-counts trigger
+        # no longer lives inside sync_tool_status() at all -- it's
+        # reconcile_sync_counts(), called once per tick from run(), which
+        # compares the LIVE catalog count against ap.published_head_counts()
+        # (HEAD:static/.well-known/mcp.json in the fleet worktree). Testing
+        # it therefore needs a real (throwaway) git repo standing in for
+        # that worktree, with a controllable HEAD commit -- not just an env
+        # var pointing trigger_sync_counts()'s subprocess `cwd` at /tmp
+        # (which used to be enough, since the old trigger never READ
+        # anything from FLEET_WORKTREE). Each subtest below calls
+        # reconcile_sync_counts() explicitly right after sync_tool_status()
+        # (standing in for "the rest of run() then reached the end of this
+        # tick") and re-baselines HEAD with _commit_head_counts() once it's
+        # done asserting, so the NEXT subtest starts from a converged state
+        # -- exactly the "0 drift, nothing committed" steady state
+        # sync-counts-cron.sh reaches after a real successful run.
         # A fresh, isolated sync-counts-cron.sh stub (never the real one --
         # this must not touch git or a real lock) that just proves it was
         # launched.
@@ -2201,8 +2267,15 @@ def selftest_db():
             # sync_tool_status() call, not just detect "at least one" -- World 13's own
             # _wait_for(marker) only checks existence so this change doesn't affect it.
             f.write(f"#!/usr/bin/env bash\ndate +%s%N >> {marker}\n")
+        import shutil
+        fake_worktree = "/tmp/autopilot-ap8-selftest-fleet-worktree"
+        shutil.rmtree(fake_worktree, ignore_errors=True)
+        os.makedirs(f"{fake_worktree}/static/.well-known", exist_ok=True)
+        subprocess.run(["git", "init", "-q", fake_worktree], check=True, capture_output=True)
+        subprocess.run(["git", "-C", fake_worktree, "config", "user.email", "selftest@local"], check=True)
+        subprocess.run(["git", "-C", fake_worktree, "config", "user.name", "selftest"], check=True)
         os.environ["AUTOPILOT_SYNC_COUNTS_CRON_SH"] = stub_sh
-        os.environ["AUTOPILOT_FLEET_WORKTREE"] = "/tmp"
+        os.environ["AUTOPILOT_FLEET_WORKTREE"] = fake_worktree
         importlib.reload(ap)
 
         def _wait_for(path, timeout_s=5):
@@ -2214,11 +2287,37 @@ def selftest_db():
                 time.sleep(0.1)
             return False
 
+        def _live_counts():
+            out, rc = ap.psql(
+                "SELECT count(*), count(DISTINCT provider) FROM tools WHERE status != 'unavailable'"
+            )
+            assert rc == 0, f"selftest: live count query failed: {out}"
+            t, p = out.split(ap.SEP)
+            return int(t), int(p)
+
+        def _commit_head_counts(tools_count, providers_count):
+            with open(f"{fake_worktree}/static/.well-known/mcp.json", "w", encoding="utf-8") as f:
+                json.dump({"tools_count": tools_count, "providers_count": providers_count}, f)
+            subprocess.run(["git", "-C", fake_worktree, "add", "-A"], check=True, capture_output=True)
+            subprocess.run(
+                ["git", "-C", fake_worktree, "commit", "-q", "--allow-empty", "-m", "selftest baseline"],
+                check=True, capture_output=True,
+            )
+
+        # Baseline HEAD = whatever's live right now, BEFORE World 13 changes anything.
+        _commit_head_counts(*_live_counts())
+
         ap.psql(
             "INSERT INTO tools (tool_id, provider, status, status_source) VALUES "
             "('ap8down1-tool1', 'ap8down1', 'healthy', NULL), "
             "('ap8down1-tool2', 'ap8down1', 'healthy', 'autopilot')"
         )
+        # Re-baseline HEAD to include ap8down1 as already-published-and-healthy BEFORE the DOWN
+        # transition below -- otherwise this insert-then-immediately-demote sequence would net to
+        # zero change vs a HEAD that predates both (the provider never existed in any published
+        # state), which would correctly make the reconciler see nothing to do and wouldn't exercise
+        # what 13a actually claims: a demotion of an ALREADY-published provider must trigger.
+        _commit_head_counts(*_live_counts())
         ap.psql(
             "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
             "probe_interval_s, last_probe_result, last_probe_at, state_reason) VALUES "
@@ -2244,7 +2343,9 @@ def selftest_db():
             a["actor"] == "tool-status-sync" and a["action"] == "status-changed"
             and "unavailable" in a["result"] for a in inc13["attempts"]
         ), f"world 13: demotion must be journaled into the open incident's attempts, got {inc13['attempts']}"
+        reconcile_sync_counts()
         assert _wait_for(marker), "world 13: demotion crossing availability must trigger sync-counts (detached)"
+        _commit_head_counts(*_live_counts())  # simulate: sync-counts ran and republished, caught HEAD up
         print("world 13a (demote: DOWN -> unavailable, status_source=autopilot, journaled, "
               "sync-counts triggered): OK")
 
@@ -2270,6 +2371,12 @@ def selftest_db():
             "INSERT INTO tools (tool_id, provider, status, status_source, status_changed_at) VALUES "
             "('ap8down1-tool4', 'ap8down1', 'degraded', NULL, now() - interval '1 day')"
         )
+        # These two raw INSERTs are themselves a real live-count change (two new 'degraded', i.e.
+        # available, rows) -- re-baseline HEAD to include them BEFORE the no-op assertion below, so
+        # that assertion isolates the thing it's actually testing (does an internally-no-op
+        # sync_tool_status() tick spuriously trigger?), not "does a raw INSERT trigger?" (World 22
+        # below already covers that case on its own).
+        _commit_head_counts(*_live_counts())
         ts_before, _ = ap.psql(
             f"SELECT {UTC_TS_EXPR('status_changed_at')} FROM tools WHERE tool_id = 'ap8down1-tool1'"
         )
@@ -2295,8 +2402,10 @@ def selftest_db():
             "world 13: an already-converged autopilot row must not be rewritten on a no-op tick "
             f"({ts_before} -> {ts_after})"
         )
+        reconcile_sync_counts()
         assert not os.path.exists(marker), (
-            "world 13: a no-op tick (nothing actually changed) must NOT re-trigger sync-counts"
+            "world 13: a no-op tick (nothing actually changed, live count == HEAD) must NOT "
+            "re-trigger sync-counts"
         )
         print("world 13b (manual status AND legacy status_source=NULL non-healthy status never "
               "overwritten, no-op tick doesn't re-touch status_changed_at or re-trigger "
@@ -2328,14 +2437,20 @@ def selftest_db():
             f"world 13: legacy status_source=NULL non-healthy tool must survive the FULL "
             f"demote->promote cycle untouched too, got {row_legacy2!r}"
         )
+        reconcile_sync_counts()
         assert _wait_for(marker), "world 13: promotion crossing availability must also trigger sync-counts"
+        _commit_head_counts(*_live_counts())
         print("world 13c (promote: HEALTHY -> healthy, manual tool survives the whole cycle, "
               "sync-counts triggered again): OK")
 
-        # DEGRADED-only change must NOT cross the availability boundary --
-        # no sync-counts trigger (mutation control: dropping the `target ==
-        # "unavailable" or "unavailable" in old_statuses` check in favor of
-        # "always trigger" makes this assertion fail).
+        # DEGRADED-only change must NOT change the live catalog count --
+        # no sync-counts trigger. The raw INSERT of a brand new tool/provider
+        # below IS itself a real live-count change (a fresh provider showing
+        # up), so HEAD is re-baselined right after it, isolating what this
+        # subtest actually claims: a healthy<->degraded flip BY ITSELF, with
+        # no other change, must not make the reconciler fire (mutation
+        # control: a reconciler that triggered on ANY write regardless of
+        # count would fail this).
         os.remove(marker)
         ap.psql(
             "INSERT INTO tools (tool_id, provider, status, status_source) VALUES "
@@ -2346,23 +2461,29 @@ def selftest_db():
             "probe_interval_s, last_probe_result, last_probe_at) VALUES "
             "('ap8degradedonly', 'DEGRADED', now(), now(), 900, 'FAIL_TRANSIENT', now())"
         )
+        _commit_head_counts(*_live_counts())
         sync_tool_status()
         row_deg, _ = ap.psql("SELECT status, status_source FROM tools WHERE tool_id = 'ap8degradedonly-tool1'")
         assert row_deg == "degraded" + ap.SEP + "autopilot", f"world 13: expected degraded/autopilot, got {row_deg}"
+        reconcile_sync_counts()
         assert not _wait_for(marker, timeout_s=1), (
             "world 13: healthy<->degraded must NOT change the available-tool count, "
             "so it must NOT trigger sync-counts"
         )
-        print("world 13d (DEGRADED-only change never crosses availability, no sync-counts trigger): OK")
+        print("world 13d (DEGRADED-only change never changes the live catalog count, no sync-counts "
+              "trigger): OK")
 
-        # World 14 (T-05, 2026-09-04, ruling-1): TWO providers crossing INTO 'unavailable' in the
-        # SAME sync_tool_status() call must fire trigger_sync_counts() exactly ONCE, not once per
-        # provider. Before this fix, the trigger lived inside the per-provider loop -- a tick that
-        # demoted several providers back to back launched several sync-counts-cron.sh instances
-        # seconds apart, each capable of reading `tools` mid-write by the others (confirmed live:
-        # three different tool/provider counts captured six seconds apart from ONE tick). The stub
-        # now APPENDS one line per invocation (see its own comment above), so this counts
-        # invocations instead of just detecting "at least one".
+        # World 14 (T-05, 2026-09-04, ruling-1; adapted 2026-09-23 for T-0174's reconciler): TWO
+        # providers crossing INTO 'unavailable' in the SAME sync_tool_status() call must still
+        # result in exactly ONE reconcile_sync_counts() trigger for the tick, not zero and not two.
+        # Both providers are seeded as already-healthy and HEAD is re-baselined to include them
+        # BEFORE the DOWN transition below -- otherwise the insert-then-immediately-demote sequence
+        # would net to zero change vs a HEAD that predates both, and the reconciler would correctly
+        # see nothing to do, which wouldn't exercise the thing this world is actually about: one
+        # sync_tool_status() call changing TWO already-published providers must not cause the
+        # end-of-tick reconciler to under- or over-fire. The stub still APPENDS one line per
+        # invocation (see its own comment above), so this counts invocations instead of just
+        # detecting "at least one".
         # World 13d ended with the marker absent (DEGRADED-only never triggers it) -- guard the
         # removal instead of assuming it exists, same pattern as the very first removal above.
         if os.path.exists(marker):
@@ -2372,6 +2493,7 @@ def selftest_db():
             "('ap8multi1-tool1', 'ap8multi1', 'healthy', NULL), "
             "('ap8multi2-tool1', 'ap8multi2', 'healthy', NULL)"
         )
+        _commit_head_counts(*_live_counts())
         ap.psql(
             "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
             "probe_interval_s, last_probe_result, last_probe_at) VALUES "
@@ -2379,6 +2501,7 @@ def selftest_db():
             "('ap8multi2', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
         )
         sync_tool_status()
+        reconcile_sync_counts()
         assert _wait_for(marker), "world 14: two providers crossing availability in one tick must still trigger sync-counts"
         # Give the (fire-and-forget, detached) stub a moment to finish writing before counting --
         # _wait_for already proved the FIRST line landed; this is only extra grace for a possible
@@ -2388,12 +2511,52 @@ def selftest_db():
             invocations = len([ln for ln in f.read().splitlines() if ln.strip()])
         assert invocations == 1, (
             f"world 14: two providers crossing 'unavailable' in ONE sync_tool_status() call must "
-            f"trigger sync-counts exactly once, got {invocations} invocation(s)"
+            f"result in exactly one reconcile_sync_counts() trigger for the tick, got "
+            f"{invocations} invocation(s)"
         )
         for tid in ("ap8multi1-tool1", "ap8multi2-tool1"):
             row, _ = ap.psql(f"SELECT status FROM tools WHERE tool_id = {ap.sql_literal(tid)}")
             assert row == "unavailable", f"world 14: {tid} expected unavailable, got {row}"
+        _commit_head_counts(*_live_counts())
         print("world 14 (two providers crossing availability in ONE tick -> sync-counts triggered exactly once): OK")
+
+        # World 22 (T-0174, 2026-09-23, 0173 ruling-1 task B): the whole point of the reconciler --
+        # a tool inserted with NO availability crossing and NO sync_tool_status() call at all (the
+        # exact shape of scripts/seed.ts's real onboarding INSERT: status='healthy' set directly,
+        # never touching provider_status or AP-8's demote/promote path) must still be caught. The
+        # OLD crossed-based trigger had no way to ever see this -- it only fired from inside
+        # sync_tool_status()'s own loop, which this scenario never calls.
+        if os.path.exists(marker):
+            os.remove(marker)
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source) VALUES "
+            "('ap8seed1-tool1', 'ap8seed1', 'healthy', 'seed')"
+        )
+        reconcile_sync_counts()
+        assert _wait_for(marker), (
+            "world 22: a seeded tool with zero AP-8 crossings must still make the end-of-tick "
+            "reconciler detect live != HEAD and trigger sync-counts"
+        )
+        time.sleep(0.5)
+        with open(marker, encoding="utf-8") as f:
+            invocations22 = len([ln for ln in f.read().splitlines() if ln.strip()])
+        assert invocations22 == 1, f"world 22: expected exactly one trigger, got {invocations22}"
+        row22, _ = ap.psql("SELECT status FROM tools WHERE tool_id = 'ap8seed1-tool1'")
+        assert row22 == "healthy", f"world 22: seeded tool must be untouched, got {row22}"
+        _commit_head_counts(*_live_counts())
+        print("world 22a (onboarding-style seed INSERT with zero AP-8 crossings -> reconciler "
+              "triggers exactly once): OK")
+
+        # Mutation control for the acceptance criterion's own wording ("равные числа -- ноль"):
+        # HEAD now matches live (just re-baselined above) -- a reconciler that triggered
+        # unconditionally, or on ANY tick regardless of whether counts actually differ, fails this.
+        if os.path.exists(marker):
+            os.remove(marker)
+        reconcile_sync_counts()
+        assert not os.path.exists(marker), (
+            "world 22: live count == HEAD -- the reconciler must not trigger on equal counts"
+        )
+        print("world 22b (live count == HEAD -> reconciler triggers zero times): OK")
 
         # World 15 (T-09, ruling-1): cmd_resolve_request() must NOT transition a
         # fleet-owned incident straight to VERIFYING on the fleet's own self-
@@ -2862,6 +3025,10 @@ def selftest_db():
                 os.environ.pop(_k, None)
             else:
                 os.environ[_k] = _v
+        # T-0174: World 13's own disposable fake fleet worktree (a real throwaway git repo,
+        # not just a bare directory) -- never leave it behind for the next run to trip over.
+        import shutil as _shutil
+        _shutil.rmtree("/tmp/autopilot-ap8-selftest-fleet-worktree", ignore_errors=True)
         import importlib
         importlib.reload(ap)
 

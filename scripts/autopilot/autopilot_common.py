@@ -1418,14 +1418,27 @@ def bridge_key_incident(incident: dict):
 # demotion/promotion logic itself — this is only the "прогон sync-counts
 # после" coordination half of that P-table row).
 # ---------------------------------------------------------------------------
-def trigger_sync_counts() -> bool:
-    """A tool crossing INTO or OUT OF 'unavailable' changes the public tool/
-    provider counts sync-counts.sh publishes (README, static pages, server-
-    card.json — see that script's own header: "source of truth: DB tools
-    WHERE status != 'unavailable'"). Waiting for the existing daily 05:00
-    cron to notice could leave a demoted tool's stale count live for up to
-    24h; a tool that just came back healthy would stay under-counted just as
-    long.
+def trigger_sync_counts(reason: str = "") -> bool:
+    """The public tool/provider counts sync-counts.sh publishes (README,
+    static pages, server-card.json — see that script's own header: "source
+    of truth: DB tools WHERE status != 'unavailable'") can drift from what's
+    actually in the DB for more reasons than an AP-8 availability crossing —
+    onboarding (seed.ts inserts status='healthy' directly), deletions, and
+    manual SQL all change the live count without ever going through
+    sync_tool_status()'s own demote/promote path. T-0174 (0173 ruling-1 task
+    B) moved the decision of WHEN to call this out of sync_tool_status()
+    entirely and into incident-engine.py's own end-of-tick reconciler
+    (reconcile_sync_counts()), which compares the live count against the
+    last count actually published (HEAD:static/.well-known/mcp.json) and
+    calls this with a `reason` string naming both sides of that mismatch —
+    this function itself no longer knows or cares WHY it was called, only
+    that a caller decided a sync is due. `reason` is written into
+    sync-counts-triggered.log ahead of the launch so a human/dispatcher can
+    see WHY a given run fired without cross-referencing incident-engine's
+    own notices.log by timestamp.
+
+    Waiting for the existing daily 05:00 cron to notice could leave a
+    drifted count live for up to 24h.
 
     Fire-and-forget ON PURPOSE, never awaited: sync-counts-cron.sh does its
     OWN flock on worktree-fleet.lock and documents a wait ceiling of
@@ -1447,19 +1460,54 @@ def trigger_sync_counts() -> bool:
         notice(f"tool-status-sync: sync-counts trigger skipped — "
                f"{SYNC_COUNTS_CRON_SH} not found")
         return False
+    reason = reason or "unspecified"
     try:
         log_dir = f"{TASKLOOP_ROOT}/logs"
         os.makedirs(log_dir, exist_ok=True)
+        ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         with open(f"{log_dir}/sync-counts-triggered.log", "a") as logf:
+            logf.write(f"{ts} trigger: {reason}\n")
+            logf.flush()
             subprocess.Popen(
                 ["bash", SYNC_COUNTS_CRON_SH],
                 stdout=logf, stderr=logf,
                 cwd=FLEET_WORKTREE,
                 start_new_session=True,
             )
-        notice("tool-status-sync: sync-counts-cron.sh launched (detached) after an "
-               "availability-crossing status change")
+        notice(f"tool-status-sync: sync-counts-cron.sh launched (detached) — {reason}")
         return True
     except Exception as e:
         notice(f"tool-status-sync: failed to launch sync-counts-cron.sh: {e}")
         return False
+
+
+def published_head_counts():
+    """T-0174 (0173 ruling-1 task B): the reference number the end-of-tick
+    reconciler (incident-engine.py's reconcile_sync_counts()) compares the
+    live DB catalog count against. Reads tools_count/providers_count from
+    static/.well-known/mcp.json AT THE FLEET WORKTREE'S OWN HEAD (`git show`,
+    not the live working tree — a taskloop task could have the working tree
+    checked out to something transient mid-run) via `git -C FLEET_WORKTREE
+    show HEAD:...`, exactly as the ruling specifies. `git show` reads the
+    object database and never touches the working tree or the index, so this
+    needs no lock — safe to call even while worktree-fleet.lock is held by
+    an unrelated writer.
+
+    Returns (tools_count, providers_count), or None on any failure (git
+    error, missing key, bad JSON) — the caller treats None as "could not
+    reconcile this tick, try again next tick" rather than raising, same
+    best-effort posture as the rest of this module's reads."""
+    try:
+        r = subprocess.run(
+            ["git", "-C", FLEET_WORKTREE, "show", "HEAD:static/.well-known/mcp.json"],
+            capture_output=True, text=True, timeout=30,
+        )
+        if r.returncode != 0:
+            notice(f"published-head-counts: git show HEAD:static/.well-known/mcp.json "
+                   f"failed rc={r.returncode}: {r.stderr.strip()[:300]}")
+            return None
+        data = json.loads(r.stdout)
+        return int(data["tools_count"]), int(data["providers_count"])
+    except Exception as e:
+        notice(f"published-head-counts: {e}")
+        return None
