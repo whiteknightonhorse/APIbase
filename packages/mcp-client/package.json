@@ -1,6 +1,6 @@
 {
   "name": "@apibase11/mcp-client",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "mcpName": "io.github.whiteknightonhorse/apibase",
   "description": "MCP client for APIbase.pro — connect AI agents to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt). Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).",
   "type": "module",

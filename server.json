@@ -6,12 +6,12 @@
     "url": "https://github.com/whiteknightonhorse/APIbase",
     "source": "github"
   },
-  "version": "1.0.1",
+  "version": "1.0.3",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "apibase-mcp-client",
-      "version": "1.0.2",
+      "version": "1.0.4",
       "transport": {
         "type": "stdio"
       },
