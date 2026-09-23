@@ -181,7 +181,7 @@
   },
   "education": {
     "display_name": "Education / Research",
-    "health_url": "https://api.openalex.org/works?search=test&per_page=1&mailto=contact@apibase.pro",
+    "health_url": "https://api.openalex.org/works/W2741809807?mailto=contact@apibase.pro",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
