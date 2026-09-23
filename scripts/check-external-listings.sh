@@ -139,6 +139,26 @@ emit_repo_synced_listing() {
   fi
 }
 
+# --- server.json description length — the Official MCP Registry rejects publish with a 422
+# ("expected length <= 100") if description exceeds 100 chars; confirmed T-0172zzz (2026-09-23),
+# a 141-char description was rejected before ever reaching the registry, so the drift checks
+# below (which only read what's already live) can never catch this class of bug. This is a
+# repo-only, pre-publish check: read our own server.json, always blocking since it's entirely
+# fixable from this repo. ---
+SERVER_JSON_CHECK=$(python3 -c '
+import json
+try:
+    d = json.load(open("server.json"))
+    n = len(d.get("description", ""))
+    status = "too_long" if n > 100 else "ok"
+    blocking = "true" if n > 100 else "false"
+    print("{\"listing\":\"server_json_description_length\",\"status\":\"%s\",\"length\":%d,\"max\":100,\"blocking\":%s}" % (status, n, blocking))
+except Exception as e:
+    print("{\"listing\":\"server_json_description_length\",\"status\":\"error\",\"blocking\":false}")
+')
+echo "$SERVER_JSON_CHECK"
+echo "$SERVER_JSON_CHECK" | grep -q '"blocking":true' && BLOCKING=1
+
 # --- Official MCP Registry — registry.modelcontextprotocol.io, our own server.json record ---
 REGISTRY_JSON=$(curl -s --max-time 15 \
   "https://registry.modelcontextprotocol.io/v0/servers?search=apibase" || true)

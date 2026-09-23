@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.whiteknightonhorse/apibase",
-  "description": "One MCP + REST endpoint to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt). Pay per call in USDC \u2014 x402 on Base or MPP on Tempo.",
+  "description": "MCP endpoint to APIbase catalog (https://apibase.pro/llms.txt). USDC: x402 Base, MPP Tempo.",
   "repository": {
     "url": "https://github.com/whiteknightonhorse/APIbase",
     "source": "github"
