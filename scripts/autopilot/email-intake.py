@@ -115,6 +115,36 @@ examples literally, not guessed:
     someone should assess impact" and _AUTO_TASK_WHAT["EMAIL_NOTICE"] in
     autopilot_common.py (AP-6) already has the fleet-task body text for it.
   - MARKETING/UNMATCHED/DEFERRED_BUDGET -> no kind, no incident, ever.
+
+T-0168 (FT-10 of T-0155 + operator addition, 2026-09-23) added two classes and
+a second IMAP folder read:
+  - Spam folder (IMAP_SPAM_FOLDER, default "[Gmail]/Spam"): a second,
+    independent fetch_messages() pass, readonly, rules-only (allow_haiku=False
+    end to end — never reaches classify_with_haiku regardless of action
+    markers). email_events.source_folder records which pass a row came from.
+  - LIMIT_CHANGE (-> EMAIL_NOTICE, decided by this same task's own design
+    text, not guessed): a provider notice that a limit CHANGED (a new number)
+    is a different fact from QUOTA (usage is near/at the CURRENT limit) — see
+    the _RULES entry, checked before QUOTA so the two no longer collide on
+    overlapping phrases like "rate limit change".
+  - PARTNER_REPLY: a reply to one of OUR OWN partner-program/legal-
+    clarification outreach emails, detected ONLY by RFC 5322 In-Reply-To/
+    References matching a known outbound Message-ID (see
+    is_partner_reply_by_thread(), PARTNER_REPLY_THREADS_PATH) — zero
+    keywords, checked before provider-domain resolution because real replies
+    observed in the mailbox arrive from third-party helpdesk domains
+    (Pylon, Intercom) that are not, and should not become, registered
+    provider domains. Deliberately NOT in CLASS_TO_KIND: whether/how a
+    partner-reply should surface (incident, new carrier kind, or a separate
+    notification path) is an open design question left to Fable — see
+    disputes/0168-ft10-spam-folder-limit-change-and-partner-reply-class.q-1.md.
+    A from-domain heuristic for the 8 requests sent via web forms (no thread
+    to match) was evaluated and rejected — real acknowledgement mail from
+    that batch is either automated noise indistinguishable from marketing
+    (Groq/Mistral/ElevenLabs, same HubSpot infra) or arrives from a domain
+    with no relation to the provider at all (Firecrawl, a personal contact
+    domain) — no rules-only signal was found for that half; not implemented,
+    named explicitly rather than silently uncovered.
 """
 import argparse
 import hashlib
@@ -151,6 +181,16 @@ PROVIDER_DOMAINS_PATH = os.environ.get(
 HAIKU_COUNTER_PATH = os.environ.get(
     "AUTOPILOT_EMAIL_HAIKU_COUNTER", f"{ap.TASKLOOP_ROOT}/state/autopilot-email-haiku-daily.count"
 )
+# T-0168: known Message-IDs of OUR OWN outbound partner-program/legal-clarification
+# emails, one per thread — same convention as IMAP_ENV_PATH (outside the git repo,
+# human/operator-populated, chmod 600 recommended). Never committed: these are
+# real mailbox identifiers, not code. Missing file -> empty list -> PARTNER_REPLY
+# simply never fires by thread (fail-soft, same spirit as load_imap_env()'s NOINFO,
+# not a crash).
+PARTNER_REPLY_THREADS_PATH = os.environ.get(
+    "AUTOPILOT_PARTNER_REPLY_THREADS_PATH",
+    os.path.expanduser("~/.config/autopilot/partner-reply-threads.json"),
+)
 HAIKU_DAILY_CAP = 3  # H3 point 4: "Потолок 3 вызова/день"
 EMAIL_HEARTBEAT_FILE = os.environ.get("AUTOPILOT_EMAIL_HEARTBEAT_FILE", "/tmp/autopilot-email-intake.hb")
 SETUP_FILE = os.path.join(ap.OPERATOR_DIR, "EMAIL-IMAP-SETUP.md")
@@ -164,6 +204,8 @@ EMAIL_CLASSES = frozenset([
     "KEY_EXPIRES", "KEY_REVOKED", "DEPRECATION", "SUNSET", "ENDPOINT_CHANGE",
     "PRICING_CHANGE", "PAYMENT_FAILED", "QUOTA", "MAINTENANCE", "SECURITY_CHANGE",
     "ACCOUNT_ACTION", "MARKETING", "UNMATCHED", "DEFERRED_BUDGET",
+    # T-0168 (FT-10 of T-0155 + operator addition 2026-09-23):
+    "LIMIT_CHANGE", "PARTNER_REPLY",
 ])
 
 CLASS_TO_KIND = {
@@ -178,6 +220,21 @@ CLASS_TO_KIND = {
     "MAINTENANCE": "EMAIL_NOTICE",
     "SECURITY_CHANGE": "EMAIL_NOTICE",
     "ACCOUNT_ACTION": "EMAIL_NOTICE",
+    # T-0168: decided by Fable's own FT-10 design text (AUTOPILOT-PROGRESS.md
+    # "Список задач для Fleet" п.14 body: "маппинг в CLASS_TO_KIND -> EMAIL_NOTICE,
+    # не QUOTA_LOW") — a limit CHANGE notice is not the same fact as "quota running
+    # low" and must not merge into a QUOTA_LOW incident.
+    "LIMIT_CHANGE": "EMAIL_NOTICE",
+    # PARTNER_REPLY deliberately absent, same as MARKETING/UNMATCHED/DEFERRED_BUDGET
+    # below — but for a DIFFERENT reason: those three are genuinely not worth an
+    # incident; a partner-program/legal-clarification reply is the opposite (it
+    # decides whether a Class A provider can be legally connected at all) and
+    # dropping it silently on the floor is not a neutral default, it defeats the
+    # operator's own stated reason for adding this class. Whether it should open
+    # an EMAIL_NOTICE incident, a new carrier kind, or a separate notification
+    # path outside the shared incidents enum is an open question for Fable —
+    # see disputes/0168-ft10-spam-folder-limit-change-and-partner-reply-class.q-1.md.
+    # Do not add an entry here without a ruling on that dispute.
     # MARKETING, UNMATCHED, DEFERRED_BUDGET deliberately absent: no kind.
 }
 
@@ -187,13 +244,23 @@ ACTION_REQUIRED_DEFAULT = {
     "QUOTA": True, "SECURITY_CHANGE": True, "ACCOUNT_ACTION": True,
     "MAINTENANCE": False,  # scheduled-maintenance notices are informational, not actionable
     "MARKETING": False, "UNMATCHED": False, "DEFERRED_BUDGET": False,
+    "LIMIT_CHANGE": True, "PARTNER_REPLY": True,
 }
+
+# T-0168: classes that must NEVER be assigned by haiku — rules-only by explicit
+# requirement (FT-10's own acceptance text for LIMIT_CHANGE; the operator's
+# addition for PARTNER_REPLY says the same: "rules-only, без модели"). Excluding
+# them from the model's allowed-output schema means even a misfiring/adversarial
+# haiku call structurally cannot assign either class — the guarantee holds
+# whether or not classify_by_rules()/is_partner_reply_by_thread() ever run.
+_RULES_ONLY_CLASSES = frozenset(["LIMIT_CHANGE", "PARTNER_REPLY"])
 
 # Classes haiku is allowed to return (never the two "we didn't classify"
 # sentinels — those are OUR fallback values, not something the model should
 # ever need to say; a model output of exactly "UNMATCHED" is treated the
-# same as any other invalid output below, not specially trusted).
-_HAIKU_ALLOWED_CLASSES = sorted(EMAIL_CLASSES - {"UNMATCHED", "DEFERRED_BUDGET"})
+# same as any other invalid output below, not specially trusted — and never
+# the two T-0168 rules-only classes, see _RULES_ONLY_CLASSES above).
+_HAIKU_ALLOWED_CLASSES = sorted(EMAIL_CLASSES - {"UNMATCHED", "DEFERRED_BUDGET"} - _RULES_ONLY_CLASSES)
 _HAIKU_SCHEMA = {
     "type": "object",
     "properties": {
@@ -582,6 +649,20 @@ _RULES = [
         r"\bnew\s+(base\s+)?url\b",
         r"\bAPI\s*v\d+\s+(upgrade|migration)\b",
     ]),
+    # T-0168 (FT-10): checked BEFORE QUOTA — a provider telling us our limit
+    # CHANGED (a new number) is a different fact from "you are close to/over
+    # your current limit" (QUOTA), and the two were conflated before this class
+    # existed (QUOTA's own "rate limit increase/change" phrase below is now
+    # dead for those two words specifically, preempted here; "exceeded" still
+    # falls through to QUOTA, unchanged).
+    ("LIMIT_CHANGE", [
+        r"\brate\s*limit\s+(increase|decrease|change|changed|update|updated|adjustment|adjusted)\b",
+        r"\b(usage|rate)\s*limit\b[^.\n]{0,60}\b(has\s+been\s+|been\s+)?"
+        r"(chang(?:e|ed)|updat(?:e|ed)|increas(?:e|ed)|decreas(?:e|ed)|reduc(?:e|ed)|"
+        r"lower(?:ed)?|rais(?:e|ed)|adjust(?:ed)?|revis(?:e|ed))\b",
+        r"\bnew\s+(rate\s*|usage\s*)?limit\b",
+        r"\blimit\s+(has\s+been\s+)?(updated|changed)\s+(to|from)\b",
+    ]),
     ("QUOTA", [
         r"\bquota\b",
         r"\brate\s*limit\s+(increase|change|exceeded)\b",
@@ -634,6 +715,52 @@ def has_action_marker(subject, body):
     # one combined text for the same reason.
     low = f"{subject}\n{body[:4000]}".lower()
     return any(re.search(p, low, re.IGNORECASE) for p in _ACTION_MARKERS)
+
+
+# ---------------------------------------------------------------------------
+# T-0168 (FT-10 + operator addition 2026-09-23) — PARTNER_REPLY, rules-only,
+# ZERO keywords. The brief's own proposed differentiator was "sender's domain
+# is on the batch-33 provider list" for the 8 form-submission requests, with
+# an instruction to verify and correct it before trusting it. Verified against
+# the REAL mailbox (read-only header probe, 2026-09-23) and REJECTED for that
+# half: Groq/Mistral/ElevenLabs's first replies already sitting in the inbox
+# are automated "thanks for reaching out" acknowledgements from the SAME
+# HubSpot infrastructure _MARKETING_PATTERNS already treats as noise elsewhere
+# (they answer nothing about the legal question asked — a false positive if
+# matched), and Firecrawl's real business reply is a calendar invite from a
+# named individual's PERSONAL domain with zero relation to firecrawl.dev (a
+# domain list could never have matched it — a false negative by construction).
+# A from-domain signal for this half is not implemented for this reason — see
+# the dispute file for what to do about those 8 instead.
+#
+# The header-based half is real and verified working: all 3 of the branch-
+# creating outbound emails (Fireworks, Perplexity, Stability) already have
+# real replies in the mailbox, and ALL THREE preserved In-Reply-To/References
+# back to the exact Gmail Message-ID this mailbox sent them with — even the
+# two routed through third-party helpdesk platforms (Pylon for Fireworks,
+# Intercom for Perplexity) did not break the thread. Zero keywords, zero
+# false-positive risk from marketing/newsletter text reusing similar words.
+def _load_partner_reply_thread_ids():
+    try:
+        with open(PARTNER_REPLY_THREADS_PATH, encoding="utf-8") as f:
+            raw = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        ap.notice(f"молчу: email-intake could not load {PARTNER_REPLY_THREADS_PATH}: {e}")
+        return frozenset()
+    return frozenset(
+        str(x).strip() for x in raw.get("known_sent_message_ids", []) if str(x).strip()
+    )
+
+
+def is_partner_reply_by_thread(in_reply_to, references, known_ids):
+    """True iff In-Reply-To or References contains one of OUR OWN outbound
+    Message-IDs. No text/keyword matching at all — the mechanics of email
+    threading (RFC 5322 In-Reply-To/References), not the content, is the
+    entire signal."""
+    if not known_ids:
+        return False
+    haystack = f"{in_reply_to or ''} {references or ''}"
+    return any(mid in haystack for mid in known_ids)
 
 
 # ---------------------------------------------------------------------------
@@ -791,20 +918,38 @@ def _tool_context(provider):
 
 
 def _classify_message(from_domain, provider, whitelist, subject, body,
-                       haiku_invoke=_default_haiku_invoke):
-    """The three-tier decision (rules -> action-marker gate -> haiku) shared
-    by BOTH the normal new-mail path (process_message) and the
+                       haiku_invoke=_default_haiku_invoke, in_reply_to=None,
+                       references=None, allow_haiku=True, known_thread_ids=None):
+    """The decision cascade (thread-reply -> rules -> action-marker gate ->
+    haiku) shared by BOTH the normal new-mail path (process_message) and the
     DEFERRED_BUDGET drain step (ruling-1 on T-14, P.5) — extracted so a rule
     change (e.g. ruling-1 P.2's DEPRECATION-vs-MARKETING fix) is exercised
     identically by whichever caller re-runs it, never duplicated and left to
-    drift. Returns (class, action_required, source)."""
+    drift. Returns (class, action_required, source).
+
+    T-0168: the thread-reply check runs FIRST, before the provider==None
+    early-return below — verified necessary against real mail: the Fireworks
+    and Perplexity replies arrive from service.usepylon.com and
+    api-platform.intercom-mail.com respectively, neither of which is (or
+    should be) a registered provider domain, so `provider` is None for both
+    and the old code would have returned UNMATCHED before ever looking at the
+    thread headers. allow_haiku=False (used for the spam-folder pass) skips
+    the model tier entirely regardless of action markers — a message from
+    spam gets rules or UNMATCHED, never a model call (FT-10's own
+    requirement). known_thread_ids is injectable (None -> load the real file)
+    same pattern as haiku_invoke, so selftest() can exercise this without
+    touching ~/.config/autopilot/partner-reply-threads.json."""
+    if known_thread_ids is None:
+        known_thread_ids = _load_partner_reply_thread_ids()
+    if is_partner_reply_by_thread(in_reply_to, references, known_thread_ids):
+        return "PARTNER_REPLY", ACTION_REQUIRED_DEFAULT.get("PARTNER_REPLY", True), "partner-reply-thread"
     if provider is None:
         source = "whitelist" if _base_domain(from_domain) in whitelist else "unmatched-domain"
         return "UNMATCHED", False, source
     cls = classify_by_rules(subject, body)
     if cls is not None:
         return cls, ACTION_REQUIRED_DEFAULT.get(cls, True), "rules"
-    if has_action_marker(subject, body):
+    if allow_haiku and has_action_marker(subject, body):
         return classify_with_haiku(subject, body, invoke_fn=haiku_invoke)
     return "UNMATCHED", False, "no-action-marker"
 
@@ -843,8 +988,14 @@ def _maybe_open_incident(cls, action_required, provider, msg_id, from_domain, re
 
 
 def process_message(msg_id, received_at, from_addr, subject, body, domain_map, whitelist,
-                     haiku_invoke=_default_haiku_invoke):
-    """Idempotent on msg_id (Message-ID). Returns the final class string."""
+                     haiku_invoke=_default_haiku_invoke, in_reply_to=None, references=None,
+                     source_folder="inbox", allow_haiku=True):
+    """Idempotent on msg_id (Message-ID). Returns the final class string.
+
+    T-0168: source_folder ('inbox' or 'spam') is recorded on every row (FT-10's
+    own acceptance: "новые строки email_events помечены source_folder='spam'").
+    allow_haiku=False (spam pass) is threaded through to _classify_message —
+    see that function's docstring."""
     existing, rc = ap.psql(f"SELECT msg_id FROM email_events WHERE msg_id = {ap.sql_literal(msg_id)}")
     if rc == 0 and existing:
         return "DEDUP"
@@ -852,7 +1003,8 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
     from_domain = from_addr.split("@")[-1].lower() if "@" in from_addr else (from_addr or "").lower()
     provider = match_provider(from_domain, domain_map)
     cls, action_required, source = _classify_message(
-        from_domain, provider, whitelist, subject, body, haiku_invoke
+        from_domain, provider, whitelist, subject, body, haiku_invoke,
+        in_reply_to=in_reply_to, references=references, allow_haiku=allow_haiku,
     )
 
     # H4: the ONLY place the email's own text is stored — a truncated,
@@ -868,11 +1020,11 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
 
     _, rc2 = ap.psql(
         "INSERT INTO email_events (msg_id, received_at, from_domain, provider_match, class, "
-        "action_required, incident_id, summary) VALUES ("
+        "action_required, incident_id, summary, source_folder) VALUES ("
         f"{ap.sql_literal(msg_id)}, {ap.sql_literal(received_at)}, {ap.sql_literal(from_domain)}, "
         f"{ap.sql_literal(provider)}, {ap.sql_literal(cls)}, "
         f"{'TRUE' if action_required else 'FALSE'}, "
-        f"{ap.sql_literal(incident_id)}, {ap.sql_literal(summary)}) "
+        f"{ap.sql_literal(incident_id)}, {ap.sql_literal(summary)}, {ap.sql_literal(source_folder)}) "
         "ON CONFLICT (msg_id) DO NOTHING"
     )
     if rc2 != 0:
@@ -1114,7 +1266,7 @@ def _extract_body(msg):
     return text
 
 
-def fetch_messages(env):
+def fetch_messages(env, folder=None):
     import email as email_lib
     import imaplib
 
@@ -1122,7 +1274,11 @@ def fetch_messages(env):
     port = int(env.get("IMAP_PORT", "993"))
     user = env["IMAP_USER"]
     pw = env["IMAP_APP_PASSWORD"]
-    folder = env.get("IMAP_FOLDER", "INBOX")
+    # T-0168: folder is now an explicit override so run() can call this same
+    # function a second time for the spam folder (env["IMAP_FOLDER"] alone
+    # would always mean INBOX) — falls back to the original INBOX behavior
+    # when not given, unchanged for every existing caller.
+    folder = folder if folder is not None else env.get("IMAP_FOLDER", "INBOX")
     lookback_days = int(env.get("IMAP_LOOKBACK_DAYS", "2"))
     since = (datetime.now(timezone.utc) - timedelta(days=lookback_days)).strftime("%d-%b-%Y")
 
@@ -1158,6 +1314,8 @@ def fetch_messages(env):
             messages.append({
                 "msg_id": msg_id, "from": from_addr, "subject": subject,
                 "body": body, "received_at": received_at,
+                "in_reply_to": (m.get("In-Reply-To") or "").strip(),
+                "references": (m.get("References") or "").strip(),
             })
     finally:
         try:
@@ -1169,6 +1327,47 @@ def fetch_messages(env):
         except Exception:
             pass
     return messages
+
+
+def _discover_spam_folder(env, override=None):
+    """T-0168 (FT-10): find the mailbox flagged \\Junk via IMAP LIST (RFC 6154
+    SPECIAL-USE), instead of trusting a hardcoded "[Gmail]/Spam" literal.
+    Verified necessary against the REAL monitored mailbox: its Gmail UI is
+    Russian-localized, so its actual Spam folder is
+    "[Gmail]/&BCEEPwQwBDw-" (IMAP modified UTF-7 for "Спам") — a hardcoded
+    English literal fails IMAP SELECT outright on this exact account (caught
+    live: first production run of this feature returned 0 spam messages
+    because SELECT '[Gmail]/Spam' failed, not because the folder was empty).
+    override (IMAP_SPAM_FOLDER, if a human sets it) always wins over
+    discovery — same convention as IMAP_FOLDER itself. Returns the mailbox
+    name exactly as IMAP returned it (never decoded/re-encoded — the raw
+    bytes IMAP gave are always valid to feed straight back into SELECT), or
+    None if no override and no \\Junk-flagged mailbox exists."""
+    if override:
+        return override
+    import imaplib
+
+    conn = imaplib.IMAP4_SSL(env["IMAP_HOST"], int(env.get("IMAP_PORT", "993")))
+    try:
+        conn.login(env["IMAP_USER"], env["IMAP_APP_PASSWORD"])
+        typ, folders = conn.list()
+        if typ != "OK":
+            return None
+        for raw in folders or []:
+            line = raw.decode("utf-8", "replace") if isinstance(raw, bytes) else raw
+            m = re.match(r'^\((?P<flags>[^)]*)\)\s+"(?P<delim>[^"]*)"\s+(?P<name>.+)$', line)
+            if not m or "\\Junk" not in m.group("flags"):
+                continue
+            name = m.group("name").strip()
+            if name.startswith('"') and name.endswith('"'):
+                name = name[1:-1]
+            return name
+        return None
+    finally:
+        try:
+            conn.logout()
+        except Exception:
+            pass
 
 
 # ---------------------------------------------------------------------------
@@ -1308,22 +1507,52 @@ def run():
     for m in messages:
         try:
             process_message(m["msg_id"], m["received_at"], m["from"], m["subject"], m["body"],
-                             domain_map, whitelist)
+                             domain_map, whitelist, in_reply_to=m.get("in_reply_to"),
+                             references=m.get("references"), source_folder="inbox")
             n_processed += 1
         except Exception as e:
             # One malformed/hostile message must never take down the rest of
             # the run (N: "один 500 не роняет", same spirit here).
             ap.notice(f"молчу: email-intake failed to process message {m.get('msg_id')}: {e}")
 
+    # T-0168 (FT-10): second pass over the configured spam folder. A separate,
+    # independent fetch — never allowed to turn an otherwise-successful INBOX
+    # run into NOINFO (folder name localization/absence on some accounts is
+    # possible and is this pass's own problem, not the whole run's). rules-only
+    # (allow_haiku=False): FT-10's own acceptance text is "читает ... папку
+    # спама без вызова haiku", checked by the model-call counter in the PROOF
+    # for this task, not re-derived from action-marker text here.
+    spam_folder = _discover_spam_folder(env, override=env.get("IMAP_SPAM_FOLDER"))
+    n_spam_processed = 0
+    spam_messages = []
+    if spam_folder is None:
+        ap.notice("молчу: email-intake could not find a \\Junk-flagged mailbox "
+                  "(and IMAP_SPAM_FOLDER is not set) — skipping spam pass this run")
+    else:
+        try:
+            spam_messages = fetch_messages(env, folder=spam_folder)
+        except Exception as e:
+            ap.notice(f"молчу: email-intake spam folder fetch failed ({spam_folder!r}): {e}")
+    for m in spam_messages:
+        try:
+            process_message(m["msg_id"], m["received_at"], m["from"], m["subject"], m["body"],
+                             domain_map, whitelist, in_reply_to=m.get("in_reply_to"),
+                             references=m.get("references"), source_folder="spam",
+                             allow_haiku=False)
+            n_spam_processed += 1
+        except Exception as e:
+            ap.notice(f"молчу: email-intake failed to process spam message {m.get('msg_id')}: {e}")
+
     # P.5 (ruling-1 on T-14): drain the DEFERRED_BUDGET backlog AFTER new
     # mail — new mail always wins a haiku-budget race, the backlog is
     # strictly lower priority than today's own inbox.
     n_drained, n_deferred_remaining = drain_deferred_budget(env, domain_map, whitelist)
 
-    record_run_result("OK", n_read=n_processed)  # OK even if n_processed == 0 — "0 писем" is a real answer
+    record_run_result("OK", n_read=n_processed + n_spam_processed)  # OK even if 0 — "0 писем" is a real answer
     write_heartbeat()
-    print(f"email-intake: run complete, {n_processed} message(s) processed, "
-          f"{n_drained} DEFERRED_BUDGET drained ({n_deferred_remaining} still queued)")
+    print(f"email-intake: run complete, {n_processed} message(s) processed "
+          f"({n_spam_processed} from spam), {n_drained} DEFERRED_BUDGET drained "
+          f"({n_deferred_remaining} still queued)")
     return 0  # N.18: only a run that actually read the mailbox (even to 0 messages) is rc=0
 
 
@@ -1422,6 +1651,7 @@ def selftest():
         ("SUNSET", "Service sunset notice", "This API will reach end-of-life on 2027-01-01."),
         ("DEPRECATION", "Deprecation notice", "Endpoint /v1/foo is deprecated."),
         ("ENDPOINT_CHANGE", "Endpoint migration", "Please migrate to the new base url."),
+        ("LIMIT_CHANGE", "Your rate limit has changed", "We have updated your rate limit from 100 to 50 rpm."),
         ("QUOTA", "Quota notice", "Your monthly quota is nearly exceeded."),
         ("MAINTENANCE", "Scheduled maintenance", "We have a maintenance window this weekend."),
         ("SECURITY_CHANGE", "Security advisory", "We identified a vulnerability in our service."),
@@ -1432,6 +1662,70 @@ def selftest():
         got = classify_by_rules(subject, body)
         assert got == expected, f"rules: subject={subject!r} expected {expected}, got {got}"
     assert classify_by_rules("hello", "just saying hi, nothing here") is None
+
+    # --- T-0168 (FT-10) acceptance text, literally: "синтетическое письмо о
+    # смене лимитов классифицируется в LIMIT_CHANGE, не в QUOTA_LOW" — checked
+    # at both the class level (classify_by_rules) and the incident-kind level
+    # (CLASS_TO_KIND), since QUOTA_LOW is what a QUOTA misclassification would
+    # have merged into. ---
+    limit_change_cls = classify_by_rules(
+        "Rate limit change notice", "Your API rate limit has been updated to 50 requests/minute."
+    )
+    assert limit_change_cls == "LIMIT_CHANGE", f"got {limit_change_cls!r}"
+    assert CLASS_TO_KIND["LIMIT_CHANGE"] == "EMAIL_NOTICE", "must not merge into QUOTA_LOW"
+    quota_exhausted_cls = classify_by_rules(
+        "Usage alert", "You have exceeded your monthly usage limit, please upgrade."
+    )
+    assert quota_exhausted_cls == "QUOTA", (
+        f"a real exhaustion notice must still land on QUOTA, got {quota_exhausted_cls!r}"
+    )
+    assert "LIMIT_CHANGE" not in _HAIKU_ALLOWED_CLASSES, "LIMIT_CHANGE must be rules-only, never haiku-assignable"
+    assert "PARTNER_REPLY" not in _HAIKU_ALLOWED_CLASSES, "PARTNER_REPLY must be rules-only, never haiku-assignable"
+    assert "PARTNER_REPLY" not in CLASS_TO_KIND, (
+        "PARTNER_REPLY routing is an open Fable dispute (T-0168) — do not wire it into "
+        "CLASS_TO_KIND without a ruling on disputes/0168-...q-1.md"
+    )
+
+    # --- T-0168: PARTNER_REPLY is thread-based only, zero keywords. Verified
+    # against synthetic fixtures shaped exactly like the REAL replies already
+    # observed in the mailbox (see disputes/0168-...q-1.md's real-mailbox
+    # probe): a reply through a third-party helpdesk domain whose In-Reply-To
+    # matches a known outbound Message-ID classifies PARTNER_REPLY even though
+    # `provider` is None for that domain; an unrelated marketing email from a
+    # domain that happens to BE a registered provider must NOT. ---
+    known_ids = frozenset(["<outbound-1@mail.gmail.com>"])
+    assert is_partner_reply_by_thread(
+        "<outbound-1@mail.gmail.com>", None, known_ids
+    ), "In-Reply-To match must be detected"
+    assert is_partner_reply_by_thread(
+        None, "<something-else@mail.gmail.com> <outbound-1@mail.gmail.com>", known_ids
+    ), "a match anywhere in References must be detected"
+    assert not is_partner_reply_by_thread(
+        "<unrelated@example.com>", None, known_ids
+    ), "an unrelated thread must not match"
+    assert not is_partner_reply_by_thread(None, None, known_ids), "no headers at all must not match"
+    assert not is_partner_reply_by_thread("<outbound-1@mail.gmail.com>", None, frozenset()), (
+        "an empty known-ids set (missing/unpopulated config file) must never match — fail-soft, not open"
+    )
+
+    reply_cls, reply_ar, reply_src = _classify_message(
+        "service.usepylon.com",  # real observed helpdesk domain — not a registered provider
+        None,  # match_provider() would legitimately return None for this domain
+        set(), "Re: Commercial API reseller programme", "Please email sales@example.com.",
+        in_reply_to="<outbound-1@mail.gmail.com>", references=None, known_thread_ids=known_ids,
+    )
+    assert (reply_cls, reply_ar, reply_src) == ("PARTNER_REPLY", True, "partner-reply-thread"), (
+        f"got {(reply_cls, reply_ar, reply_src)}"
+    )
+    # Control: the SAME sender, SAME provider resolution, but no thread match
+    # (this is the marketing/welcome email a form-submission provider might
+    # also send) must NOT classify as PARTNER_REPLY.
+    marketing_cls, _, _ = _classify_message(
+        "service.usepylon.com", None, set(), "50% off this week!",
+        "Don't miss our webinar. Unsubscribe here.", in_reply_to=None, references=None,
+        known_thread_ids=known_ids,
+    )
+    assert marketing_cls != "PARTNER_REPLY", f"got {marketing_cls!r}"
 
     # --- T-14 ruling-2 P.3: DEPRECATION-vs-MARKETING mechanism, tested on the
     # REAL fragments (UNTRUSTED-EMAIL-QUOTE class data, read by Message-ID,
