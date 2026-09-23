@@ -160,7 +160,7 @@ fi
 FILES=(
   static/index.html static/terms.html static/frameworks.html static/contact.html
   static/privacy.html static/dashboard.html static/pricing.html static/connect.html
-  static/llms.txt static/ai.txt static/policy-moderation.html README.md
+  static/llms.txt static/ai.txt static/policy-moderation.html static/index.md README.md
   static/.well-known/api-catalog static/.well-known/mcp.json
   static/.well-known/mcp/server-card.json static/catalog.html static/sitemap.xml
   static/.well-known/agent.json static/.well-known/ai-capabilities.json

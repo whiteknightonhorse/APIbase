@@ -15,7 +15,23 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const OUTPUT_DIR = '/tmp/slideshow';
+const RENDER_DIR = '/tmp/slideshow-render';
 const VIEWPORT = { width: 1440, height: 900 };
+const CATALOG_URL = 'https://apibase.pro/api/v1/tools';
+
+// T-0173 (task A): slide_categories/slide_connect/slide_analytics.html carry tool/provider
+// counts. Hardcoding a number in a committed template goes stale the moment onboarding moves
+// the count (that's exactly how "409 Tools" sat in these files while the live catalog was
+// already at 1381) and sync-counts.sh has no way to self-heal it (video/ is outside its FILES
+// list by design -- slide regeneration is Playwright+ffmpeg, not a sed pass). Fix: templates on
+// disk carry `{{TOOLS}}`/`{{PROVIDERS}}` placeholders (no digits, so the recursive STALE check
+// in sync-counts.sh never has anything to flag here), filled from the live catalog at the moment
+// this script actually renders a slide -- the same source of truth every other surface uses.
+const PLACEHOLDER_TEMPLATES = new Set([
+  'slide_categories.html',
+  'slide_connect.html',
+  'slide_analytics.html',
+]);
 
 interface SlideSpec {
   index: number;
@@ -52,7 +68,7 @@ const SLIDES: SlideSpec[] = [
     name: 'categories',
     duration: 8,
   },
-  // 5. 13-Stage Pipeline (HTML template)
+  // 5. Multi-Stage Pipeline (HTML template)
   { index: 5, url: `file://${TEMPLATE_DIR}/slide_pipeline.html`, name: 'pipeline', duration: 10 },
   // 6. Dual-Rail Payments (HTML template)
   { index: 6, url: `file://${TEMPLATE_DIR}/slide_payment.html`, name: 'payment', duration: 10 },
@@ -122,13 +138,62 @@ const SLIDES: SlideSpec[] = [
   },
 ];
 
-async function takeSlide(page: Page, slide: SlideSpec): Promise<string> {
+async function fetchLiveCounts(): Promise<{ tools: number; providers: number }> {
+  const res = await fetch(CATALOG_URL);
+  if (!res.ok) throw new Error(`fetchLiveCounts: GET ${CATALOG_URL} -> ${res.status}`);
+  const data = (await res.json()) as Array<{ provider: string }>;
+  return { tools: data.length, providers: new Set(data.map((t) => t.provider)).size };
+}
+
+// Renders a placeholder-carrying template to RENDER_DIR (untracked scratch space, never
+// static/video/templates/ itself) with {{TOOLS}}/{{PROVIDERS}} filled in -- the file this
+// function returns a file:// URL for is what Playwright screenshots, the committed template
+// on disk is never touched.
+function renderTemplate(
+  templatePath: string,
+  counts: { tools: number; providers: number },
+): string {
+  const raw = fs.readFileSync(templatePath, 'utf8');
+  const filled = raw
+    .replace(/\{\{TOOLS\}\}/g, String(counts.tools))
+    .replace(/\{\{PROVIDERS\}\}/g, String(counts.providers));
+  if (!fs.existsSync(RENDER_DIR)) fs.mkdirSync(RENDER_DIR, { recursive: true });
+  const outPath = path.join(RENDER_DIR, path.basename(templatePath));
+  fs.writeFileSync(outPath, filled);
+  return outPath;
+}
+
+// static/video/index.html carries a "Recorded YYYY-MM-DD UTC" stamp instead of baked-in counts
+// (the counts live only inside the PNG screenshots, which are frozen by construction) -- this
+// keeps the stamp honest about when those screenshots were actually taken.
+function stampRecordedDate(): void {
+  const indexPath = path.join(__dirname, '..', 'static', 'video', 'index.html');
+  const today = new Date().toISOString().slice(0, 10);
+  const raw = fs.readFileSync(indexPath, 'utf8');
+  const stamped = raw.replace(/Recorded \d{4}-\d{2}-\d{2} UTC/, `Recorded ${today} UTC`);
+  if (stamped !== raw) {
+    fs.writeFileSync(indexPath, stamped);
+    console.log(`  Stamped static/video/index.html: Recorded ${today} UTC`);
+  }
+}
+
+async function takeSlide(
+  page: Page,
+  slide: SlideSpec,
+  counts: { tools: number; providers: number },
+): Promise<string> {
   const filename = `slide_${String(slide.index).padStart(2, '0')}_${slide.name}.png`;
   const filepath = path.join(OUTPUT_DIR, filename);
 
-  console.log(`  Slide ${slide.index}: ${slide.url} → ${slide.name}`);
+  let url = slide.url;
+  const basename = path.basename(slide.url);
+  if (slide.url.startsWith(`file://${TEMPLATE_DIR}`) && PLACEHOLDER_TEMPLATES.has(basename)) {
+    url = `file://${renderTemplate(path.join(TEMPLATE_DIR, basename), counts)}`;
+  }
 
-  await page.goto(slide.url, { waitUntil: 'networkidle', timeout: 30_000 }).catch(() => {
+  console.log(`  Slide ${slide.index}: ${url} → ${slide.name}`);
+
+  await page.goto(url, { waitUntil: 'networkidle', timeout: 30_000 }).catch(() => {
     console.log(`    Warning: networkidle timeout, continuing...`);
   });
 
@@ -191,6 +256,9 @@ async function main() {
     }
   }
 
+  const counts = await fetchLiveCounts();
+  console.log(`Live catalog: ${counts.tools} tools / ${counts.providers} providers\n`);
+
   let browser: Browser | null = null;
   try {
     browser = await chromium.launch({ headless: true });
@@ -202,11 +270,12 @@ async function main() {
     const page = await ctx.newPage();
 
     for (const slide of SLIDES) {
-      await takeSlide(page, slide);
+      await takeSlide(page, slide, counts);
     }
 
     await ctx.close();
     compileToMp4(OUTPUT_DIR);
+    stampRecordedDate();
 
     console.log('\n=== Done! ===');
     console.log(`Slides: ${OUTPUT_DIR}/slide_*.png`);

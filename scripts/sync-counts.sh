@@ -158,7 +158,7 @@ else
            static/privacy.html static/dashboard.html static/pricing.html static/connect.html \
            static/why.html static/why.md static/flight-search-intent.html \
            static/image-generation-intent.html static/company-research-intent.html \
-           static/llms.txt static/ai.txt README.md; do
+           static/llms.txt static/ai.txt static/index.md README.md; do
     [ -f "$f" ] || continue
     b=$(md5sum "$f" | cut -d" " -f1)
     sed -i -E "s/[0-9]{3,}\+?( [A-Za-z]+)? tools/${TOOLS} tools/g; s/[0-9]{3,}\+?( [A-Za-z]+)? providers/${PROV} providers/g; s/Tools: [0-9]{3,} across/Tools: ${TOOLS} across/g" "$f"
@@ -313,7 +313,29 @@ fi
 # dedicated STALE_README_PROSE check below (2026-09-02 correction: an earlier version of this
 # comment guessed "600+ external API tools" was a different metric -- it was not, it was the
 # same stale-count defect, confirmed by reading the actual prose).
-STALE=$(grep -rhoE "[0-9]{3,}\+?( [A-Za-z]+)? (tools|providers)" static/*.html static/*.txt README.md 2>/dev/null \
+# T-0173 (2026-09-23, ruling-1 task A): this used to be a FLAT, non-recursive glob
+# (static/*.html static/*.txt README.md) -- structurally blind to any .md file (static/index.md,
+# a plain markdown mirror of the homepage served via `Accept: text/markdown` content
+# negotiation, nginx.conf @homepage_markdown) and to anything one directory deeper
+# (static/video/index.html, static/.well-known/**). That blind spot is exactly what let
+# static/index.md sit stale at "502 API tools from 158+ providers" and static/video/index.html
+# at "409 Tools, 121 Providers" while this check kept reporting 0 drift -- neither file was ever
+# in the glob's search path. Recursive over every static/**/*.{html,md,txt} + README.md now,
+# with an explicit exempt list below -- each entry must carry a reason, so a real stale surface
+# can't quietly join the exempt list without one being written down.
+STALE_EXEMPT=(
+  # Dated blog post artifact: the counts inside are a historical fact about the catalog's size
+  # on the day this was published, not a live claim -- same reasoning already applied to
+  # docs/releases/*.md (outside static/, never swept by this glob at all).
+  "static/devto-article-1.md"
+)
+STALE_SCAN_FILES=("README.md")
+while IFS= read -r f; do
+  skip=0
+  for ex in "${STALE_EXEMPT[@]}"; do [ "$f" = "$ex" ] && { skip=1; break; }; done
+  [ "$skip" = "0" ] && STALE_SCAN_FILES+=("$f")
+done < <(find static -type f \( -name "*.html" -o -name "*.md" -o -name "*.txt" \) | sort)
+STALE=$(grep -hoE "[0-9]{3,}\+?( [A-Za-z]+)? (tools|providers)" "${STALE_SCAN_FILES[@]}" 2>/dev/null \
   | grep -vE "^${TOOLS} tools$|^${PROV} (upstream )?providers$|^${TOOLS} [A-Za-z]+ tools$" | sort -u || true)
 # Dedicated checks for the three surfaces this task added but whose phrasing the generic
 # "<N> tools"/"<N> providers" pattern above cannot see: ai.txt's "Tools: N across" prose,
@@ -360,7 +382,11 @@ STALE_README_BADGE_NUM=$(grep -oE 'shields\.io/badge/[^)]*' README.md 2>/dev/nul
 # which is a dated blog post, not a live-synced surface) -- same reasoning as README's own
 # "13-stage -> 14-stage" gap (T-40). Direction matters: matches "13-stage"/"13 stages" but not
 # "Stage 1: AUTH" (number follows the word there, not before it).
-STALE_STAGE_COUNT=$(grep -rnoE '[0-9]{1,2}[ -]stages?\b' static/*.md static/.well-known/agent-skills/*.md 2>/dev/null || true)
+# T-0173 (2026-09-23, ruling-1 task A): extended to static/video/templates/*.html -- the
+# slideshow's own pipeline slide is exactly this class of surface (a hand-typed stage count in
+# a title/caption) and had no guard against the same "13-stage" drift the rest of this check
+# already exists to catch.
+STALE_STAGE_COUNT=$(grep -rnoE '[0-9]{1,2}[ -]stages?\b' static/*.md static/.well-known/agent-skills/*.md static/video/templates/*.html 2>/dev/null || true)
 # static/sitemap.xml must carry a <loc> for every static page + .well-known file we actually
 # serve -- this is what caught the sitemap sitting stale since 2026-04-22 missing /pricing,
 # /catalog, /connect, /policy/moderation (all shipped after that date). Read-only re-derivation

@@ -1,16 +1,16 @@
 # APIbase.pro
 
-> The API Hub for AI Agents — 502 API tools from 158+ providers via one MCP endpoint.
+> The API Hub for AI Agents — 1381 tools from 396 providers via one MCP endpoint.
 
 ## What this is
 
-APIbase aggregates 502 production API tools from 158+ providers into a single
+APIbase aggregates 1381 tools from 396 providers into a single
 Model Context Protocol (MCP) endpoint. Any AI agent can discover, call, and pay
 for tools through one entry point — no provider-by-provider signup, no API-key
 juggling, no per-provider billing.
 
 - **MCP endpoint:** `POST https://apibase.pro/mcp` (Streamable HTTP)
-- **Tool catalog:** `GET https://apibase.pro/api/v1/tools` (all 502 tools with JSON schemas)
+- **Tool catalog:** `GET https://apibase.pro/api/v1/tools` (all 1381 tools with JSON schemas)
 - **OpenAPI 3.1 spec:** `GET https://apibase.pro/.well-known/openapi.json`
 - **Health:** `GET https://apibase.pro/health/ready`
 
@@ -19,7 +19,7 @@ juggling, no per-provider billing.
 1. **Connect** — POST to `/mcp` using any MCP-compatible client (Claude Desktop,
    Cursor, Windsurf, OpenAI SDK, LangChain, CrewAI, Google ADK, Copilot Studio).
 2. **Discover** — call the `discover_tools` prompt with a `category` or `task`
-   argument. Instead of loading all 502 tool schemas into context, fetch only
+   argument. Instead of loading every tool schema into context, fetch only
    the tools relevant to the current agent goal.
 3. **Call** — `tools/call` with any tool name. The multi-stage pipeline handles
    authentication, idempotency, schema validation, caching, rate limiting,
