@@ -973,31 +973,59 @@ _FIX_BOUNDARIES_FALLBACK = (
 )
 
 
+def _close_bullet_at_sentence(text: str) -> tuple:
+    """Truncates `text` right after its FIRST sentence-ending punctuation
+    (. ! ?), returns (truncated, closed). closed=False means no sentence end
+    was found yet, so the caller should keep gluing continuation lines onto
+    it."""
+    m = re.search(r"[.!?](\s|$)", text)
+    if m:
+        return text[: m.end(0)].rstrip(), True
+    return text, False
+
+
 def _fix_boundaries() -> str:
     """Extracts the ALLOWED/FORBIDDEN bullets from fix.md WHOLE, not just
-    their first line. fix.md wraps each bullet across multiple lines with no
-    '- ' continuation prefix (e.g. FORBIDDEN's actual text ends "...deleting
-    data/DB/backups, spending money" on its THIRD line) — a naive
-    startswith("- FORBIDDEN") line filter silently truncates mid-sentence and
-    drops exactly the two most safety-critical forbidden items. Caught live:
-    the first version of this function did exactly that (verified against
-    the real file, not just the fallback string, before this fix)."""
+    their first line, but stops each bullet at its OWN first sentence — not
+    at the next blank line. fix.md wraps each bullet across multiple lines
+    with no '- ' continuation prefix (e.g. FORBIDDEN's actual text ends
+    "...deleting data/DB/backups, spending money" on its THIRD line), so
+    continuation-gluing is required; a naive startswith("- FORBIDDEN") line
+    filter truncates mid-sentence and drops the two most safety-critical
+    forbidden items (the first version of this function did exactly that).
+    But fix.md's OWN completion-protocol paragraph ("If the only fix would
+    violate these... Make the minimal change. End with: FIX_DONE...") sits
+    right after FORBIDDEN's sentence with NO blank line to stop gluing on —
+    a naive glue-until-blank-line (the second version of this function)
+    swallows that paragraph whole and imports the executor's own FIX_DONE/
+    FIX_UNRECOVERABLE completion tokens into the generated task's FORBIDDEN
+    bullet (0171 ruling-1, находка 2: 143 live briefs got two conflicting
+    "end like this" instructions this way). Sentence-boundary truncation
+    fixes both: it still glues across the indented continuation lines a
+    bullet needs, but once a bullet's first '.'/'!'/'?' is seen, everything
+    after — same line or later lines — is dropped as not-this-bullet's,
+    until the next '- ' bullet or blank line resets state. Result matches
+    _FIX_BOUNDARIES_FALLBACK verbatim (see test-fix-boundaries.py)."""
     try:
         text = open(FIX_MD_PATH, encoding="utf-8").read()
     except Exception:
         return _FIX_BOUNDARIES_FALLBACK
-    bullets, current = [], None
+    bullets, current, closed = [], None, False
     for raw in text.splitlines():
         ln = raw.rstrip()
         if ln.startswith("- "):
             if current is not None:
                 bullets.append(current)
-            current = ln
-        elif current is not None and ln.strip():
-            current += " " + ln.strip()
-        elif current is not None:  # blank line ends the current bullet
-            bullets.append(current)
-            current = None
+            current, closed = _close_bullet_at_sentence(ln)
+        elif not ln.strip():  # blank line ends the current bullet
+            if current is not None:
+                bullets.append(current)
+            current, closed = None, False
+        elif current is not None and not closed:
+            current, closed = _close_bullet_at_sentence(current + " " + ln.strip())
+        # else: current is None (stray prose before any bullet), or already
+        # closed (fix.md's own trailing prose glued with no blank line) —
+        # neither belongs to a bullet, ignore the line.
     if current is not None:
         bullets.append(current)
     wanted = [b for b in bullets if b.startswith(("- ALLOWED", "- FORBIDDEN"))]
@@ -1069,9 +1097,23 @@ def _task_boundaries_and_footer(provider: str, incident_id: str, task_num: str) 
     the front of the task's own filename (both callers derive it from the
     filename they already generated), so the anchor's tag and the task's
     identity cannot drift apart — a human reading the queue dir and a human
-    reading AUTOPILOT-PROGRESS.md land on the same task either way."""
+    reading AUTOPILOT-PROGRESS.md land on the same task either way.
+
+    T-0172 (0171 ruling-1, находка 2): fix.md's own escape hatch ("If the
+    only fix would violate these, do NOT fix — output FIX_UNRECOVERABLE and
+    exit") lived inside the FORBIDDEN bullet's raw text and got imported
+    verbatim by the old _fix_boundaries() — but that sentence is fix.md's
+    OWN protocol for its OWN caller (night-orchestra's FIX agent), not
+    taskloop's, so gluing it onto FORBIDDEN meant a taskloop executor could
+    see a stray FIX_UNRECOVERABLE instruction that has no meaning in this
+    protocol (taskloop's own end-of-attempt contract lives in taskloop.sh's
+    "taskloop protocol" block, LAW #ONE-PLACE). The bullet below restates
+    the SAME escape-hatch meaning in taskloop's own vocabulary
+    (VERDICT: BLOCKED) instead, right after the now-correctly-truncated
+    fix.md boundaries."""
     return f"""## ГРАНИЦЫ
 {_fix_boundaries()}
+- Если единственная починка нарушает эти границы — не чинить, `VERDICT: BLOCKED <причина>`.
 - Не трогать .env, платёжные конфиги.
 - Не трогать чужие инциденты/провайдеров — только `{provider}`.
 - Деньги — эскалация человеку, никогда автодействие (C0.6/I1/J1) — если решение требует
