@@ -578,13 +578,6 @@ hdx.dataset_detail	hdx
 hdx.dataset_search	hdx
 hdx.location_list	hdx
 hdx.organization_list	hdx
-health.drug_events	health
-health.drug_labels	health
-health.food_details	health
-health.food_recalls	health
-health.food_search	health
-health.supplement_details	health
-health.supplement_search	health
 hf.datasets	hf
 hf.model_details	hf
 hf.models	hf
