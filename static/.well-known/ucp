@@ -8,7 +8,7 @@
       {
         "name": "apibase-tools",
         "type": "api-aggregation",
-        "description": "1378 API tools from 395 providers under one MCP endpoint, pay-per-call via x402 or MPP",
+        "description": "1381 API tools from 396 providers under one MCP endpoint, pay-per-call via x402 or MPP",
         "endpoint": "https://apibase.pro/mcp",
         "catalog": "https://apibase.pro/api/v1/tools"
       }

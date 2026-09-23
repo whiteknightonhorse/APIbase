@@ -1360,6 +1360,9 @@ wikipedia.search.pages	wikipedia
 wmo-weather.city_search	wmo-weather
 wmo-weather.climate_normals	wmo-weather
 wmo-weather.forecast	wmo-weather
+world-bank-cckp.climate_normal	world-bank-cckp
+world-bank-cckp.climate_projection	world-bank-cckp
+world-bank-cckp.extreme_indices	world-bank-cckp
 worldbank.indicators	worldbank
 worldclock.convert	timeapi
 worldclock.current	timeapi
