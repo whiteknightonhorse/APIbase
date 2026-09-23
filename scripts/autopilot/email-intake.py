@@ -118,10 +118,15 @@ examples literally, not guessed:
 
 T-0168 (FT-10 of T-0155 + operator addition, 2026-09-23) added two classes and
 a second IMAP folder read:
-  - Spam folder (IMAP_SPAM_FOLDER, default "[Gmail]/Spam"): a second,
-    independent fetch_messages() pass, readonly, rules-only (allow_haiku=False
-    end to end — never reaches classify_with_haiku regardless of action
-    markers). email_events.source_folder records which pass a row came from.
+  - Spam folder: discovered via IMAP LIST's \\Junk SPECIAL-USE flag
+    (_discover_spam_folder()), never a hardcoded "[Gmail]/Spam" literal — the
+    real monitored mailbox is Russian-localized and its actual Spam folder is
+    IMAP-UTF7-encoded, which a hardcoded English literal fails SELECT on
+    outright (see that function's own docstring). IMAP_SPAM_FOLDER, if a
+    human sets it, always overrides discovery. A second, independent
+    fetch_messages() pass, readonly, rules-only (allow_haiku=False end to
+    end — never reaches classify_with_haiku regardless of action markers).
+    email_events.source_folder records which pass a row came from.
   - LIMIT_CHANGE (-> EMAIL_NOTICE, decided by this same task's own design
     text, not guessed): a provider notice that a limit CHANGED (a new number)
     is a different fact from QUOTA (usage is near/at the CURRENT limit) — see
@@ -145,6 +150,28 @@ a second IMAP folder read:
     with no relation to the provider at all (Firecrawl, a personal contact
     domain) — no rules-only signal was found for that half; not implemented,
     named explicitly rather than silently uncovered.
+
+ruling-1 (disputes/0168-...q-1.md) resolved where PARTNER_REPLY surfaces:
+NOT CLASS_TO_KIND (a partner-program/legal-clarification reply is not an
+incident — no probe, no re-probe, no "resolved" state applies to it, and
+routing it through EMAIL_NOTICE would both burn an AUTO fleet-task slot on
+work no fleet-task can do and collapse all three real replies into one
+dedup_key since `provider` is None for the two third-party-helpdesk domains).
+The actual path is two mechanisms, both already used elsewhere in this
+codebase for a reason: write_partner_reply_operator_files() drops one
+PARTNER-<provider>-<6 hex of msg_id>.md per reply into ap.OPERATOR_DIR (same
+directory J3 already uses for INC-*.md, idempotent by filename, re-scans
+email_events every run so it also backfills any row that predates this
+function), and fleet-pulse.sh's own daily pulse gained a self-gated line
+(count + providers, last 24h) — no new incident kind, no new table. The
+partner-reply-threads.json entries also gained an optional "provider" field
+(alongside the pre-existing bare-string shape, still accepted) so
+_thread_provider_for() can override the domain-matched provider_match for
+replies that arrive from a third-party helpdesk domain that will never be a
+registered provider domain (see backfill_partner_reply_provider() — dedup on
+msg_id means a reply classified before its thread was labeled never gets a
+second chance to fill provider_match at INSERT time, so this re-checks
+NULL/empty rows every run instead).
 """
 import argparse
 import hashlib
@@ -230,11 +257,12 @@ CLASS_TO_KIND = {
     # incident; a partner-program/legal-clarification reply is the opposite (it
     # decides whether a Class A provider can be legally connected at all) and
     # dropping it silently on the floor is not a neutral default, it defeats the
-    # operator's own stated reason for adding this class. Whether it should open
-    # an EMAIL_NOTICE incident, a new carrier kind, or a separate notification
-    # path outside the shared incidents enum is an open question for Fable —
-    # see disputes/0168-ft10-spam-folder-limit-change-and-partner-reply-class.q-1.md.
-    # Do not add an entry here without a ruling on that dispute.
+    # operator's own stated reason for adding this class. ruling-1 on that
+    # dispute settled this: still NOT an incident (see the module docstring's
+    # own "ruling-1" paragraph for the reasoning) — the notification path is
+    # write_partner_reply_operator_files() + fleet-pulse.sh's daily count,
+    # not CLASS_TO_KIND. Do not add an entry here; that would re-open a
+    # question ruling-1 already closed the other way.
     # MARKETING, UNMATCHED, DEFERRED_BUDGET deliberately absent: no kind.
 }
 
@@ -741,26 +769,61 @@ def has_action_marker(subject, body):
 # Intercom for Perplexity) did not break the thread. Zero keywords, zero
 # false-positive risk from marketing/newsletter text reusing similar words.
 def _load_partner_reply_thread_ids():
+    """Returns {message_id: provider_or_None}. known_sent_message_ids accepts
+    TWO entry shapes (T-0168 ruling-1): a bare string (legacy — a thread with
+    no provider label yet, provider is None) and an object
+    {"message_id": ..., "provider": ...} (provider lowercased/stripped). Both
+    shapes match for is_partner_reply_by_thread() (iterating a dict yields
+    its keys, same as the old frozenset did) — only _thread_provider_for()
+    below cares about the value."""
     try:
         with open(PARTNER_REPLY_THREADS_PATH, encoding="utf-8") as f:
             raw = json.load(f)
     except (OSError, json.JSONDecodeError) as e:
         ap.notice(f"молчу: email-intake could not load {PARTNER_REPLY_THREADS_PATH}: {e}")
-        return frozenset()
-    return frozenset(
-        str(x).strip() for x in raw.get("known_sent_message_ids", []) if str(x).strip()
-    )
+        return {}
+    out = {}
+    for entry in raw.get("known_sent_message_ids", []):
+        if isinstance(entry, dict):
+            mid = str(entry.get("message_id", "")).strip()
+            provider = entry.get("provider")
+            provider = str(provider).strip().lower() if provider else None
+        else:
+            mid = str(entry).strip()
+            provider = None
+        if mid:
+            out[mid] = provider
+    return out
 
 
 def is_partner_reply_by_thread(in_reply_to, references, known_ids):
     """True iff In-Reply-To or References contains one of OUR OWN outbound
     Message-IDs. No text/keyword matching at all — the mechanics of email
     threading (RFC 5322 In-Reply-To/References), not the content, is the
-    entire signal."""
+    entire signal. known_ids may be a dict (real callers, see
+    _load_partner_reply_thread_ids) or any iterable of id strings (tests) —
+    only membership/iteration is used here, never a value lookup."""
     if not known_ids:
         return False
     haystack = f"{in_reply_to or ''} {references or ''}"
     return any(mid in haystack for mid in known_ids)
+
+
+def _thread_provider_for(in_reply_to, references, known_ids):
+    """T-0168 ruling-1: returns the provider labeled for the FIRST known
+    thread id found in this message's In-Reply-To/References, or None if
+    nothing matched or the matched entry has no provider label yet (a
+    legacy bare-string thread, or one the operator hasn't filled in). Never
+    guesses — an unlabeled match stays None, same fail-soft spirit as
+    is_partner_reply_by_thread()'s own empty-known_ids case."""
+    if not known_ids:
+        return None
+    haystack = f"{in_reply_to or ''} {references or ''}"
+    for mid in known_ids:
+        if mid in haystack:
+            provider = known_ids.get(mid) if isinstance(known_ids, dict) else None
+            return provider or None
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -989,23 +1052,42 @@ def _maybe_open_incident(cls, action_required, provider, msg_id, from_domain, re
 
 def process_message(msg_id, received_at, from_addr, subject, body, domain_map, whitelist,
                      haiku_invoke=_default_haiku_invoke, in_reply_to=None, references=None,
-                     source_folder="inbox", allow_haiku=True):
+                     source_folder="inbox", allow_haiku=True, known_thread_ids=None):
     """Idempotent on msg_id (Message-ID). Returns the final class string.
 
     T-0168: source_folder ('inbox' or 'spam') is recorded on every row (FT-10's
     own acceptance: "новые строки email_events помечены source_folder='spam'").
     allow_haiku=False (spam pass) is threaded through to _classify_message —
-    see that function's docstring."""
+    see that function's docstring. known_thread_ids is injectable (None ->
+    load the real file), same pattern as haiku_invoke — run() loads it ONCE
+    and passes it to every call in a batch rather than re-reading the file
+    per message.
+
+    T-0168 ruling-1: when the classification lands on PARTNER_REPLY, the
+    domain-matched `provider` (often None — real replies observed in the
+    mailbox arrive from third-party helpdesk domains like Pylon/Intercom,
+    never a registered provider domain) is overridden with the thread's own
+    labeled provider, if the operator has filled one in. An unlabeled thread
+    leaves provider_match exactly as the domain match found it (None, same
+    as before this override existed) — see backfill_partner_reply_provider()
+    for how an already-INSERTed row catches up once the label appears."""
     existing, rc = ap.psql(f"SELECT msg_id FROM email_events WHERE msg_id = {ap.sql_literal(msg_id)}")
     if rc == 0 and existing:
         return "DEDUP"
 
+    if known_thread_ids is None:
+        known_thread_ids = _load_partner_reply_thread_ids()
     from_domain = from_addr.split("@")[-1].lower() if "@" in from_addr else (from_addr or "").lower()
     provider = match_provider(from_domain, domain_map)
     cls, action_required, source = _classify_message(
         from_domain, provider, whitelist, subject, body, haiku_invoke,
         in_reply_to=in_reply_to, references=references, allow_haiku=allow_haiku,
+        known_thread_ids=known_thread_ids,
     )
+    if cls == "PARTNER_REPLY":
+        thread_provider = _thread_provider_for(in_reply_to, references, known_thread_ids)
+        if thread_provider:
+            provider = thread_provider
 
     # H4: the ONLY place the email's own text is stored — a truncated,
     # explicitly-labeled quote. Every downstream consumer (incident evidence,
@@ -1201,6 +1283,156 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
     ap.notice(f"email-intake: DEFERRED_BUDGET drain — {n_drained} reclassified this run, "
               f"{n_remaining} still queued")
     return n_drained, n_remaining
+
+
+# ---------------------------------------------------------------------------
+# T-0168 ruling-1 — PARTNER_REPLY provider_match backfill and operator-file
+# notification. Neither writes/changes class, action_required, or
+# incident_id — PARTNER_REPLY stays deliberately outside CLASS_TO_KIND (see
+# the module docstring's "ruling-1" paragraph).
+# ---------------------------------------------------------------------------
+def _fetch_headers_by_message_id(conn, msg_id):
+    """Same IMAP SEARCH-by-Message-ID as _fetch_one_by_message_id (DEFERRED_
+    BUDGET drain), but only pulls In-Reply-To/References — the backfill below
+    needs a reply's threading headers, not its body. Returns
+    (in_reply_to, references) or None if the message is no longer in the
+    (read-only) mailbox."""
+    import email as email_lib
+
+    typ, data = conn.search(None, f'(HEADER Message-ID "{msg_id}")')
+    if typ != "OK" or not data or not data[0]:
+        return None
+    nums = data[0].split()
+    if not nums:
+        return None
+    typ2, msgdata = conn.fetch(nums[0], "(RFC822)")
+    if typ2 != "OK" or not msgdata or not msgdata[0]:
+        return None
+    m = email_lib.message_from_bytes(msgdata[0][1])
+    return (m.get("In-Reply-To") or "").strip(), (m.get("References") or "").strip()
+
+
+def backfill_partner_reply_provider(env, known_thread_ids, imap_open_fn=_open_imap_readonly,
+                                     fetch_headers_fn=_fetch_headers_by_message_id):
+    """T-0168 ruling-1: process_message()'s dedup-on-msg_id means a
+    PARTNER_REPLY row classified BEFORE its thread was labeled in
+    partner-reply-threads.json (or before the thread existed in that file at
+    all) never gets a second chance to fill provider_match at INSERT time —
+    dedup returns before `provider` is even recomputed. This re-fetches each
+    such row's own In-Reply-To/References by Message-ID (read-only, same
+    mechanics as drain_deferred_budget) and fills provider_match the instant
+    the operator labels the matching thread. Only ever touches provider_match,
+    only when it is currently NULL/empty — a value already set (whether by
+    domain match or a previous backfill) is never overwritten. A message that
+    has aged out of the mailbox is skipped, not an error: there is nothing
+    more this run can learn about it. Returns the count actually filled."""
+    ids, rc = ap.psql(
+        "SELECT msg_id FROM email_events WHERE class = 'PARTNER_REPLY' "
+        "AND (provider_match IS NULL OR provider_match = '')"
+    )
+    if rc != 0:
+        ap.notice(f"молчу: email-intake could not read PARTNER_REPLY backfill candidates: {ids}")
+        return 0
+    msg_ids = [line.strip() for line in ids.splitlines() if line.strip()]
+    if not msg_ids or not known_thread_ids:
+        return 0
+
+    try:
+        conn = imap_open_fn(env)
+    except Exception as e:
+        ap.notice(f"молчу: email-intake PARTNER_REPLY provider_match backfill could not open mailbox: {e}")
+        return 0
+
+    n_filled = 0
+    try:
+        for msg_id in msg_ids:
+            try:
+                headers = fetch_headers_fn(conn, msg_id)
+            except Exception as e:
+                ap.notice(f"молчу: email-intake PARTNER_REPLY backfill header fetch failed for {msg_id}: {e}")
+                continue
+            if headers is None:
+                continue
+            in_reply_to, references = headers
+            provider = _thread_provider_for(in_reply_to, references, known_thread_ids)
+            if not provider:
+                continue
+            _, rc2 = ap.psql(
+                f"UPDATE email_events SET provider_match = {ap.sql_literal(provider)} "
+                f"WHERE msg_id = {ap.sql_literal(msg_id)} "
+                "AND (provider_match IS NULL OR provider_match = '')"
+            )
+            if rc2 == 0:
+                n_filled += 1
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+        try:
+            conn.logout()
+        except Exception:
+            pass
+    if n_filled:
+        ap.notice(f"email-intake: PARTNER_REPLY provider_match backfill — {n_filled} row(s) filled this run")
+    return n_filled
+
+
+def write_partner_reply_operator_files():
+    """T-0168 ruling-1: a PARTNER_REPLY is deliberately not an incident, but
+    silently doing nothing about it would defeat the operator's own reason
+    for adding this class (Q5: the operator answers partner-program/legal
+    correspondence personally, the fleet never does) — dropping it on the
+    floor is not a neutral default here. The notification path is this
+    function (one .md file per reply, in the SAME directory J3 already uses
+    for INC-*.md — see autopilot_common.build_operator_file) plus
+    fleet-pulse.sh's own daily count/provider line, not a new incident kind.
+    Idempotent by filename (PARTNER-<provider>-<6 hex of msg_id>.md) — a file
+    already on disk is never re-written or duplicated, and because this
+    re-scans email_events (not a one-time flag), it naturally backfills any
+    PARTNER_REPLY row that predates this function's own existence. Reuses
+    the row's own `summary` (already the H4 UNTRUSTED-EMAIL-QUOTE-prefixed
+    excerpt process_message() wrote at INSERT time) rather than re-deriving a
+    second excerpt from raw mail — H4's own "one place the email's text is
+    stored" rule. Returns the count of files actually written this run."""
+    ids, rc = ap.psql(
+        "SELECT msg_id FROM email_events WHERE class = 'PARTNER_REPLY' ORDER BY received_at"
+    )
+    if rc != 0:
+        ap.notice(f"молчу: email-intake could not list PARTNER_REPLY rows for operator files: {ids}")
+        return 0
+    n_written = 0
+    for msg_id in (line.strip() for line in ids.splitlines() if line.strip()):
+        digest = hashlib.sha256(msg_id.encode("utf-8", "replace")).hexdigest()[:6]
+        row, rc2 = ap.psql(
+            "SELECT from_domain, provider_match, received_at::text, source_folder, summary "
+            f"FROM email_events WHERE msg_id = {ap.sql_literal(msg_id)}"
+        )
+        if rc2 != 0 or not row:
+            ap.notice(f"молчу: email-intake could not read PARTNER_REPLY row {msg_id} for operator file: {row}")
+            continue
+        from_domain, provider_match, received_at, source_folder, summary = row.split(ap.SEP)
+        provider_label = provider_match or "unknown"
+        path = os.path.join(ap.OPERATOR_DIR, f"PARTNER-{provider_label}-{digest}.md")
+        if os.path.exists(path):
+            continue
+        content = (
+            f"# PARTNER_REPLY — {provider_label}\n\n"
+            f"- msg_id: {msg_id}\n"
+            f"- from: {from_domain}\n"
+            f"- received_at: {received_at}\n"
+            f"- source_folder: {source_folder}\n\n"
+            f"## Quote\n{summary}\n\n"
+            "Требует решения оператора, юридический фильтр T-0155 §9.\n"
+        )
+        try:
+            os.makedirs(ap.OPERATOR_DIR, exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(content)
+            n_written += 1
+        except OSError as e:
+            ap.notice(f"молчу: email-intake could not write PARTNER_REPLY operator file {path}: {e}")
+    return n_written
 
 
 # ---------------------------------------------------------------------------
@@ -1493,6 +1725,10 @@ def run():
         return 1  # N.18: rc≠0 distinguishes "didn't read mail" from "read mail, found 0" (rc=0 below)
 
     domain_map, whitelist = build_domain_map()
+    # T-0168 ruling-1: loaded ONCE per run and passed to every process_message
+    # call in the batch below (both folders) rather than re-reading
+    # partner-reply-threads.json per message.
+    known_thread_ids = _load_partner_reply_thread_ids()
     try:
         messages = fetch_messages(env)
     except Exception as e:  # IMAP/network failures are numerous and not our contract to enumerate
@@ -1508,7 +1744,8 @@ def run():
         try:
             process_message(m["msg_id"], m["received_at"], m["from"], m["subject"], m["body"],
                              domain_map, whitelist, in_reply_to=m.get("in_reply_to"),
-                             references=m.get("references"), source_folder="inbox")
+                             references=m.get("references"), source_folder="inbox",
+                             known_thread_ids=known_thread_ids)
             n_processed += 1
         except Exception as e:
             # One malformed/hostile message must never take down the rest of
@@ -1538,7 +1775,7 @@ def run():
             process_message(m["msg_id"], m["received_at"], m["from"], m["subject"], m["body"],
                              domain_map, whitelist, in_reply_to=m.get("in_reply_to"),
                              references=m.get("references"), source_folder="spam",
-                             allow_haiku=False)
+                             allow_haiku=False, known_thread_ids=known_thread_ids)
             n_spam_processed += 1
         except Exception as e:
             ap.notice(f"молчу: email-intake failed to process spam message {m.get('msg_id')}: {e}")
@@ -1548,11 +1785,19 @@ def run():
     # strictly lower priority than today's own inbox.
     n_drained, n_deferred_remaining = drain_deferred_budget(env, domain_map, whitelist)
 
+    # T-0168 ruling-1: backfill provider_match for any PARTNER_REPLY row a
+    # PRIOR run inserted before its thread was labeled, then write/refresh the
+    # operator notification files — in that order, so a freshly-backfilled
+    # provider_match is what the operator filename picks up, not "unknown".
+    n_partner_filled = backfill_partner_reply_provider(env, known_thread_ids)
+    n_partner_files = write_partner_reply_operator_files()
+
     record_run_result("OK", n_read=n_processed + n_spam_processed)  # OK even if 0 — "0 писем" is a real answer
     write_heartbeat()
     print(f"email-intake: run complete, {n_processed} message(s) processed "
           f"({n_spam_processed} from spam), {n_drained} DEFERRED_BUDGET drained "
-          f"({n_deferred_remaining} still queued)")
+          f"({n_deferred_remaining} still queued), {n_partner_filled} PARTNER_REPLY "
+          f"provider_match backfilled, {n_partner_files} PARTNER_REPLY operator file(s) written")
     return 0  # N.18: only a run that actually read the mailbox (even to 0 messages) is rc=0
 
 
@@ -1576,6 +1821,20 @@ def selftest():
     for cls in ("MARKETING", "UNMATCHED", "DEFERRED_BUDGET"):
         assert cls not in CLASS_TO_KIND, f"{cls} must never open an incident"
         assert ACTION_REQUIRED_DEFAULT[cls] is False
+
+    # T-0168 ruling-1: PARTNER_REPLY belongs in the "never opens an incident"
+    # half of the check above, but is UNLIKE all three of those classes on
+    # the other axis — it IS action_required=True (a human must read and
+    # decide, Q5), it just never gets there via CLASS_TO_KIND/incidents. The
+    # operator file (write_partner_reply_operator_files) and fleet-pulse.sh's
+    # daily count are the notification path instead — see the module
+    # docstring's "ruling-1" paragraph.
+    assert "PARTNER_REPLY" not in CLASS_TO_KIND, "PARTNER_REPLY must never open an incident (T-0168 ruling-1)"
+    assert ACTION_REQUIRED_DEFAULT["PARTNER_REPLY"] is True, (
+        "PARTNER_REPLY must stay action_required=True even though it never opens an incident — "
+        "conflating it with MARKETING/UNMATCHED/DEFERRED_BUDGET above would silently drop the "
+        "one signal this class exists to surface"
+    )
 
     # --- domain map: build from the real shipped provider-limits.json + the
     # real shipped provider-domains.json, prove at least one provider
@@ -1726,6 +1985,40 @@ def selftest():
         known_thread_ids=known_ids,
     )
     assert marketing_cls != "PARTNER_REPLY", f"got {marketing_cls!r}"
+
+    # --- T-0168 ruling-1: partner-reply-threads.json accepts BOTH a bare
+    # string (legacy, no provider label) and an object {"message_id":...,
+    # "provider":...} in the same known_sent_message_ids list. Only
+    # _thread_provider_for() cares about the difference — is_partner_reply_by_
+    # thread() above already proved membership works the same either way
+    # (iterating a dict yields its keys, same as the old frozenset). ---
+    scratch_threads_path = "/tmp/autopilot-ap7-selftest-partner-threads.json"
+    with open(scratch_threads_path, "w", encoding="utf-8") as f:
+        json.dump({"known_sent_message_ids": [
+            "<legacy-bare-string@mail.gmail.com>",
+            {"message_id": "<labeled@mail.gmail.com>", "provider": "Acme"},
+        ]}, f)
+    global PARTNER_REPLY_THREADS_PATH
+    orig_threads_path = PARTNER_REPLY_THREADS_PATH
+    PARTNER_REPLY_THREADS_PATH = scratch_threads_path
+    try:
+        loaded = _load_partner_reply_thread_ids()
+        assert loaded == {
+            "<legacy-bare-string@mail.gmail.com>": None,
+            "<labeled@mail.gmail.com>": "acme",
+        }, f"got {loaded!r}"
+        assert _thread_provider_for("<labeled@mail.gmail.com>", None, loaded) == "acme"
+        assert _thread_provider_for("<legacy-bare-string@mail.gmail.com>", None, loaded) is None, (
+            "a legacy bare-string thread has no provider label yet — must return None, never guess"
+        )
+        assert _thread_provider_for("<unrelated@mail.gmail.com>", None, loaded) is None
+        assert _thread_provider_for(None, None, loaded) is None
+        assert _thread_provider_for("<labeled@mail.gmail.com>", None, {}) is None, (
+            "empty known_ids (missing/unpopulated config file) must never match — fail-soft, not open"
+        )
+    finally:
+        PARTNER_REPLY_THREADS_PATH = orig_threads_path
+        os.remove(scratch_threads_path)
 
     # --- T-14 ruling-2 P.3: DEPRECATION-vs-MARKETING mechanism, tested on the
     # REAL fragments (UNTRUSTED-EMAIL-QUOTE class data, read by Message-ID,
@@ -2009,19 +2302,32 @@ def selftest_db():
             print("selftest-db: postgres never became ready")
             return 1
 
-        migration_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "..", "..",
-            "prisma", "migrations", "0009_autopilot_schema", "migration.sql",
+        migrations_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "..", "prisma", "migrations",
         )
-        with open(migration_path) as f:
-            migration_sql = f.read()
-        apply = subprocess.run(
-            ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
-            input=migration_sql, capture_output=True, text=True,
-        )
-        if apply.returncode != 0:
-            print(f"selftest-db: migration apply failed: {apply.stderr}")
-            return 1
+        # T-0168 ruling-1: 0009 alone is stale — it predates this task's own
+        # 0022 (source_folder + LIMIT_CHANGE/PARTNER_REPLY on email_events).
+        # Applying only 0009 leaves the test schema without that column, so
+        # EVERY process_message() INSERT in this function (source_folder is
+        # one of its listed columns unconditionally, T-0168's own FT-10
+        # requirement) fails silently — ap.psql() returns a nonzero rc,
+        # process_message() logs a "молчу:" notice and returns the class
+        # anyway rather than raising, so the row is simply never written.
+        # Caught live: this exact bug made World 1 (and everything after it)
+        # fail with "email_events row missing after process_message" before
+        # this fix, on the committed HEAD — 0022 must be applied right after
+        # 0009, before anything else touches email_events.
+        for mig in ("0009_autopilot_schema", "0022_email_events_limit_change_partner_reply"):
+            migration_path = os.path.join(migrations_dir, mig, "migration.sql")
+            with open(migration_path) as f:
+                migration_sql = f.read()
+            apply = subprocess.run(
+                ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
+                input=migration_sql, capture_output=True, text=True,
+            )
+            if apply.returncode != 0:
+                print(f"selftest-db: migration {mig} apply failed: {apply.stderr}")
+                return 1
         subprocess.run(
             ["docker", "exec", "-i", name, "psql", "-U", "apibase", "-d", "apibase"],
             input="CREATE TABLE tools (tool_id text primary key, provider text); "
@@ -2049,12 +2355,20 @@ def selftest_db():
         # — a "successful" selftest run must never touch that file, same
         # reasoning as the tg.env override two lines up.
         os.environ["AUTOPILOT_EMAIL_STATE_PATH"] = "/tmp/autopilot-ap7-selftest-email-state.json"
+        # T-0168 ruling-1: without this override, process_message()'s default
+        # known_thread_ids=None load (and backfill_partner_reply_provider's
+        # own loader below) would read the REAL
+        # ~/.config/autopilot/partner-reply-threads.json — a stray real
+        # thread id could spuriously match a synthetic fixture email below.
+        # Same isolation reasoning as AUTOPILOT_EMAIL_STATE_PATH two lines up.
+        os.environ["AUTOPILOT_PARTNER_REPLY_THREADS_PATH"] = "/tmp/autopilot-ap7-selftest-partner-threads-db.json"
 
         shutil.rmtree("/tmp/autopilot-ap7-selftest-taskloop", ignore_errors=True)
         os.makedirs("/tmp/autopilot-ap7-selftest-taskloop", exist_ok=True)
         for stale in ("/tmp/autopilot-ap7-selftest-daily-task.count",
                       "/tmp/autopilot-ap7-selftest-daily-haiku.count",
-                      "/tmp/autopilot-ap7-selftest-email-state.json"):
+                      "/tmp/autopilot-ap7-selftest-email-state.json",
+                      "/tmp/autopilot-ap7-selftest-partner-threads-db.json"):
             if os.path.exists(stale):
                 os.remove(stale)
         with open("/tmp/autopilot-ap7-selftest-provider-limits.json", "w", encoding="utf-8") as f:
@@ -2067,10 +2381,11 @@ def selftest_db():
 
         import importlib
         importlib.reload(ap)
-        global HAIKU_COUNTER_PATH, PROVIDER_DOMAINS_PATH, EMAIL_STATE_PATH
+        global HAIKU_COUNTER_PATH, PROVIDER_DOMAINS_PATH, EMAIL_STATE_PATH, PARTNER_REPLY_THREADS_PATH
         HAIKU_COUNTER_PATH = os.environ["AUTOPILOT_EMAIL_HAIKU_COUNTER"]
         PROVIDER_DOMAINS_PATH = os.environ["AUTOPILOT_PROVIDER_DOMAINS_JSON"]
         EMAIL_STATE_PATH = os.environ["AUTOPILOT_EMAIL_STATE_PATH"]
+        PARTNER_REPLY_THREADS_PATH = os.environ["AUTOPILOT_PARTNER_REPLY_THREADS_PATH"]
         assert ap.load_tg_env() == {}, "selftest-db: tg.env override failed — refusing to risk a real TG send"
 
         domain_map, whitelist = build_domain_map()
@@ -2158,8 +2473,10 @@ def selftest_db():
         # Exercises the REAL run() end-to-end (schema gate,
         # write_setup_instructions ordering, record_run_result), not just
         # the two code paths checked in isolation elsewhere.
-        global IMAP_ENV_PATH, SETUP_FILE, fetch_messages
-        orig_imap_env_path, orig_setup_file, orig_fetch_messages = IMAP_ENV_PATH, SETUP_FILE, fetch_messages
+        global IMAP_ENV_PATH, SETUP_FILE, fetch_messages, _discover_spam_folder
+        orig_imap_env_path, orig_setup_file, orig_fetch_messages, orig_discover_spam_folder = (
+            IMAP_ENV_PATH, SETUP_FILE, fetch_messages, _discover_spam_folder
+        )
         scratch_operator_dir = "/tmp/autopilot-ap7-selftest-run-operator"
         shutil.rmtree(scratch_operator_dir, ignore_errors=True)
         SETUP_FILE = os.path.join(scratch_operator_dir, "EMAIL-IMAP-SETUP.md")
@@ -2178,11 +2495,21 @@ def selftest_db():
                 f.write("IMAP_HOST=imap.example.com\nIMAP_USER=test@example.com\nIMAP_APP_PASSWORD=xxxx\n")
             os.chmod(imap_ok_path, 0o600)
             IMAP_ENV_PATH = imap_ok_path
-            fetch_messages = lambda env: []  # 0 real messages read is still a COMPLETED run, not NOINFO
+            fetch_messages = lambda env, folder=None: []  # 0 real messages read is still a COMPLETED run, not NOINFO
+            # T-0168 ruling-1: run() now ALSO calls _discover_spam_folder()
+            # unconditionally (FT-10's own second IMAP pass) — left as the
+            # real function, this world would try a genuine socket connect to
+            # the fake "imap.example.com" host and crash on getaddrinfo
+            # rather than exercising the rc semantics this world actually
+            # tests. None here means "no \Junk-flagged mailbox found",
+            # already a handled, logged-and-skipped path in run().
+            _discover_spam_folder = lambda env, override=None: None
             rc_ok = run()
             assert rc_ok == 0, "N.18: a completed run (even 0 messages read) must be rc=0, distinct from NOINFO's rc=1"
         finally:
-            IMAP_ENV_PATH, SETUP_FILE, fetch_messages = orig_imap_env_path, orig_setup_file, orig_fetch_messages
+            IMAP_ENV_PATH, SETUP_FILE, fetch_messages, _discover_spam_folder = (
+                orig_imap_env_path, orig_setup_file, orig_fetch_messages, orig_discover_spam_folder
+            )
             shutil.rmtree(scratch_operator_dir, ignore_errors=True)
             if os.path.exists(imap_ok_path):
                 os.remove(imap_ok_path)
@@ -2343,6 +2670,133 @@ def selftest_db():
         assert row5.strip() == "QUOTA", "the flaky row must not block the rest of the drain"
         print("selftest-db: world 7b (transient fetch failure stays queued, "
               "does not block the rest of the drain) OK")
+
+        # World 8 (T-0168 ruling-1): PARTNER_REPLY provider_match backfill +
+        # operator-file notification, end to end against the real schema.
+        # Four synthetic rows model the four real shapes observed in
+        # production (post-run-class-breakdown.log): two replies from a
+        # third-party helpdesk domain whose thread gets labeled only AFTER
+        # the row was already INSERTed (provider_match NULL at insert time,
+        # same as the real Fireworks/Perplexity rows before this task),
+        # one reply whose domain already resolved a provider at INSERT time
+        # (same as the real Stability row — must be left untouched, never
+        # overwritten), and one whose mailbox copy is gone by the time the
+        # backfill runs (aged out — must be skipped, not guessed).
+        with open(PARTNER_REPLY_THREADS_PATH, "w", encoding="utf-8") as f:
+            json.dump({"known_sent_message_ids": [
+                {"message_id": "<out-a@mail.gmail.com>", "provider": "acmeprov"},
+                {"message_id": "<out-b@mail.gmail.com>", "provider": "betaprov"},
+            ]}, f)
+        known_thread_ids_8 = _load_partner_reply_thread_ids()
+        assert known_thread_ids_8 == {
+            "<out-a@mail.gmail.com>": "acmeprov", "<out-b@mail.gmail.com>": "betaprov",
+        }, f"got {known_thread_ids_8!r}"
+
+        _PARTNER_ROWS = [
+            ("<msg-partner-1@service.usepylon.com>", "service.usepylon.com", None,
+             "UNTRUSTED-EMAIL-QUOTE: Re: reseller programme — please email sales@example.com."),
+            ("<msg-partner-2@api-platform.intercom-mail.com>", "api-platform.intercom-mail.com", None,
+             "UNTRUSTED-EMAIL-QUOTE: Re: MCP gateway clarification — forwarded to legal."),
+            ("<msg-partner-3@stability.ai>", "stability.ai", "stabilitytest",
+             "UNTRUSTED-EMAIL-QUOTE: Re: integrated component exception — see attached."),
+            ("<msg-partner-4@gone-from-mailbox.example>", "gone-from-mailbox.example", None,
+             "UNTRUSTED-EMAIL-QUOTE: Re: some outbound thread, no longer in the mailbox."),
+        ]
+        for mid, dom, prov, summ in _PARTNER_ROWS:
+            ap.psql(
+                "INSERT INTO email_events (msg_id, received_at, from_domain, provider_match, "
+                "class, action_required, summary) VALUES ("
+                f"{ap.sql_literal(mid)}, {ap.sql_literal(ap.now_iso())}, {ap.sql_literal(dom)}, "
+                f"{ap.sql_literal(prov)}, 'PARTNER_REPLY', TRUE, {ap.sql_literal(summ)})"
+            )
+
+        class _FakeImapConnPartner:
+            def close(self):
+                pass
+
+            def logout(self):
+                pass
+
+        def _fake_imap_open_partner(_env):
+            return _FakeImapConnPartner()
+
+        _PARTNER_HEADER_FIXTURES = {
+            "<msg-partner-1@service.usepylon.com>": ("<out-a@mail.gmail.com>", ""),
+            "<msg-partner-2@api-platform.intercom-mail.com>": ("<out-b@mail.gmail.com>", ""),
+            # msg-partner-3 deliberately absent from these fixtures — it
+            # already has provider_match, the backfill query must never even
+            # try to fetch it. msg-partner-4 deliberately absent too —
+            # simulates "no longer in the mailbox" (fetch returns None).
+        }
+
+        def _fake_fetch_headers_partner(_conn, msg_id):
+            return _PARTNER_HEADER_FIXTURES.get(msg_id)
+
+        n_filled = backfill_partner_reply_provider(
+            {"IMAP_HOST": "unused", "IMAP_USER": "unused", "IMAP_APP_PASSWORD": "unused"},
+            known_thread_ids_8,
+            imap_open_fn=_fake_imap_open_partner, fetch_headers_fn=_fake_fetch_headers_partner,
+        )
+        assert n_filled == 2, f"got {n_filled}"
+
+        pm1, _ = ap.psql(
+            "SELECT provider_match FROM email_events WHERE msg_id = "
+            "'<msg-partner-1@service.usepylon.com>'"
+        )
+        assert pm1.strip() == "acmeprov", f"got {pm1!r}"
+        pm2, _ = ap.psql(
+            "SELECT provider_match FROM email_events WHERE msg_id = "
+            "'<msg-partner-2@api-platform.intercom-mail.com>'"
+        )
+        assert pm2.strip() == "betaprov", f"got {pm2!r}"
+        pm3, _ = ap.psql("SELECT provider_match FROM email_events WHERE msg_id = '<msg-partner-3@stability.ai>'")
+        assert pm3.strip() == "stabilitytest", (
+            f"a provider_match already set at INSERT time must never be overwritten by the backfill, got {pm3!r}"
+        )
+        pm4, _ = ap.psql(
+            "SELECT provider_match FROM email_events WHERE msg_id = "
+            "'<msg-partner-4@gone-from-mailbox.example>'"
+        )
+        assert pm4.strip() == "", (
+            f"a message gone from the mailbox must be skipped, never guessed, got {pm4!r}"
+        )
+        no_inc, _ = ap.psql(
+            "SELECT count(*) FROM email_events WHERE class = 'PARTNER_REPLY' AND incident_id IS NOT NULL"
+        )
+        assert no_inc.strip() == "0", "PARTNER_REPLY must never carry an incident_id (T-0168 ruling-1)"
+        print("selftest-db: world 8a (PARTNER_REPLY provider_match backfill: filled from thread "
+              "label, pre-set value untouched, gone-from-mailbox skipped) OK")
+
+        # Filenames below are deterministic (sha256 of a FIXED msg_id) —
+        # unlike World 1/3's incident operator files (random UUID short_id
+        # each run), a re-run of this suite against the SAME
+        # AUTOPILOT_OPERATOR_DIR would find yesterday's PARTNER-*.md still on
+        # disk and (correctly) skip them, which would make n_written == 4
+        # below a false failure, not a false pass — clear only this scratch
+        # dir, never a real path, same as World 6's own scratch_operator_dir.
+        shutil.rmtree(ap.OPERATOR_DIR, ignore_errors=True)
+        n_written = write_partner_reply_operator_files()
+        assert n_written == 4, f"got {n_written}"
+        expected_files = {
+            "acmeprov": "<msg-partner-1@service.usepylon.com>",
+            "betaprov": "<msg-partner-2@api-platform.intercom-mail.com>",
+            "stabilitytest": "<msg-partner-3@stability.ai>",
+            "unknown": "<msg-partner-4@gone-from-mailbox.example>",
+        }
+        for provider_label, mid in expected_files.items():
+            digest = hashlib.sha256(mid.encode("utf-8", "replace")).hexdigest()[:6]
+            path = os.path.join(ap.OPERATOR_DIR, f"PARTNER-{provider_label}-{digest}.md")
+            assert os.path.exists(path), f"missing operator file {path}"
+            with open(path, encoding="utf-8") as f:
+                body = f.read()
+            assert mid in body and "Требует решения оператора" in body, f"bad content in {path}"
+
+        n_written_again = write_partner_reply_operator_files()
+        assert n_written_again == 0, (
+            f"re-running must never re-write/duplicate an existing operator file, got {n_written_again}"
+        )
+        print("selftest-db: world 8b (PARTNER_REPLY operator files: one per reply, correct "
+              "provider label including 'unknown' for the aged-out row, idempotent re-run) OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
