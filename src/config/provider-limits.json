@@ -3479,11 +3479,11 @@
   "adbkidb": {
     "display_name": "ADB Key Indicators Database",
     "health_url": "https://kidb.adb.org/api/dataflow/indicators/PPL_POP",
-    "limit_type": "unlimited",
-    "free_limit": 0,
-    "reset_period": "none",
+    "limit_type": "hourly",
+    "free_limit": 20,
+    "reset_period": "hourly",
     "docs_url": "https://kidb.adb.org/api",
-    "limit_proof": "x-ratelimit-limit: 20 header observed per request window; ADB KIDB API page at kidb.adb.org/api confirms public open access, no auth required. Retry enabled to handle transient 503s from Azure-hosted endpoint.",
+    "limit_proof": "x-ratelimit-limit: 20 header observed per request window; ADB KIDB API page at kidb.adb.org/api confirms public open access, no auth required.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
