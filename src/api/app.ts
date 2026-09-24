@@ -21,6 +21,7 @@ import { dashboardRouter } from '../routes/dashboard.router';
 import { incidentsRouter } from '../routes/incidents.router';
 import { oauthRouter } from '../routes/oauth.router';
 import { deviceConnectRouter } from '../routes/device-connect.router';
+import { apiEntryRouter } from '../routes/api-entry.router';
 
 /**
  * Express application configuration (§6.1, §12.243).
@@ -54,6 +55,12 @@ export function createApp(): express.Express {
   app.use(x402Router);
   app.use(dashboardRouter);
   app.use(incidentsRouter);
+
+  // --- x402/MPP entry-point marker (T-0187A) — GET /api, GET /api/v1. Must run
+  // before x402Middleware/mppMiddleware below: those verify a real tool-call
+  // payment and would swallow an anonymous probe's X-PAYMENT/Payment-Signature
+  // header instead of this router's honest "not a payable resource" 400.
+  app.use(apiEntryRouter);
 
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));
