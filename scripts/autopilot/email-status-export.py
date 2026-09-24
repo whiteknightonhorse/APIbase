@@ -14,8 +14,12 @@ script writes, via the same docker-exec-psql helper (autopilot_common.psql)
 every other autopilot script in this repo already uses.
 
 Class -> status mapping (the DECISIONS table SG-21a's acceptance requires;
-also recorded in AUTOPILOT-PROGRESS.md#T-0186-SG-21a-apibase-email-status-export)
-is a literal table below, not re-derived at runtime from CLASS_TO_KIND +
+also recorded in AUTOPILOT-PROGRESS.md#T-0186-SG-21a-apibase-email-status-export).
+apibase has no dedicated DECISIONS.md file (sales has its own, separate
+one); AUTOPILOT-PROGRESS.md's "DECISIONS" heading in that section is the
+stand-in apibase uses instead, stated here explicitly rather than left
+implicit. The mapping is a literal table below, not re-derived at runtime
+from CLASS_TO_KIND +
 routing.json — email-intake.py's CLASS_TO_KIND lives in a hyphenated
 filename (not importable as a module without importlib gymnastics) and the
 class enum changes rarely enough that mirroring it as a literal, like
@@ -57,11 +61,22 @@ Window: 14 days on received_at (ruling-1 §2: "Окно экспорта 14 дн
 boundary D-48 draws for sales' own mailbox scan.
 
 Cron (dispatcher installs, not this task — same convention as fleet-touches-
-export.py's own header): runs right after email-intake.py's 07:00 daily pull
+export.py's own header): runs right after email-intake.py's LIVE daily pull
 finishes, before sales' 08:00 incoming pass reads today's mail (ruling-1 §2:
-"07:25 -> 07:40, чтобы проход sales в 08:00 разметил письма того же утра"):
+"07:25 -> 07:40, чтобы проход sales в 08:00 разметил письма того же утра").
+email-intake.py's own header comment says 07:00, but the live crontab entry
+(`crontab -l`, apibase user) actually runs it at 07:25 — trust the live
+crontab, not the stale comment in a file this task may not edit. This
+script must therefore land at 07:40, one clean cycle after the real 07:25
+intake run, not at 07:25 itself (that would race the intake write this
+script reads):
 
-    25 7 * * * cd /home/apibase/apibase && python3 scripts/autopilot/email-status-export.py >> logs/email-status-export-cron.log 2>&1
+    40 7 * * * cd /home/apibase/apibase-fleet && /usr/bin/python3 scripts/autopilot/email-status-export.py >> /home/apibase/apibase-fleet/logs/email-status-export-cron.log 2>&1
+
+No secrets file is sourced (unlike email-intake.py's own cron line): this
+script only reaches Postgres via autopilot_common.psql's docker-exec path
+with default container/user/db names, and sends no Telegram notices, so it
+needs no other environment variables.
 """
 import hashlib
 import json
