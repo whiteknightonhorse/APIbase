@@ -9,6 +9,10 @@ abs.trade	abs
 account.timeseries	account
 account.tools	account
 account.usage	account
+adbkidb.data	adbkidb
+adbkidb.dataflows_list	adbkidb
+adbkidb.economies	adbkidb
+adbkidb.indicators	adbkidb
 adsbdb.aircraft_lookup	adsbdb
 adsbdb.airline_lookup	adsbdb
 adsbdb.callsign_lookup	adsbdb

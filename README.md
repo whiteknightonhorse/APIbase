@@ -1,6 +1,6 @@
 # APIbase.pro — The API Hub for AI Agents
 
-One MCP + REST endpoint to 1373 tools from 394 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
+One MCP + REST endpoint to 1377 tools from 395 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
 
 [![Security Audit](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/security.yml)
 [![Deploy](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml/badge.svg)](https://github.com/whiteknightonhorse/APIbase/actions/workflows/deploy.yml)
