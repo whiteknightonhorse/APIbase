@@ -210,25 +210,27 @@ async function generate(): Promise<void> {
     const priceStr = price.toFixed(6);
     if (def.category) categories.add(def.category);
 
-    // x-payment-info for MPPScan/AgentCash/mpp.dev discovery (task C ruling §2):
-    // canonical shape is `offers[]` (amount/currency/intent/method/description),
-    // not a flat pricingMode+price object -- that was the invented shape the
-    // ruling flagged. `amount` uses the SAME rounding as the x402 challenge
-    // (toMicroUsdc) so both rails quote byte-identical numbers for the same
-    // tool. `protocols` stays alongside `offers` as an additional field (mpp.dev
-    // validators ignore unknown fields next to `offers`; only flat+offers mixing
-    // is disallowed).
+    // x-payment-info for MPPScan/AgentCash/mpp.dev discovery (task C ruling-2,
+    // 0187C q-1): flat single-offer shape, not `offers[]`. mpp.dev/advanced/discovery
+    // keeps the flat form valid as shorthand for a single offer; mppx 0.5.5 (the
+    // pre-0.7.0 shape) and 0.11.0 both accept it, and it's the shape every consumer
+    // that predates `offers[]` (t2000, readiness checkers of that era) actually reads.
+    // We have exactly one offer per tool, so the shorthand is semantically exact, not
+    // a hack. `amount` uses the SAME rounding as the x402 challenge (toMicroUsdc) so
+    // both rails quote byte-identical numbers for the same tool. `protocols`/
+    // `pricingMode`/`price` are additional fields unknown to any offers/flat
+    // validator — safe alongside the flat fields, but NOT alongside `offers`, which
+    // is why this shape has no `offers` key at all (mixing flat spec fields with
+    // `offers` is what's disallowed, not unknown extra fields).
     const xPaymentInfo: Record<string, unknown> = {
-      offers: [
-        {
-          amount: toMicroUsdc(price),
-          currency: mppUsdcAddress,
-          intent: 'charge',
-          method: 'tempo',
-          description: `$${priceStr} USD per call`,
-        },
-      ],
+      amount: toMicroUsdc(price),
+      currency: mppUsdcAddress,
+      intent: 'charge',
+      method: 'tempo',
+      description: `$${priceStr} USD per call`,
       protocols: ['x402', 'mpp'],
+      pricingMode: 'fixed',
+      price: priceStr,
     };
 
     discoveryPaths[`/api/v1/tools/${def.toolId}/call`] = {
