@@ -2231,7 +2231,10 @@
     "docs_url": "https://docs.opendota.com/#section/Authentication",
     "limit_proof": "Premium tier with API key: unlimited calls/day, 3000 req/min. Billed monthly at $0.0001/call. Without key: 60k calls/month free.",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "probe": {
+      "timeout_ms": 20000
+    }
   },
   "checkwx": {
     "display_name": "CheckWX Aviation Weather",
