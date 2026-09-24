@@ -44,12 +44,14 @@ print(len(t.get('input_schema',{}).get('properties',{})))
 done
 [ "$SCHEMA_OK" = "1" ] && pass || fail "some tools missing input_schema properties"
 
-# 4. Anonymous request returns 401 (auth before payment)
-echo -n "4/6 Auth enforcement (no key → 401)..."
+# 4. Anonymous request returns 402 (T-0187B2: bare call gets a dual-rail
+# payment challenge instead of 401, so it can start the standard
+# request->402->pay->retry cycle)
+echo -n "4/6 Auth enforcement (no key → 402)..."
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$API_URL/api/v1/tools/opencontext.search/call" \
   -H "Content-Type: application/json" \
   -d '{"query": "pottery"}' 2>/dev/null)
-[ "$HTTP_CODE" = "401" ] && pass || fail "expected 401, got $HTTP_CODE"
+[ "$HTTP_CODE" = "402" ] && pass || fail "expected 402, got $HTTP_CODE"
 
 # 5. Live API calls (requires API key with balance)
 echo -n "5/6 Live opencontext.search..."

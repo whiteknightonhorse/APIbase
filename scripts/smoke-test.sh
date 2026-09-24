@@ -193,7 +193,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 8. Auth rejection — POST /api/v1/tools/:id/call without Authorization → 401
+# 8. Auth rejection — POST /api/v1/tools/:id/call without Authorization → 402
 #
 # T-0211 (ZZ-03-11): this used to point at POST /mcp initialize, which made
 # anonymous MCP discovery (tools/list, prompts/list, apibase.discover — all
@@ -205,9 +205,18 @@ fi
 # /home/apibase/AUTOPILOT-PROGRESS.md#T-0211-zz03-11-glama-unhealthy. The
 # thing actually worth smoke-testing — that an unauthenticated request cannot
 # execute a paid tool — is exercised here against the REST execution endpoint
-# instead, which maps the pipeline AUTH stage's 401 to a real HTTP status
+# instead, which maps the pipeline AUTH stage's status to a real HTTP status
 # (src/routes/execute.router.ts), unlike MCP tool calls which return auth
 # failures as a JSON-RPC tool result (isError: true) inside an HTTP 200.
+#
+# T-0187B2 (taskloop 0187 ruling-1, §3 row B2): a genuinely bare call (no
+# Authorization, no X-API-Key, no X-Payment at all) now gets the same
+# dual-rail 402 challenge as an escrow shortfall instead of 401, so agents
+# can start the standard request->402->pay->retry cycle without reading the
+# price from the catalog first. 401 still fires for a credential that WAS
+# sent but is invalid (bad key format, unknown key, bad signature) — that
+# case isn't exercised by this bare-call probe. Either way the tool never
+# executes for free, which is what this smoke test actually guards.
 # ---------------------------------------------------------------------------
 echo -n "8/10 Auth rejection..."
 AUTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
@@ -215,10 +224,10 @@ AUTH_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
   -H "Content-Type: application/json" \
   -d '{"location":"Berlin"}' \
   "$API_URL/api/v1/tools/weather.get_current/call" 2>/dev/null || echo "000")
-if [ "$AUTH_CODE" = "401" ]; then
+if [ "$AUTH_CODE" = "402" ]; then
   pass
 else
-  fail "expected 401, got $AUTH_CODE"
+  fail "expected 402, got $AUTH_CODE"
 fi
 
 # ---------------------------------------------------------------------------
