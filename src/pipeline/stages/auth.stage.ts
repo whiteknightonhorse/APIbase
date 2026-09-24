@@ -4,11 +4,12 @@ import { hashApiKey, isValidApiKeyFormat } from '../../services/api-key.service'
 import { getPrisma } from '../../services/prisma.service';
 import { ensureRedisConnected } from '../../services/redis.service';
 import { logger } from '../../config/logger';
-import { X_API_KEY } from '../../config/http-headers';
+import { X_API_KEY, X_PAYMENT } from '../../config/http-headers';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
 import { getX402Config } from '../../config/x402.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
+import { getToolPriceUsd } from './tool-status.stage';
 
 /**
  * AUTH stage (§12.43 stage 1, §12.60).
@@ -322,6 +323,32 @@ export const authStage: Stage = {
             ...ctx,
             agentId: x402Agent.agent_id,
             tier: x402Agent.tier as PipelineContext['tier'],
+          });
+        }
+      }
+
+      // T-0187B2 (taskloop 0187 ruling-1, §3 row B2): a call with NO credential-shaped
+      // header at all (no Authorization, no X-API-Key, no raw X-Payment) gets the same
+      // dual-rail 402 challenge as an escrow shortfall instead of 401 -- the standard
+      // x402/MPP request->402->pay->retry cycle needs a 402 to start the dance. A header
+      // that WAS sent but failed (bad key format, unknown key, unverifiable signature)
+      // still falls through to 401 below, per ruling: "401 остаётся для невалидных
+      // ключей и подписей". Raw header presence (not ctx.x402Paid, which is only true
+      // once verified) is what distinguishes "sent nothing" from "sent something bad".
+      const rawPaymentHeader = ctx.headers[X_PAYMENT];
+      const hasAnyCredentialHeader = Boolean(apiKeyFallback) || Boolean(rawPaymentHeader);
+
+      if (!hasAnyCredentialHeader && ctx.toolId) {
+        const priceUsd = getToolPriceUsd(ctx.toolId);
+        if (priceUsd !== undefined) {
+          return err<PipelineError>({
+            code: 402,
+            error: 'payment_required',
+            message: `Payment required for ${ctx.toolId}. Pay via x402 (see PAYMENT-REQUIRED header) or MPP (Authorization: Payment).`,
+            extra: {
+              price_usd: priceUsd,
+              price_version: 1,
+            },
           });
         }
       }

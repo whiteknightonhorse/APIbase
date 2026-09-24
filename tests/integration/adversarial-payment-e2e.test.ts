@@ -308,6 +308,10 @@ interface ExecuteCallOpts {
   mpp?: { header: string; payer?: string };
   idempotencyKey?: string;
   params?: Record<string, unknown>;
+  // T-0187B2: omit Authorization entirely — simulates a genuinely bare call
+  // (no Bearer, no X-API-Key, no X-Payment), as opposed to the other "no
+  // payment" tests here which still authenticate via a valid Bearer key.
+  noAuth?: boolean;
 }
 
 async function callExecute(
@@ -324,7 +328,7 @@ async function callExecute(
 
   const req = {
     headers: {
-      authorization: `Bearer ${API_KEY}`,
+      ...(opts.noAuth ? {} : { authorization: `Bearer ${API_KEY}` }),
       'x-request-id': opts.requestId,
     } as Record<string, string>,
     params: { toolId: TOOL_ID },
@@ -388,6 +392,44 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     // above) — asserting the header is exactly its return value proves execute.router calls
     // the real SDK encoder against the real 402 body, not a hand-rolled base64 string.
     expect(r.headers['PAYMENT-REQUIRED']).toBe('mock-payment-required-header');
+  });
+
+  it('T-0187B2: a genuinely bare call (no Authorization, no X-API-Key, no X-Payment) gets 402 for the requested tool, not 401', async () => {
+    const r = await callExecute({ requestId: 'exec-bare-call', noAuth: true });
+    expect(r.status).toBe(402);
+    expect(mockAdapterCall).not.toHaveBeenCalled();
+    // Same encoder/body path as B1 — AUTH stage's 402 flows through execute.router's
+    // one `status === 402` branch, so it gets the identical dual-rail treatment.
+    expect(r.headers['PAYMENT-REQUIRED']).toBe('mock-payment-required-header');
+    expect((r.body as { accepts?: Array<{ amount?: string }> }).accepts?.[0]?.amount).toBe(
+      String(Math.round(PRICE * 1_000_000)),
+    );
+  });
+
+  it('REGRESSION: a bare call with an invalid API key format still 401s (only genuinely-zero credentials get 402)', async () => {
+    const layer = (
+      executeRouter as unknown as {
+        stack: Array<{ route?: { path: string; stack: Array<{ handle: unknown }> } }>;
+      }
+    ).stack.find((l) => l.route && l.route.path === '/api/v1/tools/:toolId/call');
+    const handler = layer?.route?.stack[0].handle as (
+      req: unknown,
+      res: unknown,
+      next: unknown,
+    ) => Promise<void>;
+    const req = {
+      headers: { 'x-api-key': 'not-a-real-key', 'x-request-id': 'exec-bad-key' },
+      params: { toolId: TOOL_ID },
+      body: VALID_PARAMS,
+      path: `/api/v1/tools/${TOOL_ID}/call`,
+      originalUrl: `/api/v1/tools/${TOOL_ID}/call`,
+      get: () => 'test.local',
+    };
+    const res = fakeRes();
+    await handler(req, res, (err?: unknown) => {
+      if (err) throw err;
+    });
+    expect(res.statusCode).toBe(401);
   });
 
   it('ADVERSARIAL: replayed nonce — two parallel identical signed payments yield exactly one 200 and one 402, provider called exactly once', async () => {
