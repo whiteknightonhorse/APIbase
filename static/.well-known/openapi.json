@@ -24936,6 +24936,203 @@
         ]
       }
     },
+    "/api/v1/tools/regulations.search/call": {
+      "post": {
+        "operationId": "regulations_search",
+        "summary": "Search US Federal Regulations",
+        "description": "Search US federal regulatory documents — rules, proposed rules, notices, presidential documents. Filter by agency (EPA, SEC, FDA...), document type, date. 7,500+ results for \"artificial intelligence\" (Regulations.gov)",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regulations.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Search keywords in federal regulatory documents (e.g. \"artificial intelligence\", \"climate change\")"
+                  },
+                  "document_type": {
+                    "type": "string",
+                    "enum": [
+                      "Rule",
+                      "Proposed Rule",
+                      "Notice",
+                      "Presidential Document"
+                    ],
+                    "description": "Filter by document type"
+                  },
+                  "agency": {
+                    "type": "string",
+                    "description": "Filter by agency ID (e.g. \"EPA\", \"SEC\", \"FDA\")"
+                  },
+                  "posted_after": {
+                    "type": "string",
+                    "description": "Only documents posted after this date (YYYY-MM-DD)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 5,
+                    "maximum": 25,
+                    "description": "Number of results (default 10, min 5, max 25)"
+                  },
+                  "sort": {
+                    "type": "string",
+                    "enum": [
+                      "postedDate",
+                      "-postedDate",
+                      "title",
+                      "documentId"
+                    ],
+                    "description": "Sort order (default: -postedDate, newest first)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/regulations.document/call": {
+      "post": {
+        "operationId": "regulations_document",
+        "summary": "Get Regulatory Document Details",
+        "description": "Get full details of a US federal regulatory document by ID — title, abstract, agency, comment count, docket, dates. Public domain (Regulations.gov)",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "regulations.document"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "document_id": {
+                    "type": "string",
+                    "description": "Document ID from search results (e.g. \"FDA-2024-N-0001-0001\")"
+                  }
+                },
+                "required": [
+                  "document_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/fedregister.search/call": {
       "post": {
         "operationId": "fedregister_search",

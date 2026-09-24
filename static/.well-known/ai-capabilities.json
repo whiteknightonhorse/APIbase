@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.1.0",
   "updated_at": "2026-09-24T00:00:00Z",
-  "tools_count": 1385,
-  "providers_count": 397,
+  "tools_count": 1387,
+  "providers_count": 398,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1385 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1387 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -79,8 +79,8 @@
     },
     {
       "name": "legal",
-      "tools": 53,
-      "providers": "Congress, Courtlistener, Eu Parliament, Eurlex, Fbi, Fbiwanted, FCC, Fec, Federalregister, Fedregister, Govuk, Ofac, Openstates, Ukleg, Ukpolice",
+      "tools": 55,
+      "providers": "Congress, Courtlistener, Eu Parliament, Eurlex, Fbi, Fbiwanted, FCC, Fec, Federalregister, Fedregister, Govuk, Ofac, Openstates, Regulations, Ukleg, Ukpolice",
       "examples": "Call discover_tools with category=\"legal\" for the current tool list and descriptions."
     },
     {
