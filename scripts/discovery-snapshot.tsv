@@ -911,6 +911,10 @@ opencontext.detail	opencontext
 opencontext.facets	opencontext
 opencontext.projects	opencontext
 opencontext.search	opencontext
+opendota.match_detail	opendota
+opendota.player_matches	opendota
+opendota.player_summary	opendota
+opendota.pro_teams	opendota
 openfda_devices.adverse_events	openfda_devices
 openfda_devices.classification	openfda_devices
 openfda_devices.clearances_510k	openfda_devices
