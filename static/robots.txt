@@ -47,6 +47,7 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 # OpenAPI Spec: https://apibase.pro/.well-known/openapi.json
 # API Catalog (RFC 9727): https://apibase.pro/.well-known/api-catalog
 # Agent Skills index: https://apibase.pro/.well-known/agent-skills/index.json
+# Agent registration guide: https://apibase.pro/auth.md
 
 Sitemap: https://apibase.pro/sitemap.xml
 Sitemap: https://apibase.pro/sitemap-guides.xml

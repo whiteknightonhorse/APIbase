@@ -48,7 +48,7 @@ priority_for() {
     /policy/moderation) echo 0.5 ;;
     /privacy) echo 0.4 ;;
     /terms) echo 0.4 ;;
-    /ai.txt|/llms.txt) echo 0.9 ;;
+    /ai.txt|/llms.txt|/auth.md) echo 0.9 ;;
     /robots.txt) echo 0.3 ;;
     /.well-known/mcp.json|/.well-known/mcp/server-card.json|/.well-known/api-catalog|/.well-known/openapi.json|/.well-known/ai-catalog.json) echo 1.0 ;;
     /.well-known/agent.json|/.well-known/ai-capabilities.json|/.well-known/oauth-authorization-server|/.well-known/oauth-protected-resource) echo 0.9 ;;
@@ -64,7 +64,7 @@ freq_for() {
     /connect|/frameworks|/pricing) echo weekly ;;
     /catalog) echo daily ;;
     /onboard|/contact|/policy/moderation|/privacy|/terms) echo monthly ;;
-    /ai.txt|/llms.txt) echo daily ;;
+    /ai.txt|/llms.txt|/auth.md) echo daily ;;
     /robots.txt) echo monthly ;;
     /.well-known/*)
       case "$1" in
@@ -99,7 +99,7 @@ emit() {
   # backend-rendered page, no static/*.html twin -- nginx proxies it straight to the app
   emit "/onboard" "src/routes/onboard.router.ts"
 
-  for f in static/ai.txt static/llms.txt static/robots.txt; do
+  for f in static/ai.txt static/llms.txt static/robots.txt static/auth.md; do
     [ -f "$f" ] && emit "/$(basename "$f")" "$f"
   done
 

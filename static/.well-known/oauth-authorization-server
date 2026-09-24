@@ -9,5 +9,14 @@
   "service_documentation": "https://apibase.pro/ai.txt",
   "op_policy_uri": "https://apibase.pro/terms",
   "op_tos_uri": "https://apibase.pro/terms",
-  "code_challenge_methods_supported": []
+  "code_challenge_methods_supported": [],
+  "agent_auth": {
+    "skill": "https://apibase.pro/auth.md",
+    "register_uri": "https://apibase.pro/oauth/register",
+    "identity_endpoint": "https://apibase.pro/oauth/register",
+    "identity_types_supported": ["anonymous"],
+    "anonymous": {
+      "credential_types_supported": ["api_key"]
+    }
+  }
 }

@@ -84,6 +84,13 @@
           "title": "OAuth 2.0 Protected Resource metadata (RFC 9728)"
         }
       ],
+      "auth": [
+        {
+          "href": "https://apibase.pro/auth.md",
+          "type": "text/markdown",
+          "title": "Agent registration guide (auth.md)"
+        }
+      ],
       "ucp-profile": [
         {
           "href": "https://apibase.pro/.well-known/ucp",
