@@ -26,6 +26,13 @@
           "title": "LLM-facing quick-start guide"
         }
       ],
+      "ai-catalog": [
+        {
+          "href": "https://apibase.pro/.well-known/ai-catalog.json",
+          "type": "application/json",
+          "title": "ARD (Agentic Resource Discovery) capability manifest"
+        }
+      ],
       "service-meta": [
         {
           "href": "https://apibase.pro/.well-known/mcp/server-card.json",

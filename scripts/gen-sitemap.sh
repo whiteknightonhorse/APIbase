@@ -50,7 +50,7 @@ priority_for() {
     /terms) echo 0.4 ;;
     /ai.txt|/llms.txt) echo 0.9 ;;
     /robots.txt) echo 0.3 ;;
-    /.well-known/mcp.json|/.well-known/mcp/server-card.json|/.well-known/api-catalog|/.well-known/openapi.json) echo 1.0 ;;
+    /.well-known/mcp.json|/.well-known/mcp/server-card.json|/.well-known/api-catalog|/.well-known/openapi.json|/.well-known/ai-catalog.json) echo 1.0 ;;
     /.well-known/agent.json|/.well-known/ai-capabilities.json|/.well-known/oauth-authorization-server|/.well-known/oauth-protected-resource) echo 0.9 ;;
     /.well-known/x402-payment.json|/.well-known/agent-skills/index.json|/.well-known/ucp|/.well-known/acp.json) echo 0.8 ;;
     /.well-known/kya-policy.json) echo 0.6 ;;

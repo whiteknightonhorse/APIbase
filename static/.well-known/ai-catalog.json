@@ -1,0 +1,45 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "APIbase",
+    "identifier": "did:web:apibase.pro"
+  },
+  "entries": [
+    {
+      "identifier": "urn:air:apibase.pro:mcp:apibase",
+      "displayName": "APIbase MCP Server",
+      "type": "application/mcp-server-card+json",
+      "url": "https://apibase.pro/mcp/server-card",
+      "description": "Streamable-HTTP MCP server exposing APIbase's pay-per-call tool catalog to AI agents, with x402/MPP micropayments and no signup form.",
+      "representativeQueries": [
+        "Connect an AI agent to a pay-per-call API marketplace over MCP",
+        "Find an MCP server that wraps many third-party APIs behind one endpoint",
+        "Pay for individual API calls with USDC from an autonomous agent"
+      ]
+    },
+    {
+      "identifier": "urn:air:apibase.pro:api:openapi",
+      "displayName": "APIbase REST API",
+      "type": "application/vnd.oai.openapi+json;version=3.1",
+      "url": "https://apibase.pro/.well-known/openapi.json",
+      "description": "OpenAPI 3.1 specification for APIbase's REST tool-call endpoints, each annotated with x-payment-info for x402 pricing discovery.",
+      "representativeQueries": [
+        "Get an OpenAPI spec for a pay-per-call REST API hub",
+        "Discover REST endpoints priced per call via x402",
+        "Integrate a multi-provider API catalog into a REST client"
+      ]
+    },
+    {
+      "identifier": "urn:air:apibase.pro:skills:index",
+      "displayName": "APIbase Agent Skills Index",
+      "type": "application/json",
+      "url": "https://apibase.pro/.well-known/agent-skills/index.json",
+      "description": "Agent Skills index describing how to discover tools, pay with x402/MPP, and auto-register on APIbase without a signup form.",
+      "representativeQueries": [
+        "Learn how an agent auto-registers with an API platform on first request",
+        "Find step-by-step skills for paying an API with x402 or MPP",
+        "Get a progressive-disclosure guide to a large tool catalog"
+      ]
+    }
+  ]
+}
