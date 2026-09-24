@@ -156,6 +156,7 @@ jest.mock('../../src/middleware/mpp.middleware', () => ({
 const RECEIVER = '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480';
 jest.mock('@x402/core/http', () => ({
   decodePaymentSignatureHeader: jest.fn((header: string) => ({ header })),
+  encodePaymentRequiredHeader: jest.fn(() => 'mock-payment-required-header'),
 }));
 jest.mock('@x402/core/schemas', () => ({
   parsePaymentPayload: jest.fn((decoded: { header: string }) => {
@@ -309,7 +310,9 @@ interface ExecuteCallOpts {
   params?: Record<string, unknown>;
 }
 
-async function callExecute(opts: ExecuteCallOpts): Promise<{ status: number; body: unknown }> {
+async function callExecute(
+  opts: ExecuteCallOpts,
+): Promise<{ status: number; body: unknown; headers: Record<string, string> }> {
   // Extract the real handler from the real Router — genuinely exercises
   // execute.router.ts, not a reimplementation of it.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -357,7 +360,7 @@ async function callExecute(opts: ExecuteCallOpts): Promise<{ status: number; bod
     if (err) throw err;
   };
   await handler(req, res, next);
-  return { status: res.statusCode, body: res._body };
+  return { status: res.statusCode, body: res._body, headers: res._headers };
 }
 
 describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handler', () => {
@@ -376,6 +379,15 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     expect(r.status).toBe(402);
     expect(mockAdapterCall).not.toHaveBeenCalled();
     expect(mockVerify).not.toHaveBeenCalled();
+  });
+
+  it('T-0187B1: a real 402 carries a PAYMENT-REQUIRED header built by the same encoder as the body', async () => {
+    const r = await callExecute({ requestId: 'exec-payment-required-header' });
+    expect(r.status).toBe(402);
+    // encodePaymentRequiredHeader is mocked module-wide (see jest.mock('@x402/core/http', ...)
+    // above) — asserting the header is exactly its return value proves execute.router calls
+    // the real SDK encoder against the real 402 body, not a hand-rolled base64 string.
+    expect(r.headers['PAYMENT-REQUIRED']).toBe('mock-payment-required-header');
   });
 
   it('ADVERSARIAL: replayed nonce — two parallel identical signed payments yield exactly one 200 and one 402, provider called exactly once', async () => {

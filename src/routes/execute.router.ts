@@ -1,5 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { randomUUID } from 'node:crypto';
+import { encodePaymentRequiredHeader } from '@x402/core/http';
+import type { PaymentRequired } from '@x402/core/types';
 import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
@@ -86,6 +88,15 @@ executeRouter.post(
         const priceUsd = (result.error.extra?.price_usd as number) ?? 0;
         const priceVersion = (result.error.extra?.price_version as number) ?? 1;
         const body = buildPaymentRequiredResponse(toolId, priceUsd, priceVersion, requestId);
+
+        // T-0187B1 (taskloop 0187 ruling-1, §1/§3): real 402s only ever carried the
+        // v2 body — no PAYMENT-REQUIRED header — so the standard x402 client
+        // (@x402/fetch) can't parse this response at all. Same encoder as the
+        // T-0187A entry marker, so both surfaces stay byte-for-byte consistent.
+        res.setHeader(
+          'PAYMENT-REQUIRED',
+          encodePaymentRequiredHeader(body as unknown as PaymentRequired),
+        );
 
         // Dual-rail: add MPP WWW-Authenticate header alongside x402 body
         const mppHeader = await buildMppChallengeHeader(
