@@ -141,7 +141,8 @@ const SLIDES: SlideSpec[] = [
 async function fetchLiveCounts(): Promise<{ tools: number; providers: number }> {
   const res = await fetch(CATALOG_URL);
   if (!res.ok) throw new Error(`fetchLiveCounts: GET ${CATALOG_URL} -> ${res.status}`);
-  const data = (await res.json()) as Array<{ provider: string }>;
+  const body = (await res.json()) as { data: Array<{ provider: string }> };
+  const data = body.data;
   return { tools: data.length, providers: new Set(data.map((t) => t.provider)).size };
 }
 
