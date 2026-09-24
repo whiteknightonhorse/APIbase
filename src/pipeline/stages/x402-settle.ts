@@ -19,6 +19,7 @@ const bazaarValidateDiscoveryExtension = bazaarMod.validateDiscoveryExtension as
   schema: unknown;
 }) => { valid: boolean; errors?: string[] };
 import { getX402Config, buildServerX402Requirements } from '../../config/x402.config';
+import { toolCallResourceUrl } from '../../middleware/x402.middleware';
 import { getCdpConfig } from '../../config/cdp.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { TOOL_DEFINITIONS } from '../../mcp/tool-definitions';
@@ -121,7 +122,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       const amountMicro = String(Math.round((ctx.toolPrice ?? 0) * 1_000_000));
       const toolId = ctx.toolId ?? 'mcp.call';
       const description = lookupToolDescription(toolId);
-      const resourceUrl = `https://apibase.pro/api/v1/tools/${toolId}/call`;
+      const resourceUrl = toolCallResourceUrl('apibase.pro', toolId);
 
       requirements = {
         scheme: payload.scheme,

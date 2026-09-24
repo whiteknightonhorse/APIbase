@@ -85,7 +85,13 @@ executeRouter.post(
       if (status === 402) {
         const priceUsd = (result.error.extra?.price_usd as number) ?? 0;
         const priceVersion = (result.error.extra?.price_version as number) ?? 1;
-        const body = buildPaymentRequiredResponse(toolId, priceUsd, priceVersion, requestId);
+        const body = buildPaymentRequiredResponse(
+          toolId,
+          priceUsd,
+          priceVersion,
+          requestId,
+          req.get('host') ?? '',
+        );
 
         // T-0187B1 (taskloop 0187 ruling-1, §1/§3): real 402s only ever carried the
         // v2 body — no PAYMENT-REQUIRED header — so the standard x402 client

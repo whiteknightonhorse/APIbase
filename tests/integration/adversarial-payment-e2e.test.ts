@@ -196,6 +196,7 @@ jest.mock('../../src/adapters/registry', () => ({
 // Imports (after mocks) — real production code.
 // ---------------------------------------------------------------------------
 
+import { encodePaymentRequiredHeader } from '@x402/core/http';
 import { executeRouter } from '../../src/routes/execute.router';
 import { runBatch } from '../../src/services/batch.service';
 import { registerTools, type PaymentContext } from '../../src/mcp/tool-adapter';
@@ -395,6 +396,14 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     // above) — asserting the header is exactly its return value proves execute.router calls
     // the real SDK encoder against the real 402 body, not a hand-rolled base64 string.
     expect(r.headers['PAYMENT-REQUIRED']).toBe('mock-payment-required-header');
+    // T-0187B3: the 402 names its own absolute /call URL — the fixed point a
+    // client hits again produces the identical challenge.
+    const body = r.body as { resource: { url: string } };
+    expect(body.resource.url).toMatch(new RegExp(`^https://[^/]+/api/v1/tools/${TOOL_ID}/call$`));
+    const encodedArg = (encodePaymentRequiredHeader as jest.Mock).mock.calls.at(-1)?.[0] as {
+      resource: { url: string };
+    };
+    expect(encodedArg.resource.url).toBe(body.resource.url);
   });
 
   it('T-0187B2: a genuinely bare call (no Authorization, no X-API-Key, no X-Payment) gets 402 for the requested tool, not 401', async () => {
@@ -404,6 +413,14 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     // Same encoder/body path as B1 — AUTH stage's 402 flows through execute.router's
     // one `status === 402` branch, so it gets the identical dual-rail treatment.
     expect(r.headers['PAYMENT-REQUIRED']).toBe('mock-payment-required-header');
+    const bareBody = r.body as { resource: { url: string } };
+    expect(bareBody.resource.url).toMatch(
+      new RegExp(`^https://[^/]+/api/v1/tools/${TOOL_ID}/call$`),
+    );
+    const bareEncodedArg = (encodePaymentRequiredHeader as jest.Mock).mock.calls.at(-1)?.[0] as {
+      resource: { url: string };
+    };
+    expect(bareEncodedArg.resource.url).toBe(bareBody.resource.url);
     expect((r.body as { accepts?: Array<{ amount?: string }> }).accepts?.[0]?.amount).toBe(
       String(Math.round(PRICE * 1_000_000)),
     );

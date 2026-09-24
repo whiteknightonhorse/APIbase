@@ -39,10 +39,9 @@ async function handleEntryMarker(req: Request, res: Response, next: NextFunction
     }
 
     const requestId = req.requestId ?? 'unknown';
-    const body = buildPaymentRequiredResponse(ENTRY_MARKER_TOOL_ID, priceUsd, 1, requestId);
+    const host = req.get('host') ?? '';
+    const body = buildPaymentRequiredResponse(ENTRY_MARKER_TOOL_ID, priceUsd, 1, requestId, host);
     const resource = body.resource as { url: string; description: string };
-    const host = req.get('host');
-    resource.url = `https://${host}/api/v1/tools/${ENTRY_MARKER_TOOL_ID}/call`;
     resource.description =
       `Entry point: every APIbase tool is pay-per-call. Terms shown here are for ` +
       `${ENTRY_MARKER_TOOL_ID} as a worked example — full catalog at https://${host}/api/v1/tools.`;

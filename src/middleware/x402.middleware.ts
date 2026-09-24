@@ -66,18 +66,29 @@ async function verifyPayment(req: Request, paymentHeader: string): Promise<void>
   );
 }
 
+/**
+ * The one place `/api/v1/tools/${toolId}/call` is templated (T-0187B3): every
+ * real 402's resource.url must name the absolute URL that, called again,
+ * produces the identical challenge — not a relative/non-callable stand-in.
+ */
+export function toolCallResourceUrl(host: string, toolId: string): string {
+  return `https://${host}/api/v1/tools/${toolId}/call`;
+}
+
 export function buildPaymentRequiredResponse(
   toolId: string,
   priceUsd: number,
   priceVersion: number,
   requestId: string,
+  host: string,
 ): Record<string, unknown> {
   const cfg = getX402Config();
   return {
     x402Version: 2,
     error: 'payment_required',
     resource: {
-      url: `/api/v1/tools/${toolId}`,
+      url: toolCallResourceUrl(host, toolId),
+      mimeType: 'application/json',
       description: `Tool invocation: ${toolId}`,
     },
     accepts: [

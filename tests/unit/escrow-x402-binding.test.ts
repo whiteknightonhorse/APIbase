@@ -153,7 +153,7 @@ describe('x402 amount rounding consistency', () => {
     'challenge and binding requirements agree for $%s',
     (price) => {
       const challengeAmount = (
-        buildPaymentRequiredResponse('some.tool', price, 1, 'req').accepts as Array<{
+        buildPaymentRequiredResponse('some.tool', price, 1, 'req', 'apibase.pro').accepts as Array<{
           amount: string;
         }>
       )[0].amount;
