@@ -22,20 +22,20 @@ body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New'
 <div class="msg assistant">
 <div class="tool-call"><span>tools/call</span> discover_tools category="travel"</div>
 Found <span style="color:#00ff41;font-weight:bold">travel tools</span> across multiple providers:<br><br>
-<div class="cat">amadeus.flight_search <span class="cat-count">$0.035</span></div>
-<div class="cat">amadeus.flight_price <span class="cat-count">$0.020</span></div>
-<div class="cat">amadeus.flight_status <span class="cat-count">$0.005</span></div>
-<div class="cat">aviasales.search_flights <span class="cat-count">$0.003</span></div>
-<div class="cat">aviasales.price_calendar <span class="cat-count">$0.002</span></div>
-<div class="cat">sabre.search_flights <span class="cat-count">$0.005</span></div>
-<div class="cat">amadeus.airport_search <span class="cat-count">$0.002</span></div>
+<div class="cat">sabre.search_flights <span class="cat-count">$0.01</span></div>
+<div class="cat">aviasales.search_flights <span class="cat-count">$0.005</span></div>
+<div class="cat">sabre.destination_finder <span class="cat-count">$0.005</span></div>
+<div class="cat">sabre.airline_lookup <span class="cat-count">$0.002</span></div>
+<div class="cat">opensky.aircraft_track <span class="cat-count">$0.002</span></div>
+<div class="cat">tfl.journey_plan <span class="cat-count">$0.002</span></div>
+<div class="cat">aviasales.price_calendar <span class="cat-count">$0.001</span></div>
 <div class="cat">+ more</div>
 </div>
 <div class="msg user">Search flights from NYC to London next week</div>
 <div class="msg assistant">
-<div class="tool-call"><span>tools/call</span> amadeus.flight_search {from: "JFK", to: "LHR", date: "2026-04-07"}</div>
-Found 12 flights. Cheapest: <span style="color:#00ff41">$387</span> (BA 178, 7h 15m, direct) via Amadeus GDS.
-<br>Cost: $0.035 USDC via x402.
+<div class="tool-call"><span>tools/call</span> aviasales.search_flights {origin: "JFK", destination: "LHR", departure_date: "2026-10-05"}</div>
+Found 12 flights. Cheapest: <span style="color:#00ff41">$387</span> (BA178, 7h 15m, direct) via Aviasales. <span style="color:#6e7681;font-size:12px"># example</span>
+<br>Cost: $0.005 USDC via x402 or MPP.
 </div>
 </div>
 </body></html>

@@ -26,24 +26,22 @@ body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New'
 <div class="term-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
 <span class="prompt">$</span> <span class="cmd">curl -X POST .../tools/account.usage/call -d '{"period":"7d"}'</span><br>
 <br>
+<span class="comment"># example values</span><br>
 {<br>
 &nbsp;&nbsp;<span class="key">"period"</span>: <span class="str">"7d"</span>,<br>
-&nbsp;&nbsp;<span class="key">"total_calls"</span>: <span class="num">1,247</span>,<br>
+&nbsp;&nbsp;<span class="key">"total_calls"</span>: <span class="num">1247</span>,<br>
 &nbsp;&nbsp;<span class="key">"total_cost_usd"</span>: <span class="num">3.82</span>,<br>
-&nbsp;&nbsp;<span class="key">"cache_hit_rate"</span>: <span class="num">0.67</span>,  <span class="comment">// 67% served from cache</span><br>
+&nbsp;&nbsp;<span class="key">"cache_hits"</span>: <span class="num">835</span>,<br>
+&nbsp;&nbsp;<span class="key">"cache_hit_rate"</span>: <span class="num">0.67</span>,<br>
 &nbsp;&nbsp;<span class="key">"avg_latency_ms"</span>: <span class="num">142</span>,<br>
-&nbsp;&nbsp;<span class="key">"top_tools"</span>: [<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"tool"</span>: <span class="str">"crypto.get_price"</span>, <span class="key">"calls"</span>: <span class="num">423</span>, <span class="key">"cost"</span>: <span class="num">0.42</span> },<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"tool"</span>: <span class="str">"weather.current"</span>, <span class="key">"calls"</span>: <span class="num">312</span>, <span class="key">"cost"</span>: <span class="num">0.31</span> },<br>
-&nbsp;&nbsp;&nbsp;&nbsp;{ <span class="key">"tool"</span>: <span class="str">"amadeus.flight_search"</span>, <span class="key">"calls"</span>: <span class="num">89</span>, <span class="key">"cost"</span>: <span class="num">3.12</span> }<br>
-&nbsp;&nbsp;]<br>
+&nbsp;&nbsp;<span class="key">"unique_tools"</span>: <span class="num">23</span><br>
 }
 </div>
 
 <div class="cards">
 <div class="card"><div class="card-num">{{TOOLS}}</div><div class="card-label">TOOLS AVAILABLE</div><div class="card-sub">{{PROVIDERS}} providers</div></div>
-<div class="card"><div class="card-num">$0.001</div><div class="card-label">MIN PRICE/CALL</div><div class="card-sub">up to $0.035</div></div>
-<div class="card"><div class="card-num">67%</div><div class="card-label">CACHE HIT RATE</div><div class="card-sub">save on repeat calls</div></div>
-<div class="card"><div class="card-num">142ms</div><div class="card-label">AVG LATENCY</div><div class="card-sub">multi-stage pipeline</div></div>
+<div class="card"><div class="card-num">$0.0005</div><div class="card-label">MIN PRICE/CALL</div><div class="card-sub">free analytics tools</div></div>
+<div class="card"><div class="card-num">10%</div><div class="card-label">CACHE-HIT PRICE</div><div class="card-sub">cache_hit_price_usd per tool</div></div>
+<div class="card"><div class="card-num">3</div><div class="card-label">FREE TOOLS</div><div class="card-sub">account.usage, tools, timeseries</div></div>
 </div>
 </body></html>

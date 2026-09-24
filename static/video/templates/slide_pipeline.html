@@ -25,18 +25,19 @@ body{background:#0d1117;color:#c9d1d9;font-family:'JetBrains Mono','Courier New'
 <div class="stage"><span class="num">3</span><span class="name">CONTENT_NEG</span><span class="arrow">→</span><span class="desc">Accept/Content-Type negotiation</span></div>
 <div class="stage"><span class="num">4</span><span class="name">SCHEMA_VALIDATION</span><span class="arrow">→</span><span class="desc">Zod validation — reject malformed input</span></div>
 <div class="stage"><span class="num">5</span><span class="name">TOOL_STATUS</span><span class="arrow">→</span><span class="desc">Check tool exists &amp; healthy</span></div>
-<div class="stage"><span class="num">6</span><span class="name">CACHE</span><span class="arrow">→</span><span class="desc">Redis lookup — return if cached (TTL per tool)</span></div>
+<div class="stage"><span class="num">6</span><span class="name">CACHE_OR_SINGLE_FLIGHT</span><span class="arrow">→</span><span class="desc">Redis lookup — return if cached, else coalesce duplicate in-flight calls</span></div>
 <div class="stage"><span class="num">7</span><span class="name">RATE_LIMIT</span><span class="arrow">→</span><span class="desc">Dual-bucket per agent per tool</span></div>
-<div class="stage"><span class="num">8</span><span class="name active">ESCROW</span><span class="arrow">→</span><span class="desc"><span class="highlight">Verify x402/MPP payment — 402 if unpaid</span></span></div>
-<div class="stage"><span class="num">9</span><span class="name active">PROVIDER_CALL</span><span class="arrow">→</span><span class="desc"><span class="highlight">Call upstream API (Amadeus, CoinGecko, DHL...)</span></span></div>
-<div class="stage"><span class="num">10</span><span class="name">ESCROW_FINALIZE</span><span class="arrow">→</span><span class="desc">Charge on success, refund on failure</span></div>
-<div class="stage"><span class="num">11</span><span class="name">LEDGER_WRITE</span><span class="arrow">→</span><span class="desc">Append-only financial record (PG transaction)</span></div>
-<div class="stage"><span class="num">12</span><span class="name">CACHE_SET</span><span class="arrow">→</span><span class="desc">Store response in Redis</span></div>
-<div class="stage"><span class="num">13</span><span class="name">RESPONSE</span><span class="arrow">→</span><span class="desc">Return normalized JSON to agent</span></div>
+<div class="stage"><span class="num">8</span><span class="name active">ESCROW</span><span class="arrow">→</span><span class="desc"><span class="highlight">Verify x402 (EIP-3009) or MPP payment — 402 if unpaid</span></span></div>
+<div class="stage"><span class="num">9</span><span class="name">MODERATION</span><span class="arrow">→</span><span class="desc">Content filter on action-class tools (SMS, calls, email)</span></div>
+<div class="stage"><span class="num">10</span><span class="name active">PROVIDER_CALL</span><span class="arrow">→</span><span class="desc"><span class="highlight">Call upstream API (Sabre, CoinGecko, DHL...)</span></span></div>
+<div class="stage"><span class="num">11</span><span class="name">ESCROW_FINALIZE</span><span class="arrow">→</span><span class="desc">Settle on-chain on success, release on failure</span></div>
+<div class="stage"><span class="num">12</span><span class="name">LEDGER_WRITE</span><span class="arrow">→</span><span class="desc">Append-only financial record (PG transaction)</span></div>
+<div class="stage"><span class="num">13</span><span class="name">CACHE_SET</span><span class="arrow">→</span><span class="desc">Store response in Redis</span></div>
+<div class="stage"><span class="num">14</span><span class="name">RESPONSE</span><span class="arrow">→</span><span class="desc">Return normalized JSON to agent</span></div>
 </div>
 
 <div class="bottom">
-<div class="stat"><div class="stat-num">~120ms</div><div class="stat-label">avg pipeline latency</div></div>
+<div class="stat"><div class="stat-num">14 stages</div><div class="stat-label">order enforced</div></div>
 <div class="stat"><div class="stat-num">Fail-Closed</div><div class="stat-label">any error = reject, never pass through</div></div>
 <div class="stat"><div class="stat-num">Atomic</div><div class="stat-label">escrow + ledger in one PG transaction</div></div>
 </div>
