@@ -14,6 +14,7 @@ import {
   X_PAYMENT,
   X_API_KEY,
   X_CACHE,
+  resolveX402PaymentHeader,
 } from '../config/http-headers';
 
 /**
@@ -40,7 +41,7 @@ executeRouter.post(
         'content-type': req.headers['content-type'],
         [X_REQUEST_ID]: requestId,
         [X_IDEMPOTENCY_KEY]: req.headers[X_IDEMPOTENCY_KEY] as string | undefined,
-        [X_PAYMENT]: req.headers[X_PAYMENT] as string | undefined,
+        [X_PAYMENT]: resolveX402PaymentHeader(req.headers),
         [X_API_KEY]: req.headers[X_API_KEY] as string | undefined,
       });
       ctx.toolId = toolId;
@@ -48,10 +49,7 @@ executeRouter.post(
       if (req.x402Payment?.verified) {
         ctx.x402Paid = true;
         ctx.x402Payer = req.x402Payment.payer;
-        ctx.x402PaymentHeader =
-          (req.headers[X_PAYMENT] as string | undefined) ??
-          (req.headers['payment-signature'] as string | undefined) ??
-          '';
+        ctx.x402PaymentHeader = resolveX402PaymentHeader(req.headers) ?? '';
       }
 
       if (req.mppPayment?.verified) {

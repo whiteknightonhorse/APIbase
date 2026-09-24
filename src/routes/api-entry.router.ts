@@ -5,7 +5,7 @@ import { getToolPriceUsd } from '../pipeline/stages/tool-status.stage';
 import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
 import { buildMppChallengeHeader } from '../middleware/mpp.middleware';
 import { AppError, ErrorCode } from '../types/errors';
-import { X_PAYMENT } from '../config/http-headers';
+import { resolveX402PaymentHeader } from '../config/http-headers';
 
 /**
  * T-0187A (taskloop 0187 ruling-1, §1): `GET /api` and `GET /api/v1` used to be two static
@@ -22,9 +22,7 @@ export const apiEntryRouter = Router();
 
 async function handleEntryMarker(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const paymentHeader =
-      (req.headers[X_PAYMENT] as string | undefined) ??
-      (req.headers['payment-signature'] as string | undefined);
+    const paymentHeader = resolveX402PaymentHeader(req.headers);
 
     if (paymentHeader !== undefined) {
       // This location is a discovery signal, not a payable resource — the SDK's own

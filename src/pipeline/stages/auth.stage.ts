@@ -328,13 +328,17 @@ export const authStage: Stage = {
       }
 
       // T-0187B2 (taskloop 0187 ruling-1, §3 row B2): a call with NO credential-shaped
-      // header at all (no Authorization, no X-API-Key, no raw X-Payment) gets the same
-      // dual-rail 402 challenge as an escrow shortfall instead of 401 -- the standard
-      // x402/MPP request->402->pay->retry cycle needs a 402 to start the dance. A header
-      // that WAS sent but failed (bad key format, unknown key, unverifiable signature)
+      // header at all (no Authorization, no X-API-Key, no raw X-Payment/Payment-Signature)
+      // gets the same dual-rail 402 challenge as an escrow shortfall instead of 401 -- the
+      // standard x402/MPP request->402->pay->retry cycle needs a 402 to start the dance. A
+      // header that WAS sent but failed (bad key format, unknown key, unverifiable signature)
       // still falls through to 401 below, per ruling: "401 остаётся для невалидных
       // ключей и подписей". Raw header presence (not ctx.x402Paid, which is only true
       // once verified) is what distinguishes "sent nothing" from "sent something bad".
+      // ctx.headers[X_PAYMENT] is populated by resolveX402PaymentHeader() at every entry
+      // point (execute.router.ts, mcp/server.ts) -- it already covers the PAYMENT-SIGNATURE
+      // alias, so this single lookup is enough (ruling-1 follow-up: a standard v2 client's
+      // PAYMENT-SIGNATURE header was landing here as "nothing sent" and got 402, not 401).
       const rawPaymentHeader = ctx.headers[X_PAYMENT];
       const hasAnyCredentialHeader = Boolean(apiKeyFallback) || Boolean(rawPaymentHeader);
 

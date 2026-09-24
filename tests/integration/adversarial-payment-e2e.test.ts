@@ -312,6 +312,9 @@ interface ExecuteCallOpts {
   // (no Bearer, no X-API-Key, no X-Payment), as opposed to the other "no
   // payment" tests here which still authenticate via a valid Bearer key.
   noAuth?: boolean;
+  // T-0187B2 ruling-1 follow-up: a standard x402 v2 client sends the payload
+  // under PAYMENT-SIGNATURE, not X-Payment — both must resolve identically.
+  x402HeaderName?: 'x-payment' | 'payment-signature';
 }
 
 async function callExecute(
@@ -356,7 +359,7 @@ async function callExecute(
         }
       : undefined,
   };
-  if (opts.x402) req.headers['x-payment'] = opts.x402.header;
+  if (opts.x402) req.headers[opts.x402HeaderName ?? 'x-payment'] = opts.x402.header;
   if (opts.idempotencyKey) req.headers['x-idempotency-key'] = opts.idempotencyKey;
 
   const res = fakeRes();
@@ -404,6 +407,21 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     expect((r.body as { accepts?: Array<{ amount?: string }> }).accepts?.[0]?.amount).toBe(
       String(Math.round(PRICE * 1_000_000)),
     );
+  });
+
+  it('T-0187B2 ruling-1: a cryptographically invalid x402 signature sent via PAYMENT-SIGNATURE (not X-Payment) still 401s, not 402', async () => {
+    // Structurally well-formed (mocked decode/parse always succeed — see
+    // @x402/core/http and @x402/core/schemas mocks above) but the facilitator
+    // rejects the signature itself, exactly like a real forged/garbage sig.
+    mockVerify.mockResolvedValue({ isValid: false });
+    const r = await callExecute({
+      requestId: 'exec-bad-sig-payment-signature-header',
+      noAuth: true,
+      x402: { header: `nonce-bad-sig::${futureEpoch()}` },
+      x402HeaderName: 'payment-signature',
+    });
+    expect(r.status).toBe(401);
+    expect(mockAdapterCall).not.toHaveBeenCalled();
   });
 
   it('REGRESSION: a bare call with an invalid API key format still 401s (only genuinely-zero credentials get 402)', async () => {

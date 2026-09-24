@@ -26,3 +26,15 @@ export const X_POWERED_BY = 'x-powered-by';
 export const X_RATELIMIT_LIMIT = 'x-ratelimit-limit';
 export const X_RATELIMIT_REMAINING = 'x-ratelimit-remaining';
 export const X_RATELIMIT_RESET = 'x-ratelimit-reset';
+
+// x402 spec's own header name, not one of ours -- but every call site that
+// resolves the x-payment/payment-signature alias pair belongs here too, so a
+// third one can't silently check only one of the two again (T-0187B2).
+export const PAYMENT_SIGNATURE = 'payment-signature';
+
+export function resolveX402PaymentHeader(
+  headers: Record<string, string | string[] | undefined>,
+): string | undefined {
+  const value = headers[X_PAYMENT] ?? headers[PAYMENT_SIGNATURE];
+  return Array.isArray(value) ? value[0] : value;
+}

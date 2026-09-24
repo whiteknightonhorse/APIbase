@@ -17,7 +17,7 @@
 import express from 'express';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { X_REQUEST_ID, X_PAYMENT } from '../config/http-headers';
+import { X_REQUEST_ID, resolveX402PaymentHeader } from '../config/http-headers';
 import { randomUUID } from 'node:crypto';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
@@ -191,7 +191,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
   return {
     x402Paid: !!x402?.verified,
     x402Payer: x402?.payer ?? null,
-    x402PaymentHeader: (req.headers[X_PAYMENT] as string) ?? null,
+    x402PaymentHeader: resolveX402PaymentHeader(req.headers) ?? null,
     mppPaid: !!mpp?.verified,
     mppPayer: mpp?.payer ?? null,
     mppMethod: mpp?.method ?? null,
