@@ -347,7 +347,6 @@ STALE=$(grep -hioE "[0-9]{3,}\+?( [A-Za-z]+)? (tools|providers)" "${STALE_SCAN_F
 STALE_AI_TXT=$(grep -oE "Tools: [0-9]{3,} across" static/ai.txt 2>/dev/null | grep -v "^Tools: ${TOOLS} across$" || true)
 STALE_CATALOG=$(grep -hoE "[0-9]{3,} tool (endpoints|definitions)" "$CATALOG" 2>/dev/null \
   | grep -v "^${TOOLS} tool " | sort -u || true)
-SERVER_CARD_LEN=$(python3 -c "import json; print(len(json.load(open('static/.well-known/mcp/server-card.json'))['tools']))")
 STALE_README_PROSE=$(grep -oE "[0-9]{2,4}\+? real-world API tools|[0-9]{2,4}\+? external API tools" README.md 2>/dev/null \
   | grep -vE "^${TOOLS} real-world API tools$|^${TOOLS} external API tools$" || true)
 # Q3 (Fable ruling, T-30 dispute q-1, 2026-09-02): a negative check instead of another
@@ -416,11 +415,20 @@ STALE_FOOTER_TOOLS=$(grep -hoE "TOOLS: [0-9]+<" static/index.html static/contact
 # GEN_DISCOVERY_CHECK_RC below, which now replaces all of that with one byte-for-byte compare
 # against a freshly rebuilt candidate). What's left here is the one check that byte-diffing
 # gen-discovery.ts's OWN output can't cover: agreement between TWO INDEPENDENT generators
-# (openapi.json from generate-openapi.ts, server-card.json from gen-card.ts, outside this task's
-# scope) -- this is the exact shape of the confirmed 52-path surplus bug (1436 TOOL_DEFINITIONS
-# entries vs 1384 active tools), plus server-card.json's version, which nothing else checks.
-STALE_DISCOVERY=$(python3 - <<'PY' 2>&1
-import json
+# (openapi.json from generate-openapi.ts, and the $TOOLS baseline this run already trusts) --
+# this is the exact shape of the confirmed 52-path surplus bug (1436 TOOL_DEFINITIONS entries vs
+# 1384 active tools), plus server-card.json's version, which nothing else checks.
+# T-0185a (disputes/0185-agent-readiness-isitagentready-73.ruling-1.md, task A): this used to
+# diff openapi.json's tool-path count against server-card.json's `tools` array length -- but the
+# server-card no longer lists tools at all (SEP-2127 small-card format, see gen-card.ts), so that
+# comparison lost its second side. Compare openapi.json directly against $TOOLS (the same active-
+# tool-count baseline every other surface in this gate already trusts) instead of dropping the
+# check -- this is what keeps catching a "1436 vs 1384" class surplus in generate-openapi.ts
+# itself, which is the actual bug this check exists for.
+STALE_DISCOVERY=$(python3 - "$TOOLS" <<'PY' 2>&1
+import json, sys
+
+TOOLS = int(sys.argv[1])
 
 with open('package.json') as f:
     PKG_VERSION = json.load(f)['version']
@@ -437,13 +445,14 @@ def load(path):
 
 openapi = load("static/.well-known/openapi.json")
 server_card = load("static/.well-known/mcp/server-card.json")
-if openapi is not None and server_card is not None:
+if openapi is not None:
     tool_paths = len(openapi.get("paths", {})) - 3  # listTools, discoverTools, registerAgent
-    card_tools = len(server_card.get("tools", []))
-    if tool_paths != card_tools:
-        problems.append(f"openapi.json has {tool_paths} tool paths, server-card.json has {card_tools} tools")
-if server_card is not None and server_card.get("version") != PKG_VERSION:
-    problems.append(f"server-card.json version {server_card.get('version')!r} != package.json {PKG_VERSION!r}")
+    if tool_paths != TOOLS:
+        problems.append(f"openapi.json has {tool_paths} tool paths, baseline is {TOOLS} active tools")
+if server_card is not None:
+    card_version = server_card.get("serverInfo", {}).get("version")
+    if card_version != PKG_VERSION:
+        problems.append(f"server-card.json serverInfo.version {card_version!r} != package.json {PKG_VERSION!r}")
 
 print("\n".join(problems))
 PY
@@ -531,7 +540,6 @@ FAIL=0
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }
 [ -n "$STALE_AI_TXT" ] && { echo "sync-counts: STALE ai.txt 'Tools: N across' remains: $STALE_AI_TXT"; FAIL=1; }
 [ -n "$STALE_CATALOG" ] && { echo "sync-counts: STALE api-catalog remains:"; echo "$STALE_CATALOG"; FAIL=1; }
-[ "$SERVER_CARD_LEN" != "$TOOLS" ] && { echo "sync-counts: server-card.json has $SERVER_CARD_LEN tools, DB says $TOOLS"; FAIL=1; }
 [ -n "$STALE_SYSMON" ] && { echo "sync-counts: STALE sys-monitor bar(s) remain:"; echo "$STALE_SYSMON"; FAIL=1; }
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
 [ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }

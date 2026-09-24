@@ -30,7 +30,7 @@
         {
           "href": "https://apibase.pro/.well-known/mcp/server-card.json",
           "type": "application/json",
-          "title": "Full MCP server card with 1384 tool definitions, 3 prompts, resources"
+          "title": "MCP server card (SEP-2127) — serverInfo, capabilities, 3 prompts, resource links; full tool list via openapi.json"
         },
         {
           "href": "https://apibase.pro/.well-known/mcp.json",

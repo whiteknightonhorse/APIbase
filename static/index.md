@@ -55,7 +55,7 @@ developer, media, infrastructure, messaging, marketing, world.
 
 - MCP manifest: <https://apibase.pro/.well-known/mcp.json>
 - A2A Agent Card: <https://apibase.pro/.well-known/agent.json>
-- MCP server card (full tool list): <https://apibase.pro/.well-known/mcp/server-card.json>
+- MCP server card (SEP-2127, no tool list — full catalog via openapi.json): <https://apibase.pro/.well-known/mcp/server-card.json>
 - AI capabilities: <https://apibase.pro/.well-known/ai-capabilities.json>
 - API Catalog (RFC 9727): <https://apibase.pro/.well-known/api-catalog>
 - Agent Skills index: <https://apibase.pro/.well-known/agent-skills/index.json>
