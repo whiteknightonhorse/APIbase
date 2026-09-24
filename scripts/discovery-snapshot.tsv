@@ -393,8 +393,6 @@ email.validate	zerobounce
 email_verify.check	email_verify
 emsc.event_detail	emsc
 emsc.search_earthquakes	emsc
-ensembl.gene_lookup	ensembl
-ensembl.sequence_region	ensembl
 enviroatlas.block_group_metrics	enviroatlas
 enviroatlas.communities	enviroatlas
 enviroatlas.community_summary	enviroatlas
