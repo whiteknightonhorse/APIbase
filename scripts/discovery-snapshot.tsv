@@ -199,10 +199,6 @@ checkwx.taf_decoded	checkwx
 chem.formula	cactus
 chem.names	cactus
 chem.resolve	cactus
-chembl.bioactivity	chembl
-chembl.molecule_detail	chembl
-chembl.molecule_search	chembl
-chembl.target_search	chembl
 chesscom.player_profile	chesscom
 chesscom.player_stats	chesscom
 chesscom.titled_players	chesscom
