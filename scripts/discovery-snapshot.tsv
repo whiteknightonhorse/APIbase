@@ -816,6 +816,10 @@ nasantrs.recent	nasantrs
 nasantrs.report	nasantrs
 nasantrs.search	nasantrs
 nasantrs.stats	nasantrs
+nbi.bridge_detail	nbi
+nbi.condition_stats	nbi
+nbi.nearby	nbi
+nbi.search	nbi
 ncbi-eutils.taxonomy_lineage	ncbi-eutils
 ncbi-eutils.taxonomy_search	ncbi-eutils
 ncbi-eutils.taxonomy_summary	ncbi-eutils
