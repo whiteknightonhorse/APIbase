@@ -277,12 +277,19 @@ else
     # intersection (fixes the confirmed 52-path surplus, 1436 TOOL_DEFINITIONS vs 1384 live
     # tools) and reads info.version from package.json instead of a hardcoded "1.0.0".
     # Regenerated here so it can never drift from the same DB truth as the other six.
+    # T-0187C (disputes/0187-scanner-commerce-x402-mpp-not-detected.ruling-1.md task
+    # C): generate-openapi.ts now also writes static/.well-known/openapi-discovery.json
+    # (compact root-alias document, offers[] pricing) from the SAME pass over
+    # TOOL_DEFINITIONS -- hashed before/after alongside the full doc so drift in
+    # either is caught, not just the full one.
     b=$(md5sum static/.well-known/openapi.json 2>/dev/null | cut -d" " -f1 || echo "")
+    b_disco=$(md5sum static/.well-known/openapi-discovery.json 2>/dev/null | cut -d" " -f1 || echo "")
     DATABASE_URL="postgresql://apibase:$(grep -m1 '^POSTGRES_PASSWORD=' .env | cut -d= -f2-)@${PG_IP}:5432/apibase?schema=public" \
       npx tsx scripts/generate-openapi.ts > /tmp/generate-openapi.out 2>&1 \
       || { echo "sync-counts: generate-openapi.ts FAILED"; cat /tmp/generate-openapi.out; exit 1; }
     cat /tmp/generate-openapi.out
     [ "$(md5sum static/.well-known/openapi.json | cut -d" " -f1)" != "$b" ] && { echo "  updated static/.well-known/openapi.json"; CHANGED=$((CHANGED+1)); }
+    [ "$(md5sum static/.well-known/openapi-discovery.json | cut -d" " -f1)" != "$b_disco" ] && { echo "  updated static/.well-known/openapi-discovery.json"; CHANGED=$((CHANGED+1)); }
   else
     echo "sync-counts: could not resolve postgres container IP"; exit 1
   fi
@@ -444,11 +451,21 @@ def load(path):
 
 
 openapi = load("static/.well-known/openapi.json")
+openapi_discovery = load("static/.well-known/openapi-discovery.json")
 server_card = load("static/.well-known/mcp/server-card.json")
 if openapi is not None:
     tool_paths = len(openapi.get("paths", {})) - 3  # listTools, discoverTools, registerAgent
     if tool_paths != TOOLS:
         problems.append(f"openapi.json has {tool_paths} tool paths, baseline is {TOOLS} active tools")
+if openapi_discovery is not None:
+    # T-0187C: the root discovery doc has ONLY per-tool paths (no listTools/
+    # discoverTools/registerAgent platform paths), so no -3 here -- its path
+    # count must equal TOOLS exactly.
+    discovery_tool_paths = len(openapi_discovery.get("paths", {}))
+    if discovery_tool_paths != TOOLS:
+        problems.append(
+            f"openapi-discovery.json has {discovery_tool_paths} tool paths, baseline is {TOOLS} active tools"
+        )
 if server_card is not None:
     card_version = server_card.get("serverInfo", {}).get("version")
     if card_version != PKG_VERSION:

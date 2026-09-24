@@ -15,6 +15,8 @@ import { PrismaClient } from '@prisma/client';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 import { toolSchemas } from '../src/schemas/index';
 import { zodToJsonSchema } from '../src/utils/zod-to-json-schema';
+import { toMicroUsdc } from '../src/config/x402.config';
+import { getMppConfig } from '../src/config/mpp.config';
 import { parse } from 'yaml';
 
 // Load tool prices from config
@@ -84,8 +86,15 @@ interface OpenApiPath {
 async function generate(): Promise<void> {
   const activeIds = await loadActiveToolIds();
   const activeDefs = TOOL_DEFINITIONS.filter((d) => activeIds.has(d.toolId));
+  const mppUsdcAddress = getMppConfig().usdcAddress;
 
   const paths: Record<string, OpenApiPath | Record<string, unknown>> = {};
+  // Compact per-tool paths for the root discovery document (task C,
+  // disputes/0187-scanner-commerce-x402-mpp-not-detected.ruling-1.md §2/§3) --
+  // built in the SAME loop as `paths` so both documents come from one pass over
+  // activeDefs and can never disagree on which tools/prices/categories exist.
+  const discoveryPaths: Record<string, unknown> = {};
+  const categories = new Set<string>();
 
   // Tool catalog
   paths['/api/tools'] = {
@@ -199,12 +208,46 @@ async function generate(): Promise<void> {
 
     const price = priceMap.get(def.toolId) ?? 0;
     const priceStr = price.toFixed(6);
+    if (def.category) categories.add(def.category);
 
-    // x-payment-info for MPPScan/AgentCash discovery
-    const xPaymentInfo: Record<string, unknown> =
-      price > 0
-        ? { pricingMode: 'fixed', price: priceStr, protocols: ['x402', 'mpp'] }
-        : { pricingMode: 'fixed', price: '0.000000', protocols: ['x402', 'mpp'] };
+    // x-payment-info for MPPScan/AgentCash/mpp.dev discovery (task C ruling §2):
+    // canonical shape is `offers[]` (amount/currency/intent/method/description),
+    // not a flat pricingMode+price object -- that was the invented shape the
+    // ruling flagged. `amount` uses the SAME rounding as the x402 challenge
+    // (toMicroUsdc) so both rails quote byte-identical numbers for the same
+    // tool. `protocols` stays alongside `offers` as an additional field (mpp.dev
+    // validators ignore unknown fields next to `offers`; only flat+offers mixing
+    // is disallowed).
+    const xPaymentInfo: Record<string, unknown> = {
+      offers: [
+        {
+          amount: toMicroUsdc(price),
+          currency: mppUsdcAddress,
+          intent: 'charge',
+          method: 'tempo',
+          description: `$${priceStr} USD per call`,
+        },
+      ],
+      protocols: ['x402', 'mpp'],
+    };
+
+    discoveryPaths[`/api/v1/tools/${def.toolId}/call`] = {
+      post: {
+        operationId: def.toolId.replace(/\./g, '_'),
+        summary: def.title || def.description,
+        'x-payment-info': xPaymentInfo,
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': { schema: { $ref: '#/components/schemas/ToolRequest' } },
+          },
+        },
+        responses: {
+          '200': { description: 'Tool execution result' },
+          '402': { description: 'Payment Required' },
+        },
+      },
+    };
 
     const pathEntry: OpenApiPath = {
       post: {
@@ -284,10 +327,56 @@ async function generate(): Promise<void> {
     },
   };
 
+  // Compact discovery document served at the ROOT /openapi.json (task C ruling §2):
+  // the full 1.3+ MB static/.well-known/openapi.json above is what every published
+  // link (llms.txt, server-card, mcp.json, ...) points to and stays untouched --
+  // this second, much smaller document exists ONLY because MPPScan/AgentCash-class
+  // scanners read the root path and truncate/reject anything past a few hundred KB
+  // (confirmed: the 4 MB root alias returned in 102ms, i.e. unread). Same
+  // TOOL_DEFINITIONS ∩ active-DB-snapshot intersection, same prices, same
+  // toMicroUsdc rounding as the full doc and the real x402 402 -- one source, two
+  // audiences, never two different truths for the same tool.
+  const discoveryDoc = {
+    openapi: '3.1.0',
+    info: doc.info,
+    'x-service-info': {
+      categories: [...categories].sort(),
+      docs: {
+        homepage: 'https://apibase.pro',
+        apiReference: 'https://apibase.pro/.well-known/openapi.json',
+        llms: 'https://apibase.pro/llms.txt',
+      },
+    },
+    servers: doc.servers,
+    components: {
+      schemas: {
+        ToolRequest: { type: 'object', additionalProperties: true },
+      },
+    },
+    paths: discoveryPaths,
+    externalDocs: {
+      description: 'Full OpenAPI 3.1 spec — all parameters, response codes, per-tool schemas',
+      url: 'https://apibase.pro/.well-known/openapi.json',
+    },
+  };
+
   const outPath = resolve(__dirname, '..', 'static', '.well-known', 'openapi.json');
   const serialized = JSON.stringify(doc, null, 2) + '\n';
   const toolCount = activeDefs.length;
   const pathCount = Object.keys(paths).length;
+
+  // No indentation on purpose ("без отступов", ruling §2/§3) -- this is what keeps
+  // the root document small enough for scanners to actually read past their size
+  // cutoff; the full pretty-printed doc stays at .well-known/openapi.json for humans.
+  const discoveryOutPath = resolve(
+    __dirname,
+    '..',
+    'static',
+    '.well-known',
+    'openapi-discovery.json',
+  );
+  const discoverySerialized = JSON.stringify(discoveryDoc) + '\n';
+  const discoveryPathCount = Object.keys(discoveryPaths).length;
 
   // ZZ-03-06 attempt-3 (Fable REJECT item 6): same byte-for-byte "generated vs committed"
   // comparison as gen-discovery.ts --check, applied to openapi.json — a hand/sed edit anywhere
@@ -295,26 +384,40 @@ async function generate(): Promise<void> {
   // (path-count, info.version) the old sync-counts.sh point checks happened to name. No date
   // field lives in this doc, so no masking is needed — a plain string comparison is exact.
   if (process.argv.includes('--check')) {
-    const existing = existsSync(outPath) ? readFileSync(outPath, 'utf-8') : null;
-    if (serialized !== existing) {
-      console.error(`generate-openapi --check: DRIFT in ${outPath}`);
-      const diff = spawnSync('diff', ['-u', existing !== null ? outPath : '/dev/null', '-'], {
-        input: serialized,
-        encoding: 'utf-8',
-      });
-      console.error(diff.stdout || diff.stderr || '(diff produced no output)');
+    let drift = false;
+    for (const [path, content] of [
+      [outPath, serialized],
+      [discoveryOutPath, discoverySerialized],
+    ] as const) {
+      const existing = existsSync(path) ? readFileSync(path, 'utf-8') : null;
+      if (content !== existing) {
+        console.error(`generate-openapi --check: DRIFT in ${path}`);
+        const diff = spawnSync('diff', ['-u', existing !== null ? path : '/dev/null', '-'], {
+          input: content,
+          encoding: 'utf-8',
+        });
+        console.error(diff.stdout || diff.stderr || '(diff produced no output)');
+        drift = true;
+      }
+    }
+    if (drift) {
       process.exitCode = 1;
       return;
     }
     console.log(
-      `generate-openapi --check: OK, 0 drift (${pathCount} paths, ${toolCount} tools + 3 platform)`,
+      `generate-openapi --check: OK, 0 drift (${pathCount} paths, ${toolCount} tools + 3 platform; discovery doc ${discoveryPathCount} tool paths)`,
     );
     return;
   }
 
   writeFileSync(outPath, serialized, 'utf-8');
+  writeFileSync(discoveryOutPath, discoverySerialized, 'utf-8');
   console.log(`OpenAPI spec generated: ${pathCount} paths (${toolCount} tools + 3 platform)`);
   console.log(`Output: ${outPath}`);
+  console.log(
+    `Discovery doc generated: ${discoveryPathCount} tool paths, ${discoverySerialized.length} bytes`,
+  );
+  console.log(`Output: ${discoveryOutPath}`);
 }
 
 generate()

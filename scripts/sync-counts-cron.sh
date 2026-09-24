@@ -199,7 +199,8 @@ FILES=(
   static/.well-known/agent.json static/.well-known/ai-capabilities.json
   static/.well-known/ucp static/.well-known/acp.json
   static/.well-known/agent-skills/index.json static/.well-known/agent-skills/discover-tools.md
-  static/.well-known/openapi.json scripts/discovery-snapshot.tsv
+  static/.well-known/openapi.json static/.well-known/openapi-discovery.json
+  scripts/discovery-snapshot.tsv
 )
 
 # T-0173 (ruling-2, attempt-2): FILES above is hand-maintained prose ("kept in sync with its own
