@@ -574,13 +574,6 @@ hdx.dataset_detail	hdx
 hdx.dataset_search	hdx
 hdx.location_list	hdx
 hdx.organization_list	hdx
-health.drug_events	health
-health.drug_labels	health
-health.food_details	health
-health.food_recalls	health
-health.food_search	health
-health.supplement_details	health
-health.supplement_search	health
 hf.datasets	hf
 hf.model_details	hf
 hf.models	hf
@@ -914,10 +907,6 @@ opencontext.detail	opencontext
 opencontext.facets	opencontext
 opencontext.projects	opencontext
 opencontext.search	opencontext
-opendota.match_detail	opendota
-opendota.player_matches	opendota
-opendota.player_summary	opendota
-opendota.pro_teams	opendota
 openfda_devices.adverse_events	openfda_devices
 openfda_devices.classification	openfda_devices
 openfda_devices.clearances_510k	openfda_devices

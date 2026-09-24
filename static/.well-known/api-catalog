@@ -6,7 +6,7 @@
         {
           "href": "https://apibase.pro/.well-known/openapi.json",
           "type": "application/vnd.oai.openapi+json;version=3.1",
-          "title": "APIbase OpenAPI 3.1 specification — 1384 tool endpoints with x-payment-info"
+          "title": "APIbase OpenAPI 3.1 specification — 1373 tool endpoints with x-payment-info"
         }
       ],
       "service-doc": [
