@@ -1,11 +1,11 @@
 ---
 name: discover-tools
-description: Progressive-disclosure workflow for finding relevant tools in APIbase's 1383-tool catalog without loading every schema into the agent context.
+description: Progressive-disclosure workflow for finding relevant tools in APIbase's 1387-tool catalog without loading every schema into the agent context.
 ---
 
 # Skill: Discover tools on APIbase
 
-APIbase exposes 1383 tools across 25 categories. Loading all schemas into context
+APIbase exposes 1387 tools across 25 categories. Loading all schemas into context
 costs hundreds of thousands of tokens, which is wasteful. Use the `discover_tools` prompt to
 find only the tools relevant to the current task.
 
@@ -13,7 +13,7 @@ find only the tools relevant to the current task.
 
 - The agent has a fresh goal and does not yet know which tool(s) to call.
 - The agent's system prompt should not preload the full catalog.
-- The MCP server has more than ~50 tools (APIbase has 1383).
+- The MCP server has more than ~50 tools (APIbase has 1387).
 
 ## Steps
 
@@ -36,7 +36,7 @@ find only the tools relevant to the current task.
 3. **Inspect the returned tool names and descriptions.** Pick the 1–3 tools that
    match the agent's goal.
 
-4. **Call the chosen tool via `tools/call`.** All 1383 tools are always callable —
+4. **Call the chosen tool via `tools/call`.** All 1387 tools are always callable —
    the `discover_tools` prompt is advisory, not a gate.
 
    ```json
@@ -59,7 +59,7 @@ If the agent really needs every tool (e.g., for offline indexing), use:
 GET https://apibase.pro/api/v1/tools
 ```
 
-Returns all 1383 tools with full JSON Schemas. Use sparingly — the response is
+Returns all 1387 tools with full JSON Schemas. Use sparingly — the response is
 large.
 
 ## Why this exists
