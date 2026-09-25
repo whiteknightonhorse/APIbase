@@ -1053,10 +1053,6 @@ safety.ratings	nhtsa-safety
 safety.recalls	nhtsa-safety
 sam.entity_detail	sam
 sam.entity_search	sam
-samuni.audit_opinions	samuni
-samuni.income_expenditure	samuni
-samuni.municipalities	samuni
-samuni.officials	samuni
 scb.catalog	scb
 scb.table_metadata	scb
 scb.table_query	scb
