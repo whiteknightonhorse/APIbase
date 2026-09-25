@@ -803,6 +803,11 @@ nasa-cmr.collection_detail	nasa-cmr
 nasa-cmr.list_providers	nasa-cmr
 nasa-cmr.search_collections	nasa-cmr
 nasa-cmr.search_granules	nasa-cmr
+nasa.apod	nasa
+nasa.donki_flr	nasa
+nasa.epic	nasa
+nasa.image_search	nasa
+nasa.neo_feed	nasa
 nasaexoplanet.habitable	nasaexoplanet
 nasaexoplanet.planet_detail	nasaexoplanet
 nasaexoplanet.search	nasaexoplanet
