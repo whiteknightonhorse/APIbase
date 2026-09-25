@@ -345,10 +345,6 @@ dpla.items.by_subject	dpla
 dpla.items.detail	dpla
 dpla.items.facets	dpla
 dpla.items.search	dpla
-drought.county_stats	drought-monitor
-drought.dsci	drought-monitor
-drought.national_stats	drought-monitor
-drought.weeks_in_drought	drought-monitor
 duckduckgo.instant_answer	duckduckgo
 duckduckgo.related_topics	duckduckgo
 ea-hydrology.readings_latest	ea-hydrology
