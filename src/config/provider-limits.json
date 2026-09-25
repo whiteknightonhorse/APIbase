@@ -3441,7 +3441,7 @@
     "docs_url": "https://www.ebi.ac.uk/chembl/api/data/",
     "limit_proof": "EMBL-EBI ChEMBL REST API: no authentication required, no documented rate limits. CC BY-SA 3.0 license, freely redistributable.",
     "probe": {
-      "method": "HEAD"
+      "method": "GET"
     },
     "moderation_class": "data",
     "moderation_class_reviewed": true
