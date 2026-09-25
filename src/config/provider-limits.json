@@ -628,11 +628,11 @@
   "nasa": {
     "display_name": "NASA Open APIs",
     "health_url": "https://api.nasa.gov/planetary/apod?api_key=API_KEY_FROM_ENV",
-    "limit_type": "unlimited",
+    "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
     "docs_url": "https://api.nasa.gov/",
-    "limit_proof": "1,000 requests/hour per API key (free tier, no spending concerns for retries)",
+    "limit_proof": "1,000 requests/hour per API key",
     "key_expiry": {
       "PROVIDER_KEY_NASA": {
         "date": "unknown",
