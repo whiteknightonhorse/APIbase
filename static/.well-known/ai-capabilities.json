@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.1.0",
   "updated_at": "2026-09-25T00:00:00Z",
-  "tools_count": 1386,
-  "providers_count": 397,
+  "tools_count": 1390,
+  "providers_count": 398,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1386 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1390 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -48,16 +48,16 @@
       "examples": "Call discover_tools with category=\"health\" for the current tool list and descriptions."
     },
     {
+      "name": "weather",
+      "tools": 106,
+      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
+      "examples": "Call discover_tools with category=\"weather\" for the current tool list and descriptions."
+    },
+    {
       "name": "education",
       "tools": 106,
       "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
       "examples": "Call discover_tools with category=\"education\" for the current tool list and descriptions."
-    },
-    {
-      "name": "weather",
-      "tools": 102,
-      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Ea Hydrology, IQAIR, Jma Bosai, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
-      "examples": "Call discover_tools with category=\"weather\" for the current tool list and descriptions."
     },
     {
       "name": "entertainment",
