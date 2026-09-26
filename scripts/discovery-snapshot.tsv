@@ -171,10 +171,6 @@ carbonintensity.generation	carbon-intensity-uk
 carbonintensity.regional	carbon-intensity-uk
 carmarket.listing	marketcheck
 carmarket.search	marketcheck
-cbs.catalog_search	cbs
-cbs.table_data	cbs
-cbs.table_info	cbs
-cbs.table_properties	cbs
 cdc.datasets	cdc
 cdc.query	cdc
 cdc_chronic.indicators	cdc-chronic
