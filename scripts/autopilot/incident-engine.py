@@ -1210,6 +1210,49 @@ def selftest():
     fn = ap.next_task_filename("PROVIDER_DOWN", "Test Provider!", "SEV1")
     assert fn.startswith("9") and fn.endswith("-autopilot-remediation-PROVIDER_DOWN-test-provider.md"), fn
 
+    # T-0229 (DOAJ-fabricated-probe.ruling-1 §3): number-reuse regression.
+    # doaj's fleet task (9630) left ALL of queue/active/done/stuck once it was
+    # reconciled off disk, so the NEXT call's directory scan alone saw 9630 as
+    # "free" again and handed it straight to an unrelated task (regulations).
+    # This world reproduces exactly that shape: generate once, then generate
+    # again for a different provider against scan dirs that are (still) empty
+    # — the directory scan alone cannot tell these two calls apart, only a
+    # persisted high-water mark can. Runs against a disposable tempdir (never
+    # the real taskloop root/state), monkeypatched the same way the
+    # detect_from_provider_status world below patches PROVIDER_LIMITS_PATH.
+    import shutil as _shutil_t0229
+    import tempfile as _tempfile_t0229
+
+    _t0229_root = _tempfile_t0229.mkdtemp(prefix="t0229-taskseq-")
+    for _d in ("queue", "active", "done", "stuck", "logs", "disputes", "state"):
+        os.makedirs(os.path.join(_t0229_root, _d), exist_ok=True)
+    _orig_root, _orig_seq_file = ap.TASKLOOP_ROOT, ap.TASK_SEQ_FILE
+    try:
+        ap.TASKLOOP_ROOT = _t0229_root
+        ap.TASK_SEQ_FILE = os.path.join(_t0229_root, "state", "autopilot-task-seq")
+
+        fn_doaj = ap.next_task_filename("DEGRADED_QUALITY", "doaj", "SEV2")
+        assert fn_doaj.startswith("9500-"), fn_doaj
+
+        # doaj's task file never touched disk here, which IS the "already
+        # left every scan dir" state the real incident hit after reconcile.
+        fn_regulations = ap.next_task_filename("DEGRADED_QUALITY", "regulations", "SEV2")
+        # Compare NUMBERS, not full filenames: 9630-...-doaj.md and
+        # 9630-...-regulations.md are unequal STRINGS despite sharing the
+        # reused number — the real T-9630 bug — so a naive `!=` on the whole
+        # filename would pass even on the unfixed code (checked by hand
+        # against the pre-fix next_task_filename before landing this world).
+        num_doaj = fn_doaj.split("-", 1)[0]
+        num_regulations = fn_regulations.split("-", 1)[0]
+        assert num_regulations != num_doaj, (
+            f"T-0229 regression: task number reused across unrelated providers "
+            f"({fn_doaj!r} then {fn_regulations!r}) — high-water mark not persisted"
+        )
+        assert fn_regulations.startswith("9501-"), fn_regulations
+    finally:
+        ap.TASKLOOP_ROOT, ap.TASK_SEQ_FILE = _orig_root, _orig_seq_file
+        _shutil_t0229.rmtree(_t0229_root, ignore_errors=True)
+
     # AP-8: pure F1-state -> Tool.status mapping.
     assert _tool_status_for_state("HEALTHY") == "healthy"
     assert _tool_status_for_state("DEGRADED") == "degraded"

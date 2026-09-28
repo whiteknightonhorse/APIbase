@@ -84,6 +84,12 @@ TASKLOOP_QUEUE_DIR = os.environ.get("AUTOPILOT_TASKLOOP_QUEUE_DIR", f"{TASKLOOP_
 DAILY_TASK_COUNTER_FILE = os.environ.get(
     "AUTOPILOT_DAILY_TASK_COUNTER", f"{TASKLOOP_ROOT}/state/autopilot-router-daily.count"
 )
+# T-0229: persistent per-severity high-water mark for next_task_filename()
+# below — see that function's docstring for why a directory scan alone
+# (queue/active/done/stuck/logs/disputes) is not enough.
+TASK_SEQ_FILE = os.environ.get(
+    "AUTOPILOT_TASK_SEQ_FILE", f"{TASKLOOP_ROOT}/state/autopilot-task-seq"
+)
 # T-07/A5 (2026-09-05, Fable ruling-1): DAILY_TASK_CAP used to be a bare
 # literal (3), justified only by I2's own worked example — with zero
 # relationship to taskloop's DAILY_CAP (the fleet's actual model-call
@@ -941,17 +947,63 @@ def consume_daily_task_slot() -> bool:
 # is I2's actual requirement.
 _SEV_TASK_BASE = {"SEV1": 9100, "SEV2": 9500, "SEV3": 9900}
 
+# T-0229 (DOAJ-fabricated-probe.ruling-1 §3): a task file leaves ALL FOUR of
+# queue/active/done/stuck once it's done AND already reconciled off disk (the
+# doaj incident's task file was in none of the four when regulations' task
+# was generated right after) — a directory scan alone then sees its number as
+# "free" again and reissues it (9630 handed out twice: doaj, then
+# regulations). logs/ and disputes/ still carry the number at that point, so
+# scanning them too closes most of the gap, but neither survives forever
+# (disputes get archived, logs can rotate) — the actual fix is a persisted
+# high-water mark that only ever moves forward, independent of what any
+# directory currently contains.
+_TASK_SCAN_DIRS = ("queue", "active", "done", "stuck", "logs", "disputes")
+
+
+def _read_task_seq() -> dict:
+    """{severity: highest task number ever issued for it}. Fail-open to {} on
+    any read error (missing file, corrupt JSON) — next_task_filename() below
+    still has the directory scan as a floor, so a lost/corrupt seq file
+    degrades back to the old (collision-prone, but never wrong-direction)
+    behavior for exactly one call, not a hard failure."""
+    try:
+        with open(TASK_SEQ_FILE, encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            return {k: int(v) for k, v in data.items() if str(v).isdigit()}
+    except Exception:
+        pass
+    return {}
+
+
+def _write_task_seq(seq: dict) -> None:
+    """Best-effort persist. A failed write never blocks task generation (the
+    caller already has its filename) — it just means the NEXT call falls
+    back to the directory scan for this severity, same as a missing file."""
+    try:
+        os.makedirs(os.path.dirname(TASK_SEQ_FILE), exist_ok=True)
+        tmp = f"{TASK_SEQ_FILE}.tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(seq, f)
+        os.replace(tmp, TASK_SEQ_FILE)
+    except Exception as e:
+        notice(f"молчу: autopilot-task-seq write failed ({e}) — next call falls back to dir scan")
+
 
 def next_task_filename(kind: str, provider: str, severity: str) -> str:
-    base = _SEV_TASK_BASE.get(severity, _SEV_TASK_BASE["SEV3"])
+    sev_key = severity if severity in _SEV_TASK_BASE else "SEV3"
+    base = _SEV_TASK_BASE[sev_key]
     existing = set()
-    for d in ("queue", "active", "done", "stuck"):
+    for d in _TASK_SCAN_DIRS:
         p = os.path.join(TASKLOOP_ROOT, d)
         if os.path.isdir(p):
             existing.update(os.listdir(p))
-    n = base
+    seq = _read_task_seq()
+    n = max(base, seq.get(sev_key, 0) + 1)
     while any(fn.startswith(f"{n}-") for fn in existing):
         n += 1
+    seq[sev_key] = n
+    _write_task_seq(seq)
     slug = re.sub(r"[^a-z0-9]+", "-", provider.lower()).strip("-") or "provider"
     return f"{n}-autopilot-remediation-{kind}-{slug}.md"
 
@@ -1080,7 +1132,7 @@ _AUTO_TASK_WHAT = {
 }
 
 
-def _task_boundaries_and_footer(provider: str, incident_id: str, task_num: str) -> str:
+def _task_boundaries_and_footer(provider: str, incident_id: str, task_id: str) -> str:
     """The ГРАНИЦЫ/Критерий проверки/По завершении sections are identical
     between an AUTO-routed fleet task (build_remediation_task_body) and a
     human-done follow-up task (build_human_followup_task_body) — same
@@ -1093,11 +1145,23 @@ def _task_boundaries_and_footer(provider: str, incident_id: str, task_num: str) 
     T-02: also emits the KNOWLEDGE anchor, as the LAST line of the file —
     taskloop.sh's knowledge_gate_check greps the first `KNOWLEDGE:` line and
     requires a `#T-*` tag on it (see taskloop.sh's own comment on the sed
-    pipeline). `task_num` is the SAME digits `next_task_filename()` put at
-    the front of the task's own filename (both callers derive it from the
-    filename they already generated), so the anchor's tag and the task's
-    identity cannot drift apart — a human reading the queue dir and a human
-    reading AUTOPILOT-PROGRESS.md land on the same task either way.
+    pipeline). `task_id` is the FULL filename `next_task_filename()` produced,
+    minus `.md` (both callers derive it from the filename they already
+    generated), so the anchor's tag and the task's identity cannot drift
+    apart — a human reading the queue dir and a human reading
+    AUTOPILOT-PROGRESS.md land on the same task either way.
+
+    T-0229 (DOAJ-fabricated-probe.ruling-1 §3): this anchor used to be just
+    the leading task NUMBER (`T-9630`), and the knowledge gate matches it
+    with a plain `grep -F` — a substring match. Two different tasks that
+    happen to share a number (the actual bug this task fixes) then both
+    "pass" the gate against whichever one's heading grep finds first: doaj's
+    `# T-9630-autopilot-remediation-DEGRADED_QUALITY-doaj` heading matched
+    regulations' gate too, purely as a substring of the anchor `T-9630`.
+    Anchoring on the FULL TID (number + kind + slug, matching the filename
+    exactly) makes that cross-match impossible even if a number were ever
+    reused again — belt-and-suspenders with next_task_filename()'s own
+    high-water mark above, not a replacement for it.
 
     T-0172 (0171 ruling-1, находка 2): fix.md's own escape hatch ("If the
     only fix would violate these, do NOT fix — output FIX_UNRECOVERABLE and
@@ -1138,9 +1202,9 @@ def _task_boundaries_and_footer(provider: str, incident_id: str, task_num: str) 
 
 ## Знание
 
-Запиши итог в /home/apibase/AUTOPILOT-PROGRESS.md под якорем `T-{task_num}` и назови его последней строкой отчёта ровно так:
+Запиши итог в /home/apibase/AUTOPILOT-PROGRESS.md под якорем `T-{task_id}` и назови его последней строкой отчёта ровно так:
 
-KNOWLEDGE: /home/apibase/AUTOPILOT-PROGRESS.md#T-{task_num}
+KNOWLEDGE: /home/apibase/AUTOPILOT-PROGRESS.md#T-{task_id}
 """
 
 
@@ -1173,7 +1237,7 @@ def build_remediation_task_body(incident: dict) -> tuple:
     evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
     attempts_md = _attempts_md(incident)
     filename = next_task_filename(kind, provider, severity)
-    task_num = filename.split("-", 1)[0]
+    task_id = filename[:-3] if filename.endswith(".md") else filename  # T-0229: full TID, not just the number
     # T-06 (2026-09-06, Fable consult): a REVIEW: fable task pays a REJECT-cycle tax that a
     # REVIEW: none task never sees -- fable ACCEPT/REJECT is one full model call per attempt on
     # top of the executor's own, so a genuine "REJECT once, fix, re-review" round trip already
@@ -1210,7 +1274,7 @@ severity: {severity}{docs_line}
 {attempts_md}
 ```
 
-{_task_boundaries_and_footer(provider, incident['incident_id'], task_num)}"""
+{_task_boundaries_and_footer(provider, incident['incident_id'], task_id)}"""
     return filename, content
 
 
@@ -1250,7 +1314,7 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     evidence_md = json.dumps(incident.get("evidence", {}), ensure_ascii=False, indent=2)
     attempts_md = _attempts_md(incident)
     filename = next_task_filename(kind, provider, severity)
-    task_num = filename.split("-", 1)[0]
+    task_id = filename[:-3] if filename.endswith(".md") else filename  # T-0229: full TID, not just the number
     # T-06: always REVIEW: fable here (see the docstring above), so always the fable ceiling —
     # same 4 as build_remediation_task_body's review=="fable" branch, same reasoning.
     content = f"""REVIEW: fable
@@ -1283,7 +1347,7 @@ severity: {severity}{docs_line}
 {attempts_md}
 ```
 
-{_task_boundaries_and_footer(provider, incident['incident_id'], task_num)}"""
+{_task_boundaries_and_footer(provider, incident['incident_id'], task_id)}"""
     return filename, content
 
 
