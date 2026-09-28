@@ -1,5 +1,9 @@
 import { BaseAdapter } from '../base.adapter';
-import { type ProviderRequest, type ProviderRawResponse, ProviderErrorCode } from '../../types/provider';
+import {
+  type ProviderRequest,
+  type ProviderRawResponse,
+  ProviderErrorCode,
+} from '../../types/provider';
 
 /**
  * Regulations.gov adapter (UC-082).
@@ -13,7 +17,7 @@ export class RegulationsAdapter extends BaseAdapter {
 
   protected buildRequest(req: ProviderRequest) {
     const p = req.params as Record<string, unknown>;
-    const h: Record<string, string> = { Accept: 'application/json', 'X-Api-Key': 'DEMO_KEY' };
+    const h: Record<string, string> = { Accept: 'application/json' };
 
     switch (req.toolId) {
       case 'regulations.search': {
@@ -28,10 +32,21 @@ export class RegulationsAdapter extends BaseAdapter {
         return { url: `${this.baseUrl}/documents?${qs}`, method: 'GET', headers: h };
       }
       case 'regulations.document': {
-        return { url: `${this.baseUrl}/documents/${String(p.document_id)}?api_key=DEMO_KEY`, method: 'GET', headers: h };
+        return {
+          url: `${this.baseUrl}/documents/${String(p.document_id)}?api_key=DEMO_KEY`,
+          method: 'GET',
+          headers: h,
+        };
       }
       default:
-        throw { code: ProviderErrorCode.INVALID_RESPONSE, httpStatus: 502, message: `Unsupported: ${req.toolId}`, provider: this.provider, toolId: req.toolId, durationMs: 0 };
+        throw {
+          code: ProviderErrorCode.INVALID_RESPONSE,
+          httpStatus: 502,
+          message: `Unsupported: ${req.toolId}`,
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
     }
   }
 
@@ -44,13 +59,31 @@ export class RegulationsAdapter extends BaseAdapter {
         total: meta.totalElements ?? 0,
         documents: data.map((d) => {
           const a = (d.attributes ?? {}) as Record<string, unknown>;
-          return { id: d.id, title: a.title, document_type: a.documentType, agency: a.agencyId, posted_date: a.postedDate, comment_end_date: a.commentEndDate, docket_id: a.docketId };
+          return {
+            id: d.id,
+            title: a.title,
+            document_type: a.documentType,
+            agency: a.agencyId,
+            posted_date: a.postedDate,
+            comment_end_date: a.commentEndDate,
+            docket_id: a.docketId,
+          };
         }),
       };
     }
     // document detail
     const d = (body.data ?? body) as Record<string, unknown>;
     const a = ((d as Record<string, unknown>).attributes ?? d) as Record<string, unknown>;
-    return { id: d.id, title: a.title, document_type: a.documentType, agency: a.agencyId, posted_date: a.postedDate, abstract: a.summary ?? a.abstractText, docket_id: a.docketId, comment_count: a.numberOfCommentsReceived, url: a.fileUrl ?? a.objectId };
+    return {
+      id: d.id,
+      title: a.title,
+      document_type: a.documentType,
+      agency: a.agencyId,
+      posted_date: a.postedDate,
+      abstract: a.summary ?? a.abstractText,
+      docket_id: a.docketId,
+      comment_count: a.numberOfCommentsReceived,
+      url: a.fileUrl ?? a.objectId,
+    };
   }
 }
