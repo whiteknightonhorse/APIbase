@@ -8,10 +8,10 @@ import {
 /**
  * Regulations.gov adapter (UC-082).
  * US federal regulatory documents, dockets, comments.
- * Auth: DEMO_KEY (free, 1K req/hr). No signup needed.
+ * Auth: api.data.gov shared key (PROVIDER_KEY_API_DATA_GOV), 1K req/hr.
  */
 export class RegulationsAdapter extends BaseAdapter {
-  constructor() {
+  constructor(private readonly apiKey: string) {
     super({ provider: 'regulations', baseUrl: 'https://api.regulations.gov/v4' });
   }
 
@@ -22,7 +22,7 @@ export class RegulationsAdapter extends BaseAdapter {
     switch (req.toolId) {
       case 'regulations.search': {
         const qs = new URLSearchParams();
-        qs.set('api_key', 'DEMO_KEY');
+        qs.set('api_key', this.apiKey);
         if (p.query) qs.set('filter[searchTerm]', String(p.query));
         if (p.document_type) qs.set('filter[documentType]', String(p.document_type));
         if (p.agency) qs.set('filter[agencyId]', String(p.agency));
@@ -33,7 +33,7 @@ export class RegulationsAdapter extends BaseAdapter {
       }
       case 'regulations.document': {
         return {
-          url: `${this.baseUrl}/documents/${String(p.document_id)}?api_key=DEMO_KEY`,
+          url: `${this.baseUrl}/documents/${String(p.document_id)}?api_key=${this.apiKey}`,
           method: 'GET',
           headers: h,
         };

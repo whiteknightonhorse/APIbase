@@ -553,8 +553,8 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       );
     }
     case 'education': {
-      // All 5 providers are free; Scorecard uses DEMO_KEY by default, PubMed key is optional
-      const scorecardKey = (config as Record<string, unknown>).PROVIDER_KEY_SCORECARD as
+      // All 5 providers are free; Scorecard uses api.data.gov shared key, PubMed key is optional
+      const scorecardKey = (config as Record<string, unknown>).PROVIDER_KEY_API_DATA_GOV as
         | string
         | undefined;
       const pubmedKey = (config as Record<string, unknown>).PROVIDER_KEY_PUBMED as
@@ -824,8 +824,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     }
     case 'mastodon':
       return getOrCreate('mastodon', () => new MastodonAdapter());
-    case 'regulations':
-      return getOrCreate('regulations', () => new RegulationsAdapter());
+    case 'regulations': {
+      // Regulations.gov — federal regulatory documents via api.data.gov shared key (UC-082)
+      const k = (config as Record<string, unknown>).PROVIDER_KEY_API_DATA_GOV as string | undefined;
+      if (!k) return undefined;
+      return getOrCreate('regulations', () => new RegulationsAdapter(k));
+    }
     case 'fedregister':
       return getOrCreate('fedregister', () => new FedRegisterAdapter());
     case 'courtlistener':
@@ -1660,9 +1664,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'statcan':
       // Statistics Canada WDS (UC-539) — 6000+ time-series; Canada Open Licence, no auth
       return getOrCreate('statcan', () => new StatCanAdapter());
-    case 'fbi':
+    case 'fbi': {
       // FBI Crime Data Explorer UCR (UC-540) — national/state crime stats; api.data.gov shared key
-      return getOrCreate('fbi', () => new FbiCdeAdapter(config.PROVIDER_KEY_API_DATA_GOV));
+      const k = config.PROVIDER_KEY_API_DATA_GOV as string | undefined;
+      if (!k) return undefined;
+      return getOrCreate('fbi', () => new FbiCdeAdapter(k));
+    }
     case 'swissnbm':
       // Swiss National Bank (UC-541) — FX rates, policy rate, SARON, monetary aggregates; no auth
       return getOrCreate('swissnbm', () => new SwissNbmAdapter());

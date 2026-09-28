@@ -827,14 +827,10 @@ async function probeHead(
   cfg: ProviderLimitEntry,
 ): Promise<void> {
   let healthUrl = cfg.health_url;
-  if (healthUrl.includes('TOKEN_FROM_ENV') && provider === 'telegram') {
-    const token = process.env.TELEGRAM_BOT_TOKEN ?? '';
-    healthUrl = healthUrl.replace('TOKEN_FROM_ENV', token);
-  }
-  if (healthUrl.includes('API_KEY_FROM_ENV') && provider === 'nasa') {
-    const apiKey = process.env.PROVIDER_KEY_NASA ?? 'DEMO_KEY';
-    healthUrl = healthUrl.replace('API_KEY_FROM_ENV', apiKey);
-  }
+  healthUrl = healthUrl.replace(
+    /TOKEN_FROM_ENV_([A-Z0-9_]+)/g,
+    (_match, varName: string) => process.env[varName] ?? '',
+  );
 
   // T-07/A6: a provider's `probe.method: "GET"` (provider-limits.json) skips
   // the HEAD attempt entirely — for a provider already proven to answer HEAD

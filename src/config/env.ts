@@ -93,8 +93,7 @@ export const appEnvSchema = z.object({
   PROVIDER_KEY_BLS: z.string().optional().default(''),
   PROVIDER_KEY_CAREERJET: z.string().optional().default(''),
 
-  // Education / Academic Research (UC-017) — College Scorecard + PubMed (optional)
-  PROVIDER_KEY_SCORECARD: z.string().optional().default(''),
+  // Education / Academic Research (UC-017) — College Scorecard uses PROVIDER_KEY_API_DATA_GOV, PubMed key optional
   PROVIDER_KEY_PUBMED: z.string().optional().default(''),
 
   // Maps / Geolocation (UC-012) — Geoapify (OSM-based, free tier 3K credits/day)

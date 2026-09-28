@@ -627,7 +627,7 @@
   },
   "nasa": {
     "display_name": "NASA Open APIs",
-    "health_url": "https://api.nasa.gov/DONKI/FLR?api_key=API_KEY_FROM_ENV",
+    "health_url": "https://api.nasa.gov/DONKI/FLR?api_key=TOKEN_FROM_ENV_PROVIDER_KEY_NASA",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -856,7 +856,7 @@
   },
   "regulations": {
     "display_name": "Regulations.gov",
-    "health_url": "https://api.regulations.gov/v4/documents?page[size]=5&api_key=DEMO_KEY",
+    "health_url": "https://api.regulations.gov/v4/documents?page[size]=5&api_key=TOKEN_FROM_ENV_PROVIDER_KEY_API_DATA_GOV",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -1196,7 +1196,7 @@
   },
   "telegram": {
     "display_name": "Telegram Bot API",
-    "health_url": "https://api.telegram.org/botTOKEN_FROM_ENV/getMe",
+    "health_url": "https://api.telegram.org/botTOKEN_FROM_ENV_TELEGRAM_BOT_TOKEN/getMe",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
