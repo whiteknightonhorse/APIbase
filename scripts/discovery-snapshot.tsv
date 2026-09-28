@@ -1320,13 +1320,8 @@ volcano.us_catalog	usgs-hans-volcano
 walkscore.score	walkscore
 water.realtime	usgs-water
 water.sites	usgs-water
-weather.air_quality	openweathermap
-weather.compare	openweathermap
-weather.geocode	openweathermap
-weather.get_alerts	openweathermap
 weather.get_current	openweathermap
 weather.get_forecast	openweathermap
-weather.get_history	openweathermap
 weather_alerts.active	nws
 weather_alerts.by_area	nws
 weatherapi.astronomy	weatherapi
