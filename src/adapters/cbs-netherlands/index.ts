@@ -22,10 +22,13 @@ const CBS_BASE = 'https://opendata.cbs.nl';
  * Statistics Netherlands (Centraal Bureau voor de Statistiek) — 5900+ statistical
  * datasets covering population, economy, labor, health, environment, and more.
  * OData v3 API, no auth, CC BY 4.0, unlimited free access.
+ *
+ * The catalog endpoint returns 18MB+ JSON and takes ~21s to download.
+ * Extended timeout to 30s to accommodate large response bodies (T-9629).
  */
 export class CbsNetherlandsAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'cbs', baseUrl: CBS_BASE });
+    super({ provider: 'cbs', baseUrl: CBS_BASE, timeoutMs: 30_000 });
   }
 
   protected buildRequest(req: ProviderRequest): {
