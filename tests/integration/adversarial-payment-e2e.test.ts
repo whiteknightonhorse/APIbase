@@ -426,6 +426,53 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     );
   });
 
+  it('T-0223: a genuinely bare call to a FREE ($0) tool gets 401, not a $0 x402 challenge', async () => {
+    // Regression guard for auth.stage.ts:347 — a $0 tool (e.g. account.usage,
+    // which requires an authenticated identity and 401s itself downstream in
+    // src/adapters/account/index.ts) must never reach the priceUsd 402 branch;
+    // a signed $0 x402 payment is meaningless and would only auto-register a
+    // throwaway wallet agent instead of surfacing the real "log in" problem.
+    __setToolCacheEntryForTest({
+      tool_id: 'account.usage',
+      status: 'healthy',
+      price_usd: 0,
+      cache_ttl: 0,
+      upstream_cost_usd: null,
+    });
+    try {
+      const layer = (
+        executeRouter as unknown as {
+          stack: Array<{
+            route?: {
+              path: string;
+              stack: Array<{
+                handle: (req: unknown, res: unknown, next: (e?: unknown) => void) => Promise<void>;
+              }>;
+            };
+          }>;
+        }
+      ).stack.find((l) => l.route && l.route.path === '/api/v1/tools/:toolId/call');
+      const handler = layer!.route!.stack[0].handle;
+
+      const req = {
+        headers: { 'x-request-id': 'exec-free-tool-bare-call' } as Record<string, string>,
+        params: { toolId: 'account.usage' },
+        body: {},
+        path: '/api/v1/tools/account.usage/call',
+        originalUrl: '/api/v1/tools/account.usage/call',
+        get: () => 'test.local',
+      };
+      const res = fakeRes();
+      await handler(req, res, (e?: unknown) => {
+        if (e) throw e;
+      });
+      expect(res.statusCode).toBe(401);
+      expect(mockAdapterCall).not.toHaveBeenCalled();
+    } finally {
+      __deleteToolCacheEntryForTest('account.usage');
+    }
+  });
+
   it('T-0187B2 ruling-1: a cryptographically invalid x402 signature sent via PAYMENT-SIGNATURE (not X-Payment) still 401s, not 402', async () => {
     // Structurally well-formed (mocked decode/parse always succeed — see
     // @x402/core/http and @x402/core/schemas mocks above) but the facilitator

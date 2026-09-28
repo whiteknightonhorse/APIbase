@@ -344,7 +344,7 @@ export const authStage: Stage = {
 
       if (!hasAnyCredentialHeader && ctx.toolId) {
         const priceUsd = getToolPriceUsd(ctx.toolId);
-        if (priceUsd !== undefined) {
+        if (priceUsd !== undefined && priceUsd > 0) {
           return err<PipelineError>({
             code: 402,
             error: 'payment_required',
