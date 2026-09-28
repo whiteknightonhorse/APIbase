@@ -25,7 +25,12 @@ const CBS_BASE = 'https://opendata.cbs.nl';
  */
 export class CbsNetherlandsAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'cbs', baseUrl: CBS_BASE });
+    super({
+      provider: 'cbs',
+      baseUrl: CBS_BASE,
+      timeoutMs: 20_000,
+      maxResponseBytes: 10_485_760,
+    });
   }
 
   protected buildRequest(req: ProviderRequest): {
