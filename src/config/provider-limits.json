@@ -3721,6 +3721,17 @@
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
+  "indec-argentina": {
+    "display_name": "Argentina Gov Series de Tiempo",
+    "health_url": "https://apis.datos.gob.ar/series/api/search/?q=test&limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://github.com/datosgobar/series-tiempo-ar-api",
+    "limit_proof": "Argentine government open-data statistics API, no API key. No rate-limit headers or documented quota found in API responses or upstream docs.",
+    "moderation_class": "data",
+    "moderation_class_reviewed": true
+  },
   "enviroatlas": {
     "display_name": "EnviroAtlas (EPA)",
     "health_url": "https://enviroatlas.epa.gov/arcgis/rest/services/Communities/Community_Locations/MapServer/0/query?where=1=1&outFields=Community&returnGeometry=false&f=json&resultRecordCount=1",

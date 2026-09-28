@@ -7627,6 +7627,19 @@ tools:
     price_usd: "0.001"
     cache_ttl: 604800
 
+# --- UC-776: indec-argentina (Argentina Gov Series de Tiempo) ---
+  - tool_id: indec-argentina.search_series
+    name: Search Argentina Statistics Series
+    provider: indec-argentina
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: indec-argentina.get_series
+    name: Get Argentina Statistics Series Data
+    provider: indec-argentina
+    price_usd: "0.001"
+    cache_ttl: 3600
+
   - tool_id: enviroatlas.communities
     name: List EnviroAtlas Pilot Communities
     provider: enviroatlas

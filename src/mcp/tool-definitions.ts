@@ -13870,6 +13870,33 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'location',
     annotations: READ_ONLY,
   },
+  // ---------------------------------------------------------------------------
+  // Argentina Gov Series de Tiempo (2) — UC-776
+  // ---------------------------------------------------------------------------
+  {
+    toolId: 'indec-argentina.search_series',
+    mcpName: 'indec-argentina.stats.search',
+    title: 'Search Argentina Statistics Series',
+    description:
+      'Search the Argentine government catalog of economic and social statistics time series by ' +
+      'keyword (e.g. "desempleo", "inflacion", "tipo de cambio"). Returns matching series IDs, ' +
+      'titles, units, frequency, and date coverage. Data: apis.datos.gob.ar/series (Subsecretaría de ' +
+      'Programación Macroeconómica / INDEC), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'indec-argentina.get_series',
+    mcpName: 'indec-argentina.stats.get_series',
+    title: 'Get Argentina Statistics Series Data',
+    description:
+      'Fetch data points for one or more Argentine government statistics time series by ID (up to ' +
+      '5 at once), with optional date range and frequency resampling (day/month/quarter/semester/' +
+      'year with avg/sum/end_of_period/min/max aggregation). Covers exchange rates, inflation, ' +
+      'employment, and national accounts. Data: apis.datos.gob.ar/series (INDEC), no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // EnviroAtlas EPA (3)
   {
     toolId: 'enviroatlas.communities',

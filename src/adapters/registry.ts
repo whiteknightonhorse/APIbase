@@ -336,6 +336,7 @@ import { MacrostratAdapter } from './macrostrat';
 import { GeoDivaAdapter } from './geodiva';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
+import { IndecArgentinaAdapter } from './indec-argentina';
 import { EnviroatlasAdapter } from './enviroatlas';
 import { FederalRegisterAdapter } from './federalregister';
 import { EnsemblAdapter } from './ensembl';
@@ -1875,6 +1876,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'indec-georef':
       // INDEC Georef API (UC-603) — Argentina geocoding + admin division search; no auth
       return getOrCreate('indec-georef', () => new IndecGeorefAdapter());
+    case 'indec-argentina':
+      // Argentina Gov Series de Tiempo API (UC-776) — economic/social statistics; no auth
+      return getOrCreate('indec-argentina', () => new IndecArgentinaAdapter());
     case 'enviroatlas':
       // EPA EnviroAtlas ArcGIS REST API (UC-604) — community ecosystem-service metrics; no auth
       return getOrCreate('enviroatlas', () => new EnviroatlasAdapter());
