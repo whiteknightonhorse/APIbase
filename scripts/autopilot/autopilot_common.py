@@ -1174,12 +1174,23 @@ def _task_boundaries_and_footer(provider: str, incident_id: str, task_id: str) -
     "taskloop protocol" block, LAW #ONE-PLACE). The bullet below restates
     the SAME escape-hatch meaning in taskloop's own vocabulary
     (VERDICT: BLOCKED) instead, right after the now-correctly-truncated
-    fix.md boundaries."""
+    fix.md boundaries.
+
+    T-0230 (DOAJ-fabricated-probe.ruling-1 §2, слой 2): a remediation executor once faked a
+    provider recovery by INSERTing a probe_log row, UPDATEing provider_status and HMSETting
+    redis directly — fix.md's own FORBIDDEN list only named "deleting data/DB/backups", so the
+    write path itself was never off-limits in the prompt. bash-guard.sh Check 4 is the tripwire
+    layer (blocks the command string), `fleet_ro` is the DB-side read-only role (layer 0) — this
+    bullet is the THIRD, prompt-level layer: even a command Check 4's heuristic doesn't catch
+    should never be attempted by a session that read its own boundaries."""
     return f"""## ГРАНИЦЫ
 {_fix_boundaries()}
 - Если единственная починка нарушает эти границы — не чинить, `VERDICT: BLOCKED <причина>`.
 - Не трогать .env, платёжные конфиги.
 - Не трогать чужие инциденты/провайдеров — только `{provider}`.
+- Прод-БД и Redis — read-only: только SELECT (`psql -U fleet_ro -c "SELECT …"`) и read-команды
+  redis-cli (GET/HGETALL/…). Любая мутация (INSERT/UPDATE/DELETE/TRUNCATE/HMSET/SET и т.п.)
+  запрещена — единственная запись в прод это `incident-cli.py note`/`resolve-request`.
 - Деньги — эскалация человеку, никогда автодействие (C0.6/I1/J1) — если решение требует
   оплаты, открыть НОВЫЙ инцидент PAYMENT_REQUIRED (см. «Что нужно» выше), не пытаться платить.
 
