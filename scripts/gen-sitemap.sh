@@ -91,6 +91,7 @@ emit() {
     case "$base" in
       index) url="/" ;;
       policy-moderation) url="/policy/moderation" ;;
+      autopilot-incident) url="/autopilot/incident" ;;
       *) url="/$base" ;;
     esac
     emit "$url" "$f"
