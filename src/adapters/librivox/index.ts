@@ -13,7 +13,7 @@ import {
  */
 export class LibriVoxAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'librivox', baseUrl: 'https://librivox.org' });
+    super({ provider: 'librivox', baseUrl: 'https://librivox.org', timeoutMs: 15_000 });
   }
 
   protected buildRequest(req: ProviderRequest) {
