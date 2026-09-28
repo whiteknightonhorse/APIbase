@@ -28,8 +28,6 @@ export class CbsNetherlandsAdapter extends BaseAdapter {
     super({
       provider: 'cbs',
       baseUrl: CBS_BASE,
-      timeoutMs: 20_000,
-      maxResponseBytes: 10_485_760,
     });
   }
 
