@@ -522,11 +522,7 @@ function classifyTransportError(
 
 /** Retryable: 5xx, timeout, connection reset. Not retryable: 4xx (§12.40). */
 function isRetryable(error: ProviderError): boolean {
-  return (
-    error.code === ProviderErrorCode.TIMEOUT ||
-    error.code === ProviderErrorCode.UNAVAILABLE ||
-    error.code === ProviderErrorCode.RATE_LIMIT
-  );
+  return error.code === ProviderErrorCode.TIMEOUT || error.code === ProviderErrorCode.UNAVAILABLE;
 }
 
 function sleep(ms: number): Promise<void> {
