@@ -4677,7 +4677,9 @@
     "docs_url": "https://www.oilpriceapi.com/register",
     "limit_proof": "Operator's own registration notes (2026-09-14): Free plan = 120 requests/month, with a 50 requests/day sub-limit throttle. Auth verified with a differentiating control: `Authorization: Token <key>` -> HTTP 200 live data (BRENT_CRUDE_USD); bad/missing key -> HTTP 401.",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "resale_permission": "denied",
+    "resale_permission_proof": "Terms URL: https://www.oilpriceapi.com/terms — \"Last updated: July 16, 2026\", fetched 2026-09-29 by the dispatcher. Verbatim quotes: (1) \"Do not redistribute or resell API data. We hold no redistribution rights in third-party-sourced series and cannot convey any\"; (2) \"Do not share, resell, or publish your API key; do not scrape, clone, or reverse-engineer the API to stand up a competing delivery service\"; (3) \"We hold no redistribution or public-display rights in these and cannot convey any. No agreement with us, at any tier, can authorize you to redistribute or publicly display them\"; (4) Permitted use: \"use inside your own organization — applications, dashboards, pricing models, analysis, and internal reporting. That is what the API is built and priced for\". Our 2026-09-28 03:32Z question: we described APIbase.pro as an MCP gateway where AI agents pay per call and we call their API with our own key, asking if that resale model is permitted. Reply 2026-09-28 12:15Z from support@oilpriceapi.com: \"That is fine.\" Verdict: denied — support reply does not override written Terms."
   },
   "tidesatlas": {
     "display_name": "TidesAtlas",
