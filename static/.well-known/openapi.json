@@ -132432,6 +132432,329 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/noaa-fisheries-stats.landings/call": {
+      "post": {
+        "operationId": "noaa-fisheries-stats_landings",
+        "summary": "NOAA Fisheries Landings",
+        "description": "Search US commercial (pounds, dollars) and recreational (fish counts) fisheries landings from NOAA Fisheries FOSS by species, state, region, collection type and year range. Data: fisheries.noaa.gov, public US Government data, no auth required.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "noaa-fisheries-stats.landings"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "description": "Species name substring, case-insensitive (e.g. \"salmon\", \"pollock\", \"lobster\")."
+                  },
+                  "state": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 40,
+                    "description": "US state name, case-insensitive (e.g. \"Alaska\", \"Maine\", \"Hawaii\")."
+                  },
+                  "region": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 60,
+                    "description": "NOAA Fisheries region name (e.g. \"Alaska\", \"Hawaii\", \"Southeast\")."
+                  },
+                  "collection": {
+                    "type": "string",
+                    "enum": [
+                      "Commercial",
+                      "Recreational"
+                    ],
+                    "description": "Landings type: Commercial (pounds + dollars) or Recreational (fish counts)."
+                  },
+                  "year_from": {
+                    "type": "integer",
+                    "minimum": 1900,
+                    "maximum": 2100,
+                    "description": "First year (inclusive), e.g. 2015."
+                  },
+                  "year_to": {
+                    "type": "integer",
+                    "minimum": 1900,
+                    "maximum": 2100,
+                    "description": "Last year (inclusive), e.g. 2022."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max rows to return (1-100, default 25)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Rows to skip for pagination (default 0)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/noaa-fisheries-stats.survey_species/call": {
+      "post": {
+        "operationId": "noaa-fisheries-stats_survey_species",
+        "summary": "NOAA Groundfish Survey Species",
+        "description": "Look up species in the NOAA AFSC bottom-trawl groundfish survey (Alaska) by common or scientific name. Returns survey species_code (for survey_catch) plus WoRMS Aphia ID and ITIS TSN cross-references.",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "noaa-fisheries-stats.survey_species"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "common_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "description": "Common name substring, matched lowercase (e.g. \"pollock\", \"halibut\")."
+                  },
+                  "scientific_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "description": "Scientific name substring, case-sensitive (e.g. \"Gadus\", \"Hippoglossus\")."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max rows to return (1-100, default 25)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Rows to skip for pagination (default 0)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/noaa-fisheries-stats.survey_catch/call": {
+      "post": {
+        "operationId": "noaa-fisheries-stats_survey_catch",
+        "summary": "NOAA Groundfish Survey Catch",
+        "description": "Get NOAA AFSC groundfish survey catch records for a species_code: per-haul catch count, weight (kg), CPUE (kg/km2 and count/km2) and taxon identification confidence.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "noaa-fisheries-stats.survey_catch"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species_code": {
+                    "type": "integer",
+                    "description": "AFSC survey species code from survey_species (e.g. 21740 = walleye pollock).",
+                    "minimum": 0
+                  },
+                  "hauljoin": {
+                    "type": "integer",
+                    "description": "Restrict to a single survey haul ID."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max rows to return (1-100, default 25)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Rows to skip for pagination (default 0)."
+                  }
+                },
+                "required": [
+                  "species_code"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

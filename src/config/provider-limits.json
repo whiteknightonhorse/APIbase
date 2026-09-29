@@ -3721,6 +3721,17 @@
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
+  "noaa-fisheries-stats": {
+    "display_name": "NOAA Fisheries Stats (FOSS)",
+    "health_url": "https://apps-st.fisheries.noaa.gov/ods/foss/afsc_groundfish_survey_species/?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://www.fisheries.noaa.gov/foss",
+    "limit_proof": "NOAA Fisheries FOSS public ODS REST API, US Government open data, no API key. No rate limit documented.",
+    "moderation_class": "data",
+    "moderation_class_reviewed": true
+  },
   "wits-trade": {
     "display_name": "World Bank WITS Trade & Tariffs",
     "health_url": "https://wits.worldbank.org/API/V1/wits/datasource/tradestats-trade/country/usa",

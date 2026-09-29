@@ -337,6 +337,7 @@ import { GeoDivaAdapter } from './geodiva';
 import { StandardEbooksAdapter } from './standard-ebooks';
 import { IndecGeorefAdapter } from './indec-georef';
 import { IndecArgentinaAdapter } from './indec-argentina';
+import { NoaaFisheriesStatsAdapter } from './noaa-fisheries-stats';
 import { WitsTradeAdapter } from './wits-trade';
 import { EnviroatlasAdapter } from './enviroatlas';
 import { FederalRegisterAdapter } from './federalregister';
@@ -1880,6 +1881,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'indec-argentina':
       // Argentina Gov Series de Tiempo API (UC-776) — economic/social statistics; no auth
       return getOrCreate('indec-argentina', () => new IndecArgentinaAdapter());
+    case 'noaa-fisheries-stats':
+      // NOAA Fisheries FOSS landings + AFSC groundfish survey (UC-797); no auth
+      return getOrCreate('noaa-fisheries-stats', () => new NoaaFisheriesStatsAdapter());
     case 'wits-trade':
       // World Bank WITS trade + tariff statistics, SDMX-JSON (UC-796); no auth
       return getOrCreate('wits-trade', () => new WitsTradeAdapter());

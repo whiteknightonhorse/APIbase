@@ -7640,6 +7640,25 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+# --- UC-797: noaa-fisheries-stats (NOAA Fisheries FOSS landings + AFSC groundfish survey) ---
+  - tool_id: noaa-fisheries-stats.landings
+    name: NOAA Fisheries Landings
+    provider: noaa-fisheries-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: noaa-fisheries-stats.survey_species
+    name: NOAA Groundfish Survey Species
+    provider: noaa-fisheries-stats
+    price_usd: "0.001"
+    cache_ttl: 86400
+
+  - tool_id: noaa-fisheries-stats.survey_catch
+    name: NOAA Groundfish Survey Catch
+    provider: noaa-fisheries-stats
+    price_usd: "0.002"
+    cache_ttl: 86400
+
 # --- UC-796: wits-trade (World Bank WITS trade + tariff statistics) ---
   - tool_id: wits-trade.trade_stats
     name: WITS Trade Flow Statistics

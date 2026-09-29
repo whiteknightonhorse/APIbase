@@ -13897,6 +13897,38 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // NOAA Fisheries Stats (3)
+  {
+    toolId: 'noaa-fisheries-stats.landings',
+    mcpName: 'noaa-fisheries-stats.landings.search',
+    title: 'NOAA Fisheries Landings',
+    description:
+      'Search US commercial (pounds, dollars) and recreational (fish counts) fisheries landings from ' +
+      'NOAA Fisheries FOSS by species, state, region, collection type and year range. ' +
+      'Data: fisheries.noaa.gov, public US Government data, no auth required.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'noaa-fisheries-stats.survey_species',
+    mcpName: 'noaa-fisheries-stats.survey.search_species',
+    title: 'NOAA Groundfish Survey Species',
+    description:
+      'Look up species in the NOAA AFSC bottom-trawl groundfish survey (Alaska) by common or scientific ' +
+      'name. Returns survey species_code (for survey_catch) plus WoRMS Aphia ID and ITIS TSN cross-references.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'noaa-fisheries-stats.survey_catch',
+    mcpName: 'noaa-fisheries-stats.survey.get_catch',
+    title: 'NOAA Groundfish Survey Catch',
+    description:
+      'Get NOAA AFSC groundfish survey catch records for a species_code: per-haul catch count, weight (kg), ' +
+      'CPUE (kg/km2 and count/km2) and taxon identification confidence.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
   // World Bank WITS (2)
   {
     toolId: 'wits-trade.trade_stats',
