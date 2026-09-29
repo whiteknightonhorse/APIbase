@@ -87,6 +87,26 @@ Commands:
       `incidents_state_check` value — "closed because the provider was
       retired" lives entirely in RESOLVED + the attempts text.
 
+  incident-cli.py close --id ID --actor A --reason "..."
+                        (--superseded-by INCIDENT_ID | --provider-healthy)
+      T-0235 (ruling HUMAN-CLOSE-STUCK-0929, "Task 0234 spec"): the operator's
+      exit for a STUCK incident that is neither worth reopening nor tied to a
+      retired provider. Exists because the runbook's old "resolve-request"
+      exit for STUCK never existed in code (resolve-request refuses STUCK
+      since T-11). STUCK-only; refuses (exit 1, no write at all) unless the
+      code itself verifies exactly one ground against the engine's own tables:
+        --superseded-by ID   ID exists, is a different incident of the SAME
+                             provider, and is live (OPEN/REMEDIATION_QUEUED/
+                             WAITING_HUMAN/VERIFYING) -- a STUCK/RESOLVED target
+                             cannot launder a live one.
+        --provider-healthy   provider_status is HEALTHY, last_probe_result OK
+                             and last_probe_at is newer than the ts of the
+                             newest incident-engine fleet-stuck/verify-failed
+                             attempts entry (no such entry = NOINFO = refuse).
+      Records `close` (and, for superseded-by, `absorbs` on the target) notes
+      before transitioning to RESOLVED, same order as retire. Operator/
+      dispatcher tool: fleet executors are not pointed at it.
+
   incident-cli.py --selftest
       Pure-logic checks (enum validation, dedup_key shape, SQL-literal
       escaping, and — T-0152a — the `retire` guard exercised in-process
@@ -204,6 +224,80 @@ def cmd_retire(a):
     ap.note_incident(a.id, a.actor, "retire", a.reason)
     ap.transition_state(a.id, "RESOLVED")
     print(f"{a.id} -> RESOLVED (provider {inc['provider']} retired)")
+    return 0
+
+
+LIVE_TARGET_STATES = ("OPEN", "REMEDIATION_QUEUED", "WAITING_HUMAN", "VERIFYING")
+
+
+def _refuse(msg):
+    print(f"refusing: {msg}", file=sys.stderr)
+    return 1
+
+
+def cmd_close(a):
+    """T-0235: RESOLVE a STUCK incident on a code-verified ground (see module
+    docstring). Every refusal returns 1 before any note/transition is written."""
+    inc = ap.get_incident(a.id)
+    if inc is None:
+        print(f"no such incident: {a.id}", file=sys.stderr)
+        return 1
+    if inc["state"] != "STUCK":
+        return _refuse(f"incident {a.id} is in state {inc['state']}, not STUCK -- close only "
+                       f"closes a STUCK incident on a verified ground")
+    if a.superseded_by:
+        if a.superseded_by == a.id:
+            return _refuse("--superseded-by names the incident itself")
+        tgt = ap.get_incident(a.superseded_by)
+        if tgt is None:
+            return _refuse(f"superseding incident {a.superseded_by} does not exist")
+        if tgt["incident_id"] == inc["incident_id"]:
+            return _refuse("--superseded-by resolves to the incident itself")
+        if tgt["provider"] != inc["provider"]:
+            return _refuse(f"superseding incident is provider {tgt['provider']!r}, "
+                           f"not {inc['provider']!r}")
+        if tgt["state"] not in LIVE_TARGET_STATES:
+            return _refuse(f"superseding incident {a.superseded_by} is {tgt['state']}, not live "
+                           f"({'/'.join(LIVE_TARGET_STATES)})")
+        ap.note_incident(a.id, a.actor, "close",
+                         f"superseded by {tgt['incident_id']} ({tgt['kind']}/{tgt['state']}): {a.reason}")
+        ap.note_incident(tgt["incident_id"], a.actor, "absorbs",
+                         f"INC-{inc['incident_id'][:6]} ({inc['kind']}) closed as superseded: {a.reason}")
+        ap.transition_state(a.id, "RESOLVED")
+        print(f"{a.id} -> RESOLVED (superseded by {tgt['incident_id']})")
+        return 0
+
+    anchor = None
+    for e in reversed(inc["attempts"]):
+        if e.get("actor") == "incident-engine" and e.get("action") in ("fleet-stuck", "verify-failed"):
+            anchor = e.get("ts")
+            break
+    if not anchor:
+        return _refuse(f"incident {a.id} has no incident-engine fleet-stuck/verify-failed "
+                       f"attempts entry to anchor on (NOINFO is not evidence)")
+    out, rc = ap.psql(
+        f"SELECT state, COALESCE(last_probe_result, ''), COALESCE(last_probe_at::text, ''), "
+        f"COALESCE(last_probe_at > {ap.sql_literal(anchor)}::timestamptz, false) "
+        f"FROM provider_status WHERE provider = {ap.sql_literal(inc['provider'])}"
+    )
+    if rc != 0:
+        return _refuse(f"provider_status query failed: {out}")
+    if not out:
+        return _refuse(f"no provider_status row for {inc['provider']!r}")
+    state, result, probe_at, newer = (out.split(ap.SEP) + ["", "", "", ""])[:4]
+    failed = []
+    if state != "HEALTHY":
+        failed.append(f"state is {state}, not HEALTHY")
+    if result != "OK":
+        failed.append(f"last_probe_result is {result or 'NULL'}, not OK")
+    if newer not in ("t", "true", "True"):
+        failed.append(f"last_probe_at {probe_at or 'NULL'} is not after STUCK anchor {anchor}")
+    if failed:
+        return _refuse(f"provider {inc['provider']!r} not verified healthy: " + "; ".join(failed))
+    ap.note_incident(a.id, a.actor, "close",
+                     f"provider HEALTHY, probe {probe_at} after STUCK at {anchor}: {a.reason}")
+    ap.transition_state(a.id, "RESOLVED")
+    print(f"{a.id} -> RESOLVED (provider {inc['provider']} HEALTHY, probe after STUCK)")
     return 0
 
 
@@ -484,6 +578,94 @@ def selftest():
         )
         os.unlink(_retired_limits_path)
 
+    # T-0235: `close` worlds (a)-(f). Same monkeypatch style as retire above;
+    # ap.psql is faked for the provider-healthy grounds.
+    _orig_psql = ap.psql
+    _anchor = "2026-09-29T05:12:45+00:00"
+    _stuck_attempts = [{"ts": _anchor, "actor": "incident-engine", "action": "verify-failed", "result": "x"}]
+
+    def _inc(iid, state="STUCK", provider="p1", kind="DEGRADED_QUALITY", attempts=None):
+        return {"incident_id": iid, "provider": provider, "state": state, "kind": kind,
+                "attempts": _stuck_attempts if attempts is None else attempts}
+
+    _fake_incidents = {
+        "src": _inc("src"),
+        "src-noanchor": _inc("src-noanchor", attempts=[]),
+        "src-open": _inc("src-open", state="OPEN"),
+        "src-resolved": _inc("src-resolved", state="RESOLVED"),
+        "t-live": _inc("t-live", state="VERIFYING", kind="PROVIDER_DOWN"),
+        "t-resolved": _inc("t-resolved", state="RESOLVED"),
+        "t-stuck": _inc("t-stuck", state="STUCK"),
+        "t-other": _inc("t-other", state="OPEN", provider="p2"),
+    }
+    _notes, _transitions = [], []
+    _psql_calls = []
+
+    def _fake_psql_factory(row):
+        def _f(sql):
+            _psql_calls.append(sql)
+            return (ap.SEP.join(row) if row else ""), 0
+        return _f
+
+    def _close(iid, sup=None, healthy=False):
+        return cmd_close(_argparse.Namespace(id=iid, actor="op", reason="order",
+                                             superseded_by=sup, provider_healthy=healthy))
+
+    def _assert_no_write(rc, what):
+        assert rc == 1, f"{what}: must refuse with exit 1"
+        assert _notes == [] and _transitions == [], f"{what}: a refused close must write nothing"
+
+    try:
+        ap.get_incident = lambda iid: _fake_incidents.get(iid)
+        ap.note_incident = lambda iid, actor, action, result: _notes.append((iid, actor, action, result))
+        ap.transition_state = lambda iid, new_state, extra_set="": _transitions.append((iid, new_state))
+
+        # (a) superseded success: close note, absorbs note, then RESOLVED
+        assert _close("src", sup="t-live") == 0
+        assert [(n[0], n[2]) for n in _notes] == [("src", "close"), ("t-live", "absorbs")]
+        assert _notes[0][3] == "superseded by t-live (PROVIDER_DOWN/VERIFYING): order"
+        assert _notes[1][3] == "INC-src (DEGRADED_QUALITY) closed as superseded: order"
+        assert _transitions == [("src", "RESOLVED")]
+
+        # (b) superseded refusals, zero writes each
+        for _sup, _what in (("t-resolved", "target RESOLVED"), ("t-stuck", "target STUCK"),
+                            ("t-other", "target other provider"), ("src", "target == source"),
+                            ("t-missing", "target missing")):
+            _notes.clear(); _transitions.clear()
+            _assert_no_write(_close("src", sup=_sup), _what)
+
+        # (c) provider-healthy success
+        _notes.clear(); _transitions.clear()
+        ap.psql = _fake_psql_factory(("HEALTHY", "OK", "2026-09-29 07:00:00+00", "t"))
+        assert _close("src", healthy=True) == 0
+        assert [(n[0], n[2]) for n in _notes] == [("src", "close")]
+        assert _notes[0][3] == f"provider HEALTHY, probe 2026-09-29 07:00:00+00 after STUCK at {_anchor}: order"
+        assert _transitions == [("src", "RESOLVED")]
+        assert _anchor in _psql_calls[-1] and "::timestamptz" in _psql_calls[-1], "comparison must be done in SQL"
+
+        # (d) provider-healthy refusals, zero writes each
+        for _row, _what in ((("HEALTHY", "OK", "2026-09-29 05:00:00+00", "f"), "probe older than anchor"),
+                            (("DOWN", "OK", "2026-09-29 07:00:00+00", "t"), "state DOWN"),
+                            (("HEALTHY", "FAIL_TRANSIENT", "2026-09-29 07:00:00+00", "t"), "probe not OK"),
+                            (None, "no provider_status row")):
+            _notes.clear(); _transitions.clear()
+            ap.psql = _fake_psql_factory(_row)
+            _assert_no_write(_close("src", healthy=True), _what)
+        _notes.clear(); _transitions.clear()
+        ap.psql = _fake_psql_factory(("HEALTHY", "OK", "2026-09-29 07:00:00+00", "t"))
+        _assert_no_write(_close("src-noanchor", healthy=True), "no STUCK anchor in attempts")
+
+        # (e) source not STUCK, (f) source already RESOLVED
+        for _src in ("src-open", "src-resolved"):
+            for _kw in ({"sup": "t-live"}, {"healthy": True}):
+                _notes.clear(); _transitions.clear()
+                _assert_no_write(_close(_src, **_kw), f"source {_src}")
+    finally:
+        ap.psql = _orig_psql
+        ap.get_incident, ap.note_incident, ap.transition_state = (
+            _orig_get_incident, _orig_note_incident, _orig_transition_state,
+        )
+
     print("incident-cli --selftest: OK")
 
 
@@ -540,6 +722,15 @@ def main():
     pret.add_argument("--actor", required=True)
     pret.add_argument("--reason", required=True)
     pret.set_defaults(func=cmd_retire)
+
+    pcl = sub.add_parser("close")
+    pcl.add_argument("--id", required=True)
+    pcl.add_argument("--actor", required=True)
+    pcl.add_argument("--reason", required=True)
+    g = pcl.add_mutually_exclusive_group(required=True)
+    g.add_argument("--superseded-by", default=None)
+    g.add_argument("--provider-healthy", action="store_true")
+    pcl.set_defaults(func=cmd_close)
 
     args = p.parse_args()
     if args.selftest:

@@ -555,7 +555,7 @@ OPEN --router--> REMEDIATION_QUEUED --fleet DONE--> VERIFYING --re-probe OK--> R
 
 `STUCK` пейджит человека ровно один раз — на переходе. Периодического напоминания для STUCK нет
 (в отличие от 72 ч у `WAITING_HUMAN`) — по замыслу. Возраст: `incident-cli.py list --state STUCK`.
-Действие человека: `reopen` (обратно в AP-6) или `resolve-request` (T-0143).
+Действие человека: `reopen` (обратно в AP-6), `close` (verified ground: `--superseded-by` или `--provider-healthy`), `retire` (только retired-провайдер).
 
 Route classes (`config/autopilot/routing.json`, one file, loaded once): `AUTO`/`MIXED` file a real
 fleet task (`≤3/day` cap, severity-ordered so SEV1 never loses a slot to an older SEV3);
