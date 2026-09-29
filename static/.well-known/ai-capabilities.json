@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.1.0",
   "updated_at": "2026-09-29T00:00:00Z",
-  "tools_count": 1385,
-  "providers_count": 398,
+  "tools_count": 1393,
+  "providers_count": 401,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1385 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1393 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -37,14 +37,14 @@
     },
     {
       "name": "finance",
-      "tools": 190,
-      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Slovakia Statistics, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Worldbank, Wto",
+      "tools": 194,
+      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Indec Argentina, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Slovakia Statistics, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Wits Trade, Worldbank, Wto",
       "examples": "Call discover_tools with category=\"finance\" for the current tool list and descriptions."
     },
     {
       "name": "health",
-      "tools": 150,
-      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
+      "tools": 154,
+      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
       "examples": "Call discover_tools with category=\"health\" for the current tool list and descriptions."
     },
     {

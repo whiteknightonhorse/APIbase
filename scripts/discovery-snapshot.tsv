@@ -420,6 +420,10 @@ eurlex.legislation.recent	eurlex
 eurlex.legislation.search	eurlex
 europeana.record	europeana
 europeana.search	europeana
+europepmc.article	europepmc
+europepmc.citations	europepmc
+europepmc.references	europepmc
+europepmc.search	europepmc
 eurostat.gdp_growth	eurostat
 eurostat.inflation	eurostat
 eurostat.population	eurostat
@@ -638,6 +642,8 @@ inaturalist.observations_search	inaturalist
 inaturalist.places_search	inaturalist
 inaturalist.species_counts	inaturalist
 inaturalist.taxa_search	inaturalist
+indec-argentina.get_series	indec-argentina
+indec-argentina.search_series	indec-argentina
 indec-georef.departamentos	indec-georef
 indec-georef.geocode	indec-georef
 indec-georef.localidades	indec-georef
@@ -1361,6 +1367,8 @@ wikipedia.article.summary	wikipedia
 wikipedia.feed.featured	wikipedia
 wikipedia.feed.on_this_day	wikipedia
 wikipedia.search.pages	wikipedia
+wits-trade.tariff_stats	wits-trade
+wits-trade.trade_stats	wits-trade
 wmo-weather.city_search	wmo-weather
 wmo-weather.climate_normals	wmo-weather
 wmo-weather.forecast	wmo-weather
