@@ -106048,6 +106048,420 @@
         ]
       }
     },
+    "/api/v1/tools/indec-argentina.search_series/call": {
+      "post": {
+        "operationId": "indec-argentina_search_series",
+        "summary": "Search Argentina Statistics Series",
+        "description": "Search the Argentine government catalog of economic and social statistics time series by keyword (e.g. \"desempleo\", \"inflacion\", \"tipo de cambio\"). Returns matching series IDs, titles, units, frequency, and date coverage. Data: apis.datos.gob.ar/series (Subsecretaría de Programación Macroeconómica / INDEC), no auth required.",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "indec-argentina.search_series"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword to search the time series catalog (e.g. \"desempleo\", \"inflacion\", \"tipo de cambio\"). Spanish terms work best — this is an Argentine government dataset.",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of matching series to return (1-50, default 10)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/indec-argentina.get_series/call": {
+      "post": {
+        "operationId": "indec-argentina_get_series",
+        "summary": "Get Argentina Statistics Series Data",
+        "description": "Fetch data points for one or more Argentine government statistics time series by ID (up to 5 at once), with optional date range and frequency resampling (day/month/quarter/semester/year with avg/sum/end_of_period/min/max aggregation). Covers exchange rates, inflation, employment, and national accounts. Data: apis.datos.gob.ar/series (INDEC), no auth required.",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "indec-argentina.get_series"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_id": {
+                    "type": "string",
+                    "description": "Series ID(s) to fetch, comma-separated for up to 5 series (e.g. \"168.1_T_CAMBIOR_D_0_0_26\"). Find IDs via search_series.",
+                    "minLength": 1
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Restrict results to dates on/after this ISO date (YYYY-MM-DD)."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "Restrict results to dates on/before this ISO date (YYYY-MM-DD)."
+                  },
+                  "collapse": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "month",
+                      "quarter",
+                      "semester",
+                      "year"
+                    ],
+                    "description": "Resample the series to this frequency (default: series native frequency)."
+                  },
+                  "collapse_aggregation": {
+                    "type": "string",
+                    "enum": [
+                      "avg",
+                      "sum",
+                      "end_of_period",
+                      "min",
+                      "max"
+                    ],
+                    "description": "Aggregation method used when \"collapse\" resamples to a lower frequency (default: avg)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of data points to return (1-1000, default 100)."
+                  }
+                },
+                "required": [
+                  "series_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wits-trade.trade_stats/call": {
+      "post": {
+        "operationId": "wits-trade_trade_stats",
+        "summary": "WITS Trade Flow Statistics",
+        "description": "Get international trade statistics from the World Bank WITS (UN Comtrade data): export/import value, trade share and partner indicators for a reporter country, partner (default World), product/sector and one or more years. Values in US$ thousand for value indicators. Data: wits.worldbank.org, no auth required.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wits-trade.trade_stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reporter": {
+                    "type": "string",
+                    "description": "Reporting country ISO3 code (e.g. \"usa\", \"chn\", \"deu\").",
+                    "minLength": 2
+                  },
+                  "partner": {
+                    "type": "string",
+                    "description": "Partner country/region ISO3 code (default \"wld\" = World). E.g. \"chn\", \"mex\"."
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "Year or comma-separated years, max 10 (e.g. \"2020\" or \"2018,2019,2020\").",
+                    "minLength": 4
+                  },
+                  "product": {
+                    "type": "string",
+                    "description": "Product/sector code (default \"Total\"). Sector codes like \"16-24_FoodProd\", \"27-27_Fuels\", \"Food\", or HS codes."
+                  },
+                  "indicator": {
+                    "type": "string",
+                    "description": "Trade indicator code (default \"XPRT-TRD-VL\" = export value, US$ thousand). Others: \"MPRT-TRD-VL\" (import value), \"TRD-VL\" (total trade), \"XPRT-PRTNR-SHR\"."
+                  }
+                },
+                "required": [
+                  "reporter",
+                  "year"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/wits-trade.tariff_stats/call": {
+      "post": {
+        "operationId": "wits-trade_tariff_stats",
+        "summary": "WITS Tariff Statistics",
+        "description": "Get import tariff statistics from the World Bank WITS (UNCTAD TRAINS data): MFN and applied simple/weighted average tariffs, maximum rates and duty-free shares for a reporter country, partner, product/sector and one or more years. Data: wits.worldbank.org, no auth required.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "wits-trade.tariff_stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reporter": {
+                    "type": "string",
+                    "description": "Reporting country ISO3 code (e.g. \"usa\", \"chn\", \"deu\").",
+                    "minLength": 2
+                  },
+                  "partner": {
+                    "type": "string",
+                    "description": "Partner country/region ISO3 code (default \"wld\" = World). E.g. \"chn\", \"mex\"."
+                  },
+                  "year": {
+                    "type": "string",
+                    "description": "Year or comma-separated years, max 10 (e.g. \"2020\" or \"2018,2019,2020\").",
+                    "minLength": 4
+                  },
+                  "product": {
+                    "type": "string",
+                    "description": "Product/sector code (default \"Total\"), sector name, or HS code."
+                  },
+                  "indicator": {
+                    "type": "string",
+                    "description": "Tariff indicator code (default \"MFN-WGHTD-AVRG\" = MFN weighted average tariff %). Others: \"MFN-SMPL-AVRG\", \"AHS-WGHTD-AVRG\" (applied weighted avg), \"MFN-MXMM-RT\", \"MFN-DTY-FR-TRFF-LNS-SHR\"."
+                  }
+                },
+                "required": [
+                  "reporter",
+                  "year"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/enviroatlas.communities/call": {
       "post": {
         "operationId": "enviroatlas_communities",

@@ -7640,6 +7640,19 @@ tools:
     price_usd: "0.001"
     cache_ttl: 3600
 
+# --- UC-796: wits-trade (World Bank WITS trade + tariff statistics) ---
+  - tool_id: wits-trade.trade_stats
+    name: WITS Trade Flow Statistics
+    provider: wits-trade
+    price_usd: "0.002"
+    cache_ttl: 86400
+
+  - tool_id: wits-trade.tariff_stats
+    name: WITS Tariff Statistics
+    provider: wits-trade
+    price_usd: "0.002"
+    cache_ttl: 86400
+
   - tool_id: enviroatlas.communities
     name: List EnviroAtlas Pilot Communities
     provider: enviroatlas

@@ -3721,6 +3721,17 @@
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
+  "wits-trade": {
+    "display_name": "World Bank WITS Trade & Tariffs",
+    "health_url": "https://wits.worldbank.org/API/V1/wits/datasource/tradestats-trade/country/usa",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://wits.worldbank.org/witsapiintro.aspx",
+    "limit_proof": "World Bank WITS public API, no API key. No rate limit documented in WITS API docs.",
+    "moderation_class": "data",
+    "moderation_class_reviewed": true
+  },
   "indec-argentina": {
     "display_name": "Argentina Gov Series de Tiempo",
     "health_url": "https://apis.datos.gob.ar/series/api/search/?q=test&limit=1",

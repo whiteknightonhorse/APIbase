@@ -13897,6 +13897,30 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'finance',
     annotations: READ_ONLY,
   },
+  // World Bank WITS (2)
+  {
+    toolId: 'wits-trade.trade_stats',
+    mcpName: 'wits-trade.trade.get_stats',
+    title: 'WITS Trade Flow Statistics',
+    description:
+      'Get international trade statistics from the World Bank WITS (UN Comtrade data): export/import ' +
+      'value, trade share and partner indicators for a reporter country, partner (default World), ' +
+      'product/sector and one or more years. Values in US$ thousand for value indicators. ' +
+      'Data: wits.worldbank.org, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'wits-trade.tariff_stats',
+    mcpName: 'wits-trade.tariff.get_stats',
+    title: 'WITS Tariff Statistics',
+    description:
+      'Get import tariff statistics from the World Bank WITS (UNCTAD TRAINS data): MFN and applied ' +
+      'simple/weighted average tariffs, maximum rates and duty-free shares for a reporter country, ' +
+      'partner, product/sector and one or more years. Data: wits.worldbank.org, no auth required.',
+    category: 'finance',
+    annotations: READ_ONLY,
+  },
   // EnviroAtlas EPA (3)
   {
     toolId: 'enviroatlas.communities',

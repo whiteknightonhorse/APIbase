@@ -326,6 +326,7 @@ import { wikimediaCommonsSchemas } from './wikimedia-commons.schema';
 import { standardEbooksSchemas } from './standard-ebooks.schema';
 import { indecGeorefSchemas } from './indec-georef.schema';
 import { indecArgentinaSchemas } from './indec-argentina.schema';
+import { witsTradeSchemas } from './wits-trade.schema';
 import { enviroatlasSchemas } from './enviroatlas.schema';
 import { federalRegisterSchemas } from './federalregister.schema';
 import { ensemblSchemas } from './ensembl.schema';
@@ -739,6 +740,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...standardEbooksSchemas,
   ...indecGeorefSchemas,
   ...indecArgentinaSchemas,
+  ...witsTradeSchemas,
   ...enviroatlasSchemas,
   ...federalRegisterSchemas,
   ...ensemblSchemas,
