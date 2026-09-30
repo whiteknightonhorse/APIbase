@@ -2,9 +2,14 @@ import { BaseAdapter } from '../base.adapter';
 import {
   type ProviderRequest,
   type ProviderRawResponse,
+  type ProviderError,
   ProviderErrorCode,
+  PROVIDER_MAX_RETRIES,
+  PROVIDER_BACKOFF_BASE_MS,
 } from '../../types/provider';
 import type { CzsoPackageListResponse, CzsoPackageShowResponse, CzsoResource } from './types';
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const CATALOG_BASE = 'https://vdb.czso.cz/pll/eweb';
 const HEADERS = { 'User-Agent': 'APIbase/1.0 (https://apibase.pro)', Accept: '*/*' };
@@ -294,59 +299,89 @@ export class CzsoAdapter extends BaseAdapter {
   }
 
   private async rawFetch(url: string, req: ProviderRequest): Promise<Response> {
-    let response: Response;
-    try {
-      response = await fetch(url, {
-        method: 'GET',
-        headers: HEADERS,
-        signal: AbortSignal.timeout(this.timeoutMs),
-      });
-    } catch (error) {
-      const isTimeout = error instanceof Error && error.name === 'TimeoutError';
-      throw {
-        code: isTimeout ? ProviderErrorCode.TIMEOUT : ProviderErrorCode.UNAVAILABLE,
-        httpStatus: isTimeout ? 504 : 502,
-        message: isTimeout
-          ? `Provider call timed out after ${this.timeoutMs}ms`
-          : `Provider connection failed: ${error instanceof Error ? error.message : 'unknown'}`,
-        provider: this.provider,
-        toolId: req.toolId,
-        durationMs: 0,
-      };
+    let lastError: ProviderError | undefined;
+
+    for (let attempt = 0; attempt <= PROVIDER_MAX_RETRIES; attempt++) {
+      if (attempt > 0) {
+        const delayMs = PROVIDER_BACKOFF_BASE_MS * Math.pow(2, attempt - 1);
+        await sleep(delayMs);
+      }
+
+      let response: Response;
+      try {
+        response = await fetch(url, {
+          method: 'GET',
+          headers: HEADERS,
+          signal: AbortSignal.timeout(this.timeoutMs),
+        });
+      } catch (error) {
+        const isTimeout = error instanceof Error && error.name === 'TimeoutError';
+        const providerError: ProviderError = {
+          code: isTimeout ? ProviderErrorCode.TIMEOUT : ProviderErrorCode.UNAVAILABLE,
+          httpStatus: isTimeout ? 504 : 502,
+          message: isTimeout
+            ? `Provider call timed out after ${this.timeoutMs}ms`
+            : `Provider connection failed: ${error instanceof Error ? error.message : 'unknown'}`,
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
+
+        lastError = providerError;
+        // Retry on timeout or connection errors
+        if (isTimeout || !isTimeout) {
+          continue;
+        }
+        throw providerError;
+      }
+
+      if (response.status === 404) {
+        throw inputRejected(this.provider, req, 'Resource not found.');
+      }
+      if (response.status === 429) {
+        throw {
+          code: ProviderErrorCode.RATE_LIMIT,
+          httpStatus: 429,
+          message: 'CZSO catalog rate limit exceeded',
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
+      }
+      if (response.status >= 500) {
+        // Retry on server errors
+        lastError = {
+          code: ProviderErrorCode.UNAVAILABLE,
+          httpStatus: 502,
+          message: `CZSO catalog returned ${response.status}`,
+          provider: this.provider,
+          toolId: req.toolId,
+          durationMs: 0,
+        };
+        continue;
+      }
+      if (response.status >= 400) {
+        throw inputRejected(
+          this.provider,
+          req,
+          `CZSO catalog rejected the request (HTTP ${response.status}).`,
+        );
+      }
+
+      return response;
     }
 
-    if (response.status === 404) {
-      throw inputRejected(this.provider, req, 'Resource not found.');
-    }
-    if (response.status === 429) {
-      throw {
-        code: ProviderErrorCode.RATE_LIMIT,
-        httpStatus: 429,
-        message: 'CZSO catalog rate limit exceeded',
-        provider: this.provider,
-        toolId: req.toolId,
-        durationMs: 0,
-      };
-    }
-    if (response.status >= 500) {
-      throw {
+    // Retries exhausted
+    throw (
+      lastError || {
         code: ProviderErrorCode.UNAVAILABLE,
         httpStatus: 502,
-        message: `CZSO catalog returned ${response.status}`,
+        message: 'CZSO catalog request failed after retries',
         provider: this.provider,
         toolId: req.toolId,
         durationMs: 0,
-      };
-    }
-    if (response.status >= 400) {
-      throw inputRejected(
-        this.provider,
-        req,
-        `CZSO catalog rejected the request (HTTP ${response.status}).`,
-      );
-    }
-
-    return response;
+      }
+    );
   }
 }
 
