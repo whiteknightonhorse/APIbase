@@ -731,9 +731,13 @@ function classifyTransportError(
   });
 }
 
-/** Retryable: 5xx, timeout, connection reset. Not retryable: 4xx (§12.40). */
+/** Retryable: 5xx, timeout, connection reset, rate-limit (429). Not retryable: 4xx client errors (§12.40). */
 function isRetryable(error: ProviderError): boolean {
-  return error.code === ProviderErrorCode.TIMEOUT || error.code === ProviderErrorCode.UNAVAILABLE;
+  return (
+    error.code === ProviderErrorCode.TIMEOUT ||
+    error.code === ProviderErrorCode.UNAVAILABLE ||
+    error.code === ProviderErrorCode.RATE_LIMIT
+  );
 }
 
 function sleep(ms: number): Promise<void> {
