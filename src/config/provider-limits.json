@@ -1064,7 +1064,7 @@
   "calendarific": {
     "display_name": "Calendarific",
     "health_url": "https://calendarific.com/api/v2/holidays?api_key=oDjn61EwR9r1WSJhyjAuDuGxPzAGq8xU&country=US&year=2026",
-    "limit_type": "unlimited",
+    "limit_type": "monthly",
     "free_limit": 500,
     "reset_period": "monthly",
     "docs_url": "https://calendarific.com/api-documentation",
