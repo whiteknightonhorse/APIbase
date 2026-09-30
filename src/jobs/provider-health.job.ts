@@ -472,39 +472,49 @@ async function fetchOutcome(
       };
 
       return await new Promise((resolve) => {
+        let resolved = false;
         const req = https.request(parsedUrl, options, (res) => {
           let data = '';
           res.on('data', (chunk) => {
             data += chunk;
             if (data.length >= 1 && method === 'GET') {
-              res.destroy();
+              res.pause();
             }
           });
           res.on('end', () => {
-            const latencyMs = Math.round(performance.now() - start);
-            resolve({
-              outcome: { kind: 'status', status: res.statusCode ?? 500 },
-              latencyMs,
-              httpStatus: res.statusCode,
-            });
+            if (!resolved) {
+              resolved = true;
+              const latencyMs = Math.round(performance.now() - start);
+              resolve({
+                outcome: { kind: 'status', status: res.statusCode ?? 500 },
+                latencyMs,
+                httpStatus: res.statusCode,
+              });
+            }
           });
         });
 
         req.on('timeout', () => {
-          req.destroy();
-          const latencyMs = Math.round(performance.now() - start);
-          resolve({
-            outcome: { kind: 'timeout' },
-            latencyMs,
-          });
+          if (!resolved) {
+            resolved = true;
+            req.destroy();
+            const latencyMs = Math.round(performance.now() - start);
+            resolve({
+              outcome: { kind: 'timeout' },
+              latencyMs,
+            });
+          }
         });
 
         req.on('error', (err) => {
-          const latencyMs = Math.round(performance.now() - start);
-          resolve({
-            outcome: { kind: 'network_error', cause: networkCause(err) },
-            latencyMs,
-          });
+          if (!resolved) {
+            resolved = true;
+            const latencyMs = Math.round(performance.now() - start);
+            resolve({
+              outcome: { kind: 'network_error', cause: networkCause(err) },
+              latencyMs,
+            });
+          }
         });
 
         req.end();

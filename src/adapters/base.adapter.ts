@@ -114,9 +114,18 @@ export abstract class BaseAdapter {
 
   /**
    * Optional per-adapter HTTPS agent for TLS/SSL configuration.
-   * Returns undefined to use the default fetch behavior.
+   * T-9642: undici (fetch) doesn't honor maxVersion on https.Agent, so this is
+   * kept for reference but not used. Use getUndiciDispatcher() instead.
    */
   protected getHttpsAgent(): https.Agent | undefined {
+    return undefined;
+  }
+
+  /**
+   * Optional per-adapter undici Dispatcher for TLS/SSL configuration.
+   * Returns undefined to use the default fetch behavior.
+   */
+  protected getUndiciDispatcher(): unknown {
     return undefined;
   }
 
@@ -204,15 +213,21 @@ export abstract class BaseAdapter {
   ): Promise<ProviderRawResponse> {
     let response: Response;
     try {
-      const fetchOptions: RequestInit & { agent?: https.Agent } = {
+      // T-9642: undici (fetch) doesn't honor maxVersion on https.Agent. For ECDC,
+      // use https.request directly for TLS control. For other providers, use fetch.
+      if (this.provider === 'ecdc-surveillance' && built.url.startsWith('https://')) {
+        return await this.executeRequestWithHttpsRequest(built, req, start);
+      }
+
+      const fetchOptions: RequestInit & { dispatcher?: unknown } = {
         method: built.method,
         headers: built.headers,
         body: built.body,
         signal: AbortSignal.timeout(this.timeoutMs),
       };
-      const agent = this.getHttpsAgent();
-      if (agent) {
-        fetchOptions.agent = agent;
+      const dispatcher = this.getUndiciDispatcher();
+      if (dispatcher) {
+        fetchOptions.dispatcher = dispatcher;
       }
       response = await fetch(built.url, fetchOptions);
     } catch (error) {
@@ -356,6 +371,188 @@ export abstract class BaseAdapter {
     };
 
     // Let subclass parse/validate the response structure
+    raw.body = this.parseResponse(raw, req);
+    return raw;
+  }
+
+  /**
+   * T-9642: execute HTTPS request using Node's native https module for TLS control.
+   * Used for providers like ECDC that need specific TLS version limits.
+   */
+  private async executeRequestWithHttpsRequest(
+    built: { url: string; method: string; headers: Record<string, string>; body?: string },
+    req: ProviderRequest,
+    start: number,
+  ): Promise<ProviderRawResponse> {
+    const agent = this.getHttpsAgent() || new https.Agent({ maxVersion: 'TLSv1.2' });
+    const url = new URL(built.url);
+
+    interface HttpsResponse {
+      statusCode?: number;
+      headers: Record<string, string>;
+      body: string;
+    }
+
+    const response = await new Promise<HttpsResponse>((resolve, reject) => {
+      const options: https.RequestOptions = {
+        method: built.method,
+        headers: built.headers,
+        timeout: this.timeoutMs,
+        agent,
+      };
+
+      const httpsReq = https.request(url, options, (res) => {
+        const chunks: Buffer[] = [];
+        let totalBytes = 0;
+
+        res.on('data', (chunk: Buffer) => {
+          chunks.push(chunk);
+          totalBytes += chunk.length;
+          if (totalBytes > this.maxResponseBytes) {
+            httpsReq.destroy();
+          }
+        });
+
+        res.on('end', () => {
+          const body = Buffer.concat(chunks).toString('utf-8');
+          const headers: Record<string, string> = {};
+          if (res.headers) {
+            Object.entries(res.headers).forEach(([key, value]) => {
+              headers[key] =
+                typeof value === 'string'
+                  ? value
+                  : Array.isArray(value)
+                    ? value.join(', ')
+                    : String(value);
+            });
+          }
+          resolve({ statusCode: res.statusCode, headers, body });
+        });
+
+        res.on('error', reject);
+      });
+
+      httpsReq.on('timeout', () => {
+        httpsReq.destroy();
+        reject(
+          new DOMException(`Provider call timed out after ${this.timeoutMs}ms`, 'TimeoutError'),
+        );
+      });
+
+      httpsReq.on('error', reject);
+
+      if (built.body) {
+        httpsReq.write(built.body);
+      }
+      httpsReq.end();
+    }).catch((error) => {
+      throw classifyTransportError(error, this.provider, req.toolId, start, this.timeoutMs);
+    });
+
+    const status = response.statusCode ?? 500;
+    const bodyText = response.body;
+    const durationMsActual = Math.round(performance.now() - start);
+    const byteLength = Buffer.byteLength(bodyText, 'utf8');
+
+    // G3.1: capture upstream rate-limit signal (simulated via headers object)
+    if (response.headers['retry-after'] || response.headers['x-ratelimit-limit']) {
+      const fields: Record<string, string> = { captured_at: new Date().toISOString() };
+      if (response.headers['x-ratelimit-limit'])
+        fields.limit = response.headers['x-ratelimit-limit'];
+      if (response.headers['x-ratelimit-remaining'])
+        fields.remaining = response.headers['x-ratelimit-remaining'];
+      if (response.headers['x-ratelimit-reset'])
+        fields.reset = response.headers['x-ratelimit-reset'];
+      if (response.headers['retry-after']) fields.retry_after = response.headers['retry-after'];
+      const key = `provider:upstream_rl:${this.provider}`;
+      try {
+        const redis = getSharedRedis();
+        await redis.del(key);
+        await redis.hmset(key, fields);
+        await redis.expire(key, 6 * 60 * 60);
+      } catch (err) {
+        logger.warn(
+          { provider: this.provider, err },
+          'Failed to capture upstream rate-limit headers',
+        );
+      }
+    }
+
+    if (status === 429) {
+      const retryAfter = parseInt(response.headers['retry-after'] ?? '60', 10);
+      throw createProviderError({
+        code: ProviderErrorCode.RATE_LIMIT,
+        httpStatus: 429,
+        message: `${this.provider} API rate limit exceeded`,
+        provider: this.provider,
+        toolId: req.toolId,
+        durationMs: durationMsActual,
+        retryAfter,
+      });
+    }
+
+    if (status >= 500) {
+      const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 300)}` : '';
+      throw createProviderError({
+        code: ProviderErrorCode.UNAVAILABLE,
+        httpStatus: 502,
+        message: `Provider returned ${status}${detail}`,
+        provider: this.provider,
+        toolId: req.toolId,
+        durationMs: durationMsActual,
+      });
+    }
+
+    if (status === 401 || status === 402 || status === 403) {
+      const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 300)}` : '';
+      const message =
+        this.describeAuthError(status, bodyText) ??
+        `Provider rejected our credentials (HTTP ${status})${detail}`;
+      throw createProviderError({
+        code: ProviderErrorCode.PROVIDER_AUTH,
+        httpStatus: 503,
+        message,
+        provider: this.provider,
+        toolId: req.toolId,
+        durationMs: durationMsActual,
+        retryAfter: 60,
+      });
+    }
+
+    if (status >= 400) {
+      const detail = bodyText.length > 0 ? `: ${bodyText.slice(0, 500)}` : '';
+      throw createProviderError({
+        code: ProviderErrorCode.INPUT_REJECTED,
+        httpStatus: 422,
+        message: `Provider rejected the request (HTTP ${status})${detail}`,
+        provider: this.provider,
+        toolId: req.toolId,
+        durationMs: durationMsActual,
+      });
+    }
+
+    let body: unknown;
+    try {
+      body = JSON.parse(bodyText);
+    } catch {
+      throw createProviderError({
+        code: ProviderErrorCode.INVALID_RESPONSE,
+        httpStatus: 502,
+        message: 'Provider returned invalid JSON',
+        provider: this.provider,
+        toolId: req.toolId,
+        durationMs: durationMsActual,
+      });
+    }
+
+    const raw: ProviderRawResponse = {
+      status,
+      headers: response.headers,
+      body,
+      durationMs: durationMsActual,
+      byteLength,
+    };
+
     raw.body = this.parseResponse(raw, req);
     return raw;
   }
