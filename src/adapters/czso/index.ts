@@ -328,11 +328,7 @@ export class CzsoAdapter extends BaseAdapter {
         };
 
         lastError = providerError;
-        // Retry on timeout or connection errors
-        if (isTimeout || !isTimeout) {
-          continue;
-        }
-        throw providerError;
+        continue;
       }
 
       if (response.status === 404) {
