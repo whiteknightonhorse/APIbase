@@ -1,3 +1,4 @@
+import https from 'https';
 import Redis from 'ioredis';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../config/logger';
@@ -438,19 +439,36 @@ function isTimeoutError(err: unknown): boolean {
   );
 }
 
+function getProviderHttpsAgent(provider: string): https.Agent | undefined {
+  // T-9642: ECDC server has a TLS 1.3 bug (ERR_SSL_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
+  // workaround by forcing TLS 1.2 for all requests to this provider.
+  if (provider === 'ecdc-surveillance') {
+    return new https.Agent({
+      maxVersion: 'TLSv1.2',
+    });
+  }
+  return undefined;
+}
+
 async function fetchOutcome(
   url: string,
   method: 'HEAD' | 'GET',
   headers: Record<string, string>,
   timeoutMs: number = HEALTH_CHECK_TIMEOUT_MS,
+  provider?: string,
 ): Promise<{ outcome: ProbeOutcome; latencyMs: number; httpStatus?: number }> {
   const start = performance.now();
   try {
-    const response = await fetch(url, {
+    const fetchOptions: RequestInit & { agent?: https.Agent } = {
       method,
       headers,
       signal: AbortSignal.timeout(timeoutMs),
-    });
+    };
+    const agent = provider ? getProviderHttpsAgent(provider) : undefined;
+    if (agent) {
+      fetchOptions.agent = agent;
+    }
+    const response = await fetch(url, fetchOptions);
     const latencyMs = Math.round(performance.now() - start);
     return {
       outcome: { kind: 'status', status: response.status },
@@ -853,7 +871,7 @@ async function probeHead(
     probeHeaders['Accept'] = 'application/vnd.sdmx.data+json;version=1.0.0';
   }
 
-  const initial = await fetchOutcome(healthUrl, initialMethod, probeHeaders, timeoutMs);
+  const initial = await fetchOutcome(healthUrl, initialMethod, probeHeaders, timeoutMs, provider);
 
   if (initialMethod === 'HEAD' && shouldRetryWithGet(initial.outcome)) {
     const getHeaders: Record<string, string> = {
@@ -867,7 +885,7 @@ async function probeHead(
     const getTimeoutMs = cfg.probe?.timeout_ms
       ? probeTimeoutMs(cfg.probe)
       : HEALTH_CHECK_GET_TIMEOUT_MS;
-    const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, getTimeoutMs);
+    const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, getTimeoutMs, provider);
     const result = classifyHeadResult(getResult.outcome);
     const detail = probeDetail(getResult.outcome, getTimeoutMs);
     await recordProbeResult(db, redis, provider, 'get', result, {
@@ -913,10 +931,16 @@ async function probeAuth(
 ): Promise<void> {
   const key = process.env[probeCfg.auth_env] ?? '';
   const expectStatus = probeCfg.expect_status ?? [200];
-  const { outcome, latencyMs, httpStatus } = await fetchOutcome(probeCfg.url, 'GET', {
-    'User-Agent': 'APIbase-HealthCheck/2.0',
-    ...authHeaders(key, probeCfg.auth_header),
-  });
+  const { outcome, latencyMs, httpStatus } = await fetchOutcome(
+    probeCfg.url,
+    'GET',
+    {
+      'User-Agent': 'APIbase-HealthCheck/2.0',
+      ...authHeaders(key, probeCfg.auth_header),
+    },
+    HEALTH_CHECK_TIMEOUT_MS,
+    provider,
+  );
   const result = classifyAuthResult(outcome, expectStatus);
   const detail =
     result === 'FAIL_DETERMINISTIC'
