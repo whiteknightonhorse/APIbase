@@ -24,7 +24,7 @@ const VALID_AGGREGATION = new Set(['avg', 'sum', 'end_of_period', 'min', 'max'])
  */
 export class IndecArgentinaAdapter extends BaseAdapter {
   constructor() {
-    super({ provider: 'indec-argentina', baseUrl: SERIES_BASE });
+    super({ provider: 'indec-argentina', baseUrl: SERIES_BASE, timeoutMs: 15_000 });
   }
 
   protected buildRequest(req: ProviderRequest): {
