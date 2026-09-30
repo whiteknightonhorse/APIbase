@@ -274,6 +274,8 @@ Detection (alert / monitoring / user report)
 3. Manual check: `SELECT * FROM execution_ledger WHERE status = 'pending' AND created_at < NOW() - INTERVAL '2 minutes'`
 4. Manual fix: `UPDATE execution_ledger SET status = 'failed', billing_status = 'REFUNDED' WHERE ...`
 
+**QUOTA_LOW / QUOTA_EXHAUSTED re-opening (T-0237):** `open_quota_incident` in `scripts/provider-limit-alerts.py` applies three gates before opening. (1) A live (non-RESOLVED) PAYMENT_REQUIRED for the same provider means money was already asked: no new incident (`QUOTA_MONEY_ASKED`). (2) The latest RESOLVED incident with the same dedup key carries a fleet `resolve-request` and identical `remaining_calls`/`free_limit`/`limit_type` with burn 0 now and then (for hourly/daily/monthly windows it must be resolved inside the current window): same episode, no reopen (`QUOTA_SAME_EPISODE`); any consumption reopens. (3) A provider marked `retired` in `provider-limits.json` is skipped entirely in `main()` (`RETIRED_SKIP`). The `provider_status` risk write and the `usage_api` probe_log row still happen every run for non-retired providers; every suppression is a "молчу:" line in notices.log, never silence (C0.5), and a failed gate query opens the incident anyway.
+
 ### 4.4 Rollback
 
 ```bash

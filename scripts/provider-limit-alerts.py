@@ -329,8 +329,78 @@ def log_probe(provider, kind, result, detail):
         ap.notice(f"provider-limit-alerts: probe_log insert failed for {provider}/{kind}: {rc}")
 
 
+WINDOW_TRUNC = {"hourly": "hour", "daily": "day", "monthly": "month"}
+
+
+def quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, lt):
+    """T-0237 (QUOTA-LOW-LOOP-0930 ruling-1): episode gate in front of
+    open_or_merge_incident. I3 dedup only sees live rows; a RESOLVED QUOTA_*
+    whose evidence never changed (trial credits, burn 0) would otherwise
+    reopen every hour and cost a fleet run per cycle. Returns True iff an
+    incident must NOT be opened; every True is a notices.log line, never
+    silence (C0.5). Any query/parse failure returns False (too noisy, never
+    silently deduped) after a plain notice."""
+    # Gate 1: money already asked for this provider.
+    row, rc = ap.psql(
+        f"SELECT incident_id, state FROM incidents WHERE provider = {ap.sql_literal(provider)} "
+        f"AND kind = 'PAYMENT_REQUIRED' AND state <> 'RESOLVED' LIMIT 1"
+    )
+    if rc != 0:
+        ap.notice(f"provider-limit-alerts: episode gate 1 query failed for {provider} (rc={rc}): "
+                  f"{row!r} — opening {kind} anyway")
+    elif row:
+        inc_id, state = row.split(ap.SEP)[:2]
+        ap.notice_dedup(
+            inc_id, "QUOTA_MONEY_ASKED",
+            f"молчу: {kind} {provider} — PAYMENT_REQUIRED INC-{ap.short_id(inc_id)} is {state}, "
+            f"quota fact recorded in provider_status/probe_log, no new incident (I1/J1) [QUOTA_MONEY_ASKED]")
+        return True
+
+    # Gate 2: same episode as the last RESOLVED incident.
+    dk = ap.dedup_key(kind, provider)
+    window_sql = ""
+    if lt in WINDOW_TRUNC:
+        window_sql = f"AND resolved_at >= date_trunc('{WINDOW_TRUNC[lt]}', now() at time zone 'UTC') "
+    row, rc = ap.psql(
+        f"SELECT incident_id, evidence::text, attempts::text FROM incidents "
+        f"WHERE dedup_key = {ap.sql_literal(dk)} AND state = 'RESOLVED' {window_sql}"
+        f"ORDER BY resolved_at DESC LIMIT 1"
+    )
+    if rc != 0:
+        ap.notice(f"provider-limit-alerts: episode gate 2 query failed for {provider} (rc={rc}): "
+                  f"{row!r} — opening {kind} anyway")
+        return False
+    if not row:
+        return False
+    try:
+        inc_id, ev_txt, att_txt = row.split(ap.SEP)[:3]
+        ev = json.loads(ev_txt)
+        attempts = json.loads(att_txt)
+        same = (
+            ev.get("free_limit") == lim and ev.get("limit_type") == lt
+            and ev.get("remaining_calls") == remaining_count
+            and ev.get("burn_per_hour") == 0
+            and burn_per_hour is not None and burn_per_hour == 0
+            and any(isinstance(a, dict) and a.get("action") == "resolve-request" for a in attempts)
+        )
+    except Exception as e:
+        ap.notice(f"provider-limit-alerts: episode gate 2 could not parse prior {kind} row for "
+                  f"{provider}: {e} — opening anyway")
+        return False
+    if not same:
+        return False
+    ap.notice_dedup(
+        inc_id, "QUOTA_SAME_EPISODE",
+        f"молчу: {kind} {provider} — unchanged since INC-{ap.short_id(inc_id)} resolved "
+        f"(remaining {remaining_count}/{lim}, burn 0, fleet verdict recorded), same episode, "
+        f"not reopening (F2) [QUOTA_SAME_EPISODE]")
+    return True
+
+
 def open_quota_incident(provider, risk, pct_remaining, remaining_count, burn_per_hour, eta_hours, lim, lt, used):
     kind = QUOTA_INCIDENT_KIND[risk]
+    if quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, lt):
+        return
     eta_str = f"{eta_hours:.1f}h" if eta_hours is not None else "неизвестно (burn=0 сейчас)"
     evidence = {
         "risk": risk, "pct_remaining": pct_remaining, "remaining_calls": remaining_count,
@@ -1213,6 +1283,11 @@ def main():
         lim = int(c.get("free_limit") or 0)
         if lt not in WINDOW or lim <= 0:
             continue
+        if c.get("retired"):
+            ap.notice_dedup(f"retired:{prov}", "RETIRED_SKIP",
+                            f"молчу: provider-limit-alerts {prov} — retired in provider-limits.json, "
+                            f"skipping risk write/probe_log/incident/GH issue (T-0237 gate 3)")
+            continue
         finite_providers += 1
 
         if usage is None:
@@ -1613,6 +1688,7 @@ def selftest_db():
         os.environ["AUTOPILOT_PG_CONTAINER"] = name
         os.environ["AUTOPILOT_NOTICES_LOG"] = "/tmp/autopilot-ap5-selftest-notices.log"
         os.environ["AUTOPILOT_OPERATOR_DIR"] = "/tmp/autopilot-ap5-selftest-operator"
+        os.environ["AUTOPILOT_NOTICE_DEDUP_FILE"] = "/tmp/autopilot-ap5-selftest-notice-dedup.json"
         os.environ["AUTOPILOT_HUMAN_DONE_DIR"] = "/tmp/autopilot-ap5-selftest-human-done"
         os.environ["AUTOPILOT_TG_ENV_PATH"] = "/tmp/autopilot-ap5-selftest-tg-env-does-not-exist"
         # AP-9: never let the reliability-score daily marker touch the real
@@ -1709,6 +1785,167 @@ def selftest_db():
         state_row2, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_row2)}")
         assert state_row2 == "OPEN", f"world 4b: NOINFO must NOT advance an OPEN incident, got {state_row2!r}"
         print("world 4b (risk NOINFO does not advance an OPEN QUOTA_* incident): OK")
+
+        # T-0237 worlds (a)-(f): episode gate in open_quota_incident + retired
+        # skip in main(). Fresh provider names so worlds 3/4 rows don't interfere;
+        # the notice-dedup state file is a disposable /tmp path, wiped before each
+        # assertion that expects a line (else a repeat within the hour is suppressed).
+        notices_path = os.environ["AUTOPILOT_NOTICES_LOG"]
+        dedup_path = os.environ["AUTOPILOT_NOTICE_DEDUP_FILE"]
+
+        def _notices():
+            try:
+                return open(notices_path, encoding="utf-8").read()
+            except FileNotFoundError:
+                return ""
+
+        def _reset(prov):
+            ap.psql(f"DELETE FROM incidents WHERE provider = {ap.sql_literal(prov)}")
+            try:
+                os.remove(dedup_path)
+            except FileNotFoundError:
+                pass
+
+        def _seed_resolved(prov, kind="QUOTA_LOW", remaining=5, lim=100, lt="credits", burn=0,
+                           attempts=None, resolved_sql="now()"):
+            ev = {"risk": "CRITICAL", "pct_remaining": remaining, "remaining_calls": remaining,
+                  "free_limit": lim, "limit_type": lt, "used_this_window": lim - remaining,
+                  "burn_per_hour": burn, "exhaustion_eta_hours": None}
+            att = [{"ts": "2026-09-29T00:00:00+00:00", "actor": "fleet", "action": "resolve-request",
+                    "result": "not actionable"}] if attempts is None else attempts
+            ap.psql(
+                "INSERT INTO incidents (dedup_key, provider, kind, severity, state, detected_by, "
+                "evidence, attempts, created_at, resolved_at) VALUES ("
+                f"{ap.sql_literal(ap.dedup_key(kind, prov))}, {ap.sql_literal(prov)}, "
+                f"{ap.sql_literal(kind)}, 'SEV3', 'RESOLVED', 'limits', "
+                f"{ap.sql_literal(json.dumps(ev))}::jsonb, {ap.sql_literal(json.dumps(att))}::jsonb, "
+                f"now() - interval '2 days', {resolved_sql})"
+            )
+
+        def _live_quota(prov):
+            n, _ = ap.psql(f"SELECT count(*) FROM incidents WHERE provider = {ap.sql_literal(prov)} "
+                           f"AND kind = 'QUOTA_LOW' AND state <> 'RESOLVED'")
+            return int(n)
+
+        # (a) no prior row -> opens (world 3 already proved it; re-assert on a fresh provider).
+        _reset("epprov")
+        open_quota_incident("epprov", "CRITICAL", 5, 5, 0.0, None, 100, "credits", 95)
+        assert _live_quota("epprov") == 1, "world (a): no prior row must still open an incident"
+        print("world (a) (no prior RESOLVED row -> opens as before): OK")
+
+        # (b) gate 2 positive: unchanged evidence + fleet verdict -> suppressed, with a notice.
+        _reset("epprov")
+        _seed_resolved("epprov")
+        before = _notices()
+        open_quota_incident("epprov", "CRITICAL", 5, 5, 0.0, None, 100, "credits", 95)
+        assert _live_quota("epprov") == 0, "world (b): same episode must not reopen"
+        gained = _notices()[len(before):]
+        assert "[QUOTA_SAME_EPISODE]" in gained and "epprov" in gained, (
+            f"world (b): suppression must write a notices.log line, gained {gained!r}")
+        print("world (b) (gate 2: same episode -> no incident, notices.log line): OK")
+
+        # (c) gate 2 negatives: each single deviation must open.
+        cases = [
+            ("consumption (remaining 4)", dict(), dict(remaining=4)),
+            ("current burn 2.0", dict(), dict(burn=2.0)),
+            ("prior attempts lack resolve-request", dict(attempts=[{"action": "route"}]), dict()),
+            ("prior free_limit 200", dict(lim=200), dict()),
+            ("monthly, prior resolved last month", dict(lt="monthly",
+                resolved_sql="date_trunc('month', now() at time zone 'UTC') - interval '2 days'"),
+             dict(lt="monthly")),
+        ]
+        for label, seed_kw, call_kw in cases:
+            _reset("epprov")
+            _seed_resolved("epprov", **seed_kw)
+            remaining = call_kw.get("remaining", 5)
+            open_quota_incident("epprov", "CRITICAL", remaining, remaining, call_kw.get("burn", 0.0),
+                                None, 100, call_kw.get("lt", "credits"), 100 - remaining)
+            assert _live_quota("epprov") == 1, f"world (c): {label} must open an incident"
+        # ...and the monthly control: resolved THIS month with unchanged evidence suppresses.
+        _reset("epprov")
+        _seed_resolved("epprov", lt="monthly")
+        open_quota_incident("epprov", "CRITICAL", 5, 5, 0.0, None, 100, "monthly", 95)
+        assert _live_quota("epprov") == 0, "world (c): monthly resolved in-window with same evidence must suppress"
+        print("world (c) (gate 2 negatives: consumption / burn / no verdict / limit / stale window all open): OK")
+
+        # (d) gate 1: live PAYMENT_REQUIRED -> no QUOTA_LOW; RESOLVED -> opens.
+        _reset("epprov")
+        ap.psql(
+            "INSERT INTO incidents (dedup_key, provider, kind, severity, state, detected_by, evidence) "
+            "VALUES ('PAYMENT_REQUIRED:epprov', 'epprov', 'PAYMENT_REQUIRED', 'SEV1', 'WAITING_HUMAN', "
+            "'limits', '{}'::jsonb)"
+        )
+        before = _notices()
+        open_quota_incident("epprov", "CRITICAL", 5, 5, 0.0, None, 100, "credits", 95)
+        assert _live_quota("epprov") == 0, "world (d): live PAYMENT_REQUIRED must suppress QUOTA_LOW"
+        assert "[QUOTA_MONEY_ASKED]" in _notices()[len(before):], (
+            "world (d): gate 1 suppression must write a notices.log line")
+        ap.psql("UPDATE incidents SET state = 'RESOLVED', resolved_at = now() "
+                "WHERE provider = 'epprov' AND kind = 'PAYMENT_REQUIRED'")
+        open_quota_incident("epprov", "CRITICAL", 5, 5, 0.0, None, 100, "credits", 95)
+        assert _live_quota("epprov") == 1, "world (d): RESOLVED PAYMENT_REQUIRED must not suppress"
+        print("world (d) (gate 1: live PAYMENT_REQUIRED suppresses, RESOLVED does not): OK")
+
+        # (f) failing psql in gate 1 / gate 2 query -> opens anyway, with a notice.
+        real_psql = ap.psql
+        for label, marker in (("gate 1", "AND kind = 'PAYMENT_REQUIRED'"),
+                              ("gate 2", "ORDER BY resolved_at DESC LIMIT 1")):
+            _reset("epprov")
+            if label == "gate 2":
+                _seed_resolved("epprov")  # would suppress via gate 2 if its query worked
+            ap.psql = lambda sql, *a, _m=marker, **k: ("boom", 1) if _m in sql else real_psql(sql, *a, **k)
+            before = _notices()
+            try:
+                open_quota_incident("epprov", "CRITICAL", 5, 5, 0.0, None, 100, "credits", 95)
+            finally:
+                ap.psql = real_psql
+            assert _live_quota("epprov") == 1, f"world (f): {label} query failure must fall through to opening"
+            assert f"episode {label} query failed" in _notices()[len(before):], (
+                f"world (f): {label} failure must leave a plain notice")
+        print("world (f) (failing psql in gate 1 / gate 2 -> opens, with notice): OK")
+
+        # (e) gate 3: retired provider -> no provider_status change, no probe_log row, no incident;
+        # control run with retired removed does all three. main() reads ROOT/src/config/...
+        import tempfile, types
+        tmp_root = tempfile.mkdtemp(prefix="ap5-t0237-")
+        os.makedirs(f"{tmp_root}/src/config")
+        ap.psql("INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                "probe_interval_s) VALUES ('retprov', 'HEALTHY', now(), now(), 3600)")
+        ap.psql("INSERT INTO tools (tool_id, provider) VALUES ('retprov.t1', 'retprov')")
+        ap.psql("INSERT INTO execution_ledger (tool_id, provider_called, status) "
+                "SELECT 'retprov.t1', true, 'success' FROM generate_series(1, 95)")
+        g = globals()
+        saved = {k: g[k] for k in ("ROOT", "gh", "check_billing_cap_risk", "check_auto_recharge_spend",
+                                   "check_uncapped_billing_recovery")}
+        g["gh"] = lambda *a, **k: types.SimpleNamespace(stdout="[]", stderr="", returncode=0)
+        for fn in ("check_billing_cap_risk", "check_auto_recharge_spend", "check_uncapped_billing_recovery"):
+            g[fn] = lambda *a, **k: None
+        g["ROOT"] = tmp_root
+        def _snap():
+            r, _ = ap.psql("SELECT risk, coalesce(pct_remaining::text,'-') FROM provider_status WHERE provider = 'retprov'")
+            pl, _ = ap.psql("SELECT count(*) FROM probe_log WHERE provider = 'retprov'")
+            inc, _ = ap.psql("SELECT count(*) FROM incidents WHERE provider = 'retprov'")
+            return r, pl, inc
+        try:
+            base = _snap()
+            for retired, expect_change in ((True, False), (False, True)):
+                _reset("retprov")
+                json.dump({"retprov": {"limit_type": "credits", "free_limit": 100, "display_name": "Ret",
+                                       **({"retired": True} if retired else {})}},
+                          open(f"{tmp_root}/src/config/provider-limits.json", "w"))
+                before_e = _notices()
+                main()
+                after = _snap()
+                if expect_change:
+                    assert after[0] != base[0] and int(after[1]) == 1 and int(after[2]) == 1, (
+                        f"world (e): control (not retired) must write risk+probe_log+incident, got {after}")
+                else:
+                    assert after == base, f"world (e): retired provider must be untouched, got {after} vs {base}"
+                    assert "retired in provider-limits.json" in _notices()[len(before_e):], (
+                        "world (e): skip must leave a notice")
+        finally:
+            g.update(saved)
+        print("world (e) (gate 3: retired -> no risk write/probe_log/incident; control does all three): OK")
 
         # probe_log rows must respect the CHECK constraints (real schema, not
         # a mock) — insert failures would have already raised a notice above;
