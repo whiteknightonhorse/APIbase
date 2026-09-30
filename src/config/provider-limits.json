@@ -3754,6 +3754,9 @@
     "reset_period": "none",
     "docs_url": "https://github.com/datosgobar/series-tiempo-ar-api",
     "limit_proof": "Argentine government open-data statistics API, no API key. No rate-limit headers or documented quota found in API responses or upstream docs.",
+    "probe": {
+      "timeout_ms": 15000
+    },
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
