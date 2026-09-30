@@ -238,7 +238,11 @@ export class GebcoAdapter extends BaseAdapter {
       } catch (error) {
         const err = error as { code?: string };
         lastError = error;
-        if (err.code === ProviderErrorCode.UNAVAILABLE) {
+        const isRetryable =
+          err.code === ProviderErrorCode.UNAVAILABLE ||
+          err.code === ProviderErrorCode.TIMEOUT ||
+          !err.code;
+        if (isRetryable && attempt < this.maxRetries) {
           continue;
         }
         throw error;
