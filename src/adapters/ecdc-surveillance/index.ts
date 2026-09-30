@@ -1,3 +1,4 @@
+import https from 'https';
 import { BaseAdapter } from '../base.adapter';
 import {
   type ProviderRequest,
@@ -29,6 +30,9 @@ const DATA_RANGE_NOTE =
  * full file then filters server-side by country/year_week, mirroring the OFAC adapter's
  * fetch-full-then-filter pattern. Datasets are frozen (Last-Modified: 2023-12-01) — long
  * cache_ttl in tool_provider_config.yaml is appropriate.
+ *
+ * T-9642: ECDC server has a TLS 1.3 bug (ERR_SSL_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
+ * workaround by forcing TLS 1.2 for all requests to this provider.
  */
 export class EcdcSurveillanceAdapter extends BaseAdapter {
   constructor() {
@@ -37,6 +41,12 @@ export class EcdcSurveillanceAdapter extends BaseAdapter {
       baseUrl: 'https://opendata.ecdc.europa.eu',
       timeoutMs: 15_000,
       maxResponseBytes: 6_500_000,
+    });
+  }
+
+  protected getHttpsAgent(): https.Agent {
+    return new https.Agent({
+      maxVersion: 'TLSv1.2',
     });
   }
 

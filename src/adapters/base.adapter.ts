@@ -1,3 +1,4 @@
+import https from 'https';
 import { logger } from '../config/logger';
 import {
   type AdapterConfig,
@@ -112,6 +113,14 @@ export abstract class BaseAdapter {
   }
 
   /**
+   * Optional per-adapter HTTPS agent for TLS/SSL configuration.
+   * Returns undefined to use the default fetch behavior.
+   */
+  protected getHttpsAgent(): https.Agent | undefined {
+    return undefined;
+  }
+
+  /**
    * Execute a provider call with timeout, retries, and size enforcement.
    * Returns either a ProviderRawResponse or throws a structured ProviderError.
    *
@@ -195,12 +204,17 @@ export abstract class BaseAdapter {
   ): Promise<ProviderRawResponse> {
     let response: Response;
     try {
-      response = await fetch(built.url, {
+      const fetchOptions: RequestInit & { agent?: https.Agent } = {
         method: built.method,
         headers: built.headers,
         body: built.body,
         signal: AbortSignal.timeout(this.timeoutMs),
-      });
+      };
+      const agent = this.getHttpsAgent();
+      if (agent) {
+        fetchOptions.agent = agent;
+      }
+      response = await fetch(built.url, fetchOptions);
     } catch (error) {
       throw classifyTransportError(error, this.provider, req.toolId, start, this.timeoutMs);
     }
