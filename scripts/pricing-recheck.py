@@ -1,95 +1,38 @@
 #!/usr/bin/env python3
-"""pricing-recheck.py — T-0160 (FT-7 of T-0155's Fleet task list, §5): monthly
-deterministic diff-check of each provider's pricing/limits source, writing
-provider_status.pricing_checked_at / pricing_source on EVERY run (baseline
-fill, and "checked, no source configured" both count as checked — never
-silently null after a real run, same posture reliability_calculated_at,
-migration 0018, already takes for reliability_score) and escalating via a
-WAITING_HUMAN UNKNOWN incident ONLY when the fetched page's content hash
-differs from the prior successful check.
+"""pricing-recheck.py — monthly check that the numbers provider-limits.json
+depends on are still stated on the provider's public page.
 
-Explicitly NOT built here (⛔ FT-7 boundary, 01-law-never-sell-below-cost
-ruling-1 point D): no price or price_floor_usd write, ever — this script is
-read-only against every provider and every tool. No model call anywhere in
-this file — "does this normalized-text hash match the last one" is the
-entire judgment call (task's own rule: "код, а не модель"), same C0.1 "не
-изобретай новую кассу" posture as provider-limit-alerts.py's own
-reliability-score marker file. The hash is taken over `normalize_body()`'s
-output (visible text only — scripts/styles/comments/tags stripped), not the
-raw response bytes: a raw-byte hash was unstable across back-to-back fetches
-of the SAME unchanged page for ~23% of providers (Cloudflare nonce/RUM
-tokens embedded in markup on every request — attempt-1 review, ruling-1),
-which would have opened false WAITING_HUMAN incidents every month.
+T-0243 redesign (PRICING-RECHECK-FLOOD-1001 ruling-1). T-0160 hashed the whole
+visible text of `docs_url` and escalated on any change: 73 false incidents on
+2026-10-01, because a docs page drifts month to month by design and 45 of the
+73 providers have no number in config to compare at all. This version compares
+CONFIG NUMBERS, not page text:
 
-Baseline hash state lives in a local JSON file (HASH_STATE_PATH below), not a
-DB column/table — the column pair this task adds is WHEN/WHERE a check
-happened, never a diffable payload, so it has nowhere to durably store
-yesterday's hash without inventing an unasked-for table for that alone.
-`pricing_source` (the DB column) is what a human reads; the hash file is
-purely this script's own working state.
+  * expected tokens per provider come from config only: `free_limit` (when > 0,
+    and not just the cents form of a `$` amount in limit_proof), every `$`
+    amount in `limit_proof`, plus optional `pricing_tokens`;
+  * number matching is value-based: 10000 == 10,000 == "10 000" == 10k;
+  * no tokens -> `not_priced:<url>`, no fetch; `pricing_check: "manual"` ->
+    `manual:<url>`, no fetch; optional `pricing_url` wins over `docs_url`;
+  * every distinct URL is fetched once per run (retry up to 3x on failure only);
+  * all tokens present            -> verified (`<url>`), tokens + sha + normalized
+    text stored under {TASKLOOP_ROOT}/state/pricing-recheck/<provider>.{json,txt};
+  * token missing, prior state    -> `changed:<url>`, UNKNOWN incident whose
+    evidence lists missing/present tokens, config values and a 120-char snippet
+    from last month's stored text where each missing token used to stand;
+  * token missing, no prior state -> `unverifiable:<url>`, no incident;
+  * fetch failure                 -> `fetch_failed:<status>:<url>`, state untouched;
+  * flood guard: more than MAX_ESCALATIONS_PER_RUN changed -> zero per-provider
+    incidents and ONE incident for provider `pricing-recheck`.
 
-Run monthly via cron (0 5 1 * *) against apibase-postgres-1 (autopilot_common's
-own default PG_CONTAINER) — NOT apibase-orchestra-postgres-1, a different
-database entirely.
+Boundary (FT-7 / never-sell-below-cost): read-only against every provider and
+tool, no price or price_floor_usd write, no model call. The old hash file
+(state/pricing-recheck-hashes.json) is ignored.
 
-Two fixes from ruling-2 (live re-check of attempt-2's normalized-hash fix):
-
-1. Redirect following. `urllib.request.HTTPRedirectHandler` follows 301/302/
-   303/307 but NOT 308 (Permanent Redirect) — a stdlib gap, not a network
-   failure. 10 of 77 attempt-2 `fetch_failed` providers, several paid, were
-   pure 308s that `curl -L` resolves fine. `_Opener308` below overrides
-   `redirect_request()` to remap a 308 to 307 before deferring to the
-   stdlib implementation — see its own docstring for why aliasing just
-   `http_error_308` alone does not work.
-
-2. Vote every fetch, not just a post-baseline mismatch. attempt-2 treated a
-   brand-new provider's FIRST successful fetch as ground truth outright —
-   but a handful of pages (celestrak request counters, rotating "you may
-   also like" widgets) carry per-request noise IN THE VISIBLE TEXT itself,
-   which normalize_body cannot and should not strip (it's real page content,
-   not markup). For those pages no single fetch is representative, baseline
-   or otherwise, and a naive first-fetch baseline would either (a) never
-   match again, escalating every month on pure noise, or worse (b) happen to
-   coincidentally re-match sometimes, masking a REAL price change as "just
-   more noise" forever. fetch_hash_voted below refetches every provider up
-   to 3x and requires 2-of-3 agreement before treating any hash as
-   trustworthy — for baseline establishment same as for a later mismatch,
-   both now go through the identical vote. A page that never reaches 2-of-3
-   agreement is written to `pricing_source` as `unstable:<url>`, distinct
-   from a plain successful `<url>`, precisely so the DB does not claim a
-   verified check happened where the page's own noise made verification
-   impossible — and the run's summary line reports how many providers
-   landed there, so this doesn't silently point-solve itself away in
-   `WHERE pricing_source NOT LIKE 'fetch_failed:%'` reporting that a human
-   might later write assuming a bare URL always means "checked clean". A
-   provider that only *sometimes* lands here (e.g. it's a busy page that
-   just happened to be volatile this particular month) is coded correctly:
-   `unstable:` for that month, but its OLD known-hash baseline is left
-   untouched (see write-phase comment) so a later stable month can still
-   compare fresh against the same trusted value instead of drifting.
-
-3. Strip per-second wall-clock noise from visible text, don't rely on the
-   vote to catch it (ruling-3, live re-check of attempt-4's quorum fix).
-   attempt-4's own knowledge notes wrongly generalized worms/hunter into the
-   same "quorum catches it" bucket as celestrak/email_verify/rateapi above —
-   but a per-REQUEST noise source (a counter, a shuffled widget) differs
-   between fetches essentially always, so 2 of any 3 sequential fetches
-   reliably land on the SAME accidental non-match and correctly fall to
-   `unstable:`. A per-SECOND noise source (worms' rendered "HH:MM:SS+02:00"
-   server time; hunter.io's embedded API-example JSON with a live
-   `"made_at": "<ISO-8601>Z"`) is different in kind: three fetches issued
-   back-to-back by fetch_hash_voted typically complete within the same
-   wall-clock second, so all three hashes accidentally AGREE, the vote
-   passes 3-of-3, and the page gets written to `pricing_source` as a plain
-   verified `<url>` with a baseline hash containing that second's digits
-   baked in. The very next monthly run lands on a different second, the
-   hash no longer matches, and a false "pricing changed" WAITING_HUMAN opens
-   — indefinitely, once a month, forever, and a REAL change on a paid
-   provider like hunter.io would be indistinguishable from this noise.
-   Spacing the vote's fetches apart in time would work too, but costs wall-
-   clock on every run for every provider; stripping the timestamp text
-   itself (_TIME_OFFSET_RE, _ISO_DATETIME_RE above) is free and handles any
-   provider with this pattern, not just the two caught live so far.
+Modes: `--dry-run` = full fetch + report, no DB write / incident / state write;
+`--selftest` = fixtures only, no network, no DB. Report:
+logs/pricing-recheck-<date>.md. Scheduled monthly (day 1, 05:00) against
+apibase-postgres-1 (autopilot_common's PG_CONTAINER).
 """
 import hashlib
 import json
@@ -98,63 +41,29 @@ import re
 import sys
 import urllib.error
 import urllib.request
-from collections import Counter
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
+from decimal import Decimal, InvalidOperation
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
 import autopilot_common as ap  # noqa: E402
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROVIDER_LIMITS_PATH = os.path.join(REPO_ROOT, "src/config/provider-limits.json")
-HASH_STATE_PATH = os.environ.get(
-    "PRICING_RECHECK_HASH_STATE",
-    f"{ap.TASKLOOP_ROOT}/state/pricing-recheck-hashes.json",
-)
+STATE_DIR = os.environ.get("PRICING_RECHECK_STATE_DIR", f"{ap.TASKLOOP_ROOT}/state/pricing-recheck")
+LOG_DIR = os.environ.get("PRICING_RECHECK_LOG_DIR", os.path.join(REPO_ROOT, "logs"))
 FETCH_TIMEOUT_S = 15
-FETCH_CONCURRENCY = 20  # network-bound, independent per-provider GETs, no
-# shared mutable state during the fetch phase itself (results collected into
-# a plain dict below) — bounds a ~400-provider baseline run to roughly
-# (providers / concurrency) * worst-case timeout instead of their sum.
+FETCH_CONCURRENCY = 20
+FETCH_ATTEMPTS = 3
+MAX_ESCALATIONS_PER_RUN = 8
+SNIPPET_CHARS = 120
 NO_SOURCE = "no_docs_url_configured"
-FETCH_FAILED_PREFIX = "fetch_failed:"
-UNSTABLE_PREFIX = "unstable:"
+CLASSES = ("verified", "changed", "unverifiable", "fetch_failed", "not_priced", "manual")
 
 
 def load_provider_config():
     with open(PROVIDER_LIMITS_PATH) as f:
         return json.load(f)
-
-
-MAX_KNOWN_HASHES = 5  # cap per-provider history — a page that only ever
-# flips between a small, stable set of backend variants (see lmpr below)
-# settles here quickly; unbounded growth would itself be a signal something
-# is wrong, so old entries are dropped once a provider exceeds this.
-
-
-def load_hash_state():
-    """Each provider maps to a LIST of known-good hashes (most-recent-last),
-    not a single value — a page can legitimately alternate between a small,
-    fixed set of stable renderings (e.g. lmpr/USDA's mpr.datamart.ams.usda.gov
-    prints a literal "Data Mart Instance #1" vs "#2" depending which
-    load-balanced backend answers — real visible text, not markup noise
-    normalize_body can strip). Once both states have been independently
-    confirmed once, neither ever re-triggers escalation; only a hash outside
-    this known set does. Transparently upgrades a pre-existing single-string
-    baseline file (attempt-1's schema) to a one-element list."""
-    try:
-        with open(HASH_STATE_PATH) as f:
-            raw = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
-    return {p: ([h] if isinstance(h, str) else h) for p, h in raw.items()}
-
-
-def save_hash_state(state):
-    os.makedirs(os.path.dirname(HASH_STATE_PATH), exist_ok=True)
-    tmp = HASH_STATE_PATH + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(state, f, indent=2, sort_keys=True)
-    os.replace(tmp, HASH_STATE_PATH)
 
 
 _SCRIPT_OR_STYLE_RE = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.IGNORECASE | re.DOTALL)
@@ -249,38 +158,192 @@ class _Opener308(urllib.request.HTTPRedirectHandler):
 _OPENER = urllib.request.build_opener(_Opener308)
 
 
-def fetch_hash(url):
-    """sha256 hex digest of the fetched body's normalized visible text, or
-    None on ANY failure (network, timeout, non-2xx, bad url) — None means
-    "couldn't check this pass", never a fabricated hash that would silently
-    read as "changed" on the next run that succeeds."""
+
+
+def fetch_text(url):
+    """(normalized_text, None) on success, (None, status) on failure, where
+    status is the HTTP code or 'error'. Never raises."""
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "APIbase-pricing-recheck/1.0"})
         with _OPENER.open(req, timeout=FETCH_TIMEOUT_S) as resp:
             body = resp.read()
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError, ValueError):
+    except urllib.error.HTTPError as e:
+        return None, str(e.code)
+    except (urllib.error.URLError, OSError, ValueError):
+        return None, "error"
+    return normalize_body(body), None
+
+
+def fetch_with_retry(url):
+    status = "error"
+    for _ in range(FETCH_ATTEMPTS):
+        text, status = fetch_text(url)
+        if text is not None:
+            return text, None
+    return None, status
+
+
+# ---- number tokens ---------------------------------------------------------
+
+_GROUPED_RE = re.compile(r"\d{1,3}(?:[,\s]\d{3})+(?:\.\d+)?(?!\d)")
+_PLAIN_RE = re.compile(r"\d+(?:\.\d+)?")
+_SUFFIX_MULT = {"k": 1000, "m": 1000000}
+_WORD_MULT_RE = re.compile(r"\s?(thousand|million)\b", re.IGNORECASE)
+_WORD_MULT = {"thousand": 1000, "million": 1000000}
+_CURRENCY_RE = re.compile(r"\$\s?(\d[\d,]*(?:\.\d+)?)")
+
+
+def _canon(d):
+    return format(d.normalize(), "f")
+
+
+def _num_matches(text):
+    """Yield (start, end, canonical value) for every number in text: plain
+    digits and grouped digits ("10,000" / "10 000"), each also with a k/m
+    suffix. Plain pieces of a grouped number are yielded as well."""
+    for rx in (_GROUPED_RE, _PLAIN_RE):
+        for m in rx.finditer(text):
+            try:
+                val = Decimal(re.sub(r"[,\s]", "", m.group(0)))
+            except InvalidOperation:
+                continue
+            yield m.start(), m.end(), _canon(val)
+            word = _WORD_MULT_RE.match(text, m.end())
+            if word:
+                yield m.start(), word.end(), _canon(val * _WORD_MULT[word.group(1).lower()])
+            suffix = text[m.end():m.end() + 1].lower()
+            if suffix in _SUFFIX_MULT and not text[m.end() + 1:m.end() + 2].isalnum():
+                yield m.start(), m.end() + 1, _canon(val * _SUFFIX_MULT[suffix])
+
+
+def page_numbers(text):
+    return {v for _, _, v in _num_matches(text)}
+
+
+def token_value(tok):
+    try:
+        return _canon(Decimal(str(tok).replace(",", "").lstrip("$").strip()))
+    except InvalidOperation:
         return None
-    return hashlib.sha256(normalize_body(body).encode("utf-8")).hexdigest()
 
 
-def fetch_hash_voted(url):
-    """Fetch up to 3 times and return (hash, stable). `stable` is True only
-    if some hash value was seen at least twice across the (up to) 3 fetches
-    — the same 2-of-3 vote attempt-2 already used for a post-baseline
-    mismatch, now run for EVERY provider on EVERY pass, baseline included
-    (ruling-2: a first-ever fetch is not inherently more trustworthy than a
-    later one; the page's own noise doesn't care which month it is).
-    Returns (None, False) if every fetch failed."""
-    counts = Counter()
-    for _ in range(3):
-        h = fetch_hash(url)
-        if h is not None:
-            counts[h] += 1
-    if not counts:
-        return None, False
-    hash_val, freq = counts.most_common(1)[0]
-    return hash_val, freq >= 2
+def currency_amounts(proof):
+    out = []
+    for m in _CURRENCY_RE.finditer(proof or ""):
+        v = token_value(m.group(1))
+        if v is not None and v != "0" and v not in out:  # "$0" is not a number to verify
+            out.append(v)
+    return out
 
+
+def expected_tokens(cfg):
+    """Canonical number strings the config depends on, in stable order."""
+    amounts = currency_amounts(cfg.get("limit_proof"))
+    toks = []
+    fl = cfg.get("free_limit") or 0
+    if isinstance(fl, (int, float)) and fl > 0:
+        v = _canon(Decimal(str(fl)))
+        # credits stored in cents (twilio 1550 == $15.50): the page states the
+        # dollar amount, which is already a token via limit_proof
+        if not any(_canon(Decimal(a) * 100) == v for a in amounts):
+            toks.append(v)
+    toks.extend(amounts)
+    for t in cfg.get("pricing_tokens") or []:
+        v = token_value(t)
+        if v is not None:
+            toks.append(v)
+    return list(dict.fromkeys(toks))
+
+
+def snippet_for(old_text, token):
+    for s, _e, v in _num_matches(old_text or ""):
+        if v == token:
+            a = max(0, s - SNIPPET_CHARS // 2)
+            return old_text[a:a + SNIPPET_CHARS]
+    return None
+
+
+# ---- state -----------------------------------------------------------------
+
+def load_state(provider, state_dir):
+    try:
+        with open(os.path.join(state_dir, f"{provider}.json")) as f:
+            st = json.load(f)
+        with open(os.path.join(state_dir, f"{provider}.txt")) as f:
+            st["text"] = f.read()
+        return st
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+
+def save_state(provider, state_dir, tokens, text):
+    os.makedirs(state_dir, exist_ok=True)
+    meta = {"tokens": tokens, "sha256": hashlib.sha256(text.encode()).hexdigest(),
+            "checked_at": ap.now_iso()}
+    for name, content in ((f"{provider}.txt", text), (f"{provider}.json", json.dumps(meta, indent=2))):
+        path = os.path.join(state_dir, name)
+        with open(path + ".tmp", "w") as f:
+            f.write(content)
+        os.replace(path + ".tmp", path)
+
+
+# ---- classification --------------------------------------------------------
+
+def target_url(cfg):
+    return cfg.get("pricing_url") or cfg.get("docs_url")
+
+
+def pre_class(cfg):
+    """Class decidable without a fetch, else None."""
+    url = target_url(cfg)
+    if cfg.get("pricing_check") == "manual":
+        return {"cls": "manual", "source": f"manual:{url}", "url": url}
+    if not expected_tokens(cfg):
+        return {"cls": "not_priced", "source": f"not_priced:{url or 'none'}", "url": url}
+    if not url:
+        return {"cls": "fetch_failed", "source": NO_SOURCE, "url": None, "status": "no_url"}
+    return None
+
+
+def classify(provider, cfg, fetched, state_dir):
+    """fetched: {url: (text, status)}. Pure apart from reading prior state."""
+    pre = pre_class(cfg)
+    if pre:
+        return pre
+    url = target_url(cfg)
+    tokens = expected_tokens(cfg)
+    text, status = fetched.get(url, (None, "error"))
+    if text is None:
+        return {"cls": "fetch_failed", "source": f"fetch_failed:{status}:{url}", "url": url, "status": status}
+    have = page_numbers(text)
+    present = [t for t in tokens if t in have]
+    missing = [t for t in tokens if t not in have]
+    res = {"url": url, "tokens": tokens, "present": present, "missing": missing, "text": text}
+    if not missing:
+        res.update(cls="verified", source=url)
+        return res
+    prior = load_state(provider, state_dir)
+    if prior is None:
+        res.update(cls="unverifiable", source=f"unverifiable:{url}")
+        return res
+    res.update(cls="changed", source=f"changed:{url}",
+               snippets={t: snippet_for(prior.get("text"), t) for t in missing},
+               config={"free_limit": cfg.get("free_limit"), "limit_proof": cfg.get("limit_proof"),
+                       "pricing_tokens": cfg.get("pricing_tokens")})
+    return res
+
+
+def run_checks(providers, config, state_dir, fetch=None):
+    """Fetch each distinct needed URL once, classify every provider."""
+    fetch = fetch or fetch_with_retry
+    urls = sorted({target_url(config.get(p) or {}) for p in providers
+                   if pre_class(config.get(p) or {}) is None})
+    with ThreadPoolExecutor(max_workers=FETCH_CONCURRENCY) as pool:
+        fetched = dict(zip(urls, pool.map(fetch, urls)))
+    return {p: classify(p, config.get(p) or {}, fetched, state_dir) for p in providers}
+
+
+# ---- side effects ----------------------------------------------------------
 
 def list_providers_in_status():
     out, rc = ap.psql("SELECT provider FROM provider_status ORDER BY provider")
@@ -301,104 +364,201 @@ def update_pricing_checked(provider, source):
     return True
 
 
-def escalate_pricing_changed(provider, url, old_hash, new_hash):
-    """A changed hash is evidence a human should look, never itself a reason
-    to touch price/price_floor_usd — this function only opens the ask."""
+_SYSTEM_DID = ("детерминированная сверка чисел из provider-limits.json со страницей (pricing-recheck.py, "
+               "FT-7, T-0243) — модель не вызывалась, цена/price_floor_usd не менялись")
+
+
+def _open(provider, evidence, what):
     try:
-        ap.open_or_merge_incident(
-            kind="UNKNOWN", provider=provider, detected_by="limits", actor="pricing-recheck",
-            evidence={"url": url, "prior_hash": old_hash, "new_hash": new_hash,
-                      "detected_at": ap.now_iso()},
-            what=(f"{provider}: содержимое источника pricing/limits изменилось с прошлой "
-                  f"месячной проверки ({url}) — sha256 {old_hash[:12]}... -> {new_hash[:12]}... . "
-                  f"Нужна ручная сверка цены/лимитов в provider-limits.json против живой страницы."),
-            system_did="детерминированный diff по sha256 тела ответа (pricing-recheck.py, FT-7) — "
-                       "модель не вызывалась и цена/price_floor_usd не менялись, решение принял "
-                       "только факт несовпадения хэша с прошлым успешным прогоном",
-        )
+        ap.open_or_merge_incident(kind="UNKNOWN", provider=provider, detected_by="limits",
+                                  actor="pricing-recheck", evidence=evidence, what=what,
+                                  system_did=_SYSTEM_DID)
     except (AssertionError, RuntimeError) as e:
-        ap.notice(f"pricing-recheck: failed to open pricing-changed incident for {provider}: {e}")
+        ap.notice(f"pricing-recheck: failed to open incident for {provider}: {e}")
 
 
-def main():
+def escalate_changed(provider, res):
+    ev = {"url": res["url"], "missing_tokens": res["missing"], "present_tokens": res["present"],
+          "config": res["config"], "snippets_from_last_month": res["snippets"],
+          "detected_at": ap.now_iso()}
+    _open(provider, ev,
+          f"{provider}: на странице {res['url']} больше нет чисел из конфига: {', '.join(res['missing'])}. "
+          f"Сверить лимиты/цену в provider-limits.json с живой страницей (фрагменты прошлого месяца в evidence).")
+
+
+def escalate_summary(changed, report_path):
+    ev = {"changed": {p: r["missing"] for p, r in changed.items()}, "report": report_path,
+          "detected_at": ap.now_iso()}
+    _open("pricing-recheck", ev,
+          f"pricing-recheck: {len(changed)} провайдеров одновременно потеряли числа из конфига "
+          f"(> {MAX_ESCALATIONS_PER_RUN}) — вероятен дефект проверки, а не реальные изменения цен. "
+          f"Полный список: {report_path}")
+
+
+def apply_escalations(results, report_path, one=None, summary=None):
+    """Flood guard. Returns number of incidents opened."""
+    one, summary = one or escalate_changed, summary or escalate_summary
+    changed = {p: r for p, r in results.items() if r["cls"] == "changed"}
+    if not changed:
+        return 0
+    if len(changed) > MAX_ESCALATIONS_PER_RUN:
+        summary(changed, report_path)
+        return 1
+    for p, r in changed.items():
+        one(p, r)
+    return len(changed)
+
+
+def write_report(results, path, dry_run):
+    by = {c: sorted(p for p, r in results.items() if r["cls"] == c) for c in CLASSES}
+    lines = [f"# pricing-recheck {datetime.now(timezone.utc).strftime('%Y-%m-%d')}"
+             + (" (dry-run)" if dry_run else ""), "",
+             "Summary: " + ", ".join(f"{c}={len(by[c])}" for c in CLASSES), ""]
+    for c in CLASSES:
+        lines.append(f"## {c} ({len(by[c])})")
+        if c == "fetch_failed":
+            groups = {}
+            for p in by[c]:
+                groups.setdefault(str(results[p].get("status")), []).append(p)
+            for st in sorted(groups):
+                lines.append(f"### status {st}")
+                lines += [f"- {p} {results[p]['url']}" for p in groups[st]]
+        else:
+            for p in by[c]:
+                r = results[p]
+                extra = ""
+                if c in ("verified", "unverifiable", "changed"):
+                    extra = f" tokens={r['tokens']} present={r['present']} missing={r['missing']}"
+                if c == "unverifiable":
+                    extra += " reason=config numbers absent from page, no baseline to compare"
+                if c == "changed":
+                    extra += f" snippets={json.dumps(r['snippets'], ensure_ascii=False)}"
+                lines.append(f"- {p} {r['url']}{extra}")
+        lines.append("")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        f.write("\n".join(lines))
+    return by
+
+
+def summary_line(results, total):
+    n = {c: sum(1 for r in results.values() if r["cls"] == c) for c in CLASSES}
+    return f"pricing-recheck: {len(results)}/{total} providers " + ", ".join(f"{c}={n[c]}" for c in CLASSES)
+
+
+def main(argv):
+    dry_run = "--dry-run" in argv
     config = load_provider_config()
     providers = list_providers_in_status()
-    hash_state = load_hash_state()
-
-    plan = {p: (config.get(p) or {}).get("docs_url") for p in providers}
-    fetch_targets = {p: u for p, u in plan.items() if u}
-
-    # Fetch phase: concurrent, network-only, no DB/incident side effects — a
-    # plain dict collects results as futures complete, so a slow/hung URL
-    # only holds up its own future, never the whole batch. Each task is
-    # fetch_hash_voted (up to 3 sequential fetches of ONE provider's url),
-    # not a single fetch — the vote (ruling-2) applies uniformly to baseline
-    # and re-check alike, so it has to happen before the write phase knows
-    # whether a given provider is "new" or "known".
-    fetched = {}
-    with ThreadPoolExecutor(max_workers=FETCH_CONCURRENCY) as pool:
-        futures = {pool.submit(fetch_hash_voted, url): provider for provider, url in fetch_targets.items()}
-        for future in as_completed(futures):
-            fetched[futures[future]] = future.result()
-
-    checked = 0
+    results = run_checks(providers, config, STATE_DIR)
+    date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    report_path = os.path.join(LOG_DIR, f"pricing-recheck-{date}.md")
+    write_report(results, report_path, dry_run)
     escalated = 0
-    fetch_failures = 0
-    no_source = 0
-    unstable = 0
+    if not dry_run:
+        for p, r in results.items():
+            update_pricing_checked(p, r["source"])
+            if r["cls"] == "verified":
+                save_state(p, STATE_DIR, r["tokens"], r["text"])
+        escalated = apply_escalations(results, report_path)
+    print(summary_line(results, len(providers)) + f", escalated={escalated} report={report_path}"
+          + (" [dry-run]" if dry_run else ""))
 
-    # Write phase: sequential, DB + incident side effects only — all fetching
-    # (including the vote's refetches) already happened above, so this loop
-    # is just bookkeeping and stays fast regardless of network latency.
-    for provider in providers:
-        url = plan[provider]
-        if not url:
-            update_pricing_checked(provider, NO_SOURCE)
-            no_source += 1
-            checked += 1
-            continue
 
-        new_hash, stable = fetched.get(provider, (None, False))
-        if new_hash is None:
-            update_pricing_checked(provider, f"{FETCH_FAILED_PREFIX}{url}")
-            fetch_failures += 1
-            checked += 1
-            continue  # stored hash untouched: a transient fetch failure must
-            # never look like "the page changed" on the next successful run.
+# ---- selftest --------------------------------------------------------------
 
-        if not stable:
-            # No hash reached 2-of-3 agreement: the page's own visible text
-            # carries per-request noise (ruling-2), so nothing fetched this
-            # pass is trustworthy as a diff target. Recorded distinctly from
-            # a plain "<url>" so `pricing_source` never implies a clean
-            # verified check where the page itself made verification
-            # impossible. hash_state is left untouched (not cleared, not
-            # written) so a later stable month still compares against the
-            # last value that WAS trustworthy instead of drifting to noise.
-            update_pricing_checked(provider, f"{UNSTABLE_PREFIX}{url}")
-            unstable += 1
-            checked += 1
-            continue
+def selftest():
+    import tempfile
+    global fetch_text
+    ok = True
 
-        known = hash_state.get(provider, [])
-        if not known:
-            hash_state[provider] = [new_hash]
-        elif new_hash not in known:
-            escalate_pricing_changed(provider, url, known[-1], new_hash)
-            escalated += 1
-            hash_state[provider] = (known + [new_hash])[-MAX_KNOWN_HASHES:]
-        # else: new_hash already a known stable rendering, nothing to update.
+    def check(name, cond):
+        nonlocal ok
+        print(f"{'PASS' if cond else 'FAIL'} {name}")
+        ok = ok and bool(cond)
 
-        update_pricing_checked(provider, url)
-        checked += 1
-        save_hash_state(hash_state)  # flushed per-provider (cheap, ~411 rows
-        # max) so a run interrupted partway never loses already-fetched
-        # baselines — each provider's own DB write + hash write land together.
+    def page(body):
+        return normalize_body(f"<html><body>{body}</body></html>".encode())
 
-    print(f"pricing-recheck: {checked}/{len(providers)} providers checked "
-          f"({no_source} no_docs_url, {fetch_failures} fetch_failed, "
-          f"{unstable} unstable, {escalated} escalated) at {ap.now_iso()}")
+    def fixed(t):
+        return lambda url: (t, None)
+
+    cfg200 = {"limit_type": "monthly", "free_limit": 200, "docs_url": "https://x.test/p",
+              "limit_proof": "Free plan: 200 quota units/month"}
+    with tempfile.TemporaryDirectory() as sd:
+        p1 = page("<h1>Pricing</h1><p>200 quota units/month</p><p>News: 2026-09-01 launch</p>")
+        r = run_checks(["a"], {"a": cfg200}, sd, fetch=fixed(p1))["a"]
+        check("a: 200 quota units/month verifies", r["cls"] == "verified")
+        save_state("a", sd, r["tokens"], r["text"])
+        p2 = page("<h1>Pricing</h1><p>200 quota units/month</p><p>News: 2026-10-01 other story</p>")
+        r = run_checks(["a"], {"a": cfg200}, sd, fetch=fixed(p2))["a"]
+        check("b: changed news paragraph and date still verified", r["cls"] == "verified")
+        r = run_checks(["a"], {"a": cfg200}, sd, fetch=fixed(page("<p>Unlimited quota</p>")))["a"]
+        check("c: number removed -> changed", r["cls"] == "changed" and r["missing"] == ["200"])
+        snip = r["snippets"]["200"] or ""
+        check("c: snippet from last month's text in evidence", "200 quota units" in snip and len(snip) <= SNIPPET_CHARS)
+        before = load_state("a", sd)
+        r = run_checks(["a"], {"a": cfg200}, sd, fetch=lambda u: (None, "403"))["a"]
+        check("i: fetch failure -> fetch_failed:403, prior state intact",
+              r["cls"] == "fetch_failed" and r["source"] == "fetch_failed:403:https://x.test/p"
+              and load_state("a", sd) == before)
+
+    def boom(*a, **k):
+        raise AssertionError("fetch called")
+    cfgu = {"limit_type": "unlimited", "free_limit": 0, "docs_url": "https://u.test", "limit_proof": "No limits"}
+    orig = fetch_text
+    fetch_text = boom
+    try:
+        with tempfile.TemporaryDirectory() as sd:
+            r = run_checks(["u"], {"u": cfgu}, sd)["u"]
+        check("d: unlimited/no amount -> not_priced, fetch never called",
+              r["cls"] == "not_priced" and r["source"] == "not_priced:https://u.test")
+    except AssertionError:
+        check("d: unlimited/no amount -> not_priced, fetch never called", False)
+    finally:
+        fetch_text = orig
+    m = pre_class({"free_limit": 5, "docs_url": "https://m.test", "pricing_check": "manual"})
+    check("manual: no fetch", m["cls"] == "manual" and m["source"] == "manual:https://m.test")
+    check("pricing_url wins over docs_url", target_url({"pricing_url": "P", "docs_url": "D"}) == "P")
+
+    for form in ("10,000", "10 000", "10k", "10000"):
+        check(f"e: 10000 matches {form!r}", "10000" in page_numbers(f"Plan: {form} calls"))
+    check("e: 10000000 matches '10 million'", "10000000" in page_numbers("up to 10 million calls"))
+    check("e: '10 kittens' is not 10k", "10000" not in page_numbers("10 kittens"))
+
+    with tempfile.TemporaryDirectory() as sd:
+        res = run_checks(["a"], {"a": cfg200}, sd, fetch=fixed(page("nothing here")))
+        opened = []
+        n = apply_escalations(res, "rp", one=lambda p, r: opened.append(p), summary=lambda c, rp: opened.append("S"))
+    check("f: no baseline -> unverifiable, no incident", res["a"]["cls"] == "unverifiable" and not opened and n == 0)
+
+    def flood(k):
+        res = {f"p{i}": {"cls": "changed", "missing": ["1"]} for i in range(k)}
+        got = []
+        apply_escalations(res, "rp", one=lambda p, r: got.append(p), summary=lambda c, rp: got.append("SUMMARY"))
+        return got
+    g9, g8 = flood(9), flood(8)
+    check("g: nine -> zero per-provider, one summary", g9 == ["SUMMARY"])
+    check("g: eight -> eight per-provider, no summary", len(g8) == 8 and "SUMMARY" not in g8)
+
+    calls = []
+
+    def counting(u):
+        calls.append(u)
+        return p1, None
+    with tempfile.TemporaryDirectory() as sd:
+        run_checks(["a", "b"], {"a": cfg200, "b": dict(cfg200)}, sd, fetch=counting)
+    check("h: shared url fetched once", calls == ["https://x.test/p"])
+
+    got = currency_amounts("Trial: $15.50 credit. SMS: $0.0083/msg US. Lookup: $0.005/call.")
+    check("j: $0.0083 $15.50 $0.005 extracted", sorted(got) == sorted(["15.5", "0.0083", "0.005"]))
+    check("twilio cents-form free_limit is not a token", "1550" not in expected_tokens(
+        {"free_limit": 1550, "limit_proof": "Trial: $15.50 credit. $0.0083/msg"}))
+    print("SELFTEST " + ("OK" if ok else "FAILED"))
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
-    main()
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    main(sys.argv[1:])
