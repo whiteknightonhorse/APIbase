@@ -9445,3 +9445,33 @@ tools:
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 86400
+  - tool_id: epa-aqs.list_parameters
+    name: EPA AQS Parameters
+    provider: epa-aqs
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+  - tool_id: epa-aqs.list_counties
+    name: EPA AQS Counties
+    provider: epa-aqs
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 86400
+  - tool_id: epa-aqs.monitors
+    name: EPA AQS Monitors
+    provider: epa-aqs
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+  - tool_id: epa-aqs.daily_data
+    name: EPA AQS Daily Air Quality
+    provider: epa-aqs
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+  - tool_id: epa-aqs.annual_data
+    name: EPA AQS Annual Air Quality
+    provider: epa-aqs
+    price_usd: "0.002"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600

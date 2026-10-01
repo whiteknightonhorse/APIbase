@@ -36,6 +36,7 @@ import { SmithsonianAdapter } from './smithsonian';
 import { JplAdapter } from './jpl';
 import { MalaysiaGovAdapter } from './malaysiagov';
 import { CensusMapperAdapter } from './censusmapper';
+import { EpaAqsAdapter } from './epaaqs';
 import { SoilAdapter } from './soil';
 import { RawgAdapter } from './rawg';
 import { IgdbAdapter } from './igdb';
@@ -630,6 +631,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
         | undefined;
       if (!cmKey) return undefined;
       return getOrCreate('censusmapper', () => new CensusMapperAdapter(cmKey));
+    }
+    case 'epa-aqs': {
+      // EPA Air Quality System — email + key query params (UC-800)
+      const aqsKey = (config as Record<string, unknown>).PROVIDER_KEY_EPA_AQS as string | undefined;
+      if (!aqsKey) return undefined;
+      return getOrCreate('epa-aqs', () => new EpaAqsAdapter(aqsKey));
     }
     case 'malaysiagov':
       // Malaysia data.gov.my open API — no auth

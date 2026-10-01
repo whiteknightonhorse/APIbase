@@ -17582,4 +17582,50 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // EPA AQS (5)
+  {
+    toolId: 'epa-aqs.list_parameters',
+    mcpName: 'epa_aqs.air_quality.list_parameters',
+    title: 'EPA AQS Parameters',
+    description:
+      'List EPA Air Quality System parameter codes (pollutants and measurements such as PM2.5 88101, ozone 44201) for a parameter class. Use the codes with the other epa-aqs tools. Source: US EPA AQS.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'epa-aqs.list_counties',
+    mcpName: 'epa_aqs.air_quality.list_counties',
+    title: 'EPA AQS Counties',
+    description:
+      'List the counties of a US state with their FIPS codes as used by the EPA Air Quality System. Source: US EPA AQS.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'epa-aqs.monitors',
+    mcpName: 'epa_aqs.air_quality.get_monitors',
+    title: 'EPA AQS Monitors',
+    description:
+      'List EPA air quality monitoring sites in a US county that measured given pollutant(s) in a date window: site number, location, coordinates, agency, monitoring objective. Source: US EPA AQS.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'epa-aqs.daily_data',
+    mcpName: 'epa_aqs.air_quality.get_daily_data',
+    title: 'EPA AQS Daily Air Quality',
+    description:
+      'Daily summary air quality measurements (e.g. PM2.5, ozone) from EPA monitors in a US county for a date range within one calendar year: arithmetic mean, max value, AQI, site. Source: US EPA AQS.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'epa-aqs.annual_data',
+    mcpName: 'epa_aqs.air_quality.get_annual_data',
+    title: 'EPA AQS Annual Air Quality',
+    description:
+      'Annual summary air quality statistics (mean, percentiles, exceedances, completeness) per EPA monitor in a US county for a calendar year and pollutant(s). Source: US EPA AQS.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];

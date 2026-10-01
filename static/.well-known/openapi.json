@@ -132574,6 +132574,507 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/epa-aqs.list_parameters/call": {
+      "post": {
+        "operationId": "epa-aqs_list_parameters",
+        "summary": "EPA AQS Parameters",
+        "description": "List EPA Air Quality System parameter codes (pollutants and measurements such as PM2.5 88101, ozone 44201) for a parameter class. Use the codes with the other epa-aqs tools. Source: US EPA AQS.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "epa-aqs.list_parameters"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parameter_class": {
+                    "type": "string",
+                    "enum": [
+                      "ALL",
+                      "AQI POLLUTANTS",
+                      "CRITERIA",
+                      "FORECAST",
+                      "HAPS",
+                      "MET",
+                      "NATTS",
+                      "PAMS",
+                      "SPECIATION"
+                    ],
+                    "description": "Parameter class to list (default CRITERIA)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/epa-aqs.list_counties/call": {
+      "post": {
+        "operationId": "epa-aqs_list_counties",
+        "summary": "EPA AQS Counties",
+        "description": "List the counties of a US state with their FIPS codes as used by the EPA Air Quality System. Source: US EPA AQS.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "epa-aqs.list_counties"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "description": "2-digit state FIPS code (e.g. \"06\" California, \"36\" New York)"
+                  }
+                },
+                "required": [
+                  "state"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/epa-aqs.monitors/call": {
+      "post": {
+        "operationId": "epa-aqs_monitors",
+        "summary": "EPA AQS Monitors",
+        "description": "List EPA air quality monitoring sites in a US county that measured given pollutant(s) in a date window: site number, location, coordinates, agency, monitoring objective. Source: US EPA AQS.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "epa-aqs.monitors"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parameter_codes": {
+                    "type": "string",
+                    "description": "AQS parameter code(s), comma-separated, max 5 (e.g. \"88101\" PM2.5, \"44201\" ozone, \"42101\" CO; see epa-aqs.list_parameters)"
+                  },
+                  "begin_date": {
+                    "type": "string",
+                    "description": "Begin date as YYYYMMDD (e.g. \"20240101\")"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date (must be in the same calendar year as begin_date) as YYYYMMDD (e.g. \"20240101\")"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "2-digit state FIPS code (e.g. \"06\" California, \"36\" New York)"
+                  },
+                  "county": {
+                    "type": "string",
+                    "description": "3-digit county FIPS code (e.g. \"037\" Los Angeles County; see epa-aqs.list_counties)"
+                  },
+                  "max_rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of rows to return (1-1000, default 200)"
+                  }
+                },
+                "required": [
+                  "parameter_codes",
+                  "begin_date",
+                  "end_date",
+                  "state",
+                  "county"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/epa-aqs.daily_data/call": {
+      "post": {
+        "operationId": "epa-aqs_daily_data",
+        "summary": "EPA AQS Daily Air Quality",
+        "description": "Daily summary air quality measurements (e.g. PM2.5, ozone) from EPA monitors in a US county for a date range within one calendar year: arithmetic mean, max value, AQI, site. Source: US EPA AQS.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "epa-aqs.daily_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parameter_codes": {
+                    "type": "string",
+                    "description": "AQS parameter code(s), comma-separated, max 5 (e.g. \"88101\" PM2.5, \"44201\" ozone, \"42101\" CO; see epa-aqs.list_parameters)"
+                  },
+                  "begin_date": {
+                    "type": "string",
+                    "description": "Begin date as YYYYMMDD (e.g. \"20240101\")"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date (must be in the same calendar year as begin_date) as YYYYMMDD (e.g. \"20240101\")"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "2-digit state FIPS code (e.g. \"06\" California, \"36\" New York)"
+                  },
+                  "county": {
+                    "type": "string",
+                    "description": "3-digit county FIPS code (e.g. \"037\" Los Angeles County; see epa-aqs.list_counties)"
+                  },
+                  "max_rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of rows to return (1-1000, default 200)"
+                  }
+                },
+                "required": [
+                  "parameter_codes",
+                  "begin_date",
+                  "end_date",
+                  "state",
+                  "county"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/epa-aqs.annual_data/call": {
+      "post": {
+        "operationId": "epa-aqs_annual_data",
+        "summary": "EPA AQS Annual Air Quality",
+        "description": "Annual summary air quality statistics (mean, percentiles, exceedances, completeness) per EPA monitor in a US county for a calendar year and pollutant(s). Source: US EPA AQS.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "epa-aqs.annual_data"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parameter_codes": {
+                    "type": "string",
+                    "description": "AQS parameter code(s), comma-separated, max 5 (e.g. \"88101\" PM2.5, \"44201\" ozone, \"42101\" CO; see epa-aqs.list_parameters)"
+                  },
+                  "begin_date": {
+                    "type": "string",
+                    "description": "Begin date as YYYYMMDD (e.g. \"20240101\")"
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date (must be in the same calendar year as begin_date) as YYYYMMDD (e.g. \"20240101\")"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "2-digit state FIPS code (e.g. \"06\" California, \"36\" New York)"
+                  },
+                  "county": {
+                    "type": "string",
+                    "description": "3-digit county FIPS code (e.g. \"037\" Los Angeles County; see epa-aqs.list_counties)"
+                  },
+                  "max_rows": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of rows to return (1-1000, default 200)"
+                  }
+                },
+                "required": [
+                  "parameter_codes",
+                  "begin_date",
+                  "end_date",
+                  "state",
+                  "county"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {
