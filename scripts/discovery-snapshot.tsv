@@ -743,6 +743,11 @@ malaria-atlas.case_estimates	malaria-atlas
 malaria-atlas.country_list	malaria-atlas
 malaria-atlas.parasite_rate_survey	malaria-atlas
 malaria-atlas.vector_occurrence	malaria-atlas
+malaysiagov.dataset	malaysiagov
+malaysiagov.earthquake	malaysiagov
+malaysiagov.flood_warning	malaysiagov
+malaysiagov.weather_forecast	malaysiagov
+malaysiagov.weather_warning	malaysiagov
 manga.details	jikan
 marine.forecast	marine
 marine.sea_temperature	marine
