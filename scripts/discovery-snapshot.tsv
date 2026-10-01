@@ -842,6 +842,9 @@ nihreporter.projects.by_org	nihreporter
 nihreporter.projects.by_pi	nihreporter
 nihreporter.projects.search	nihreporter
 nihreporter.publications.by_project	nihreporter
+noaa-fisheries-stats.landings	noaa-fisheries-stats
+noaa-fisheries-stats.survey_catch	noaa-fisheries-stats
+noaa-fisheries-stats.survey_species	noaa-fisheries-stats
 noaa.forecast	noaa
 noaa.hourly	noaa
 noaa.observation	noaa
