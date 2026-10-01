@@ -1,1 +1,129 @@
-{}
+{
+  "acled": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "unverified key (no auth_method) AND NEEDS AGREEMENT, do not queue. acleddata.com/eula (8 July 2025) section 1.2: 'Commercial entities may not access or use the Content and/or Platforms without first obtaining a corporate license.'; prohibited: to create 'any dataset, product, or platform that is similar to, in competition with, or creates a functional substitute for any of ACLED's content, products, or platforms.' No code reads PROVIDER_KEY_ACLED_EMAIL/PASSWORD (grep src: 0 hits). DISPATCHER NOTE: if a corporate licence is ever obtained, measure the OAuth-style email+password login at acleddata.com with real vs garbage password and record both.",
+    "date": "2026-10-01"
+  },
+  "censusmapper": {
+    "resolution": "queue",
+    "as": null,
+    "base_url": "https://censusmapper.ca/api/v1",
+    "evidence": "No adapter: grep src for censusmapper = 0 hits in code; only provider-limits.json entry. src/adapters/census is US Census Bureau (PROVIDER_KEY_CENSUS, env.ts:348), a different upstream. Auth measured on record 2026-09-14: POST form param api_key to https://censusmapper.ca/api/v1/data.csv, real key 200, garbage 401. Operator-delegated terms reading 2026-10-01: censusmapper.ca/about 'Statistics Canada must be acknowledged as the source when using the data; acknowledgement of CensusMapper is optional.'",
+    "date": "2026-10-01",
+    "terms_url": "https://censusmapper.ca/about",
+    "licence_class": "open licence (Statistics Canada Open Licence, attribution required)"
+  },
+  "copernicus-cds": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "unverified key (no auth_method) and architecture conflict: record notes say CDS is an async submit/poll/download API, which conflicts with one tool = one request. No code reads PROVIDER_KEY_COPERNICUS_CDS (grep src: 0 hits; src/adapters/copernicus-sentinel is a different service). DISPATCHER NOTE: measure auth by one authenticated GET to the CDS API resources endpoint with real key vs garbage (status of both, no value printed) in letter step-2 form, then decide design.",
+    "date": "2026-10-01"
+  },
+  "data-govt-nz": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "unverified key: record has no auth_method/auth_method_date; no code reads PROVIDER_KEY_DATA_GOVT_NZ (grep src: 0 hits). DISPATCHER NOTE: portal and header/param name unknown; signup_url https://www.stats.govt.nz/developers, probe_fail_streak 4 - find the documented API and call it with real vs garbage key; record the result as auth_method + auth_method_date (letter trailer step 2 form).",
+    "date": "2026-10-01"
+  },
+  "dol-enforcement-data": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": "https://apiprod.dol.gov/v4",
+    "evidence": "quota unmeasured: auth is measured (query-param, 2026-09-02) and data is US federal public domain per record notes, but no rate limit could be found: WebFetch of dataportal.dol.gov and dol-api-user-guide.pdf returned no rate-limit or terms text, search gave only 'API key via dataportal.dol.gov/registration' and 429 on excess. A queue entry requires limit_proof, so held. DISPATCHER NOTE: read the limit from response headers (x-ratelimit-*) of one authenticated call or from the dataportal.dol.gov API key page in a browser, add as limit_proof, then flip to queue with base_url https://apiprod.dol.gov/v4.",
+    "date": "2026-10-01",
+    "terms_url": "https://dataportal.dol.gov/",
+    "licence_class": "public domain (per record notes, not independently quoted)"
+  },
+  "eia-energy": {
+    "resolution": "connected-as",
+    "as": "eia",
+    "base_url": null,
+    "evidence": "src/adapters/registry.ts:797-800 (case 'eia': reads PROVIDER_KEY_EIA, new EiaAdapter(k)); src/config/env.ts:143 PROVIDER_KEY_EIA; src/adapters/eia/index.ts baseUrl https://api.eia.gov; connected.json eia status=connected verified=true",
+    "date": "2026-10-01"
+  },
+  "epa-aqs": {
+    "resolution": "queue",
+    "as": null,
+    "base_url": "https://aqs.epa.gov/data/api",
+    "evidence": "Not covered by existing adapter: src/adapters/epa is EPA Envirofacts (provider-limits.json 'epa' health_url https://enviro.epa.gov/enviro/efservice/..., connected.json epa status=skip verified=false); grep src for 'aqs.epa' = 0 hits; PROVIDER_KEY_EPA_AQS absent from src/config/env.ts. Auth measured on record (2026-10-01): query-param email=api@apibase.pro & key=PROVIDER_KEY_EPA_AQS, list/states Success. Email is the registered account address, adapter carries it as a constant.",
+    "date": "2026-10-01",
+    "terms_url": "https://aqs.epa.gov/aqsweb/documents/data_api.html",
+    "licence_class": "public domain (US federal government work, 17 U.S.C. 105; the API page itself states no licence)"
+  },
+  "estat": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "unverified key: record has no auth_method/auth_method_date. Facts: no code reads PROVIDER_KEY_ESTAT (grep src: 0 hits; env.ts has no such line); src/adapters/estat-japan-dashboard is the keyless Statistics Dashboard API (provider-limits.json 'estat-japan-dashboard') and is not the keyed api.e-stat.go.jp. Keyed e-Stat API is NOT connected, so it is a queue candidate once measured. Terms read 2026-10-01 at https://www.e-stat.go.jp/en/terms-of-use: 'Commercial use of Content is also permitted' (Government of Japan Standard Terms of Use 2.0, CC BY 4.0 compatible) = open licence. DISPATCHER NOTE: measure auth: call https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList with appId=<real> vs appId=garbage (names only, never print the value), record status/body of both as auth_method + auth_method_date in the letter-trailer step-2 form, plus the documented rate limit; then flip this to queue with base_url https://api.e-stat.go.jp/rest/3.0/app/json.",
+    "date": "2026-10-01",
+    "terms_url": "https://www.e-stat.go.jp/en/terms-of-use",
+    "licence_class": "open licence"
+  },
+  "football-data": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "NEEDS AGREEMENT, do not queue. football-data.org/client/register (Last updated June 1, 2018): section 2.3 use only 'for the Application for which the Subscription has originally been subscribed' (single-app binding); section 9.1 no reuse after cancellation. Commercial class. Auth measured (X-Auth-Token, 2026-09-10), but resale terms unclear/against.",
+    "date": "2026-10-01"
+  },
+  "fred": {
+    "resolution": "connected-as",
+    "as": "finance",
+    "base_url": null,
+    "evidence": "src/adapters/registry.ts:536-539 (case 'finance': PROVIDER_KEY_FRED -> FinanceAdapter(fredKey)); src/config/env.ts:89 PROVIDER_KEY_FRED; src/adapters/finance/index.ts:22,63,198-211 tool id finance.economic_indicator calls api.stlouisfed.org/fred with api_key. Tool id exists, so FRED is connected under the finance adapter",
+    "date": "2026-10-01"
+  },
+  "icao": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "unverified key: record has no auth_method/auth_method_date; no code reads PROVIDER_KEY_ICAO (grep src: 0 hits). DISPATCHER NOTE: https://www.icao.int/Pages/default.aspx (signup_url is the ICAO home page, not an API) - measure the real data API host, e.g. one GET to its documented endpoint with real vs garbage key; record the result as auth_method + auth_method_date (letter trailer step 2 form).",
+    "date": "2026-10-01"
+  },
+  "nasa-firms": {
+    "resolution": "connected-as",
+    "as": "firms",
+    "base_url": null,
+    "evidence": "src/adapters/registry.ts:703-707 (case 'firms': reads PROVIDER_KEY_FIRMS -> FirmsAdapter); src/config/env.ts:174 PROVIDER_KEY_FIRMS; connected.json firms connected/verified. Note: no code reads PROVIDER_KEY_NASA_FIRMS (grep src: 0 hits); that record's key was proven INVALID in T-0126 (queue notes) so it adds nothing",
+    "date": "2026-10-01"
+  },
+  "ocrspace": {
+    "resolution": "connected-as",
+    "as": "ocrspace",
+    "base_url": null,
+    "evidence": "src/adapters/registry.ts:840-845 (case 'ocr': PROVIDER_KEY_OCRSPACE -> OcrSpaceAdapter); src/config/env.ts:156 PROVIDER_KEY_OCRSPACE; connected.json ocrspace connected/verified; exact name match",
+    "date": "2026-10-01"
+  },
+  "singapore-tourism": {
+    "resolution": "connected-as",
+    "as": "datagovsg",
+    "base_url": null,
+    "evidence": "src/adapters/registry.ts:783 (case datagovsg -> new DataGovSgAdapter(), no key); src/adapters/datagovsg/index.ts:17 baseUrl https://api.data.gov.sg, same upstream (data.gov.sg). Key is not discriminating (record auth_method 2026-10-01: public endpoints 200 with/without/bogus key; only raises rate limit). GAP: datagovsg tools are only sg.weather_forecast, sg.air_quality, sg.rainfall, sg.taxi_availability (index.ts:28-46) - no tourism/accommodation/visitor tool; extension of the datagovsg adapter would be task 0242. No PROVIDER_KEY_SINGAPORE_TOURISM reader exists in src/",
+    "date": "2026-10-01"
+  },
+  "stats-nz": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "unverified key: record has no auth_method/auth_method_date; no code reads PROVIDER_KEY_STATS_NZ (grep src: 0 hits). DISPATCHER NOTE: signup_url https://data.stats.govt.nz/ ; portal closed per T-0126 review, probe_fail_streak 4 - confirm the portal still issues keys before measuring; record the result as auth_method + auth_method_date (letter trailer step 2 form).",
+    "date": "2026-10-01"
+  },
+  "tidesatlas": {
+    "resolution": "skip",
+    "as": null,
+    "base_url": null,
+    "evidence": "Operator 2026-10-01 verbatim: \"Я могу только ввести туда адрес карты и оплата по факту если есть такая возможность чтобы не покупать мне дополнительные тарифы\". Pay-per-use does not exist: tidesatlas.com/en/terms (March 2026): free = 50 one-time credits, paid = monthly subscriptions only (Hobby $7.99/mo ... Business $99/mo), no PAYG/top-up. Measured on record (2026-09-14): x-ratelimit-remaining 50->49 confirms one-shot quota. Terms also: 'Not redistribute raw data without authorisation'. A one-shot quota is not sellable.",
+    "date": "2026-10-01"
+  },
+  "uncomtrade": {
+    "resolution": "hold",
+    "as": null,
+    "base_url": null,
+    "evidence": "NEEDS AGREEMENT, do not queue. uncomtrade.org/docs/faqs-on-use-and-re-dissemination/: 'To be able to re-disseminate, you have to be an active Premium Pro subscriber.'; 'If you charge for access, you will need a license to distribute.' Note: src/adapters/comtrade already connects the keyless public preview (provider-limits.json 'comtrade', 500 calls/day); this record's subscription-key adds nothing sellable.",
+    "date": "2026-10-01"
+  }
+}

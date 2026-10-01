@@ -4724,10 +4724,25 @@
     "display_name": "CensusMapper",
     "health_url": "https://censusmapper.ca/api/v1/data.csv",
     "limit_type": "daily",
-    "free_limit": 10000,
+    "free_limit": 500,
     "reset_period": "daily",
     "docs_url": "https://censusmapper.ca/users/sign_up",
-    "limit_proof": "Operator's own registration notes (2026-09-14): 1,000 requests/hour, 10,000 requests/day. Auth verified with a differentiating control on POST /api/v1/data.csv (and other /api/v1/ endpoints, form param `api_key`): real key -> HTTP 200 text/csv; bad key -> HTTP 401 'Access denied, invalid API key'. `list_datasets` alone is a public-no-key endpoint and must not be used as proof.",
+    "limit_proof": "Operator-delegated reading 2026-10-01 (cancensus README): 500 region ids/day or 5,000/month. Discrepancy kept on purpose: operator's own registration notes (2026-09-14) said 1,000 requests/hour, 10,000 requests/day; the conservative documented figure is used for free_limit (units differ: region ids vs requests). Auth verified with a differentiating control on POST /api/v1/data.csv (form param `api_key`): real key -> HTTP 200 text/csv; bad key -> HTTP 401 'Access denied, invalid API key'. `list_datasets` alone is a public-no-key endpoint and must not be used as proof.",
+    "moderation_class": "data",
+    "moderation_class_reviewed": true,
+    "resale_permission": "granted_conditional",
+    "resale_permission_proof": "censusmapper.ca/about (read 2026-10-01 by research agent for the dispatcher/operator): \"Statistics Canada must be acknowledged as the source when using the data; acknowledgement of CensusMapper is optional.\" Data is under the Statistics Canada Open Licence (commercial redistribution with attribution). Condition: every response must carry the Statistics Canada attribution; quota is 500 region ids/day."
+  },
+  "epa-aqs": {
+    "display_name": "EPA Air Quality System (AQS)",
+    "health_url": "https://aqs.epa.gov/data/api/list/states?email=TOKEN_FROM_ENV_EMAIL&key=TOKEN_FROM_ENV_PROVIDER_KEY_EPA_AQS",
+    "limit_type": "rate_limited",
+    "free_limit": 10,
+    "reset_period": "none",
+    "docs_url": "https://aqs.epa.gov/aqsweb/documents/data_api.html",
+    "limit_proof": "AQS API docs (fetched 2026-10-01): \"do not make more than 10 requests per minute\"; \"limit queries to 1,000,000 rows of data each\"; \"pause of 5 seconds between requests and adjust accordingly for response time and size\"; edate must be in the same year as bdate (except Monitor); max 5 parameter codes per request. free_limit=10 is requests per minute (rate cap, no quota). Auth measured 2026-10-01 per key-queue record (list/states Success).",
+    "resale_permission": "granted_conditional",
+    "resale_permission_proof": "https://aqs.epa.gov/aqsweb/documents/data_api.html states data \"is available to anyone\" on registration; the page carries no explicit licence or public-domain text (checked 2026-10-01). Basis is US federal government work, public domain under 17 U.S.C. 105 (our legal reading, not a provider statement). Conditions: stay under 10 requests/minute with 5 s spacing; provider may disable the account for violating terms (\"If you violate these terms, we may disable your account without notice\").",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   }
