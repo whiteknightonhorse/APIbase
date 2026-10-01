@@ -9397,3 +9397,39 @@ tools:
     price_usd: "0.002"
     upstream_cost_usd: "0"
     cache_ttl: 3600
+
+  # --- UC-798: Malaysia data.gov.my ---
+  - tool_id: malaysiagov.dataset
+    name: Malaysia Open Data Dataset
+    provider: malaysiagov
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: malaysiagov.weather_forecast
+    name: Malaysia Weather Forecast
+    provider: malaysiagov
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 3600
+
+  - tool_id: malaysiagov.weather_warning
+    name: Malaysia Weather Warnings
+    provider: malaysiagov
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 600
+
+  - tool_id: malaysiagov.earthquake
+    name: Malaysia Earthquake Warnings
+    provider: malaysiagov
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 600
+
+  - tool_id: malaysiagov.flood_warning
+    name: Malaysia Flood Warnings
+    provider: malaysiagov
+    price_usd: "0.001"
+    upstream_cost_usd: "0"
+    cache_ttl: 600

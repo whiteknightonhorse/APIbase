@@ -23,6 +23,7 @@ import { spoonacularSchemas } from './spoonacular.schema';
 import { nasaSchemas } from './nasa.schema';
 import { smithsonianSchemas } from './smithsonian.schema';
 import { jplSchemas } from './jpl.schema';
+import { malaysiagovSchemas } from './malaysiagov.schema';
 import { soilSchemas } from './soil.schema';
 import { rawgSchemas } from './rawg.schema';
 import { igdbSchemas } from './igdb.schema';
@@ -439,6 +440,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...nasaSchemas,
   ...smithsonianSchemas,
   ...jplSchemas,
+  ...malaysiagovSchemas,
   ...soilSchemas,
   ...rawgSchemas,
   ...igdbSchemas,

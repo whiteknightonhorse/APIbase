@@ -4745,5 +4745,16 @@
     "resale_permission_proof": "https://aqs.epa.gov/aqsweb/documents/data_api.html states data \"is available to anyone\" on registration; the page carries no explicit licence or public-domain text (checked 2026-10-01). Basis is US federal government work, public domain under 17 U.S.C. 105 (our legal reading, not a provider statement). Conditions: stay under 10 requests/minute with 5 s spacing; provider may disable the account for violating terms (\"If you violate these terms, we may disable your account without notice\").",
     "moderation_class": "data",
     "moderation_class_reviewed": true
+  },
+  "malaysiagov": {
+    "display_name": "Malaysia data.gov.my",
+    "health_url": "https://api.data.gov.my/weather/warning/?limit=1",
+    "limit_type": "unlimited",
+    "free_limit": 0,
+    "reset_period": "none",
+    "docs_url": "https://developer.data.gov.my/",
+    "limit_proof": "Malaysian government open data, no auth required; developer docs state a per-IP rate limit (no fixed free quota)",
+    "moderation_class": "data",
+    "moderation_class_reviewed": true
   }
 }

@@ -17512,4 +17512,55 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'education',
     annotations: READ_ONLY,
   },
+  // Malaysia data.gov.my (5)
+  {
+    toolId: 'malaysiagov.dataset',
+    mcpName: 'malaysiagov.statistics.get_dataset',
+    title: 'Malaysia Open Data Dataset',
+    description:
+      'Query any Malaysian government open dataset by ID from the data.gov.my data catalogue or OpenDOSM ' +
+      '(fuel prices, CPI, population, trade and more) with filters, date range, sort and limit.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'malaysiagov.weather_forecast',
+    mcpName: 'malaysiagov.weather.get_forecast',
+    title: 'Malaysia Weather Forecast',
+    description:
+      'Get the Malaysian Meteorological Department 7-day forecast by location: morning/afternoon/night ' +
+      'conditions and min/max temperature (Malay-language summaries).',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'malaysiagov.weather_warning',
+    mcpName: 'malaysiagov.weather.get_warnings',
+    title: 'Malaysia Weather Warnings',
+    description:
+      'Get current Malaysian Meteorological Department weather warnings: strong winds, rough seas, ' +
+      'thunderstorms and heavy rain with validity period and full text.',
+    category: 'weather',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'malaysiagov.earthquake',
+    mcpName: 'malaysiagov.hazards.get_earthquakes',
+    title: 'Malaysia Earthquake Warnings',
+    description:
+      'Get recent earthquake reports relevant to Malaysia from MET Malaysia: time, location, depth, ' +
+      'magnitude and distance to the nearest Malaysian and regional places.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'malaysiagov.flood_warning',
+    mcpName: 'malaysiagov.hazards.get_flood_warnings',
+    title: 'Malaysia Flood Warnings',
+    description:
+      'Get Malaysian river water-level and rainfall station readings (JPS) with alert/warning/danger ' +
+      'thresholds and trend, filterable by state and district.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
