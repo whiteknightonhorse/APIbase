@@ -4735,7 +4735,7 @@
   },
   "epa-aqs": {
     "display_name": "EPA Air Quality System (AQS)",
-    "health_url": "https://aqs.epa.gov/data/api/list/states?email=TOKEN_FROM_ENV_EMAIL&key=TOKEN_FROM_ENV_PROVIDER_KEY_EPA_AQS",
+    "health_url": "https://aqs.epa.gov/data/api/list/states?email=api@apibase.pro&key=TOKEN_FROM_ENV_PROVIDER_KEY_EPA_AQS",
     "limit_type": "rate_limited",
     "free_limit": 10,
     "reset_period": "none",
