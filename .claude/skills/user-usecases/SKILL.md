@@ -383,6 +383,7 @@ Use these examples as reference patterns when:
 | UC-796 | World Bank WITS Trade & Tariffs (wits.worldbank.org) | World Bank WITS SDMX-JSON API: trade flow indicators (UN Comtrade) and tariff statistics (UNCTAD TRAINS) by reporter/partner/product/year; no auth | LOCALLY COMMITTED (local) | No auth, 2 tools | `usecases/UC-796-wits-trade.md` |
 | UC-797 | NOAA Fisheries Stats (fisheries.noaa.gov FOSS) | NOAA Fisheries Fisheries One Stop Shop ODS REST API -- US commercial/recreational landings by species/state/region/year plus AFSC Alaska groundfish survey species lookup and per-haul catch/CPUE; no auth, public US Government data; candidate URL was a landing page, real API found at apps-st.fisheries.noaa.gov/ods/foss; filed under `world` category | LOCALLY COMMITTED (local) | No auth, 3 tools | `usecases/UC-797-noaa-fisheries-stats.md` |
 | UC-798 | Malaysia data.gov.my (api.data.gov.my) | Malaysian government open data API -- data-catalogue/OpenDOSM datasets, MET Malaysia forecast and warnings, earthquakes, JPS flood stations; no auth; GTFS endpoints not wrapped | LOCALLY COMMITTED (local) | No auth, 5 tools | `usecases/UC-798-malaysia-data-gov.md` |
+| UC-799 | CensusMapper (censusmapper.ca) | Statistics Canada census data -- dataset list + data.csv by region/vector, CSV converted to JSON, StatCan attribution on every response | LOCALLY COMMITTED (local) | API key (POST form `api_key`), 2 tools | `usecases/UC-799-censusmapper.md` |
 
 ## How to Use
 

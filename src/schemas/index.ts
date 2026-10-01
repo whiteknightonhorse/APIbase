@@ -24,6 +24,7 @@ import { nasaSchemas } from './nasa.schema';
 import { smithsonianSchemas } from './smithsonian.schema';
 import { jplSchemas } from './jpl.schema';
 import { malaysiagovSchemas } from './malaysiagov.schema';
+import { censusmapperSchemas } from './censusmapper.schema';
 import { soilSchemas } from './soil.schema';
 import { rawgSchemas } from './rawg.schema';
 import { igdbSchemas } from './igdb.schema';
@@ -441,6 +442,7 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...smithsonianSchemas,
   ...jplSchemas,
   ...malaysiagovSchemas,
+  ...censusmapperSchemas,
   ...soilSchemas,
   ...rawgSchemas,
   ...igdbSchemas,

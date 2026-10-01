@@ -35,6 +35,7 @@ import { NasaAdapter } from './nasa';
 import { SmithsonianAdapter } from './smithsonian';
 import { JplAdapter } from './jpl';
 import { MalaysiaGovAdapter } from './malaysiagov';
+import { CensusMapperAdapter } from './censusmapper';
 import { SoilAdapter } from './soil';
 import { RawgAdapter } from './rawg';
 import { IgdbAdapter } from './igdb';
@@ -622,6 +623,14 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'jpl':
       // JPL SSD APIs are open access — no API key needed
       return getOrCreate('jpl', () => new JplAdapter());
+    case 'censusmapper': {
+      // CensusMapper (Statistics Canada census data) — API key as POST form param (UC-799)
+      const cmKey = (config as Record<string, unknown>).PROVIDER_KEY_CENSUSMAPPER as
+        | string
+        | undefined;
+      if (!cmKey) return undefined;
+      return getOrCreate('censusmapper', () => new CensusMapperAdapter(cmKey));
+    }
     case 'malaysiagov':
       // Malaysia data.gov.my open API — no auth
       return getOrCreate('malaysiagov', () => new MalaysiaGovAdapter());

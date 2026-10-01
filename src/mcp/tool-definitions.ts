@@ -17563,4 +17563,23 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // CensusMapper (2)
+  {
+    toolId: 'censusmapper.list_datasets',
+    mcpName: 'censusmapper.census.list_datasets',
+    title: 'CensusMapper Datasets',
+    description:
+      'List the Canadian census datasets available through CensusMapper (1996 to 2021 Statistics Canada censuses) with their dataset ids, descriptions and references. Use the dataset id with censusmapper.data. Source: Statistics Canada.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
+  {
+    toolId: 'censusmapper.data',
+    mcpName: 'censusmapper.census.get_data',
+    title: 'CensusMapper Census Data',
+    description:
+      'Fetch Canadian census values (Statistics Canada) for chosen regions and census vectors, aggregated at a geographic level (province, CMA, census division, subdivision, tract, dissemination area). Returns one row per geography with a column per vector plus population, dwellings and area. Source: Statistics Canada Census; quota 500 region ids/day.',
+    category: 'world',
+    annotations: READ_ONLY,
+  },
 ];
