@@ -160,6 +160,7 @@ bts.tsi	bts-transport
 bundesbank-timeseries.data	bundesbank-timeseries
 bundesbank-timeseries.dataflows	bundesbank-timeseries
 bundesbank-timeseries.structure	bundesbank-timeseries
+calendarific.holidays	calendarific
 canopy.deals	canopy
 canopy.offers	canopy
 canopy.product	canopy

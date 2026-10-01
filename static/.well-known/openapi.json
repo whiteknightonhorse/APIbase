@@ -15678,6 +15678,119 @@
         ]
       }
     },
+    "/api/v1/tools/calendarific.holidays/call": {
+      "post": {
+        "operationId": "calendarific_holidays",
+        "summary": "World Holidays (Calendarific)",
+        "description": "Public holidays for 230+ countries — national, local, religious, observance types. Filter by month, day, type. 100+ years coverage. More countries than Nager.Date (Calendarific)",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "calendarific.holidays"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "country": {
+                    "type": "string",
+                    "description": "ISO 3166-1 alpha-2 country code (e.g. \"US\", \"GB\", \"DE\", \"JP\", \"IN\", \"BR\")",
+                    "minLength": 2,
+                    "maxLength": 2
+                  },
+                  "year": {
+                    "type": "integer",
+                    "minimum": 2000,
+                    "maximum": 2049,
+                    "description": "Year (default 2026)"
+                  },
+                  "month": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 12,
+                    "description": "Filter by month (1-12)"
+                  },
+                  "day": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 31,
+                    "description": "Filter by day (1-31)"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "national",
+                      "local",
+                      "religious",
+                      "observance"
+                    ],
+                    "description": "Filter by holiday type"
+                  }
+                },
+                "required": [
+                  "country"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/weather_alerts.active/call": {
       "post": {
         "operationId": "weather_alerts_active",
