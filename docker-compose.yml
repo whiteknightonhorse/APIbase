@@ -94,8 +94,8 @@ services:
     networks:
       - app
     dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      - 185.12.64.1
+      - 185.12.64.2
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/health/ready"]
       interval: 10s
@@ -138,8 +138,8 @@ services:
     networks:
       - app
     dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      - 185.12.64.1
+      - 185.12.64.2
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3001/worker/health"]
       interval: 10s
@@ -182,8 +182,8 @@ services:
     networks:
       - app
     dns:
-      - 8.8.8.8
-      - 8.8.4.4
+      - 185.12.64.1
+      - 185.12.64.2
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3002/outbox/health"]
       interval: 10s
