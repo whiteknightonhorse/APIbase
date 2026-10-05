@@ -39,10 +39,6 @@ airnow.forecast_latlng	airnow
 airnow.forecast_zip	airnow
 airquality.city	iqair
 airquality.nearest	iqair
-anime.characters	jikan
-anime.details	jikan
-anime.search	jikan
-anime.top	jikan
 apibase.discover	apibase
 arbeitnow.jobs	arbeitnow
 archiveorg.metadata	archiveorg
@@ -91,12 +87,6 @@ banxico.fx.rates	banxico
 banxico.inflation.cpi	banxico
 banxico.rates.target	banxico
 banxico.rates.tiie	banxico
-bcb.cdi	bcb
-bcb.eur_brl	bcb
-bcb.ipca	bcb
-bcb.selic	bcb
-bcb.selic_target	bcb
-bcb.usd_brl	bcb
 bdl.games	balldontlie
 bdl.players	balldontlie
 bdl.teams	balldontlie
@@ -326,6 +316,8 @@ device.command	device
 device.list	device
 device.state	device
 dhl.track	dhl
+dictionary.define	dictionary
+dictionary.words	dictionary
 diffbot.article_extract	diffbot
 diffbot.page_analyze	diffbot
 diffbot.product_extract	diffbot
@@ -341,10 +333,6 @@ doaj.journal_search	doaj
 dogceo.breeds_list	dogceo
 dogceo.random_image	dogceo
 dogceo.sub_breeds	dogceo
-dpla.items.by_subject	dpla
-dpla.items.detail	dpla
-dpla.items.facets	dpla
-dpla.items.search	dpla
 drought.county_stats	drought-monitor
 drought.dsci	drought-monitor
 drought.national_stats	drought-monitor
@@ -393,6 +381,8 @@ email.validate	zerobounce
 email_verify.check	email_verify
 emsc.event_detail	emsc
 emsc.search_earthquakes	emsc
+ensembl.gene_lookup	ensembl
+ensembl.sequence_region	ensembl
 enviroatlas.block_group_metrics	enviroatlas
 enviroatlas.communities	enviroatlas
 enviroatlas.community_summary	enviroatlas
@@ -748,7 +738,6 @@ malaysiagov.earthquake	malaysiagov
 malaysiagov.flood_warning	malaysiagov
 malaysiagov.weather_forecast	malaysiagov
 malaysiagov.weather_warning	malaysiagov
-manga.details	jikan
 marine.forecast	marine
 marine.sea_temperature	marine
 marine.swell_forecast	marine
@@ -828,10 +817,6 @@ nasantrs.recent	nasantrs
 nasantrs.report	nasantrs
 nasantrs.search	nasantrs
 nasantrs.stats	nasantrs
-nbi.bridge_detail	nbi
-nbi.condition_stats	nbi
-nbi.nearby	nbi
-nbi.search	nbi
 ncbi-eutils.taxonomy_lineage	ncbi-eutils
 ncbi-eutils.taxonomy_search	ncbi-eutils
 ncbi-eutils.taxonomy_summary	ncbi-eutils

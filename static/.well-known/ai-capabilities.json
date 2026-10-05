@@ -1,14 +1,14 @@
 {
   "platform": "APIbase",
   "version": "2.1.0",
-  "updated_at": "2026-10-01T00:00:00Z",
-  "tools_count": 1399,
-  "providers_count": 402,
+  "updated_at": "2026-10-05T00:00:00Z",
+  "tools_count": 1384,
+  "providers_count": 400,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1399 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1384 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -37,20 +37,20 @@
     },
     {
       "name": "finance",
-      "tools": 194,
-      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Indec Argentina, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Slovakia Statistics, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Wits Trade, Worldbank, Wto",
+      "tools": 188,
+      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Indec Argentina, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Slovakia Statistics, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Wits Trade, Worldbank, Wto",
       "examples": "Call discover_tools with category=\"finance\" for the current tool list and descriptions."
     },
     {
       "name": "health",
-      "tools": 152,
-      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
+      "tools": 154,
+      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
       "examples": "Call discover_tools with category=\"health\" for the current tool list and descriptions."
     },
     {
       "name": "education",
-      "tools": 106,
-      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
+      "tools": 108,
+      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
       "examples": "Call discover_tools with category=\"education\" for the current tool list and descriptions."
     },
     {
@@ -61,8 +61,8 @@
     },
     {
       "name": "entertainment",
-      "tools": 93,
-      "providers": "Apisports, Balldontlie, Canopy, Chesscom, Cocktaildb, F1, Freetogame, Igdb, Jikan, Lichess, Met Museum, Music, Opendota, Opentdb, Podcastindex, Pokeapi, Rawg, Rijksmuseum, Thesportsdb, Ticketmaster, Tmdb, Tvmaze",
+      "tools": 88,
+      "providers": "Apisports, Balldontlie, Canopy, Chesscom, Cocktaildb, F1, Freetogame, Igdb, Lichess, Met Museum, Music, Opendota, Opentdb, Podcastindex, Pokeapi, Rawg, Rijksmuseum, Thesportsdb, Ticketmaster, Tmdb, Tvmaze",
       "examples": "Call discover_tools with category=\"entertainment\" for the current tool list and descriptions."
     },
     {
@@ -97,8 +97,8 @@
     },
     {
       "name": "media",
-      "tools": 37,
-      "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Dpla, Europeana, Hathitrust Digital, Imgflip, Loc, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
+      "tools": 33,
+      "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Europeana, Hathitrust Digital, Imgflip, Loc, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
       "examples": "Call discover_tools with category=\"media\" for the current tool list and descriptions."
     },
     {
@@ -120,12 +120,6 @@
       "examples": "Call discover_tools with category=\"business\" for the current tool list and descriptions."
     },
     {
-      "name": "infrastructure",
-      "tools": 19,
-      "providers": "Browserbase, Cloudflare, Namesilo, NBI",
-      "examples": "Call discover_tools with category=\"infrastructure\" for the current tool list and descriptions."
-    },
-    {
       "name": "messaging",
       "tools": 18,
       "providers": "Email Verify, Resend, Telegram, Telnyx, Twilio, Zerobounce",
@@ -136,6 +130,12 @@
       "tools": 16,
       "providers": "Currents, Hackernews, Hnalgolia, Newsdata",
       "examples": "Call discover_tools with category=\"news\" for the current tool list and descriptions."
+    },
+    {
+      "name": "infrastructure",
+      "tools": 15,
+      "providers": "Browserbase, Cloudflare, Namesilo",
+      "examples": "Call discover_tools with category=\"infrastructure\" for the current tool list and descriptions."
     },
     {
       "name": "marketing",

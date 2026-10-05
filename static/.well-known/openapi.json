@@ -14355,521 +14355,6 @@
         ]
       }
     },
-    "/api/v1/tools/anime.search/call": {
-      "post": {
-        "operationId": "anime_search",
-        "summary": "Search Anime",
-        "description": "Search 28K+ anime titles by name, genre, type, status, and rating — scores, episodes, studios, seasons (MyAnimeList via Jikan)",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "anime.search"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string",
-                    "description": "Search query for anime title (e.g. \"Naruto\", \"Attack on Titan\")"
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "tv",
-                      "movie",
-                      "ova",
-                      "special",
-                      "ona",
-                      "music",
-                      "cm",
-                      "pv",
-                      "tv_special"
-                    ],
-                    "description": "Anime type filter: tv, movie, ova, special, ona, music"
-                  },
-                  "status": {
-                    "type": "string",
-                    "enum": [
-                      "airing",
-                      "complete",
-                      "upcoming"
-                    ],
-                    "description": "Airing status: \"airing\", \"complete\", or \"upcoming\""
-                  },
-                  "rating": {
-                    "type": "string",
-                    "enum": [
-                      "g",
-                      "pg",
-                      "pg13",
-                      "r17",
-                      "r",
-                      "rx"
-                    ],
-                    "description": "Age rating: g (all ages), pg, pg13, r17 (violence), r (mild nudity), rx (hentai)"
-                  },
-                  "genre": {
-                    "type": "integer",
-                    "description": "Genre ID filter (e.g. 1=Action, 2=Adventure, 4=Comedy, 8=Drama, 10=Fantasy, 22=Romance)"
-                  },
-                  "order_by": {
-                    "type": "string",
-                    "enum": [
-                      "title",
-                      "start_date",
-                      "end_date",
-                      "episodes",
-                      "score",
-                      "rank",
-                      "popularity",
-                      "favorites",
-                      "members"
-                    ],
-                    "description": "Sort field (default: relevance)"
-                  },
-                  "sort": {
-                    "type": "string",
-                    "enum": [
-                      "asc",
-                      "desc"
-                    ],
-                    "description": "Sort direction: \"asc\" or \"desc\" (default: desc)"
-                  },
-                  "page": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Page number for pagination (default: 1)"
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 25,
-                    "description": "Results per page (default: 10, max: 25)"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/anime.details/call": {
-      "post": {
-        "operationId": "anime_details",
-        "summary": "Get Anime Details",
-        "description": "Get full anime details by MAL ID — synopsis, score, rank, episodes, studios, genres, themes, demographics, rating (MyAnimeList via Jikan)",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "anime.details"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "description": "MyAnimeList ID of the anime (e.g. 1 for Cowboy Bebop, 20 for Naruto)"
-                  }
-                },
-                "required": [
-                  "id"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/manga.details/call": {
-      "post": {
-        "operationId": "manga_details",
-        "summary": "Get Manga Details",
-        "description": "Get full manga details by MAL ID — synopsis, chapters, volumes, authors, score, rank, genres (MyAnimeList via Jikan)",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "manga.details"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "description": "MyAnimeList ID of the manga (e.g. 13 for One Piece, 2 for Berserk)"
-                  }
-                },
-                "required": [
-                  "id"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/anime.characters/call": {
-      "post": {
-        "operationId": "anime_characters",
-        "summary": "Get Anime Characters",
-        "description": "Get character cast and Japanese voice actors for an anime — names, roles (main/supporting), images (MyAnimeList via Jikan)",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "anime.characters"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "id": {
-                    "type": "integer",
-                    "description": "MyAnimeList ID of the anime to get character cast for"
-                  }
-                },
-                "required": [
-                  "id"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/anime.top/call": {
-      "post": {
-        "operationId": "anime_top",
-        "summary": "Top Anime Rankings",
-        "description": "Get top-ranked anime by score — filter by type (TV/movie/OVA), status (airing/upcoming), or popularity (MyAnimeList via Jikan)",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "anime.top"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "tv",
-                      "movie",
-                      "ova",
-                      "special",
-                      "ona",
-                      "music",
-                      "cm",
-                      "pv",
-                      "tv_special"
-                    ],
-                    "description": "Filter top list by anime type (default: all types)"
-                  },
-                  "filter": {
-                    "type": "string",
-                    "enum": [
-                      "airing",
-                      "upcoming",
-                      "bypopularity",
-                      "favorite"
-                    ],
-                    "description": "Filter: \"airing\" (currently), \"upcoming\", \"bypopularity\", or \"favorite\""
-                  },
-                  "page": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Page number (default: 1)"
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 25,
-                    "description": "Results per page (default: 10, max: 25)"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
     "/api/v1/tools/books.isbn_lookup/call": {
       "post": {
         "operationId": "books_isbn_lookup",
@@ -21849,498 +21334,6 @@
                   "refresh": {
                     "type": "boolean",
                     "description": "Set to true to bypass cache and fetch the 5 Brazilian geographic regions (Norte, Nordeste, etc.)."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bcb.selic/call": {
-      "post": {
-        "operationId": "bcb_selic",
-        "summary": "SELIC Daily Rate",
-        "description": "Brazilian SELIC daily interest rate (series 11) — last N observations from BCB SGS. ODbL",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bcb.selic"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "last_n": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 500,
-                    "description": "Number of most recent observations to return (default 30, max 500). For daily series this is days; for monthly (IPCA) it is months."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bcb.cdi/call": {
-      "post": {
-        "operationId": "bcb_cdi",
-        "summary": "CDI Daily Rate",
-        "description": "Brazilian CDI daily rate (series 12) — last N observations from BCB SGS. ODbL",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bcb.cdi"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "last_n": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 500,
-                    "description": "Number of most recent observations to return (default 30, max 500). For daily series this is days; for monthly (IPCA) it is months."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bcb.ipca/call": {
-      "post": {
-        "operationId": "bcb_ipca",
-        "summary": "IPCA Monthly Inflation",
-        "description": "Brazilian IPCA monthly inflation rate (series 433) — last N observations from BCB SGS. ODbL",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bcb.ipca"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "last_n": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 500,
-                    "description": "Number of most recent observations to return (default 30, max 500). For daily series this is days; for monthly (IPCA) it is months."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bcb.usd_brl/call": {
-      "post": {
-        "operationId": "bcb_usd_brl",
-        "summary": "USD/BRL Daily FX",
-        "description": "Brazilian Real / US Dollar daily exchange rate (series 1) — last N observations from BCB SGS. ODbL",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bcb.usd_brl"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "last_n": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 500,
-                    "description": "Number of most recent observations to return (default 30, max 500). For daily series this is days; for monthly (IPCA) it is months."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bcb.eur_brl/call": {
-      "post": {
-        "operationId": "bcb_eur_brl",
-        "summary": "EUR/BRL Daily FX",
-        "description": "Brazilian Real / Euro daily exchange rate (series 21619) — last N observations from BCB SGS. ODbL",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bcb.eur_brl"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "last_n": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 500,
-                    "description": "Number of most recent observations to return (default 30, max 500). For daily series this is days; for monthly (IPCA) it is months."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bcb.selic_target/call": {
-      "post": {
-        "operationId": "bcb_selic_target",
-        "summary": "SELIC Target (COPOM)",
-        "description": "COPOM-set SELIC target rate (series 4389) — Brazilian central bank policy decisions. BCB SGS ODbL",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bcb.selic_target"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "last_n": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 500,
-                    "description": "Number of most recent observations to return (default 30, max 500). For daily series this is days; for monthly (IPCA) it is months."
                   }
                 }
               }
@@ -44531,6 +43524,193 @@
                 "required": [
                   "id"
                 ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/dictionary.define/call": {
+      "post": {
+        "operationId": "dictionary_define",
+        "summary": "Define a Word",
+        "description": "Get word definition — phonetic pronunciation, part of speech, definitions with examples, synonyms, antonyms, audio URL. Supports 12 languages: en, es, fr, de, it, pt, ru, ar, hi, ja, ko, zh (Free Dictionary API)",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dictionary.define"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "word": {
+                    "type": "string",
+                    "description": "Word to define (e.g. \"algorithm\", \"serendipity\", \"ubuntu\")"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Language code: en, es, fr, de, it, pt, ru, ar, hi, ja, ko, zh (default: en)",
+                    "default": "en"
+                  }
+                },
+                "required": [
+                  "word"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/dictionary.words/call": {
+      "post": {
+        "operationId": "dictionary_words",
+        "summary": "Find Related Words",
+        "description": "Find words by meaning, sound, rhyme, or spelling pattern. \"happy\" → pleased, blissful. \"algorithm\" rhymes → rhythm, logarithm. Great for writing, creative tasks, word games (Datamuse)",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "dictionary.words"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "meaning": {
+                    "type": "string",
+                    "description": "Find words with this meaning (e.g. \"happy\" → pleased, blissful, content)"
+                  },
+                  "sounds_like": {
+                    "type": "string",
+                    "description": "Find words that sound like this (e.g. \"elefant\" → elephant)"
+                  },
+                  "rhymes_with": {
+                    "type": "string",
+                    "description": "Find words that rhyme with this (e.g. \"algorithm\" → rhythm, logarithm)"
+                  },
+                  "starts_with": {
+                    "type": "string",
+                    "description": "Find words starting with these letters (e.g. \"algor\" → algorithm, algorithmic)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 25,
+                    "description": "Max results (1-25, default 10)",
+                    "default": 10
+                  }
+                }
               }
             }
           }
@@ -94731,387 +93911,6 @@
         ]
       }
     },
-    "/api/v1/tools/nbi.search/call": {
-      "post": {
-        "operationId": "nbi_search",
-        "summary": "NBI — Search US Bridges by State and Condition",
-        "description": "Search the National Bridge Inventory (NBI) for highway bridges in a US state, with optional filter by overall condition (Good / Fair / Poor). Returns up to 200 bridges per call, sorted by lowest sufficiency rating first. Each result includes: structure number, location, feature below (river/road), facility carried, coordinates, year built/reconstructed, overall bridge condition, deck/superstructure/substructure ratings (0–9 scale), operating load rating (tons), max span length (m), deck width (m), average daily traffic, open/posted/closed status, sufficiency rating, and scour-critical classification. Covers 621,000+ bridges on public roads across all 50 states plus territories. Data: FHWA NBI as of June 2023, updated annually. No auth required — USDOT public domain.",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "nbi.search"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "state_code": {
-                    "type": "string",
-                    "description": "Two-digit FIPS state code (e.g. \"06\" for California, \"48\" for Texas, \"36\" for New York, \"17\" for Illinois). Leading zero required for single-digit states (e.g. \"01\" for Alabama).",
-                    "minLength": 2,
-                    "maxLength": 2
-                  },
-                  "condition": {
-                    "type": "string",
-                    "enum": [
-                      "G",
-                      "F",
-                      "P"
-                    ],
-                    "description": "Filter by overall bridge condition: G = Good, F = Fair, P = Poor. Omit to return all conditions."
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 200,
-                    "description": "Maximum number of bridges to return (1–200, default 50). Sorted by lowest sufficiency rating ascending."
-                  }
-                },
-                "required": [
-                  "state_code"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/nbi.bridge_detail/call": {
-      "post": {
-        "operationId": "nbi_bridge_detail",
-        "summary": "NBI — Detailed Bridge Record by Structure Number",
-        "description": "Retrieve the full NBI record for a specific US highway bridge identified by state FIPS code and NBI structure number. Returns all inspection and inventory fields: condition ratings (deck, superstructure, substructure, channel, culvert), load ratings (operating and inventory, in tons), structural evaluation, waterway adequacy, posting/closure status, scour-critical rating, deck area (m²), approach details, owner and maintenance agency, functional classification, design load, deck structure/surface/membrane type, improvement costs, inspection frequency and date, fracture-critical designation, federal lands flag, and skew angle. Use nbi.search or nbi.nearby to discover structure numbers before calling this tool. Data: FHWA NBI as of June 2023. No auth required — USDOT public domain.",
-        "x-payment-info": {
-          "amount": "2000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.002000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.002000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "nbi.bridge_detail"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "state_code": {
-                    "type": "string",
-                    "description": "Two-digit FIPS state code (e.g. \"06\" for California, \"48\" for Texas, \"36\" for New York, \"17\" for Illinois). Leading zero required for single-digit states (e.g. \"01\" for Alabama).",
-                    "minLength": 2,
-                    "maxLength": 2
-                  },
-                  "structure_number": {
-                    "type": "string",
-                    "description": "NBI structure number — the unique bridge identifier within the state (e.g. \"06 0021\", \"27 0052\"). Obtainable from the structure_number field in nbi.search or nbi.nearby results.",
-                    "minLength": 1,
-                    "maxLength": 15
-                  }
-                },
-                "required": [
-                  "state_code",
-                  "structure_number"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/nbi.nearby/call": {
-      "post": {
-        "operationId": "nbi_nearby",
-        "summary": "NBI — Find Bridges Near a Location",
-        "description": "Find US highway bridges within a specified radius (up to 50 miles) of a latitude/longitude coordinate. Results are sorted by lowest sufficiency rating ascending (most at-risk bridges first). Returns the same core fields as nbi.search: structure number, location, feature below, coordinates, condition (Good/Fair/Poor), deck/superstructure/substructure ratings, operating load rating, max span length, deck width, average daily traffic, open/posted/closed status, and scour classification. Useful for infrastructure planning, site assessments, disaster response routing, and proximity analysis. Covers all 621,000+ US highway bridges. No auth required — USDOT/FHWA public domain data.",
-        "x-payment-info": {
-          "amount": "2000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.002000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.002000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "nbi.nearby"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "latitude": {
-                    "type": "number",
-                    "description": "Center latitude of the search area in decimal degrees (e.g. 37.7749 for San Francisco).",
-                    "minimum": -90,
-                    "maximum": 90
-                  },
-                  "longitude": {
-                    "type": "number",
-                    "description": "Center longitude of the search area in decimal degrees (e.g. -122.4194 for San Francisco).",
-                    "minimum": -180,
-                    "maximum": 180
-                  },
-                  "radius_miles": {
-                    "type": "number",
-                    "minimum": 0.1,
-                    "maximum": 50,
-                    "description": "Search radius in miles from the center point (0.1–50, default 10). Larger radii may return up to 100 results."
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 100,
-                    "description": "Maximum number of nearby bridges to return (1–100, default 25). Sorted by lowest sufficiency rating ascending."
-                  }
-                },
-                "required": [
-                  "latitude",
-                  "longitude"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/nbi.condition_stats/call": {
-      "post": {
-        "operationId": "nbi_condition_stats",
-        "summary": "NBI — Bridge Condition Statistics for a State",
-        "description": "Get aggregated bridge condition statistics for all highway bridges in a given US state. Returns counts and percentages for each condition category: Good, Fair, Poor, and Unknown/Not-applicable. This summary matches the metrics used in the FHWA annual Bridge Conditions report and Congressional infrastructure reporting. A bridge is classified as Structurally Deficient if rated Poor. As of June 2023, ~7% of US bridges (43,000+) are in Poor condition. Useful for state-level infrastructure health dashboards, policy analysis, and funding prioritization. Data: FHWA NBI June 2023. No auth required — USDOT public domain.",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "nbi.condition_stats"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "state_code": {
-                    "type": "string",
-                    "description": "Two-digit FIPS state code (e.g. \"06\" for California, \"48\" for Texas, \"36\" for New York, \"17\" for Illinois). Leading zero required for single-digit states (e.g. \"01\" for Alabama).",
-                    "minLength": 2,
-                    "maxLength": 2
-                  }
-                },
-                "required": [
-                  "state_code"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
     "/api/v1/tools/brightsky.current/call": {
       "post": {
         "operationId": "brightsky_current",
@@ -96591,398 +95390,6 @@
                 "required": [
                   "station_id"
                 ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/dpla.items.search/call": {
-      "post": {
-        "operationId": "dpla_items_search",
-        "summary": "DPLA — Search Digitized Items",
-        "description": "Search 50M+ digitized items from US libraries, archives, and museums via the Digital Public Library of America. Filter by media type (image, text, sound, moving image), date range, US state, or contributing institution. Results include title, creator, date, type, subject tags, rights, and direct links to the original item and thumbnail. Sources include the Smithsonian, Library of Congress, NYPL, state digitization programs, and 2,000+ contributing institutions. Returns facets for top subjects, providers, and types within the result set.",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "dpla.items.search"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "q": {
-                    "type": "string",
-                    "description": "Full-text search query across title, description, creator, and subject fields (e.g. \"civil war photographs\", \"Thomas Jefferson\")"
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "image",
-                      "text",
-                      "sound",
-                      "moving image",
-                      "physical object"
-                    ],
-                    "description": "Filter by media type: image (photographs, drawings), text (books, manuscripts), sound (audio recordings), moving image (film/video), physical object"
-                  },
-                  "date_begin": {
-                    "type": "string",
-                    "description": "Filter items created on or after this year (e.g. \"1850\"). Use with date_end for a range."
-                  },
-                  "date_end": {
-                    "type": "string",
-                    "description": "Filter items created on or before this year (e.g. \"1900\"). Use with date_begin for a range."
-                  },
-                  "state": {
-                    "type": "string",
-                    "description": "Filter by US state name where the item originated or is about (e.g. \"Massachusetts\", \"California\")"
-                  },
-                  "provider": {
-                    "type": "string",
-                    "description": "Filter by contributing institution name (e.g. \"Smithsonian Institution\", \"The New York Public Library\")"
-                  },
-                  "page": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Page number for pagination, starting at 1 (default: 1)"
-                  },
-                  "page_size": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 50,
-                    "description": "Number of items per page, 1–50 (default: 10)"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/dpla.items.detail/call": {
-      "post": {
-        "operationId": "dpla_items_detail",
-        "summary": "DPLA — Fetch Item by ID",
-        "description": "Fetch the full metadata record for a specific DPLA item by its 32-character hex identifier. Returns complete fields: title, creator, date, type, format, subject tags, language, rights category, contributing institution, original item URL, and thumbnail URL. Use after a search call to retrieve complete details for a specific digitized object.",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "dpla.items.detail"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "item_id": {
-                    "type": "string",
-                    "description": "DPLA item identifier (32-character hex string, e.g. \"eb930b2f9ad638f921429e5e898f0a34\"). Obtain from search results."
-                  }
-                },
-                "required": [
-                  "item_id"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/dpla.items.by_subject/call": {
-      "post": {
-        "operationId": "dpla_items_by_subject",
-        "summary": "DPLA — Browse Items by Subject",
-        "description": "Browse digitized items from US archives by subject or topic keyword using DPLA subject vocabulary. Subjects include broad categories (Women, Architecture, Photography) and historical topics (Civil War, Native Americans, Abolitionists). Optionally filter by media type. Returns paginated list of matching items with title, creator, date, type, thumbnail, and direct URL.",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "dpla.items.by_subject"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "subject": {
-                    "type": "string",
-                    "description": "Subject or topic to browse (e.g. \"Photography\", \"Women\", \"Architecture\", \"Native Americans\"). Case-insensitive exact match against DPLA subject vocabulary."
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "image",
-                      "text",
-                      "sound",
-                      "moving image",
-                      "physical object"
-                    ],
-                    "description": "Optionally narrow results to a specific media type: image, text, sound, moving image, or physical object"
-                  },
-                  "page": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Page number for pagination, starting at 1 (default: 1)"
-                  },
-                  "page_size": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 50,
-                    "description": "Number of items per page, 1–50 (default: 10)"
-                  }
-                },
-                "required": [
-                  "subject"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/dpla.items.facets/call": {
-      "post": {
-        "operationId": "dpla_items_facets",
-        "summary": "DPLA — Get Top Facets",
-        "description": "Get top facet counts (subjects, providers/institutions, media types, US states) across the entire DPLA collection or scoped to a search query. Useful for discovering what subject areas, contributing libraries, or media types dominate a given topic. Returns ranked term lists with counts for four dimensions: subject, provider, type, and state.",
-        "x-payment-info": {
-          "amount": "1000",
-          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-          "intent": "charge",
-          "method": "tempo",
-          "description": "$0.001000 USD per call",
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000"
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "dpla.items.facets"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "q": {
-                    "type": "string",
-                    "description": "Optional query to scope the facets (e.g. \"civil war\" returns top subjects/providers/types within that query). Omit for global top facets."
-                  },
-                  "facet_size": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 50,
-                    "description": "Number of top terms to return per facet dimension, 1–50 (default: 10)"
-                  }
-                }
               }
             }
           }
@@ -107811,6 +106218,191 @@
                     "description": "Maximum number of documents to return (1-100, default 20)."
                   }
                 }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ensembl.gene_lookup/call": {
+      "post": {
+        "operationId": "ensembl_gene_lookup",
+        "summary": "Look Up Gene by Symbol",
+        "description": "Look up a gene by symbol (e.g. \"BRCA1\", \"TP53\") in any of 300+ vertebrate and non-vertebrate species. Returns Ensembl gene ID, genomic coordinates, biotype, description, and (optionally) the full list of transcripts with their coordinates. Data: rest.ensembl.org (EMBL-EBI / Wellcome Sanger Institute), no auth required.",
+        "x-payment-info": {
+          "amount": "2000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.002000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ensembl.gene_lookup"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "string",
+                    "description": "Species name in Ensembl format — scientific snake_case (e.g. \"homo_sapiens\", \"mus_musculus\") or common alias (e.g. \"human\", \"mouse\")",
+                    "minLength": 1
+                  },
+                  "symbol": {
+                    "type": "string",
+                    "description": "Gene symbol to look up (e.g. \"BRCA1\", \"TP53\", \"EGFR\")",
+                    "minLength": 1
+                  },
+                  "expand": {
+                    "type": "boolean",
+                    "description": "Include the list of transcripts for this gene in the response. Default: true",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "species",
+                  "symbol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/ensembl.sequence_region/call": {
+      "post": {
+        "operationId": "ensembl_sequence_region",
+        "summary": "Get Genomic Sequence for Region",
+        "description": "Retrieve the raw DNA sequence for a genomic region (e.g. \"17:7668402-7687550\" on GRCh38). Returns the nucleotide sequence, molecule type, and sequence length. Useful for primer design, variant context, and comparative sequence analysis. Data: rest.ensembl.org (EMBL-EBI / Wellcome Sanger Institute), no auth required.",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ensembl.sequence_region"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "species": {
+                    "type": "string",
+                    "description": "Species name in Ensembl format — scientific snake_case (e.g. \"homo_sapiens\") or common alias (e.g. \"human\", \"mouse\")",
+                    "minLength": 1
+                  },
+                  "region": {
+                    "type": "string",
+                    "description": "Genomic region in \"chromosome:start-end\" format, GRCh38 coordinates (e.g. \"X:1000000-1000100\", \"17:7668402-7687550\" for TP53)",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "species",
+                  "region"
+                ]
               }
             }
           }
