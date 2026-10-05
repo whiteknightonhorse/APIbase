@@ -78,6 +78,29 @@ export async function verifyWalletSignature(
   if (addr.toLowerCase() !== expected || msgPurpose !== purpose) {
     throw new ShopAuthError(401, 'message does not match address/purpose');
   }
+  await verifyBoundNonceSignature(
+    { message, signature, address: addr, nonce, issuedAt, expected },
+    opts,
+  );
+}
+
+/**
+ * Shared tail of the verification: nonce (GETDEL, single use) bound to `expected`, freshness of
+ * `issuedAt`, EIP-191 signature over `message` by `address`. Also used for the §11.2 terms
+ * message, whose text differs from the sign-in template but carries the same nonce + time.
+ */
+export async function verifyBoundNonceSignature(
+  a: {
+    message: string;
+    signature: string;
+    address: string;
+    nonce: string;
+    issuedAt: string;
+    expected: string;
+  },
+  opts: { redis?: NonceRedis; now?: () => number } = {},
+): Promise<void> {
+  const { message, signature, address, nonce, issuedAt, expected } = a;
   let bound: string | null;
   try {
     const r = opts.redis ?? (await defaultRedis());
@@ -93,7 +116,7 @@ export async function verifyWalletSignature(
   let ok = false;
   try {
     ok = await verifyMessage({
-      address: addr as `0x${string}`,
+      address: address as `0x${string}`,
       message,
       signature: signature as `0x${string}`,
     });

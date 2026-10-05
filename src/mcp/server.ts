@@ -28,6 +28,7 @@ import { mcpSessionsActive } from '../services/metrics.service';
 import { registerTools, type PaymentContext } from './tool-adapter';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
+import { registerMerchantTools } from '../shop/tools/merchant.tools';
 
 // ---------------------------------------------------------------------------
 // Session state
@@ -167,13 +168,14 @@ const SERVER_OPTIONS = {
  * Payment context ref is a mutable object updated per-request in the POST handler,
  * so tool callbacks always see the payment state from the current HTTP request.
  */
-function createMcpServer(
+export function createMcpServer(
   apiKey: string,
   requestId: string,
   paymentCtxRef: PaymentContext,
 ): McpServer {
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
+  registerMerchantTools(mcpServer, apiKey, requestId);
   registerPrompts(mcpServer);
   return mcpServer;
 }
