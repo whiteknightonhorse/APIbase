@@ -9,12 +9,14 @@ import {
   merchantIdBySlug,
   type QuoteResponse,
 } from '../quote.service';
+import { getOrderView, type BuyerAgent } from '../order-payment.service';
 import type { PaymentContext } from '../../mcp/tool-adapter';
 
 export const ORDER_TOOL_NAMES = [
   'shop.order.quote',
   'shop.order.cancel',
   'shop.order.pay',
+  'shop.order.get',
 ] as const;
 
 type Result = {
@@ -39,7 +41,17 @@ export function forMcp(q: QuoteResponse): QuoteResponse {
   return { ...q, pay };
 }
 
-/** §6.1 buyer order tools: quote, pay (x402 on /mcp; the PAID answer is INT-09) and cancel. */
+/** §8.4: the MCP client name/version from `initialize`, when the transport has one. */
+function mcpClient(server: McpServer): BuyerAgent | undefined {
+  const v = (
+    server as unknown as {
+      server?: { getClientVersion?: () => { name?: string; version?: string } | undefined };
+    }
+  ).server?.getClientVersion?.();
+  return v ? { client_name: v.name, client_version: v.version } : undefined;
+}
+
+/** §6.1 buyer order tools: quote, pay (x402 on /mcp: settle, PAID, delivery), get and cancel. */
 export function registerOrderTools(
   server: McpServer,
   apiKey: string,
@@ -104,13 +116,18 @@ export function registerOrderTools(
     {
       title: 'Pay a quoted order',
       description:
-        'Pay a quote with x402 (X-Payment header on this /mcp call, exact total_usd to the merchant payout wallet). Without a payment the result is an error carrying the 402 challenge (accepts[0].payTo/amount, extra.quote_id) and pay.mpp.url for MPP clients. A valid payment moves the order to PAYING (202 payment_pending). Errors: 402 payment_amount_mismatch, 410 quote_expired (a new quote is attached), 429 test_sku_daily_cap.',
+        'Pay a quote with x402 (X-Payment header on this /mcp call, exact total_usd to the merchant payout wallet). The payment is settled and its receipt awaited BEFORE anything is delivered: status paid carries order {order_id, state, tx_hash, fulfillment?}; payment_pending (receipt not seen within 30 s) carries order_id, poll shop.order.get; repeating the call without payment on a quote you already paid returns already_placed. Without a payment the result is an error carrying the 402 challenge (accepts[0].payTo/amount, extra.quote_id) and pay.mpp.url for MPP clients. Errors: 402 payment_amount_mismatch, 410 quote_expired (a new quote is attached), 429 test_sku_daily_cap.',
       inputSchema: {
         quote_id: z.string(),
         waive_withdrawal: z.boolean().optional(),
         buyer_company: z.string().max(200).optional(),
       },
-      outputSchema: { status: z.string(), order_id: z.string(), state: z.string() },
+      outputSchema: {
+        status: z.string(),
+        order_id: z.string(),
+        state: z.string(),
+        order: z.record(z.unknown()).optional(),
+      },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },
     async (a: { quote_id: string; waive_withdrawal?: boolean; buyer_company?: string }) => {
@@ -126,8 +143,9 @@ export function registerOrderTools(
           host: new URL(integratorConfig().public_url).host,
           waive_withdrawal: a.waive_withdrawal,
           buyer_company: a.buyer_company,
+          buyer_agent: mcpClient(server),
         });
-        if (r.status === 202) return ok(r.body);
+        if (r.status === 202 || r.status === 200) return ok(r.body);
         return {
           isError: true,
           content: [{ type: 'text' as const, text: JSON.stringify(r.body) }],
@@ -158,6 +176,32 @@ export function registerOrderTools(
       try {
         const buyer = await resolveBuyer({ apiKey });
         return ok({ ...(await cancelOrder(deps, buyer, a.order_id, a.reason)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.order.get',
+    {
+      title: 'Get an order',
+      description:
+        'Order state and tx_hash; fulfillment (the delivered content) only for the identity that paid, repeatable. Poll this after a payment_pending answer.',
+      inputSchema: { order_id: z.string() },
+      outputSchema: {
+        order_id: z.string(),
+        state: z.string(),
+        tx_hash: z.string().nullable(),
+        fulfillment: z.string().optional(),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: { order_id: string }) => {
+      try {
+        const buyer = await resolveBuyer({ apiKey });
+        return ok({ ...(await getOrderView(deps.db, a.order_id, buyer.identity)) });
       } catch (err) {
         return fail(err, requestId);
       }

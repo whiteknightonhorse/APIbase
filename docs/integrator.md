@@ -136,6 +136,18 @@ Buyer path. A quote is a price snapshot plus a stock hold; nothing is charged by
 
 Error codes: `quote_expired` (410), `out_of_stock` (409), `test_sku_daily_cap` (429), `below_minimum`/`above_max_order`/`new_merchant_cap` (422), `not_cancellable` (409), `quote_not_open` (409).
 
+## Payment & fulfillment
+
+Buyer path after a quote: pay with x402 (Base). **Settle comes before delivery** — the order is delivered only after the USDC transfer has a successful receipt.
+
+- `shop.order.pay {quote_id}` on `/mcp` (X-Payment header on that call) · `POST /api/v1/shop/quotes/:id/pay` (`X-Payment` / `PAYMENT-SIGNATURE`). The authorization must be for exactly `total_usd` to the merchant payout wallet; the platform verifies it, claims its nonce (single use; Redis unavailable → `503`, nothing is settled), then settles through the platform facilitator and waits for the receipt (≤ 30 s). The PayAI facilitator is used only if the local one throws; a refused settle (`success:false`) is final — no retry, no second facilitator.
+- **`200 paid`** — `order {order_id, state, tx_hash, fulfillment?}`. Instant products go `PAID → CONFIRMED → FULFILLED`; `waive_withdrawal: true` closes the order at once (`CLOSED`), otherwise it closes after `refund_window_days` (default 14). The test SKU delivers `test ok`. `merchant` fulfillment stays `PAID` until the merchant confirms.
+- **`202 payment_pending {order_id}`** — the receipt was not seen in time; the order stays `PAYING`. Poll `shop.order.get` / `GET /api/v1/shop/orders/:id`. The `shop-payment-reconcile` job (every 5 minutes, 24 h window) reads `authorizationState(payer, nonce)` and the USDC `Transfer` on-chain: confirmed → `PAID` and delivery; not confirmed after 24 h → `PAYMENT_FAILED` for good, the quote expires and the stock reservation is released. Only `pending`/`failed` payments are reconciled, never wallets.
+- **`402 payment_required`** — the settle was refused (`PAYMENT_FAILED`, nothing delivered); the quote stays open until its TTL, sign a new authorization (new nonce) and pay again: the same order row goes `PAYMENT_FAILED → PAYING`. A quote that is already paid, or has a payment in progress, also answers `402`.
+- **`200 already_placed`** — a repeat of `shop.order.pay` **without** a payment on a quote the same identity already paid returns the same order (with `fulfillment`); any other identity gets `402`.
+- `shop.order.get {order_id}` · `GET /api/v1/shop/orders/:id` → `{order_id, state, tx_hash, fulfillment?}`. `fulfillment` is present only for the identity that paid (the quote's buyer, or the wallet identity of the payer) and is the same on every call.
+- Paid orders emit the `shop.order.paid` event; the `PAID` order event records `request_id`, the buyer agent (client name/version or user agent) and the first 8 hex characters of the payer wallet's SHA-256 — never the wallet.
+
 ## Legal documents
 
 Draft texts, accepted by the operator without legal review; not a legal opinion.

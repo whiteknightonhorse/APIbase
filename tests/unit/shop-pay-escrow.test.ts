@@ -49,8 +49,9 @@ jest.mock('../../src/services/payment-nonce.service', () => ({
   claimPaymentNonce: (r: string, n: string) => mockClaim(r, n),
 }));
 const mockVerify = jest.fn();
+const mockSettle = jest.fn();
 jest.mock('../../src/services/x402-server.service', () => ({
-  getSharedResourceServer: () => ({ verifyPayment: mockVerify }),
+  getSharedResourceServer: () => ({ verifyPayment: mockVerify, settlePayment: mockSettle }),
 }));
 jest.mock('../../src/services/redis.service', () => ({}));
 
@@ -95,6 +96,8 @@ dbDescribe('shop.order.pay ESCROW binding', () => {
       isValid: true,
       payer: p.payload.authorization.from,
     }));
+    // INT-09: settle ran, receipt not seen -> the order stays PAYING (what INT-08 asserted).
+    mockSettle.mockReset().mockResolvedValue({ success: true, transaction: '' });
     mockClaim.mockClear();
     claimed.clear();
   });

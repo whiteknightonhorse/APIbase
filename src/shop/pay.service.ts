@@ -2,6 +2,7 @@ import { buildPaymentRequiredResponse, escrowQuotePayment } from '../pipeline/st
 import type { PipelineContext } from '../pipeline/types';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import { getQuote, type Buyer } from './quote.service';
+import { findPlacedOrder, payResponseBody, type BuyerAgent } from './order-payment.service';
 import type { PaymentBinding } from '../pipeline/stages/escrow.stage';
 
 export interface PayRequest {
@@ -14,6 +15,8 @@ export interface PayRequest {
   host: string;
   waive_withdrawal?: boolean;
   buyer_company?: string;
+  /** §8.4 client/version (MCP) or user agent (REST), for the PAID event only. */
+  buyer_agent?: BuyerAgent;
 }
 
 export interface PayResponse {
@@ -31,10 +34,26 @@ const SUGGESTED: Record<number, string> = {
 
 /**
  * §6.1 shop.order.pay / §6.3 POST /quotes/:id/pay (x402). The money decision is ESCROW's
- * (`escrowQuotePayment`); this only shapes its outcome for the two transports. Until INT-09 a
- * valid payment ends at PAYING and answers 202 `payment_pending`.
+ * (`escrowQuotePayment`: verify, claim, settle with receipt, PAID, delivery); this only shapes its
+ * outcome for the two transports: 200 `paid` (order incl. fulfillment), 202 `payment_pending`
+ * (receipt not seen yet), 200 `already_placed` (repeat without payment by the same payer).
  */
 export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayResponse> {
+  if (!r.x402PaymentHeader) {
+    const placed = await findPlacedOrder(deps.db, r.quote_id, r.buyer.identity);
+    if (placed) {
+      return {
+        status: 200,
+        body: {
+          status: 'already_placed',
+          order_id: placed.order_id,
+          state: placed.state,
+          order: placed,
+        },
+      };
+    }
+  }
+
   const ctx = {
     requestId: r.requestId,
     method: 'POST',
@@ -49,14 +68,12 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
     agentId: r.buyer.identity,
     x402Paid: Boolean(r.x402PaymentHeader),
     x402PaymentHeader: r.x402PaymentHeader,
+    buyerAgent: r.buyer_agent,
   } as unknown as PipelineContext;
 
   const res = await escrowQuotePayment(deps, ctx);
   if (res.ok) {
-    return {
-      status: 202,
-      body: { status: 'payment_pending', order_id: res.value.order_id, state: res.value.state },
-    };
+    return payResponseBody(res.value);
   }
 
   const e = res.error;

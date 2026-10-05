@@ -462,15 +462,29 @@ async function verifyX402Binding(
 }
 
 export type QuotePayResult = Result<
-  { order_id: string; payment_id: string; state: 'PAYING' },
+  { order_id: string; state: string; tx_hash?: string | null; fulfillment?: string },
   PipelineError
 >;
+
+/** The committed PAYING step: what settle needs. */
+interface PayingStep {
+  order_id: string;
+  payment_id: string;
+  payer: string;
+  binding: PaymentBinding;
+}
+
+const isLiveOrderConflict = (e: unknown): boolean =>
+  /shop_orders_quote_id_live_key|unique constraint|\b23505\b/i.test(
+    `${(e as { code?: string })?.code ?? ''} ${(e as { message?: string })?.message ?? ''}`,
+  );
 
 /**
  * ESCROW for `shop.order.pay` (x402/Base): everything inside ONE transaction that holds the
  * quote's row lock. Order: lock+binding → test-SKU cap (before verify: wallet not charged) →
  * verify against the binding → payer OFAC → nonce claim → shop_payments(pending) → PAYING.
- * Settle and the PAID response are INT-09; until then the caller answers 202 payment_pending.
+ * Then, AFTER that commit, settle with the receipt awaited (INT-09, §7.2) and only then PAID +
+ * delivery (`shop-settle.ts`). A pending receipt leaves the order PAYING (202 for the caller).
  */
 export async function escrowQuotePayment(
   deps: ShopDeps,
@@ -482,95 +496,102 @@ export async function escrowQuotePayment(
   const { transition } = await import('../../shop/order-state');
   const at = (deps.now ?? Date.now)();
 
-  const res = await deps.transaction(async (tx): Promise<QuotePayResult> => {
-    const built = await buildPaymentBinding(ctx, tx, at);
-    if (!built.ok) return built;
-    const { binding, quote } = built.value;
-    if (!quote) throw new Error('quote binding without a quote');
-    const quoteId = quote.quote_id;
+  let res: Result<PayingStep, PipelineError>;
+  try {
+    res = await deps.transaction(async (tx): Promise<Result<PayingStep, PipelineError>> => {
+      const built = await buildPaymentBinding(ctx, tx, at);
+      if (!built.ok) return built;
+      const { binding, quote } = built.value;
+      if (!quote) throw new Error('quote binding without a quote');
+      const quoteId = quote.quote_id;
 
-    // §7.3: the test-SKU cap is checked BEFORE verify.
-    if (quote.is_test) {
-      const cap = integratorConfig().test_sku_daily_cap;
-      if ((await countPaidTestOrders24h(tx, quote.merchant_id, at)) >= cap) {
-        return quoteErr(
-          429,
-          'test_sku_daily_cap',
-          `test SKU: ${cap} paid orders per 24 hours reached`,
+      // §7.3: the test-SKU cap is checked BEFORE verify.
+      if (quote.is_test) {
+        const cap = integratorConfig().test_sku_daily_cap;
+        if ((await countPaidTestOrders24h(tx, quote.merchant_id, at)) >= cap) {
+          return quoteErr(
+            429,
+            'test_sku_daily_cap',
+            `test SKU: ${cap} paid orders per 24 hours reached`,
+          );
+        }
+      }
+
+      // Buyer preferences are written only by the quote's own buyer; the payment itself is
+      // authorised by the signature alone (§8.2), so this never gates it.
+      const body = (ctx.body ?? {}) as { waive_withdrawal?: unknown; buyer_company?: unknown };
+      const ownsQuote = !quote.buyer_identity || quote.buyer_identity === ctx.agentId;
+      if (ownsQuote && typeof body.waive_withdrawal === 'boolean') {
+        await tx.$executeRawUnsafe(
+          `UPDATE shop_quotes SET waive_withdrawal = $2 WHERE quote_id = $1::uuid`,
+          quoteId,
+          body.waive_withdrawal,
         );
       }
-    }
+      if (ownsQuote && typeof body.buyer_company === 'string' && body.buyer_company.trim() !== '') {
+        await tx.$executeRawUnsafe(
+          `UPDATE shop_quotes SET buyer_company = $2 WHERE quote_id = $1::uuid`,
+          quoteId,
+          body.buyer_company.trim().slice(0, 200),
+        );
+      }
 
-    // Buyer preferences are written only by the quote's own buyer; the payment itself is
-    // authorised by the signature alone (§8.2), so this never gates it.
-    const body = (ctx.body ?? {}) as { waive_withdrawal?: unknown; buyer_company?: unknown };
-    const ownsQuote = !quote.buyer_identity || quote.buyer_identity === ctx.agentId;
-    if (ownsQuote && typeof body.waive_withdrawal === 'boolean') {
-      await tx.$executeRawUnsafe(
-        `UPDATE shop_quotes SET waive_withdrawal = $2 WHERE quote_id = $1::uuid`,
-        quoteId,
-        body.waive_withdrawal,
-      );
-    }
-    if (ownsQuote && typeof body.buyer_company === 'string' && body.buyer_company.trim() !== '') {
-      await tx.$executeRawUnsafe(
-        `UPDATE shop_quotes SET buyer_company = $2 WHERE quote_id = $1::uuid`,
-        quoteId,
-        body.buyer_company.trim().slice(0, 200),
-      );
-    }
-
-    const verified = await verifyX402Binding(ctx, binding, async ({ payer }) => {
-      if (!(await isSanctioned(tx, payer))) return ok(true);
-      // Written and COMMITTED (the tx returns, it does not throw): source of PAYER_SANCTIONED (INT-13).
-      await tx.$executeRawUnsafe(
-        `INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category, evidence_hash)
+      const verified = await verifyX402Binding(ctx, binding, async ({ payer }) => {
+        if (!(await isSanctioned(tx, payer))) return ok(true);
+        // Written and COMMITTED (the tx returns, it does not throw): source of PAYER_SANCTIONED (INT-13).
+        await tx.$executeRawUnsafe(
+          `INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category, evidence_hash)
          VALUES ($1::uuid, 'merchant', 'rules', 'reject', 'ofac', $2)`,
-        quote.merchant_id,
-        createHash('sha256').update(payer.toLowerCase()).digest('hex'),
-      );
-      await tx.$executeRawUnsafe(
-        `INSERT INTO shop_connect_events (error_code, path) VALUES ('payer_sanctioned', $1)`,
-        `quote:${quoteId}`,
-      );
-      logger.warn({ requestId: ctx.requestId, quoteId }, 'x402 escrow: payer sanctioned — blocked');
-      return quoteErr(402, 'payment_required', 'This payment cannot be accepted.', {
-        binding,
-        quote_id: quoteId,
+          quote.merchant_id,
+          createHash('sha256').update(payer.toLowerCase()).digest('hex'),
+        );
+        await tx.$executeRawUnsafe(
+          `INSERT INTO shop_connect_events (error_code, path) VALUES ('payer_sanctioned', $1)`,
+          `quote:${quoteId}`,
+        );
+        logger.warn(
+          { requestId: ctx.requestId, quoteId },
+          'x402 escrow: payer sanctioned — blocked',
+        );
+        return quoteErr(402, 'payment_required', 'This payment cannot be accepted.', {
+          binding,
+          quote_id: quoteId,
+        });
       });
-    });
-    if (!verified.ok) return verified;
-    const { payer, nonce } = verified.value;
+      if (!verified.ok) return verified;
+      const { payer, nonce } = verified.value;
 
-    const pay = await tx.$queryRawUnsafe<Array<{ payment_id: string }>>(
-      `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, eip3009_nonce, pay_to,
+      const pay = await tx.$queryRawUnsafe<Array<{ payment_id: string }>>(
+        `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, eip3009_nonce, pay_to,
                                   amount_usd, splits, chain_status, reconcile_until)
        VALUES ($1::uuid, 'base', $2, $3, $2, $4, $5::numeric, $6::jsonb, 'pending',
                now() + interval '24 hours')
        RETURNING payment_id`,
-      quote.order_id,
-      nonce,
-      payer,
-      binding.pay_to,
-      binding.amount_usd,
-      JSON.stringify(binding.splits ?? []),
-    );
-    await transition(tx, quote.order_id, 'PAYING', {
-      actor: 'buyer',
-      reason: 'x402_payment_presented',
-      payload: { payer_wallet: payer, rail: 'base' },
+        quote.order_id,
+        nonce,
+        payer,
+        binding.pay_to,
+        binding.amount_usd,
+        JSON.stringify(binding.splits ?? []),
+      );
+      await transition(tx, quote.order_id, 'PAYING', {
+        actor: 'buyer',
+        reason: 'x402_payment_presented',
+        payload: { payer_wallet: payer, rail: 'base' },
+      });
+      await tx.$executeRawUnsafe(
+        `UPDATE shop_orders SET payer_wallet = $2, rail = 'base' WHERE order_id = $1::uuid`,
+        quote.order_id,
+        payer,
+      );
+      return ok({ order_id: quote.order_id, payment_id: pay[0].payment_id, payer, binding });
     });
-    await tx.$executeRawUnsafe(
-      `UPDATE shop_orders SET payer_wallet = $2, rail = 'base' WHERE order_id = $1::uuid`,
-      quote.order_id,
-      payer,
-    );
-    return ok({
-      order_id: quote.order_id,
-      payment_id: pay[0].payment_id,
-      state: 'PAYING' as const,
-    });
-  });
+  } catch (e) {
+    // §9.1 "Две оплаты котировки": a second live order row for the quote hits the INT-01 index.
+    if (!isLiveOrderConflict(e)) throw e;
+    logger.warn({ requestId: ctx.requestId }, 'x402 escrow: live order already exists for quote');
+    return quoteErr(402, 'payment_required', 'A payment for this order is already in progress.');
+  }
 
   if (!res.ok && res.error.error === 'quote_expired') {
     // The lock is released: now issue the replacement quote (UC-15) — getQuote opens its own tx.
@@ -583,7 +604,30 @@ export async function escrowQuotePayment(
       }
     }
   }
-  return res;
+  if (!res.ok) return res;
+
+  const { settleAndFinalize } = await import('./shop-settle');
+  const step = res.value;
+  const agent = (ctx as { buyerAgent?: Record<string, string> }).buyerAgent;
+  const out = await settleAndFinalize(deps, {
+    order_id: step.order_id,
+    payment_id: step.payment_id,
+    payer: step.payer,
+    amount_usd: step.binding.amount_usd,
+    pay_to: step.binding.pay_to,
+    header: ctx.x402PaymentHeader,
+    request_id: ctx.requestId,
+    buyer_agent: agent,
+  });
+  if (out.kind === 'paid') return ok({ ...out.order });
+  if (out.kind === 'pending') return ok({ order_id: out.order_id, state: 'PAYING' });
+  // success:false: the quote stays open until its TTL, so the 402 challenge is offered again.
+  return quoteErr(
+    402,
+    'payment_required',
+    'The payment could not be settled; nothing was delivered. Sign a new authorization.',
+    { binding: step.binding, quote_id: step.binding.resource.slice('quote:'.length) },
+  );
 }
 
 /**
@@ -723,9 +767,10 @@ export const escrowStage: Stage = {
       const { defaultShopDeps } = await import('../../shop/merchant-lifecycle.service');
       const paid = await escrowQuotePayment(defaultShopDeps(), ctx);
       if (!paid.ok) return paid;
-      // INT-09 replaces this with settle + the PAID response.
-      ctx.responseStatus = 202;
-      ctx.responseBody = { status: 'payment_pending', order_id: paid.value.order_id };
+      const { payResponseBody } = await import('../../shop/order-payment.service');
+      const shaped = payResponseBody(paid.value);
+      ctx.responseStatus = shaped.status;
+      ctx.responseBody = shaped.body;
       return ok(ctx);
     }
 

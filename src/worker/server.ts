@@ -10,6 +10,10 @@ import { run as runPartitionCreate } from '../jobs/partition-create.job';
 import { run as runToolQuality } from '../jobs/tool-quality.job';
 import { run as runPartitionCleanup } from '../jobs/partition-cleanup.job';
 import { run as runOfacSdnSync } from '../jobs/ofac-sdn-sync.job';
+import {
+  run as runShopPaymentReconcile,
+  runDailySample as runShopPaymentSample,
+} from '../jobs/shop-payment-reconcile.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -235,6 +239,26 @@ const ofacSdnSyncTask = cron.schedule('30 5 * * *', () => {
 });
 setTimeout(() => runOfacSdnSyncSafe({ skipIfFresh: true }).catch(() => {}), 20_000);
 
+// Order payments (INT-09, §7.2): pending/failed shop_payments are re-read on-chain every 5 min;
+// a daily sample of confirmed ones is re-checked against the receipt (PAYMENT_MISMATCH source).
+let shopReconcileRunning = false;
+const shopReconcileTask = cron.schedule('*/5 * * * *', () => {
+  if (shopReconcileRunning) {
+    return;
+  }
+  shopReconcileRunning = true;
+  runShopPaymentReconcile()
+    .catch((err) => logger.error({ err, job: 'shop-payment-reconcile' }, 'reconcile job failed'))
+    .finally(() => {
+      shopReconcileRunning = false;
+    });
+});
+const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
+  runShopPaymentSample().catch((err) =>
+    logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
+  );
+});
+
 // Create partitions for next 7 days at startup (catch up after restart/missed crons)
 setTimeout(async () => {
   try {
@@ -269,7 +293,7 @@ setTimeout(async () => {
 }, 5_000);
 
 logger.info(
-  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync cron active',
+  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync + shop-payment-reconcile cron active',
 );
 
 // ---------------------------------------------------------------------------
@@ -286,6 +310,8 @@ function shutdown(signal: string): void {
   toolQualityTask.stop();
   partitionCleanupTask.stop();
   ofacSdnSyncTask.stop();
+  shopReconcileTask.stop();
+  shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);

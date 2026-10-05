@@ -7,6 +7,7 @@ import { clearIdempotency, finalizeIdempotency } from '../../services/idempotenc
 import { resolveBuyer } from '../buyer';
 import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycle.service';
 import { resolveX402PaymentHeader } from '../../config/http-headers';
+import { getOrderView } from '../order-payment.service';
 import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.service';
 
 /** §6.3 buyer routes (quotes, cancel), mounted at /api/v1/shop/*. Same services as the /mcp tools. */
@@ -103,11 +104,21 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
         waive_withdrawal:
           typeof body.waive_withdrawal === 'boolean' ? body.waive_withdrawal : undefined,
         buyer_company: typeof body.buyer_company === 'string' ? body.buyer_company : undefined,
+        buyer_agent: { user_agent: req.get('user-agent')?.slice(0, 200) },
       });
       if (r.status === 402 && Array.isArray(r.body.accepts)) {
         res.setHeader('PAYMENT-REQUIRED', encodePaymentRequiredHeader(r.body as never));
       }
       res.status(r.status).json(r.body);
+    } catch (err) {
+      send(res, err);
+    }
+  });
+
+  router.get('/api/v1/shop/orders/:id', async (req: Request, res: Response) => {
+    try {
+      const buyer = await buyerOf(req);
+      res.json(await getOrderView(deps.db, String(req.params.id), buyer.identity));
     } catch (err) {
       send(res, err);
     }
