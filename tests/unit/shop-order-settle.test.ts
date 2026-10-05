@@ -363,6 +363,35 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     );
   });
 
+  it('SE4: a settle that outlives the 30 s receipt cap -> 202 payment_pending, order stays PAYING, late success finalizes once', async () => {
+    let release!: (v: { success: boolean; transaction: string }) => void;
+    localSettle.mockImplementation(() => new Promise((res) => (release = res)));
+    const realSetTimeout = global.setTimeout;
+    const spy = jest
+      .spyOn(global, 'setTimeout')
+      .mockImplementation(((fn: () => void, ms?: number, ...a: unknown[]) =>
+        realSetTimeout(fn, ms === 30_000 ? 20 : ms, ...a)) as never);
+    const f = await fixture();
+    let r;
+    try {
+      r = await pay(f);
+    } finally {
+      spy.mockRestore();
+    }
+    expect(r.status).toBe(202);
+    expect(r.body).toMatchObject({ status: 'payment_pending', order_id: f.quote.order_id });
+    expect((await order(f)).state).toBe('PAYING');
+    expect(localSettle).toHaveBeenCalledTimes(1);
+
+    release({ success: true, transaction: '0xlate' });
+    for (let i = 0; i < 50 && (await order(f)).state === 'PAYING'; i++) {
+      await new Promise((res) => realSetTimeout(res, 20));
+    }
+    const o = await order(f);
+    expect(o.state).toBe('FULFILLED');
+    expect(o.tx_hash).toBe('0xlate');
+  });
+
   it('SE4: nothing on-chain and reconcile_until passed -> PAYMENT_FAILED for good, reservation released; RPC down -> untouched', async () => {
     localSettle.mockResolvedValue({ success: true, transaction: '' });
     const f = await fixture();

@@ -59,7 +59,13 @@ export async function finalizeConfirmed(deps: ShopDeps, p: PaidInput): Promise<O
  * `success:false` is final: no second settle, no PayAI. `success:true` with an empty
  * `transaction` is a receipt timeout: the row stays pending for the reconcile job.
  */
-export async function settleAndFinalize(deps: ShopDeps, p: PayingOrder): Promise<SettleOutcome> {
+export const SETTLE_RECEIPT_TIMEOUT_MS = 30_000;
+
+export async function settleAndFinalize(
+  deps: ShopDeps,
+  p: PayingOrder,
+  timeoutMs: number = SETTLE_RECEIPT_TIMEOUT_MS,
+): Promise<SettleOutcome> {
   const fail = async (reason: string): Promise<SettleOutcome> => {
     await failPayment(deps, { order_id: p.order_id, payment_id: p.payment_id, reason });
     return { kind: 'failed', order_id: p.order_id, reason };
@@ -69,10 +75,49 @@ export async function settleAndFinalize(deps: ShopDeps, p: PayingOrder): Promise
     const payload = parsePaymentPayload(decodePaymentSignatureHeader(p.header ?? ''));
     if (!payload.success) return await fail('settle_payload_unreadable');
     const requirements = { ...buildServerX402Requirements(p.amount_usd), payTo: p.pay_to };
-    result = await getSharedResourceServer().settlePayment(
+    // The SDK does not bound its receipt wait by maxTimeoutSeconds (viem default 180 s), so the
+    // 30 s cap is enforced here. On timeout the settle keeps running: the row stays pending and
+    // a late success is finalized below; a late failure is left to the reconcile job (the
+    // transfer may still be mined, so it must not become PAYMENT_FAILED).
+    const settling = getSharedResourceServer().settlePayment(
       payload.data as never,
       requirements as never,
-    );
+    ) as Promise<{ success: boolean; transaction?: string; errorReason?: string }>;
+    let timer: NodeJS.Timeout | undefined;
+    const timedOut = Symbol('timeout');
+    const first = await Promise.race([
+      settling,
+      new Promise<typeof timedOut>((resolve) => {
+        timer = setTimeout(() => resolve(timedOut), timeoutMs);
+      }),
+    ]).finally(() => clearTimeout(timer));
+    if (first === timedOut) {
+      logger.warn(
+        { requestId: p.request_id, orderId: p.order_id },
+        'shop settle: receipt not seen in time — order stays PAYING, reconcile decides',
+      );
+      void settling
+        .then(async (late) => {
+          if (late.success && late.transaction) {
+            await finalizeConfirmed(deps, {
+              order_id: p.order_id,
+              payment_id: p.payment_id,
+              tx_hash: late.transaction,
+              payer: p.payer,
+              request_id: p.request_id,
+              buyer_agent: p.buyer_agent,
+            });
+          }
+        })
+        .catch((e) =>
+          logger.warn(
+            { orderId: p.order_id, err: e instanceof Error ? e.message : String(e) },
+            'shop settle: late result handling failed — reconcile will pick it up',
+          ),
+        );
+      return { kind: 'pending', order_id: p.order_id };
+    }
+    result = first;
   } catch (e) {
     logger.warn(
       { requestId: p.request_id, err: e instanceof Error ? e.message : String(e) },
