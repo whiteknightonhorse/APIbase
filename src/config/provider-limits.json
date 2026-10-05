@@ -3494,7 +3494,7 @@
   },
   "dpla": {
     "display_name": "Digital Public Library of America",
-    "health_url": "https://api.dp.la/v2/items?q=test&page_size=1&api_key=TOKEN_FROM_ENV_PROVIDER_KEY_DPLA",
+    "health_url": "https://api.dp.la/v2/items?q=test",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
@@ -3503,7 +3503,8 @@
     "moderation_class": "data",
     "moderation_class_reviewed": true,
     "probe": {
-      "method": "GET"
+      "method": "GET",
+      "timeout_ms": 12000
     }
   },
   "aviationweather": {
