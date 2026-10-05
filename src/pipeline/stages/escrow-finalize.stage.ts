@@ -124,7 +124,7 @@ export const escrowFinalizeStage: Stage = {
     if (ctx.x402Paid && ctx.x402PaymentHeader && hasResponseToServe) {
       await settleX402(ctx);
       ctx.billingStatus = 'PAID';
-      ctx.finalCost = ctx.toolPrice ?? 0;
+      ctx.finalCost = ctx.quoteFeeUsd ?? ctx.toolPrice ?? 0;
       return ok(ctx);
     }
 
@@ -132,7 +132,7 @@ export const escrowFinalizeStage: Stage = {
     // Cache-hit covered by hasResponseToServe same as x402.
     if (ctx.mppPaid && hasResponseToServe) {
       ctx.billingStatus = 'PAID';
-      ctx.finalCost = ctx.toolPrice ?? 0;
+      ctx.finalCost = ctx.quoteFeeUsd ?? ctx.toolPrice ?? 0;
       return ok(ctx);
     }
 

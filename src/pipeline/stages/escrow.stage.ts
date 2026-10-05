@@ -134,6 +134,8 @@ export interface PaymentBinding {
   resource: `tool:${string}` | `quote:${string}`;
   /** Platform fee leg, informational for Base (receivable, never part of `accepts`). */
   splits?: Array<{ wallet: string; amount_usd: number }>;
+  /** `quote:*` only: our fee on this order (0 = switch off / test SKU) — the §5.4 ledger cost. */
+  fee_usd?: number;
 }
 
 const isQuoteBinding = (b: PaymentBinding): boolean => b.resource.startsWith('quote:');
@@ -235,15 +237,14 @@ export async function buildPaymentBinding(
   const { currentPayout } = await import('../../shop/auth/identity.service');
   const { integratorConfig } = await import('../../shop/quote.service');
   const feeWallet = process.env['INTEGRATOR_FEE_WALLET'];
+  const feeLeg = q.fee_usd > 0 && integratorConfig().fee_enabled && feeWallet;
   const binding: PaymentBinding = {
     amount_usd: q.total_usd,
     pay_to: currentPayout(q, rail, at),
     rail,
     resource: `quote:${q.quote_id}`,
-    splits:
-      q.fee_usd > 0 && integratorConfig().fee_enabled && feeWallet
-        ? [{ wallet: feeWallet, amount_usd: q.fee_usd }]
-        : undefined,
+    splits: feeLeg ? [{ wallet: feeWallet, amount_usd: q.fee_usd }] : undefined,
+    fee_usd: feeLeg && !q.is_test ? q.fee_usd : 0,
   };
   return ok({
     binding,
@@ -536,6 +537,62 @@ interface PayingStep {
   binding: PaymentBinding;
 }
 
+const DUPLICATE_REFUND_DAYS = 7;
+
+/**
+ * §8.1 item 7(c): MPP already took the money (second credential settled) for a quote whose order
+ * is live past QUOTED. ESCROW refuses; in the SAME transaction the debt goes to `shop_refunds`
+ * (the merchant owes it back within 7 days, sweeper INT-12), the fee leg of that credential is
+ * `written_off` (UC-13) and `shop.refund.requested` is queued. The trail is this one: the flag is
+ * set so the 0259 executor does not also write `outbox.mpp_refund_owed`. Returns whether it wrote.
+ */
+async function recordMppDuplicate(tx: ShopTx, ctx: PipelineContext): Promise<boolean> {
+  const quoteId = String((ctx.body as { quote_id?: unknown } | undefined)?.quote_id ?? '');
+  const amount = Number(ctx.mppAmount);
+  if (!UUID_RE.test(quoteId) || !Number.isFinite(amount) || amount <= 0) return false;
+  const live = await tx.$queryRawUnsafe<Array<{ order_id: string; merchant_id: string }>>(
+    `SELECT order_id, merchant_id FROM shop_orders
+      WHERE quote_id = $1::uuid
+        AND state NOT IN ('QUOTED','PAYMENT_FAILED','CANCELLED','EXPIRED') LIMIT 1`,
+    quoteId,
+  );
+  if (!live[0]) return false;
+  const refund = await tx.$queryRawUnsafe<Array<{ refund_id: string; due_at: Date }>>(
+    `INSERT INTO shop_refunds (order_id, amount_usd, reason, requested_by, status, due_at, verified)
+     VALUES ($1::uuid, $2::numeric, 'duplicate', 'system', 'awaiting_merchant_tx',
+             now() + make_interval(days => $3::int), false)
+     RETURNING refund_id, due_at`,
+    live[0].order_id,
+    amount,
+    DUPLICATE_REFUND_DAYS,
+  );
+  const fee = (ctx.mppSplits ?? []).reduce((sum, x) => sum + Number(x.amount), 0);
+  if (fee > 0) {
+    await tx.$executeRawUnsafe(
+      `INSERT INTO shop_fee_ledger (merchant_id, order_id, fee_usd, mode, status)
+       VALUES ($1::uuid, $2::uuid, $3::numeric, 'in_tx', 'written_off')`,
+      live[0].merchant_id,
+      live[0].order_id,
+      fee,
+    );
+  }
+  await tx.$executeRawUnsafe(
+    `INSERT INTO outbox (event_type, payload) VALUES ('shop.refund.requested', $1::jsonb)`,
+    JSON.stringify({
+      refund_id: refund[0].refund_id,
+      order_id: live[0].order_id,
+      merchant_id: live[0].merchant_id,
+      amount_usd: String(amount),
+      reason: 'duplicate',
+      requested_by: 'system',
+      due_at: refund[0].due_at,
+      request_id: ctx.requestId,
+    }),
+  );
+  ctx.mppRefundRecorded = true;
+  return true;
+}
+
 const isLiveOrderConflict = (e: unknown): boolean =>
   /shop_orders_quote_id_live_key|unique constraint|\b23505\b/i.test(
     `${(e as { code?: string })?.code ?? ''} ${(e as { message?: string })?.message ?? ''}`,
@@ -562,9 +619,14 @@ export async function escrowQuotePayment(
   try {
     res = await deps.transaction(async (tx): Promise<Result<PayingStep, PipelineError>> => {
       const built = await buildPaymentBinding(ctx, tx, at);
-      if (!built.ok) return built;
+      if (!built.ok) {
+        // §8.1 item 7(c): a second MPP credential settled for a quote that is already paid.
+        if (ctx.mppPaid && built.error.code === 402) await recordMppDuplicate(tx, ctx);
+        return built;
+      }
       const { binding, quote } = built.value;
       if (!quote) throw new Error('quote binding without a quote');
+      ctx.quoteFeeUsd = binding.fee_usd ?? 0;
       const quoteId = quote.quote_id;
 
       // §7.3: the test-SKU cap is checked BEFORE verify.
@@ -662,8 +724,13 @@ export async function escrowQuotePayment(
     });
   } catch (e) {
     // §9.1 "Две оплаты котировки": a second live order row for the quote hits the INT-01 index.
-    if (ctx.mppPaid) await recordMppRefundOwed(ctx, 'escrow_failed:order_tx');
-    if (!isLiveOrderConflict(e)) throw e;
+    // The losing transaction rolled back, so the duplicate trail is written in a fresh one.
+    const live = isLiveOrderConflict(e);
+    if (ctx.mppPaid) {
+      const dup = live ? await deps.transaction((tx) => recordMppDuplicate(tx, ctx)) : false;
+      if (!dup) await recordMppRefundOwed(ctx, 'escrow_failed:order_tx');
+    }
+    if (!live) throw e;
     logger.warn({ requestId: ctx.requestId }, 'x402 escrow: live order already exists for quote');
     return quoteErr(402, 'payment_required', 'A payment for this order is already in progress.');
   }

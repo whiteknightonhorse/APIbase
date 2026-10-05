@@ -126,6 +126,8 @@ export interface PipelineContext {
   mppRecipient?: string;
   mppSplits?: Array<{ recipient: string; amount: string }>;
   mppRefundRecorded?: boolean;
+  /** `quote:*` (shop.order.pay): binding.fee_usd, set by ESCROW; ESCROW_FINALIZE bills this, not the order total. */
+  quoteFeeUsd?: number;
   /** T-0177 (2026-09-23): set by settleX402() to the facilitator's actual
    *  on-chain settle outcome — true=confirmed, false=attempted and failed.
    *  Undefined when no settle attempt was made (free tool, no payment

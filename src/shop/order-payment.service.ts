@@ -83,6 +83,31 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
         },
       },
     });
+    // §7.1/§5.1: the fee is the leg the payment row was bound to (0 = switch off / test SKU).
+    // Tempo took it in the same transaction (collected); Base owes it (receivable, wave-2 invoice).
+    const legs = await tx.$queryRawUnsafe<Array<{ fee: string }>>(
+      `SELECT coalesce(sum((e->>'amount_usd')::numeric), 0)::text AS fee
+         FROM shop_payments, jsonb_array_elements(splits) e WHERE payment_id = $1::uuid`,
+      p.payment_id,
+    );
+    const fee = Number(legs[0]?.fee ?? 0);
+    const settlement = fee > 0 ? (rail === 'tempo' ? 'in_tx' : 'receivable') : 'none';
+    if (fee > 0) {
+      await tx.$executeRawUnsafe(
+        `INSERT INTO shop_fee_ledger (merchant_id, order_id, fee_usd, mode, status)
+         VALUES ($1::uuid, $2::uuid, $3::numeric, $4, $5)`,
+        o.merchant_id,
+        p.order_id,
+        fee,
+        settlement,
+        settlement === 'in_tx' ? 'collected' : 'owed',
+      );
+    }
+    await tx.$executeRawUnsafe(
+      `UPDATE shop_orders SET fee_settlement = $2 WHERE order_id = $1::uuid`,
+      p.order_id,
+      settlement,
+    );
     await tx.$executeRawUnsafe(
       `UPDATE shop_quotes SET status = 'paid' WHERE quote_id = $1::uuid`,
       o.quote_id,

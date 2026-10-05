@@ -238,7 +238,16 @@ describe('T-INT-05 legal documents', () => {
         /<!-- integrator-legal:start -->[\s\S]*?<!-- integrator-legal:end -->\n\n/,
         '',
       );
-      expect(stripped).toBe(read(join(ROOT, `tests/unit/fixtures/${n}.before-int05.html`)));
+      // The hourly counts cron rewrites the tool/provider totals in these pages: not a legal change.
+      const counts = (h: string) =>
+        h
+          .replace(/(<span class="label">PRV:<\/span><strong>)\d+/g, '$1N')
+          .replace(/(<span class="label">TOOLS:<\/span><strong>)\d+/g, '$1N')
+          .replace(/\d+ tools from \d+ providers/g, 'N tools from N providers')
+          .replace(/<span>\d+ tools {2}\| {2}\d+ providers/g, '<span>N tools  |  N providers');
+      expect(counts(stripped)).toBe(
+        counts(read(join(ROOT, `tests/unit/fixtures/${n}.before-int05.html`))),
+      );
     }
   });
 
