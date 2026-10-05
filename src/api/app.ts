@@ -16,6 +16,7 @@ import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
 import { appealsRouter } from '../routes/appeals.router';
 import { createMerchantRouter } from '../shop/routes/merchant.router';
+import { createLegalRouter } from '../shop/routes/legal.router';
 import { executeRouter } from '../routes/execute.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
@@ -62,6 +63,9 @@ export function createApp(): express.Express {
   // payment and would swallow an anonymous probe's X-PAYMENT/Payment-Signature
   // header instead of this router's honest "not a payable resource" 400.
   app.use(apiEntryRouter);
+
+  // --- Public legal documents (GET only, own rate limit) ---
+  app.use(createLegalRouter());
 
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));

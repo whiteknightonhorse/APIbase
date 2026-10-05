@@ -5,6 +5,8 @@ import { shutdownHealthConnections } from '../services/health.service';
 import { shutdownRedis } from '../services/redis.service';
 import { initToolCache, stopToolCacheRefresh } from '../pipeline/stages/tool-status.stage';
 import { shutdownMcpSessions } from '../mcp/server';
+import { syncLegalDocs } from '../shop/legal/legal-docs';
+import { defaultShopDeps } from '../shop/merchant-lifecycle.service';
 
 /**
  * API server entry point with graceful shutdown (§12.230).
@@ -28,6 +30,9 @@ const app = createApp();
 (async () => {
   // Pre-load tool cache before accepting requests
   await initToolCache();
+
+  // T-INT-05: register static/legal/*.md; a text change without a version bump aborts startup.
+  await syncLegalDocs(defaultShopDeps().db);
 
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT, env: config.NODE_ENV }, 'API server started');

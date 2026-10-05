@@ -7,7 +7,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsx scripts/shop/sync-legal-docs.ts --check",
     "start": "node dist/api/server.js",
     "dev": "tsx watch src/api/server.ts",
     "test": "jest",

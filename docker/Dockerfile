@@ -19,6 +19,9 @@ RUN npx prisma generate
 # Copy source and build
 COPY tsconfig.json ./
 COPY src/ ./src/
+# T-INT-05: `npm run build` also parses/hashes the legal documents
+COPY static/legal/ ./static/legal/
+COPY scripts/shop/ ./scripts/shop/
 RUN npm run build
 
 # ---------------------------------------------------------------------------
@@ -60,6 +63,7 @@ COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
 COPY prisma/migrations ./prisma/migrations
 COPY scripts/ ./scripts/
 COPY config/ ./config/
+COPY static/legal/ ./static/legal/
 COPY lua/ ./lua/
 COPY docker/entrypoint.sh ./entrypoint.sh
 

@@ -78,3 +78,14 @@ The reason is not disclosed. Policy: `/legal/refund-framework`.
 Other codes: `unauthorized` (401, bad/missing signature, nonce used or expired), `rate_limited` (429),
 `validation_failed` (422), `slug_taken`/`wallet_registered` (409), `payout_wallet_sanctioned` (403).
 Limits per IP: nonce 30/min, `POST /merchants` 5/hour, acceptances 10/min.
+
+## Legal documents
+
+Draft texts, accepted by the operator without legal review; not a legal opinion.
+
+- **Where.** `static/legal/{merchant-agreement,aup,dpa,refund-framework}.md` — English text first, Russian section below, both canonical in one file. The first line is `<!-- version: X; effective_from: YYYY-MM-DD; status: … -->`. The fee appears only as the token `{{INTEGRATOR_FEE_PCT}}` (substituted when the HTML page is rendered; `.md` keeps the token). The country list in `aup.md` is generated from `config/integrator/countries-restricted.json` by `scripts/shop/gen-aup-countries.ts`, never by hand.
+- **Hash.** `sha256` is computed over the exact bytes of the `.md` file. `scripts/shop/sync-legal-docs.ts` (run at app start, and as `--check` in `npm run build`) upserts `shop_legal_docs(doc_id, version, sha256, url, effective_from, body_md)`. Changing text without changing `version` fails startup; a new `version` adds a row and old rows stay.
+- **Routes.** `GET /legal/index.json` → `[{doc_id, version, sha256, url, effective_from}]`; `GET /legal/<doc_id>` → HTML, or the `.md` with `Accept: text/markdown`; `GET /legal/<doc_id>.md` → the raw file. 60 requests/min per address, then `429`.
+- **DRAFT banner.** HTML pages carry `<div class="draft-banner">` and `<meta name="robots" content="noindex">` until `config/integrator/legal-published.json` (`{published_at, by}`) exists. It is placed by the operator's go-ahead, not committed. The `.md` never carries a banner.
+- **Acceptance.** A merchant accepts the four documents by signing the §11.2 message with its wallet — see [Registration & terms](#registration--terms) (`shop.merchant.accept_terms`, `POST /merchants/me/acceptances`).
+- `/terms` and `/privacy` have a new Integrator section (marked `integrator-legal` in the HTML); the other sections are unchanged.
