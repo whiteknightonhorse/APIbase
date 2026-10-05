@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# outbox-worker owns only HANDLED_EVENT_TYPES (src/outbox/processor.ts) and never marks this type
 """x402-settle-leak-alerts.py — F1/C-7: page on every 'x402_settle_failed' outbox
 event that hasn't been alerted yet.
 

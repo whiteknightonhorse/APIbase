@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# outbox-worker owns only HANDLED_EVENT_TYPES (src/outbox/processor.ts) and never marks this type
 """mpp-refund-owed-alerts.py — F1/C-5: page the operator for every MPP charge
 that needs a manual refund because the provider call failed after payment.
 

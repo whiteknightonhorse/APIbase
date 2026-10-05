@@ -55,12 +55,20 @@ jest.mock('../../src/config/logger', () => ({
 
 // --- Auth: one fixed active/paid agent behind any Bearer key used below ---
 const TEST_AGENT = { agent_id: 'agent-adversarial-1', tier: 'paid', status: 'active' };
+const mockOutboxCreate = jest.fn();
 jest.mock('../../src/services/prisma.service', () => ({
   getPrisma: () => ({
     agent: { findUnique: jest.fn().mockResolvedValue(TEST_AGENT) },
-    outbox: { create: jest.fn().mockResolvedValue({ id: 1n }) },
+    outbox: { create: (...a: unknown[]) => mockOutboxCreate(...a) },
   }),
 }));
+
+/** mpp_refund_owed rows written during the current test (T-0259). */
+function refundRows(): Array<{ payload: Record<string, unknown> }> {
+  return mockOutboxCreate.mock.calls
+    .map((c) => c[0].data)
+    .filter((d: { event_type: string }) => d.event_type === 'mpp_refund_owed');
+}
 
 // --- Redis: a real in-memory fake (GET/SET EX/NX/DEL) backing the REAL
 // cache.service / idempotency.service / payment-nonce.service, so the actual
@@ -252,6 +260,8 @@ afterAll(() => {
 
 beforeEach(() => {
   fakeRedis.__reset();
+  mockOutboxCreate.mockReset();
+  mockOutboxCreate.mockResolvedValue({ id: 1n });
   mockAdapterCall.mockReset();
   mockAdapterCall.mockResolvedValue({
     status: 200,
@@ -306,7 +316,7 @@ function fakeRes() {
 interface ExecuteCallOpts {
   requestId: string;
   x402?: { header: string; payer?: string };
-  mpp?: { header: string; payer?: string };
+  mpp?: { header: string; payer?: string; amount?: string };
   idempotencyKey?: string;
   params?: Record<string, unknown>;
   // T-0187B2: omit Authorization entirely — simulates a genuinely bare call
@@ -353,7 +363,7 @@ async function callExecute(
       ? {
           verified: true,
           payer: opts.mpp.payer ?? 'pending',
-          amount: String(PRICE),
+          amount: opts.mpp.amount ?? String(PRICE),
           txHash: '0xtest',
           method: 'tempo',
           header: opts.mpp.header,
@@ -577,6 +587,75 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     });
     expect(r.status).toBe(200);
     expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+  });
+
+  it('E3 (T-0259): MPP paid at price, provider 502 → 502 and exactly one refund-owed row', async () => {
+    mockAdapterCall.mockRejectedValue({
+      code: 'bad_gateway',
+      message: 'upstream down',
+      httpStatus: 502,
+      durationMs: 5,
+    });
+    const r = await callExecute({
+      requestId: 'exec-mpp-502',
+      mpp: { header: mppHeader('mpp-challenge-e3'), payer: '0xMPP' },
+    });
+    expect(r.status).toBe(502);
+    const rows = refundRows();
+    expect(rows).toHaveLength(1);
+    expect(String(rows[0].payload.reason)).toMatch(/^pipeline_stopped:PROVIDER_CALL:502/);
+    expect(rows[0].payload.amount_usd).toBe(String(PRICE));
+  });
+
+  it('E4 (T-0259): MPP paid, upstream 4xx → 422 and exactly one refund-owed row', async () => {
+    mockAdapterCall.mockRejectedValue({
+      code: 'input_rejected',
+      message: 'bad input',
+      httpStatus: 422,
+      durationMs: 5,
+    });
+    const r = await callExecute({
+      requestId: 'exec-mpp-422',
+      mpp: { header: mppHeader('mpp-challenge-e4'), payer: '0xMPP' },
+    });
+    expect(r.status).toBe(422);
+    expect(refundRows()).toHaveLength(1);
+  });
+
+  it('E5 (T-0259): MPP amount mismatch → 402 and exactly one refund-owed row (ESCROW wrote, executor did not duplicate)', async () => {
+    const r = await callExecute({
+      requestId: 'exec-mpp-mismatch',
+      mpp: { header: mppHeader('mpp-challenge-e5'), payer: '0xMPP', amount: '0.001' },
+    });
+    expect(r.status).toBe(402);
+    expect(mockAdapterCall).not.toHaveBeenCalled();
+    expect(refundRows()).toHaveLength(1);
+  });
+
+  it('E6 (T-0259): MPP replay — parallel identical credentials → one 200, one 402, zero refund rows', async () => {
+    const header = mppHeader('mpp-challenge-e6');
+    const [a, b] = await Promise.all([
+      callExecute({ requestId: 'exec-e6-a', mpp: { header, payer: '0xMPP' } }),
+      callExecute({ requestId: 'exec-e6-b', mpp: { header, payer: '0xMPP' } }),
+    ]);
+    expect([a.status, b.status].sort()).toEqual([200, 402]);
+    expect(refundRows()).toHaveLength(0);
+  });
+
+  it('E7 (T-0259): x402 + provider 502 → zero MPP refund rows', async () => {
+    mockVerify.mockResolvedValue({ isValid: true, payer: '0xPAYER' });
+    mockAdapterCall.mockRejectedValue({
+      code: 'bad_gateway',
+      message: 'upstream down',
+      httpStatus: 502,
+      durationMs: 5,
+    });
+    const r = await callExecute({
+      requestId: 'exec-x402-502',
+      x402: { header: `nonce-e7::${futureEpoch()}` },
+    });
+    expect(r.status).toBe(502);
+    expect(refundRows()).toHaveLength(0);
   });
 });
 

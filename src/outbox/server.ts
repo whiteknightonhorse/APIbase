@@ -3,6 +3,14 @@ import Redis from 'ioredis';
 import { config } from '../config';
 import { logger } from '../config/logger';
 import { createHealthServer, recordProcessed, updateLag } from './health';
+import {
+  HANDLED_EVENT_TYPES,
+  LAG_SQL,
+  SELECT_SQL,
+  processBatch,
+  type OutboxEvent,
+  type ProcessorDeps,
+} from './processor';
 
 /**
  * Outbox-worker process entry point (§12.176, §12.153).
@@ -10,8 +18,17 @@ import { createHealthServer, recordProcessed, updateLag } from './health';
  * Transactional outbox pattern:
  *   PG outbox table → poll every 1s → process events → Redis cache invalidation.
  *
- * Event types (Phase 1):
- *   - cache_invalidate / TOOL_CONFIG_UPDATED → delete Redis cache keys for tool
+ * Ownership rule (T-0259): this worker owns ONLY HANDLED_EVENT_TYPES
+ * (src/outbox/processor.ts) — cache_invalidate, TOOL_CONFIG_UPDATED,
+ * form_submission. It selects only those rows and marks `processed = true`
+ * only after a handler ran. Money events belong to scripts/*.py with two
+ * different meanings of `processed`:
+ *   - x402_settle_failed: processed=true = "paged" (x402-settle-leak-alerts.py)
+ *   - mpp_refund_owed:    processed=false = "refund still owed", closed only by
+ *     a human via mpp-refund-resolve.py (operator decision 2026-09-01, see
+ *     src/pipeline/stages/escrow-finalize.stage.ts:17-36)
+ * Expected side effect: while a refund is open, partition-cleanup logs
+ * `Skipping partition with unprocessed events` daily — normal, not an incident.
  *
  * Invariant: outbox-worker failure does NOT affect API or Worker.
  * Events eventually delivered. Worker = stateless event processor.
@@ -50,46 +67,6 @@ function getRedis(): Redis {
 }
 
 // ---------------------------------------------------------------------------
-// Event processing
-// ---------------------------------------------------------------------------
-
-interface OutboxEvent {
-  id: bigint;
-  created_at: Date;
-  event_type: string;
-  payload: unknown;
-}
-
-async function processEvent(event: OutboxEvent): Promise<void> {
-  const payload = event.payload as Record<string, unknown>;
-  const eventType = event.event_type;
-
-  if (eventType === 'cache_invalidate' || eventType === 'TOOL_CONFIG_UPDATED') {
-    const toolId = (payload.tool_id as string) || '';
-    if (toolId) {
-      const r = getRedis();
-      if (r.status === 'wait') {
-        await r.connect();
-      }
-      // Scan and delete cache keys for this tool
-      const pattern = `cache:${toolId}:*`;
-      let cursor = '0';
-      do {
-        const [nextCursor, keys] = await r.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
-        cursor = nextCursor;
-        if (keys.length > 0) {
-          await r.del(...keys);
-        }
-      } while (cursor !== '0');
-
-      logger.info({ eventType, toolId }, 'Cache invalidated for tool');
-    }
-  } else {
-    logger.warn({ eventType, eventId: event.id.toString() }, 'Unknown outbox event type');
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Poll loop
 // ---------------------------------------------------------------------------
 
@@ -98,49 +75,27 @@ let pollTimer: ReturnType<typeof setTimeout> | null = null;
 
 async function pollOnce(): Promise<void> {
   const db = getPrisma();
+  const deps: ProcessorDeps = {
+    queryRaw: (sql, ...params) => db.$queryRawUnsafe(sql, ...params),
+    executeRaw: (sql, ...params) => db.$executeRawUnsafe(sql, ...params),
+    redis: getRedis,
+    log: logger,
+  };
+  const owned = [...HANDLED_EVENT_TYPES];
 
   try {
-    // Fetch unprocessed events
-    const events: OutboxEvent[] = await db.$queryRawUnsafe(
-      `SELECT id, created_at, event_type, payload
-       FROM outbox
-       WHERE processed = false
-       ORDER BY created_at ASC
-       LIMIT $1`,
-      BATCH_SIZE,
-    );
+    // Fetch unprocessed events of the types this worker owns
+    const events = (await deps.queryRaw(SELECT_SQL, BATCH_SIZE, owned)) as OutboxEvent[];
 
     if (events.length > 0) {
-      for (const event of events) {
-        try {
-          await processEvent(event);
-        } catch (err) {
-          logger.error(
-            { err, eventId: event.id.toString(), eventType: event.event_type },
-            'Failed to process outbox event',
-          );
-          continue;
-        }
-
-        // Mark as processed
-        await db.$executeRawUnsafe(
-          `UPDATE outbox SET processed = true WHERE id = $1 AND created_at = $2`,
-          event.id,
-          event.created_at,
-        );
-      }
-
-      recordProcessed(events.length);
+      recordProcessed(await processBatch(events, deps));
     }
 
-    // Compute lag and backlog for health endpoint
-    const lagResult: Array<{ lag_ms: number; backlog_size: bigint }> = await db.$queryRawUnsafe(`
-      SELECT
-        COALESCE(EXTRACT(EPOCH FROM (NOW() - MIN(created_at))) * 1000, 0)::double precision AS lag_ms,
-        COUNT(*) AS backlog_size
-      FROM outbox
-      WHERE processed = false
-    `);
+    // Compute lag and backlog for health endpoint (owned types only)
+    const lagResult = (await deps.queryRaw(LAG_SQL, owned)) as Array<{
+      lag_ms: number;
+      backlog_size: bigint;
+    }>;
 
     if (lagResult[0]) {
       updateLag(Math.round(lagResult[0].lag_ms), Number(lagResult[0].backlog_size));

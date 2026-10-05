@@ -40,6 +40,7 @@ jest.mock('../../src/pipeline/stages/x402-settle', () => ({ settleX402: jest.fn(
 import {
   escrowFinalizeStage,
   recordMppRefundOwed,
+  recordMppRefundIfOwed,
 } from '../../src/pipeline/stages/escrow-finalize.stage';
 import { createPipelineContext } from '../../src/pipeline/types';
 
@@ -137,5 +138,83 @@ describe('escrowFinalizeStage — MPP paths (F1/C-5)', () => {
     expect(c.escrowCreatedAt).toBeUndefined();
     // (The fix works precisely because the MPP-failure branch above now
     // returns BEFORE the "no escrow reserved" check ever runs.)
+  });
+});
+
+describe('MPP refund trail (T-0259)', () => {
+  beforeEach(() => mockOutboxCreate.mockReset());
+
+  it('R1: amount_usd is the HMAC-verified charged amount (mppAmount), not the tool price', async () => {
+    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    const c = ctx();
+    c.mppAmount = '0.001';
+    c.toolPrice = 1;
+    await recordMppRefundOwed(c, 'x');
+    expect(mockOutboxCreate.mock.calls[0][0].data.payload.amount_usd).toBe('0.001');
+  });
+
+  it('R2: two recordMppRefundOwed calls on one ctx write exactly one row', async () => {
+    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    const c = ctx();
+    await recordMppRefundOwed(c, 'a');
+    await recordMppRefundOwed(c, 'b');
+    expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
+  });
+
+  describe('R3: recordMppRefundIfOwed', () => {
+    beforeEach(() => mockOutboxCreate.mockResolvedValue({ id: 1n }));
+
+    it('PROVIDER_CALL/502 → one row with pipeline_stopped reason', async () => {
+      await recordMppRefundIfOwed(ctx(), 'PROVIDER_CALL', { code: 502, error: 'bad_gateway' });
+      expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
+      expect(mockOutboxCreate.mock.calls[0][0].data.payload.reason).toBe(
+        'pipeline_stopped:PROVIDER_CALL:502:bad_gateway',
+      );
+    });
+
+    it('ESCROW/402 → nothing (ESCROW decided itself)', async () => {
+      await recordMppRefundIfOwed(ctx(), 'ESCROW', { code: 402, error: 'payment_required' });
+      expect(mockOutboxCreate).not.toHaveBeenCalled();
+    });
+
+    it('ESCROW/503 → one row', async () => {
+      await recordMppRefundIfOwed(ctx(), 'ESCROW', { code: 503, error: 'unavailable' });
+      expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
+    });
+
+    it('MODERATION with settle_on_block → nothing', async () => {
+      await recordMppRefundIfOwed(ctx(), 'MODERATION', {
+        code: 403,
+        error: 'blocked',
+        extra: { settle_on_block: true },
+      });
+      expect(mockOutboxCreate).not.toHaveBeenCalled();
+    });
+
+    it('not MPP-paid → nothing', async () => {
+      const c = ctx();
+      c.mppPaid = false;
+      await recordMppRefundIfOwed(c, 'PROVIDER_CALL', { code: 502, error: 'bad_gateway' });
+      expect(mockOutboxCreate).not.toHaveBeenCalled();
+    });
+
+    it('already recorded → nothing', async () => {
+      const c = ctx();
+      c.mppRefundRecorded = true;
+      await recordMppRefundIfOwed(c, 'PROVIDER_CALL', { code: 502, error: 'bad_gateway' });
+      expect(mockOutboxCreate).not.toHaveBeenCalled();
+    });
+
+    it('catch path → pipeline_exception reason', async () => {
+      await recordMppRefundIfOwed(
+        ctx(),
+        'PROVIDER_CALL',
+        { code: 500, error: 'internal_error' },
+        true,
+      );
+      expect(mockOutboxCreate.mock.calls[0][0].data.payload.reason).toBe(
+        'pipeline_exception:PROVIDER_CALL',
+      );
+    });
   });
 });

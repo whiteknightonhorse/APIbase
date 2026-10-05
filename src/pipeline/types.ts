@@ -121,6 +121,8 @@ export interface PipelineContext {
    *  (escrow-finalize.stage.ts) can name the original transaction — without
    *  it, a human resolving the refund has to re-derive it from logs. */
   mppTxHash?: string;
+  /** Set once an mpp_refund_owed row was written (or attempted) for this request. */
+  mppRefundRecorded?: boolean;
   /** T-0177 (2026-09-23): set by settleX402() to the facilitator's actual
    *  on-chain settle outcome — true=confirmed, false=attempted and failed.
    *  Undefined when no settle attempt was made (free tool, no payment

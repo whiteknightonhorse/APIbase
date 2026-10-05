@@ -39,6 +39,11 @@ export async function recordMppRefundOwed(
   ctx: import('../types').PipelineContext,
   reason: string,
 ): Promise<void> {
+  // One refund-owed row per request (T-0259): the flag is set BEFORE the
+  // write so a failed write is not retried (logger.error below already says
+  // the debt was missed) and ESCROW + the pipeline executor can't double-book.
+  if (ctx.mppRefundRecorded) return;
+  ctx.mppRefundRecorded = true;
   try {
     await getPrisma().outbox.create({
       data: {
@@ -48,7 +53,9 @@ export async function recordMppRefundOwed(
           tool_id: ctx.toolId,
           payer: ctx.mppPayer,
           refund_to: ctx.mppPayer,
-          amount_usd: ctx.toolPrice,
+          // Charged amount (HMAC-verified, T-0256) is primary; toolPrice is
+          // not yet known if the request stopped before TOOL_STATUS.
+          amount_usd: ctx.mppAmount ?? ctx.toolPrice ?? null,
           network: 'tempo',
           tx_hash: ctx.mppTxHash ?? 'unknown',
           reason,
@@ -60,6 +67,35 @@ export async function recordMppRefundOwed(
       { requestId: ctx.requestId, err: e },
       'MPP refund-owed record FAILED to write — this refund will be missed unless caught manually',
     );
+  }
+}
+
+/**
+ * Pipeline-executor hook (T-0259): runPipeline stops on the first error and
+ * never reaches ESCROW_FINALIZE, so an MPP-paid request that stops anywhere
+ * leaves no refund trail. Called from pipeline.ts at every stop point.
+ * Skips: settle-on-block (finalized, PAID by F2/C-3 decision) and
+ * ESCROW/402 (ESCROW itself already decided: recorded for amount/credential
+ * rejections, deliberately silent for replay). Never throws.
+ */
+export async function recordMppRefundIfOwed(
+  ctx: import('../types').PipelineContext,
+  stage: string,
+  error: { code: number; error: string; extra?: Record<string, unknown> },
+  exception = false,
+): Promise<void> {
+  try {
+    if (!ctx.mppPaid || ctx.mppRefundRecorded) return;
+    if (error.extra?.settle_on_block) return;
+    if (stage === 'ESCROW' && error.code === 402) return;
+    await recordMppRefundOwed(
+      ctx,
+      exception
+        ? `pipeline_exception:${stage}`
+        : `pipeline_stopped:${stage}:${error.code}:${error.error}`,
+    );
+  } catch (e) {
+    logger.error({ requestId: ctx.requestId, err: e }, 'MPP refund-owed hook failed');
   }
 }
 

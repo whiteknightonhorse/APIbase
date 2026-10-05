@@ -15,13 +15,16 @@ import { AppError, ErrorCode } from '../types/errors';
  * client could put in a header itself. Read-only: this never signs or sends
  * anything; it only ever discovers whose money it already took.
  */
-async function resolveRealPayer(
-  chargeResponse: globalThis.Response,
-): Promise<{ payer: string; txHash: string }> {
+export async function resolveRealPayer(chargeResult: {
+  status: number;
+  withReceipt(response: globalThis.Response): globalThis.Response;
+}): Promise<{ payer: string; txHash: string }> {
   const FALLBACK = { payer: 'unknown-mpp-payer', txHash: 'unknown' };
   try {
     const { Receipt } = await import('mppx');
-    const receipt = Receipt.fromResponse(chargeResponse);
+    // The mppx handler result is NOT a Response: the receipt header lives on
+    // result.withReceipt(response), same as mppx's own express adapter.
+    const receipt = Receipt.fromResponse(chargeResult.withReceipt(new globalThis.Response()));
     const txHash = receipt.reference;
     if (!txHash || !txHash.startsWith('0x')) return FALLBACK;
 

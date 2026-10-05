@@ -21,7 +21,7 @@ import { rateLimitStage } from './stages/rate-limit.stage';
 import { escrowStage } from './stages/escrow.stage';
 import { moderationStage } from './stages/moderation.stage';
 import { providerCallStage } from './stages/provider-call.stage';
-import { escrowFinalizeStage } from './stages/escrow-finalize.stage';
+import { escrowFinalizeStage, recordMppRefundIfOwed } from './stages/escrow-finalize.stage';
 import { ledgerWriteStage } from './stages/ledger-write.stage';
 import { cacheSetStage } from './stages/cache-set.stage';
 import { responseStage } from './stages/response.stage';
@@ -138,6 +138,10 @@ export async function runPipeline(
           }
         }
 
+        // MPP was already charged by the middleware: record the refund owed
+        // (T-0259). Skips settle-on-block and ESCROW/402 — see the helper.
+        await recordMppRefundIfOwed(ctx, stage.name, result.error);
+
         // Release single-flight lock if owned (prevents 30s hang on stages 7-12 errors)
         if (ctx.isLockOwner && ctx.cacheKey) {
           await releaseLock(ctx.cacheKey).catch(() => {});
@@ -157,6 +161,8 @@ export async function runPipeline(
         },
         `Pipeline error at ${stage.name}`,
       );
+
+      await recordMppRefundIfOwed(ctx, stage.name, { code: 500, error: 'internal_error' }, true);
 
       // Release single-flight lock if owned (prevents 30s hang on uncaught errors)
       if (ctx.isLockOwner && ctx.cacheKey) {
