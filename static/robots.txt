@@ -51,3 +51,4 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 Sitemap: https://apibase.pro/sitemap.xml
 Sitemap: https://apibase.pro/sitemap-guides.xml
+Sitemap: https://apibase.pro/sitemap-shops-index.xml

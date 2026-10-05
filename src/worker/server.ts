@@ -15,6 +15,7 @@ import {
   runDailySample as runShopPaymentSample,
 } from '../jobs/shop-payment-reconcile.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
+import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -268,6 +269,12 @@ const shopSweeperTask = cron.schedule('*/5 * * * *', () => {
       shopSweeperRunning = false;
     });
 });
+// Merchant domain proof (INT-15, UC-17): .well-known file or DNS TXT, once a day.
+const shopDomainVerifyTask = cron.schedule('30 4 * * *', () => {
+  runShopDomainVerify().catch((err) =>
+    logger.error({ err, job: 'shop-domain-verify' }, 'domain verify job failed'),
+  );
+});
 const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
   runShopPaymentSample().catch((err) =>
     logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
@@ -327,6 +334,7 @@ function shutdown(signal: string): void {
   ofacSdnSyncTask.stop();
   shopReconcileTask.stop();
   shopSweeperTask.stop();
+  shopDomainVerifyTask.stop();
   shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {

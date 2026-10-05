@@ -33,16 +33,24 @@ export interface ShopDeps {
   transaction<T>(fn: (tx: ShopTx) => Promise<T>): Promise<T>;
   redis?: Redis;
   now?: () => number;
+  /** Fire-and-forget after a successful registration (INT-15: domain proof). */
+  onRegistered?: (slug: string) => void;
 }
 
 export function defaultShopDeps(): ShopDeps {
   const prisma = async () => (await import('../services/prisma.service')).getPrisma();
+  const db: ShopTx = {
+    $queryRawUnsafe: async (q, ...v) => (await prisma()).$queryRawUnsafe(q, ...v),
+    $executeRawUnsafe: async (q, ...v) => (await prisma()).$executeRawUnsafe(q, ...v),
+  };
   return {
-    db: {
-      $queryRawUnsafe: async (q, ...v) => (await prisma()).$queryRawUnsafe(q, ...v),
-      $executeRawUnsafe: async (q, ...v) => (await prisma()).$executeRawUnsafe(q, ...v),
-    },
+    db,
     transaction: async (fn) => (await prisma()).$transaction((tx) => fn(tx as unknown as ShopTx)),
+    onRegistered: (slug) => {
+      void import('../jobs/shop-domain-verify.job')
+        .then((m) => m.verifyMerchantDomain({ db }, slug))
+        .catch((err) => logger.warn({ err, slug }, 'domain verify on register failed'));
+    },
   };
 }
 
@@ -212,6 +220,7 @@ export async function registerWithDocs(
   ctx: Partial<RegisterCtx> = {},
 ) {
   const r = await registerMerchant(input, { ...ctx, db: d.db, redis: d.redis, now: d.now });
+  d.onRegistered?.(input.slug);
   const docs = await currentDocs(d.db, (d.now ?? Date.now)());
   return {
     merchant_id: r.merchant_id,

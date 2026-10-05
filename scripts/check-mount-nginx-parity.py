@@ -23,7 +23,7 @@ import os
 import re
 import sys
 
-ROUTER_GLOB = 'src/routes/*.router.ts'
+ROUTER_GLOBS = ('src/routes/*.router.ts', 'src/shop/routes/*.router.ts')
 MCP_SERVER_FILE = 'src/mcp/server.ts'
 NGINX_CONF = 'nginx/nginx.conf'
 
@@ -43,6 +43,10 @@ ROUTE_CALL_RE = re.compile(
 )
 LOCATION_RE = re.compile(r'location\s+(=\s*)?(\S+)\s*\{([^{}]*)\}', re.S)
 ALIAS_RE = re.compile(r'alias\s+(\S+);')
+
+
+def router_files():
+    return sorted(f for g in ROUTER_GLOBS for f in glob.glob(g))
 
 
 def extract_router_paths(path):
@@ -100,7 +104,7 @@ def main():
     nginx_locations = extract_nginx_backend_locations(NGINX_CONF)
 
     declared = []
-    for router_file in sorted(glob.glob(ROUTER_GLOB)) + [MCP_SERVER_FILE]:
+    for router_file in router_files() + [MCP_SERVER_FILE]:
         for route_path in extract_router_paths(router_file):
             declared.append((router_file, route_path))
 
@@ -143,7 +147,7 @@ def main():
 
     print(
         f'OK -- {len(declared)} declared routes across '
-        f'{len(sorted(glob.glob(ROUTER_GLOB))) + 1} router files, all '
+        f'{len(router_files()) + 1} router files, all '
         f'covered by an nginx backend location; '
         f'{len(extract_static_aliases(NGINX_CONF))} static alias target(s) all exist.'
     )
