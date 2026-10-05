@@ -179,7 +179,7 @@ export function createMcpServer(
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
   registerMerchantTools(mcpServer, apiKey, requestId);
   registerCatalogTools(mcpServer, apiKey, requestId);
-  registerOrderTools(mcpServer, apiKey, requestId);
+  registerOrderTools(mcpServer, apiKey, requestId, undefined, paymentCtxRef);
   registerPrompts(mcpServer);
   return mcpServer;
 }

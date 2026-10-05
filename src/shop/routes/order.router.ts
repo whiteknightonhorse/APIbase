@@ -6,6 +6,7 @@ import type { PipelineContext } from '../../pipeline/types';
 import { clearIdempotency, finalizeIdempotency } from '../../services/idempotency.service';
 import { resolveBuyer } from '../buyer';
 import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycle.service';
+import { resolveX402PaymentHeader } from '../../config/http-headers';
 import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.service';
 
 /** §6.3 buyer routes (quotes, cancel), mounted at /api/v1/shop/*. Same services as the /mcp tools. */
@@ -80,6 +81,33 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
   router.get('/api/v1/shop/quotes/:id', async (req: Request, res: Response) => {
     try {
       res.json(await getQuote(deps, String(req.params.id), await buyerOf(req)));
+    } catch (err) {
+      send(res, err);
+    }
+  });
+
+  // §6.3: x402 only here for now — the Authorization: Payment (MPP) branch is INT-10, so such a
+  // call is answered with the plain challenge (accepts[] + pay.mpp.url).
+  router.post('/api/v1/shop/quotes/:id/pay', async (req: Request, res: Response) => {
+    try {
+      // Lazy: the escrow stage pulls the x402 SDK, which the quote routes do not need.
+      const { payQuote } = await import('../pay.service');
+      const { encodePaymentRequiredHeader } = await import('@x402/core/http');
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      const r = await payQuote(deps, {
+        quote_id: String(req.params.id),
+        x402PaymentHeader: resolveX402PaymentHeader(req.headers) || undefined,
+        buyer: await buyerOf(req),
+        requestId: req.requestId,
+        host: req.get('host') ?? '',
+        waive_withdrawal:
+          typeof body.waive_withdrawal === 'boolean' ? body.waive_withdrawal : undefined,
+        buyer_company: typeof body.buyer_company === 'string' ? body.buyer_company : undefined,
+      });
+      if (r.status === 402 && Array.isArray(r.body.accepts)) {
+        res.setHeader('PAYMENT-REQUIRED', encodePaymentRequiredHeader(r.body as never));
+      }
+      res.status(r.status).json(r.body);
     } catch (err) {
       send(res, err);
     }

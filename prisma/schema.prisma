@@ -643,6 +643,7 @@ model ShopQuote {
   rails_offered               String[]
   requires_pii                String[]
   waive_withdrawal            Boolean   @default(false)
+  buyer_company               String?
   requires_human_confirmation Boolean   @default(false)
   is_test                     Boolean   @default(false)
   mpp_challenge_id            String?

@@ -2,9 +2,20 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { resolveBuyer } from '../buyer';
 import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycle.service';
-import { cancelOrder, createQuote, merchantIdBySlug, type QuoteResponse } from '../quote.service';
+import {
+  cancelOrder,
+  createQuote,
+  integratorConfig,
+  merchantIdBySlug,
+  type QuoteResponse,
+} from '../quote.service';
+import type { PaymentContext } from '../../mcp/tool-adapter';
 
-export const ORDER_TOOL_NAMES = ['shop.order.quote', 'shop.order.cancel'] as const;
+export const ORDER_TOOL_NAMES = [
+  'shop.order.quote',
+  'shop.order.cancel',
+  'shop.order.pay',
+] as const;
 
 type Result = {
   content: Array<{ type: 'text'; text: string }>;
@@ -28,12 +39,13 @@ export function forMcp(q: QuoteResponse): QuoteResponse {
   return { ...q, pay };
 }
 
-/** §6.1 buyer order tools: quote and (until PAID) cancel. `shop.order.pay` is INT-08. */
+/** §6.1 buyer order tools: quote, pay (x402 on /mcp; the PAID answer is INT-09) and cancel. */
 export function registerOrderTools(
   server: McpServer,
   apiKey: string,
   requestId: string,
   deps: ShopDeps = defaultShopDeps(),
+  paymentCtx?: PaymentContext,
 ): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK generics recurse on complex Zod shapes
   const reg = server.registerTool as any;
@@ -80,6 +92,46 @@ export function registerOrderTools(
         const buyer = await resolveBuyer({ apiKey });
         const q = await createQuote(deps, await merchantIdBySlug(deps.db, merchant), buyer, input);
         return ok({ ...forMcp(q) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.order.pay',
+    {
+      title: 'Pay a quoted order',
+      description:
+        'Pay a quote with x402 (X-Payment header on this /mcp call, exact total_usd to the merchant payout wallet). Without a payment the result is an error carrying the 402 challenge (accepts[0].payTo/amount, extra.quote_id) and pay.mpp.url for MPP clients. A valid payment moves the order to PAYING (202 payment_pending). Errors: 402 payment_amount_mismatch, 410 quote_expired (a new quote is attached), 429 test_sku_daily_cap.',
+      inputSchema: {
+        quote_id: z.string(),
+        waive_withdrawal: z.boolean().optional(),
+        buyer_company: z.string().max(200).optional(),
+      },
+      outputSchema: { status: z.string(), order_id: z.string(), state: z.string() },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: { quote_id: string; waive_withdrawal?: boolean; buyer_company?: string }) => {
+      try {
+        const buyer = await resolveBuyer({ apiKey });
+        // Lazy: the escrow stage pulls the x402 SDK, which the other order tools do not need.
+        const { payQuote } = await import('../pay.service');
+        const r = await payQuote(deps, {
+          quote_id: a.quote_id,
+          x402PaymentHeader: paymentCtx?.x402PaymentHeader ?? undefined,
+          buyer,
+          requestId,
+          host: new URL(integratorConfig().public_url).host,
+          waive_withdrawal: a.waive_withdrawal,
+          buyer_company: a.buyer_company,
+        });
+        if (r.status === 202) return ok(r.body);
+        return {
+          isError: true,
+          content: [{ type: 'text' as const, text: JSON.stringify(r.body) }],
+        };
       } catch (err) {
         return fail(err, requestId);
       }

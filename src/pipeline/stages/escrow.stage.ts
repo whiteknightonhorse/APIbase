@@ -8,7 +8,11 @@ import {
 } from '../types';
 import { reserve, InsufficientFundsError } from '../../services/escrow.service';
 import { logger } from '../../config/logger';
-import { getX402Config, buildServerX402Requirements } from '../../config/x402.config';
+import { createHash } from 'node:crypto';
+import { getX402Config, buildServerX402Requirements, toMicroUsdc } from '../../config/x402.config';
+import { buildPaymentRequiredResponse as buildToolPaymentRequired } from '../../middleware/x402.middleware';
+import type { ShopDeps } from '../../shop/merchant-lifecycle.service';
+import type { ShopTx } from '../../shop/db';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
@@ -116,26 +120,237 @@ function decodeMppChallenge(header: string): { challengeId: string; expires?: st
 }
 
 /**
+ * What a payment must look like, built ONLY from server data (T-INT-08, spec §2 item 4 / §8.2).
+ *
+ * One shape, two sources: an ordinary tool (`tool:<id>`) is priced from `ctx.toolPrice` and paid
+ * to the platform wallet exactly as before; `shop.order.pay` (`quote:<id>`) is priced from the
+ * quote row and paid to the merchant's CURRENT payout wallet. Nothing here is read from the
+ * client's `payload.accepted`, header amounts or body — `quote_id` in the body only finds the row.
+ */
+export interface PaymentBinding {
+  amount_usd: number;
+  pay_to: string;
+  rail: 'base' | 'tempo';
+  resource: `tool:${string}` | `quote:${string}`;
+  /** Platform fee leg, informational for Base (receivable, never part of `accepts`). */
+  splits?: Array<{ wallet: string; amount_usd: number }>;
+}
+
+const isQuoteBinding = (b: PaymentBinding): boolean => b.resource.startsWith('quote:');
+const SHOP_PAY_TOOL = 'shop.order.pay';
+
+/** The locked quote row a `quote:*` binding was derived from. */
+interface LockedQuote {
+  quote_id: string;
+  order_id: string;
+  merchant_id: string;
+  buyer_identity: string | null;
+  is_test: boolean;
+}
+
+interface QuoteRow {
+  quote_id: string;
+  merchant_id: string;
+  buyer_identity: string | null;
+  total_usd: number;
+  fee_usd: number;
+  status: string;
+  expires_at: Date;
+  is_test: boolean;
+  rails_offered: string[];
+  payout_wallet_base: string;
+  payout_wallet_tempo: string;
+  payout_pending: { rail: 'base' | 'tempo'; wallet: string; effective_at: string } | null;
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const quoteErr = (
+  code: number,
+  error: string,
+  message: string,
+  extra?: Record<string, unknown>,
+): Result<never, PipelineError> => err<PipelineError>({ code, error, message, extra });
+
+/**
+ * Build the binding for this call. Tools: synchronous values, nothing touched. `shop.order.pay`:
+ * `SELECT … FOR UPDATE` of the quote inside the caller's ESCROW transaction (`tx`), so two
+ * parallel payments for one quote serialize here (§8.1 item 4).
+ */
+export async function buildPaymentBinding(
+  ctx: PipelineContext,
+  tx?: ShopTx,
+  at: number = Date.now(),
+): Promise<Result<{ binding: PaymentBinding; quote?: LockedQuote }, PipelineError>> {
+  if (ctx.toolId !== SHOP_PAY_TOOL) {
+    return ok({
+      binding: {
+        amount_usd: ctx.toolPrice ?? 0,
+        pay_to: getX402Config().paymentAddress,
+        rail: ctx.mppPaid ? 'tempo' : 'base',
+        resource: `tool:${ctx.toolId}`,
+      },
+    });
+  }
+  if (!tx) throw new Error('buildPaymentBinding(shop.order.pay) needs the ESCROW transaction');
+
+  const quoteId = String((ctx.body as { quote_id?: unknown } | undefined)?.quote_id ?? '');
+  if (!UUID_RE.test(quoteId)) return quoteErr(404, 'not_found', 'quote not found');
+  const rows = await tx.$queryRawUnsafe<QuoteRow[]>(
+    `SELECT q.quote_id, q.merchant_id, q.buyer_identity, q.total_usd::float8 AS total_usd,
+            q.fee_usd::float8 AS fee_usd, q.status, q.expires_at, q.is_test, q.rails_offered,
+            m.payout_wallet_base, m.payout_wallet_tempo, m.payout_pending
+       FROM shop_quotes q
+       JOIN shop_merchants m ON m.merchant_id = q.merchant_id
+      WHERE q.quote_id = $1::uuid
+        FOR UPDATE OF q`,
+    quoteId,
+  );
+  const q = rows[0];
+  if (!q) return quoteErr(404, 'not_found', 'quote not found');
+  if (q.status === 'paid' || q.status === 'cancelled') {
+    return quoteErr(402, 'payment_required', `This quote is ${q.status}; request a new quote.`);
+  }
+  if (q.status === 'expired' || new Date(q.expires_at).getTime() < at) {
+    return quoteErr(410, 'quote_expired', 'quote expired', { quote_id: quoteId });
+  }
+  // A separate statement AFTER the quote lock: its snapshot sees the winner's committed PAYING.
+  const orders = await tx.$queryRawUnsafe<Array<{ order_id: string; state: string }>>(
+    `SELECT order_id, state FROM shop_orders WHERE quote_id = $1::uuid FOR UPDATE`,
+    quoteId,
+  );
+  const order = orders[0];
+  if (!order || (order.state !== 'QUOTED' && order.state !== 'PAYMENT_FAILED')) {
+    return quoteErr(402, 'payment_required', 'A payment for this order is already in progress.');
+  }
+  if (!q.rails_offered.includes('base')) {
+    return quoteErr(409, 'rail_not_offered', 'This quote is not payable with x402 (Base).');
+  }
+
+  const { currentPayout } = await import('../../shop/auth/identity.service');
+  const { integratorConfig } = await import('../../shop/quote.service');
+  const feeWallet = process.env['INTEGRATOR_FEE_WALLET'];
+  const binding: PaymentBinding = {
+    amount_usd: q.total_usd,
+    pay_to: currentPayout(q, 'base', at),
+    rail: 'base',
+    resource: `quote:${q.quote_id}`,
+    splits:
+      q.fee_usd > 0 && integratorConfig().fee_enabled && feeWallet
+        ? [{ wallet: feeWallet, amount_usd: q.fee_usd }]
+        : undefined,
+  };
+  return ok({
+    binding,
+    quote: {
+      quote_id: q.quote_id,
+      order_id: order.order_id,
+      merchant_id: q.merchant_id,
+      buyer_identity: q.buyer_identity,
+      is_test: q.is_test,
+    },
+  });
+}
+
+/**
+ * 402 body built from a binding. `tool:*` is the existing builder, untouched (byte-for-byte);
+ * `quote:*` carries `extra.quote_id` and the quote's own `resource`. The MPP url lives in the
+ * tool body (`pay.mpp.url`), never in `accepts`.
+ */
+export function buildPaymentRequiredResponse(
+  binding: PaymentBinding,
+  meta: { requestId: string; host: string; priceVersion?: number },
+): Record<string, unknown> {
+  if (!isQuoteBinding(binding)) {
+    return buildToolPaymentRequired(
+      binding.resource.slice('tool:'.length),
+      binding.amount_usd,
+      meta.priceVersion ?? 1,
+      meta.requestId,
+      meta.host,
+    );
+  }
+  const cfg = getX402Config();
+  const quoteId = binding.resource.slice('quote:'.length);
+  const micro = toMicroUsdc(binding.amount_usd);
+  return {
+    x402Version: 2,
+    error: 'payment_required',
+    resource: {
+      url: `https://${meta.host}/api/v1/shop/quotes/${quoteId}/pay`,
+      mimeType: 'application/json',
+      description: `Order payment: ${binding.resource}`,
+    },
+    resource_id: binding.resource,
+    accepts: [
+      {
+        scheme: 'exact',
+        network: cfg.network,
+        amount: micro,
+        maxAmountRequired: micro,
+        asset: cfg.usdcAddress,
+        payTo: binding.pay_to,
+        maxTimeoutSeconds: cfg.maxTimeoutSeconds,
+        extra: { name: 'USD Coin', version: '2', quote_id: quoteId },
+      },
+    ],
+    request_id: meta.requestId,
+    error_code: 'payment_required',
+    suggested_action: 'add_payment',
+    documentation_url: 'https://apibase.pro/docs/integrator#quotes',
+    price_usd: String(binding.amount_usd),
+    min_balance_usd: String(binding.amount_usd),
+    payment_address: binding.pay_to,
+    price_version: meta.priceVersion ?? 1,
+  };
+}
+
+interface VerifiedX402 {
+  payer: string;
+  nonce: string;
+}
+
+/**
  * Authoritative x402 payment binding (issue #103).
  *
  * The middleware only structurally validates the X-Payment header. Here — the
- * first stage where the tool's real price is known (set by TOOL_STATUS) and
- * which runs for BOTH REST and MCP, on cache hits and misses — we verify the
- * signed authorization against SERVER-trusted requirements (payTo, asset,
- * network, exact amount). The facilitator's exact scheme rejects any mismatch
- * (recipient_mismatch / value_mismatch / network_mismatch), so a client cannot
- * underpay or redirect funds and still receive paid data.
+ * first stage where the real price is known — we verify the signed authorization
+ * against the SERVER-built `binding` (payTo, asset, network, exact amount). The
+ * facilitator's exact scheme rejects any mismatch (recipient_mismatch /
+ * value_mismatch / network_mismatch), so a client cannot underpay or redirect
+ * funds. For `quote:*` the same three fields are ALSO compared here, strictly
+ * (overpayment is a refusal), before the facilitator is called.
+ *
+ * `afterVerify` (quote orders: the payer OFAC screen, §8.4) runs after a valid
+ * verify and BEFORE the nonce claim, so a refused payer never burns a nonce.
  */
 async function verifyX402Binding(
   ctx: PipelineContext,
-  priceUsd: number,
-): Promise<Result<PipelineContext, PipelineError>> {
+  binding: PaymentBinding,
+  afterVerify?: (v: VerifiedX402) => Promise<Result<true, PipelineError>>,
+): Promise<Result<VerifiedX402, PipelineError>> {
   const x402Cfg = getX402Config();
-  const reject = (reason: string): Result<PipelineContext, PipelineError> => {
+  const priceUsd = binding.amount_usd;
+  const quote = isQuoteBinding(binding);
+  const reject = (
+    reason: string,
+    code = 'payment_required',
+    message?: string,
+  ): Result<never, PipelineError> => {
     logger.warn(
       { toolId: ctx.toolId, requestId: ctx.requestId, reason },
       'x402 binding: payment not bound to server requirements — rejecting',
     );
+    if (quote) {
+      return err<PipelineError>({
+        code: 402,
+        error: code,
+        message:
+          message ??
+          'Payment required: sign an exact x402 authorization for the quoted amount and payee.',
+        extra: { binding, quote_id: binding.resource.slice('quote:'.length) },
+      });
+    }
     return err<PipelineError>({
       code: 402,
       error: 'payment_required',
@@ -162,7 +377,34 @@ async function verifyX402Binding(
     return reject('decode_failed');
   }
 
-  const requirements = buildServerX402Requirements(priceUsd);
+  if (quote) {
+    // The client's numbers are only COMPARED with the server binding, never trusted.
+    const p = payload as {
+      accepted?: { network?: unknown };
+      payload?: { authorization?: { to?: unknown; value?: unknown } };
+    };
+    const auth = p.payload?.authorization;
+    if (!auth || typeof auth.to !== 'string' || auth.value === undefined) {
+      return reject('quote_requires_eip3009_authorization');
+    }
+    if (String(auth.value) !== toMicroUsdc(binding.amount_usd)) {
+      return reject(
+        'amount_mismatch',
+        'payment_amount_mismatch',
+        `The authorization must be for exactly ${toMicroUsdc(binding.amount_usd)} micro-USDC (the quoted total).`,
+      );
+    }
+    if (auth.to.toLowerCase() !== binding.pay_to.toLowerCase()) {
+      return reject('pay_to_mismatch');
+    }
+    if (p.accepted?.network !== undefined && p.accepted.network !== x402Cfg.network) {
+      return reject('network_mismatch');
+    }
+  }
+
+  const requirements = quote
+    ? { ...buildServerX402Requirements(binding.amount_usd), payTo: binding.pay_to }
+    : buildServerX402Requirements(priceUsd);
   let result;
   try {
     result = await getSharedResourceServer().verifyPayment(payload as never, requirements as never);
@@ -195,16 +437,153 @@ async function verifyX402Binding(
   if (!nonceInfo) {
     return reject('missing_nonce');
   }
+  const authFrom = (payload as { payload?: { authorization?: { from?: unknown } } }).payload
+    ?.authorization?.from;
+  const payer = result.payer ?? (typeof authFrom === 'string' ? authFrom : undefined);
+  if (afterVerify) {
+    const screened = await afterVerify({ payer: payer ?? 'unknown', nonce: nonceInfo.nonce });
+    if (!screened.ok) return screened;
+  }
   const ttlSeconds = nonceInfo.validBefore - Math.floor(Date.now() / 1000);
   const claim = await claimOrReject('x402', nonceInfo.nonce, ttlSeconds, priceUsd, {
     toolId: ctx.toolId,
     requestId: ctx.requestId,
   });
-  if (!claim.ok) return claim;
+  if (!claim.ok) {
+    if (quote && claim.error.code === 402) {
+      return reject('nonce_already_consumed', 'payment_required', 'This payment was already used.');
+    }
+    return claim;
+  }
 
   // Authoritative payer for the ledger audit trail (§AP-9).
   ctx.x402Payer = result.payer ?? ctx.x402Payer ?? 'unknown';
-  return ok(ctx);
+  return ok({ payer: ctx.x402Payer, nonce: nonceInfo.nonce });
+}
+
+export type QuotePayResult = Result<
+  { order_id: string; payment_id: string; state: 'PAYING' },
+  PipelineError
+>;
+
+/**
+ * ESCROW for `shop.order.pay` (x402/Base): everything inside ONE transaction that holds the
+ * quote's row lock. Order: lock+binding → test-SKU cap (before verify: wallet not charged) →
+ * verify against the binding → payer OFAC → nonce claim → shop_payments(pending) → PAYING.
+ * Settle and the PAID response are INT-09; until then the caller answers 202 payment_pending.
+ */
+export async function escrowQuotePayment(
+  deps: ShopDeps,
+  ctx: PipelineContext,
+): Promise<QuotePayResult> {
+  const { countPaidTestOrders24h, integratorConfig, getQuote } =
+    await import('../../shop/quote.service');
+  const { isSanctioned } = await import('../../shop/moderation/sanctions');
+  const { transition } = await import('../../shop/order-state');
+  const at = (deps.now ?? Date.now)();
+
+  const res = await deps.transaction(async (tx): Promise<QuotePayResult> => {
+    const built = await buildPaymentBinding(ctx, tx, at);
+    if (!built.ok) return built;
+    const { binding, quote } = built.value;
+    if (!quote) throw new Error('quote binding without a quote');
+    const quoteId = quote.quote_id;
+
+    // §7.3: the test-SKU cap is checked BEFORE verify.
+    if (quote.is_test) {
+      const cap = integratorConfig().test_sku_daily_cap;
+      if ((await countPaidTestOrders24h(tx, quote.merchant_id, at)) >= cap) {
+        return quoteErr(
+          429,
+          'test_sku_daily_cap',
+          `test SKU: ${cap} paid orders per 24 hours reached`,
+        );
+      }
+    }
+
+    // Buyer preferences are written only by the quote's own buyer; the payment itself is
+    // authorised by the signature alone (§8.2), so this never gates it.
+    const body = (ctx.body ?? {}) as { waive_withdrawal?: unknown; buyer_company?: unknown };
+    const ownsQuote = !quote.buyer_identity || quote.buyer_identity === ctx.agentId;
+    if (ownsQuote && typeof body.waive_withdrawal === 'boolean') {
+      await tx.$executeRawUnsafe(
+        `UPDATE shop_quotes SET waive_withdrawal = $2 WHERE quote_id = $1::uuid`,
+        quoteId,
+        body.waive_withdrawal,
+      );
+    }
+    if (ownsQuote && typeof body.buyer_company === 'string' && body.buyer_company.trim() !== '') {
+      await tx.$executeRawUnsafe(
+        `UPDATE shop_quotes SET buyer_company = $2 WHERE quote_id = $1::uuid`,
+        quoteId,
+        body.buyer_company.trim().slice(0, 200),
+      );
+    }
+
+    const verified = await verifyX402Binding(ctx, binding, async ({ payer }) => {
+      if (!(await isSanctioned(tx, payer))) return ok(true);
+      // Written and COMMITTED (the tx returns, it does not throw): source of PAYER_SANCTIONED (INT-13).
+      await tx.$executeRawUnsafe(
+        `INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category, evidence_hash)
+         VALUES ($1::uuid, 'merchant', 'rules', 'reject', 'ofac', $2)`,
+        quote.merchant_id,
+        createHash('sha256').update(payer.toLowerCase()).digest('hex'),
+      );
+      await tx.$executeRawUnsafe(
+        `INSERT INTO shop_connect_events (error_code, path) VALUES ('payer_sanctioned', $1)`,
+        `quote:${quoteId}`,
+      );
+      logger.warn({ requestId: ctx.requestId, quoteId }, 'x402 escrow: payer sanctioned — blocked');
+      return quoteErr(402, 'payment_required', 'This payment cannot be accepted.', {
+        binding,
+        quote_id: quoteId,
+      });
+    });
+    if (!verified.ok) return verified;
+    const { payer, nonce } = verified.value;
+
+    const pay = await tx.$queryRawUnsafe<Array<{ payment_id: string }>>(
+      `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, eip3009_nonce, pay_to,
+                                  amount_usd, splits, chain_status, reconcile_until)
+       VALUES ($1::uuid, 'base', $2, $3, $2, $4, $5::numeric, $6::jsonb, 'pending',
+               now() + interval '24 hours')
+       RETURNING payment_id`,
+      quote.order_id,
+      nonce,
+      payer,
+      binding.pay_to,
+      binding.amount_usd,
+      JSON.stringify(binding.splits ?? []),
+    );
+    await transition(tx, quote.order_id, 'PAYING', {
+      actor: 'buyer',
+      reason: 'x402_payment_presented',
+      payload: { payer_wallet: payer, rail: 'base' },
+    });
+    await tx.$executeRawUnsafe(
+      `UPDATE shop_orders SET payer_wallet = $2, rail = 'base' WHERE order_id = $1::uuid`,
+      quote.order_id,
+      payer,
+    );
+    return ok({
+      order_id: quote.order_id,
+      payment_id: pay[0].payment_id,
+      state: 'PAYING' as const,
+    });
+  });
+
+  if (!res.ok && res.error.error === 'quote_expired') {
+    // The lock is released: now issue the replacement quote (UC-15) — getQuote opens its own tx.
+    try {
+      await getQuote(deps, String(res.error.extra?.quote_id));
+    } catch (e) {
+      const x = e as { error_code?: string; extra?: Record<string, unknown> };
+      if (x.error_code === 'quote_expired') {
+        return err<PipelineError>({ ...res.error, extra: { ...res.error.extra, ...x.extra } });
+      }
+    }
+  }
+  return res;
 }
 
 /**
@@ -332,10 +711,30 @@ export const escrowStage: Stage = {
     // requirements (payTo/asset/network + the tool's real price) before granting
     // access (§8.6, issue #103). Free tools (price 0) need no payment.
     // On success: skip balance deduction (payment settles on-chain).
+    if (ctx.toolId === SHOP_PAY_TOOL) {
+      // Order payment: x402 only here (MPP is POST /quotes/:id/pay, INT-10).
+      if (ctx.mppPaid) {
+        return err<PipelineError>({
+          code: 400,
+          error: 'bad_request',
+          message: 'MPP is accepted only on POST /api/v1/shop/quotes/{id}/pay.',
+        });
+      }
+      const { defaultShopDeps } = await import('../../shop/merchant-lifecycle.service');
+      const paid = await escrowQuotePayment(defaultShopDeps(), ctx);
+      if (!paid.ok) return paid;
+      // INT-09 replaces this with settle + the PAID response.
+      ctx.responseStatus = 202;
+      ctx.responseBody = { status: 'payment_pending', order_id: paid.value.order_id };
+      return ok(ctx);
+    }
+
     if (ctx.x402Paid) {
       const price = ctx.toolPrice ?? 0;
       if (price > 0) {
-        const bound = await verifyX402Binding(ctx, price);
+        const built = await buildPaymentBinding(ctx);
+        if (!built.ok) return built;
+        const bound = await verifyX402Binding(ctx, built.value.binding);
         if (!bound.ok) return bound;
       }
       return ok(ctx);
