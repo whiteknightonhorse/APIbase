@@ -49,6 +49,15 @@ Commands:
       answered. Same manual "a human resolved it by hand" story as OPEN,
       reused rather than duplicated (LAW #ONE-PLACE).
 
+  incident-cli.py wait --id ID --actor A --until <ISO-8601 UTC> --reason "..."
+      T-0263 (REMEDIATION-MODEL-1005 ruling-1): the ONLY legitimate "ждём
+      провайдера". From REMEDIATION_QUEUED or OPEN only; --until must be within
+      [now+1h, now+72h] (else exit 1, no write). One UPDATE: next_recheck_at,
+      attempts entry action="wait" result="until <ISO>: <reason>", state ->
+      VERIFYING. advance_verifying() then leaves the incident alone until the
+      deadline; after it, OK -> RESOLVED, FAIL -> one auto-extension of 24h
+      (total of 2 `wait` entries), then STUCK.
+
   incident-cli.py list [--state S] [--severity S] [--provider P]
       Read-only, tab-separated.
 
@@ -222,8 +231,56 @@ def cmd_retire(a):
         )
         return 1
     ap.note_incident(a.id, a.actor, "retire", a.reason)
-    ap.transition_state(a.id, "RESOLVED")
+    ap.transition_state(a.id, "RESOLVED", extra_set=", next_recheck_at = NULL")
     print(f"{a.id} -> RESOLVED (provider {inc['provider']} retired)")
+    return 0
+
+
+WAIT_MIN = timedelta(hours=1)
+WAIT_MAX = timedelta(hours=72)
+WAIT_FROM_STATES = ("REMEDIATION_QUEUED", "OPEN")
+
+
+def parse_wait_until(raw, now=None):
+    """Returns (utc_datetime, None) or (None, error_text). Pure: the 1h/72h
+    window and the UTC requirement live here so --selftest can hit them."""
+    now = now or datetime.now(timezone.utc)
+    try:
+        s = raw.strip()
+        dt = datetime.fromisoformat(s[:-1] + "+00:00" if s.endswith(("Z", "z")) else s)
+    except (ValueError, AttributeError):
+        return None, f"--until {raw!r} is not an ISO-8601 timestamp (e.g. 2026-10-07T12:00:00Z)"
+    if dt.tzinfo is None:
+        return None, f"--until {raw!r} has no timezone; give UTC explicitly (trailing Z or +00:00)"
+    dt = dt.astimezone(timezone.utc)
+    if dt < now + WAIT_MIN:
+        return None, f"--until {raw} is sooner than now+1h ({(now + WAIT_MIN).strftime('%Y-%m-%dT%H:%M:%SZ')}): a wait is 1-72h"
+    if dt > now + WAIT_MAX:
+        return None, f"--until {raw} is later than now+72h ({(now + WAIT_MAX).strftime('%Y-%m-%dT%H:%M:%SZ')}): a wait is 1-72h"
+    return dt, None
+
+
+def cmd_wait(a):
+    """T-0263: see module docstring. Every refusal returns 1 with zero writes."""
+    until, err = parse_wait_until(a.until)
+    if err:
+        return _refuse(err)
+    inc = ap.get_incident(a.id)
+    if inc is None:
+        print(f"no such incident: {a.id}", file=sys.stderr)
+        return 1
+    if inc["state"] not in WAIT_FROM_STATES:
+        return _refuse(f"incident {a.id} is in state {inc['state']}; wait is only allowed from "
+                       f"{'/'.join(WAIT_FROM_STATES)}")
+    until_iso = until.strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        done = ap.wait_incident(a.id, a.actor, until_iso, f"until {until_iso}: {a.reason}", WAIT_FROM_STATES)
+    except RuntimeError as e:
+        print(f"DB write failed: {e}", file=sys.stderr)
+        return 1
+    if not done:
+        return _refuse(f"incident {a.id} changed state concurrently; nothing written")
+    print(f"{a.id} -> VERIFYING, waiting until {until_iso} (engine will not touch it before then)")
     return 0
 
 
@@ -666,6 +723,42 @@ def selftest():
             _orig_get_incident, _orig_note_incident, _orig_transition_state,
         )
 
+    # T-0263: `wait` window + state gate. Faked get_incident/wait_incident: no DB.
+    _now = datetime(2026, 10, 5, 12, 0, 0, tzinfo=timezone.utc)
+    _iso = lambda d: (_now + d).strftime("%Y-%m-%dT%H:%M:%SZ")
+    assert parse_wait_until(_iso(timedelta(hours=1)), _now)[1] is None, "exactly now+1h is allowed"
+    assert parse_wait_until(_iso(timedelta(hours=72)), _now)[1] is None, "exactly now+72h is allowed"
+    assert parse_wait_until(_iso(timedelta(minutes=59, seconds=59)), _now)[1], "now+59m59s must refuse"
+    assert parse_wait_until(_iso(timedelta(hours=72, seconds=1)), _now)[1], "now+72h1s must refuse"
+    assert parse_wait_until(_iso(-timedelta(hours=1)), _now)[1], "past must refuse"
+    assert parse_wait_until("2026-10-06T12:00:00", _now)[1], "naive timestamp must refuse"
+    assert parse_wait_until("tomorrow", _now)[1], "garbage must refuse"
+    assert parse_wait_until("2026-10-06T15:00:00+03:00", _now)[1] is None, "offset form normalised to UTC"
+
+    _wcalls = []
+    _orig_wait = ap.wait_incident
+    _wstates = {"w-q": "REMEDIATION_QUEUED", "w-open": "OPEN", "w-ver": "VERIFYING", "w-stuck": "STUCK",
+                "w-wh": "WAITING_HUMAN", "w-res": "RESOLVED"}
+    _real_dt = datetime
+    _soon = (_real_dt.now(timezone.utc) + timedelta(hours=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    _far = (_real_dt.now(timezone.utc) + timedelta(hours=100)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        ap.get_incident = lambda iid: ({"incident_id": iid, "state": _wstates[iid]} if iid in _wstates else None)
+        ap.wait_incident = lambda *args: (_wcalls.append(args), True)[1]
+        def _w(iid, until):
+            return cmd_wait(_argparse.Namespace(id=iid, actor="fleet", until=until, reason="provider maintenance"))
+        for _ok in ("w-q", "w-open"):
+            _wcalls.clear()
+            assert _w(_ok, _soon) == 0 and len(_wcalls) == 1, f"wait from {_ok} must write exactly once"
+            assert _wcalls[0][3].startswith("until ") and _wcalls[0][3].endswith(": provider maintenance")
+        for _bad in ("w-ver", "w-stuck", "w-wh", "w-res", "w-missing"):
+            _wcalls.clear()
+            assert _w(_bad, _soon) == 1 and _wcalls == [], f"wait from {_bad} must refuse with no write"
+        _wcalls.clear()
+        assert _w("w-q", _far) == 1 and _wcalls == [], "window violation must refuse with no write"
+    finally:
+        ap.get_incident, ap.wait_incident = _orig_get_incident, _orig_wait
+
     print("incident-cli --selftest: OK")
 
 
@@ -722,6 +815,13 @@ def main():
     pret.add_argument("--actor", required=True)
     pret.add_argument("--reason", required=True)
     pret.set_defaults(func=cmd_retire)
+
+    pw = sub.add_parser("wait")
+    pw.add_argument("--id", required=True)
+    pw.add_argument("--actor", required=True)
+    pw.add_argument("--until", required=True)
+    pw.add_argument("--reason", required=True)
+    pw.set_defaults(func=cmd_wait)
 
     pcl = sub.add_parser("close")
     pcl.add_argument("--id", required=True)

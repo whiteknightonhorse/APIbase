@@ -447,6 +447,12 @@ def advance_remediation_queued():
         done_path = os.path.join(ap.TASKLOOP_ROOT, "done", fleet_task_id)
         stuck_path = os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)
         if os.path.isfile(done_path):
+            # T-0263: the fleet task may already have moved this incident to
+            # VERIFYING itself via `incident-cli.py wait` (the SELECT above is
+            # a snapshot) -- then there is nothing to transition or note.
+            cur = ap.get_incident(incident_id)
+            if cur is not None and cur["state"] != "REMEDIATION_QUEUED":
+                continue
             ap.transition_state(incident_id, "VERIFYING")
             ap.note_incident(incident_id, "incident-engine", "fleet-done",
                               f"fleet task {fleet_task_id} landed in done/ -> VERIFYING "
@@ -653,15 +659,20 @@ def advance_waiting_human():
                       f"reminder not due for {timedelta(seconds=ap.WAITING_HUMAN_REMINDER_SECONDS) - age}")
 
 
+WAIT_MAX_NOTES = 2  # T-0263: action="wait" entries per incident (CLI wait + one auto-extend)
+
+
 def advance_verifying():
     out, rc = ap.psql(
-        f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('updated_at')}, fleet_task_id "
+        f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('updated_at')}, fleet_task_id, "
+        f"{UTC_TS_EXPR('next_recheck_at')}, COALESCE(next_recheck_at <= now(), false), "
+        f"(SELECT count(*) FROM jsonb_array_elements(attempts) e WHERE e->>'action' = 'wait') "
         f"FROM incidents WHERE state = 'VERIFYING'"
     )
     if rc != 0 or not out:
         return
     for line in out.splitlines():
-        incident_id, provider, kind, updated_at, fleet_task_id = line.split(ap.SEP)
+        incident_id, provider, kind, updated_at, fleet_task_id, recheck_at, expired, wait_count = line.split(ap.SEP)
         # T-09 ruling-1: cmd_resolve_request() used to move a fleet-owned
         # incident into VERIFYING on the fleet's own self-report, before
         # taskloop.sh's knowledge-gate check ran -- so a task that then died
@@ -673,7 +684,7 @@ def advance_verifying():
         # so it goes to STUCK -- a human needs to look, not a probe that may
         # have coincidentally gone healthy since.
         if fleet_task_id and os.path.isfile(os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)):
-            ap.transition_state(incident_id, "STUCK")
+            ap.transition_state(incident_id, "STUCK", extra_set=", next_recheck_at = NULL")
             ap.note_incident(incident_id, "incident-engine", "fleet-stuck",
                               f"fleet task {fleet_task_id} found in stuck/ while incident was "
                               f"VERIFYING (pre-fix self-reported resolve-request, never confirmed "
@@ -682,6 +693,11 @@ def advance_verifying():
                        f"({provider}) — fleet task {fleet_task_id} is stuck, needs a human now")
             ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
                       f"{fleet_task_id} found in stuck/ during VERIFYING -> STUCK")
+            continue
+        # T-0263: a `wait` verdict (incident-cli.py wait) parks the incident
+        # until next_recheck_at -- no RESOLVED, no STUCK, even on a FAIL probe.
+        waiting = bool(recheck_at)
+        if waiting and expired != "t":
             continue
         pv, rc2 = ap.psql(
             f"SELECT state, last_probe_result, {UTC_TS_EXPR('last_probe_at')} FROM provider_status "
@@ -697,13 +713,22 @@ def advance_verifying():
             # verdict either way. Do not resolve on stale data (C0.3).
             continue
         if state == "HEALTHY" or last_result == "OK":
-            ap.transition_state(incident_id, "RESOLVED")
+            ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
             ap.note_incident(incident_id, "incident-engine", "verified", "re-probe OK")
             ap.tg_send(f"[apibase] ✅ RESOLVED INC-{ap.short_id(incident_id)} {kind} "
                        f"({provider}) — re-probe confirmed OK")
         elif last_result in ("FAIL_TRANSIENT", "FAIL_DETERMINISTIC"):
-            ap.transition_state(incident_id, "STUCK")
+            if waiting and int(wait_count) < WAIT_MAX_NOTES:
+                # T-0263: one automatic 24h extension, no fleet task, no model.
+                until_iso = (datetime.now(timezone.utc) + timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+                ap.wait_incident(incident_id, "incident-engine", until_iso,
+                                 "auto-extend after expiry", ("VERIFYING",))
+                ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) wait expired, "
+                          f"re-probe {last_result} -> auto-extended to {until_iso}")
+                continue
+            ap.transition_state(incident_id, "STUCK", extra_set=", next_recheck_at = NULL")
             ap.note_incident(incident_id, "incident-engine", "verify-failed",
+                              ("wait expired twice — " if waiting else "") +
                               f"re-probe still {last_result} — F2: VERIFYING+FAIL -> STUCK")
             ap.tg_send(f"[apibase] \U0001F534 STUCK INC-{ap.short_id(incident_id)} {kind} "
                        f"({provider}) — re-probe still failing, needs a human now")
@@ -2587,7 +2612,7 @@ def selftest_db():
         row22, _ = ap.psql("SELECT status FROM tools WHERE tool_id = 'ap8seed1-tool1'")
         assert row22 == "healthy", f"world 22: seeded tool must be untouched, got {row22}"
         _commit_head_counts(*_live_counts())
-        print("world 22a (onboarding-style seed INSERT with zero AP-8 crossings -> reconciler "
+        print("world 23a (onboarding-style seed INSERT with zero AP-8 crossings -> reconciler "
               "triggers exactly once): OK")
 
         # Mutation control for the acceptance criterion's own wording ("равные числа -- ноль"):
@@ -2599,7 +2624,7 @@ def selftest_db():
         assert not os.path.exists(marker), (
             "world 22: live count == HEAD -- the reconciler must not trigger on equal counts"
         )
-        print("world 22b (live count == HEAD -> reconciler triggers zero times): OK")
+        print("world 23b (live count == HEAD -> reconciler triggers zero times): OK")
 
         # World 15 (T-09, ruling-1): cmd_resolve_request() must NOT transition a
         # fleet-owned incident straight to VERIFYING on the fleet's own self-
@@ -3053,6 +3078,117 @@ def selftest_db():
             f"world 21b: 0/10 recent 429s must stay PROVIDER_DOWN, got {row21c!r}"
         )
         print("world 21b (0/10 recent 429s -> PROVIDER_DOWN unchanged, regression guard): OK")
+
+        # World 23 (T-0263, REMEDIATION-MODEL-1005 ruling-1): `incident-cli.py wait` writes
+        # next_recheck_at and advance_verifying() honours it. Real cmd_wait, real DB.
+        import argparse as _ap23
+        import importlib.util as _ilu
+        _spec23 = _ilu.spec_from_file_location(
+            "incident_cli_t0263", os.path.join(os.path.dirname(os.path.abspath(__file__)), "incident-cli.py"))
+        _cli23 = _ilu.module_from_spec(_spec23)
+        _spec23.loader.exec_module(_cli23)
+
+        def _w23_open(provider, fleet_task=None):
+            iid, _ = ap.open_or_merge_incident(
+                kind="PROVIDER_DOWN", provider=provider, evidence={"probe": "503"}, detected_by="probe")
+            extra = f", fleet_task_id = {ap.sql_literal(fleet_task)}" if fleet_task else ""
+            ap.transition_state(iid, "REMEDIATION_QUEUED", extra_set=extra)
+            ap.psql(
+                f"INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                f"probe_interval_s, last_probe_result, last_probe_at) VALUES "
+                f"({ap.sql_literal(provider)}, 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now() - interval '2 days') "
+                f"ON CONFLICT (provider) DO NOTHING"
+            )
+            return iid
+
+        def _w23_wait(iid):
+            until = (datetime.now(timezone.utc) + timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            rc = _cli23.cmd_wait(_ap23.Namespace(id=iid, actor="fleet", until=until, reason="provider maintenance"))
+            assert rc == 0, f"world 22: cmd_wait rc={rc}"
+
+        def _w23_probe(provider, result, ago_min):
+            ap.psql(
+                f"UPDATE provider_status SET last_probe_result = {ap.sql_literal(result)}, "
+                f"state = {ap.sql_literal('HEALTHY' if result == 'OK' else 'DOWN')}, "
+                f"last_probe_at = now() - interval '{ago_min} minutes' WHERE provider = {ap.sql_literal(provider)}"
+            )
+
+        def _w23_expire(iid, hours_ago=1):
+            # shift the whole wait into the past: deadline expired, wait began 3h before that
+            ap.psql(
+                f"UPDATE incidents SET next_recheck_at = now() - interval '{hours_ago} hours', "
+                f"updated_at = now() - interval '{hours_ago + 3} hours' WHERE incident_id = {ap.sql_literal(iid)}"
+            )
+
+        def _w23_count(inc, action):
+            return sum(1 for a in inc["attempts"] if a["action"] == action)
+
+        # (a) wait -> VERIFYING, next_recheck_at set, exactly one wait note; FAIL probe before the deadline
+        # must not produce STUCK.
+        id23a = _w23_open("ap23a")
+        _w23_wait(id23a)
+        inc23a = ap.get_incident(id23a)
+        assert inc23a["state"] == "VERIFYING" and inc23a["next_recheck_at"], inc23a
+        assert _w23_count(inc23a, "wait") == 1 and inc23a["attempts"][-1]["result"].startswith("until "), inc23a["attempts"]
+        _w23_probe("ap23a", "FAIL_DETERMINISTIC", 0)
+        advance_verifying()
+        inc23a2 = ap.get_incident(id23a)
+        assert inc23a2["state"] == "VERIFYING", f"world 23a: FAIL probe before deadline must not STUCK, got {inc23a2['state']}"
+        assert inc23a2["next_recheck_at"] and len(inc23a2["attempts"]) == len(inc23a["attempts"]), "world 23a: untouched"
+        # ...nor a green probe before the deadline resolves it
+        _w23_probe("ap23a", "OK", 0)
+        advance_verifying()
+        assert ap.get_incident(id23a)["state"] == "VERIFYING", "world 23a: OK probe before deadline must not RESOLVE"
+        print("world 23a (wait -> VERIFYING; FAIL/OK probe before next_recheck_at leaves it alone): OK")
+
+        # (b) deadline passed + OK probe after it -> RESOLVED, next_recheck_at cleared.
+        id23b = _w23_open("ap23b")
+        _w23_wait(id23b)
+        _w23_expire(id23b)
+        _w23_probe("ap23b", "OK", 5)
+        advance_verifying()
+        inc23b = ap.get_incident(id23b)
+        assert inc23b["state"] == "RESOLVED" and inc23b["next_recheck_at"] is None, inc23b
+        print("world 23b (expired + OK -> RESOLVED, next_recheck_at NULL): OK")
+
+        # (c) deadline passed + FAIL -> one auto-extend (24h, engine note), second expiry -> STUCK.
+        id23c = _w23_open("ap23c")
+        _w23_wait(id23c)
+        _w23_expire(id23c)
+        _w23_probe("ap23c", "FAIL_TRANSIENT", 5)
+        advance_verifying()
+        inc23c = ap.get_incident(id23c)
+        assert inc23c["state"] == "VERIFYING", f"world 23c: first expiry must auto-extend, got {inc23c['state']}"
+        assert _w23_count(inc23c, "wait") == 2 and inc23c["attempts"][-1]["actor"] == "incident-engine", inc23c["attempts"]
+        assert inc23c["attempts"][-1]["result"] == "auto-extend after expiry"
+        ext_hours, _ = ap.psql(
+            f"SELECT round(extract(epoch FROM (next_recheck_at - now())) / 3600) FROM incidents "
+            f"WHERE incident_id = {ap.sql_literal(id23c)}")
+        assert ext_hours == "24", f"world 23c: auto-extend must be now+24h, got {ext_hours}h"
+        assert not [a for a in inc23c["attempts"] if a["action"] == "verify-failed"]
+        _w23_probe("ap23c", "FAIL_TRANSIENT", 5)
+        advance_verifying()  # extended deadline still in the future -> untouched
+        assert ap.get_incident(id23c)["state"] == "VERIFYING" and _w23_count(ap.get_incident(id23c), "wait") == 2
+        _w23_expire(id23c)
+        _w23_probe("ap23c", "FAIL_TRANSIENT", 5)
+        advance_verifying()
+        inc23c2 = ap.get_incident(id23c)
+        assert inc23c2["state"] == "STUCK" and inc23c2["next_recheck_at"] is None, inc23c2
+        assert "wait expired twice" in inc23c2["attempts"][-1]["result"], inc23c2["attempts"][-1]
+        assert _w23_count(inc23c2, "wait") == 2, "world 23c: no third wait entry"
+        print("world 23c (expired + FAIL: auto-extend once, second expiry -> STUCK): OK")
+
+        # (e) fleet task lands in done/ AFTER it already called wait: no second transition, no 'fleet DONE' note.
+        id23e = _w23_open("ap23e", fleet_task="t0263-23e.md")
+        _w23_wait(id23e)
+        with open(os.path.join(ap.TASKLOOP_ROOT, "done", "t0263-23e.md"), "w", encoding="utf-8") as f:
+            f.write("VERDICT: DONE\n")
+        before23e = ap.get_incident(id23e)
+        advance_remediation_queued()
+        after23e = ap.get_incident(id23e)
+        assert after23e["state"] == "VERIFYING" and _w23_count(after23e, "fleet-done") == 0, after23e["attempts"]
+        assert len(after23e["attempts"]) == len(before23e["attempts"]), "world 23e: nothing written"
+        print("world 23e (done/ after wait: not re-transitioned, no second fleet-done): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0

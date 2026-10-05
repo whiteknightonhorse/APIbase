@@ -850,6 +850,26 @@ def transition_state(incident_id: str, new_state: str, extra_set: str = ""):
         raise RuntimeError(f"transition_state: update failed for {incident_id} -> {new_state}")
 
 
+def wait_incident(incident_id: str, actor: str, until_iso: str, result: str, from_states) -> bool:
+    """T-0263: the ONE write behind "ждём провайдера". A single UPDATE sets
+    next_recheck_at, appends the action="wait" attempts entry and moves the
+    state to VERIFYING, guarded by `state IN from_states` in the WHERE clause
+    (so a concurrent transition makes it a no-op, never a double write).
+    Returns True iff a row was updated. advance_verifying() reads
+    next_recheck_at and counts the action="wait" entries (cap: 2)."""
+    entry = {"ts": now_iso(), "actor": actor, "action": "wait", "result": result}
+    states_sql = ", ".join(sql_literal(s) for s in from_states)
+    out, rc = psql(
+        f"UPDATE incidents SET state = 'VERIFYING', next_recheck_at = {sql_literal(until_iso)}::timestamptz, "
+        f"attempts = attempts || {sql_jsonb_literal([entry])}, updated_at = now() "
+        f"WHERE incident_id = {sql_literal(incident_id)} AND state IN ({states_sql}) "
+        f"RETURNING incident_id"
+    )
+    if rc != 0:
+        raise RuntimeError(f"wait_incident: update failed for {incident_id}")
+    return bool(out.strip())
+
+
 def get_incident(incident_id: str):
     out, rc = psql(
         f"SELECT incident_id, dedup_key, provider, tool_id, kind, severity, state, "
@@ -1195,8 +1215,9 @@ def _task_boundaries_and_footer(provider: str, incident_id: str, task_id: str) -
   оплаты, открыть НОВЫЙ инцидент PAYMENT_REQUIRED (см. «Что нужно» выше), не пытаться платить.
 
 ## Критерий проверки
-Активная проба для `{provider}` (probe_log/provider_status) снова `OK`/`HEALTHY`, ЛИБО явный
-обоснованный вердикт «ждём провайдера» с указанием `next_recheck_at`.
+Активная проба для `{provider}` (probe_log/provider_status) снова `OK`/`HEALTHY`, ЛИБО
+`python3 scripts/autopilot/incident-cli.py wait --id {incident_id} --actor fleet --until <ISO-8601 UTC> --reason "<почему>"`
+(срок от 1 до 72 ч; единственный законный «ждём провайдера»), и тогда `VERDICT: DONE` без коммитов.
 Любое утверждение о провайдере или БД сопровождается СЫРЫМ выводом команды (`curl -si`, `psql`
 и т.п.) с `date -u` в ТОМ ЖЕ блоке — пересказ своими словами без сырого вывода считается
 недоказанным и равен REJECT (T-11, ruling-1 §D: три DONE по gdelt прошли ревью на пересказе,
