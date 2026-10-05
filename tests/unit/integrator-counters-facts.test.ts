@@ -3,9 +3,10 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { buildIntegratorBlock } from '../../src/shop/integrator/facts';
-import { renderTokens } from '../../src/shop/integrator/tokens';
+import { MCP_BASELINE, renderTokens } from '../../src/shop/integrator/tokens';
+import { INTEGRATOR_DIR } from '../../src/shop/routes/integrator.router';
 import { shopToolDefinitions } from '../../src/shop/tool-definitions';
 
 jest.mock('../../src/config', () => ({ config: {} }));
@@ -155,5 +156,25 @@ describe('T-INT-19', () => {
     expect(d.shop_tools_count).toBe(shop);
     const catalog = read('scripts/discovery-snapshot.tsv').split('\n').filter(Boolean).length;
     expect(d.tools_count).toBe(catalog + shop);
+  });
+
+  it('CN9 image layout covers every static path the app resolves from dist', () => {
+    const df = read('docker/Dockerfile');
+    const runtime = df.slice(df.search(/^FROM .* AS runtime$/m));
+    const dests: string[] = [];
+    for (const line of runtime.split('\n')) {
+      const m = /^COPY\s+(?!--from)(?:--\S+\s+)*(\S+)\s+(\S+)\s*$/.exec(line.trim());
+      if (m)
+        dests.push(
+          join('/app', m[2])
+            .replace(/^\/app\/?/, '')
+            .replace(/\/$/, ''),
+        );
+    }
+    for (const abs of [MCP_BASELINE, INTEGRATOR_DIR]) {
+      const rel = relative(ROOT, abs);
+      const covered = dests.some((d) => d === rel || rel.startsWith(d + '/'));
+      expect({ rel, covered }).toEqual({ rel, covered: true });
+    }
   });
 });

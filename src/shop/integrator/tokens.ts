@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 
 export const MCP_BASELINE = resolve(__dirname, '../../../static/.well-known/mcp.json');
 
-/** merchants_count from the sync-counts baseline (mcp.json); read per render so a sync is picked up live. */
+/** merchants_count from the sync-counts baseline (mcp.json) baked into the image at build time (same SHA as the nginx static release); read per render. */
 function baselineMerchants(path: string): string {
   try {
     const n = Number(JSON.parse(readFileSync(path, 'utf8')).merchants_count);

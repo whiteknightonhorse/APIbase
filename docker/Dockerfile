@@ -66,6 +66,8 @@ COPY scripts/ ./scripts/
 COPY config/ ./config/
 COPY static/legal/ ./static/legal/
 COPY static/integrator/ ./static/integrator/
+# T-INT-19: sync-counts baseline read by src/shop/integrator/tokens.ts (merchants_count)
+COPY static/.well-known/mcp.json ./static/.well-known/mcp.json
 COPY lua/ ./lua/
 COPY docker/entrypoint.sh ./entrypoint.sh
 
