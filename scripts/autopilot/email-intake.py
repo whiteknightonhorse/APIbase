@@ -1050,6 +1050,68 @@ def _maybe_open_incident(cls, action_required, provider, msg_id, from_domain, re
         return None
 
 
+# ---------------------------------------------------------------------------
+# T-INT-18 (spec §12.2 «Входящая почта продавцов»): MERCHANT_REPLY. A reply to one of OUR merchant
+# letters (In-Reply-To/References carries the Resend id we stored as email_events.provider_message_id)
+# or mail from the domain of a merchant's site_url. The mail is DATA: it becomes a quoted note on the
+# merchant's open incident (cut to 2 KB) — no action, no task, no model call (so the haiku cap is
+# untouched). The class is deliberately NOT in EMAIL_CLASSES: like 0028's outbound rows, the stored
+# row keeps class='UNMATCHED' (the CHECK enum is not widened), merchant_id is the discriminator.
+# ---------------------------------------------------------------------------
+MERCHANT_REPLY = "MERCHANT_REPLY"
+MERCHANT_REPLY_NOTE_MAX = 2048
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+
+
+def _header_ids(*headers):
+    ids = []
+    for h in headers:
+        for tok in re.findall(r"<([^<>\s]+)>|(\S+)", h or ""):
+            t = (tok[0] or tok[1]).strip("<>")
+            if t:
+                ids.append(t)
+                ids.append(t.split("@")[0])
+    return sorted(set(ids))
+
+
+def match_merchant_reply(from_domain, in_reply_to, references):
+    """Returns merchant_id (str) or None. Thread match first, then sender domain == site_url host."""
+    ids = _header_ids(in_reply_to, references)
+    if ids:
+        lits = ", ".join(ap.sql_literal(i) for i in ids)
+        out, rc = ap.psql("SELECT merchant_id::text FROM email_events WHERE direction = 'out' "
+                          f"AND merchant_id IS NOT NULL AND provider_message_id IN ({lits}) LIMIT 1")
+        if rc == 0 and out and _UUID_RE.match(out.strip()):
+            return out.strip()
+    fd = (from_domain or "").lower().strip()
+    if not fd:
+        return None
+    out, rc = ap.psql("SELECT merchant_id::text, site_url FROM shop_merchants")
+    if rc != 0 or not out:
+        return None
+    base = _base_domain(fd)
+    for ln in out.splitlines():
+        mid, _, url = ln.partition(ap.SEP)
+        host = re.sub(r"^[a-z]+://", "", (url or "").lower()).split("/")[0].split(":")[0]
+        if host and _base_domain(host) == base and _UUID_RE.match(mid):
+            return mid
+    return None
+
+
+def note_merchant_reply(merchant_id, subject, body):
+    """Quoted note on the merchant's open incident. Returns incident_id or None (no open incident)."""
+    out, rc = ap.psql("SELECT incident_id FROM incidents WHERE provider = "
+                      f"{ap.sql_literal('merchant:' + merchant_id)} AND state <> 'RESOLVED' "
+                      "ORDER BY created_at DESC LIMIT 1")
+    if rc != 0 or not out.strip():
+        return None
+    iid = out.splitlines()[0].strip()
+    quote = f"{(subject or '').strip()} — {(body or '').strip()}"[:MERCHANT_REPLY_NOTE_MAX]
+    ap.note_incident(iid, "email-intake", "merchant-reply",
+                     "UNTRUSTED-EMAIL-QUOTE: " + json.dumps(quote, ensure_ascii=False))
+    return iid
+
+
 def process_message(msg_id, received_at, from_addr, subject, body, domain_map, whitelist,
                      haiku_invoke=_default_haiku_invoke, in_reply_to=None, references=None,
                      source_folder="inbox", allow_haiku=True, known_thread_ids=None):
@@ -1078,6 +1140,19 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
     if known_thread_ids is None:
         known_thread_ids = _load_partner_reply_thread_ids()
     from_domain = from_addr.split("@")[-1].lower() if "@" in from_addr else (from_addr or "").lower()
+    merchant_id = match_merchant_reply(from_domain, in_reply_to, references)
+    if merchant_id:
+        incident_id = note_merchant_reply(merchant_id, subject, body)
+        summary = ("UNTRUSTED-EMAIL-QUOTE: " + f"{subject.strip()} — {body.strip()}"[:460])[:500]
+        _, rc3 = ap.psql(
+            "INSERT INTO email_events (msg_id, received_at, from_domain, class, action_required, "
+            "incident_id, summary, source_folder, merchant_id) VALUES ("
+            f"{ap.sql_literal(msg_id)}, {ap.sql_literal(received_at)}, {ap.sql_literal(from_domain)}, "
+            f"'UNMATCHED', FALSE, {ap.sql_literal(incident_id)}, {ap.sql_literal(summary)}, "
+            f"{ap.sql_literal(source_folder)}, {ap.sql_literal(merchant_id)}::uuid) ON CONFLICT (msg_id) DO NOTHING")
+        if rc3 != 0:
+            ap.notice(f"молчу: email-intake could not record MERCHANT_REPLY row for {msg_id}")
+        return MERCHANT_REPLY
     provider = match_provider(from_domain, domain_map)
     cls, action_required, source = _classify_message(
         from_domain, provider, whitelist, subject, body, haiku_invoke,
