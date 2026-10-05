@@ -72,6 +72,8 @@
     "free_limit": 2000,
     "reset_period": "monthly",
     "docs_url": "https://developers.amadeus.com/pricing",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 2000.",
     "limit_proof": "Self-Service free tier: 2,000 Flight Search calls/month, varies by endpoint",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -165,6 +167,8 @@
     "free_limit": 500,
     "reset_period": "daily",
     "docs_url": "https://www.bls.gov/developers/api_faqs.htm",
+    "pricing_check": "manual",
+    "pricing_note": "bls.gov returns 403 to non-browser clients on every developers page; 500 requests/day not machine-verifiable.",
     "limit_proof": "BLS registered tier: 500 requests/day. ESCO/CareerJet unlimited.",
     "key_expiry": {
       "PROVIDER_KEY_BLS": {
@@ -220,6 +224,8 @@
     "free_limit": 200,
     "reset_period": "hourly",
     "docs_url": "https://support.travelpayouts.com/hc/en-us/articles/210996088",
+    "pricing_check": "manual",
+    "pricing_note": "support.travelpayouts.com returns 403 to non-browser clients; 200 req/hour limit not machine-verifiable.",
     "limit_proof": "Flight Data API: 200 req/hour per IP, free for partners",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -242,6 +248,7 @@
     "free_limit": 10000,
     "reset_period": "monthly",
     "docs_url": "https://docs.diffbot.com/reference/account-limits",
+    "pricing_url": "https://www.diffbot.com/pricing/",
     "limit_proof": "Free trial: 10,000 calls/month",
     "key_expiry": {
       "PROVIDER_KEY_DIFFBOT": {
@@ -312,6 +319,8 @@
     "free_limit": 25000,
     "reset_period": "daily",
     "docs_url": "https://www.openfigi.com/api",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 25000.",
     "limit_proof": "Bloomberg open standard (ISO 18774). 25K/day free, higher with key. 300M+ instruments.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -345,6 +354,8 @@
     "free_limit": 500,
     "reset_period": "none",
     "docs_url": "https://emailverification.whoisxmlapi.com/api",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 500.",
     "limit_proof": "Credits shared with WhoisXML account (500 free on signup). SMTP + DNS + disposable detection.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -510,6 +521,7 @@
     "free_limit": 5000,
     "reset_period": "hourly",
     "docs_url": "https://api.congress.gov/",
+    "pricing_url": "https://github.com/LibraryOfCongress/api.congress.gov",
     "limit_proof": "Library of Congress open data. Free API key, 5,000 req/hour. All US legislation since 1973.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -571,6 +583,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://api.usaspending.gov/docs/endpoints",
+    "pricing_url": "https://api.usaspending.gov/docs/intro-tutorial",
     "limit_proof": "US Government open data (DATA Act). No auth, no rate limits. 60M+ awards, $10+ trillion tracked.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -632,6 +645,8 @@
     "free_limit": 1000,
     "reset_period": "hourly",
     "docs_url": "https://api.nasa.gov/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 1000.",
     "limit_proof": "1,000 requests/hour per API key",
     "key_expiry": {
       "PROVIDER_KEY_NASA": {
@@ -649,6 +664,7 @@
     "free_limit": 1000,
     "reset_period": "hourly",
     "docs_url": "https://api.data.gov/docs/rate-limits/",
+    "pricing_url": "https://api.data.gov/docs/developer-manual/",
     "limit_proof": "api.data.gov default: 1,000 requests/hour per API key (hourly-resetting)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -727,6 +743,7 @@
     "free_limit": 100,
     "reset_period": "daily",
     "docs_url": "https://www.upcitemdb.com/wp/docs/main/development/getting-started/",
+    "pricing_url": "https://devs.upcitemdb.com/",
     "limit_proof": "Free trial tier: 100 requests/day, 6 requests/minute",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -783,6 +800,7 @@
     "reset_period": "monthly",
     "balance_api": true,
     "docs_url": "https://www.zerobounce.net/email-validation-api-quickstart/",
+    "pricing_url": "https://www.zerobounce.net/pricing/",
     "limit_proof": "100 free credits/month, then $39/2,000 credits (no expiry on purchased)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -794,6 +812,8 @@
     "free_limit": 100,
     "reset_period": "daily",
     "docs_url": "https://api-sports.io/documentation",
+    "pricing_check": "manual",
+    "pricing_note": "api-sports.io returns 403 to non-browser clients on every page; 100 req/day free plan not machine-verifiable.",
     "limit_proof": "Free plan: 100 requests/day per sport API, 10 req/min rate limit",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -805,6 +825,7 @@
     "free_limit": 500000,
     "reset_period": "monthly",
     "docs_url": "https://langbly.com/docs",
+    "pricing_url": "https://langbly.com/pricing",
     "limit_proof": "500K free characters/month, then $5/1M characters PAYG",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -817,6 +838,8 @@
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://www.twilio.com/en-us/pricing",
+    "pricing_check": "manual",
+    "pricing_note": "Trial credit $15.50 is stated only on help.twilio.com (free-trial article), not on the pricing pages; SMS $0.0083 and Lookup $0.005 do verify on twilio.com/en-us/sms/pricing/us.",
     "limit_proof": "Trial: $15.50 credit. SMS: $0.0083/msg US. Lookup: $0.005/call. No monthly reset.",
     "moderation_class": "action",
     "moderation_class_reviewed": true
@@ -828,6 +851,8 @@
     "free_limit": 25,
     "reset_period": "none",
     "docs_url": "https://platform.stability.ai/pricing",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 25, 0.01.",
     "limit_proof": "25 free credits on signup, then PAYG $0.01/credit. Core: 3 credits/image.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -861,6 +886,8 @@
     "free_limit": 1000,
     "reset_period": "hourly",
     "docs_url": "https://open.gsa.gov/api/regulationsgov/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 1000.",
     "limit_proof": "DEMO_KEY: 1,000 requests/hour. US government public domain data.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -883,6 +910,8 @@
     "free_limit": 5000,
     "reset_period": "hourly",
     "docs_url": "https://www.courtlistener.com/help/api/rest/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 5000.",
     "limit_proof": "5,000 requests/hour for authenticated users. Open data, 501(c)(3) nonprofit.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -916,6 +945,8 @@
     "free_limit": 200,
     "reset_period": "daily",
     "docs_url": "https://newsdata.io/pricing",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 200.",
     "limit_proof": "Free plan: 200 API credits/day, commercial use permitted on all plans",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -927,6 +958,7 @@
     "free_limit": 1000,
     "reset_period": "monthly",
     "docs_url": "https://docs.exa.ai/reference/search",
+    "pricing_url": "https://exa.ai/pricing",
     "limit_proof": "Free tier: 1,000 requests/month, no credit card required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -938,6 +970,7 @@
     "free_limit": 1000,
     "reset_period": "monthly",
     "docs_url": "https://docs.tavily.com/documentation/api-reference/search",
+    "pricing_url": "https://www.tavily.com/pricing",
     "limit_proof": "Free tier: 1,000 API credits/month, no credit card required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -949,6 +982,7 @@
     "free_limit": 2500,
     "reset_period": "none",
     "docs_url": "https://serper.dev/pricing",
+    "pricing_url": "https://serper.dev",
     "limit_proof": "2,500 free one-time queries (6-month validity), then PAYG $1/1K queries",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -960,6 +994,7 @@
     "free_limit": 100,
     "reset_period": "monthly",
     "docs_url": "https://apiflash.com/documentation",
+    "pricing_url": "https://apiflash.com/",
     "limit_proof": "Free plan: 100 screenshots/month, no credit card required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1002,6 +1037,7 @@
     "free_limit": 5000,
     "reset_period": "none",
     "docs_url": "https://firms.modaps.eosdis.nasa.gov/api/",
+    "pricing_url": "https://firms.modaps.eosdis.nasa.gov/api/area/",
     "limit_proof": "5,000 transactions per 10-minute interval. NASA open data.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1057,6 +1093,7 @@
     "free_limit": 1500,
     "reset_period": "monthly",
     "docs_url": "https://www.exchangerate-api.com/docs/overview",
+    "pricing_url": "https://www.exchangerate-api.com/",
     "limit_proof": "Free plan: 1,500 requests/month, daily updates, no credit card",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1145,6 +1182,7 @@
     "free_limit": 5000,
     "reset_period": "daily",
     "docs_url": "https://www.walkscore.com/professional/api.php",
+    "pricing_url": "https://www.walkscore.com/professional/api-sign-up.php",
     "limit_proof": "5,000 calls/day free, Walk+Transit+Bike scores for US/Canada",
     "key_expiry": {
       "PROVIDER_KEY_WALKSCORE": {
@@ -1162,6 +1200,8 @@
     "free_limit": 500000,
     "reset_period": "monthly",
     "docs_url": "https://rapidapi.com/apidojo/api/realtor",
+    "pricing_check": "manual",
+    "pricing_note": "RapidAPI pricing pages are JS-rendered and not machine-readable; the 500K req/month BASIC plan must be read in the RapidAPI dashboard.",
     "limit_proof": "500K req/month free BASIC plan via RapidAPI",
     "key_expiry": {
       "PROVIDER_KEY_RAPIDAPI": {
@@ -1179,6 +1219,8 @@
     "free_limit": 20000,
     "reset_period": "monthly",
     "docs_url": "https://www.pexels.com/api/documentation/",
+    "pricing_check": "manual",
+    "pricing_note": "pexels.com and help.pexels.com return 403 to non-browser clients; 200 req/hour and 20,000/month not machine-verifiable.",
     "limit_proof": "200 req/hour, 20,000/month. Free for commercial use.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1190,6 +1232,7 @@
     "free_limit": 100,
     "reset_period": "monthly",
     "docs_url": "https://docs.browserbase.com/",
+    "pricing_url": "https://www.browserbase.com/pricing",
     "limit_proof": "Hobby plan: 100 sessions/month free, no CC required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1224,6 +1267,8 @@
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://www.namesilo.com/api-reference",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 20, 17.29.",
     "limit_proof": "Pre-funded balance, $20 current. Auto-replenish enabled via Visa. Domain costs: .com $17.29/yr",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1258,6 +1303,7 @@
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://www.assemblyai.com/docs",
+    "pricing_url": "https://www.assemblyai.com/pricing",
     "limit_proof": "$50 free credits (185hr batch / 333hr streaming), then $0.15/hr PAYG",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1347,6 +1393,9 @@
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://www.api2pdf.com/documentation/v2",
+    "pricing_url": "https://www.api2pdf.com/pricing/",
+    "pricing_check": "manual",
+    "pricing_note": "Pricing page lists $1/mo, $0.001/MB and $0.00019551/s; the $5.00 balance top-up is an account fact, not published.",
     "limit_proof": "T-11 2026-09-05 (INC-8e77a4, portal.api2pdf.com/Billing): pay-per-use, $1/mo account fee, $0.001/MB output, $0.00019551/s compute. Balance topped up $5.00, card on file. free_limit=0 because there is no free tier left to count against -- see billing below, not a documented rate ceiling",
     "billing": {
       "plan": "pay_per_use",
@@ -1394,6 +1443,7 @@
     "free_limit": 1000,
     "reset_period": "monthly",
     "docs_url": "https://docs.auto.dev/v2/products/vin-decode",
+    "pricing_url": "https://www.auto.dev/pricing",
     "limit_proof": "Starter plan: 1,000 free API calls/month, 5 req/sec, usage-based data fees after",
     "probe": {
       "method": "GET"
@@ -1430,6 +1480,8 @@
     "free_limit": 10000,
     "reset_period": "monthly",
     "docs_url": "https://api-docs.iqair.com/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 10000.",
     "limit_proof": "Community plan: 10,000 calls/month, real-time AQI + weather",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1441,6 +1493,8 @@
     "free_limit": 120,
     "reset_period": "monthly",
     "docs_url": "https://ibanapi.com/documentation",
+    "pricing_check": "manual",
+    "pricing_note": "Documentation 403 to bots and homepage does not state the 100+20 credits per 30 days; no public page found. Verify in the ibanapi dashboard.",
     "limit_proof": "100 basic + 20 bank credits per 30 days free",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1452,6 +1506,7 @@
     "free_limit": 20,
     "reset_period": "daily",
     "docs_url": "https://currentsapi.services/en/docs",
+    "pricing_url": "https://currentsapi.services/en/pricing",
     "limit_proof": "Free plan: 20 requests/day, paid plans from $9/mo (300/day)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1464,6 +1519,7 @@
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://twitterapi.io/docs",
+    "pricing_url": "https://twitterapi.io/",
     "limit_proof": "10,000 bonus credits on signup ($0.15/1K tweets), pay-as-you-go",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1475,6 +1531,8 @@
     "free_limit": 50,
     "reset_period": "monthly",
     "docs_url": "https://rateapi.dev",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 50.",
     "limit_proof": "Free tier: 50 requests/month, MCP-native API for AI agents",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1614,6 +1672,7 @@
     "free_limit": 10000000,
     "reset_period": "monthly",
     "docs_url": "https://www.weatherapi.com/docs/",
+    "pricing_url": "https://www.weatherapi.com/pricing.aspx",
     "limit_proof": "Business trial: 10M calls/month till 2026-04-13. Commercial use OK. 100K+ global stations.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1637,6 +1696,7 @@
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://docs.zyte.com/zyte-api/",
+    "pricing_url": "https://www.zyte.com/pricing/",
     "limit_proof": "T-11 2026-09-05 (INC-564ce1, app.zyte.com org 937578): Pay as you go plan active, $100/mo spending cap, standard rate (no volume discount -- starts only at $100+/mo commitment), billing period 2026-08-30..2026-09-30, due today $0. free_limit=0 because there is no free tier left to count against -- see billing below for the real cap",
     "billing": {
       "plan": "pay_as_you_go",
@@ -1665,6 +1725,7 @@
     "free_limit": 500,
     "reset_period": "monthly",
     "docs_url": "https://apidocs.marketcheck.com/",
+    "pricing_url": "https://www.marketcheck.com/pricing",
     "limit_proof": "Free plan: 500 calls/month, 5 calls/sec, 100mi radius restriction. No CC required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1687,6 +1748,8 @@
     "free_limit": 50,
     "reset_period": "monthly",
     "docs_url": "https://www.listennotes.com/api/docs/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 50, 200, 1.6.",
     "limit_proof": "Free plan: 50 requests/month. Pro: $200/mo + $1.60/1K calls. X-ListenAPI-Key header auth",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1698,6 +1761,8 @@
     "free_limit": 300,
     "reset_period": "none",
     "docs_url": "https://docs.audd.io/",
+    "pricing_check": "manual",
+    "pricing_note": "$0.005/call is not stated on audd.io or docs.audd.io; trial of 300 requests is dashboard-only, and the trial was recorded as active only till 2026-04-11.",
     "limit_proof": "Trial: 300 free requests, no CC. Paid: $5/1K ($0.005/call). Trial active till 2026-04-11",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1775,6 +1840,8 @@
     "free_limit": 250,
     "reset_period": "daily",
     "docs_url": "https://developer.adzuna.com/overview",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 250.",
     "limit_proof": "Trial Access: ~250 req/day free. 16+ countries. Job search + salary data.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1786,6 +1853,7 @@
     "free_limit": 5000,
     "reset_period": "hourly",
     "docs_url": "https://docs.github.com/en/rest",
+    "pricing_url": "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api",
     "limit_proof": "Authenticated: 5,000 req/hour. Read-only public data. PAT with public_repo + read:user scopes.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1819,6 +1887,8 @@
     "free_limit": 2500,
     "reset_period": "none",
     "docs_url": "https://spider.cloud/docs/api",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 2500, 0.0005.",
     "limit_proof": "2,500 free credits on signup (one-time, no expiry). PAYG: ~$0.0005/scrape. No subscription required.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1830,6 +1900,7 @@
     "free_limit": 100,
     "reset_period": "monthly",
     "docs_url": "https://docs.canopyapi.co",
+    "pricing_url": "https://www.canopyapi.co/",
     "limit_proof": "Hobby plan: 100 req/month free forever. PAYG: $0.01/req. 12 Amazon marketplaces.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1874,6 +1945,7 @@
     "free_limit": 500,
     "reset_period": "none",
     "docs_url": "https://jooble.org/api/about",
+    "pricing_url": "https://help.jooble.org/en/support/solutions/articles/60001448238-jooble-rest-api-documentation",
     "limit_proof": "500 requests default limit (contact support to increase). Free API, key in URL path.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -1920,6 +1992,8 @@
     "paid_balance": true,
     "balance_api": true,
     "docs_url": "https://telnyx.com/pricing",
+    "pricing_check": "manual",
+    "pricing_note": "Trial $10 credit and $0.10 SMS-capability fee are not on the public pricing pages; $0.004 SMS, $0.002 voice and $1 number do verify on telnyx.com/pricing.",
     "limit_proof": "Trial: $10 credit. SMS: $0.004/msg US base + carrier fees. Voice: $0.002/min. Numbers: $1.00/mo + $0.10/mo SMS capability.",
     "moderation_class": "action",
     "moderation_class_reviewed": true
@@ -2066,6 +2140,7 @@
     "free_limit": 500,
     "reset_period": "hourly",
     "docs_url": "https://docs.airnowapi.org/webservices",
+    "pricing_url": "https://docs.airnowapi.org/",
     "limit_proof": "500 req/hr per endpoint, no monthly cap. US Gov free.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2088,6 +2163,7 @@
     "free_limit": 5000,
     "reset_period": "hourly",
     "docs_url": "https://www.eia.gov/opendata",
+    "pricing_url": "https://www.eia.gov/opendata/documentation.php",
     "limit_proof": "5,000 req/hr per registered key. US Gov free.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2099,6 +2175,7 @@
     "free_limit": 1000,
     "reset_period": "hourly",
     "docs_url": "https://api.open.fec.gov/developers/",
+    "pricing_url": "https://api.open.fec.gov/swagger/",
     "limit_proof": "1,000 req/hr per api.data.gov shared key. FEC mandatory public disclosure data.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2187,6 +2264,8 @@
     "free_limit": 500,
     "reset_period": "monthly",
     "docs_url": "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing",
+    "pricing_check": "manual",
+    "pricing_note": "RapidAPI pricing pages are JS-rendered and not machine-readable; plan limit must be read in the RapidAPI dashboard.",
     "limit_proof": "RapidAPI Basic plan includes limited free requests/month; conservative default 500 req/month. Exact limit depends on subscribed plan \u2014 see rapidapi.com/IRCTCAPI/api/irctc1/pricing.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2198,6 +2277,8 @@
     "free_limit": 100,
     "reset_period": "hourly",
     "docs_url": "https://nvd.nist.gov/developers/start-here",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 100.",
     "limit_proof": "With API key: 50 requests per 30-second rolling window (~100/min). Without key: 5 requests per 30-second window. US public domain, commercial use OK.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2209,6 +2290,7 @@
     "free_limit": 10,
     "reset_period": "hourly",
     "docs_url": "https://developer.usajobs.gov/general/getting-started",
+    "pricing_url": "https://developer.usajobs.gov/guides/rate-limiting",
     "limit_proof": "Authenticated users: up to 10 requests per second burst, general fair use; no published hard cap. US Federal public information, commercial use OK.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2232,6 +2314,8 @@
     "reset_period": "none",
     "paid_balance": true,
     "docs_url": "https://docs.opendota.com/#section/Authentication",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 0.0001.",
     "limit_proof": "Premium tier with API key: unlimited calls/day, 3000 req/min. Billed monthly at $0.0001/call. Without key: 60k calls/month free.",
     "moderation_class": "data",
     "moderation_class_reviewed": true,
@@ -2246,6 +2330,9 @@
     "free_limit": 10000,
     "reset_period": "monthly",
     "docs_url": "https://www.checkwxapi.com/documentation",
+    "pricing_url": "https://www.checkwxapi.com/",
+    "pricing_check": "manual",
+    "pricing_note": "10,000 calls/month appears on checkwxapi.com only intermittently in server-rendered text (verified once on 2026-10-05, absent on the next fetch); verify in the CheckWX account.",
     "limit_proof": "Free tier: 10,000 calls/month. AMBER ToS \u2014 commercial use OK with attribution. Requires API key.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2258,6 +2345,8 @@
     "reset_period": "monthly",
     "paid_balance": true,
     "docs_url": "https://avwx.rest/documentation#section/Authentication",
+    "pricing_check": "manual",
+    "pricing_note": "No public page found stating the 1,000 req/month free tier or $10/month plan (docs_url and /pricing 404; info.avwx.rest does not show them). Verify in account.avwx.rest.",
     "limit_proof": "Free tier: 1,000 requests/month. Commercial use OK. Paid plans start at $10/month for higher volume.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2511,6 +2600,8 @@
     "free_limit": 10000,
     "reset_period": "hourly",
     "docs_url": "https://apiportal.wto.org/api-details#api=TimeSeries-prod&operation=get-data",
+    "pricing_check": "manual",
+    "pricing_note": "apiportal.wto.org is a JS portal; the 10,000 req/hour per-key limit is shown only after subscribing.",
     "limit_proof": "WTO API portal: free tier 10 requests/second, 10,000 requests/hour per subscription key. Two keys in .env for failover.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2522,6 +2613,8 @@
     "free_limit": 500000,
     "reset_period": "monthly",
     "docs_url": "https://portail-api.insee.fr/catalog/api/2ba0e549-5587-3ef1-9082-99cd865de66f/doc",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 500000.",
     "limit_proof": "INSEE portail API: free plan 30 req/min, 500,000 calls/month per consumer key.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2544,6 +2637,8 @@
     "free_limit": 50000,
     "reset_period": "daily",
     "docs_url": "https://globalfishingwatch.org/our-apis/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 50000.",
     "limit_proof": "Response headers show x-ratelimit-daily-limit-requests: 50000 and x-ratelimit-monthly-limit-requests: 1500000 on free tier accounts.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2555,6 +2650,8 @@
     "free_limit": 500,
     "reset_period": "daily",
     "docs_url": "https://docs.openstates.org/api-v3/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 500.",
     "limit_proof": "Free tier: 500 requests/day, 10 requests/min (rate limit header: 10/min). Documented at https://docs.openstates.org/api-v3/",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2632,6 +2729,7 @@
     "free_limit": 1000,
     "reset_period": "daily",
     "docs_url": "https://open.fda.gov/apis/device/",
+    "pricing_url": "https://open.fda.gov/apis/authentication/",
     "limit_proof": "OpenFDA docs: 1,000 req/day without API key; 120,000 req/day with free API key. US Government public domain data, no ToS restrictions on redistribution.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2643,6 +2741,7 @@
     "free_limit": 1000,
     "reset_period": "daily",
     "docs_url": "https://open.fda.gov/apis/",
+    "pricing_url": "https://open.fda.gov/apis/authentication/",
     "limit_proof": "OpenFDA docs: 1,000 req/day without API key; 120,000 req/day with free API key. US Government public domain data, no ToS restrictions on redistribution.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2690,6 +2789,8 @@
     "free_limit": 500,
     "reset_period": "daily",
     "docs_url": "https://www.bls.gov/developers/api_faqs.htm",
+    "pricing_check": "manual",
+    "pricing_note": "bls.gov returns 403 to non-browser clients on every developers page; 500 queries/day not machine-verifiable.",
     "limit_proof": "BLS API FAQs: registered key = 500 queries/day, 50 series/request, 10 years/query. Unregistered: 25 queries/day. Free registration at bls.gov/developers.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2701,6 +2802,8 @@
     "free_limit": 500,
     "reset_period": "daily",
     "docs_url": "https://www.mbta.com/developers/v3-api",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 500.",
     "limit_proof": "No API key: 20 req/min, 500 req/day. Free API key increases limit.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2723,6 +2826,8 @@
     "free_limit": 20000,
     "reset_period": "hourly",
     "docs_url": "https://www.geonames.org/export/web-services.html",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 20000.",
     "limit_proof": "Free registered account: 20,000 credits/hour. Most endpoints cost 1 credit per call. Commercial server requires registration.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2745,6 +2850,7 @@
     "free_limit": 1000,
     "reset_period": "daily",
     "docs_url": "https://www.opentopodata.org/api/",
+    "pricing_url": "https://www.opentopodata.org/",
     "limit_proof": "Free hosted API: 1 request/second, 100 locations/request. MIT licence, self-host for unlimited.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -2987,6 +3093,8 @@
     "free_limit": 5000,
     "reset_period": "daily",
     "docs_url": "https://portal.opentopography.org/apidocs/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 5000.",
     "limit_proof": "Free registered API key: 5,000 requests per 24-hour period (portal.opentopography.org/requestApiKey). Demo key: 50 req/day.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3024,6 +3132,7 @@
     "free_limit": 1000,
     "reset_period": "hourly",
     "docs_url": "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi",
+    "pricing_url": "https://api.data.gov/docs/developer-manual/",
     "limit_proof": "api.data.gov standard tier: 1,000 requests/hr; burst rate 10 req/s. US Gov public domain (UCR data). Shared PROVIDER_KEY_API_DATA_GOV key.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3090,6 +3199,7 @@
     "free_limit": 1000,
     "reset_period": "monthly",
     "docs_url": "https://africa-api.com/docs",
+    "pricing_url": "https://africa-api.com/pricing",
     "limit_proof": "Free plan: 1,000 requests/month, 5 requests/minute. Paid plans available for higher throughput.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3101,6 +3211,8 @@
     "free_limit": 30000,
     "reset_period": "monthly",
     "docs_url": "https://huggingface.co/docs/api-inference/rate-limits",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 30000.",
     "limit_proof": "Free tier: rate-limited serverless inference, ~30,000 requests/month per model; Pro plan for higher throughput. User Access Token required.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3420,6 +3532,8 @@
     "free_limit": 300,
     "reset_period": "hourly",
     "docs_url": "https://echo.epa.gov/tools/web-services",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 300.",
     "limit_proof": "ECHO REST services: 300 req/hour, 1500/day per IP. US Gov public domain (17 USC \u00a7105), no registration required.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3489,6 +3603,8 @@
     "free_limit": 20,
     "reset_period": "hourly",
     "docs_url": "https://kidb.adb.org/api",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 20.",
     "limit_proof": "x-ratelimit-limit: 20 header observed per request window; ADB KIDB API page at kidb.adb.org/api confirms public open access, no auth required.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3720,6 +3836,8 @@
     "free_limit": 3000000,
     "reset_period": "daily",
     "docs_url": "https://apis.datos.gob.ar/georef/api",
+    "pricing_check": "manual",
+    "pricing_note": "Quota comes from live X-RateLimit-Limit-Day response headers, not from any public page (datosgobar docs do not state 3,000,000).",
     "limit_proof": "Argentine government open-data geocoding API, no API key. Live response headers confirm quota: X-RateLimit-Limit-Day: 3000000, X-RateLimit-Limit-Hour: 154000, X-RateLimit-Limit-Minute: 6000, X-RateLimit-Limit-Second: 200.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3786,6 +3904,7 @@
     "free_limit": 55000,
     "reset_period": "hourly",
     "docs_url": "https://rest.ensembl.org/documentation",
+    "pricing_url": "https://github.com/Ensembl/ensembl-rest/wiki/Rate-Limits",
     "limit_proof": "No API key or registration required (EMBL-EBI / Wellcome Sanger Institute, Apache 2.0). Live response headers confirm: x-ratelimit-limit: 55000, x-ratelimit-period: 3600 (i.e. 55,000 req/hour).",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3918,6 +4037,8 @@
     "free_limit": 80,
     "reset_period": "hourly",
     "docs_url": "https://api.stat.gov.pl/Home/BdlApi",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 80.",
     "limit_proof": "Anonymous (no X-ClientId) tier observed live: per-endpoint errorResult quota messages of \"1000 per 12h\" and \"100 per 15 min\" \u2014 the tighter bucket binds to roughly 80-100 calls/hour; no signup required for this tier.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -3929,6 +4050,8 @@
     "free_limit": 10000,
     "reset_period": "daily",
     "docs_url": "https://api.inaturalist.org/v1/docs/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 10000.",
     "limit_proof": "API docs (https://api.inaturalist.org/v1/docs/): \"we throttle API usage to a max of 100 requests per minute, though we ask that you try to keep it to 60 requests per minute or lower, and to keep under 10,000 requests per day.\" No auth required.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -4012,6 +4135,8 @@
     "free_limit": 6000,
     "reset_period": "hourly",
     "docs_url": "https://v6.bvg.transport.rest/",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 6000.",
     "limit_proof": "Docs state: 'You can just use the API without authentication. There's a rate limit of 100 requests/minute set up.' (100/min == 6000/hour). Community-run, publicly available, no API key.",
     "probe": {
       "timeout_ms": 20000
@@ -4498,6 +4623,8 @@
     "free_limit": 1000,
     "reset_period": "daily",
     "docs_url": "https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication",
+    "pricing_check": "manual",
+    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 1000.",
     "limit_proof": "No API key required to call the API. Observed live via response headers (2026-09-03): x-ratelimit-limit: 1000, x-ratelimit-remaining decrements per call (credit-cost based, ~1 credit for a simple query), x-ratelimit-reset: countdown consistent with a rolling ~24h window \u2014 anonymous requests get this daily allotment; a descriptive User-Agent with a mailto contact opts into OpenAlex's 'polite pool' for priority handling.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -4703,6 +4830,7 @@
     "free_limit": 120,
     "reset_period": "monthly",
     "docs_url": "https://www.oilpriceapi.com/register",
+    "pricing_url": "https://www.oilpriceapi.com/pricing",
     "limit_proof": "Operator's own registration notes (2026-09-14): Free plan = 120 requests/month, with a 50 requests/day sub-limit throttle. Auth verified with a differentiating control: `Authorization: Token <key>` -> HTTP 200 live data (BRENT_CRUDE_USD); bad/missing key -> HTTP 401.",
     "moderation_class": "data",
     "moderation_class_reviewed": true,
@@ -4716,6 +4844,8 @@
     "free_limit": 50,
     "reset_period": "none",
     "docs_url": "https://www.tidesatlas.com/register",
+    "pricing_check": "manual",
+    "pricing_note": "Free plan of 50 one-time credits is shown only after registration (operator notes 2026-09-14); no public page states it.",
     "limit_proof": "Operator's own registration notes (2026-09-14): Free plan = 50 credits ONE-TIME (not monthly) \u2014 operator's explicit instruction is to expand only if real demand appears. Auth verified with a differentiating control: header `X-API-Key` -> HTTP 200 live tide data, `x-ratelimit-remaining` decremented (confirms the one-shot credit pool); bad/missing key -> HTTP 401 `{\"message\":\"Invalid API key.\"}` with no credit spent.",
     "moderation_class": "data",
     "moderation_class_reviewed": true
@@ -4727,6 +4857,7 @@
     "free_limit": 500,
     "reset_period": "daily",
     "docs_url": "https://censusmapper.ca/users/sign_up",
+    "pricing_url": "https://github.com/mountainMath/cancensus",
     "limit_proof": "Operator-delegated reading 2026-10-01 (cancensus README): 500 region ids/day or 5,000/month. Discrepancy kept on purpose: operator's own registration notes (2026-09-14) said 1,000 requests/hour, 10,000 requests/day; the conservative documented figure is used for free_limit (units differ: region ids vs requests). Auth verified with a differentiating control on POST /api/v1/data.csv (form param `api_key`): real key -> HTTP 200 text/csv; bad key -> HTTP 401 'Access denied, invalid API key'. `list_datasets` alone is a public-no-key endpoint and must not be used as proof.",
     "moderation_class": "data",
     "moderation_class_reviewed": true,
