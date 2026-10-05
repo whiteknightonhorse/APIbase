@@ -16,6 +16,7 @@ import {
   confirmMerchantOrder,
   listMerchantOrders,
 } from '../order-lifecycle.service';
+import { listEvents, setWebhook } from '../webhook/webhook.service';
 import {
   acceptTerms,
   acceptTermsMessage,
@@ -225,6 +226,31 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
             req.body?.url,
           ),
         );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // §6.3 webhooks: the merchant comes from the key, never from the body.
+  router.put(
+    '/api/v1/shop/merchants/me/webhooks',
+    requireMerchantKey(['webhooks:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await setWebhook(deps, req.merchant?.merchant_id ?? '', req.body ?? {}));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  router.get(
+    '/api/v1/shop/merchants/me/events',
+    requireMerchantKey(['orders:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await listEvents(deps, req.merchant?.merchant_id ?? '', req.query));
       } catch (err) {
         send(res, err);
       }

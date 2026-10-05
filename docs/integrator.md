@@ -16,6 +16,8 @@ wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
 | —    | `GET /merchants/me/orders` (Bearer, `orders:read`)        | `shop.merchant.orders_list`    |
 | —    | `POST /merchants/me/orders/:id/confirm` (`orders:write`)  | `shop.merchant.order_confirm`  |
 | —    | `POST /merchants/me/orders/:id/document` (`orders:write`) | `shop.merchant.order_document` |
+| —    | `PUT /merchants/me/webhooks` (`webhooks:write`)           | `shop.merchant.webhook_set`    |
+| —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`) | —                              |
 
 1. **Nonce.** `GET /auth/nonce` returns `{nonce, issued_at, expires_in, message}`; `message` is the exact
    text to sign for that purpose. A nonce is single-use and lives 300 s.
@@ -153,6 +155,28 @@ Buyer path after a quote: pay with x402 (Base). **Settle comes before delivery**
 - **Merchant order tools.** `orders_list {state?, since?, cursor?, limit?}` (own orders only, `next_cursor` for the next page), `order_confirm {order_id}` (`PAID → CONFIRMED`, stops the confirm SLA; another merchant's order is `404`), `order_document {order_id, url}` (`https://` only, else `422`; shown in the buyer's `order.get.documents`).
 - **SLA sweeper** (`shop-sla-sweeper`, worker, every 5 minutes): expired open quotes → `expired` (stock released, `QUOTED` orders → `EXPIRED`); `PAID` past `confirm_due_at` (`PAID` + `policy.confirm_sla_h`, default 48 h, merchant-fulfilled orders only) → one `shop.order.confirm_overdue`, repeated every 24 h; three late orders in a row → the merchant gets `status_reason = unresponsive` and quotes answer `410` until the operator clears it; `close_after` passed → `CLOSED`; refund `due_at` passed → `overdue` + one `shop.refund.overdue`; `payout_pending.effective_at` passed → the new payout wallet is applied; `shop_connect_events` older than 30 days are deleted.
 - Paid orders emit the `shop.order.paid` event; the `PAID` order event records `request_id`, the buyer agent (client name/version or user agent) and the first 8 hex characters of the payer wallet's SHA-256 — never the wallet.
+
+## Webhooks
+
+Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
+
+**URL rules.** `https://` only; every address the host resolves to must be public — RFC 1918, loopback, link-local (`169.254.169.254` included), CGNAT and IPv6 equivalents are `422`. The name is resolved again at every delivery and the connection is pinned to that address; redirects are never followed (a `3xx` counts as a failed attempt).
+
+**Delivery.** `POST` with a JSON body `{id, event, created_at, data}` and the headers `X-APIbase-Event`, `X-APIbase-Delivery-Id` (the event id, identical on every retry) and `X-APIbase-Signature: t=<unix>,v1=<hex>`, where `v1 = HMAC-SHA256(secret, t + "." + body)` over the raw body bytes. Verify it and reject old `t` (e.g. older than 5 minutes):
+
+```js
+const [t, v1] = header.split(',').map((p) => p.split('=')[1]);
+const ok = timingSafeEqual(
+  Buffer.from(createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex')),
+  Buffer.from(v1),
+);
+```
+
+Any `2xx` within 10 s is delivery. Anything else (other status, timeout, connection error) is retried after 1 min, 5 min, 30 min, 2 h, 12 h, 24 h — seven attempts in all, then the delivery is `failed`. After 10 failures in a row an endpoint is only tried on that schedule (new events wait one minute before their first attempt) until one delivery succeeds. Status code and the first 1 KB of the answer are kept per attempt.
+
+**Instant fulfillment.** Answer `200` to `order.paid` with `{"fulfillment": "<text, up to 16 KB>"}` and the order goes `PAID → CONFIRMED → FULFILLED` at once (answering with the goods counts as the confirmation). Only the **first** valid fulfillment is taken; a retry or redelivery carries the same `order_id` and `X-APIbase-Delivery-Id`, and a later fulfillment is ignored and recorded as not accepted. **Deduplicate by `order_id`** on your side and make the handler idempotent.
+
+**Pull instead of push.** `GET /merchants/me/events?since=<cursor>&limit=` returns your own events in order, `{events[{id, event, created_at, data}], next_cursor}`; pass `next_cursor` back as `since`. The same list also carries `order.confirm_overdue` and `refund.overdue` notices, which are not pushed.
 
 ## Legal documents
 

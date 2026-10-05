@@ -9,6 +9,7 @@ import {
   confirmMerchantOrder,
   listMerchantOrders,
 } from '../order-lifecycle.service';
+import { setWebhook, WEBHOOK_EVENTS } from '../webhook/webhook.service';
 import {
   acceptTerms,
   defaultShopDeps,
@@ -44,6 +45,7 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.orders_list',
   'shop.merchant.order_confirm',
   'shop.merchant.order_document',
+  'shop.merchant.webhook_set',
 ] as const;
 
 type Result = {
@@ -292,6 +294,36 @@ export function registerMerchantTools(
       try {
         const m = await bearer(deps, apiKey, 'orders:write');
         return ok({ ...(await addMerchantDocument(deps, m.merchant_id, a.order_id, a.url)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.webhook_set',
+    {
+      title: 'Set a webhook endpoint',
+      description: `Register (or update with endpoint_id) an https webhook endpoint for the events you pick (needs webhooks:write): ${WEBHOOK_EVENTS.join(', ')}. The URL must resolve to public addresses only. A new endpoint returns its whsec_ signing secret ONCE. Deliveries are signed (X-APIbase-Signature: t=<unix>,v1=HMAC-SHA256(secret, t.body)); dedupe by order_id. Another merchant's endpoint_id is 404.`,
+      inputSchema: {
+        url: z.string(),
+        events: z.array(z.string()),
+        endpoint_id: z.string().optional(),
+        rotate_secret: z.boolean().optional(),
+      },
+      outputSchema: {
+        endpoint_id: z.string(),
+        url: z.string(),
+        events: z.array(z.string()),
+        secret: z.string().optional().describe('whsec_<32hex>, shown once'),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+    },
+    async (a: Record<string, unknown>) => {
+      try {
+        const m = await bearer(deps, apiKey, 'webhooks:write');
+        return ok({ ...(await setWebhook(deps, m.merchant_id, a)) });
       } catch (err) {
         return fail(err, requestId);
       }

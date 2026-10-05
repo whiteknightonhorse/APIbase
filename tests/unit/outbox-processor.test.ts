@@ -51,6 +51,15 @@ describe('outbox processor (T-0259)', () => {
       'cache_invalidate',
       'TOOL_CONFIG_UPDATED',
       'form_submission',
+      // T-INT-14: the webhook consumer — shop.* only, never a money type
+      'shop.order.paid',
+      'shop.order.confirmed',
+      'shop.order.cancelled',
+      'shop.refund.requested',
+      'shop.catalog.rejected',
+      'shop.merchant.key_rotated',
+      'shop.order.confirm_overdue',
+      'shop.refund.overdue',
     ]);
     expect(HANDLED_EVENT_TYPES).not.toContain('mpp_refund_owed');
     expect(HANDLED_EVENT_TYPES).not.toContain('x402_settle_failed');

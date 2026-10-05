@@ -2,6 +2,9 @@ import { PrismaClient } from '@prisma/client';
 import Redis from 'ioredis';
 import { config } from '../config';
 import { logger } from '../config/logger';
+import { deliverDue, DELIVERY_CONCURRENCY } from '../shop/webhook/delivery.service';
+import type { ShopDeps } from '../shop/merchant-lifecycle.service';
+import type { ShopTx } from '../shop/db';
 import { createHealthServer, recordProcessed, updateLag } from './health';
 import {
   HANDLED_EVENT_TYPES,
@@ -29,6 +32,9 @@ import {
  *     src/pipeline/stages/escrow-finalize.stage.ts:17-36)
  * Expected side effect: while a refund is open, partition-cleanup logs
  * `Skipping partition with unprocessed events` daily — normal, not an incident.
+ *
+ * T-INT-14: the same process also delivers merchant webhooks (src/shop/webhook): shop.* events become
+ * shop_webhook_deliveries rows in processEvent, `deliverLoop` below sends them (concurrency 16, no BullMQ).
  *
  * Invariant: outbox-worker failure does NOT affect API or Worker.
  * Events eventually delivered. Worker = stateless event processor.
@@ -117,6 +123,30 @@ async function pollLoop(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Webhook delivery loop (F-6): batches of DELIVERY_CONCURRENCY (16) POSTs
+// ---------------------------------------------------------------------------
+
+async function deliverLoop(): Promise<void> {
+  const db = getPrisma();
+  const deps: ShopDeps = {
+    db: db as unknown as ShopTx,
+    transaction: (fn) => db.$transaction((tx) => fn(tx as unknown as ShopTx)),
+  };
+  while (running) {
+    let claimed = 0;
+    try {
+      // up to 16 attempts at once; each is bounded by the 10 s webhook timeout
+      claimed = await deliverDue(deps, { limit: DELIVERY_CONCURRENCY });
+    } catch (err) {
+      logger.error({ err }, 'Webhook delivery loop error');
+    }
+    if (running && claimed === 0) {
+      await new Promise<void>((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Start
 // ---------------------------------------------------------------------------
 
@@ -124,6 +154,11 @@ const healthServer = createHealthServer(OUTBOX_PORT);
 
 pollLoop().catch((err) => {
   logger.error({ err }, 'Outbox poll loop crashed');
+  process.exit(1);
+});
+
+deliverLoop().catch((err) => {
+  logger.error({ err }, 'Webhook delivery loop crashed');
   process.exit(1);
 });
 

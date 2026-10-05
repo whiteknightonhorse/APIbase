@@ -1,4 +1,17 @@
 import { logger } from '../config/logger';
+import { BREAKER_THRESHOLD, OUTBOX_TO_WEBHOOK, RETRY_DELAYS_MS } from '../shop/webhook/constants';
+
+/** INT-09/11/12 events; shipped/delivered/dispute/refund.verified join with INT-22/23. */
+const SHOP_WEBHOOK_EVENT_TYPES = [
+  'shop.order.paid',
+  'shop.order.confirmed',
+  'shop.order.cancelled',
+  'shop.refund.requested',
+  'shop.catalog.rejected',
+  'shop.merchant.key_rotated',
+  'shop.order.confirm_overdue',
+  'shop.refund.overdue',
+] as const;
 
 /**
  * Outbox event processor (T-0259, ruling disputes/0259-outbox-swallows-money-events).
@@ -30,6 +43,9 @@ export const HANDLED_EVENT_TYPES = [
   'cache_invalidate',
   'TOOL_CONFIG_UPDATED',
   'form_submission',
+  // T-INT-14 (0259 §3 p.1): the third consumer — merchant webhooks. Only shop.* types; the money types
+  // (mpp_refund_owed, x402_settle_failed) are NOT added and stay with their scripts.
+  ...SHOP_WEBHOOK_EVENT_TYPES,
 ] as const;
 
 export interface OutboxEvent {
@@ -110,6 +126,32 @@ export async function processEvent(event: OutboxEvent, deps: ProcessorDeps): Pro
       },
       'Onboarding form submission recorded',
     );
+    return true;
+  }
+
+  const webhookEvent = OUTBOX_TO_WEBHOOK[eventType];
+  if (webhookEvent) {
+    // One pending attempt-1 row per subscribed endpoint (idempotent on endpoint+outbox id+attempt).
+    // A tripped breaker (>= BREAKER_THRESHOLD failures in a row) starts on the retry schedule, not now.
+    const merchantId = typeof payload.merchant_id === 'string' ? payload.merchant_id : '';
+    if (merchantId) {
+      await deps.executeRaw(
+        `INSERT INTO shop_webhook_deliveries
+           (endpoint_id, merchant_id, event_type, outbox_id, attempt, status, payload, event_at, next_attempt_at)
+         SELECT e.endpoint_id, e.merchant_id, $2::text, $1::bigint, 1, 'pending', $3::jsonb, $4::timestamptz,
+                CASE WHEN e.failures_in_row >= $5::int THEN now() + ($6::int * interval '1 millisecond') ELSE now() END
+           FROM shop_webhook_endpoints e
+          WHERE e.merchant_id = $7::uuid AND e.status = 'active' AND $2::text = ANY(e.events)
+         ON CONFLICT DO NOTHING`,
+        event.id.toString(),
+        webhookEvent,
+        JSON.stringify(payload),
+        event.created_at,
+        BREAKER_THRESHOLD,
+        RETRY_DELAYS_MS[0],
+        merchantId,
+      );
+    }
     return true;
   }
 

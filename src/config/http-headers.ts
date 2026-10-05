@@ -38,3 +38,8 @@ export function resolveX402PaymentHeader(
   const value = headers[X_PAYMENT] ?? headers[PAYMENT_SIGNATURE];
   return Array.isArray(value) ? value[0] : value;
 }
+
+// Outbound merchant webhooks (T-INT-14, F-6). Written to a merchant's receiver, never read here.
+export const X_APIBASE_EVENT = 'X-APIbase-Event';
+export const X_APIBASE_DELIVERY_ID = 'X-APIbase-Delivery-Id';
+export const X_APIBASE_SIGNATURE = 'X-APIbase-Signature';

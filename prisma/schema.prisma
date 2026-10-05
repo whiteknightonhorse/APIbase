@@ -771,6 +771,7 @@ model ShopWebhookEndpoint {
   merchant_id     String   @db.Uuid
   url             String
   secret_hash     String
+  secret_enc      String?
   events          String[]
   status          String   @default("active")
   failures_in_row Int      @default(0)
@@ -790,6 +791,9 @@ model ShopWebhookDelivery {
   status_code          Int?
   response_excerpt     String?
   fulfillment_accepted Boolean   @default(false)
+  status               String    @default("pending") // pending|delivered|retry|failed
+  payload              Json      @default("{}")
+  event_at             DateTime  @default(now()) @db.Timestamptz()
   next_attempt_at      DateTime? @db.Timestamptz()
   delivered_at         DateTime? @db.Timestamptz()
   created_at           DateTime  @default(now()) @db.Timestamptz()
