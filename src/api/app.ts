@@ -18,6 +18,7 @@ import { appealsRouter } from '../routes/appeals.router';
 import { createMerchantRouter } from '../shop/routes/merchant.router';
 import { createOrderRouter } from '../shop/routes/order.router';
 import { createLegalRouter } from '../shop/routes/legal.router';
+import { createIntegratorRouter } from '../shop/routes/integrator.router';
 import { createStorefrontRouter } from '../shop/routes/storefront.router';
 import { createCheckRouter } from '../shop/routes/check.router';
 import { executeRouter } from '../routes/execute.router';
@@ -74,6 +75,8 @@ export function createApp(): express.Express {
   app.use(createStorefrontRouter());
   // --- Public connection check: /integrator/check/:slug (statuses and codes only) ---
   app.use(createCheckRouter());
+  // --- Public integrator pages: /integrator, /integrator/{agent-guide,buyers,wallet,connect,…} ---
+  app.use(createIntegratorRouter());
 
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));

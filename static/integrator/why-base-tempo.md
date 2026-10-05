@@ -1,0 +1,11 @@
+# Почему Base и Tempo / Why Base and Tempo
+
+Base: USDC нативен; x402 — открытый протокол Coinbase для оплаты HTTP-запросов в USDC; расчёт ведёт наш фасилитатор. Tempo: расчёт и комиссии сети в стейблкоине; нативные сплиты и сессии (MPP).
+
+Base: USDC is native; x402 is an open Coinbase protocol for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP).
+
+## Fee on each rail
+
+On Tempo the fee, when it is on, is taken inside the buyer's transaction as a split. On Base it is not in the transaction: it is recorded as a receivable and billed to the seller by invoice. While the fee is off, nothing is recorded on either rail. Current fee: {{INTEGRATOR_FEE_PCT}}.
+
+Back to /integrator.

@@ -1,0 +1,18 @@
+# APIbase Integrator
+
+> AI payment for merchants. A merchant gets its own MCP storefront; a buyer's agent gets a quote and pays in USDC (x402 on Base, MPP on Tempo) straight to the merchant wallet. Fee: {{INTEGRATOR_FEE_PCT}}.
+
+- [Overview](https://apibase.pro/integrator): the offer, four ways to add a link, fee, security, FAQ (send Accept: text/markdown for Markdown)
+- [Agent guide](https://apibase.pro/integrator/agent-guide): step-by-step connection for a merchant's agent, with error codes
+- [For buyers](https://apibase.pro/integrator/buyers): limits, quotes, what is and is not guaranteed
+- [Why Base and Tempo](https://apibase.pro/integrator/why-base-tempo): the two payment rails
+- [Wallet help](https://apibase.pro/integrator/wallet): getting a wallet with USDC; APIbase issues none
+- [Shopify](https://apibase.pro/integrator/platforms/shopify)
+- [WooCommerce](https://apibase.pro/integrator/platforms/woocommerce)
+- [Tilda](https://apibase.pro/integrator/platforms/tilda)
+- [Wix](https://apibase.pro/integrator/platforms/wix)
+- [Custom site](https://apibase.pro/integrator/platforms/custom)
+- [Connect form (humans)](https://apibase.pro/integrator/connect)
+- [Demo shop](https://apibase.pro/m/apibase-demo)
+- [Legal documents](https://apibase.pro/legal/index.json)
+- [Check a connection](https://apibase.pro/integrator/check/apibase-demo)

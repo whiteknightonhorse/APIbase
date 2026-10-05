@@ -21,6 +21,7 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 # T-INT-05: `npm run build` also parses/hashes the legal documents
 COPY static/legal/ ./static/legal/
+COPY static/integrator/ ./static/integrator/
 COPY scripts/shop/ ./scripts/shop/
 RUN npm run build
 
@@ -64,6 +65,7 @@ COPY prisma/migrations ./prisma/migrations
 COPY scripts/ ./scripts/
 COPY config/ ./config/
 COPY static/legal/ ./static/legal/
+COPY static/integrator/ ./static/integrator/
 COPY lua/ ./lua/
 COPY docker/entrypoint.sh ./entrypoint.sh
 

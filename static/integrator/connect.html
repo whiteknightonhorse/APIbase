@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connect AI payment | APIbase Integrator</title>
+<meta name="robots" content="noindex, follow">
+<style>
+body{background:#0b0e11;color:#d7dde4;font:15px/1.6 ui-monospace,Menlo,Consolas,monospace;margin:0}
+main{max-width:820px;margin:0 auto;padding:24px 16px}a{color:#4cc2ff}h1,h2{color:#fff}
+label{display:block;margin:8px 0}input,select{display:block;width:100%;box-sizing:border-box;background:#1a2027;color:#d7dde4;border:1px solid #2a323b;padding:6px;font:inherit}
+input[type=checkbox]{display:inline-block;width:auto}button{background:#4cc2ff;color:#0b0e11;border:0;padding:8px 14px;font:inherit;cursor:pointer}
+pre{background:#1a2027;padding:8px;overflow-x:auto;white-space:pre-wrap;word-break:break-all}.muted{color:#9aa5b1}
+</style></head><body><main>
+<nav><a href="/">APIbase.pro</a> | <a href="/integrator">Integrator</a> | <a href="/integrator/agent-guide">Agent guide</a></nav>
+<h1>Подключить AI оплату / Connect AI payment</h1>
+<p class="muted">You sign three messages with your browser wallet: the encryption key, the registration and the acceptance of the documents. No wallet in the browser? Use your agent: see <a href="/integrator/agent-guide">agent-guide</a>.</p>
+<form id="f">
+<label>Shop address (slug)<input name="slug" required pattern="[a-z0-9-]{3,40}" placeholder="my-shop"></label>
+<label>Shop name<input name="name" required></label>
+<label>Category<select name="category" required>{{CATEGORY_OPTIONS}}</select></label>
+<label>Country (ISO code)<input name="country" required maxlength="2" placeholder="DE"></label>
+<label>Contact email (never shown to buyers)<input name="contact_email" type="email" required></label>
+<label>Website<input name="site_url" type="url" required placeholder="https://my-shop.example"></label>
+<label>Payout wallet on Base (empty = the signing wallet)<input name="payout_wallet_base" placeholder="0x..."></label>
+<label>Payout wallet on Tempo (empty = the signing wallet)<input name="payout_wallet_tempo" placeholder="0x..."></label>
+<h2>Documents</h2>
+<pre id="docs">loading /legal/index.json ...</pre>
+<p class="muted">Read them at <a href="/legal/merchant-agreement">merchant agreement</a>, <a href="/legal/aup">AUP</a>, <a href="/legal/dpa">DPA</a>, <a href="/legal/refund-framework">refund framework</a>. They may still be drafts.</p>
+<label><input type="checkbox" name="accept" required> I have read and accept these four documents with the hashes above.</label>
+<button type="submit">Sign and connect</button>
+</form>
+<pre id="out"></pre>
+<script>
+const $ = (id) => document.getElementById(id), say = (m) => { $('out').textContent = m; };
+const hex = (m) => '0x' + [...new TextEncoder().encode(m)].map((b) => b.toString(16).padStart(2, '0')).join('');
+const b64 = (b) => btoa(String.fromCharCode(...new Uint8Array(b)));
+const call = async (u, method, body) => {
+  const r = await fetch(u, { method, headers: { 'content-type': 'application/json' }, body: body && JSON.stringify(body) });
+  const d = await r.json(); if (!r.ok) throw new Error((d.error_code || r.status) + ': ' + (d.message || ''));
+  return d;
+};
+const sign = (a, m) => ethereum.request({ method: 'personal_sign', params: [hex(m), a] });
+const nonce = (a, p) => call('/api/v1/shop/auth/nonce?wallet=' + a + '&purpose=' + p, 'GET');
+fetch('/legal/index.json').then((r) => r.json()).then((d) => { $('docs').textContent = d.map((x) => x.doc_id + ' v' + x.version + ' sha256:' + x.sha256).join('\n'); });
+$('f').onsubmit = async (e) => {
+  e.preventDefault();
+  try {
+    if (!window.ethereum || !crypto.subtle) throw new Error('no browser wallet: use your agent, see /integrator/agent-guide');
+    const f = Object.fromEntries(new FormData(e.target)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0];
+    const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
+    const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
+    const n = await nonce(w, 'register'), b = { wallet: w, slug: f.slug, name: f.name, category: f.category, country: f.country.toUpperCase(), contact_email: f.contact_email, site_url: f.site_url, payout_wallet_base: f.payout_wallet_base || w, payout_wallet_tempo: f.payout_wallet_tempo || w, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
+    const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
+    const doc_hashes = r.docs_to_accept.map((x) => ({ doc_id: x.doc_id, version: x.version, sha256: x.sha256 }));
+    const ok = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' });
+    say('Connected. API key (shown once): ' + ok.api_key + '\nDecryption key, keep it safe: ' + b64(await crypto.subtle.exportKey('pkcs8', k.privateKey)) + '\nCheck: ');
+    const l = document.createElement('a'); l.href = '/integrator/check/' + f.slug; l.textContent = l.href; $('out').append(l);
+  } catch (err) { say('Error: ' + err.message); }
+};
+</script>
+</main></body></html>
