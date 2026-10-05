@@ -56,6 +56,8 @@ export interface PaymentContext {
   mppPayer: string | null;
   mppMethod: string | null;
   mppPaymentHeader: string | null;
+  /** Server-verified MPP amount — see PipelineContext.mppAmount. */
+  mppAmount: string | null;
   /** On-chain tx hash of the MPP charge — see PipelineContext.mppTxHash. */
   mppTxHash: string | null;
 }
@@ -132,6 +134,7 @@ export function registerTools(
             ctx.mppPayer = paymentCtx.mppPayer ?? undefined;
             ctx.mppMethod = paymentCtx.mppMethod ?? undefined;
             ctx.mppPaymentHeader = paymentCtx.mppPaymentHeader ?? undefined;
+            ctx.mppAmount = paymentCtx.mppAmount ?? undefined;
             ctx.mppTxHash = paymentCtx.mppTxHash ?? undefined;
           }
         }

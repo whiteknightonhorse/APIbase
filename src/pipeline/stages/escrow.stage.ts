@@ -13,6 +13,7 @@ import { getSharedResourceServer } from '../../services/x402-server.service';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
 import { claimPaymentNonce } from '../../services/payment-nonce.service';
+import { recordMppRefundOwed } from './escrow-finalize.stage';
 
 /** Fallback replay-guard TTL (seconds) when a signed payment carries no
  *  discoverable expiry — bounds Redis memory without depending on the rail. */
@@ -207,31 +208,101 @@ async function verifyX402Binding(
 }
 
 /**
- * MPP single-use guard (A-01). mpp.middleware.ts verifies (and settles) the
- * Tempo credential's HMAC before the pipeline runs, but that verification is
- * equally stateless — nothing stops the same credential being replayed in
- * parallel. The credential's HMAC-bound challenge `id` is the unique,
- * server-verifiable identifier for "this exact signed payment"; claim it here
- * before granting access to PROVIDER_CALL.
+ * USD decimal string -> integer micro-dollars; null if unparseable. Exact
+ * string arithmetic (no float rounding): sub-micro precision such as
+ * "0.10000001" yields a -1 sentinel that never equals a price, so it is never
+ * silently rounded onto the tool price.
  */
-async function verifyMppReplay(
+function mppAmountToMicro(amount: string | undefined): number | null {
+  if (amount === undefined) return null;
+  const m = /^(\d+)(?:\.(\d+))?$/.exec(amount.trim());
+  if (!m) return null;
+  const frac = m[2] ?? '';
+  if (/[1-9]/.test(frac.slice(6))) return -1;
+  return Number(m[1]) * 1_000_000 + Number(frac.slice(0, 6).padEnd(6, '0'));
+}
+
+function mppRejected(priceUsd: number, message: string): PipelineError {
+  return {
+    code: 402,
+    error: 'payment_required',
+    message,
+    extra: {
+      price_usd: priceUsd,
+      payment_address: getX402Config().paymentAddress,
+      price_version: 1,
+    },
+  };
+}
+
+/**
+ * Reject after mppx already settled on-chain: money taken, service not
+ * rendered — record the refund owed (T-0256), then return 402.
+ */
+async function mppBindingRejected(
+  ctx: PipelineContext,
+  priceUsd: number,
+  reason: string,
+  message: string,
+): Promise<Result<PipelineContext, PipelineError>> {
+  logger.warn(
+    { toolId: ctx.toolId, requestId: ctx.requestId, reason, mppAmount: ctx.mppAmount },
+    `mpp binding: rejecting payment (${reason})`,
+  );
+  await recordMppRefundOwed(ctx, `escrow_rejected:${reason}`);
+  return err(mppRejected(priceUsd, message));
+}
+
+/**
+ * MPP payment binding + single-use guard (T-0256, A-01).
+ *
+ * mppx's HMAC binds the paid amount to the CHALLENGE; this binds it to the
+ * TOOL. The server-side amount (ctx.mppAmount, HMAC-verified by the
+ * middleware) must equal the tool price exactly, in integer micro-dollars
+ * (overpayment is also rejected, like x402 `exact`). Fails closed when the
+ * header/amount are missing or the credential cannot be decoded. Only then is
+ * the challenge id claimed so the same credential cannot be consumed twice.
+ */
+async function verifyMppBinding(
   ctx: PipelineContext,
   priceUsd: number,
 ): Promise<Result<PipelineContext, PipelineError>> {
   if (!ctx.mppPaymentHeader) {
-    // Should always be set alongside mppPaid — nothing to dedupe on if not.
-    return ok(ctx);
+    logger.warn(
+      { toolId: ctx.toolId, requestId: ctx.requestId, reason: 'mpp_missing_header' },
+      'mpp binding: no credential header alongside mppPaid — failing closed',
+    );
+    return err(mppRejected(priceUsd, 'MPP credential missing for this paid call.'));
+  }
+
+  const paidMicro = mppAmountToMicro(ctx.mppAmount);
+  if (paidMicro === null) {
+    return mppBindingRejected(
+      ctx,
+      priceUsd,
+      'mpp_missing_amount',
+      'MPP credential carries no verifiable amount; obtain a challenge for this exact tool.',
+    );
+  }
+
+  const priceMicro = Math.round(priceUsd * 1_000_000);
+  if (paidMicro !== priceMicro) {
+    return mppBindingRejected(
+      ctx,
+      priceUsd,
+      'mpp_amount_mismatch',
+      `This tool costs $${priceUsd}. The MPP credential was issued for $${ctx.mppAmount}; obtain a challenge for this exact tool.`,
+    );
   }
 
   const decoded = decodeMppChallenge(ctx.mppPaymentHeader);
   if (!decoded) {
-    // Already passed mppMiddleware's own HMAC verification — nothing more we
-    // can bind on, but log it since it means the challenge id is unreadable.
-    logger.warn(
-      { toolId: ctx.toolId, requestId: ctx.requestId },
-      'mpp replay guard: could not decode credential — proceeding without replay check',
+    return mppBindingRejected(
+      ctx,
+      priceUsd,
+      'mpp_credential_undecodable',
+      'MPP credential could not be decoded; obtain a new challenge for this tool.',
     );
-    return ok(ctx);
   }
 
   const expiresMs = decoded.expires ? Date.parse(decoded.expires) : NaN;
@@ -270,13 +341,14 @@ export const escrowStage: Stage = {
       return ok(ctx);
     }
 
-    // MPP payment verified by middleware (HMAC binds the exact amount) — skip
-    // balance deduction (§8.6). Still claim the replay-guard nonce (A-01)
-    // before granting access to PROVIDER_CALL.
+    // MPP payment verified by middleware. HMAC binds the amount to the
+    // challenge; verifyMppBinding binds it to THIS tool's price (T-0256) and
+    // claims the replay-guard nonce (A-01) before PROVIDER_CALL. Skip balance
+    // deduction (§8.6).
     if (ctx.mppPaid) {
       const price = ctx.toolPrice ?? 0;
       if (price > 0) {
-        const replay = await verifyMppReplay(ctx, price);
+        const replay = await verifyMppBinding(ctx, price);
         if (!replay.ok) return replay;
       }
       return ok(ctx);

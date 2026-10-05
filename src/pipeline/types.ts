@@ -113,6 +113,9 @@ export interface PipelineContext {
   mppPayer?: string;
   mppMethod?: string;
   mppPaymentHeader?: string;
+  /** Server-side amount (USD string) that mppx HMAC-verified against the
+   *  credential. ESCROW binds it to the tool price (T-0256). */
+  mppAmount?: string;
   /** On-chain tx hash of the MPP charge (resolved by mpp.middleware.ts via
    *  Payment-Receipt + read-only RPC lookup). Needed so a refund-owed record
    *  (escrow-finalize.stage.ts) can name the original transaction — without

@@ -45,8 +45,7 @@ MPP uses a **challenge–credential–receipt** cycle:
 4. Server verifies on-chain → 200 + Payment-Receipt header + tool result
 ```
 
-Each 402 challenge is unique (HMAC-bound to request URL, amount, timestamp) — a credential
-cannot be reused across endpoints or after expiry. The `mppx` SDK handles this automatically.
+Each 402 challenge is unique: its `id` is an HMAC over realm, method, intent, the payment request (amount, currency, recipient, chain), expiry and body digest — **not** over the URL. A credential cannot be reused after expiry or presented with a different amount; in addition APIbase binds the paid amount to the tool price in its ESCROW stage and accepts MPP credentials only on `POST /api/v1/tools/{tool_id}/call`, the route that issued the challenge. The `mppx` SDK handles the challenge→credential cycle automatically.
 
 ```typescript
 import { Mppx, tempo } from 'mppx/client'

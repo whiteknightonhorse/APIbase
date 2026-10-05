@@ -53,16 +53,16 @@ function toolIdFromUrl(originalUrl: string): string | undefined {
 
 /**
  * Resolve the amount the MPP HMAC was signed over. Agents sign over the tool
- * price — server must reconstruct the same value. Falls back to 0.001 for
- * non-tool routes (e.g. /mcp) so existing behavior is preserved there.
+ * price — server must reconstruct the same value. Returns undefined when the
+ * URL has no MPP price (not a tool-call URL, or unknown toolId): mppx settles
+ * on-chain inside charge() and cannot undo it, so we must never call charge()
+ * without a known price (T-0256).
  */
-function resolveAmountForUrl(originalUrl: string): string {
+function resolveAmountForUrl(originalUrl: string): string | undefined {
   const toolId = toolIdFromUrl(originalUrl);
-  if (toolId) {
-    const price = getToolPriceUsd(toolId);
-    if (price !== undefined) return String(price);
-  }
-  return '0.001';
+  if (!toolId) return undefined;
+  const price = getToolPriceUsd(toolId);
+  return price === undefined ? undefined : String(price);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -138,6 +138,14 @@ export function mppMiddleware(req: Request, _res: Response, next: NextFunction):
 async function verifyMppPayment(req: Request): Promise<void> {
   const log = req.log ?? logger;
   const authHeader = req.headers['authorization'] as string;
+  const amount = resolveAmountForUrl(req.originalUrl);
+  if (amount === undefined) {
+    throw new AppError(
+      ErrorCode.BAD_REQUEST,
+      'MPP credentials are accepted only on POST /api/v1/tools/{tool_id}/call — the route that issued the challenge. This route has no MPP price; use x402 (X-Payment) or an API key here.',
+    );
+  }
+
   const mppx = await getMppxInstance();
 
   if (!mppx) {
@@ -167,9 +175,8 @@ async function verifyMppPayment(req: Request): Promise<void> {
     // Use the Mppx charge handler directly with Fetch Request.
     // The charge handler checks the credential HMAC against our secretKey;
     // crucially, the HMAC message includes `amount`, so we MUST pass the
-    // tool's actual price (matching what the agent signed) — not a hardcoded
-    // value. Hardcoding caused HMAC mismatch on every tool not priced 0.001.
-    const amount = resolveAmountForUrl(req.originalUrl);
+    // tool's actual price (matching what the agent signed). Routes without a
+    // known price were rejected above, before any on-chain settlement.
     const chargeHandler = mppx.charge({ amount });
     const result = await chargeHandler(fetchReq);
 

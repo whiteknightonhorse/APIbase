@@ -569,6 +569,15 @@ describe('EXECUTE entry point (/api/v1/tools/:toolId/call) — real router handl
     expect(statuses).toEqual([200, 402]);
     expect(mockAdapterCall).toHaveBeenCalledTimes(1);
   });
+
+  it('CONTROL: MPP amount equals tool price → 200, provider called once', async () => {
+    const r = await callExecute({
+      requestId: 'exec-mpp-exact',
+      mpp: { header: mppHeader('mpp-challenge-exact-exec'), payer: '0xMPP' },
+    });
+    expect(r.status).toBe(200);
+    expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -599,6 +608,7 @@ function fullPaymentCtx(overrides: Partial<PaymentContext> = {}): PaymentContext
     mppPayer: null,
     mppMethod: null,
     mppPaymentHeader: null,
+    mppAmount: null,
     mppTxHash: null,
     ...overrides,
   };
@@ -629,6 +639,7 @@ describe('MCP entry point (registerTools callback) — real tool-adapter code', 
         mppPaid: true,
         mppPayer: '0xMCPPAYER',
         mppPaymentHeader: mppHeader('mcp-control-challenge'),
+        mppAmount: String(PRICE),
       }),
     );
     expect(r.isError).toBe(false);
@@ -651,6 +662,7 @@ describe('MCP entry point (registerTools callback) — real tool-adapter code', 
         mppPaid: true,
         mppPayer: '0xMCPPAYER',
         mppPaymentHeader: mppHeader('mcp-structured-content-challenge'),
+        mppAmount: String(PRICE),
       }),
     );
     expect(r.isError).toBe(false);
@@ -668,16 +680,58 @@ describe('MCP entry point (registerTools callback) — real tool-adapter code', 
     const [a, b] = await Promise.all([
       callMcpTool(
         'mcp-replay-a',
-        fullPaymentCtx({ mppPaid: true, mppPayer: '0xMPP', mppPaymentHeader: header }),
+        fullPaymentCtx({
+          mppPaid: true,
+          mppPayer: '0xMPP',
+          mppPaymentHeader: header,
+          mppAmount: String(PRICE),
+        }),
       ),
       callMcpTool(
         'mcp-replay-b',
-        fullPaymentCtx({ mppPaid: true, mppPayer: '0xMPP', mppPaymentHeader: header }),
+        fullPaymentCtx({
+          mppPaid: true,
+          mppPayer: '0xMPP',
+          mppPaymentHeader: header,
+          mppAmount: String(PRICE),
+        }),
       ),
     ]);
     const errors = [a.isError, b.isError].sort();
     expect(errors).toEqual([false, true]);
     expect(mockAdapterCall).toHaveBeenCalledTimes(1);
+  });
+
+  it('ADVERSARIAL: MPP credential priced $0.001 presented for a $1.00 tool via MCP → isError, 402 payment_required, provider called 0 times', async () => {
+    __setToolCacheEntryForTest({
+      tool_id: TOOL_ID,
+      status: 'healthy',
+      price_usd: 1.0,
+      cache_ttl: 0,
+      upstream_cost_usd: null,
+    });
+    try {
+      const r = await callMcpTool(
+        'mcp-mpp-underpay',
+        fullPaymentCtx({
+          mppPaid: true,
+          mppPayer: '0xMPP',
+          mppPaymentHeader: mppHeader('mcp-underpay-challenge'),
+          mppAmount: '0.001',
+        }),
+      );
+      expect(r.isError).toBe(true);
+      expect(r.text).toMatch(/payment_required|402|costs \$1/);
+      expect(mockAdapterCall).not.toHaveBeenCalled();
+    } finally {
+      __setToolCacheEntryForTest({
+        tool_id: TOOL_ID,
+        status: 'healthy',
+        price_usd: PRICE,
+        cache_ttl: 0,
+        upstream_cost_usd: null,
+      });
+    }
   });
 
   it('ADVERSARIAL: wrong amount via MCP (facilitator value_mismatch) → error, provider never called — proves binding is enforced on the MCP path too, not just REST', async () => {
