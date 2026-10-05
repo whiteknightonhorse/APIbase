@@ -339,6 +339,10 @@ doaj.journal_search	doaj
 dogceo.breeds_list	dogceo
 dogceo.random_image	dogceo
 dogceo.sub_breeds	dogceo
+dpla.items.by_subject	dpla
+dpla.items.detail	dpla
+dpla.items.facets	dpla
+dpla.items.search	dpla
 drought.county_stats	drought-monitor
 drought.dsci	drought-monitor
 drought.national_stats	drought-monitor
