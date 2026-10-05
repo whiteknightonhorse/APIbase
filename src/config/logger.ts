@@ -1,5 +1,5 @@
 import pino from 'pino';
-import { randomUUID } from 'node:crypto';
+import { randomUUID, createHash } from 'node:crypto';
 import { Writable } from 'node:stream';
 
 // ---------------------------------------------------------------------------
@@ -25,9 +25,28 @@ function maskEmail(email: string): string {
   return email[0] + '***' + email.slice(at);
 }
 
+/** Integrator §8.5: key NAMES whose value (string or structure) is never logged. */
+function isSensitiveShopKey(lk: string): boolean {
+  return (
+    lk === 'pii' ||
+    lk === 'encryption_key' ||
+    lk === 'webhook_url' ||
+    lk.startsWith('passport') ||
+    lk.startsWith('address')
+  );
+}
+
 /** Redact known sensitive patterns in an arbitrary string value. */
 function redactString(key: string, value: string): string {
   const lk = key.toLowerCase();
+  // Integrator §8.5: by VALUE first, in any field -- only prefix and length survive.
+  if (value.startsWith('mk_live_') || value.startsWith('whsec_')) {
+    return `${value.startsWith('mk_live_') ? 'mk_live_' : 'whsec_'}…(len=${value.length})`;
+  }
+  if (lk.startsWith('ciphertext')) {
+    return `<ciphertext sha256:${createHash('sha256').update(value).digest('hex').slice(0, 8)} len=${value.length}>`;
+  }
+  if (isSensitiveShopKey(lk)) return '[REDACTED]';
   // F7: access_token/refresh_token (OAuth tokens, e.g. device-connect's Tuya flow) were
   // going out in plaintext -- only api_key/apikey/authorization were masked. Matched the
   // same way api_key is: partial mask, useful for support/debugging without exposing the
@@ -53,11 +72,15 @@ function redactString(key: string, value: string): string {
 }
 
 /** Deep-walk an object and redact sensitive fields. */
-function redactObject(obj: Record<string, unknown>): Record<string, unknown> {
+export function redactObject(obj: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(obj)) {
     if (typeof v === 'string') {
       out[k] = redactString(k, v);
+    } else if (v !== null && typeof v === 'object' && isSensitiveShopKey(k.toLowerCase())) {
+      out[k] = '[REDACTED]';
+    } else if (v !== null && typeof v === 'object' && k.toLowerCase().startsWith('ciphertext')) {
+      out[k] = '<ciphertext>';
     } else if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
       out[k] = redactObject(v as Record<string, unknown>);
     } else {

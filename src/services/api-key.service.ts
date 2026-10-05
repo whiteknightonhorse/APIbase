@@ -13,8 +13,8 @@ const TEST_PREFIX = 'ak_test_';
 const KEY_BYTES = 16; // 16 bytes = 32 hex chars
 
 /** Generate a new live API key with cryptographic randomness. */
-export function generateApiKey(): string {
-  return LIVE_PREFIX + randomBytes(KEY_BYTES).toString('hex');
+export function generateApiKey(prefix: string = LIVE_PREFIX): string {
+  return prefix + randomBytes(KEY_BYTES).toString('hex');
 }
 
 /** Generate a test API key. */
