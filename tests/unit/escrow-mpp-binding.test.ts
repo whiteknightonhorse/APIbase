@@ -117,6 +117,10 @@ describe('ESCROW MPP amount binding (T-0256)', () => {
       ctx({ toolPrice: 0.1, mppAmount: '0.10000001', mppPaymentHeader: header('chal-2') }),
     );
     expect402(over);
+    const overClean = await escrowStage.execute(
+      ctx({ toolPrice: 0.1, mppAmount: '0.2', mppPaymentHeader: header('chal-3') }),
+    );
+    expect402(overClean);
   });
 
   it('T7: free tool with mppPaid → ok, no claim', async () => {
