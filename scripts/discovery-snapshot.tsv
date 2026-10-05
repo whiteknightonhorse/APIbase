@@ -177,6 +177,10 @@ cdc_chronic.indicators	cdc-chronic
 cdc_chronic.state_compare	cdc-chronic
 cdc_chronic.topics	cdc-chronic
 cdc_chronic.trend	cdc-chronic
+celestrak.group	celestrak
+celestrak.intdes	celestrak
+celestrak.search	celestrak
+celestrak.tle	celestrak
 census.demographics	census
 census.economic	census
 census.housing	census

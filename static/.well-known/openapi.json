@@ -59965,6 +59965,372 @@
         ]
       }
     },
+    "/api/v1/tools/celestrak.tle/call": {
+      "post": {
+        "operationId": "celestrak_tle",
+        "summary": "Get Satellite Orbital Elements by NORAD ID",
+        "description": "Retrieve the current Two-Line Element (TLE) orbital data for a specific satellite using its NORAD catalog number. Returns the full GP (General Perturbations) element set: epoch, inclination, RAAN, eccentricity, argument of perigee, mean anomaly, mean motion (revolutions/day), B* drag coefficient, and computed orbital period in minutes. Data is sourced from the US Space Force 18th Space Control Squadron via CelesTrak. Useful for orbital mechanics calculations, satellite pass predictions, and tracking any of the 27,000+ catalogued space objects. Popular NORAD IDs: 25544 (ISS), 20580 (Hubble), 33591 (NOAA-18).",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "celestrak.tle"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "catnr": {
+                    "type": "string",
+                    "description": "NORAD catalog number (satellite ID). Examples: 25544 (ISS), 20580 (Hubble Space Telescope), 48274 (Starlink-1007). Integer between 1 and 99999. Obtain from celestrak.satellite.search or celestrak.satellite.group."
+                  }
+                },
+                "required": [
+                  "catnr"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/celestrak.search/call": {
+      "post": {
+        "operationId": "celestrak_search",
+        "summary": "Search Satellites by Name",
+        "description": "Search the NORAD satellite catalog by name substring (case-insensitive). Returns all satellites whose name contains the query string, each with NORAD catalog number, international designator (COSPAR ID), epoch, and full orbital element set. Useful for finding the NORAD IDs and TLEs of satellites by operator or mission name (e.g. \"STARLINK\" returns all ~6000 Starlink satellites, \"NOAA\" returns NOAA weather sats, \"GPS\" returns GPS block satellites, \"FENGYUN\" returns Chinese weather satellites, \"ISS\" returns ISS modules). Data from US Space Force via CelesTrak, no auth required.",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "celestrak.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Satellite name substring to search (case-insensitive). Examples: \"ISS\", \"STARLINK\", \"GPS\", \"NOAA\", \"GOES\", \"HUBBLE\", \"FENGYUN\". Returns all satellites whose name contains this string. Minimum 2 characters.",
+                    "minLength": 2
+                  }
+                },
+                "required": [
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/celestrak.group/call": {
+      "post": {
+        "operationId": "celestrak_group",
+        "summary": "Get Satellite Group Orbital Elements",
+        "description": "Retrieve TLE orbital element sets for an entire predefined satellite group from CelesTrak. Returns all satellites in the group with NORAD catalog number, international designator, epoch, and full orbital parameters. Supported groups: \"stations\" (ISS, CSS, Tiangong), \"starlink\" (SpaceX constellation ~6000 sats), \"active\" (all active satellites ~7000), \"gps-ops\" (GPS operational), \"glo-ops\" (GLONASS), \"galileo\" (EU), \"beidou\" (Chinese), \"weather\" (all weather satellites), \"noaa\" (NOAA series), \"goes\" (GOES geostationary weather), \"geo\" (all geostationary), \"amateur\" (amateur radio), \"cubesat\" (CubeSats), \"last-30-days\" (recent launches), \"iridium\", \"iridium-NEXT\", \"globalstar\", \"orbcomm\", \"oneweb\", \"intelsat\", \"ses\", \"planet\", \"spire\". Data from US Space Force, no auth required.",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "celestrak.group"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "group": {
+                    "type": "string",
+                    "enum": [
+                      "stations",
+                      "weather",
+                      "noaa",
+                      "goes",
+                      "resource",
+                      "sarsat",
+                      "dmc",
+                      "tdrss",
+                      "argos",
+                      "planet",
+                      "spire",
+                      "geo",
+                      "intelsat",
+                      "ses",
+                      "iridium",
+                      "iridium-NEXT",
+                      "starlink",
+                      "oneweb",
+                      "orbcomm",
+                      "globalstar",
+                      "amateur",
+                      "cubesat",
+                      "other",
+                      "last-30-days",
+                      "active",
+                      "analyst",
+                      "gps-ops",
+                      "glo-ops",
+                      "galileo",
+                      "beidou",
+                      "sbas"
+                    ],
+                    "description": "Predefined satellite group. Key groups: \"stations\" (ISS, CSS, Tiangong), \"starlink\" (SpaceX Starlink ~6000 sats), \"active\" (all active satellites ~7000), \"gps-ops\" (GPS operational), \"glo-ops\" (GLONASS), \"galileo\" (EU Galileo), \"beidou\" (Chinese BeiDou), \"weather\" (weather satellites), \"noaa\" (NOAA weather), \"goes\" (GOES geostationary weather), \"geo\" (all geostationary), \"amateur\" (amateur radio), \"cubesat\" (CubeSats), \"last-30-days\" (recent launches), \"starlink\", \"oneweb\", \"iridium\", \"iridium-NEXT\", \"globalstar\", \"orbcomm\", \"intelsat\", \"ses\", \"planet\", \"spire\", \"sarsat\", \"dmc\", \"tdrss\", \"argos\", \"resource\", \"analyst\"."
+                  }
+                },
+                "required": [
+                  "group"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/celestrak.intdes/call": {
+      "post": {
+        "operationId": "celestrak_intdes",
+        "summary": "Get Satellite by International Designator",
+        "description": "Look up satellite orbital elements using the international designator (COSPAR ID / Harvard designation). Returns orbital element sets for all objects associated with the designator: primary payload (suffix A), rocket body (B), and debris fragments (C onward). Format is YYYY-NNNX where YYYY=launch year, NNN=launch number of year (zero-padded to 3 digits), X=piece letter. Examples: \"1998-067A\" (ISS ZARYA module launched 1998, 67th launch, primary payload), \"1990-037B\" (Hubble Space Telescope), \"2019-029B\" (Starlink batch 1 rocket body). Useful when you know the mission designator but not the NORAD catalog number. Data from US Space Force via CelesTrak.",
+        "x-payment-info": {
+          "amount": "1000",
+          "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+          "intent": "charge",
+          "method": "tempo",
+          "description": "$0.001000 USD per call",
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000"
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "celestrak.intdes"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "intdes": {
+                    "type": "string",
+                    "description": "International designator (COSPAR ID) for the launch or object. Format: YYYY-NNNX where YYYY is launch year, NNN is launch number of that year (3 digits), and X is the piece letter (A=primary payload). Examples: \"1998-067A\" (ISS ZARYA module), \"1990-037B\" (Hubble Space Telescope), \"2019-029B\" (Starlink batch 1). The suffix letter distinguishes primary payload (A), rocket body (B), debris (C onward)."
+                  }
+                },
+                "required": [
+                  "intdes"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/eonet.events/call": {
       "post": {
         "operationId": "eonet_events",
