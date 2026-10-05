@@ -16,6 +16,7 @@ import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
 import { appealsRouter } from '../routes/appeals.router';
 import { createMerchantRouter } from '../shop/routes/merchant.router';
+import { createOrderRouter } from '../shop/routes/order.router';
 import { createLegalRouter } from '../shop/routes/legal.router';
 import { executeRouter } from '../routes/execute.router';
 import { batchRouter } from '../routes/batch.router';
@@ -99,6 +100,7 @@ export function createApp(): express.Express {
   // --- API routes ---
   app.use(agentsRouter);
   app.use(createMerchantRouter());
+  app.use(createOrderRouter());
   app.use(toolsRouter);
   app.use(executeRouter);
   app.use(batchRouter);

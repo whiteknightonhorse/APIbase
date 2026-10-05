@@ -13,6 +13,7 @@ import { issueNonce } from '../../src/shop/auth/nonce.service';
 import { acceptTermsMessage, type ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
 import { CATALOG_TOOL_NAMES } from '../../src/shop/tools/catalog.tools';
+import { ORDER_TOOL_NAMES } from '../../src/shop/tools/order.tools';
 import { registerMerchantTools, MERCHANT_TOOL_NAMES } from '../../src/shop/tools/merchant.tools';
 
 jest.mock('../../src/config', () => ({ config: {} }));
@@ -444,7 +445,11 @@ describe('TA6 tools/list', () => {
     const base = new McpServer({ name: 'b', version: '0' });
     registerTools(base, 'k', 'r', {} as never);
     const before = await list(base);
-    const names = new Set<string>([...MERCHANT_TOOL_NAMES, ...CATALOG_TOOL_NAMES]);
+    const names = new Set<string>([
+      ...MERCHANT_TOOL_NAMES,
+      ...CATALOG_TOOL_NAMES,
+      ...ORDER_TOOL_NAMES,
+    ]);
     expect(full.filter((t) => names.has(t.name))).toHaveLength(names.size);
     expect(full.filter((t) => !names.has(t.name))).toEqual(before);
   });

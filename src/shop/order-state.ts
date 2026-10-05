@@ -200,3 +200,35 @@ export async function transition(
   );
   return { from, to, seq };
 }
+
+/**
+ * Creation of an order: the automaton (§5.3) starts at QUOTED, so the row and its first event
+ * (`null -> QUOTED`, seq 1) are written together. Call inside the quote transaction.
+ */
+export async function createQuotedOrder(
+  tx: ShopTx,
+  o: {
+    quote_id: string;
+    merchant_id: string;
+    total_usd: string;
+    fee_usd: string;
+    actor?: Actor;
+  },
+): Promise<string> {
+  const rows = await tx.$queryRawUnsafe<Array<{ order_id: string }>>(
+    `INSERT INTO shop_orders (quote_id, merchant_id, state, total_usd, fee_usd)
+     VALUES ($1::uuid, $2::uuid, 'QUOTED', $3::numeric, $4::numeric) RETURNING order_id`,
+    o.quote_id,
+    o.merchant_id,
+    o.total_usd,
+    o.fee_usd,
+  );
+  const order_id = rows[0].order_id;
+  await tx.$executeRawUnsafe(
+    `INSERT INTO shop_order_events (order_id, seq, from_state, to_state, actor, reason, payload)
+     VALUES ($1::uuid, 1, NULL, 'QUOTED', $2, NULL, '{}'::jsonb)`,
+    order_id,
+    o.actor ?? 'buyer',
+  );
+  return order_id;
+}

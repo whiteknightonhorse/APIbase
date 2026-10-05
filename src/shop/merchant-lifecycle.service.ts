@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { logger } from '../config/logger';
 import { CatalogError } from './catalog.errors';
+import { QuoteError } from './quote.errors';
 import { ShopAuthError } from './auth/errors';
 import { issueKey } from './auth/merchant-key.service';
 import { verifyBoundNonceSignature, type NonceRedis } from './auth/nonce.service';
@@ -258,6 +259,12 @@ export function toApiError(err: unknown, request_id?: string): ApiErr {
     });
   }
   if (err instanceof CatalogError) {
+    return base(err.status, err.error_code, err.message, {
+      suggested_action: err.suggested_action,
+      ...err.extra,
+    });
+  }
+  if (err instanceof QuoteError) {
     return base(err.status, err.error_code, err.message, {
       suggested_action: err.suggested_action,
       ...err.extra,

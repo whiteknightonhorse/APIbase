@@ -162,3 +162,15 @@ export async function finalizePipelineIdempotency(
 export async function shutdownIdempotencyRedis(): Promise<void> {
   // no-op: shared singleton
 }
+
+/**
+ * Drop the record (e.g. PENDING left by a request that ended in a retryable error), so a retry
+ * with the same key is not answered with 409 for the rest of the TTL.
+ */
+export async function clearIdempotency(agentId: string, key: string): Promise<void> {
+  try {
+    await getSharedRedis().del(redisKey(agentId, key));
+  } catch (err) {
+    logger.error({ err, agentId, key }, 'Failed to clear idempotency record');
+  }
+}

@@ -29,6 +29,7 @@ import { registerTools, type PaymentContext } from './tool-adapter';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
 import { registerCatalogTools } from '../shop/tools/catalog.tools';
+import { registerOrderTools } from '../shop/tools/order.tools';
 import { registerMerchantTools } from '../shop/tools/merchant.tools';
 
 // ---------------------------------------------------------------------------
@@ -178,6 +179,7 @@ export function createMcpServer(
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
   registerMerchantTools(mcpServer, apiKey, requestId);
   registerCatalogTools(mcpServer, apiKey, requestId);
+  registerOrderTools(mcpServer, apiKey, requestId);
   registerPrompts(mcpServer);
   return mcpServer;
 }

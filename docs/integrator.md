@@ -88,18 +88,18 @@ Write path (merchant key `mk_live_…`, scope `catalog:write`, 60 writes/min per
 
 Item (zod schema `CatalogItemSchema`, `src/shop/catalog.service.ts`):
 
-| field | rule |
-|---|---|
-| `sku` | `[A-Za-z0-9._:-]`, ≤64 |
-| `title` | ≤120 after HTML/control/zero-width stripping |
-| `description` | ≤2 000 after stripping |
-| `price_usd` | decimal, ≤2 fractional digits, `$1.00` … `limits.max_order_usd` |
-| `is_test` | only for the test SKU (below) |
-| `stock` | integer ≥0; `null`/absent = not tracked |
-| `fulfillment_mode` | `instant` · `merchant` · `physical` |
-| `fulfillment.instant.payload` | required for `instant`; stored encrypted with the server key, never returned or logged |
-| `tax_included`, `tax_note`, `shipping_options[]`, `delivery_slots[]`, `requires_pii[]`, `refund_window_days`, `returns_accepted`, `currency_display`, `images[]` (https URLs), `variants[]` | as in the spec; no discounts or coupons |
-| `category` | one of `config/integrator/prohibited-categories.json` → `allowed` |
+| field                                                                                                                                                                                       | rule                                                                                   |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `sku`                                                                                                                                                                                       | `[A-Za-z0-9._:-]`, ≤64                                                                 |
+| `title`                                                                                                                                                                                     | ≤120 after HTML/control/zero-width stripping                                           |
+| `description`                                                                                                                                                                               | ≤2 000 after stripping                                                                 |
+| `price_usd`                                                                                                                                                                                 | decimal, ≤2 fractional digits, `$1.00` … `limits.max_order_usd`                        |
+| `is_test`                                                                                                                                                                                   | only for the test SKU (below)                                                          |
+| `stock`                                                                                                                                                                                     | integer ≥0; `null`/absent = not tracked                                                |
+| `fulfillment_mode`                                                                                                                                                                          | `instant` · `merchant` · `physical`                                                    |
+| `fulfillment.instant.payload`                                                                                                                                                               | required for `instant`; stored encrypted with the server key, never returned or logged |
+| `tax_included`, `tax_note`, `shipping_options[]`, `delivery_slots[]`, `requires_pii[]`, `refund_window_days`, `returns_accepted`, `currency_display`, `images[]` (https URLs), `variants[]` | as in the spec; no discounts or coupons                                                |
+| `category`                                                                                                                                                                                  | one of `config/integrator/prohibited-categories.json` → `allowed`                      |
 
 Response: `{ upserted, flagged[{sku,reason}], rejected[{sku,reason,category,status:422}], errors[{index,sku,status:422,message}] }`. Items are judged one by one: a bad item never blocks the rest of the batch. More than 500 items → `422` for the whole call.
 
@@ -111,6 +111,30 @@ Buyer path (`/mcp`, free, read-only, `merchant` = slug is required, only `active
 
 - `shop.catalog.search {merchant, query?, category?, max_price_usd?, limit≤50, cursor?}` → `products[{sku,title,price_usd,availability,requires_pii,fulfillment_mode}]`, `merchant{name,reputation,policy_summary}`, `next_cursor`. Full-text over title+description, ordered by rank then product id.
 - `shop.catalog.get {merchant, sku}` → full card incl. `shipping_options`, `delivery_slots`, `refund_policy`, `variants[]`, `merchant_encryption_key`. `contact_email` is never returned.
+
+## Quotes
+
+Buyer path. A quote is a price snapshot plus a stock hold; nothing is charged by it (payment is a separate step).
+
+- `shop.order.quote {merchant, items[{sku, variant?, qty}], shipping_option?, delivery_slot?, buyer_ref?}` on `/mcp` · `POST /api/v1/shop/quotes` (same body, `X-Idempotency-Key` supported: a replay returns the same `quote_id` and holds stock once) · `GET /api/v1/shop/quotes/:id`.
+- `shop.order.cancel {order_id, reason}` · `POST /api/v1/shop/orders/:id/cancel {reason}`: free while the order is `QUOTED`; the quote is voided and the held stock released. After payment: `409 not_cancellable` (refund flow).
+- Digital items only for now: `shipping_option`/`delivery_slot` → `422`; a `physical` product → `422 physical fulfillment not available yet`.
+
+**Response** (`201`): `quote_id, order_id, items[{sku, variant?, title, qty, unit_price_usd, line_total_usd}], total_usd, fee_disclosed: false, expires_at, requires_pii[], requires_human_confirmation, pay`. Prices come from the server catalog, never from the request.
+
+**`pay`** contains only the rails the quote offers: `x402: {payTo, amount, network, asset, extra: {quote_id}}` — `payTo` is the merchant's `payout_wallet_base` (never the platform wallet), `amount` is micro-USDC (`toMicroUsdc(total_usd)`); `mpp: {url}` = `POST /api/v1/shop/quotes/{id}/pay`. On `/mcp` orders are paid by x402 only, so `pay.mpp` is omitted there.
+
+**TTL.** 15 minutes by default (`limits.quote_ttl_s`, merchant range 5–60 min). Past `expires_at` the quote is `expired`: `GET` returns `410 quote_expired` with a fresh quote in `quote` (same items, current prices); if the items have meanwhile sold out, `410` carries `alternatives` instead.
+
+**Reservations.** Items with tracked `stock` are held atomically when the quote is made (all lines or none) until `expires_at`; the loser of a race gets `409 out_of_stock` with `available` and up to 3 `alternatives` of the same category. Expiry or cancel releases the hold.
+
+**Limits.** Order total ≥ `$1.00` (`INTEGRATOR_MIN_ORDER_USD`), ≤ `limits.max_order_usd`; merchants younger than 30 days with fewer than 10 closed orders are capped at `limits.new_merchant_cap_usd` (`$200`) → `422`. `requires_human_confirmation` is true above `limits.human_confirm_above_usd` (default `$100`). Quotes per buyer identity (agent, wallet hash or IP): 30/min, 300/hour → `429 rate_limited`; a banned identity → `429 banned`. The merchant must have accepted the current terms (`428`) and be active (`410`).
+
+**Test SKU.** `__apibase_test` is bought alone, qty 1, no minimum, `fee_usd = 0`. At most `INTEGRATOR_TEST_SKU_DAILY_CAP` (3) paid test orders per merchant per 24 hours; the next quote → `429 test_sku_daily_cap`.
+
+**Fee** (internal, not in the response): when `INTEGRATOR_FEE_ENABLED=true`, `max(total × INTEGRATOR_FEE_BPS / 10000, INTEGRATOR_FEE_MIN_USD)` rounded up to the cent (150 bps, min `$0.05`); `0` otherwise and for the test SKU. With the fee on it must also be ≥ `X402_GAS_ESTIMATE_USD × 10`, else `422`.
+
+Error codes: `quote_expired` (410), `out_of_stock` (409), `test_sku_daily_cap` (429), `below_minimum`/`above_max_order`/`new_merchant_cap` (422), `not_cancellable` (409), `quote_not_open` (409).
 
 ## Legal documents
 
