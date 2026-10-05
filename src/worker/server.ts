@@ -9,6 +9,7 @@ import { run as runX402Health } from '../jobs/x402-health.job';
 import { run as runPartitionCreate } from '../jobs/partition-create.job';
 import { run as runToolQuality } from '../jobs/tool-quality.job';
 import { run as runPartitionCleanup } from '../jobs/partition-cleanup.job';
+import { run as runOfacSdnSync } from '../jobs/ofac-sdn-sync.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -213,6 +214,27 @@ const partitionCleanupTask = cron.schedule('0 4 * * *', () => {
   runPartitionCleanupSafe().catch(() => {});
 });
 
+// OFAC SDN -> shop_sanctioned_addresses daily at 05:30 UTC (F-13). Startup run (skipIfFresh)
+// fills an empty table so registration sanctions checks are not a no-op until the first cron.
+let ofacSdnSyncRunning = false;
+async function runOfacSdnSyncSafe(opts?: { skipIfFresh?: boolean }): Promise<void> {
+  if (ofacSdnSyncRunning) {
+    return;
+  }
+  ofacSdnSyncRunning = true;
+  try {
+    await runOfacSdnSync(opts);
+  } catch (err) {
+    logger.error({ err, job: 'ofac-sdn-sync' }, 'OFAC SDN sync job failed');
+  } finally {
+    ofacSdnSyncRunning = false;
+  }
+}
+const ofacSdnSyncTask = cron.schedule('30 5 * * *', () => {
+  runOfacSdnSyncSafe().catch(() => {});
+});
+setTimeout(() => runOfacSdnSyncSafe({ skipIfFresh: true }).catch(() => {}), 20_000);
+
 // Create partitions for next 7 days at startup (catch up after restart/missed crons)
 setTimeout(async () => {
   try {
@@ -247,7 +269,7 @@ setTimeout(async () => {
 }, 5_000);
 
 logger.info(
-  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup cron active',
+  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync cron active',
 );
 
 // ---------------------------------------------------------------------------
@@ -263,6 +285,7 @@ function shutdown(signal: string): void {
   partitionCreateTask.stop();
   toolQualityTask.stop();
   partitionCleanupTask.stop();
+  ofacSdnSyncTask.stop();
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);

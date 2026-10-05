@@ -1,4 +1,4 @@
-import { checkContent } from '../src/adapters/content-filter';
+import { checkContent } from '../src/services/content-filter';
 
 // Should PASS
 console.log('Normal:', checkContent('Hello, weather is nice today'));

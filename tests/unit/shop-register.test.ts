@@ -16,7 +16,7 @@ import { ALLOWED_CATEGORIES } from '../../src/shop/moderation/categories';
 import { isRestrictedIp } from '../../src/shop/moderation/countries';
 import { addressesFromCsv, syncOfacSdn } from '../../src/shop/moderation/sanctions';
 
-// adapters/ofac -> base.adapter -> config validates the full env at import; no env here.
+// sanctions no longer pulls base.adapter/config; the mock stays as a guard against env validation.
 jest.mock('../../src/config', () => ({ config: {} }));
 jest.mock('../../src/services/moderation-ban.service', () => ({
   checkBan: async () => ({ banned: false, retryAfterSecs: 0 }),

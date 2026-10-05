@@ -8,7 +8,7 @@ import {
   ok,
   err,
 } from '../types';
-import { checkContent, checkWarnings, type ModerationClass } from '../../adapters/content-filter';
+import { checkContent, checkWarnings, type ModerationClass } from '../../services/content-filter';
 import { getToolProvider } from './tool-status.stage';
 import { getPrisma } from '../../services/prisma.service';
 import { logger } from '../../config/logger';

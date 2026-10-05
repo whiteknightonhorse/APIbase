@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { logger } from '../../config/logger';
-import { ALT_CSV_URL, SDN_CSV_URL, parseOfacCsv, rowToAlt, rowToSdn } from '../../adapters/ofac';
+import { ALT_CSV_URL, SDN_CSV_URL, parseOfacCsv, rowToAlt, rowToSdn } from '../../utils/ofac-csv';
 import type { ShopTx } from '../db';
 
 // `Digital Currency Address - <SYM> <addr>` inside OFAC `remarks` (F-13 layer 1).

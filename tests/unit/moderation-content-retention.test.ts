@@ -23,7 +23,7 @@
  *    (checked: no DATABASE_URL, no postgres service, in any workflow).
  */
 
-import { checkContent } from '../../src/adapters/content-filter';
+import { checkContent } from '../../src/services/content-filter';
 
 describe('checkContent — match offsets (ШАГ 2)', () => {
   it('pattern rule: matchStart/matchEnd bound the actual regex match', () => {

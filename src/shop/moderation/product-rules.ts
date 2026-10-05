@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { checkContent } from '../../adapters/content-filter';
+import { checkContent } from '../../services/content-filter';
 import { isCategoryAllowed } from './categories';
 
 interface BlocklistFile {
