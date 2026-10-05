@@ -1,12 +1,13 @@
 import type { ShopDeps } from './merchant-lifecycle.service';
 import type { ShopTx } from './db';
-import { DEFAULT_REFUND_WINDOW_DAYS } from './adapters/shop-order.adapter';
 import { ALL_STATES, transition, type State } from './order-state';
 import { QuoteError } from './quote.errors';
 import { listOrders, lockOrder } from './repository';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DOCS = '/docs/integrator#orders';
+/** Refund window when a SKU sets none (also the close_after of instant delivery). */
+export const DEFAULT_REFUND_WINDOW_DAYS = 14;
 /** UC-13: a buyer-requested refund is due from the merchant within 7 days. */
 export const REFUND_DUE_DAYS = 7;
 const DOCUMENT_STATES: readonly State[] = [

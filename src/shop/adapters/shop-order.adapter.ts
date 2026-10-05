@@ -1,9 +1,9 @@
 import { config } from '../../config';
 import { decryptSecret, encryptSecret } from '../../services/secret-crypto.service';
 import type { ShopDeps } from '../merchant-lifecycle.service';
+import { DEFAULT_REFUND_WINDOW_DAYS } from '../order-lifecycle.service';
 import { transition } from '../order-state';
 
-export const DEFAULT_REFUND_WINDOW_DAYS = 14;
 const TEST_SKU_TEXT = 'test ok';
 
 export interface ShopOrderResult {
