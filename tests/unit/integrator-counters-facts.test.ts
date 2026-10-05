@@ -114,6 +114,20 @@ describe('T-INT-19', () => {
     expect(JSON.parse(read(MCP)).integrator.fee_enabled).toBe(false);
   });
 
+  it('CN4b /integrator renders merchants_count from the baseline file', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'baseline-'));
+    try {
+      const p = join(dir, 'baseline.json');
+      writeFileSync(p, JSON.stringify({ merchants_count: 42 }));
+      const page = renderTokens(read('static/integrator/index.html'), p);
+      expect(page).toContain('42');
+      expect(page).not.toContain('{{MERCHANTS_COUNT}}');
+      expect(renderTokens('{{MERCHANTS_COUNT}}', join(dir, 'missing.json'))).toBe('0');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('CN5 acp.json is untouched', () => {
     const sha = createHash('sha256')
       .update(readFileSync(join(ROOT, 'static/.well-known/acp.json')))

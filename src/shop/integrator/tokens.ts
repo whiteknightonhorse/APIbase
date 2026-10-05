@@ -1,6 +1,21 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+export const MCP_BASELINE = resolve(__dirname, '../../../static/.well-known/mcp.json');
+
+/** merchants_count from the sync-counts baseline (mcp.json); read per render so a sync is picked up live. */
+function baselineMerchants(path: string): string {
+  try {
+    const n = Number(JSON.parse(readFileSync(path, 'utf8')).merchants_count);
+    return String(Number.isFinite(n) && n >= 0 ? Math.trunc(n) : 0);
+  } catch {
+    return '0';
+  }
+}
+
 /**
- * Token substitution for the /integrator pages. Real values come from sync-counts (INT-19);
- * until then the defaults are read from env. Numbers live only in tokens, never in the templates.
+ * Token substitution for the /integrator pages. merchants_count comes from the sync-counts
+ * baseline (mcp.json); fee/min order default from env. Numbers live only in tokens, never in the templates.
  */
 export const DEFAULT_SANDBOX_STATUS =
   'Sandbox: not yet available — use the $0.01 test SKU on mainnet';
@@ -11,10 +26,10 @@ function feeState(): { on: boolean; pct: number } {
   return { on, pct: bps / 100 };
 }
 
-export function renderTokens(tpl: string): string {
+export function renderTokens(tpl: string, baselinePath: string = MCP_BASELINE): string {
   const { on, pct } = feeState();
   const min = Number(process.env.INTEGRATOR_MIN_ORDER_USD ?? 1);
-  const merchants = String(Number(process.env.MERCHANTS_COUNT ?? 0) || 0);
+  const merchants = baselineMerchants(baselinePath);
   let s = tpl;
   if (on) {
     s = s.replace(
