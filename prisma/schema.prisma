@@ -648,6 +648,7 @@ model ShopQuote {
   is_test                     Boolean   @default(false)
   mpp_challenge_id            String?
   mpp_challenge_expires_at    DateTime? @db.Timestamptz()
+  mpp_challenge_header        String?
   expires_at                  DateTime  @db.Timestamptz()
   status                      String    @default("open") // open|paid|expired|cancelled
   created_at                  DateTime  @default(now()) @db.Timestamptz()

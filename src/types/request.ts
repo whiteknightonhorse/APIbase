@@ -35,6 +35,9 @@ export interface MppPaymentInfo {
   /** Raw `Authorization: Payment ...` header value — needed by ESCROW to
    *  derive the replay-guard nonce (the HMAC-bound challenge id, §A-01). */
   header: string;
+  /** Order quotes only (T-INT-10): what the charge was bound to, compared by ESCROW. */
+  recipient?: string;
+  splits?: Array<{ recipient: string; amount: string }>;
 }
 
 // Extend Express Request type globally

@@ -17,6 +17,8 @@ export interface PayRequest {
   buyer_company?: string;
   /** §8.4 client/version (MCP) or user agent (REST), for the PAID event only. */
   buyer_agent?: BuyerAgent;
+  /** Set by mppMiddleware after charge() succeeded (REST only; never on /mcp). */
+  mpp?: NonNullable<Express.Request['mppPayment']>;
 }
 
 export interface PayResponse {
@@ -39,7 +41,7 @@ const SUGGESTED: Record<number, string> = {
  * (receipt not seen yet), 200 `already_placed` (repeat without payment by the same payer).
  */
 export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayResponse> {
-  if (!r.x402PaymentHeader) {
+  if (!r.x402PaymentHeader && !r.mpp) {
     const placed = await findPlacedOrder(deps.db, r.quote_id, r.buyer.identity);
     if (placed) {
       return {
@@ -69,6 +71,18 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
     x402Paid: Boolean(r.x402PaymentHeader),
     x402PaymentHeader: r.x402PaymentHeader,
     buyerAgent: r.buyer_agent,
+    ...(r.mpp
+      ? {
+          mppPaid: true,
+          mppPayer: r.mpp.payer,
+          mppMethod: r.mpp.method,
+          mppPaymentHeader: r.mpp.header,
+          mppAmount: r.mpp.amount,
+          mppTxHash: r.mpp.txHash,
+          mppRecipient: r.mpp.recipient,
+          mppSplits: r.mpp.splits,
+        }
+      : {}),
   } as unknown as PipelineContext;
 
   const res = await escrowQuotePayment(deps, ctx);

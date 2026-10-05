@@ -223,8 +223,13 @@ export async function buildPaymentBinding(
   if (!order || (order.state !== 'QUOTED' && order.state !== 'PAYMENT_FAILED')) {
     return quoteErr(402, 'payment_required', 'A payment for this order is already in progress.');
   }
-  if (!q.rails_offered.includes('base')) {
-    return quoteErr(409, 'rail_not_offered', 'This quote is not payable with x402 (Base).');
+  const rail = ctx.mppPaid ? 'tempo' : 'base';
+  if (!q.rails_offered.includes(rail)) {
+    return quoteErr(
+      409,
+      'rail_not_offered',
+      `This quote is not payable with ${rail === 'tempo' ? 'MPP (Tempo)' : 'x402 (Base)'}.`,
+    );
   }
 
   const { currentPayout } = await import('../../shop/auth/identity.service');
@@ -232,8 +237,8 @@ export async function buildPaymentBinding(
   const feeWallet = process.env['INTEGRATOR_FEE_WALLET'];
   const binding: PaymentBinding = {
     amount_usd: q.total_usd,
-    pay_to: currentPayout(q, 'base', at),
-    rail: 'base',
+    pay_to: currentPayout(q, rail, at),
+    rail,
     resource: `quote:${q.quote_id}`,
     splits:
       q.fee_usd > 0 && integratorConfig().fee_enabled && feeWallet
@@ -461,6 +466,63 @@ async function verifyX402Binding(
   return ok({ payer: ctx.x402Payer, nonce: nonceInfo.nonce });
 }
 
+/**
+ * MPP twin of verifyX402Binding for an order quote (T-INT-10). mppx already settled on Tempo
+ * inside charge() and its HMAC covers amount/recipient/splits/memo; this compares them once more
+ * with the quote as locked NOW (a payout change or fee flip between the middleware read and this
+ * lock must not slip through), screens the payer and claims the challenge id (single use).
+ * Every refusal here is money already taken -> refund-owed outbox row.
+ */
+async function verifyMppQuoteBinding(
+  ctx: PipelineContext,
+  binding: PaymentBinding,
+  screen: (payer: string) => Promise<Result<true, PipelineError>>,
+): Promise<Result<{ payer: string; challengeId: string }, PipelineError>> {
+  const refuse = async (reason: string): Promise<Result<never, PipelineError>> => {
+    logger.warn(
+      { requestId: ctx.requestId, reason },
+      'mpp quote binding: rejecting payment already settled',
+    );
+    await recordMppRefundOwed(ctx, `escrow_rejected:${reason}`);
+    return quoteErr(402, 'payment_required', 'This payment cannot be accepted for this quote.', {
+      binding,
+      quote_id: binding.resource.slice('quote:'.length),
+    });
+  };
+  const paid = mppAmountToMicro(ctx.mppAmount);
+  if (paid === null || paid !== mppAmountToMicro(String(binding.amount_usd))) {
+    return refuse('mpp_amount_mismatch');
+  }
+  if (ctx.mppRecipient?.toLowerCase() !== binding.pay_to.toLowerCase()) {
+    return refuse('mpp_recipient_mismatch');
+  }
+  const want = (binding.splits ?? []).map(
+    (x) => `${x.wallet.toLowerCase()}:${mppAmountToMicro(String(x.amount_usd))}`,
+  );
+  const got = (ctx.mppSplits ?? []).map(
+    (x) => `${x.recipient.toLowerCase()}:${mppAmountToMicro(x.amount)}`,
+  );
+  if (want.join('|') !== got.join('|')) return refuse('mpp_splits_mismatch');
+
+  const decoded = ctx.mppPaymentHeader ? decodeMppChallenge(ctx.mppPaymentHeader) : null;
+  if (!decoded) return refuse('mpp_credential_undecodable');
+  const payer = ctx.mppPayer ?? 'unknown-mpp-payer';
+  const screened = await screen(payer);
+  if (!screened.ok) {
+    await recordMppRefundOwed(ctx, 'escrow_rejected:payer_sanctioned');
+    return screened;
+  }
+  const claim = await claimOrReject('mpp', decoded.challengeId, 300, binding.amount_usd, {
+    toolId: ctx.toolId,
+    requestId: ctx.requestId,
+  });
+  if (!claim.ok) {
+    await recordMppRefundOwed(ctx, 'escrow_rejected:mpp_replay');
+    return claim;
+  }
+  return ok({ payer, challengeId: decoded.challengeId });
+}
+
 export type QuotePayResult = Result<
   { order_id: string; state: string; tx_hash?: string | null; fulfillment?: string },
   PipelineError
@@ -536,7 +598,7 @@ export async function escrowQuotePayment(
         );
       }
 
-      const verified = await verifyX402Binding(ctx, binding, async ({ payer }) => {
+      const screen = async (payer: string): Promise<Result<true, PipelineError>> => {
         if (!(await isSanctioned(tx, payer))) return ok(true);
         // Written and COMMITTED (the tx returns, it does not throw): source of PAYER_SANCTIONED (INT-13).
         await tx.$executeRawUnsafe(
@@ -557,15 +619,22 @@ export async function escrowQuotePayment(
           binding,
           quote_id: quoteId,
         });
-      });
+      };
+      const mpp = Boolean(ctx.mppPaid);
+      const verified = mpp
+        ? await verifyMppQuoteBinding(ctx, binding, screen)
+        : await verifyX402Binding(ctx, binding, ({ payer }) => screen(payer));
       if (!verified.ok) return verified;
-      const { payer, nonce } = verified.value;
+      const { payer } = verified.value;
+      const nonce = 'nonce' in verified.value ? verified.value.nonce : verified.value.challengeId;
 
+      // x402: pending until settle returns the receipt. MPP: charge() already settled on Tempo and
+      // its receipt carries the tx hash, so the row is confirmed at once (§7.2).
       const pay = await tx.$queryRawUnsafe<Array<{ payment_id: string }>>(
         `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, eip3009_nonce, pay_to,
-                                  amount_usd, splits, chain_status, reconcile_until)
-       VALUES ($1::uuid, 'base', $2, $3, $2, $4, $5::numeric, $6::jsonb, 'pending',
-               now() + interval '24 hours')
+                                  amount_usd, splits, tx_hash, chain_status, confirmed_at, reconcile_until)
+       VALUES ($1::uuid, $7, $2, $3, $8, $4, $5::numeric, $6::jsonb, $9, $10,
+               CASE WHEN $10 = 'confirmed' THEN now() END, now() + interval '24 hours')
        RETURNING payment_id`,
         quote.order_id,
         nonce,
@@ -573,21 +642,27 @@ export async function escrowQuotePayment(
         binding.pay_to,
         binding.amount_usd,
         JSON.stringify(binding.splits ?? []),
+        binding.rail,
+        mpp ? null : nonce,
+        mpp ? (ctx.mppTxHash ?? null) : null,
+        mpp ? 'confirmed' : 'pending',
       );
       await transition(tx, quote.order_id, 'PAYING', {
         actor: 'buyer',
-        reason: 'x402_payment_presented',
-        payload: { payer_wallet: payer, rail: 'base' },
+        reason: mpp ? 'mpp_payment_presented' : 'x402_payment_presented',
+        payload: { payer_wallet: payer, rail: binding.rail },
       });
       await tx.$executeRawUnsafe(
-        `UPDATE shop_orders SET payer_wallet = $2, rail = 'base' WHERE order_id = $1::uuid`,
+        `UPDATE shop_orders SET payer_wallet = $2, rail = $3 WHERE order_id = $1::uuid`,
         quote.order_id,
         payer,
+        binding.rail,
       );
       return ok({ order_id: quote.order_id, payment_id: pay[0].payment_id, payer, binding });
     });
   } catch (e) {
     // §9.1 "Две оплаты котировки": a second live order row for the quote hits the INT-01 index.
+    if (ctx.mppPaid) await recordMppRefundOwed(ctx, 'escrow_failed:order_tx');
     if (!isLiveOrderConflict(e)) throw e;
     logger.warn({ requestId: ctx.requestId }, 'x402 escrow: live order already exists for quote');
     return quoteErr(402, 'payment_required', 'A payment for this order is already in progress.');
@@ -604,11 +679,28 @@ export async function escrowQuotePayment(
       }
     }
   }
-  if (!res.ok) return res;
+  if (!res.ok) {
+    // MPP: charge() already took the money; any refusal at this point is a refund owed.
+    if (ctx.mppPaid) await recordMppRefundOwed(ctx, `escrow_rejected:${res.error.error}`);
+    return res;
+  }
 
-  const { settleAndFinalize } = await import('./shop-settle');
+  const { settleAndFinalize, finalizeConfirmed } = await import('./shop-settle');
   const step = res.value;
   const agent = (ctx as { buyerAgent?: Record<string, string> }).buyerAgent;
+  if (ctx.mppPaid) {
+    // Already settled by charge(): PAYING -> PAID (+ delivery) right away, no second settle.
+    const order = await finalizeConfirmed(deps, {
+      order_id: step.order_id,
+      payment_id: step.payment_id,
+      tx_hash: ctx.mppTxHash ?? 'unknown',
+      payer: step.payer,
+      rail: 'tempo',
+      request_id: ctx.requestId,
+      buyer_agent: agent,
+    });
+    return ok(order ?? { order_id: step.order_id, state: 'PAID', tx_hash: ctx.mppTxHash });
+  }
   const out = await settleAndFinalize(deps, {
     order_id: step.order_id,
     payment_id: step.payment_id,

@@ -122,6 +122,9 @@ export interface PipelineContext {
    *  it, a human resolving the refund has to re-derive it from logs. */
   mppTxHash?: string;
   /** Set once an mpp_refund_owed row was written (or attempted) for this request. */
+  /** Order quotes: the recipient/splits the MPP charge was bound to (mppx HMAC-covered). */
+  mppRecipient?: string;
+  mppSplits?: Array<{ recipient: string; amount: string }>;
   mppRefundRecorded?: boolean;
   /** T-0177 (2026-09-23): set by settleX402() to the facilitator's actual
    *  on-chain settle outcome — true=confirmed, false=attempted and failed.

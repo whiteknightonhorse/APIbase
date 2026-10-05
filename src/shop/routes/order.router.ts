@@ -87,9 +87,10 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
     }
   });
 
-  // §6.3: x402 only here for now — the Authorization: Payment (MPP) branch is INT-10, so such a
-  // call is answered with the plain challenge (accepts[] + pay.mpp.url).
-  router.post('/api/v1/shop/quotes/:id/pay', async (req: Request, res: Response) => {
+  // §6.3: POST pays (x402 header, or an MPP credential already settled by mppMiddleware);
+  // GET and a call without payment answer the challenge: accepts[] + pay.mpp.url + the ONE stored
+  // WWW-Authenticate: Payment challenge of the quote (§8.1 item 7a).
+  const payRoute = async (req: Request, res: Response) => {
     try {
       // Lazy: the escrow stage pulls the x402 SDK, which the quote routes do not need.
       const { payQuote } = await import('../pay.service');
@@ -105,15 +106,26 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
           typeof body.waive_withdrawal === 'boolean' ? body.waive_withdrawal : undefined,
         buyer_company: typeof body.buyer_company === 'string' ? body.buyer_company : undefined,
         buyer_agent: { user_agent: req.get('user-agent')?.slice(0, 200) },
+        mpp: req.method === 'POST' ? req.mppPayment : undefined,
       });
       if (r.status === 402 && Array.isArray(r.body.accepts)) {
         res.setHeader('PAYMENT-REQUIRED', encodePaymentRequiredHeader(r.body as never));
+        if ((r.body.pay as { mpp?: unknown } | undefined)?.mpp) {
+          const { quoteMppChallengeHeader } = await import('../../middleware/mpp.middleware');
+          const url = `https://${req.get('host') ?? ''}/api/v1/shop/quotes/${String(req.params.id)}/pay`;
+          const challenge = await quoteMppChallengeHeader(String(req.params.id), url).catch(
+            () => null,
+          );
+          if (challenge) res.setHeader('WWW-Authenticate', challenge);
+        }
       }
       res.status(r.status).json(r.body);
     } catch (err) {
       send(res, err);
     }
-  });
+  };
+  router.post('/api/v1/shop/quotes/:id/pay', payRoute);
+  router.get('/api/v1/shop/quotes/:id/pay', payRoute);
 
   router.get('/api/v1/shop/orders/:id', async (req: Request, res: Response) => {
     try {
