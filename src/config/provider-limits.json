@@ -3307,14 +3307,18 @@
   },
   "usgs-nwis": {
     "display_name": "USGS NWIS Streamflow",
-    "health_url": "https://waterservices.usgs.gov/nwis/iv/?format=json&sites=01646500&parameterCd=00060&period=PT1H",
+    "health_url": "https://waterservices.usgs.gov/nwis/site/?format=rdb&sites=01646500",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://waterservices.usgs.gov/rest/",
     "limit_proof": "US Government open data (USGS National Water Information System), no authentication required, no documented rate limits. Public domain under 17 USC \u00a7105.",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "probe": {
+      "method": "GET",
+      "timeout_ms": 10000
+    }
   },
   "who-gho": {
     "display_name": "WHO Global Health Observatory",
