@@ -101,3 +101,7 @@ scripts/night-orchestra/
 # generates a bytecode cache the earlier flat *.py scripts never did.
 __pycache__/
 *.pyc
+
+# T-INT-01 (spec section 15): operator-private Integrator config/state never reaches the public repo
+config/integrator/*.private.json
+scripts/integrator/state/

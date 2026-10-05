@@ -483,3 +483,345 @@ model AutopilotEngineHeartbeat {
 
   @@map("autopilot_engine_heartbeat")
 }
+
+// ===========================================================================
+// Integrator wave 1 (migration 0025, spec section 5.1). Raw-SQL-only parts (not
+// expressible here): partial unique indexes shop_orders(quote_id) / shop_products
+// (merchant_id) WHERE is_test, GIN on shop_products.search, the shop_acceptances
+// append-only trigger, shop_order_events monthly partitions, the CHECK constraints.
+// Code reaches these tables through src/shop/repository.ts (merchant_id mandatory).
+// ===========================================================================
+model ShopMerchant {
+  merchant_id             String   @id @default(uuid()) @db.Uuid
+  slug                    String   @unique
+  name                    String
+  category                String
+  country                 String   @db.Char(2)
+  registration_ip_country String?  @db.Char(2)
+  wallet_address          String   @unique
+  payout_wallet_base      String
+  payout_wallet_tempo     String
+  payout_pending          Json?    @db.JsonB
+  recovery_wallet         String?
+  encryption_key          Json?    @db.JsonB
+  contact_email           String
+  site_url                String
+  domain_verified         Boolean  @default(false)
+  status                  String   @default("pending") // pending|active|suspended|deactivated
+  status_reason           String?
+  limits                  Json     @default("{}") @db.JsonB
+  policy                  Json     @default("{}") @db.JsonB
+  reputation              Json     @default("{}") @db.JsonB
+  agent_id                String?  @db.Uuid
+  created_at              DateTime @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@map("shop_merchants")
+}
+
+model ShopMerchantKey {
+  key_hash    String    @id @db.Char(64)
+  merchant_id String    @db.Uuid
+  scopes      String[]
+  label       String?
+  created_at  DateTime  @default(now()) @db.Timestamptz()
+  revoked_at  DateTime? @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@map("shop_merchant_keys")
+}
+
+model ShopLegalDoc {
+  doc_id         String   // merchant-agreement|aup|dpa|refund-framework|terms|privacy
+  version        String
+  sha256         String   @db.Char(64)
+  url            String
+  effective_from DateTime @db.Timestamptz()
+  body_md        String
+
+  @@id([doc_id, version])
+  @@map("shop_legal_docs")
+}
+
+// append-only: BEFORE UPDATE OR DELETE trigger raises
+model ShopAcceptance {
+  acceptance_id String   @id @default(uuid()) @db.Uuid
+  merchant_id   String   @db.Uuid
+  doc_id        String
+  version       String
+  sha256        String   @db.Char(64)
+  method        String   // wallet_signature|checkbox+wallet_signature
+  signer        String
+  signature     String
+  message       String
+  ip_hash       String?
+  user_agent    String?
+  accepted_at   DateTime @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@map("shop_acceptances")
+}
+
+model ShopProduct {
+  product_id                    String                   @id @default(uuid()) @db.Uuid
+  merchant_id                   String                   @db.Uuid
+  sku                           String
+  title                         String
+  description                   String                   @default("")
+  price_usd                     Decimal                  @db.Decimal(18, 6)
+  is_test                       Boolean                  @default(false)
+  currency_display              String?
+  available                     Int?                     // null = stock not tracked
+  reserved                      Int                      @default(0)
+  fulfillment_mode              String                   @default("merchant") // instant|merchant|physical
+  fulfillment_payload_encrypted String?
+  tax_included                  Boolean                  @default(false)
+  tax_note                      String?
+  shipping_options              Json                     @default("[]") @db.JsonB
+  delivery_slots                Json                     @default("[]") @db.JsonB
+  requires_pii                  String[]
+  refund_window_days            Int?
+  returns_accepted              Boolean                  @default(false)
+  category                      String?
+  shop_category                 String?
+  images                        String[]
+  moderation_status             String                   @default("ok") // ok|flagged|rejected
+  search                        Unsupported("tsvector")? // GENERATED ... STORED, GIN-indexed
+  created_at                    DateTime                 @default(now()) @db.Timestamptz()
+  updated_at                    DateTime                 @default(now()) @db.Timestamptz()
+
+  @@unique([merchant_id, sku])
+  @@index([merchant_id])
+  @@map("shop_products")
+}
+
+model ShopProductVariant {
+  variant_id  String   @id @default(uuid()) @db.Uuid
+  product_id  String   @db.Uuid
+  merchant_id String   @db.Uuid
+  sku         String
+  title       String
+  price_usd   Decimal? @db.Decimal(18, 6)
+  available   Int?
+  reserved    Int      @default(0)
+  attributes  Json     @default("{}") @db.JsonB
+  is_test     Boolean  @default(false)
+  created_at  DateTime @default(now()) @db.Timestamptz()
+
+  @@unique([product_id, sku])
+  @@index([merchant_id])
+  @@map("shop_product_variants")
+}
+
+model ShopInventoryReservation {
+  reservation_id String   @id @default(uuid()) @db.Uuid
+  merchant_id    String   @db.Uuid
+  product_id     String   @db.Uuid
+  variant_id     String?  @db.Uuid
+  qty            Int
+  quote_id       String   @db.Uuid
+  expires_at     DateTime @db.Timestamptz()
+  created_at     DateTime @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@index([quote_id])
+  @@index([expires_at])
+  @@map("shop_inventory_reservations")
+}
+
+model ShopQuote {
+  quote_id                    String    @id @default(uuid()) @db.Uuid
+  merchant_id                 String    @db.Uuid
+  buyer_identity              String?
+  items                       Json      @db.JsonB
+  shipping_option             String?
+  delivery_slot               String?
+  subtotal                    Decimal   @db.Decimal(18, 6)
+  shipping                    Decimal   @default(0) @db.Decimal(18, 6)
+  total_usd                   Decimal   @db.Decimal(18, 6)
+  fee_usd                     Decimal   @default(0) @db.Decimal(18, 6)
+  rails_offered               String[]
+  requires_pii                String[]
+  waive_withdrawal            Boolean   @default(false)
+  requires_human_confirmation Boolean   @default(false)
+  is_test                     Boolean   @default(false)
+  mpp_challenge_id            String?
+  mpp_challenge_expires_at    DateTime? @db.Timestamptz()
+  expires_at                  DateTime  @db.Timestamptz()
+  status                      String    @default("open") // open|paid|expired|cancelled
+  created_at                  DateTime  @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@index([status, expires_at])
+  @@map("shop_quotes")
+}
+
+// UNIQUE (quote_id) WHERE state NOT IN ('PAYMENT_FAILED','CANCELLED','EXPIRED') is raw SQL.
+model ShopOrder {
+  order_id                String    @id @default(uuid()) @db.Uuid
+  quote_id                String    @db.Uuid
+  merchant_id             String    @db.Uuid
+  buyer_agent_id          String?   @db.Uuid
+  payer_wallet            String?
+  rail                    String?
+  state                   String    @default("QUOTED") // section 5.3, src/shop/order-state.ts
+  total_usd               Decimal   @db.Decimal(18, 6)
+  fee_usd                 Decimal   @default(0) @db.Decimal(18, 6)
+  fee_settlement          String    @default("none") // in_tx|receivable|none
+  tx_hash                 String?
+  settled_at              DateTime? @db.Timestamptz()
+  confirm_due_at          DateTime? @db.Timestamptz()
+  ship_due_at             DateTime? @db.Timestamptz()
+  delivery_eta            DateTime? @db.Timestamptz()
+  close_after             DateTime? @db.Timestamptz()
+  fulfillment_status      String    @default("pending")
+  fulfillment_payload_enc String?
+  created_at              DateTime  @default(now()) @db.Timestamptz()
+  updated_at              DateTime  @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@index([state])
+  @@map("shop_orders")
+}
+
+// append-only; PARTITION BY RANGE (at), monthly (shop_order_events_YYYY_MM)
+model ShopOrderEvent {
+  order_id   String   @db.Uuid
+  seq        Int
+  from_state String?
+  to_state   String
+  actor      String   // buyer|merchant|system|autopilot
+  reason     String?
+  payload    Json     @default("{}") @db.JsonB
+  at         DateTime @default(now()) @db.Timestamptz()
+
+  @@id([order_id, seq, at])
+  @@index([order_id, seq])
+  @@map("shop_order_events")
+}
+
+model ShopPayment {
+  payment_id            String    @id @default(uuid()) @db.Uuid
+  order_id              String    @db.Uuid
+  rail                  String
+  nonce_or_challenge_id String    @unique
+  payer                 String
+  eip3009_nonce         String?
+  pay_to                String
+  amount_usd            Decimal   @db.Decimal(18, 6)
+  splits                Json      @default("[]") @db.JsonB
+  tx_hash               String?
+  chain_status          String    @default("pending") // pending|confirmed|failed
+  confirmed_at          DateTime? @db.Timestamptz()
+  reconcile_until       DateTime  @default(dbgenerated("(now() + interval '24 hours')")) @db.Timestamptz()
+  created_at            DateTime  @default(now()) @db.Timestamptz()
+
+  @@index([order_id])
+  @@map("shop_payments")
+}
+
+model ShopFeeLedger {
+  entry_id     String   @id @default(uuid()) @db.Uuid
+  merchant_id  String   @db.Uuid
+  order_id     String   @db.Uuid
+  fee_usd      Decimal  @db.Decimal(18, 6)
+  mode         String   // in_tx|receivable
+  invoice_id   String?
+  paid_tx_hash String?
+  status       String   // collected|owed|invoiced|paid|written_off
+  created_at   DateTime @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@index([order_id])
+  @@map("shop_fee_ledger")
+}
+
+model ShopRefund {
+  refund_id       String   @id @default(uuid()) @db.Uuid
+  order_id        String   @db.Uuid
+  amount_usd      Decimal  @db.Decimal(18, 6)
+  reason          String
+  requested_by    String   // buyer|merchant|system
+  tx_hash         String?
+  verified        Boolean  @default(false)
+  verified_amount Decimal? @db.Decimal(18, 6)
+  status          String   @default("requested") // requested|awaiting_merchant_tx|verified|rejected|overdue
+  due_at          DateTime? @db.Timestamptz()
+  created_at      DateTime @default(now()) @db.Timestamptz()
+
+  @@index([order_id])
+  @@map("shop_refunds")
+}
+
+model ShopWebhookEndpoint {
+  endpoint_id     String   @id @default(uuid()) @db.Uuid
+  merchant_id     String   @db.Uuid
+  url             String
+  secret_hash     String
+  events          String[]
+  status          String   @default("active")
+  failures_in_row Int      @default(0)
+  created_at      DateTime @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@map("shop_webhook_endpoints")
+}
+
+model ShopWebhookDelivery {
+  delivery_id          String    @id @default(uuid()) @db.Uuid
+  endpoint_id          String    @db.Uuid
+  merchant_id          String    @db.Uuid
+  event_type           String
+  outbox_id            BigInt?
+  attempt              Int       @default(1)
+  status_code          Int?
+  response_excerpt     String?
+  fulfillment_accepted Boolean   @default(false)
+  next_attempt_at      DateTime? @db.Timestamptz()
+  delivered_at         DateTime? @db.Timestamptz()
+  created_at           DateTime  @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@index([endpoint_id])
+  @@map("shop_webhook_deliveries")
+}
+
+model ShopModerationReview {
+  review_id     String   @id @default(uuid()) @db.Uuid
+  merchant_id   String   @db.Uuid
+  scope         String   // merchant|product
+  product_id    String?  @db.Uuid
+  layer         String   // rules|llm|human
+  verdict       String
+  category      String?
+  evidence_hash String?
+  at            DateTime @default(now()) @db.Timestamptz()
+
+  @@index([merchant_id])
+  @@map("shop_moderation_reviews")
+}
+
+model ShopSanctionedAddress {
+  address      String   @id
+  source       String   @default("ofac_sdn")
+  list_version String
+  synced_at    DateTime @default(now()) @db.Timestamptz()
+
+  @@map("shop_sanctioned_addresses")
+}
+
+// TTL 30 days (sweeper, later wave)
+model ShopConnectEvent {
+  event_id       String   @id @default(uuid()) @db.Uuid
+  identity_hash  String?
+  client_name    String?
+  client_version String?
+  user_agent     String?
+  ip_prefix      String?
+  error_code     String?
+  path           String?
+  at             DateTime @default(now()) @db.Timestamptz()
+
+  @@index([at])
+  @@map("shop_connect_events")
+}

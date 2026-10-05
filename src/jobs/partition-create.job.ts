@@ -38,6 +38,24 @@ function formatIso(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
+/**
+ * T-INT-01: shop_order_events is partitioned by MONTH (spec section 14), unlike the daily
+ * tables below. Idempotent; migration 0025 pre-creates 24 months, this keeps the horizon moving.
+ */
+export async function createShopMonthlyPartitions(monthsAhead = 3): Promise<void> {
+  const db = getPrisma();
+  const now = new Date();
+  for (let i = 0; i <= monthsAhead; i++) {
+    const from = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + i, 1));
+    const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + i + 1, 1));
+    const name = `shop_order_events_${from.getUTCFullYear()}_${String(from.getUTCMonth() + 1).padStart(2, '0')}`;
+    await db.$executeRawUnsafe(
+      `CREATE TABLE IF NOT EXISTS "${name}" PARTITION OF "shop_order_events"
+       FOR VALUES FROM ('${formatIso(from)}') TO ('${formatIso(to)}')`,
+    );
+  }
+}
+
 export async function run(): Promise<void> {
   const db = getPrisma();
   const tomorrow = new Date();
@@ -67,4 +85,5 @@ export async function run(): Promise<void> {
       throw error;
     }
   }
+  await createShopMonthlyPartitions();
 }
