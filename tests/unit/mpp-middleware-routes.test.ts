@@ -13,7 +13,16 @@ jest.mock('../../src/pipeline/stages/tool-status.stage', () => ({
 }));
 
 const mockCharge = jest.fn();
+const mockStoreRedis = jest.fn((client: unknown) => ({
+  get: jest.fn(),
+  put: jest.fn(),
+  delete: jest.fn(),
+  client,
+}));
+const mockRedisClient = { get: jest.fn(), set: jest.fn(), del: jest.fn() };
+jest.mock('../../src/services/redis.service', () => ({ getSharedRedis: () => mockRedisClient }));
 jest.mock('mppx/server', () => ({
+  Store: { redis: (c: unknown) => mockStoreRedis(c) },
   Mppx: { create: jest.fn(() => ({ charge: (opts: unknown) => mockCharge(opts) })) },
   tempo: { charge: jest.fn(() => ({})), session: jest.fn(() => ({})) },
 }));
@@ -61,6 +70,25 @@ beforeEach(() => {
 });
 
 describe('mppMiddleware route/price gating (T-0256)', () => {
+  it('T-0257: charge and session receive a Redis-backed store with get/put', async () => {
+    await run(makeReq('/api/v1/tools/known.tool/call', 'Payment x'));
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { tempo } = require('mppx/server');
+    expect(mockStoreRedis).toHaveBeenCalledWith(mockRedisClient);
+    for (const fn of [tempo.charge, tempo.session]) {
+      const store = fn.mock.calls[0][0].store;
+      expect(typeof store.get).toBe('function');
+      expect(typeof store.put).toBe('function');
+    }
+  });
+
+  it('T-0257: store failure (Redis down) -> 400, closed', async () => {
+    chargeInner.mockRejectedValue(new Error('Connection is closed.'));
+    const e = await run(makeReq('/api/v1/tools/known.tool/call', 'Payment x'));
+    expect(e).toBeInstanceOf(AppError);
+    expect((e as AppError).httpStatus).toBe(400);
+  });
+
   it('M1: POST /mcp + Payment → 400, charge never built', async () => {
     const e = await run(makeReq('/mcp', 'Payment x'));
     expect(e).toBeInstanceOf(AppError);

@@ -23,6 +23,18 @@ declare module 'mppx/server' {
   }
   export const tempo: TempoFn;
 
+  export const Store: {
+    redis(client: {
+      get(key: string): Promise<string | null>;
+      set(key: string, value: string): Promise<unknown>;
+      del(key: string): Promise<unknown>;
+    }): {
+      get(key: string): Promise<unknown>;
+      put(key: string, value: unknown): Promise<void>;
+      delete(key: string): Promise<void>;
+    };
+  };
+
   export const Mppx: {
     create(options: { methods: unknown[]; secretKey?: string; realm?: string }): {
       charge(options: { amount: string; currency?: string; recipient?: string }): (

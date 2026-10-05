@@ -78,13 +78,19 @@ async function ensureMppx(): Promise<void> {
   const cfg = getMppConfig();
   if (!cfg.enabled) return;
 
-  const { Mppx, tempo } = await import('mppx/server');
+  const { Mppx, tempo, Store } = await import('mppx/server');
   const { privateKeyToAccount } = await import('viem/accounts');
+  const { getSharedRedis } = await import('../services/redis.service');
   const account = privateKeyToAccount(cfg.privateKey as `0x${string}`);
   const params = {
     account,
     currency: cfg.usdcAddress,
     recipient: cfg.walletAddress as `0x${string}`,
+    // T-0257: replay store shared across processes and surviving restarts
+    // (default is Store.memory()). Failure mode: if Redis is unavailable,
+    // mppx's store get/put throws -> caught in verifyMppPayment -> 400
+    // (fail-closed; consistent with the 503 on ESCROW when Redis is down).
+    store: Store.redis(getSharedRedis()),
   };
 
   mppxInstance = Mppx.create({
