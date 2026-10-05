@@ -27,7 +27,7 @@ export function renderTokens(tpl: string): string {
       .replace(/\{\{INTEGRATOR_FEE_PCT\}\} fee/g, '0% fee during the pilot');
   }
   return s
-    .replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, on ? `${pct}%` : '0% during the pilot')
+    .replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, on ? `${pct}%` : '0% (pilot)')
     .replace(
       /\{\{INTEGRATOR_MIN_ORDER\}\}/g,
       () => `$${(Number.isFinite(min) ? min : 1).toFixed(2)}`,

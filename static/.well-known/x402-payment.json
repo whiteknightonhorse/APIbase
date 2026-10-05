@@ -30,5 +30,6 @@
     "mpp_realm": "apibase.pro"
   },
   "documentation": "https://apibase.pro/ai.txt",
+  "orders": "paid to the merchant wallet from the quote; see /integrator",
   "updated_at": "2026-04-01"
 }

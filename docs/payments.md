@@ -112,3 +112,14 @@ Every error response includes machine-readable recovery hints:
 | 503 | `service_unavailable` | `retry_after_delay` |
 
 Idempotency: the IDEMPOTENCY stage fails open on Redis errors only while `accounts.balance_usd` is refund-only (operator decision 2026-09-15); a top-up-able balance requires it to fail closed.
+
+## Integrator orders
+
+Orders placed through a merchant storefront (`/mcp/m/<slug>`, `/integrator`) use the same two rails but are not tool calls: they are paid to the **merchant's** wallet taken from the quote, never to the platform `payTo`. Tool-call settlement above is unchanged.
+
+- **Binding from the quote.** The amount, the recipient wallet and (on Tempo) the memo and splits are read from the `shop_quotes` row in PG — server data only, never from the request. A credential or authorization for any other amount or recipient is refused (`payment_amount_mismatch`).
+- **Settle before delivery.** An order is delivered only after the USDC transfer has a successful receipt; a payment that is still unconfirmed leaves the order `PAYING` (`202 payment_pending`) and is reconciled on-chain, never assumed.
+- **Tempo: `splits`.** The challenge carries `recipient = payout_wallet_tempo`, `amount = total` and, only while the Integrator fee is on, one split to the platform fee wallet — the fee is taken inside the same transaction.
+- **Base: receivable.** x402 pays the merchant wallet for exactly `total_usd`; the Integrator fee is not deducted in the transfer but booked as a receivable from the merchant and invoiced.
+- **One MPP challenge per quote.** The challenge (`id`, expiry, header) is stored on the quote and reused until it expires, so a retry gets the same challenge and a paid credential cannot be replayed against a second one.
+- **Numbers.** Fee, minimum fee and minimum order are published through `sync-counts` (`INTEGRATOR_FEE_PCT`, `INTEGRATOR_MIN_ORDER`) from `static/.well-known/mcp.json` → `integrator`; none is typed by hand on a public page.

@@ -7,8 +7,21 @@
   "url": "https://apibase.pro/mcp",
   "version": "2.1.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
-  "tools_count": 1394,
+  "tools_count": 1411,
+  "shop_tools_count": 17,
   "providers_count": 402,
+  "merchants_count": 0,
+  "integrator": {
+    "fee_pct": 0,
+    "fee_enabled": false,
+    "fee_min_usd": 0.05,
+    "min_order_usd": 1,
+    "rails": [
+      "tempo"
+    ],
+    "test_sku_usd": 0.01,
+    "sandbox_status": "Sandbox: not yet available — use the $0.01 test SKU on mainnet"
+  },
   "categories_count": 25,
   "authentication": {
     "type": "bearer",

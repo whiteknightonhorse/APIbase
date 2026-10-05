@@ -54,7 +54,11 @@ if [ "$CHECK" = "1" ]; then
   BASELINE="$(python3 -c "
 import json
 d = json.load(open('static/.well-known/mcp.json'))
+# T-INT-19: tools_count carries the shop.* tools once (no row in the tools table); the
+# DB-catalog baseline every other surface is compared with excludes them.
 t = d.get('tools_count')
+if isinstance(t, int):
+    t -= int(d.get('shop_tools_count') or 0)
 p = d.get('providers_count', d.get('providers'))
 print('%s %s' % (t, p))
 " 2>/dev/null || true)"
@@ -261,6 +265,15 @@ else
              static/.well-known/agent-skills/discover-tools.md; do
       [ -f "$f" ] && MD5_BEFORE_DISCOVERY["$f"]=$(md5sum "$f" | cut -d" " -f1)
     done
+    # T-INT-19: the mcp.json `integrator` block is built from the INTEGRATOR_*/MPP switches; the
+    # cron has no app env, so take each from the process env first, then .env (same file
+    # the DATABASE_URL line below already reads), never a hardcoded default here.
+    for _k in INTEGRATOR_FEE_ENABLED INTEGRATOR_FEE_BPS INTEGRATOR_FEE_MIN_USD INTEGRATOR_MIN_ORDER_USD \
+              INTEGRATOR_BASE_ORDERS_ENABLED MPP_ENABLED SANDBOX_STATUS; do
+      _v="${!_k:-}"
+      [ -n "$_v" ] || _v="$(grep -m1 "^${_k}=" .env 2>/dev/null | cut -d= -f2- | tr -d '"' || true)"
+      export "$_k=$_v"
+    done
     DATABASE_URL="postgresql://apibase:$(grep -m1 '^POSTGRES_PASSWORD=' .env | cut -d= -f2-)@${PG_IP}:5432/apibase?schema=public" \
       npx tsx scripts/gen-discovery.ts > /tmp/gen-discovery.out 2>&1 \
       || { echo "sync-counts: gen-discovery.ts FAILED"; cat /tmp/gen-discovery.out; exit 1; }
@@ -293,6 +306,13 @@ else
   else
     echo "sync-counts: could not resolve postgres container IP"; exit 1
   fi
+
+  # T-INT-19: Integrator sentence + merchants line on the nginx-static surfaces, rendered from
+  # the mcp.json baseline just regenerated above (see scripts/integrator-facts.py).
+  b1=$(md5sum static/pricing.html | cut -d" " -f1); b2=$(md5sum static/llms.txt | cut -d" " -f1)
+  python3 scripts/integrator-facts.py render
+  [ "$(md5sum static/pricing.html | cut -d" " -f1)" != "$b1" ] && CHANGED=$((CHANGED+1))
+  [ "$(md5sum static/llms.txt | cut -d" " -f1)" != "$b2" ] && CHANGED=$((CHANGED+1))
 
   # index.html JSON-LD offerCount -- the one numeric field on a hand-maintained page this
   # generic sed loop can't reach (it needs the "tools"/"providers" word adjacent, this doesn't).
@@ -553,7 +573,13 @@ print("\n".join(problems))
 PY
 )
 
+# T-INT-19 (F-3, §7.4, §17): merchants_count / INTEGRATOR_FEE_PCT / INTEGRATOR_MIN_ORDER /
+# SANDBOX_STATUS vs the mcp.json baseline: rendered phrases on pricing/llms, tokens (no
+# hardcoded numbers) on /integrator/*. Same check in both modes -- self-heal just rendered them.
+STALE_INTEGRATOR=$(python3 scripts/integrator-facts.py check 2>&1 || true)
+
 FAIL=0
+[ -n "$STALE_INTEGRATOR" ] && { echo "sync-counts: STALE integrator facts:"; echo "$STALE_INTEGRATOR"; FAIL=1; }
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }
 [ -n "$STALE_AI_TXT" ] && { echo "sync-counts: STALE ai.txt 'Tools: N across' remains: $STALE_AI_TXT"; FAIL=1; }
 [ -n "$STALE_CATALOG" ] && { echo "sync-counts: STALE api-catalog remains:"; echo "$STALE_CATALOG"; FAIL=1; }

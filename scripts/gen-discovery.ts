@@ -28,6 +28,8 @@ import { createHash } from 'crypto';
 import { spawnSync } from 'child_process';
 import { resolve } from 'path';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
+import { shopToolDefinitions } from '../src/shop/tool-definitions';
+import { buildIntegratorBlock as buildIntegratorFacts } from '../src/shop/integrator/facts';
 
 const prisma = new PrismaClient();
 const ROOT = resolve(__dirname, '..');
@@ -175,6 +177,39 @@ function buildCategoryStats(
     .sort((a, b) => b.tools - a.tools);
 }
 
+/**
+ * T-INT-19 (F-3, §14): `merchants_count` is ONE SQL -- shop_merchants WHERE status='active'. In
+ * --check mode there is no DB (see sync-counts.sh), so the committed value is the baseline;
+ * if the table is unreachable the committed value is kept rather than inventing a 0.
+ */
+async function loadMerchantsCount(): Promise<number> {
+  const mcpPath = resolve(ROOT, 'static/.well-known/mcp.json');
+  const committed = existsSync(mcpPath)
+    ? (JSON.parse(readFileSync(mcpPath, 'utf8')) as { merchants_count?: unknown }).merchants_count
+    : 0;
+  const keep = typeof committed === 'number' ? committed : 0;
+  if (CHECK_MODE) return keep;
+  try {
+    return await prisma.shopMerchant.count({ where: { status: 'active' } });
+  } catch (err) {
+    console.warn(`gen-discovery: merchants_count query failed, keeping ${keep}:`, err);
+    return keep;
+  }
+}
+
+/** The `integrator` block of mcp.json; INTEGRATOR_FEE_BPS is the single fee source. */
+function buildIntegratorBlock(): Record<string, unknown> {
+  // --check has no .env of the self-heal run: the committed block is the baseline (like
+  // merchants_count), so a different env on the checking host is not reported as drift.
+  const mcpPath = resolve(ROOT, 'static/.well-known/mcp.json');
+  if (CHECK_MODE && existsSync(mcpPath)) {
+    const committed = (JSON.parse(readFileSync(mcpPath, 'utf8')) as { integrator?: unknown })
+      .integrator;
+    if (committed && typeof committed === 'object') return committed as Record<string, unknown>;
+  }
+  return buildIntegratorFacts(process.env);
+}
+
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -252,6 +287,12 @@ async function main(): Promise<void> {
   const PROV = new Set(providerOf.values()).size;
   const stats = buildCategoryStats(activeDefs, providerOf);
   const CATS = stats.length;
+  // T-INT-19 (Q-O18): shop.* tools are counted ONCE in mcp.json's tools_count (served by /mcp,
+  // no `tools` row, so the DB baseline TOOLS never includes them); merchants are a separate
+  // number and never part of any tool count.
+  const SHOP_TOOLS = (await shopToolDefinitions()).length;
+  const MERCHANTS = await loadMerchantsCount();
+  const INTEGRATOR = buildIntegratorBlock();
 
   const travel = stats.find((s) => s.category === 'travel');
   const travelLine =
@@ -280,8 +321,11 @@ async function main(): Promise<void> {
         url: 'https://apibase.pro/mcp',
         version: PACKAGE_VERSION,
         tools_endpoint: 'https://apibase.pro/api/v1/tools',
-        tools_count: TOOLS,
+        tools_count: TOOLS + SHOP_TOOLS,
+        shop_tools_count: SHOP_TOOLS,
         providers_count: PROV,
+        merchants_count: MERCHANTS,
+        integrator: INTEGRATOR,
         categories_count: CATS,
         authentication: {
           type: 'bearer',

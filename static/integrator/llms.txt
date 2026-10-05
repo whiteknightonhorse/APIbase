@@ -1,6 +1,6 @@
 # APIbase Integrator
 
-> AI payment for merchants. A merchant gets its own MCP storefront; a buyer's agent gets a quote and pays in USDC (x402 on Base, MPP on Tempo) straight to the merchant wallet. Fee: {{INTEGRATOR_FEE_PCT}}.
+> AI payment for merchants. A merchant gets its own MCP storefront; a buyer's agent gets a quote and pays in USDC (x402 on Base, MPP on Tempo) straight to the merchant wallet. Fee: {{INTEGRATOR_FEE_PCT}}. Merchants connected: {{MERCHANTS_COUNT}}.
 
 - [Overview](https://apibase.pro/integrator): the offer, four ways to add a link, fee, security, FAQ (send Accept: text/markdown for Markdown)
 - [Agent guide](https://apibase.pro/integrator/agent-guide): step-by-step connection for a merchant's agent, with error codes
