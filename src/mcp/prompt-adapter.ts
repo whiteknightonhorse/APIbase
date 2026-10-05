@@ -49,6 +49,7 @@ const MAX_RESULTS = 18;
 
 /** Format a discover() result for text output, with related tools and required params. */
 function formatDiscoverResult(r: DiscoverResult): string {
+  if (r.kind === 'merchant') return `- ${r.name} (${r.category}) storefront: ${r.mcp_url}`;
   const paramHint = r.input_required.length > 0 ? ` (params: ${r.input_required.join(', ')})` : '';
   let line = `- ${r.mcp_name}: ${r.title}${paramHint} [$${r.price.price_usd}, ${r.category}]`;
   if (r.related.length > 0) {

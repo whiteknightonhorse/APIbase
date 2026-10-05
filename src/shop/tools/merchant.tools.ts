@@ -9,6 +9,7 @@ import {
   confirmMerchantOrder,
   listMerchantOrders,
 } from '../order-lifecycle.service';
+import { runCheck } from '../check.service';
 import { setWebhook, WEBHOOK_EVENTS } from '../webhook/webhook.service';
 import {
   acceptTerms,
@@ -46,6 +47,7 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.order_confirm',
   'shop.merchant.order_document',
   'shop.merchant.webhook_set',
+  'shop.merchant.check',
 ] as const;
 
 type Result = {
@@ -324,6 +326,41 @@ export function registerMerchantTools(
       try {
         const m = await bearer(deps, apiKey, 'webhooks:write');
         return ok({ ...(await setWebhook(deps, m.merchant_id, a)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+  reg.call(
+    server,
+    'shop.merchant.check',
+    {
+      title: 'Check the connection',
+      description:
+        'Connection check for your merchant (any valid key): storefront initialize, tools/list = 6, a quote for the test SKU (voided at once, no payment), a signed webhook ping, and whether a PAID test order exists. Returns status connected|incomplete with per-step status ok|fail|skipped and a code; the public twin (statuses and codes only) is public_url.',
+      inputSchema: {},
+      outputSchema: {
+        status: z.enum(['connected', 'incomplete']),
+        steps: z.array(
+          z.object({
+            name: z.string(),
+            status: z.enum(['ok', 'fail', 'skipped']),
+            code: z.string().optional(),
+            detail: z.string().optional(),
+          }),
+        ),
+        payment_verified: z.boolean(),
+        public_url: z.string(),
+        mcp_url: z.string(),
+        suggested_action: z.string().optional(),
+        documentation_url: z.string().optional(),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: true },
+    },
+    async () => {
+      try {
+        const m = await bearer(deps, apiKey);
+        return ok({ ...(await runCheck(deps, m.merchant_id)) });
       } catch (err) {
         return fail(err, requestId);
       }

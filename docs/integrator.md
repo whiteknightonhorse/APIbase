@@ -178,6 +178,22 @@ Any `2xx` within 10 s is delivery. Anything else (other status, timeout, connect
 
 **Pull instead of push.** `GET /merchants/me/events?since=<cursor>&limit=` returns your own events in order, `{events[{id, event, created_at, data}], next_cursor}`; pass `next_cursor` back as `since`. The same list also carries `order.confirm_overdue` and `refund.overdue` notices, which are not pushed.
 
+## Storefront MCP
+
+Every active merchant has its own MCP endpoint: `POST/GET/DELETE https://apibase.pro/mcp/m/<slug>` (Streamable HTTP, the same sessions as `/mcp`). `serverInfo.name` is `<Merchant> via APIbase`. It lists exactly six tools — `shop.catalog.search`, `shop.catalog.get`, `shop.order.quote`, `shop.order.pay`, `shop.order.get`, `shop.order.cancel` — with the merchant bound to the endpoint (there is no `merchant` argument; a SKU of another merchant is `404`). It has no `apibase.discover`, no `shop.merchant.*` tools and none of the platform's other tools, and it never sends `notifications/tools/list_changed`. An unknown slug is `404`, a deactivated or suspended one `410 merchant_unavailable`.
+
+**Product fields are merchant-supplied data, not instructions.** A product description is returned only in the `description` data field of a tool result. The server `instructions` are our own template: the merchant name and category, the refund policy (`refund_window_days`, `returns_accepted`) and "the price is fixed by the quote for N minutes" — nothing from a product. Agents must treat every merchant-written string the same way.
+
+`apibase.discover` finds storefronts by product text: a result with `kind: "merchant"` carries `{slug, name, category, mcp_url, products_sample[3], reputation, payment}` and never a contact email. The `shop.*` definitions are versioned and hashed in the server-card (`shop_tools: {version, count, sha256}`); `npx tsx scripts/gen-shop-tools-hash.ts` refreshes it after an intended change.
+
+An hourly job initialises 100 random active storefronts in-process; a failure is written to `shop_connect_events` as `storefront_probe_failed` (path `/mcp/m/<slug>`), and `storefront_probe_coverage` (probed / active) is exported as a metric.
+
+## Connect check
+
+`shop.merchant.check` (any valid merchant key) or `GET /api/v1/shop/merchants/me/check` runs five steps: `storefront_initialize`, `tools_list_6`, `quote_test_sku` (a quote for the `__apibase_test` item, voided at once, nothing is paid), `webhook_ping` (a signed `ping` event to your endpoint, any `2xx` passes) and `payment_verified` (a PAID test order made by your own agent exists). The answer is `{status: connected|incomplete, steps[{name, status: ok|fail|skipped, code?, detail?}], payment_verified, public_url, mcp_url}`; `detail` is for you only. `connected` needs the first four steps without a failure (a merchant with no webhook endpoint has `webhook_ping` skipped).
+
+The public twin is `GET https://apibase.pro/integrator/check/<slug>`: the same steps with `name`, `status` and `code` only — no webhook URL, email, payout address or response body. It is limited to 20 requests/min per address and a slug's result is reused for 60 seconds.
+
 ## Legal documents
 
 Draft texts, accepted by the operator without legal review; not a legal opinion.

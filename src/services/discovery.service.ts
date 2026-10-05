@@ -14,6 +14,8 @@ import { toolSchemas } from '../schemas/index';
 import { extractKeywords, scoreTool } from '../mcp/keyword-match';
 import { getToolCacheEntries } from '../pipeline/stages/tool-status.stage';
 import type { McpToolDefinition } from '../mcp/types';
+import type { ShopTx } from '../shop/db';
+import { PUBLIC_BASE } from '../shop/storefront/storefront.service';
 
 /**
  * Discovery service (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1).
@@ -36,7 +38,7 @@ import type { McpToolDefinition } from '../mcp/types';
 // QUALITY_METHOD uses. Not exported — DiscoverResponse.taxonomy_version is the public surface;
 // re-export this if a future consumer (e.g. a sync-counts.sh check) needs to compare against it
 // directly.
-const TAXONOMY_VERSION = '2026-09-15';
+const TAXONOMY_VERSION = '2026-10-05'; // 2026-10-05: results gained kind 'merchant' (storefronts)
 
 const DEFAULT_LIMIT = 10;
 const MAX_LIMIT = 50;
@@ -124,7 +126,8 @@ export interface DiscoverRelated {
   reason: string;
 }
 
-export interface DiscoverResult {
+export interface ToolDiscoverResult {
+  kind: 'tool';
   tool_id: string;
   mcp_name: string;
   title: string;
@@ -139,6 +142,23 @@ export interface DiscoverResult {
   input_required: string[];
   related: DiscoverRelated[];
 }
+
+/**
+ * F-3: a merchant storefront found by product full-text search. No `contact_email` (or any
+ * contact / payout field) exists on this type, so it cannot leak through discovery.
+ */
+export interface MerchantDiscoverResult {
+  kind: 'merchant';
+  slug: string;
+  name: string;
+  category: string;
+  mcp_url: string;
+  products_sample: Array<{ sku: string; title: string; price_usd: string }>;
+  reputation: Record<string, unknown>;
+  payment: { rails: string[]; x402: { network: string; asset: string } };
+}
+
+export type DiscoverResult = ToolDiscoverResult | MerchantDiscoverResult;
 
 export interface DiscoverResponse {
   query: {
@@ -318,7 +338,7 @@ function toDiscoverResult(
   c: Candidate,
   toolQuality: ToolQualityResult | null | undefined,
   providerState: ProviderState | undefined,
-): DiscoverResult {
+): ToolDiscoverResult {
   const mppCfg = getMppConfig();
   const rails = ['x402'];
   if (mppCfg.enabled) rails.push('mpp');
@@ -327,6 +347,7 @@ function toDiscoverResult(
     c.priceUsd === 0 ? 0 : Math.round(c.priceUsd * CACHE_HIT_PRICE_RATIO * 1e8) / 1e8;
 
   return {
+    kind: 'tool',
     tool_id: c.tool_id,
     mcp_name: c.def.mcpName ?? c.def.toolId,
     title: c.def.title ?? c.def.toolId,
@@ -361,10 +382,77 @@ function toDiscoverResult(
 }
 
 // ---------------------------------------------------------------------------
+// Merchant candidates (F-3): PG full-text search over shop_products of active merchants
+// ---------------------------------------------------------------------------
+
+/** At most this many storefronts are mixed into one response, after the tool matches. */
+const MAX_MERCHANT_RESULTS = 3;
+const SAMPLE_SIZE = 3;
+
+async function merchantCandidates(
+  db: ShopTx,
+  intent: string,
+  limit: number,
+): Promise<MerchantDiscoverResult[]> {
+  const found = await db.$queryRawUnsafe<
+    Array<{
+      merchant_id: string;
+      slug: string;
+      name: string;
+      category: string;
+      reputation: Record<string, unknown> | null;
+    }>
+  >(
+    `SELECT m.merchant_id, m.slug, m.name, m.category, m.reputation
+       FROM shop_merchants m
+       JOIN shop_products p ON p.merchant_id = m.merchant_id
+      WHERE m.status = 'active' AND NOT p.is_test AND p.moderation_status = 'ok'
+        AND p.search @@ plainto_tsquery('simple', $1)
+      GROUP BY m.merchant_id
+      ORDER BY max(ts_rank(p.search, plainto_tsquery('simple', $1))) DESC, m.slug
+      LIMIT $2::int`,
+    intent,
+    limit,
+  );
+  if (found.length === 0) return [];
+  const sample = await db.$queryRawUnsafe<
+    Array<{ merchant_id: string; sku: string; title: string; price_usd: string }>
+  >(
+    `SELECT merchant_id, sku, title, price_usd FROM (
+       SELECT merchant_id, sku, title, price_usd::numeric(18,2)::text AS price_usd,
+              row_number() OVER (
+                PARTITION BY merchant_id
+                ORDER BY ts_rank(search, plainto_tsquery('simple', $1)) DESC, product_id
+              ) AS rn
+         FROM shop_products
+        WHERE merchant_id = ANY($2::uuid[]) AND NOT is_test AND moderation_status = 'ok'
+     ) x WHERE rn <= $3::int ORDER BY merchant_id, rn`,
+    intent,
+    found.map((f) => f.merchant_id),
+    SAMPLE_SIZE,
+  );
+  return found.map((f) => ({
+    kind: 'merchant' as const,
+    slug: f.slug,
+    name: f.name,
+    category: f.category,
+    mcp_url: `${PUBLIC_BASE}/mcp/m/${f.slug}`,
+    products_sample: sample
+      .filter((r) => r.merchant_id === f.merchant_id)
+      .map(({ sku, title, price_usd }) => ({ sku, title, price_usd })),
+    reputation: f.reputation ?? {},
+    payment: { rails: ['x402'], x402: { network: config.X402_NETWORK, asset: 'USDC' } },
+  }));
+}
+
+// ---------------------------------------------------------------------------
 // discover()
 // ---------------------------------------------------------------------------
 
-export async function discover(raw: DiscoverQueryInput): Promise<DiscoverResponse> {
+export async function discover(
+  raw: DiscoverQueryInput,
+  opts: { shopDb?: ShopTx } = {},
+): Promise<DiscoverResponse> {
   const q = normalize(raw);
 
   // ZZ-03-05 ruling-2 §5: candidates come from the in-memory tool cache (60s-refreshed,
@@ -445,16 +533,33 @@ export async function discover(raw: DiscoverQueryInput): Promise<DiscoverRespons
     return a.tool_id < b.tool_id ? -1 : a.tool_id > b.tool_id ? 1 : 0;
   });
 
-  const totalMatches = candidates.length;
-  const sliced = candidates.slice(0, q.limit);
+  // Storefronts (F-3): only for a text intent; a DB outage just means no merchant results.
+  let merchants: MerchantDiscoverResult[] = [];
+  if (q.intent && !q.category && q.max_price_usd === undefined) {
+    try {
+      merchants = await merchantCandidates(
+        opts.shopDb ?? (getPrisma() as unknown as ShopTx),
+        q.intent,
+        Math.min(MAX_MERCHANT_RESULTS, q.limit),
+      );
+    } catch {
+      merchants = [];
+    }
+  }
+
+  const totalMatches = candidates.length + merchants.length;
+  const sliced = candidates.slice(0, q.limit - merchants.length);
 
   const providerNames = Array.from(new Set(sliced.map((c) => c.provider)));
   const allProviderState = await getProviderStateMap();
   const providerStateMap = buildProviderStateMap(providerNames, allProviderState);
 
-  const results = sliced.map((c) =>
-    toDiscoverResult(c, qualityMap[c.tool_id], providerStateMap.get(c.provider)),
-  );
+  const results: DiscoverResult[] = [
+    ...sliced.map((c) =>
+      toDiscoverResult(c, qualityMap[c.tool_id], providerStateMap.get(c.provider)),
+    ),
+    ...merchants,
+  ];
 
   return {
     query: {

@@ -155,6 +155,13 @@ export const mcpSessionsActive = new client.Gauge({
   registers: [register],
 });
 
+/** §14: share of active merchant storefronts the hourly probe reached (sample of 100 / active). */
+export const storefrontProbeCoverage = new client.Gauge({
+  name: 'storefront_probe_coverage',
+  help: 'Fraction of active merchant storefronts covered by the last hourly probe (0..1)',
+  registers: [register],
+});
+
 // ---------------------------------------------------------------------------
 // x402 self-hosted facilitator metrics (X402_FACILITATOR_MODE=local)
 // ---------------------------------------------------------------------------

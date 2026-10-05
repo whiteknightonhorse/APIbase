@@ -63,6 +63,20 @@ function main() {
     },
   ];
 
+  // INT-16 (§8.3 p.5): version + sha256 of the shop.* tool definitions. Computing it needs the
+  // whole app config, which this cron-run script does not have, so it is carried over from the
+  // previous card; `scripts/gen-shop-tools-hash.ts` (and the SF10 test) keep it in step.
+  let shop_tools: unknown;
+  try {
+    shop_tools = (
+      JSON.parse(readFileSync('static/.well-known/mcp/server-card.json', 'utf8')) as {
+        shop_tools?: unknown;
+      }
+    ).shop_tools;
+  } catch {
+    shop_tools = undefined;
+  }
+
   const card = {
     serverInfo: {
       name: 'APIbase — The API Hub for AI Agents',
@@ -74,6 +88,7 @@ function main() {
     capabilities: { tools: true, prompts: true, resources: false },
     authentication: { required: false },
     hasTools: false,
+    ...(shop_tools ? { shop_tools } : {}),
     prompts,
     resources: [
       {

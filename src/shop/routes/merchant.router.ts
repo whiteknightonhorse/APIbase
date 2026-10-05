@@ -16,6 +16,7 @@ import {
   confirmMerchantOrder,
   listMerchantOrders,
 } from '../order-lifecycle.service';
+import { runCheck } from '../check.service';
 import { listEvents, setWebhook } from '../webhook/webhook.service';
 import {
   acceptTerms,
@@ -239,6 +240,19 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(await setWebhook(deps, req.merchant?.merchant_id ?? '', req.body ?? {}));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // F-17: the full connection report (details included) for the key holder.
+  router.get(
+    '/api/v1/shop/merchants/me/check',
+    requireMerchantKey([], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await runCheck(deps, req.merchant?.merchant_id ?? ''));
       } catch (err) {
         send(res, err);
       }

@@ -62,7 +62,15 @@ jest.mock('../../src/config/mpp.config', () => ({
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
-import { discover, __resetProviderStateCacheForTest } from '../../src/services/discovery.service';
+import {
+  discover,
+  __resetProviderStateCacheForTest,
+  type DiscoverResponse,
+  type ToolDiscoverResult,
+} from '../../src/services/discovery.service';
+
+/** These suites seed tools only: every result is a tool (storefront results are INT-16's). */
+const tools = (r: DiscoverResponse) => r.results as ToolDiscoverResult[];
 import {
   __setToolCacheEntryForTest,
   __clearToolCacheForTest,
@@ -141,7 +149,7 @@ describe('ZZ-03-05 ruling-2 §5: candidates come from the in-memory tool cache, 
 
     const resp = await discover({ limit: 50 });
 
-    expect(resp.results.map((r) => r.tool_id)).toEqual([TOOL_DEFINITIONS[0].toolId]);
+    expect(tools(resp).map((r) => r.tool_id)).toEqual([TOOL_DEFINITIONS[0].toolId]);
     expect(toolFindManyMock).not.toHaveBeenCalled();
   });
 });
@@ -155,13 +163,13 @@ describe('ZZ-03-05 acceptance (a): no_data quality never serializes a fabricated
     const resp = await discover({});
 
     expect(resp.results).toHaveLength(1);
-    expect(resp.results[0].quality).toEqual({
+    expect(tools(resp)[0].quality).toEqual({
       status: 'no_data',
       window_h: 24,
       provider_reliability_score: null,
     });
     // No uptime_pct/p50_ms/p95_ms/error_rate/total_calls/last_updated sneaking in.
-    expect(Object.keys(resp.results[0].quality).sort()).toEqual([
+    expect(Object.keys(tools(resp)[0].quality).sort()).toEqual([
       'provider_reliability_score',
       'status',
       'window_h',
@@ -177,7 +185,7 @@ describe('ZZ-03-05 acceptance (b): unavailable excluded by default, included whe
 
     const resp = await discover({ limit: 50 });
 
-    expect(resp.results.map((r) => r.tool_id)).toEqual([healthy.toolId]);
+    expect(tools(resp).map((r) => r.tool_id)).toEqual([healthy.toolId]);
     expect(toolFindManyMock).not.toHaveBeenCalled();
   });
 
@@ -188,7 +196,7 @@ describe('ZZ-03-05 acceptance (b): unavailable excluded by default, included whe
     const resp = await discover({ include_unavailable: true });
 
     expect(resp.results).toHaveLength(1);
-    expect(resp.results[0].availability.tool_status).toBe('unavailable');
+    expect(tools(resp)[0].availability.tool_status).toBe('unavailable');
   });
 });
 
@@ -224,7 +232,7 @@ describe('ZZ-03-05 acceptance (c): category is the same source everywhere, for 5
 
       expect(resp.results).toHaveLength(1);
       expect(d.category).toBeDefined();
-      expect(resp.results[0].category).toBe(d.category);
+      expect(tools(resp)[0].category).toBe(d.category);
       expect(publishedCategories.has(d.category as string)).toBe(true);
     },
   );
@@ -239,7 +247,7 @@ describe('ZZ-03-05 acceptance (d): result order is stable between two identical 
     const first = await discover({ limit: 10 });
     const second = await discover({ limit: 10 });
 
-    expect(first.results.map((r) => r.tool_id)).toEqual(second.results.map((r) => r.tool_id));
+    expect(tools(first).map((r) => r.tool_id)).toEqual(tools(second).map((r) => r.tool_id));
     // Not a degenerate single-element check.
     expect(first.results.length).toBeGreaterThan(1);
   });

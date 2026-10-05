@@ -16,6 +16,7 @@ import {
 } from '../jobs/shop-payment-reconcile.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
+import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -275,6 +276,12 @@ const shopDomainVerifyTask = cron.schedule('30 4 * * *', () => {
     logger.error({ err, job: 'shop-domain-verify' }, 'domain verify job failed'),
   );
 });
+// Storefront probe (INT-16, §14): 100 random active /mcp/m/<slug> initialised in-process, hourly.
+const shopStorefrontProbeTask = cron.schedule('7 * * * *', () => {
+  runShopStorefrontProbe().catch((err) =>
+    logger.error({ err, job: 'shop-storefront-probe' }, 'storefront probe job failed'),
+  );
+});
 const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
   runShopPaymentSample().catch((err) =>
     logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
@@ -335,6 +342,7 @@ function shutdown(signal: string): void {
   shopReconcileTask.stop();
   shopSweeperTask.stop();
   shopDomainVerifyTask.stop();
+  shopStorefrontProbeTask.stop();
   shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {

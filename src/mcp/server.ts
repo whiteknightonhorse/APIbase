@@ -31,6 +31,9 @@ import { registerPrompts } from './prompt-adapter';
 import { registerCatalogTools } from '../shop/tools/catalog.tools';
 import { registerOrderTools } from '../shop/tools/order.tools';
 import { registerMerchantTools } from '../shop/tools/merchant.tools';
+import { createMerchantMcpServer, loadStorefront } from '../shop/merchant-mcp-server';
+import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
+import { StorefrontError } from '../shop/storefront/storefront.service';
 
 // ---------------------------------------------------------------------------
 // Session state
@@ -41,6 +44,9 @@ const sessions = new Map<string, SSEServerTransport | StreamableHTTPServerTransp
 
 /** Per-session payment context ref — updated on each HTTP request, read by tool callbacks */
 const sessionPaymentCtx = new Map<string, PaymentContext>();
+
+/** Sessions opened on a merchant storefront (`/mcp/m/:slug`): sessionId → slug. A session works on its own slug only. */
+const sessionSlug = new Map<string, string>();
 
 /** Last activity timestamp per session for idle eviction */
 const sessionLastActivity = new Map<string, number>();
@@ -60,6 +66,7 @@ function removeSession(sessionId: string): void {
   sessions.delete(sessionId);
   sessionLastActivity.delete(sessionId);
   sessionPaymentCtx.delete(sessionId);
+  sessionSlug.delete(sessionId);
   mcpSessionsActive.set(sessions.size);
 }
 
@@ -97,6 +104,7 @@ export async function shutdownMcpSessions(): Promise<void> {
     logger.info({ session_id: sid }, 'MCP session closed (shutdown)');
   }
   sessions.clear();
+  sessionSlug.clear();
   sessionLastActivity.clear();
   mcpSessionsActive.set(0);
 }
@@ -235,6 +243,73 @@ function extractApiKey(req: express.Request): string | null {
 }
 
 /**
+ * Open a new Streamable HTTP session for an `initialize` request and hand the request to it.
+ * Shared by `/mcp` (slug undefined, the full server) and `/mcp/m/:slug` (one merchant storefront).
+ */
+async function openStreamableSession(
+  req: express.Request,
+  res: express.Response,
+  slug: string | undefined,
+  build: (apiKey: string, requestId: string, ctx: PaymentContext) => McpServer,
+): Promise<void> {
+  // Session cap check
+  if (sessions.size >= MAX_SESSIONS) {
+    res.status(503).json({
+      jsonrpc: '2.0',
+      error: { code: -32000, message: 'Too many active sessions' },
+      id: null,
+    });
+    return;
+  }
+
+  // No hard-401 here: an absent/invalid key is not actually checked against
+  // anything at this point — it is only captured to be replayed as an
+  // `authorization` header on each tool call (tool-adapter.ts), where the
+  // pipeline's AUTH stage validates it and returns a normal JSON-RPC tool
+  // error for a bad key (see e.g. "Invalid API key format"). Rejecting the
+  // handshake itself here breaks unauthenticated discovery (tools/list,
+  // prompts/list, apibase.discover), which this server's own `instructions`
+  // field advertises as free — and it makes mcp-proxy (used by Glama's
+  // health check, among others) fail before it ever opens its listening
+  // port, since mcp-proxy performs this same initialize handshake against
+  // the spawned server before serving any client.
+  const apiKey = extractApiKey(req) ?? '';
+
+  const requestId = (req.headers[X_REQUEST_ID] as string) || randomUUID();
+
+  // Create mutable payment context ref — updated per-request, read by tool callbacks
+  const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
+
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: () => randomUUID(),
+    onsessioninitialized: (sid: string) => {
+      sessions.set(sid, transport);
+      if (slug) sessionSlug.set(sid, slug);
+      sessionPaymentCtx.set(sid, paymentCtxRef);
+      touchSession(sid);
+      mcpSessionsActive.set(sessions.size);
+      logger.info(
+        { request_id: requestId, session_id: sid },
+        slug ? 'MCP storefront session created' : 'MCP Streamable HTTP session created',
+      );
+    },
+    onsessionclosed: (sid: string) => {
+      removeSession(sid);
+      logger.info({ request_id: requestId, session_id: sid }, 'MCP Streamable HTTP session closed');
+    },
+  });
+
+  transport.onerror = (error: Error) => {
+    logger.error({ request_id: requestId, err: error }, 'MCP Streamable HTTP transport error');
+  };
+
+  const mcpServer = build(apiKey, requestId, paymentCtxRef);
+  await mcpServer.connect(transport);
+
+  await transport.handleRequest(req, res, req.body);
+}
+
+/**
  * Create Express router for MCP endpoints.
  *
  * Streamable HTTP (primary):
@@ -246,7 +321,7 @@ function extractApiKey(req: express.Request): string | null {
  *   GET  /sse      — SSE stream
  *   POST /messages — JSON-RPC messages
  */
-export function createMcpRouter(): express.Router {
+export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Router {
   const router = express.Router();
 
   // =========================================================================
@@ -296,63 +371,10 @@ export function createMcpRouter(): express.Router {
         return;
       }
 
-      // Session cap check
-      if (sessions.size >= MAX_SESSIONS) {
-        res.status(503).json({
-          jsonrpc: '2.0',
-          error: { code: -32000, message: 'Too many active sessions' },
-          id: null,
-        });
-        return;
-      }
-
-      // No hard-401 here: an absent/invalid key is not actually checked against
-      // anything at this point — it is only captured to be replayed as an
-      // `authorization` header on each tool call (tool-adapter.ts), where the
-      // pipeline's AUTH stage validates it and returns a normal JSON-RPC tool
-      // error for a bad key (see e.g. "Invalid API key format"). Rejecting the
-      // handshake itself here breaks unauthenticated discovery (tools/list,
-      // prompts/list, apibase.discover), which this server's own `instructions`
-      // field advertises as free — and it makes mcp-proxy (used by Glama's
-      // health check, among others) fail before it ever opens its listening
-      // port, since mcp-proxy performs this same initialize handshake against
-      // the spawned server before serving any client.
-      const apiKey = extractApiKey(req) ?? '';
-
-      const requestId = (req.headers[X_REQUEST_ID] as string) || randomUUID();
-
-      // Create mutable payment context ref — updated per-request, read by tool callbacks
-      const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
-
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => randomUUID(),
-        onsessioninitialized: (sid: string) => {
-          sessions.set(sid, transport);
-          sessionPaymentCtx.set(sid, paymentCtxRef);
-          touchSession(sid);
-          mcpSessionsActive.set(sessions.size);
-          logger.info(
-            { request_id: requestId, session_id: sid },
-            'MCP Streamable HTTP session created',
-          );
-        },
-        onsessionclosed: (sid: string) => {
-          removeSession(sid);
-          logger.info(
-            { request_id: requestId, session_id: sid },
-            'MCP Streamable HTTP session closed',
-          );
-        },
-      });
-
-      transport.onerror = (error: Error) => {
-        logger.error({ request_id: requestId, err: error }, 'MCP Streamable HTTP transport error');
-      };
-
-      const mcpServer = createMcpServer(apiKey, requestId, paymentCtxRef);
-      await mcpServer.connect(transport);
-
-      await transport.handleRequest(req, res, req.body);
+      await openStreamableSession(req, res, undefined, (apiKey, requestId, ctx) =>
+        createMcpServer(apiKey, requestId, ctx),
+      );
+      return;
     } catch (error) {
       logger.error({ err: error }, 'MCP Streamable HTTP POST error');
       if (!res.headersSent) {
@@ -419,6 +441,113 @@ export function createMcpRouter(): express.Router {
       removeSession(sessionId);
     } catch (error) {
       logger.error({ err: error }, 'MCP Streamable HTTP DELETE error');
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'internal_error', message: 'MCP session close failed' });
+      }
+    }
+  });
+
+  // =========================================================================
+  // Merchant storefront — /mcp/m/:slug (F-3): six buyer tools bound to one merchant
+  // =========================================================================
+
+  const shopDeps = (): ShopDeps => opts.shopDeps ?? defaultShopDeps();
+
+  /** Merchant of the slug, or the 404 / 410 answer already sent (then undefined). */
+  const storefrontOr404 = async (req: express.Request, res: express.Response) => {
+    try {
+      return await loadStorefront(shopDeps().db, req.params.slug);
+    } catch (err) {
+      if (err instanceof StorefrontError) {
+        res
+          .status(err.status)
+          .json(
+            err.status === 410
+              ? { error: 'merchant_unavailable', message: err.message }
+              : { error: 'not_found', message: err.message },
+          );
+        return undefined;
+      }
+      throw err;
+    }
+  };
+
+  /** The session of this slug, or the "Session not found" answer already sent. */
+  const storefrontSession = (req: express.Request, res: express.Response) => {
+    const sid = req.headers['mcp-session-id'] as string | undefined;
+    const transport = sid ? sessions.get(sid) : undefined;
+    if (
+      !sid ||
+      !(transport instanceof StreamableHTTPServerTransport) ||
+      sessionSlug.get(sid) !== req.params.slug
+    ) {
+      res.status(404).json({
+        jsonrpc: '2.0',
+        error: { code: -32000, message: 'Session not found' },
+        id: null,
+      });
+      return undefined;
+    }
+    touchSession(sid);
+    return { sid, transport };
+  };
+
+  router.post('/mcp/m/:slug', async (req: express.Request, res: express.Response) => {
+    try {
+      const merchant = await storefrontOr404(req, res);
+      if (!merchant) return;
+      if (req.headers['mcp-session-id']) {
+        const s = storefrontSession(req, res);
+        if (!s) return;
+        const payCtx = sessionPaymentCtx.get(s.sid);
+        if (payCtx) Object.assign(payCtx, extractPaymentFromReq(req));
+        await s.transport.handleRequest(req, res, req.body);
+        return;
+      }
+      if (!isInitializeRequest(req.body)) {
+        res.status(400).json({
+          jsonrpc: '2.0',
+          error: {
+            code: -32600,
+            message: 'Bad Request: first request must be an initialize request',
+          },
+          id: null,
+        });
+        return;
+      }
+      await openStreamableSession(req, res, merchant.slug, (apiKey, requestId, ctx) =>
+        createMerchantMcpServer(merchant, apiKey, requestId, ctx, shopDeps()),
+      );
+    } catch (error) {
+      logger.error({ err: error }, 'MCP storefront POST error');
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'internal_error', message: 'MCP request handling failed' });
+      }
+    }
+  });
+
+  router.get('/mcp/m/:slug', async (req: express.Request, res: express.Response) => {
+    try {
+      if (!(await storefrontOr404(req, res))) return;
+      const s = storefrontSession(req, res);
+      if (s) await s.transport.handleRequest(req, res);
+    } catch (error) {
+      logger.error({ err: error }, 'MCP storefront GET error');
+      if (!res.headersSent) {
+        res.status(500).json({ error: 'internal_error', message: 'MCP SSE subscription failed' });
+      }
+    }
+  });
+
+  router.delete('/mcp/m/:slug', async (req: express.Request, res: express.Response) => {
+    try {
+      if (!(await storefrontOr404(req, res))) return;
+      const s = storefrontSession(req, res);
+      if (!s) return;
+      await s.transport.handleRequest(req, res);
+      removeSession(s.sid);
+    } catch (error) {
+      logger.error({ err: error }, 'MCP storefront DELETE error');
       if (!res.headersSent) {
         res.status(500).json({ error: 'internal_error', message: 'MCP session close failed' });
       }

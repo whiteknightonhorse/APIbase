@@ -43,6 +43,7 @@ describe('discover_tools prompt wraps discovery.service.ts discover()', () => {
       capability: null,
       results: [
         {
+          kind: 'tool',
           tool_id: def.toolId,
           mcp_name: def.mcpName ?? def.toolId,
           title: def.title ?? def.toolId,

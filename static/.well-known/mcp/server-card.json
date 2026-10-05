@@ -17,6 +17,11 @@
     "required": false
   },
   "hasTools": false,
+  "shop_tools": {
+    "version": "1",
+    "count": 17,
+    "sha256": "777a9f37ddd490fd21d31336cb5fd046a3894b67595807a3575fbd6527c71e17"
+  },
   "prompts": [
     {
       "name": "discover-tools",
