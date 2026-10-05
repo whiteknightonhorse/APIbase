@@ -48,6 +48,13 @@ export const SuggestedActionByStatus: Record<number, SuggestedAction> = {
   504: 'retry_after_delay',
 };
 
+/** A concrete alternative offered with an error (F-15), e.g. allowed categories after a refusal. */
+export interface Alternative {
+  kind: string;
+  value: string;
+  documentation_url?: string;
+}
+
 /** Standard error response body (§12.243). Enhanced for AI agent consumption. */
 export interface ApiErrorResponse {
   error: ErrorCodeValue;
@@ -57,6 +64,7 @@ export interface ApiErrorResponse {
   suggested_action: SuggestedAction;
   documentation_url: string;
   retry_after?: number;
+  alternatives?: Alternative[];
   price_usd?: string;
   payment_address?: string;
   price_version?: number;

@@ -6,9 +6,9 @@ import {
 } from '../../types/provider';
 import type { SdnCsvRow, AltCsvRow, OfacSdnMatch, OfacAlias, OfacProgram } from './types';
 
-const SDN_CSV_URL =
+export const SDN_CSV_URL =
   'https://sanctionslistservice.ofac.treas.gov/api/publicationpreview/exports/sdn.csv';
-const ALT_CSV_URL =
+export const ALT_CSV_URL =
   'https://sanctionslistservice.ofac.treas.gov/api/publicationpreview/exports/alt.csv';
 
 const NULL_VAL = /^-0-\s*$/;
@@ -18,7 +18,7 @@ function normalise(v: string): string {
 }
 
 /** Parse OFAC CSV (no header row, comma-separated, values may be quoted). */
-function parseOfacCsv(text: string): string[][] {
+export function parseOfacCsv(text: string): string[][] {
   const rows: string[][] = [];
   for (const line of text.split('\n')) {
     if (!line.trim()) continue;
@@ -42,7 +42,7 @@ function parseOfacCsv(text: string): string[][] {
   return rows;
 }
 
-function rowToSdn(f: string[]): SdnCsvRow {
+export function rowToSdn(f: string[]): SdnCsvRow {
   return {
     ent_num: parseInt(f[0] ?? '0', 10),
     sdn_name: f[1] ?? '',
@@ -59,7 +59,7 @@ function rowToSdn(f: string[]): SdnCsvRow {
   };
 }
 
-function rowToAlt(f: string[]): AltCsvRow {
+export function rowToAlt(f: string[]): AltCsvRow {
   return {
     ent_num: parseInt(f[0] ?? '0', 10),
     alt_num: parseInt(f[1] ?? '0', 10),

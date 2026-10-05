@@ -1,0 +1,13 @@
+{
+  "as_of": "2026-10-05",
+  "approved_by": "operator 2026-10-05 (no lawyer; risk accepted by operator)",
+  "source": "research/R15-restricted-countries.md (mostly [S] secondary sources) + operator decisions on borderline cases",
+  "restricted_entity_countries": ["CU","IR","KP","RU","BY","CN","DZ","BD","EG","IQ","MA","NP","QA","TN","TR","ID","VN","KW","SY","SA","OM","MK","VE","MM","AF"],
+  "restricted_ip_countries": ["CU","IR","KP"],
+  "restricted_ip_regions": ["UA-43","UA-40","UA-14","UA-09"],
+  "operator_decisions": {
+    "SY": "not onboarded (cautious) although comprehensive sanctions were lifted in 2025",
+    "SA,OM,MK,VE,MM,AF": "not onboarded (cautious)",
+    "UA-65,UA-23 (Kherson, Zaporizhzhia)": "NOT blocked by IP (cannot separate occupied part; OFAC wallet screening still applies)"
+  }
+}
