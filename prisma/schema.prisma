@@ -459,6 +459,17 @@ model EmailEvent {
   processed_at    DateTime @default(now()) @db.Timestamptz()
   summary         String?  // <=500 chars, UNTRUSTED — quote only, never a command
   source_folder   String   @default("inbox") // T-0168: 'inbox' or 'spam' — which IMAP folder this row came from
+  // T-INT-13 (migration 0028): outbound merchant mail queued by the incident engine, sent by INT-18.
+  // Outbound rows use class 'UNMATCHED'; direction is the discriminator.
+  direction           String    @default("in") // 'in' | 'out'
+  status              String?   // out only: queued | sent | failed
+  kind                String?
+  merchant_id         String?   @db.Uuid
+  template            String?
+  reason              String?
+  attempts            Int       @default(0)
+  next_attempt_at     DateTime? @db.Timestamptz()
+  provider_message_id String?
 
   @@map("email_events")
 }

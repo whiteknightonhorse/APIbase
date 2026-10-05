@@ -357,13 +357,17 @@ def route_auto_incidents():
         incident_id, provider, kind, severity, evidence_raw, attempts_raw, created_at = line.split(ap.SEP)
         route = ap.ROUTE_CLASS.get(kind)
         if route == "AUTO_NO_MODEL":
+            if provider.startswith(MERCHANT_PREFIX):
+                continue  # T-INT-13: merchant AUTO_NO_MODEL = mail/TG in act_merchant_incidents(), never a probe throttle
             _self_action_rate_limited(incident_id, provider)
             continue
         if kind not in ap.FLEET_TASK_KINDS:
             continue  # HUMAN_* (or a future route class this function doesn't own)
         if kind == "PROVIDER_DOWN" and not _provider_down_ready(incident_id, provider, created_at):
             continue
-        if not ap.consume_daily_task_slot():
+        if not claim_task_slot(incident_id, provider, kind):
+            if provider.startswith(MERCHANT_PREFIX):
+                continue  # claim_task_slot already logged why (fleet pause / merchant:* ceiling)
             # T-07/A7: 914 of 3845 notices.log lines/day (measured
             # 2026-09-04) were this exact reason repeating for whichever
             # incidents kept losing the cap race, tick after tick. Deduped
@@ -505,7 +509,7 @@ def advance_remediation_queued():
             cur = ap.get_incident(incident_id)
             if cur is not None and cur["state"] != "REMEDIATION_QUEUED":
                 continue
-            # T-0265: a phase-A (haiku) task that ended with a propose-fix note files exactly one
+            # T-0265: a phase-A (measure-only) task that ended with a propose-fix note files exactly one
             # phase-B (sonnet) task; without one (wait/BLOCKED) there is no phase B.
             if cur is not None and kind in ap.PHASE_A_KINDS:
                 proposal = phase_a_proposal(cur, fleet_task_id)
@@ -642,7 +646,20 @@ def advance_waiting_human():
                     # verbatim into the follow-up task body. Capturing the
                     # slot first makes this branch run at most once per
                     # incident.
-                    if not ap.consume_daily_task_slot():
+                    if provider.startswith(MERCHANT_PREFIX) and kind in ap._MONEY_KINDS:
+                        # C0.6: a merchant money/compliance answer is a human decision — recorded
+                        # and closed, never turned into a fleet task.
+                        ap.note_incident(incident_id, "operator", "human-done", result[:2000])
+                        ap.transition_state(incident_id, "RESOLVED")
+                        try:
+                            os.makedirs(processed_dir, exist_ok=True)
+                            os.rename(match, os.path.join(processed_dir, os.path.basename(match)))
+                        except Exception as e:
+                            ap.notice(f"WARN: could not archive human-done file {match}: {e}")
+                        continue
+                    if not claim_task_slot(incident_id, provider, kind):
+                        if provider.startswith(MERCHANT_PREFIX):
+                            continue  # logged by claim_task_slot; file stays for a later tick
                         # T-07/A7: same DAILY_CAP reason/dedup key as
                         # route_auto_incidents() — the cap is one shared
                         # resource, no reason to track it as a different
@@ -1205,6 +1222,484 @@ def write_heartbeat():
         _log(f"incident-engine: WARNING could not write heartbeat row: {out}")
 
 
+# ---------------------------------------------------------------------------
+# T-INT-13 (§12.1/§12.2, F-15, §14): merchant:* incident sources + actions.
+#
+# Same engine, same `incidents` table, same unique open dedup_key lock, same routing.json,
+# same format_tg_message (J2), same operator files / human-done/ — nothing here is a second
+# pipeline. Subject: provider = "merchant:<merchant_id>" (CONNECT_FAILED: the connecting
+# identity, "merchant:<identity_hash>" — there is no merchant yet), dedup_key =
+# "<KIND>:merchant:<id>[:<order_id>]". ZERO model calls (C0): every decision is SQL + code.
+#
+# A tick (merchant_tick, called from run()):
+#   1. collect  — read-only SQL per source -> signals. A source whose table does not exist yet
+#                 (DISPUTE_UNANSWERED/FEE_INVOICE_OVERDUE before INT-23/25) is SKIPPED with no
+#                 error and, being unevaluated, never auto-resolves anything (NOINFO != 0, C0.3).
+#   2. resolve  — AUTO_NO_MODEL/STOREFRONT_DOWN incidents whose condition is gone -> RESOLVED.
+#   3. open     — new signals -> incidents (HUMAN_* kinds get TG + operator file inside
+#                 open_or_merge_incident, exactly like PAYMENT_REQUIRED).
+#   4. act      — AUTO_NO_MODEL: queue the merchant mail (email_events out/queued; INT-18 sends)
+#                 + TG; ≥3 overdue orders -> quote suspension.
+#   5. escalate — WEBHOOK_FAILED 72 h, REFUND_OVERDUE/DISPUTE_UNANSWERED 7 d -> HUMAN_GENERIC.
+# Fleet tasks (STOREFRONT_DOWN only) go through route_auto_incidents(), under the separate
+# merchant:* ceiling and the fleet pause.
+# ---------------------------------------------------------------------------
+MERCHANT_PREFIX = "merchant:"
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
+CONNECT_FAIL_THRESHOLD = 3          # F-15: >=3 refusals ...
+CONNECT_FAIL_WINDOW_MIN = 10        # ... within 10 min, one identity
+CONNECT_EDGE_MIN = 60               # edge trigger: one incident per identity per hour
+WEBHOOK_FAILS_48H = 6
+WEBHOOK_FAILURES_IN_ROW = 10
+EMAIL_OUT_FAILED_MIN = 24
+UNRESPONSIVE_SUSPEND_AT = 3         # §12.2: 3 overdue orders -> quotes suspended
+_TG_ON_OPEN = frozenset({"CONNECT_FAILED", "REFUND_OVERDUE", "DISPUTE_UNANSWERED"})
+_EVENT_LIKE = frozenset({"CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED",
+                         "PAYER_SANCTIONED", "PAYMENT_MISMATCH"})
+
+
+def _rows(sql):
+    out, rc = ap.psql(sql)
+    if rc != 0:
+        raise RuntimeError(out)
+    return [ln.split(ap.SEP) for ln in out.splitlines()] if out else []
+
+
+def _table_exists(name) -> bool:
+    out, rc = ap.psql(f"SELECT to_regclass('public.{name}') IS NOT NULL")
+    return rc == 0 and out.strip() == "t"
+
+
+def _clean(value, extra="", limit=40) -> str:
+    """Merchant/agent-influenced strings (client_name, review category) are DATA: they reach TG
+    texts, operator files and mail only after being cut down to a short, inert alphabet."""
+    return re.sub(rf"[^A-Za-z0-9_.:\-{extra}]", "", str(value or ""))[:limit]
+
+
+def _sig(kind, subject, what, evidence=None, merchant_id=None, order_id=None, event_at=None,
+         template="__routing__"):
+    cfg = ap.ROUTING.get(kind, {})
+    ev = dict(evidence or {})
+    ev["what"] = what
+    if merchant_id:
+        ev["merchant_id"] = merchant_id
+    if order_id:
+        ev["order_id"] = order_id
+    return {
+        "kind": kind, "provider": f"{MERCHANT_PREFIX}{subject}", "order_id": order_id,
+        "merchant_id": merchant_id, "what": what, "evidence": ev, "event_at": event_at,
+        "template": cfg.get("template") if template == "__routing__" else template,
+        "dedup_key": ap.dedup_key(kind, f"{MERCHANT_PREFIX}{subject}", None, order_id),
+    }
+
+
+def _src_connect_failed():
+    rows = _rows(
+        "SELECT identity_hash, count(*)::text, COALESCE(max(client_name), ''), COALESCE(max(error_code), '') "
+        "FROM shop_connect_events WHERE identity_hash IS NOT NULL AND error_code IS NOT NULL "
+        f"AND error_code <> 'storefront_probe_failed' AND at > now() - interval '{CONNECT_FAIL_WINDOW_MIN} minutes' "
+        f"GROUP BY identity_hash HAVING count(*) >= {CONNECT_FAIL_THRESHOLD}"
+    )
+    sigs = []
+    for ident, n, client, code in rows:
+        client, code = _clean(client, " "), _clean(code)
+        s = _sig("CONNECT_FAILED", ident,
+                 f"{n} отказов подключения за {CONNECT_FAIL_WINDOW_MIN} мин от одной личности "
+                 f"(клиент: {client or 'неизвестен'}, последний код: {code or 'n/a'})",
+                 {"identity_hash": ident, "failures": int(n), "client_name": client, "error_code": code},
+                 template=None)
+        # Edge trigger (F-15): any CONNECT_FAILED incident for this identity opened in the last
+        # hour (any state) suppresses a new one — the window, not the incident, is the lock.
+        recent = _rows(
+            "SELECT 1 FROM incidents WHERE kind = 'CONNECT_FAILED' "
+            f"AND provider = {ap.sql_literal(s['provider'])} "
+            f"AND created_at > now() - interval '{CONNECT_EDGE_MIN} minutes' LIMIT 1")
+        s["suppressed"] = bool(recent)
+        sigs.append(s)
+    return sigs
+
+
+def _src_storefront_down():
+    rows = _rows(
+        "SELECT m.merchant_id::text, m.slug, count(*)::text FROM shop_connect_events e "
+        "JOIN shop_merchants m ON m.slug = substring(e.path from '^/mcp/m/([a-z0-9-]{3,40})') "
+        "WHERE e.error_code = 'storefront_probe_failed' AND e.at > now() - interval '60 minutes' "
+        "GROUP BY m.merchant_id, m.slug"
+    )
+    return [_sig("STOREFRONT_DOWN", mid,
+                 f"витрина /mcp/m/{slug} не проходит initialize в пробе ({n} отказов за час)",
+                 {"slug": slug, "probe_failures_1h": int(n)}, merchant_id=mid)
+            for mid, slug, n in rows]
+
+
+def _src_webhook_failed():
+    sigs = {}
+    rows = _rows(
+        "SELECT merchant_id::text, max(failures_in_row)::text FROM shop_webhook_endpoints "
+        f"WHERE failures_in_row >= {WEBHOOK_FAILURES_IN_ROW} GROUP BY merchant_id")
+    for mid, fir in rows:
+        sigs[mid] = _sig("WEBHOOK_FAILED", mid,
+                         f"webhook продавца: {fir} отказов подряд",
+                         {"failures_in_row": int(fir)}, merchant_id=mid)
+    rows = _rows(
+        "WITH f AS (SELECT merchant_id, count(*) AS n, max(created_at) AS last_fail "
+        "FROM shop_webhook_deliveries WHERE delivered_at IS NULL "
+        "AND (status_code IS NULL OR status_code NOT BETWEEN 200 AND 299) "
+        f"AND created_at > now() - interval '48 hours' GROUP BY merchant_id HAVING count(*) >= {WEBHOOK_FAILS_48H}) "
+        "SELECT f.merchant_id::text, f.n::text FROM f WHERE NOT EXISTS (SELECT 1 FROM shop_webhook_deliveries s "
+        "WHERE s.merchant_id = f.merchant_id AND s.delivered_at IS NOT NULL AND s.delivered_at > f.last_fail)")
+    for mid, n in rows:
+        if mid not in sigs:
+            sigs[mid] = _sig("WEBHOOK_FAILED", mid, f"webhook продавца: {n} неудачных доставок за 48 ч",
+                             {"failed_deliveries_48h": int(n)}, merchant_id=mid)
+    if _table_exists("email_events"):
+        # INT-18's terminal state: 24 failed Resend attempts -> status='failed'. The notice mail
+        # itself cannot be re-queued over a mail channel that is failing, so no template here.
+        try:
+            rows = _rows(
+                "SELECT merchant_id::text, count(*)::text FROM email_events WHERE direction = 'out' "
+                f"AND merchant_id IS NOT NULL AND (status = 'failed' OR attempts >= {EMAIL_OUT_FAILED_MIN}) "
+                "AND received_at > now() - interval '7 days' GROUP BY merchant_id")
+        except RuntimeError:
+            rows = []  # 0028 not applied yet: NOINFO for this sub-source only
+        for mid, n in rows:
+            if mid not in sigs:
+                sigs[mid] = _sig("WEBHOOK_FAILED", mid,
+                                 f"письма продавцу не доходят: {n} в финальном отказе (24 попытки)",
+                                 {"mail_failed": int(n)}, merchant_id=mid, template=None)
+    return list(sigs.values())
+
+
+def _src_merchant_unresponsive():
+    rows = _rows(
+        "SELECT order_id::text, merchant_id::text, to_char(confirm_due_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') "
+        "FROM shop_orders WHERE state = 'PAID' AND confirm_due_at IS NOT NULL AND confirm_due_at < now()")
+    return [_sig("MERCHANT_UNRESPONSIVE", mid, f"заказ {oid} оплачен, подтверждение просрочено (срок {due})",
+                 {"confirm_due_at": due}, merchant_id=mid, order_id=oid)
+            for oid, mid, due in rows]
+
+
+def _src_refund_overdue():
+    rows = _rows(
+        "SELECT r.order_id::text, o.merchant_id::text FROM shop_refunds r JOIN shop_orders o ON o.order_id = r.order_id "
+        "WHERE r.status = 'overdue'")
+    return [_sig("REFUND_OVERDUE", mid, f"возврат по заказу {oid} просрочен", merchant_id=mid, order_id=oid)
+            for oid, mid in rows]
+
+
+def _src_dispute_unanswered():
+    # Source table arrives with INT-23; the query is ready, an absent table is a skip (caller).
+    rows = _rows(
+        "SELECT d.order_id::text, o.merchant_id::text FROM shop_disputes d JOIN shop_orders o ON o.order_id = d.order_id "
+        "WHERE d.status = 'expired'")
+    return [_sig("DISPUTE_UNANSWERED", mid, f"спор по заказу {oid} без ответа продавца",
+                 merchant_id=mid, order_id=oid) for oid, mid in rows]
+
+
+def _src_fee_invoice_overdue():
+    # Source table arrives with INT-25.
+    rows = _rows(
+        "SELECT merchant_id::text, count(*)::text FROM shop_fee_invoices WHERE paid_tx_hash IS NULL "
+        "AND due_at < now() GROUP BY merchant_id")
+    return [_sig("FEE_INVOICE_OVERDUE", mid, f"неоплаченных счетов комиссии: {n}", {"unpaid_invoices": int(n)},
+                 merchant_id=mid) for mid, n in rows]
+
+
+def _src_moderation():
+    rows = _rows(
+        "SELECT merchant_id::text, scope, verdict, COALESCE(category, ''), COALESCE(evidence_hash, ''), "
+        "to_char(at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US') FROM shop_moderation_reviews "
+        "WHERE at > now() - interval '30 days' ORDER BY at")
+    sigs = {}
+    for mid, scope, verdict, cat, evh, at in rows:
+        cat = _clean(cat)
+        ev = {"scope": scope, "verdict": verdict, "category": cat}
+        if cat == "ofac":
+            payer = evh.startswith("payer:") or scope == "product"
+            kind = "PAYER_SANCTIONED" if payer else "PAYOUT_WALLET_SANCTIONED"
+            what = ("адрес плательщика совпал со списком санкций (OFAC)" if payer
+                    else "payout-кошелёк продавца совпал со списком санкций (OFAC) при регистрации")
+        elif cat == "payment_mismatch":
+            kind, what = "PAYMENT_MISMATCH", "сверка платежа не сошлась с заказом"
+        elif verdict == "reject":
+            kind, what = "CATALOG_REJECTED", f"каталог/товар отклонён модерацией (категория: {cat or 'n/a'})"
+        elif verdict == "flag":
+            kind, what = "MODERATION_FLAG", f"модерация пометила каталог/товар (категория: {cat or 'n/a'})"
+        else:
+            continue
+        s = _sig(kind, mid, what, ev, merchant_id=mid, event_at=at)
+        sigs[s["dedup_key"]] = s  # ORDER BY at: the latest review of a kind wins
+    return list(sigs.values())
+
+
+# (kinds the source can evaluate, tables that must exist, function)
+_MERCHANT_SOURCES = [
+    (("CONNECT_FAILED",), ("shop_connect_events",), _src_connect_failed),
+    (("STOREFRONT_DOWN",), ("shop_connect_events", "shop_merchants"), _src_storefront_down),
+    (("WEBHOOK_FAILED",), ("shop_webhook_endpoints", "shop_webhook_deliveries"), _src_webhook_failed),
+    (("MERCHANT_UNRESPONSIVE",), ("shop_orders",), _src_merchant_unresponsive),
+    (("REFUND_OVERDUE",), ("shop_refunds", "shop_orders"), _src_refund_overdue),
+    (("DISPUTE_UNANSWERED",), ("shop_disputes", "shop_orders"), _src_dispute_unanswered),
+    (("FEE_INVOICE_OVERDUE",), ("shop_fee_invoices",), _src_fee_invoice_overdue),
+    (("CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED",
+      "PAYMENT_MISMATCH"), ("shop_moderation_reviews",), _src_moderation),
+]
+
+
+def collect_merchant_signals():
+    """Returns (signals, evaluated_kinds). A kind is `evaluated` only when its source really ran:
+    an absent table or a failed query leaves it out, so nothing is auto-resolved on no data."""
+    signals, evaluated = [], set()
+    for kinds, tables, fn in _MERCHANT_SOURCES:
+        if not all(_table_exists(t) for t in tables):
+            continue
+        try:
+            signals.extend(fn())
+            evaluated.update(kinds)
+        except Exception as e:
+            ap.notice(f"incident-engine: merchant source {kinds[0]} failed: {e}")
+    return signals, evaluated
+
+
+def _last_resolved_at(dedup_key):
+    rows = _rows(f"SELECT {UTC_TS_EXPR('max(resolved_at)')} FROM incidents WHERE dedup_key = {ap.sql_literal(dedup_key)}")
+    return _parse_ts(rows[0][0]) if rows and rows[0] and rows[0][0] else None
+
+
+def resolve_merchant_incidents(signals, evaluated):
+    """Condition gone -> RESOLVED (AUTO_NO_MODEL kinds + STOREFRONT_DOWN; HUMAN_* kinds close only
+    through the human-done flow). CONNECT_FAILED also closes at CONNECT_EDGE_MIN so the next hour
+    can open a new one (edge trigger). Event-like AUTO kinds close in act (nothing to verify)."""
+    active = {s["dedup_key"] for s in signals}
+    rows = _rows(
+        f"SELECT incident_id, kind, dedup_key, state, {UTC_TS_EXPR('created_at')} FROM incidents "
+        f"WHERE provider LIKE '{MERCHANT_PREFIX}%' AND state IN ('OPEN', 'VERIFYING', 'WAITING_HUMAN')")
+    n = 0
+    for incident_id, kind, dk, state, created_at in rows:
+        route = ap.ROUTE_CLASS.get(kind)
+        if kind not in evaluated or kind in _EVENT_LIKE:
+            continue
+        if route not in ("AUTO_NO_MODEL", "AUTO"):
+            continue
+        gone = dk not in active
+        aged = False
+        if kind == "CONNECT_FAILED":
+            ts = _parse_ts(created_at)
+            aged = ts is not None and datetime.now(timezone.utc) - ts >= timedelta(minutes=CONNECT_EDGE_MIN)
+        if gone or aged:
+            ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
+            ap.note_incident(incident_id, "incident-engine", "verified",
+                             "условие источника больше не выполняется" if gone else
+                             f"окно edge-trigger {CONNECT_EDGE_MIN} мин истекло")
+            n += 1
+    return n
+
+
+def open_merchant_incidents(signals):
+    existing = {r[0] for r in _rows(
+        f"SELECT dedup_key FROM incidents WHERE provider LIKE '{MERCHANT_PREFIX}%' AND state <> 'RESOLVED'")}
+    opened = 0
+    for s in signals:
+        if s.get("suppressed") or s["dedup_key"] in existing:
+            continue  # same open dedup_key: no recurrence-note spam every 10 minutes
+        if s["kind"] in _EVENT_LIKE and s["event_at"]:
+            last = _last_resolved_at(s["dedup_key"])
+            ev_ts = _parse_ts(s["event_at"])
+            if last is not None and ev_ts is not None and ev_ts <= last:
+                continue  # this very review already produced an incident that was closed
+        try:
+            _, created = ap.open_or_merge_incident(
+                kind=s["kind"], provider=s["provider"], evidence=s["evidence"], detected_by="passive",
+                what=s["what"], system_did="инцидент открыт движком по данным БД (детерминированно)",
+                actor="incident-engine", dedup_suffix=s["order_id"])
+            opened += 1 if created else 0
+        except Exception as e:
+            ap.notice(f"incident-engine: failed to open {s['kind']} for {s['provider']}: {e}")
+    return opened
+
+
+def queue_merchant_email(incident_id, kind, merchant_id, template):
+    """§12.2 'Исходящая почта': the engine only QUEUES (email_events direction=out, status=queued);
+    the sender is INT-18. No body, no address here — the template and merchant_id are the whole
+    contract (the address is read from shop_merchants at send time). Returns True if a row was
+    written."""
+    if not template or not merchant_id or not _UUID_RE.match(merchant_id):
+        return False
+    n = _rows(f"SELECT count(*)::text FROM email_events WHERE msg_id LIKE {ap.sql_literal('out:' + incident_id + ':%')}")
+    seq = int(n[0][0]) if n else 0
+    msg_id = f"out:{incident_id}:{seq}"
+    _, rc = ap.psql(
+        "INSERT INTO email_events (msg_id, received_at, from_domain, class, action_required, summary, "
+        "direction, status, kind, merchant_id, template) VALUES ("
+        f"{ap.sql_literal(msg_id)}, now(), 'apibase.pro', 'UNMATCHED', FALSE, NULL, "
+        f"'out', 'queued', {ap.sql_literal(kind)}, {ap.sql_literal(merchant_id)}::uuid, {ap.sql_literal(template)}) "
+        "ON CONFLICT (msg_id) DO NOTHING")
+    return rc == 0
+
+
+def _suspend_if_unresponsive(merchant_id, incident_id):
+    """§12.2 MERCHANT_UNRESPONSIVE: 3 overdue orders -> quotes suspended + TG."""
+    if not merchant_id or not _UUID_RE.match(merchant_id):
+        return
+    n = _rows("SELECT count(*)::text FROM incidents WHERE kind = 'MERCHANT_UNRESPONSIVE' AND state <> 'RESOLVED' "
+              f"AND provider = {ap.sql_literal(MERCHANT_PREFIX + merchant_id)}")
+    if not n or int(n[0][0]) < UNRESPONSIVE_SUSPEND_AT:
+        return
+    out, rc = ap.psql(
+        "UPDATE shop_merchants SET status = 'suspended', status_reason = 'unresponsive_3_orders' "
+        f"WHERE merchant_id = {ap.sql_literal(merchant_id)}::uuid AND status = 'active' RETURNING merchant_id")
+    if rc == 0 and out.strip():
+        ap.note_incident(incident_id, "incident-engine", "quotes-suspended",
+                         f"{UNRESPONSIVE_SUSPEND_AT} просроченных заказа подряд -> котировки приостановлены")
+        ap.tg_send(f"[apibase] \U0001F7E0 merchant:{merchant_id} — {UNRESPONSIVE_SUSPEND_AT} просроченных "
+                   f"подтверждения заказов, котировки приостановлены (shop_merchants.status=suspended)")
+
+
+def act_merchant_incidents():
+    """AUTO_NO_MODEL self-action: queue the mail, TG where §12.2 says TG. Zero model, zero fleet task,
+    zero cap spent. Runs for incidents still OPEN (new, or whose earlier action failed)."""
+    rows = _rows(
+        f"SELECT incident_id, kind, provider, severity, evidence::text FROM incidents "
+        f"WHERE provider LIKE '{MERCHANT_PREFIX}%' AND state = 'OPEN' ORDER BY severity, created_at")
+    n = 0
+    for incident_id, kind, provider, severity, evidence_raw in rows:
+        if ap.ROUTE_CLASS.get(kind) != "AUTO_NO_MODEL":
+            continue
+        try:
+            ev = json.loads(evidence_raw)
+        except Exception:
+            ev = {}
+        merchant_id = ev.get("merchant_id")
+        template = ap.ROUTING[kind].get("template")
+        if kind == "WEBHOOK_FAILED" and "mail_failed" in ev:
+            template = None
+        queued = queue_merchant_email(incident_id, kind, merchant_id, template)
+        tg = False
+        if kind in _TG_ON_OPEN:
+            tg = ap.tg_send(ap.format_tg_message({
+                "incident_id": incident_id, "kind": kind, "severity": severity, "provider": provider,
+                "state": "OPEN", "what": ev.get("what", kind),
+                "system_did": "письмо продавцу поставлено в очередь" if queued else "инцидент открыт, автоответ не требуется"}))
+        ap.note_incident(incident_id, "incident-engine", "merchant-action",
+                         f"mail={'queued:' + template if queued else 'none'} tg={'sent' if tg else 'no'}")
+        if kind in _EVENT_LIKE:
+            ap.transition_state(incident_id, "RESOLVED")  # notification done, nothing to verify
+        else:
+            ap.transition_state(incident_id, "VERIFYING")
+        if kind == "MERCHANT_UNRESPONSIVE":
+            _suspend_if_unresponsive(merchant_id, incident_id)
+        n += 1
+    return n
+
+
+def repeat_merchant_mail():
+    """MERCHANT_UNRESPONSIVE: 'повтор через 24 ч' while the order is still unconfirmed."""
+    rows = _rows(
+        f"SELECT incident_id, kind, evidence::text, attempts::text FROM incidents "
+        f"WHERE provider LIKE '{MERCHANT_PREFIX}%' AND state = 'VERIFYING'")
+    for incident_id, kind, evidence_raw, attempts_raw in rows:
+        hours = ap.ROUTING.get(kind, {}).get("repeat_after_hours")
+        if not hours:
+            continue
+        try:
+            ev, attempts = json.loads(evidence_raw), json.loads(attempts_raw)
+        except Exception:
+            continue
+        stamps = [_parse_ts(str(x.get("ts", "")).rstrip("Z")) for x in attempts if x.get("action") == "merchant-action"]
+        stamps = [t for t in stamps if t is not None]
+        if not stamps or datetime.now(timezone.utc) - max(stamps) < timedelta(hours=hours):
+            continue
+        queued = queue_merchant_email(incident_id, kind, ev.get("merchant_id"), ap.ROUTING[kind].get("template"))
+        ap.note_incident(incident_id, "incident-engine", "merchant-action",
+                         f"repeat after {hours}h: mail={'queued' if queued else 'none'}")
+
+
+def escalate_merchant_incidents():
+    """AUTO_NO_MODEL -> HUMAN_GENERIC once the incident is older than the kind's escalate_after_hours
+    (WEBHOOK_FAILED 72 h, REFUND_OVERDUE/DISPUTE_UNANSWERED 7 d): operator file + TG, WAITING_HUMAN."""
+    rows = _rows(
+        f"SELECT incident_id, kind, provider, severity, state, evidence::text, attempts::text, "
+        f"{UTC_TS_EXPR('created_at')} FROM incidents WHERE provider LIKE '{MERCHANT_PREFIX}%' "
+        f"AND state = 'VERIFYING'")
+    n = 0
+    for incident_id, kind, provider, severity, state, evidence_raw, attempts_raw, created_at in rows:
+        hours = ap.ROUTING.get(kind, {}).get("escalate_after_hours")
+        ts = _parse_ts(created_at)
+        if not hours or ts is None or datetime.now(timezone.utc) - ts < timedelta(hours=hours):
+            continue
+        try:
+            ev, attempts = json.loads(evidence_raw), json.loads(attempts_raw)
+        except Exception:
+            ev, attempts = {}, []
+        inc = {"incident_id": incident_id, "kind": kind, "severity": severity, "provider": provider,
+               "state": "WAITING_HUMAN", "route": ap.ROUTING[kind].get("escalate_to", "HUMAN_GENERIC"),
+               "evidence": ev, "attempts": attempts, "created_at": created_at, "what": ev.get("what", kind),
+               "system_did": f"автоответ не помог {hours} ч — эскалация человеку"}
+        try:
+            os.makedirs(ap.OPERATOR_DIR, exist_ok=True)
+            op_path = os.path.join(ap.OPERATOR_DIR, f"INC-{ap.short_id(incident_id)}.md")
+            with open(op_path, "w", encoding="utf-8") as f:
+                f.write(ap.build_operator_file(inc))
+        except Exception as e:
+            ap.notice(f"WARN: failed to write operator file for {incident_id}: {e}")
+            continue
+        ap.transition_state(incident_id, "WAITING_HUMAN",
+                            extra_set=f", operator_file = {ap.sql_literal(op_path)}")
+        ap.note_incident(incident_id, "incident-engine", "escalated",
+                         f"{kind}: {hours} ч без решения -> HUMAN_GENERIC, операторский файл {op_path}")
+        if not ap.tg_send(ap.format_tg_message(inc)):
+            ap.notice(f"молчу: TG send failed/unconfigured for escalation of {incident_id} ({kind})")
+        n += 1
+    return n
+
+
+def merchant_tick():
+    try:
+        signals, evaluated = collect_merchant_signals()
+        resolve_merchant_incidents(signals, evaluated)
+        opened = open_merchant_incidents(signals)
+        act_merchant_incidents()
+        repeat_merchant_mail()
+        escalate_merchant_incidents()
+        return opened
+    except Exception as e:  # a merchant-side defect must never take the provider tick down
+        ap.notice(f"incident-engine: merchant_tick failed: {e}")
+        return 0
+
+
+def _merchant_tasks_today() -> int:
+    """Independent merchant:* counter (П.3): fleet tasks the router queued for merchant:* incidents
+    today (UTC), read from the incidents' own attempts trail — no shared counter file, so it can
+    neither draw from nor reduce DAILY_TASK_CAP."""
+    rows = _rows(
+        "SELECT count(*)::text FROM incidents i WHERE i.provider LIKE 'merchant:%' AND EXISTS ("
+        "SELECT 1 FROM jsonb_array_elements(i.attempts) e WHERE e->>'action' IN ('queued', 'human-done-followup-queued') "
+        "AND (e->>'ts')::timestamptz >= date_trunc('day', now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC')")
+    return int(rows[0][0]) if rows else ap.MERCHANT_DAILY_TASK_CAP  # fail closed
+
+
+def claim_task_slot(incident_id, provider, kind) -> bool:
+    """One gate for every fleet-task write: merchant:* -> its own ceiling + the fleet pause;
+    everything else -> the shared DAILY_TASK_CAP exactly as before."""
+    if not provider.startswith(MERCHANT_PREFIX):
+        return ap.consume_daily_task_slot()
+    if ap.fleet_paused():
+        ap.notice_dedup(incident_id, "FLEET_PAUSED",
+                        f"молчу: {incident_id} ({provider}/{kind}) — флот на паузе, задача ждёт, инцидент открыт")
+        return False
+    try:
+        used = _merchant_tasks_today()
+    except Exception as e:
+        ap.notice(f"молчу: merchant task counter unavailable ({e}) — treating as exhausted")
+        return False
+    if used >= ap.MERCHANT_DAILY_TASK_CAP:
+        ap.notice_dedup(incident_id, "MERCHANT_DAILY_CAP",
+                        f"молчу: {incident_id} ({provider}/{kind}) — merchant:* cap "
+                        f"({ap.MERCHANT_DAILY_TASK_CAP}/день) исчерпан, инцидент остаётся OPEN")
+        return False
+    return True
+
+
 def run():
     # T-09 ruling-1: advance_waiting_human()'s human-done watcher was
     # entirely gated on os.path.isdir(ap.HUMAN_DONE_DIR) with no fallback and
@@ -1224,6 +1719,7 @@ def run():
         return 0
     opened = detect_from_provider_status()
     sync_tool_status()
+    opened += merchant_tick()  # T-INT-13: merchant:* sources/actions (before routing, so STOREFRONT_DOWN can queue this tick)
     # T-03: advance_waiting_human() now runs BEFORE route_auto_incidents().
     # Both spend the SAME shared consume_daily_task_slot() budget (I2's
     # ≤N/day cap). route_auto_incidents() already orders its own OPEN
