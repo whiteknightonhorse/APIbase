@@ -58,6 +58,16 @@ Commands:
       deadline; after it, OK -> RESOLVED, FAIL -> one auto-extension of 24h
       (total of 2 `wait` entries), then STUCK.
 
+  incident-cli.py propose-fix --id ID --actor A --cause "..." --repro "<cmd>" --paths P[,P]
+                              --fix "..." --proof <abs path>
+      T-0265 (REMEDIATION-MODEL-1005 ruling-1): phase A's (haiku) only way to ask for code work.
+      From REMEDIATION_QUEUED only. Every --paths entry must lie under REMEDIATION_PATH_ALLOWLIST
+      (== REVIEW_TIER_ALLOWLIST, read from taskloop's config at call time), else rc=1 "path
+      outside remediation allowlist, open BLOCKED instead". Writes ONE note action="propose-fix"
+      result=JSON {cause, repro, paths, fix, proof}; state unchanged. incident-engine's
+      advance_remediation_queued() files the single phase-B (sonnet) task from the LAST such note
+      once the phase-A task lands in done/. No propose-fix (wait / BLOCKED) -> no phase B.
+
   incident-cli.py list [--state S] [--severity S] [--provider P]
       Read-only, tab-separated.
 
@@ -240,6 +250,10 @@ WAIT_MIN = timedelta(hours=1)
 WAIT_MAX = timedelta(hours=72)
 WAIT_FROM_STATES = ("REMEDIATION_QUEUED", "OPEN")
 
+# T-0265: sha256 of the API_CHANGED task body (fix.md bullets pinned, filename-derived id masked) as
+# generated BEFORE the two-phase split -- single-phase kinds must stay byte-identical.
+API_CHANGED_BODY_SHA256 = "676f95d471fa4d0e66ca7db6beb6011e2aac040987e5668c008dfa85e03e8325"
+
 
 def parse_wait_until(raw, now=None):
     """Returns (utc_datetime, None) or (None, error_text). Pure: the 1h/72h
@@ -281,6 +295,40 @@ def cmd_wait(a):
     if not done:
         return _refuse(f"incident {a.id} changed state concurrently; nothing written")
     print(f"{a.id} -> VERIFYING, waiting until {until_iso} (engine will not touch it before then)")
+    return 0
+
+
+def cmd_propose_fix(a):
+    """T-0265: phase A's evidence-backed proposal. Validates --paths against the remediation
+    allowlist (REVIEW_TIER_ALLOWLIST read from taskloop's own config, never restated here), then
+    ONE note action="propose-fix". State is NOT changed. Every refusal returns 1 with zero writes."""
+    inc = ap.get_incident(a.id)
+    if inc is None:
+        print(f"no such incident: {a.id}", file=sys.stderr)
+        return 1
+    if inc["state"] != "REMEDIATION_QUEUED":
+        return _refuse(f"incident {a.id} is in state {inc['state']}; propose-fix is only allowed "
+                       f"from REMEDIATION_QUEUED")
+    paths = [x.strip() for x in a.paths.split(",") if x.strip()]
+    if not paths:
+        return _refuse("--paths is empty")
+    allowlist = ap.remediation_path_allowlist()
+    for pth in paths:
+        if ap.path_outside_allowlist(pth, allowlist):
+            return _refuse(f"path outside remediation allowlist, open BLOCKED instead: {pth}")
+    for name in ("cause", "repro", "fix"):
+        if not getattr(a, name).strip():
+            return _refuse(f"--{name} is empty")
+    if not os.path.isabs(a.proof):
+        return _refuse("--proof must be an absolute path")
+    result = json.dumps({"cause": a.cause, "repro": a.repro, "paths": paths, "fix": a.fix,
+                         "proof": a.proof}, ensure_ascii=False)
+    try:
+        ap.note_incident(a.id, a.actor, "propose-fix", result)
+    except RuntimeError as e:
+        print(f"DB write failed: {e}", file=sys.stderr)
+        return 1
+    print(f"proposed fix noted for {a.id} (state unchanged; engine files phase B after this task lands in done/)")
     return 0
 
 
@@ -429,7 +477,69 @@ def selftest():
     }
     _fname, _content = ap.build_remediation_task_body(_opus_incident)
     assert "REVIEW: opus" in _content, "PROVIDER_DOWN task body must carry REVIEW: opus"
-    assert "MAX_ATTEMPTS: 4" in _content, "review=opus must get the same MAX_ATTEMPTS: 4 ceiling as review=fable (T-0140 Ч-3)"
+    # T-0265: PROVIDER_DOWN is now a phase-A (haiku, measure-only) task: MAX_ATTEMPTS 2, REVIEW as routed.
+    assert "MAX_ATTEMPTS: 2" in _content and "MODEL: haiku" in _content, "phase A: haiku, 2 attempts (T-0265)"
+    assert "ALLOWED:" not in _content, "phase A body must carry no fix.md ALLOWED bullets (T-0265)"
+    assert "propose-fix" in _content and "incident-cli.py wait" in _content and "VERDICT: BLOCKED" in _content
+    assert "чинить" not in _content and "предложить фикс" not in _content
+    for _pa in sorted(ap.PHASE_A_KINDS):
+        _pf, _pc = ap.build_remediation_task_body(dict(_opus_incident, kind=_pa))
+        assert "ALLOWED:" not in _pc and "propose-fix" in _pc and "MAX_ATTEMPTS: 2" in _pc and "MODEL: haiku" in _pc, _pa
+        assert _pf.startswith(tuple("9")) and "-autopilot-remediation-" in _pf, _pf
+    # review=opus ceiling (T-0140 Ч-3) is now checked on a single-phase opus kind.
+    _api_incident = dict(_opus_incident, kind="API_CHANGED")
+    _fname_api, _content_api = ap.build_remediation_task_body(_api_incident)
+    assert "REVIEW: opus" in _content_api
+    assert "MAX_ATTEMPTS: 4" in _content_api, "review=opus must get the same MAX_ATTEMPTS: 4 ceiling as review=fable (T-0140 Ч-3)"
+    # T-0265 snapshot: single-phase kinds are byte-identical to before (fix.md text pinned, filename-derived id masked).
+    import hashlib as _hl
+    import argparse as _argparse
+    _orig_fb = ap._fix_boundaries
+    ap._fix_boundaries = lambda: "- ALLOWED: x\n- FORBIDDEN: y"
+    try:
+        _fn_s, _c_s = ap.build_remediation_task_body(dict(_api_incident, provider="__t0265_snapshot__",
+                          incident_id="00000000-0000-0000-0000-00000000t265", evidence={"probe": "401"}))
+    finally:
+        ap._fix_boundaries = _orig_fb
+    _c_s = _c_s.replace(_fn_s[:-3], "<TID>")
+    assert _hl.sha256(_c_s.encode()).hexdigest() == API_CHANGED_BODY_SHA256, \
+        "API_CHANGED task body changed (T-0265 must leave single-phase kinds untouched)"
+    # propose-fix allowlist (path outside -> rc=1, zero writes). Allowlist is read from a fixture file.
+    import tempfile as _tf
+    with _tf.TemporaryDirectory() as _d:
+        _cfgp = os.path.join(_d, "config.env")
+        open(_cfgp, "w").write("X=1\nREVIEW_TIER_ALLOWLIST=src/adapters/,tests/unit/adapters/,src/config/provider-limits.json\n")
+        _al = ap.remediation_path_allowlist(_cfgp)
+        assert _al == ["src/adapters/", "tests/unit/adapters/", "src/config/provider-limits.json"], _al
+        assert ap.remediation_path_allowlist(os.path.join(_d, "missing")) == [], "fail closed"
+        for _ok in ("src/adapters/foo/x.ts", "src/config/provider-limits.json"):
+            assert not ap.path_outside_allowlist(_ok, _al), _ok
+        for _bad in ("docker-compose.yml", ".env", "src/adapters/../../.env", "/src/adapters/x", "../src/adapters/x", "", "src/other/x.ts"):
+            assert ap.path_outside_allowlist(_bad, _al), _bad
+    _pf_calls = []
+    _orig_gi, _orig_ni, _orig_al = ap.get_incident, ap.note_incident, ap.remediation_path_allowlist
+    try:
+        ap.get_incident = lambda iid: {"incident_id": iid, "state": "REMEDIATION_QUEUED"}
+        ap.note_incident = lambda *args: _pf_calls.append(args)
+        ap.remediation_path_allowlist = lambda *a, **k: ["src/adapters/", "tests/unit/adapters/", "src/config/provider-limits.json"]
+        def _pf(paths, proof="/tmp/proof.txt"):
+            return cmd_propose_fix(_argparse.Namespace(id="pf", actor="fleet", cause="c", repro="curl -si x",
+                                                       paths=paths, fix="f", proof=proof))
+        assert _pf("docker-compose.yml") == 1 and _pf_calls == [], "path outside allowlist must refuse with no write"
+        assert _pf("src/adapters/a.ts,.env") == 1 and _pf_calls == [], "one bad path among good ones refuses all"
+        assert _pf("src/adapters/a.ts", proof="rel/proof") == 1 and _pf_calls == [], "proof must be absolute"
+        assert _pf("src/adapters/a.ts,tests/unit/adapters/a.test.ts") == 0 and len(_pf_calls) == 1
+        _args = _pf_calls[0]
+        assert _args[2] == "propose-fix" and json.loads(_args[3])["paths"] == ["src/adapters/a.ts", "tests/unit/adapters/a.test.ts"]
+        assert set(json.loads(_args[3])) == {"cause", "repro", "paths", "fix", "proof"}
+    finally:
+        ap.get_incident, ap.note_incident, ap.remediation_path_allowlist = _orig_gi, _orig_ni, _orig_al
+    # phase B body: data in a fence, reproduce-first demand, ALLOWED bullets, sonnet, 4 attempts.
+    _bf, _bc = ap.build_phase_b_task_body(_opus_incident, {"cause": "c ```x", "repro": "curl -si u", "paths": ["src/adapters/a.ts"],
+                                                           "fix": "f", "proof": "/tmp/p"})
+    assert "-autopilot-fix-PROVIDER_DOWN-" in _bf and _bf[0] == "9"
+    assert "MODEL: sonnet" in _bc and "MAX_ATTEMPTS: 4" in _bc and "REVIEW: opus" in _bc and "ALLOWED:" in _bc
+    assert "cause not reproduced" in _bc and "````json" in _bc, "reproduce-first demand + longer fence for embedded backticks"
     _email_incident = dict(_opus_incident, kind="EMAIL_NOTICE")
     _fname2, _content2 = ap.build_remediation_task_body(_email_incident)
     assert "REVIEW: fable" in _content2, "EMAIL_NOTICE task body must still carry REVIEW: fable"
@@ -822,6 +932,16 @@ def main():
     pw.add_argument("--until", required=True)
     pw.add_argument("--reason", required=True)
     pw.set_defaults(func=cmd_wait)
+
+    ppf = sub.add_parser("propose-fix")
+    ppf.add_argument("--id", required=True)
+    ppf.add_argument("--actor", required=True)
+    ppf.add_argument("--cause", required=True)
+    ppf.add_argument("--repro", required=True)
+    ppf.add_argument("--paths", required=True)
+    ppf.add_argument("--fix", required=True)
+    ppf.add_argument("--proof", required=True)
+    ppf.set_defaults(func=cmd_propose_fix)
 
     pcl = sub.add_parser("close")
     pcl.add_argument("--id", required=True)

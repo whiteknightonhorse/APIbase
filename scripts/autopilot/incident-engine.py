@@ -418,6 +418,58 @@ def bridge_key_incidents():
                                  "evidence": evidence, "attempts": attempts})
 
 
+def phase_a_proposal(inc: dict, fleet_task_id: str):
+    """T-0265: the proposal dict of the LAST action="propose-fix" note written after this
+    incident's phase-A task was queued, or None. "Phase A" = a `queued` note by the router names
+    exactly this fleet_task_id (a human-done follow-up or an already-filed phase-B task has no such
+    note, so it can never spawn another phase). Notes from an earlier cycle (before that anchor)
+    are ignored."""
+    attempts = inc.get("attempts") or []
+    anchor = None
+    for i, e in enumerate(attempts):
+        if e.get("action") == "queued" and e.get("result") == f"fleet task {fleet_task_id}":
+            anchor = i
+    if anchor is None:
+        return None
+    for e in reversed(attempts[anchor + 1:]):
+        if e.get("action") == "propose-fix":
+            try:
+                prop = json.loads(e.get("result") or "")
+            except Exception:
+                return None
+            if isinstance(prop, dict) and prop.get("paths"):
+                return prop
+            return None
+    return None
+
+
+def _file_phase_b(inc: dict, proposal: dict):
+    """T-0265: file the single phase-B task for `inc` (counts in DAILY_TASK_CAP) and point the
+    incident's fleet_task_id at it. Every failure leaves state/fleet_task_id untouched so the next
+    tick retries (phase A stays in done/, the incident stays REMEDIATION_QUEUED)."""
+    incident_id, provider, kind = inc["incident_id"], inc["provider"], inc["kind"]
+    if not ap.consume_daily_task_slot():
+        ap.notice_dedup(
+            incident_id, "DAILY_CAP",
+            f"молчу: {incident_id} ({provider}/{kind}) — phase-B fix task blocked, daily fleet-task "
+            f"cap ({ap.DAILY_TASK_CAP}) reached; retried next tick",
+        )
+        return
+    filename, content = ap.build_phase_b_task_body(inc, proposal)
+    path = os.path.join(ap.TASKLOOP_QUEUE_DIR, filename)
+    try:
+        os.makedirs(ap.TASKLOOP_QUEUE_DIR, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
+    except Exception as e:
+        ap.notice(f"WARN: {incident_id} ({provider}/{kind}) — failed to write phase-B task {path}: {e}")
+        return
+    ap.transition_state(incident_id, "REMEDIATION_QUEUED",
+                         extra_set=f", fleet_task_id = {ap.sql_literal(filename)}")
+    ap.note_incident(incident_id, "remediation-router", "fix-queued", f"fleet task {filename}")
+    ap.notice(f"remediation-router: phase B {filename} queued for {incident_id} ({provider}/{kind})")
+
+
 def advance_remediation_queued():
     """AP-6/F3: 'Автопилот только кладёт файл и читает исход (done/, stuck/).'
     route_auto_incidents() writes the fleet task (кладёт файл); this reads
@@ -453,6 +505,13 @@ def advance_remediation_queued():
             cur = ap.get_incident(incident_id)
             if cur is not None and cur["state"] != "REMEDIATION_QUEUED":
                 continue
+            # T-0265: a phase-A (haiku) task that ended with a propose-fix note files exactly one
+            # phase-B (sonnet) task; without one (wait/BLOCKED) there is no phase B.
+            if cur is not None and kind in ap.PHASE_A_KINDS:
+                proposal = phase_a_proposal(cur, fleet_task_id)
+                if proposal is not None:
+                    _file_phase_b(cur, proposal)
+                    continue
             ap.transition_state(incident_id, "VERIFYING")
             ap.note_incident(incident_id, "incident-engine", "fleet-done",
                               f"fleet task {fleet_task_id} landed in done/ -> VERIFYING "
@@ -1734,10 +1793,11 @@ def selftest_db():
                 expected_header = (
                     f"REVIEW: {_review}\n"
                     f"MODEL: {ap.MODEL_FOR_KIND.get('PROVIDER_DOWN') or 'sonnet'}\n"
-                    f"MAX_ATTEMPTS: {4 if _review in ('fable', 'opus') else 2}\n"
+                    # T-0265: PROVIDER_DOWN is a phase-A kind -> always 2 attempts.
+                    f"MAX_ATTEMPTS: {2 if 'PROVIDER_DOWN' in ap.PHASE_A_KINDS else 4 if _review in ('fable', 'opus') else 2}\n"
                 )
                 assert body.startswith(expected_header), (expected_header, body[:80])
-                assert "resolve-request" in body and "PROVIDER_DOWN" in body
+                assert "propose-fix" in body and "ALLOWED:" not in body and "PROVIDER_DOWN" in body  # T-0265: phase A
             else:
                 assert not task_id, f"world 4: OPEN incident has a fleet_task_id: {task_id}"
         print("world 4 (fleet-task generation + daily cap): OK")
@@ -3189,6 +3249,89 @@ def selftest_db():
         assert after23e["state"] == "VERIFYING" and _w23_count(after23e, "fleet-done") == 0, after23e["attempts"]
         assert len(after23e["attempts"]) == len(before23e["attempts"]), "world 23e: nothing written"
         print("world 23e (done/ after wait: not re-transitioned, no second fleet-done): OK")
+
+        # World 24 (T-0265, REMEDIATION-MODEL-1005 ruling-1): two-phase remediation. A phase-A task
+        # in done/ + a propose-fix note -> exactly ONE phase-B task; wait / BLOCKED -> none.
+        import glob as _glob24
+        _cfg24 = os.path.join(ap.TASKLOOP_ROOT, "config.env")
+        with open(_cfg24, "w", encoding="utf-8") as f:
+            f.write("REVIEW_TIER_ALLOWLIST=src/adapters/,tests/unit/adapters/,src/config/provider-limits.json\n")
+
+        def _w24_phase_a(provider, tag):
+            fname = f"9{tag}-autopilot-remediation-PROVIDER_DOWN-{provider}.md"
+            iid = _w23_open(provider, fleet_task=fname)
+            ap.note_incident(iid, "remediation-router", "queued", f"fleet task {fname}")
+            with open(os.path.join(ap.TASKLOOP_ROOT, "done", fname), "w", encoding="utf-8") as f:
+                f.write("VERDICT: DONE\n")
+            return iid, fname
+
+        def _w24_fix_files(provider):
+            return _glob24.glob(os.path.join(ap.TASKLOOP_QUEUE_DIR, f"*-autopilot-fix-PROVIDER_DOWN-{provider}.md"))
+
+        def _w24_slots():
+            if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
+                os.remove(ap.DAILY_TASK_COUNTER_FILE)
+
+        _w24_slots()
+        # (a) propose-fix -> one phase-B task, fleet_task_id switched, second tick does not add another.
+        id24a, fname24a = _w24_phase_a("ap24a", "901")
+        rc = _cli23.cmd_propose_fix(_ap23.Namespace(
+            id=id24a, actor="fleet", cause="adapter sends the old path", repro="curl -si https://x.invalid/v1",
+            paths="src/adapters/ap24a/client.ts", fix="use /v2", proof="/tmp/ap24a.proof"))
+        assert rc == 0, f"world 24a: propose-fix rc={rc}"
+        assert ap.get_incident(id24a)["state"] == "REMEDIATION_QUEUED", "world 24a: propose-fix must not change state"
+        advance_remediation_queued()
+        inc24a = ap.get_incident(id24a)
+        fix24a = _w24_fix_files("ap24a")
+        assert len(fix24a) == 1, f"world 24a: expected exactly one phase-B task, got {fix24a}"
+        assert inc24a["state"] == "REMEDIATION_QUEUED" and inc24a["fleet_task_id"] == os.path.basename(fix24a[0]), inc24a
+        body24a = open(fix24a[0], encoding="utf-8").read()
+        assert body24a.startswith("REVIEW: opus\nMODEL: sonnet\nMAX_ATTEMPTS: 4\n"), body24a[:60]
+        assert "adapter sends the old path" in body24a and "cause not reproduced" in body24a and "src/adapters/ap24a/client.ts" in body24a
+        advance_remediation_queued()
+        assert len(_w24_fix_files("ap24a")) == 1, "world 24a: second tick must not spawn a second phase-B task"
+        assert ap.get_incident(id24a)["fleet_task_id"] == os.path.basename(fix24a[0])
+        # (a2) the phase-B task itself landing in done/ -> VERIFYING, no phase C.
+        with open(os.path.join(ap.TASKLOOP_ROOT, "done", os.path.basename(fix24a[0])), "w", encoding="utf-8") as f:
+            f.write("VERDICT: DONE\n")
+        advance_remediation_queued()
+        assert ap.get_incident(id24a)["state"] == "VERIFYING" and len(_w24_fix_files("ap24a")) == 1
+        print("world 24a (phase A + propose-fix -> exactly one phase-B task; B done -> VERIFYING): OK")
+
+        # (b) phase A + wait -> no task, VERIFYING.
+        _w24_slots()
+        id24b, _ = _w24_phase_a("ap24b", "902")
+        _w23_wait(id24b)
+        advance_remediation_queued()
+        assert ap.get_incident(id24b)["state"] == "VERIFYING" and _w24_fix_files("ap24b") == [], "world 24b"
+        # (b2) the action check itself: a wait note on an incident that is (artificially) still
+        # REMEDIATION_QUEUED must not produce phase B either.
+        id24b2, _ = _w24_phase_a("ap24b2", "903")
+        ap.note_incident(id24b2, "fleet", "wait", json.dumps({"cause": "c", "repro": "r", "paths": ["src/adapters/x.ts"], "fix": "f", "proof": "/p"}))
+        advance_remediation_queued()
+        assert _w24_fix_files("ap24b2") == [], "world 24b2: a non-propose-fix note must not file phase B"
+        # (c) BLOCKED (no CLI call, only a note) -> no task.
+        id24c, _ = _w24_phase_a("ap24c", "904")
+        ap.note_incident(id24c, "fleet", "note", "BLOCKED: provider needs a human")
+        advance_remediation_queued()
+        assert _w24_fix_files("ap24c") == [], "world 24c: BLOCKED must not file phase B"
+        # (d) a propose-fix from an EARLIER cycle (before the phase-A `queued` anchor) is ignored.
+        fname24d = "9905-autopilot-remediation-PROVIDER_DOWN-ap24d.md"
+        id24d = _w23_open("ap24d", fleet_task=fname24d)
+        ap.note_incident(id24d, "fleet", "propose-fix", json.dumps({"cause": "old", "repro": "r", "paths": ["src/adapters/x.ts"], "fix": "f", "proof": "/p"}))
+        ap.note_incident(id24d, "remediation-router", "queued", f"fleet task {fname24d}")
+        with open(os.path.join(ap.TASKLOOP_ROOT, "done", fname24d), "w", encoding="utf-8") as f:
+            f.write("VERDICT: DONE\n")
+        advance_remediation_queued()
+        assert _w24_fix_files("ap24d") == [], "world 24d: stale propose-fix must be ignored"
+        # (e) propose-fix outside the allowlist -> rc=1, no note.
+        _w24_slots()
+        id24e, _ = _w24_phase_a("ap24e", "906")
+        rc = _cli23.cmd_propose_fix(_ap23.Namespace(id=id24e, actor="fleet", cause="c", repro="r",
+                                                    paths="docker-compose.yml", fix="f", proof="/tmp/p"))
+        assert rc == 1 and not any(a["action"] == "propose-fix" for a in ap.get_incident(id24e)["attempts"]), "world 24e"
+        print("world 24b-e (wait / BLOCKED / stale / out-of-allowlist -> no phase B): OK")
+        _w24_slots()
 
         print("selftest-db: ALL WORLDS OK")
         return 0
