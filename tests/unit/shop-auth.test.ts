@@ -314,4 +314,13 @@ describe('ID8 redactObject arrays', () => {
     expect(out).toContain('mk_live_…(len=40)');
     expect(out).toContain('whsec_…(len=26)');
   });
+
+  it('masks keys inside nested arrays of any depth', () => {
+    const key = 'mk_live_' + 'e'.repeat(32);
+    const out = JSON.stringify(
+      redactObject({ deep: [[key]], arr: [{ inner: [key] }], d3: [[[key]]] }),
+    );
+    expect(out).not.toContain(key);
+    expect(out).not.toContain('eeeeee');
+  });
 });

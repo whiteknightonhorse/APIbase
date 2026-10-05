@@ -71,6 +71,16 @@ function redactString(key: string, value: string): string {
   return value;
 }
 
+/** Redact array elements at any nesting depth (strings by key+value, objects recursively). */
+function redactArray(k: string, arr: unknown[]): unknown[] {
+  return arr.map((el) => {
+    if (typeof el === 'string') return redactString(k, el);
+    if (Array.isArray(el)) return redactArray(k, el);
+    if (el !== null && typeof el === 'object') return redactObject(el as Record<string, unknown>);
+    return el;
+  });
+}
+
 /** Deep-walk an object and redact sensitive fields. */
 export function redactObject(obj: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
@@ -82,13 +92,7 @@ export function redactObject(obj: Record<string, unknown>): Record<string, unkno
     } else if (v !== null && typeof v === 'object' && k.toLowerCase().startsWith('ciphertext')) {
       out[k] = '<ciphertext>';
     } else if (Array.isArray(v)) {
-      out[k] = v.map((el) =>
-        typeof el === 'string'
-          ? redactString(k, el)
-          : el !== null && typeof el === 'object' && !Array.isArray(el)
-            ? redactObject(el as Record<string, unknown>)
-            : el,
-      );
+      out[k] = redactArray(k, v);
     } else if (v !== null && typeof v === 'object') {
       out[k] = redactObject(v as Record<string, unknown>);
     } else {
