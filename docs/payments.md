@@ -110,3 +110,5 @@ Every error response includes machine-readable recovery hints:
 | 429 | `rate_limit_exceeded` | `retry_after_delay` |
 | 502 | `bad_gateway` | `retry_after_delay` |
 | 503 | `service_unavailable` | `retry_after_delay` |
+
+Idempotency: the IDEMPOTENCY stage fails open on Redis errors only while `accounts.balance_usd` is refund-only (operator decision 2026-09-15); a top-up-able balance requires it to fail closed.

@@ -16,6 +16,13 @@ import { X_IDEMPOTENCY_KEY } from '../../config/http-headers';
  * nothing (the payment-nonce replay guard, A-01, only covers x402/MPP signed
  * payments, not balance billing). Fixed at the one place that was wrong —
  * the two independent callers already agreed with each other.
+ *
+ * Fail-open policy: on a Redis failure (catch below) the stage lets the
+ * request through WITHOUT idempotency protection. That is acceptable ONLY
+ * while accounts.balance_usd stays refund-only (operator decision 2026-09-15,
+ * question 1a) — a retry can then at worst repeat a paid x402/MPP call, which
+ * the payment-nonce replay guard covers. If a top-up-able balance is ever
+ * introduced, this stage MUST fail closed (reject with 503) instead.
  */
 export const idempotencyStage: Stage = {
   name: 'IDEMPOTENCY',
@@ -58,7 +65,7 @@ export const idempotencyStage: Stage = {
           });
       }
     } catch {
-      // Redis failure — proceed without idempotency (§12.182 reconciliation)
+      // Redis failure — fail-open, valid only while balance_usd is refund-only (see header)
       return ok(ctx);
     }
   },
