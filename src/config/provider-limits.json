@@ -779,10 +779,7 @@
     "docs_url": "https://docs.api.jikan.moe/#section/Information/Rate-Limiting",
     "limit_proof": "Rate limit: 3 req/sec, 60 req/min. No daily or monthly cap documented.",
     "moderation_class": "data",
-    "moderation_class_reviewed": true,
-    "probe": {
-      "method": "HEAD"
-    }
+    "moderation_class_reviewed": true
   },
   "openlibrary": {
     "display_name": "Open Library",
