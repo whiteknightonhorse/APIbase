@@ -384,7 +384,7 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     expect(localSettle).toHaveBeenCalledTimes(1);
 
     release({ success: true, transaction: '0xlate' });
-    for (let i = 0; i < 50 && (await order(f)).state === 'PAYING'; i++) {
+    for (let i = 0; i < 50 && (await order(f)).state !== 'FULFILLED'; i++) {
       await new Promise((res) => realSetTimeout(res, 20));
     }
     const o = await order(f);
