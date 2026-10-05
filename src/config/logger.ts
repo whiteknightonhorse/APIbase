@@ -81,7 +81,15 @@ export function redactObject(obj: Record<string, unknown>): Record<string, unkno
       out[k] = '[REDACTED]';
     } else if (v !== null && typeof v === 'object' && k.toLowerCase().startsWith('ciphertext')) {
       out[k] = '<ciphertext>';
-    } else if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+    } else if (Array.isArray(v)) {
+      out[k] = v.map((el) =>
+        typeof el === 'string'
+          ? redactString(k, el)
+          : el !== null && typeof el === 'object' && !Array.isArray(el)
+            ? redactObject(el as Record<string, unknown>)
+            : el,
+      );
+    } else if (v !== null && typeof v === 'object') {
       out[k] = redactObject(v as Record<string, unknown>);
     } else {
       out[k] = v;

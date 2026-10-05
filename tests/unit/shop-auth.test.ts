@@ -302,3 +302,16 @@ describe('ID8 redactObject', () => {
     expect(out).not.toContain('street');
   });
 });
+
+describe('ID8 redactObject arrays', () => {
+  it('masks mk_live_/whsec_ inside arrays', () => {
+    const key = 'mk_live_' + 'c'.repeat(32);
+    const out = JSON.stringify(
+      redactObject({ list: [key], items: [{ x: 'whsec_' + 'd'.repeat(20) }] }),
+    );
+    expect(out).not.toContain(key);
+    expect(out).not.toContain('dddddd');
+    expect(out).toContain('mk_live_…(len=40)');
+    expect(out).toContain('whsec_…(len=26)');
+  });
+});
