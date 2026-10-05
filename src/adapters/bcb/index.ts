@@ -27,7 +27,10 @@ export class BcbAdapter extends BaseAdapter {
 
   protected buildRequest(req: ProviderRequest) {
     const p = req.params as Record<string, unknown>;
-    const headers: Record<string, string> = { Accept: 'application/json' };
+    const headers: Record<string, string> = {
+      Accept: 'application/json',
+      'User-Agent': 'Mozilla/5.0 (compatible; APIbase/1.0)',
+    };
 
     const series = SERIES[req.toolId];
     if (!series) {
