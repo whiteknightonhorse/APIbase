@@ -3501,7 +3501,10 @@
     "docs_url": "https://pro.dp.la/developers/requests",
     "limit_proof": "DPLA API docs state no rate limit is documented for API key holders. Free keys available \u2014 50M+ items across 2,000+ contributing US institutions.",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "probe": {
+      "method": "GET"
+    }
   },
   "aviationweather": {
     "display_name": "NOAA Aviation Weather Center",
