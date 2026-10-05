@@ -3184,6 +3184,9 @@
   "bea": {
     "display_name": "Bureau of Economic Analysis",
     "health_url": "https://apps.bea.gov/api/data?UserID=TOKEN_FROM_ENV&method=GetDataSetList&ResultFormat=JSON",
+    "probe": {
+      "method": "GET"
+    },
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
