@@ -1,0 +1,151 @@
+{
+  "instruction_patterns": [
+    {
+      "id": "inj-ignore-previous",
+      "value": "\\bignore\\s+(all\\s+|any\\s+)?(previous|prior|above|earlier)\\b"
+    },
+    {
+      "id": "inj-disregard",
+      "value": "\\b(disregard|forget)\\s+(all\\s+|any\\s+)?(previous|prior|above|earlier|your)\\b"
+    },
+    {
+      "id": "inj-you-must",
+      "value": "\\byou\\s+must\\b"
+    },
+    {
+      "id": "inj-system-prefix",
+      "value": "(^|[\\s>\\]\\n])system\\s*:"
+    },
+    {
+      "id": "inj-role-tag",
+      "value": "<\\s*/?\\s*(system|assistant|instructions?)\\s*>"
+    },
+    {
+      "id": "inj-url-scheme",
+      "value": "\\b(javascript|vbscript|blob):|\\bdata:[a-z]+/[a-z]|\\b(http|ftp|sftp|file|ws|wss|gopher)://"
+    }
+  ],
+  "category_keywords": {
+    "drugs": [
+      "cocaine",
+      "heroin",
+      "methamphetamine",
+      "lsd tabs",
+      "mdma",
+      "fentanyl"
+    ],
+    "counterfeit": [
+      "counterfeit",
+      "replica rolex",
+      "fake id",
+      "knockoff"
+    ],
+    "stolen-forged": [
+      "stolen card",
+      "forged passport",
+      "fake passport",
+      "fake diploma"
+    ],
+    "hazardous": [
+      "explosive",
+      "detonator",
+      "radioactive material"
+    ],
+    "pyramid-mlm": [
+      "pyramid scheme",
+      "get rich quick",
+      "multi-level marketing"
+    ],
+    "gambling": [
+      "casino",
+      "online betting",
+      "sportsbook",
+      "slot machine",
+      "lottery ticket",
+      "poker chips"
+    ],
+    "alcohol-tobacco": [
+      "whiskey",
+      "vodka",
+      "cigarette",
+      "cigar",
+      "vape juice",
+      "e-liquid",
+      "hookah tobacco"
+    ],
+    "pharma": [
+      "prescription drug",
+      "viagra",
+      "telemedicine",
+      "cures cancer",
+      "antibiotics"
+    ],
+    "weapons": [
+      "firearm",
+      "handgun",
+      "assault rifle",
+      "ammunition",
+      "silencer",
+      "switchblade"
+    ],
+    "cannabis-cbd": [
+      "cannabis",
+      "marijuana",
+      "cbd oil",
+      "thc gummies"
+    ],
+    "adult": [
+      "porn",
+      "escort service",
+      "adult content",
+      "sex toy"
+    ],
+    "financial-services": [
+      "payday loan",
+      "forex broker",
+      "crypto exchange",
+      "gift card",
+      "buy now pay later",
+      "money transfer"
+    ],
+    "insurance": [
+      "insurance policy",
+      "life insurance"
+    ],
+    "dating": [
+      "dating service",
+      "mail order bride"
+    ],
+    "airlines-cruises-timeshares": [
+      "airline ticket",
+      "cruise ticket",
+      "timeshare"
+    ],
+    "charity-politics": [
+      "crowdfunding",
+      "political donation",
+      "charity donation"
+    ],
+    "precious-metals-jewelry": [
+      "gold bullion",
+      "silver bullion",
+      "diamond ring"
+    ],
+    "credit-repair-debt": [
+      "credit repair",
+      "debt relief"
+    ],
+    "traffic-engagement": [
+      "buy followers",
+      "buy likes",
+      "buy traffic",
+      "buy views"
+    ],
+    "remote-tech-support": [
+      "remote tech support"
+    ],
+    "telemarketing": [
+      "telemarketing"
+    ]
+  }
+}

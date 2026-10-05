@@ -79,6 +79,39 @@ Other codes: `unauthorized` (401, bad/missing signature, nonce used or expired),
 `validation_failed` (422), `slug_taken`/`wallet_registered` (409), `payout_wallet_sanctioned` (403).
 Limits per IP: nonce 30/min, `POST /merchants` 5/hour, acceptances 10/min.
 
+## Catalog
+
+Write path (merchant key `mk_live_…`, scope `catalog:write`, 60 writes/min per key; merchants must have accepted the current documents — pending → `428`, deactivated/suspended → `410`):
+
+- `PUT /api/v1/shop/merchants/me/catalog` with `{ "items": [ … ] }` (≤500 items, body ≤1 MB) · MCP `shop.merchant.catalog_upsert`. Idempotent by `sku`; the merchant is always the key's owner (a `merchant` field in the body is ignored). A price change applies to new quotes at once.
+- MCP `shop.merchant.catalog_delete {skus[]}` — refused with `409` and `quote_ids` while an open quote holds a sku.
+
+Item (zod schema `CatalogItemSchema`, `src/shop/catalog.service.ts`):
+
+| field | rule |
+|---|---|
+| `sku` | `[A-Za-z0-9._:-]`, ≤64 |
+| `title` | ≤120 after HTML/control/zero-width stripping |
+| `description` | ≤2 000 after stripping |
+| `price_usd` | decimal, ≤2 fractional digits, `$1.00` … `limits.max_order_usd` |
+| `is_test` | only for the test SKU (below) |
+| `stock` | integer ≥0; `null`/absent = not tracked |
+| `fulfillment_mode` | `instant` · `merchant` · `physical` |
+| `fulfillment.instant.payload` | required for `instant`; stored encrypted with the server key, never returned or logged |
+| `tax_included`, `tax_note`, `shipping_options[]`, `delivery_slots[]`, `requires_pii[]`, `refund_window_days`, `returns_accepted`, `currency_display`, `images[]` (https URLs), `variants[]` | as in the spec; no discounts or coupons |
+| `category` | one of `config/integrator/prohibited-categories.json` → `allowed` |
+
+Response: `{ upserted, flagged[{sku,reason}], rejected[{sku,reason,category,status:422}], errors[{index,sku,status:422,message}] }`. Items are judged one by one: a bad item never blocks the rest of the batch. More than 500 items → `422` for the whole call.
+
+**Test SKU.** Exactly one item per merchant may be `sku: "__apibase_test"`, `is_test: true`, `price_usd: 0.01` (any other price or a second test item → `422`). It is not listed by `shop.catalog.search`, but `shop.catalog.get` returns it, so an agent can run an end-to-end purchase. No fee is taken on it.
+
+**Moderation.** Order per item: category in `allowed` (else `rejected`, `category_prohibited`) → prohibited-category keywords and the platform content filter (`rejected`) → hidden characters and instruction-like text (`ignore previous`, `you must`, `system:`, non-`https` URL schemes → `flagged`). Every check writes a `shop_moderation_reviews` row (`scope=product`, `layer=rules`). A `flagged` product is saved but invisible to buyers (`search` omits it, `get` → `404`) until it passes the LLM check; re-uploading the item moderates it again. A call with rejected items also emits one `shop.catalog.rejected` event.
+
+Buyer path (`/mcp`, free, read-only, `merchant` = slug is required, only `active` merchants — otherwise `410 merchant_unavailable`):
+
+- `shop.catalog.search {merchant, query?, category?, max_price_usd?, limit≤50, cursor?}` → `products[{sku,title,price_usd,availability,requires_pii,fulfillment_mode}]`, `merchant{name,reputation,policy_summary}`, `next_cursor`. Full-text over title+description, ordered by rank then product id.
+- `shop.catalog.get {merchant, sku}` → full card incl. `shipping_options`, `delivery_slots`, `refund_policy`, `variants[]`, `merchant_encryption_key`. `contact_email` is never returned.
+
 ## Legal documents
 
 Draft texts, accepted by the operator without legal review; not a legal opinion.

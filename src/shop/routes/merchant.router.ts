@@ -10,6 +10,7 @@ import {
   type SignPurpose,
 } from '../auth/nonce.service';
 import { currentDocs, termsStatus } from '../auth/terms.guard';
+import { upsertCatalog } from '../catalog.service';
 import {
   acceptTerms,
   acceptTermsMessage,
@@ -159,6 +160,20 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         const r = await deactivateMerchant(deps, req.merchant?.merchant_id ?? '');
+        res.json(r);
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // §6.3: the merchant comes from the key, never from the body.
+  router.put(
+    '/api/v1/shop/merchants/me/catalog',
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        const r = await upsertCatalog(deps, req.merchant?.merchant_id ?? '', req.body?.items);
         res.json(r);
       } catch (err) {
         send(res, err);

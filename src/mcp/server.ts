@@ -28,6 +28,7 @@ import { mcpSessionsActive } from '../services/metrics.service';
 import { registerTools, type PaymentContext } from './tool-adapter';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
+import { registerCatalogTools } from '../shop/tools/catalog.tools';
 import { registerMerchantTools } from '../shop/tools/merchant.tools';
 
 // ---------------------------------------------------------------------------
@@ -176,6 +177,7 @@ export function createMcpServer(
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
   registerMerchantTools(mcpServer, apiKey, requestId);
+  registerCatalogTools(mcpServer, apiKey, requestId);
   registerPrompts(mcpServer);
   return mcpServer;
 }
