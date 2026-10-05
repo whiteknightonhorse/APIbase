@@ -11,7 +11,11 @@ declare module 'mppx/server' {
     description?: string;
     memo?: string;
     waitForConfirmation?: boolean;
-    store?: { get(key: string): Promise<unknown>; put(key: string, value: unknown): Promise<void> };
+    store?: {
+      get(key: string): Promise<unknown>;
+      put(key: string, value: unknown): Promise<void>;
+      update(key: string, fn: (current: unknown) => unknown): Promise<unknown>;
+    };
     mode?: 'push' | 'pull';
     rpcUrl?: string;
   };
@@ -28,10 +32,12 @@ declare module 'mppx/server' {
       get(key: string): Promise<string | null>;
       set(key: string, value: string): Promise<unknown>;
       del(key: string): Promise<unknown>;
+      update?(key: string, fn: (current: string | null) => unknown): Promise<unknown>;
     }): {
       get(key: string): Promise<unknown>;
       put(key: string, value: unknown): Promise<void>;
       delete(key: string): Promise<void>;
+      update(key: string, fn: (current: unknown) => unknown): Promise<unknown>;
     };
   };
 

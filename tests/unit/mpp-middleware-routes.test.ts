@@ -13,13 +13,15 @@ jest.mock('../../src/pipeline/stages/tool-status.stage', () => ({
 }));
 
 const mockCharge = jest.fn();
+let mockStoreHasUpdate = true;
 const mockStoreRedis = jest.fn((client: unknown) => ({
   get: jest.fn(),
   put: jest.fn(),
   delete: jest.fn(),
+  update: mockStoreHasUpdate ? jest.fn() : undefined,
   client,
 }));
-const mockRedisClient = { get: jest.fn(), set: jest.fn(), del: jest.fn() };
+const mockRedisClient = { get: jest.fn(), set: jest.fn(), del: jest.fn(), eval: jest.fn() };
 jest.mock('../../src/services/redis.service', () => ({ getSharedRedis: () => mockRedisClient }));
 jest.mock('mppx/server', () => ({
   Store: { redis: (c: unknown) => mockStoreRedis(c) },
@@ -74,11 +76,13 @@ describe('mppMiddleware route/price gating (T-0256)', () => {
     await run(makeReq('/api/v1/tools/known.tool/call', 'Payment x'));
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { tempo } = require('mppx/server');
-    expect(mockStoreRedis).toHaveBeenCalledWith(mockRedisClient);
+    const adapterArg = mockStoreRedis.mock.calls[0][0] as { update: unknown };
+    expect(typeof adapterArg.update).toBe('function');
     for (const fn of [tempo.charge, tempo.session]) {
       const store = fn.mock.calls[0][0].store;
       expect(typeof store.get).toBe('function');
       expect(typeof store.put).toBe('function');
+      expect(typeof store.update).toBe('function');
     }
   });
 
@@ -122,5 +126,25 @@ describe('mppMiddleware route/price gating (T-0256)', () => {
     mockCfg.mockReturnValue({ enabled: false });
     expect(await run(makeReq('/mcp', 'Payment x'))).toBeUndefined();
     expect(mockCharge).not.toHaveBeenCalled();
+  });
+
+  it('T-0268: store without update -> init fails -> 502 BAD_GATEWAY', async () => {
+    mockStoreHasUpdate = false;
+    try {
+      await jest.isolateModulesAsync(async () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const mw = require('../../src/middleware/mpp.middleware');
+        const e = await new Promise<{ httpStatus: number }>((resolve) =>
+          mw.mppMiddleware(
+            makeReq('/api/v1/tools/known.tool/call', 'Payment x'),
+            {} as never,
+            (err: never) => resolve(err),
+          ),
+        );
+        expect(e.httpStatus).toBe(502);
+      });
+    } finally {
+      mockStoreHasUpdate = true;
+    }
   });
 });

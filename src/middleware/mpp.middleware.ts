@@ -81,7 +81,12 @@ async function ensureMppx(): Promise<void> {
   const { Mppx, tempo, Store } = await import('mppx/server');
   const { privateKeyToAccount } = await import('viem/accounts');
   const { getSharedRedis } = await import('../services/redis.service');
+  const { atomicRedisAdapter } = await import('../services/mppx-redis-store');
   const account = privateKeyToAccount(cfg.privateKey as `0x${string}`);
+  const store = Store.redis(atomicRedisAdapter(getSharedRedis()));
+  if (typeof store.update !== 'function') {
+    throw new Error('mppx store has no atomic update — refusing to start MPP');
+  }
   const params = {
     account,
     currency: cfg.usdcAddress,
@@ -90,7 +95,8 @@ async function ensureMppx(): Promise<void> {
     // (default is Store.memory()). Failure mode: if Redis is unavailable,
     // mppx's store get/put throws -> caught in verifyMppPayment -> 400
     // (fail-closed; consistent with the 503 on ESCROW when Redis is down).
-    store: Store.redis(getSharedRedis()),
+    // T-0268: replay guard needs store.update(); ioredis has none -> CAS adapter.
+    store,
   };
 
   mppxInstance = Mppx.create({
