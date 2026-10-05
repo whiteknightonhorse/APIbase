@@ -160,11 +160,15 @@ export function registerOrderTools(
     server,
     'shop.order.cancel',
     {
-      title: 'Cancel an unpaid order',
+      title: 'Cancel an order',
       description:
-        'Cancel an order that is still QUOTED (free): the quote is voided and held stock released. After payment use the refund flow.',
+        'QUOTED: free cancel, the quote is voided and held stock released. After payment: before the merchant confirms it is always a refund (state REFUND_PENDING, due in 7 days); later only if the merchant accepts returns and the refund window is open, else 409 with the policy. Digital content delivered under waive_withdrawal cannot be cancelled.',
       inputSchema: { order_id: z.string(), reason: z.string().min(1).max(500) },
-      outputSchema: { order_id: z.string(), state: z.string() },
+      outputSchema: {
+        order_id: z.string(),
+        state: z.string(),
+        refund_id: z.string().nullable().optional(),
+      },
       annotations: {
         readOnlyHint: false,
         destructiveHint: true,
@@ -188,13 +192,18 @@ export function registerOrderTools(
     {
       title: 'Get an order',
       description:
-        'Order state and tx_hash; fulfillment (the delivered content) only for the identity that paid, repeatable. Poll this after a payment_pending answer.',
+        'Order state, events, tracking (null in wave 1), refund_policy and tx_hash. For the identity that paid also: fulfillment (the delivered content, repeatable), documents (merchant links), merchant_contact {email, site_url} while the order is open (not once CLOSED). Poll this after a payment_pending answer.',
       inputSchema: { order_id: z.string() },
       outputSchema: {
         order_id: z.string(),
         state: z.string(),
         tx_hash: z.string().nullable(),
         fulfillment: z.string().optional(),
+        events: z.array(z.record(z.unknown())),
+        tracking: z.null(),
+        merchant_contact: z.object({ email: z.string(), site_url: z.string() }).optional(),
+        documents: z.array(z.record(z.unknown())).optional(),
+        refund_policy: z.record(z.unknown()),
       },
       annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },

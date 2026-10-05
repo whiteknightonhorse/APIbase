@@ -31,21 +31,52 @@ export async function getMerchant(
   return rows[0] ?? null;
 }
 
+export interface OrderListRow extends OrderRowOut {
+  confirm_due_at: Date | null;
+  /** created_at with microseconds: the keyset cursor must not lose Postgres precision. */
+  cursor_ts: string;
+}
+
 export async function listOrders(
   db: ShopTx,
-  scope: MerchantScoped & { state?: State; limit?: number },
-): Promise<OrderRowOut[]> {
-  return db.$queryRawUnsafe<OrderRowOut[]>(
+  scope: MerchantScoped & {
+    state?: State;
+    since?: Date;
+    after?: { cursor_ts: string; order_id: string };
+    limit?: number;
+  },
+): Promise<OrderListRow[]> {
+  return db.$queryRawUnsafe<OrderListRow[]>(
     `SELECT order_id, quote_id, merchant_id, state, total_usd::text AS total_usd,
-            fee_usd::text AS fee_usd, created_at
+            fee_usd::text AS fee_usd, created_at, confirm_due_at,
+            to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS cursor_ts
        FROM shop_orders
       WHERE merchant_id = $1::uuid AND ($2::text IS NULL OR state = $2)
-      ORDER BY created_at DESC
+        AND ($4::timestamptz IS NULL OR created_at >= $4::timestamptz)
+        AND ($5::timestamptz IS NULL OR (created_at, order_id) < ($5::timestamptz, $6::uuid))
+      ORDER BY created_at DESC, order_id DESC
       LIMIT $3::int`,
     scope.merchant_id,
     scope.state ?? null,
     Math.min(scope.limit ?? 50, 200),
+    scope.since ?? null,
+    scope.after?.cursor_ts ?? null,
+    scope.after?.order_id ?? null,
   );
+}
+
+/** Lock this merchant's order row (FOR UPDATE); null for another tenant's order. */
+export async function lockOrder(
+  db: ShopTx,
+  scope: MerchantScoped & { order_id: string },
+): Promise<{ order_id: string; state: State } | null> {
+  const rows = await db.$queryRawUnsafe<Array<{ order_id: string; state: State }>>(
+    `SELECT order_id, state FROM shop_orders
+      WHERE merchant_id = $1::uuid AND order_id = $2::uuid FOR UPDATE`,
+    scope.merchant_id,
+    scope.order_id,
+  );
+  return rows[0] ?? null;
 }
 
 export async function getOrder(

@@ -14,6 +14,7 @@ import {
   run as runShopPaymentReconcile,
   runDailySample as runShopPaymentSample,
 } from '../jobs/shop-payment-reconcile.job';
+import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -253,6 +254,20 @@ const shopReconcileTask = cron.schedule('*/5 * * * *', () => {
       shopReconcileRunning = false;
     });
 });
+// Order SLA sweeper (INT-12, §5.3): expired quotes, confirm_overdue, close_after, refund due_at,
+// payout_pending, connect_events TTL.
+let shopSweeperRunning = false;
+const shopSweeperTask = cron.schedule('*/5 * * * *', () => {
+  if (shopSweeperRunning) {
+    return;
+  }
+  shopSweeperRunning = true;
+  runShopSlaSweeper()
+    .catch((err) => logger.error({ err, job: 'shop-sla-sweeper' }, 'sweeper job failed'))
+    .finally(() => {
+      shopSweeperRunning = false;
+    });
+});
 const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
   runShopPaymentSample().catch((err) =>
     logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
@@ -293,7 +308,7 @@ setTimeout(async () => {
 }, 5_000);
 
 logger.info(
-  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync + shop-payment-reconcile cron active',
+  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync + shop-payment-reconcile + shop-sla-sweeper cron active',
 );
 
 // ---------------------------------------------------------------------------
@@ -311,6 +326,7 @@ function shutdown(signal: string): void {
   partitionCleanupTask.stop();
   ofacSdnSyncTask.stop();
   shopReconcileTask.stop();
+  shopSweeperTask.stop();
   shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {

@@ -315,10 +315,16 @@ dbDescribe('shop quotes', () => {
       to_state: 'CANCELLED',
       reason: 'changed my mind',
     });
-    // after PAID the free cancel is closed
+    // after PAID the free cancel is closed: INT-12 turns it into a refund request (LC5)
     const paid = await q(m, [{ sku }], b);
     await prisma.$executeRawUnsafe(
       `UPDATE shop_orders SET state = 'PAID' WHERE order_id = $1::uuid`,
+      paid.order_id,
+    );
+    expect((await fail(cancelOrder(deps, buyer(), paid.order_id, 'x'))).status).toBe(404);
+    expect((await cancelOrder(deps, b, paid.order_id, 'x')).state).toBe('REFUND_PENDING');
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_orders SET state = 'PAYING' WHERE order_id = $1::uuid`,
       paid.order_id,
     );
     expect((await fail(cancelOrder(deps, b, paid.order_id, 'x'))).error_code).toBe(

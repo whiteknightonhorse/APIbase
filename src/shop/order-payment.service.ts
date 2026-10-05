@@ -6,6 +6,7 @@ import type { ShopTx } from './db';
 import { convertReservation } from './repository';
 import { transition } from './order-state';
 import { QuoteError } from './quote.errors';
+import { refundPolicy, type RefundPolicy } from './order-lifecycle.service';
 
 /** §8.4: client/version (MCP initialize) or user agent (REST); the wallet is only a hash prefix. */
 export interface BuyerAgent {
@@ -14,11 +15,26 @@ export interface BuyerAgent {
   user_agent?: string;
 }
 
+export interface OrderEventView {
+  seq: number;
+  from_state: string | null;
+  to_state: string;
+  actor: string;
+  reason: string | null;
+  at: Date;
+}
+
 export interface OrderView {
   order_id: string;
   state: string;
   tx_hash: string | null;
   fulfillment?: string;
+  events?: OrderEventView[];
+  /** Wave 1 has no physical shipments (INT-22). */
+  tracking?: null;
+  merchant_contact?: { email: string; site_url: string };
+  documents?: Array<{ url: string; at: Date }>;
+  refund_policy?: RefundPolicy;
 }
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -108,6 +124,20 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
       p.order_id,
       settlement,
     );
+    // §5.3 / UC-17: a merchant-fulfilled order (not instant, not the test SKU) must be CONFIRMED
+    // within the merchant's confirm_sla_h (default 48); the sweeper watches confirm_due_at.
+    await tx.$executeRawUnsafe(
+      `UPDATE shop_orders o
+          SET confirm_due_at = now() + (COALESCE((m.policy->>'confirm_sla_h')::numeric, 48) * interval '1 hour')
+         FROM shop_merchants m, shop_quotes q
+        WHERE o.order_id = $1::uuid AND m.merchant_id = o.merchant_id AND q.quote_id = o.quote_id
+          AND NOT q.is_test
+          AND EXISTS (
+            SELECT 1 FROM jsonb_array_elements(q.items) i
+              JOIN shop_products p ON p.merchant_id = o.merchant_id AND p.sku = i->>'sku'
+             WHERE p.fulfillment_mode <> 'instant')`,
+      p.order_id,
+    );
     await tx.$executeRawUnsafe(
       `UPDATE shop_quotes SET status = 'paid' WHERE quote_id = $1::uuid`,
       o.quote_id,
@@ -165,11 +195,23 @@ interface ViewRow {
   fulfillment_payload_enc: string | null;
   buyer_identity: string | null;
   payer_wallet: string | null;
+  merchant_id: string;
 }
+
+/** UC-19: the merchant's contact is the payer's while the order is open (PAID ... not CLOSED). */
+const CONTACT_STATES = [
+  'PAID',
+  'CONFIRMED',
+  'FULFILLED',
+  'SHIPPED',
+  'DELIVERED',
+  'REFUND_PENDING',
+  'DISPUTED',
+];
 
 async function loadView(db: ShopTx, where: string, value: string): Promise<ViewRow | undefined> {
   const rows = await db.$queryRawUnsafe<ViewRow[]>(
-    `SELECT o.order_id, o.state, o.tx_hash, o.fulfillment_payload_enc, o.payer_wallet, q.buyer_identity
+    `SELECT o.order_id, o.state, o.tx_hash, o.fulfillment_payload_enc, o.payer_wallet, o.merchant_id, q.buyer_identity
        FROM shop_orders o JOIN shop_quotes q ON q.quote_id = o.quote_id
       WHERE ${where} = $1::uuid
       ORDER BY o.created_at DESC LIMIT 1`,
@@ -186,7 +228,10 @@ function toView(r: ViewRow, withFulfillment: boolean): OrderView {
   return view;
 }
 
-/** §6.1 shop.order.get (wave-1 minimum): `fulfillment` only for the payer's identity. */
+/**
+ * §6.1 shop.order.get: state, events, tracking (null in wave 1), refund policy for everyone;
+ * `fulfillment`, `merchant_contact` (open orders only) and `documents` for the payer's identity.
+ */
 export async function getOrderView(
   db: ShopTx,
   order_id: string,
@@ -197,7 +242,30 @@ export async function getOrderView(
   }
   const r = await loadView(db, 'o.order_id', order_id);
   if (!r) throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
-  return toView(r, isPayer(r, identity));
+  const payer = isPayer(r, identity);
+  const view = toView(r, payer);
+  view.events = await db.$queryRawUnsafe<OrderEventView[]>(
+    `SELECT seq, from_state, to_state, actor, reason, at FROM shop_order_events
+      WHERE order_id = $1::uuid ORDER BY seq`,
+    order_id,
+  );
+  view.tracking = null;
+  view.refund_policy = await refundPolicy(db, order_id);
+  if (payer) {
+    view.documents = await db.$queryRawUnsafe<Array<{ url: string; at: Date }>>(
+      `SELECT payload->>'url' AS url, at FROM shop_order_events
+        WHERE order_id = $1::uuid AND reason = 'document' ORDER BY seq`,
+      order_id,
+    );
+    if (CONTACT_STATES.includes(r.state)) {
+      const m = await db.$queryRawUnsafe<Array<{ email: string; site_url: string }>>(
+        `SELECT contact_email AS email, site_url FROM shop_merchants WHERE merchant_id = $1::uuid`,
+        r.merchant_id,
+      );
+      if (m[0]) view.merchant_contact = m[0];
+    }
+  }
+  return view;
 }
 
 /** §8.1 item 3: a repeat without payment on an already paid quote, by the same payer. */

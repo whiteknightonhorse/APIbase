@@ -5,14 +5,17 @@
 A merchant goes `pending` → `active` in three calls. Everything is authenticated by the merchant
 wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
 
-| Step | REST (`/api/v1/shop`)                                    | MCP tool                     |
-| ---- | -------------------------------------------------------- | ---------------------------- |
-| 1    | `GET /auth/nonce?wallet=0x…&purpose=register`            | —                            |
-| 2    | `POST /merchants`                                        | `shop.merchant.register`     |
-| 3    | `GET /auth/nonce?wallet=0x…&purpose=accept_terms`        | —                            |
-| 4    | `POST /merchants/me/acceptances`                         | `shop.merchant.accept_terms` |
-| —    | `POST /merchants/me/keys/rotate` (Bearer)                | `shop.merchant.rotate_key`   |
-| —    | `POST /merchants/me/deactivate` (Bearer, `orders:write`) | `shop.merchant.deactivate`   |
+| Step | REST (`/api/v1/shop`)                                     | MCP tool                       |
+| ---- | --------------------------------------------------------- | ------------------------------ |
+| 1    | `GET /auth/nonce?wallet=0x…&purpose=register`             | —                              |
+| 2    | `POST /merchants`                                         | `shop.merchant.register`       |
+| 3    | `GET /auth/nonce?wallet=0x…&purpose=accept_terms`         | —                              |
+| 4    | `POST /merchants/me/acceptances`                          | `shop.merchant.accept_terms`   |
+| —    | `POST /merchants/me/keys/rotate` (Bearer)                 | `shop.merchant.rotate_key`     |
+| —    | `POST /merchants/me/deactivate` (Bearer, `orders:write`)  | `shop.merchant.deactivate`     |
+| —    | `GET /merchants/me/orders` (Bearer, `orders:read`)        | `shop.merchant.orders_list`    |
+| —    | `POST /merchants/me/orders/:id/confirm` (`orders:write`)  | `shop.merchant.order_confirm`  |
+| —    | `POST /merchants/me/orders/:id/document` (`orders:write`) | `shop.merchant.order_document` |
 
 1. **Nonce.** `GET /auth/nonce` returns `{nonce, issued_at, expires_in, message}`; `message` is the exact
    text to sign for that purpose. A nonce is single-use and lives 300 s.
@@ -145,7 +148,10 @@ Buyer path after a quote: pay with x402 (Base). **Settle comes before delivery**
 - **`202 payment_pending {order_id}`** — the receipt was not seen in time; the order stays `PAYING`. Poll `shop.order.get` / `GET /api/v1/shop/orders/:id`. The `shop-payment-reconcile` job (every 5 minutes, 24 h window) reads `authorizationState(payer, nonce)` and the USDC `Transfer` on-chain: confirmed → `PAID` and delivery; not confirmed after 24 h → `PAYMENT_FAILED` for good, the quote expires and the stock reservation is released. Only `pending`/`failed` payments are reconciled, never wallets.
 - **`402 payment_required`** — the settle was refused (`PAYMENT_FAILED`, nothing delivered); the quote stays open until its TTL, sign a new authorization (new nonce) and pay again: the same order row goes `PAYMENT_FAILED → PAYING`. A quote that is already paid, or has a payment in progress, also answers `402`.
 - **`200 already_placed`** — a repeat of `shop.order.pay` **without** a payment on a quote the same identity already paid returns the same order (with `fulfillment`); any other identity gets `402`.
-- `shop.order.get {order_id}` · `GET /api/v1/shop/orders/:id` → `{order_id, state, tx_hash, fulfillment?}`. `fulfillment` is present only for the identity that paid (the quote's buyer, or the wallet identity of the payer) and is the same on every call.
+- `shop.order.get {order_id}` · `GET /api/v1/shop/orders/:id` → `{order_id, state, tx_hash, events[], tracking (null in wave 1), refund_policy {refund_window_days, returns_accepted}}`; for the identity that paid (the quote's buyer, or the wallet identity of the payer) also `fulfillment?` (same on every call), `documents[]` (merchant links) and, while the order is open (`PAID` … `DELIVERED`, `REFUND_PENDING`, `DISPUTED`; not `CLOSED`), `merchant_contact {email, site_url}`.
+- `shop.order.cancel` after payment: before the merchant confirms (`PAID`) it is always a refund → `REFUND_PENDING` and a `shop_refunds` row due in 7 days (`shop.refund.requested`); after `CONFIRMED` only if the SKUs accept returns and `refund_window_days` is still open, otherwise `409 not_cancellable` with the policy. Digital content delivered under `waive_withdrawal` (`FULFILLED`/`CLOSED`) is `409`.
+- **Merchant order tools.** `orders_list {state?, since?, cursor?, limit?}` (own orders only, `next_cursor` for the next page), `order_confirm {order_id}` (`PAID → CONFIRMED`, stops the confirm SLA; another merchant's order is `404`), `order_document {order_id, url}` (`https://` only, else `422`; shown in the buyer's `order.get.documents`).
+- **SLA sweeper** (`shop-sla-sweeper`, worker, every 5 minutes): expired open quotes → `expired` (stock released, `QUOTED` orders → `EXPIRED`); `PAID` past `confirm_due_at` (`PAID` + `policy.confirm_sla_h`, default 48 h, merchant-fulfilled orders only) → one `shop.order.confirm_overdue`, repeated every 24 h; three late orders in a row → the merchant gets `status_reason = unresponsive` and quotes answer `410` until the operator clears it; `close_after` passed → `CLOSED`; refund `due_at` passed → `overdue` + one `shop.refund.overdue`; `payout_pending.effective_at` passed → the new payout wallet is applied; `shop_connect_events` older than 30 days are deleted.
 - Paid orders emit the `shop.order.paid` event; the `PAID` order event records `request_id`, the buyer agent (client name/version or user agent) and the first 8 hex characters of the payer wallet's SHA-256 — never the wallet.
 
 ## Legal documents

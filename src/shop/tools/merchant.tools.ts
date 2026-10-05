@@ -5,6 +5,11 @@ import { rotateKey } from '../auth/identity.service';
 import { authenticateMerchantKey, type AuthedMerchant } from '../auth/merchant-key.service';
 import { termsStatus } from '../auth/terms.guard';
 import {
+  addMerchantDocument,
+  confirmMerchantOrder,
+  listMerchantOrders,
+} from '../order-lifecycle.service';
+import {
   acceptTerms,
   defaultShopDeps,
   deactivateMerchant,
@@ -36,6 +41,9 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.accept_terms',
   'shop.merchant.rotate_key',
   'shop.merchant.deactivate',
+  'shop.merchant.orders_list',
+  'shop.merchant.order_confirm',
+  'shop.merchant.order_document',
 ] as const;
 
 type Result = {
@@ -208,6 +216,82 @@ export function registerMerchantTools(
         const m = await bearer(deps, apiKey, 'orders:write');
         const r = await deactivateMerchant(deps, m.merchant_id);
         return ok({ ...r, ...(await bannerFor(deps, m.merchant_id)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.orders_list',
+    {
+      title: 'List my orders',
+      description:
+        'Your own orders (needs orders:read), newest first. Filters: state, since (ISO 8601); pass next_cursor back as cursor for the next page.',
+      inputSchema: {
+        state: z.string().optional(),
+        since: z.string().optional(),
+        cursor: z.string().optional(),
+        limit: z.number().int().min(1).max(200).optional(),
+      },
+      outputSchema: {
+        orders: z.array(z.record(z.unknown())),
+        next_cursor: z.string().nullable(),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: Record<string, unknown>) => {
+      try {
+        const m = await bearer(deps, apiKey, 'orders:read');
+        return ok({ ...(await listMerchantOrders(deps, m.merchant_id, a)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.order_confirm',
+    {
+      title: 'Confirm a paid order',
+      description:
+        "PAID -> CONFIRMED (needs orders:write); stops the confirm SLA (48 h by default). Repeating is a no-op. Another merchant's order is 404.",
+      inputSchema: { order_id: z.string() },
+      outputSchema: { order_id: z.string(), state: z.string() },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async (a: { order_id: string }) => {
+      try {
+        const m = await bearer(deps, apiKey, 'orders:write');
+        return ok({ ...(await confirmMerchantOrder(deps, m.merchant_id, a.order_id)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.order_document',
+    {
+      title: 'Attach a document to an order',
+      description:
+        'Attach an https:// link (invoice, receipt) to your order (needs orders:write); the paying buyer sees it in shop.order.get documents.',
+      inputSchema: { order_id: z.string(), url: z.string() },
+      outputSchema: { order_id: z.string(), url: z.string() },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: { order_id: string; url: string }) => {
+      try {
+        const m = await bearer(deps, apiKey, 'orders:write');
+        return ok({ ...(await addMerchantDocument(deps, m.merchant_id, a.order_id, a.url)) });
       } catch (err) {
         return fail(err, requestId);
       }

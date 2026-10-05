@@ -12,6 +12,11 @@ import {
 import { currentDocs, termsStatus } from '../auth/terms.guard';
 import { upsertCatalog } from '../catalog.service';
 import {
+  addMerchantDocument,
+  confirmMerchantOrder,
+  listMerchantOrders,
+} from '../order-lifecycle.service';
+import {
   acceptTerms,
   acceptTermsMessage,
   defaultShopDeps,
@@ -175,6 +180,51 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
       try {
         const r = await upsertCatalog(deps, req.merchant?.merchant_id ?? '', req.body?.items);
         res.json(r);
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // §6.3 orders: the merchant is the key's, never a parameter.
+  router.get(
+    '/api/v1/shop/merchants/me/orders',
+    requireMerchantKey(['orders:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        const q = req.query as Record<string, unknown>;
+        res.json(await listMerchantOrders(deps, req.merchant?.merchant_id ?? '', q));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/shop/merchants/me/orders/:id/confirm',
+    requireMerchantKey(['orders:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await confirmMerchantOrder(deps, req.merchant?.merchant_id ?? '', req.params.id));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/shop/merchants/me/orders/:id/document',
+    requireMerchantKey(['orders:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await addMerchantDocument(
+            deps,
+            req.merchant?.merchant_id ?? '',
+            req.params.id,
+            req.body?.url,
+          ),
+        );
       } catch (err) {
         send(res, err);
       }

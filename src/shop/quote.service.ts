@@ -8,6 +8,8 @@ import type { ShopTx } from './db';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import { createQuotedOrder, transition } from './order-state';
 import { QuoteError } from './quote.errors';
+import { cancelPaidOrder } from './order-lifecycle.service';
+import { isPayer } from './order-payment.service';
 import { releaseReservation, reserveStock } from './repository';
 
 export const QUOTE_RATE_PER_MIN = 30;
@@ -704,13 +706,16 @@ export async function getQuote(
   }
 }
 
-/** §6.1 shop.order.cancel: free until PAID. Later states belong to the refund flow (INT-12). */
+/**
+ * §6.1 shop.order.cancel. QUOTED: free, the quote is voided. After PAID: UC-13 -- before CONFIRMED
+ * always a refund (REFUND_PENDING + a shop_refunds row due in 7 days), later only by the policy.
+ */
 export async function cancelOrder(
   d: ShopDeps,
   buyer: Buyer,
   order_id: string,
   reason: string,
-): Promise<{ order_id: string; state: 'CANCELLED' }> {
+): Promise<{ order_id: string; state: 'CANCELLED' | 'REFUND_PENDING'; refund_id?: string | null }> {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(order_id ?? '')) {
     throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
   }
@@ -719,26 +724,46 @@ export async function cancelOrder(
   }
   return d.transaction(async (tx) => {
     const rows = await tx.$queryRawUnsafe<
-      Array<{ state: string; quote_id: string; merchant_id: string; buyer_identity: string | null }>
+      Array<{
+        state: string;
+        quote_id: string;
+        merchant_id: string;
+        buyer_identity: string | null;
+        payer_wallet: string | null;
+        total_usd: string;
+        settled_at: Date | null;
+        close_after: Date | null;
+        waive_withdrawal: boolean;
+      }>
     >(
-      `SELECT o.state, o.quote_id, o.merchant_id, q.buyer_identity
+      `SELECT o.state, o.quote_id, o.merchant_id, q.buyer_identity, o.payer_wallet,
+              o.total_usd::text AS total_usd, o.settled_at, o.close_after, q.waive_withdrawal
          FROM shop_orders o JOIN shop_quotes q ON q.quote_id = o.quote_id
         WHERE o.order_id = $1::uuid FOR UPDATE OF o`,
       order_id,
     );
     const o = rows[0];
-    if (!o || (o.buyer_identity && o.buyer_identity !== buyer.identity)) {
+    // QUOTED: the quote's buyer. Paid orders: the payer (quote buyer or the paying wallet's identity).
+    const mine =
+      o &&
+      (o.state === 'QUOTED'
+        ? !o.buyer_identity || o.buyer_identity === buyer.identity
+        : isPayer(o, buyer.identity));
+    if (!o || !mine) {
       throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
     }
     if (o.state === 'CANCELLED') return { order_id, state: 'CANCELLED' as const };
     if (o.state !== 'QUOTED') {
-      throw new QuoteError(
-        409,
-        'not_cancellable',
-        `order is ${o.state}: after payment use the refund flow`,
-        'use_different_tool',
-        { state: o.state, documentation_url: DOCS },
-      );
+      if (['PAYING', 'PAYMENT_FAILED', 'EXPIRED'].includes(o.state)) {
+        throw new QuoteError(
+          409,
+          'not_cancellable',
+          `order is ${o.state}: not cancellable`,
+          'use_different_tool',
+          { state: o.state, documentation_url: DOCS },
+        );
+      }
+      return cancelPaidOrder(tx, { ...o, order_id }, reason.trim(), (d.now ?? Date.now)());
     }
     await transition(tx, order_id, 'CANCELLED', { actor: 'buyer', reason: reason.trim() });
     await tx.$executeRawUnsafe(

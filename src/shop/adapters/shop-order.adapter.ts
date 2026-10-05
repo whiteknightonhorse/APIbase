@@ -3,7 +3,7 @@ import { decryptSecret, encryptSecret } from '../../services/secret-crypto.servi
 import type { ShopDeps } from '../merchant-lifecycle.service';
 import { transition } from '../order-state';
 
-const DEFAULT_REFUND_WINDOW_DAYS = 14;
+export const DEFAULT_REFUND_WINDOW_DAYS = 14;
 const TEST_SKU_TEXT = 'test ok';
 
 export interface ShopOrderResult {
