@@ -58,8 +58,9 @@ With the wallet from the preconditions, act as a buyer of your own shop:
 1. `POST /api/v1/shop/quotes` with `{merchant: "<slug>", items: [{sku: "__apibase_test", qty: 1}]}`. The reply carries `quote_id`, `total_usd` and `pay`.
 2. Pay by x402: sign the authorization described in `pay.x402` and send it as `X-Payment` to `POST /api/v1/shop/quotes/<quote_id>/pay` (on the storefront MCP endpoint `/mcp/m/<slug>` the tool is `shop.order.pay`). On Tempo use the MPP challenge from the same URL.
 3. A `200` with `state` of `FULFILLED` or `CLOSED` and fulfillment text `test ok` means the order is paid. At most three paid test orders per day are allowed.
+4. To make a retry safe, add `extensions["payment-identifier"].info.id` (16-128 characters, listed in the 402 `extensions`) to the payment payload. The same id with the same payment returns the stored answer (`order_id`, `state`, `tx_hash`; read the fulfillment with `GET /api/v1/shop/orders/<order_id>`) without a second verify or settle for 24 hours. Without an id nothing changes.
 
-Errors: `quote_expired`, `out_of_stock`, `test_sku_daily_cap`, `payment_required`, `payment_amount_mismatch`, `payment_pending`, `quote_already_paying`, `already_placed`, `pii_required`, `pii_plaintext_rejected`.
+Errors: `quote_expired`, `out_of_stock`, `test_sku_daily_cap`, `payment_required`, `payment_amount_mismatch`, `payment_pending`, `quote_already_paying`, `payment_identifier_conflict`, `payment_in_flight`, `already_placed`, `pii_required`, `pii_plaintext_rejected`.
 
 ## Step 8. payment_verified
 
@@ -129,6 +130,14 @@ HTTP 202 with `order_id`. The receipt was not seen in time. Do not pay again; po
 ### `quote_already_paying`
 
 HTTP 409. An MPP payment for this quote is already in progress. Wait and read the order.
+
+### `payment_identifier_conflict`
+
+HTTP 409. The `payment-identifier` id was already used with a different quote, amount, recipient or payer. Use a fresh id for each distinct payment.
+
+### `payment_in_flight`
+
+HTTP 409. A request with this `payment-identifier` id is still running. Wait, then retry with the same id to get the stored answer, or read the order.
 
 ### `pii_required`
 
