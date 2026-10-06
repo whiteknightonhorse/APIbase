@@ -147,7 +147,8 @@ describe('HTTP route', () => {
   beforeEach(() => store.clear());
 
   it('serves from Redis with the cache header, then from the 15 s response cache', async () => {
-    store.set(FLEET_SEA_KEY, JSON.stringify(stored({}, 0)));
+    // the route judges staleness by the real clock, not by the fixture's fixed NOW
+    store.set(FLEET_SEA_KEY, JSON.stringify(stored({ generated_at: new Date().toISOString() })));
     const res = await fetch(srv.url);
     expect(res.status).toBe(200);
     expect(res.headers.get('cache-control')).toBe('public, max-age=10, s-maxage=10');

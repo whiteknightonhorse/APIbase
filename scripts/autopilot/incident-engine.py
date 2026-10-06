@@ -1412,6 +1412,32 @@ def _src_fee_invoice_overdue():
     return sigs
 
 
+def _src_stream_settle_overdue():
+    # T-INT-40 (F-9): a channel whose settle has been failing for an hour (the worker stamps
+    # `settle_error_since` on the first failure and clears it on a success): ONE incident per channel.
+    # Second signal: the pilot settler key does not control the payout wallet (the stream route
+    # refused to sell; one shop_connect_events row per merchant and hour, no identity).
+    sigs = []
+    rows = _rows(
+        "SELECT merchant_id::text, channel_id FROM shop_stream_sessions WHERE status = 'open' "
+        "AND settle_error_since IS NOT NULL AND settle_error_since < now() - interval '1 hour'")
+    for mid, channel in rows:
+        ch = _clean(channel, limit=70)
+        sigs.append(_sig("STREAM_SETTLE_OVERDUE", mid,
+                         f"stream channel {ch[:18]} has not been settled for over an hour",
+                         {"channel_id": ch}, merchant_id=mid, suffix=ch))
+    rows = _rows(
+        "SELECT DISTINCT m.merchant_id::text, m.slug FROM shop_connect_events e "
+        "JOIN shop_merchants m ON m.slug = substring(e.path from '^/api/v1/shop/m/([a-z0-9-]{3,40})/stream/') "
+        "WHERE e.error_code = 'stream_settler_misconfigured' AND e.at > now() - interval '2 hours'")
+    for mid, slug in rows:
+        sigs.append(_sig("STREAM_SETTLE_OVERDUE", mid,
+                         f"the stream settler key does not control the payout wallet of shop {_clean(slug)}",
+                         {"slug": _clean(slug), "reason": "settler_misconfigured"},
+                         merchant_id=mid, suffix="settler_misconfigured"))
+    return sigs
+
+
 def _src_moderation():
     rows = _rows(
         "SELECT merchant_id::text, scope, verdict, COALESCE(category, ''), COALESCE(evidence_hash, ''), "
@@ -1448,6 +1474,8 @@ _MERCHANT_SOURCES = [
     (("REFUND_OVERDUE",), ("shop_refunds", "shop_orders"), _src_refund_overdue),
     (("DISPUTE_UNANSWERED",), ("shop_disputes", "shop_orders"), _src_dispute_unanswered),
     (("FEE_INVOICE_OVERDUE",), ("shop_fee_invoices",), _src_fee_invoice_overdue),
+    (("STREAM_SETTLE_OVERDUE",), ("shop_stream_sessions", "shop_connect_events", "shop_merchants"),
+     _src_stream_settle_overdue),
     (("CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED",
       "PAYMENT_MISMATCH"), ("shop_moderation_reviews",), _src_moderation),
 ]

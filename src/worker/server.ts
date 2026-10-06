@@ -19,6 +19,7 @@ import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
 import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
 import { runShopCatalogImportJob } from '../jobs/shop-catalog-import.job';
+import { runShopStreamSettle } from '../jobs/shop-stream-settle.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -303,6 +304,19 @@ const shopCatalogImportTask = cron.schedule('* * * * *', () => {
       shopCatalogImportRunning = false;
     });
 });
+// Stream channel settlement (INT-40, F-9): $0.50 / hourly / payer-requested close, every minute.
+let shopStreamSettleRunning = false;
+const shopStreamSettleTask = cron.schedule('* * * * *', () => {
+  if (shopStreamSettleRunning) {
+    return;
+  }
+  shopStreamSettleRunning = true;
+  runShopStreamSettle()
+    .catch((err) => logger.error({ err, job: 'shop-stream-settle' }, 'stream settle job failed'))
+    .finally(() => {
+      shopStreamSettleRunning = false;
+    });
+});
 const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
   runShopPaymentSample().catch((err) =>
     logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
@@ -366,6 +380,7 @@ function shutdown(signal: string): void {
   shopDomainVerifyTask.stop();
   shopStorefrontProbeTask.stop();
   shopCatalogImportTask.stop();
+  shopStreamSettleTask.stop();
   shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {

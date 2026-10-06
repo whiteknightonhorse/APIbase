@@ -32,6 +32,10 @@ Integrator never asks for your private keys or seed phrase, in any tool, page or
 - Safekeeping of a seller's key is the seller's.
 - Refunds are the seller's duty under its stated policy and the refund framework: /legal/refund-framework.
 
+## Streams: pay by the second
+
+A stream product is paid with a deposit into a payment channel that pays the seller's wallet: you deposit at least the minimum shown on the product, the agent signs small vouchers off-chain as the stream runs, and the seller settles in batches. The part of the deposit that was not consumed is returned to you. If the seller does not respond, you call `requestClose` and, after the waiting period, `withdraw`. Streams are paid over MPP only, never with `X-Payment`.
+
 ## If a payment is slow
 
 The order stays in `PAYING` and the call answers 202 `payment_pending`. Do not pay twice: read the order with `shop.order.get` until its state changes.

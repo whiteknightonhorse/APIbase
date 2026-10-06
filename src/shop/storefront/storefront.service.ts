@@ -29,7 +29,7 @@ export interface PublicProduct {
   price_usd: string;
   availability: 'in_stock' | 'out_of_stock';
   requires_pii: string[];
-  fulfillment_mode: 'instant' | 'merchant' | 'physical';
+  fulfillment_mode: 'instant' | 'merchant' | 'physical' | 'stream';
 }
 
 export interface PublicProductCard extends PublicProduct {
@@ -131,6 +131,7 @@ export async function listProducts(
             requires_pii, fulfillment_mode
        FROM shop_products
       WHERE merchant_id = $1::uuid AND NOT is_test AND moderation_status = 'ok'
+        AND fulfillment_mode <> 'stream'
       ORDER BY sku LIMIT $2::int`,
     merchant_id,
     limit,
@@ -164,7 +165,8 @@ export async function getProductCard(
             reserved, fulfillment_mode, requires_pii, category, images, tax_included, tax_note,
             refund_window_days, returns_accepted
        FROM shop_products
-      WHERE merchant_id = $1::uuid AND sku = $2 AND NOT is_test AND moderation_status = 'ok'`,
+      WHERE merchant_id = $1::uuid AND sku = $2 AND NOT is_test AND moderation_status = 'ok'
+        AND fulfillment_mode <> 'stream'`,
     merchant_id,
     sku,
   );

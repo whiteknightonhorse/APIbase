@@ -35,6 +35,36 @@ const money = z
 
 export const cents = (price: string): number => Math.round(Number(price) * 100);
 
+/** Stream terms (UC-7 / F-9): the rate is per second, so it needs up to six fractional digits. */
+export const MIN_STREAM_RATE_USD = 0.0001;
+export const MIN_STREAM_DEPOSIT_USD = 1;
+const micro = z
+  .union([z.number(), z.string()])
+  .transform((v) => String(v))
+  .pipe(z.string().regex(/^\d{1,13}(\.\d{1,6})?$/, 'must be a decimal with at most 6 digits'));
+
+const StreamSchema = z.object({
+  rate_per_s_usd: micro,
+  min_deposit_usd: micro,
+  unit: z.literal('second'),
+  /** Names the content source; the content itself is `fulfillment.instant.payload`. */
+  content_ref: z.string().min(1).max(64),
+});
+export type StreamTerms = z.infer<typeof StreamSchema>;
+
+/** A stream item may omit `price_usd`: the price of a stream product IS its per-second rate. */
+const fillStreamPrice = (raw: unknown): unknown => {
+  const r = raw as {
+    fulfillment_mode?: unknown;
+    price_usd?: unknown;
+    stream?: { rate_per_s_usd?: unknown };
+  };
+  if (r && typeof r === 'object' && r.fulfillment_mode === 'stream' && r.price_usd === undefined) {
+    return { ...r, price_usd: r.stream?.rate_per_s_usd };
+  }
+  return raw;
+};
+
 const idText = z.string().min(1).max(64);
 
 const VariantSchema = z.object({
@@ -45,96 +75,131 @@ const VariantSchema = z.object({
   attributes: z.record(z.string().max(200)).optional(),
 });
 
+/** UC-7 / F-9 stream item rules: the rate, the deposit, no test SKU, the content source. */
+function streamIssues(
+  p: {
+    price_usd: string;
+    is_test: boolean;
+    stream?: StreamTerms;
+    variants?: unknown[];
+    fulfillment?: { instant?: unknown };
+  },
+  issue: (path: string, message: string) => void,
+): void {
+  if (p.is_test) issue('is_test', 'the test SKU cannot be a stream');
+  if (!p.stream) {
+    issue(
+      'stream',
+      'fulfillment_mode stream needs stream {rate_per_s_usd, min_deposit_usd, unit, content_ref}',
+    );
+    return;
+  }
+  const rate = Number(p.stream.rate_per_s_usd);
+  if (!(rate >= MIN_STREAM_RATE_USD)) {
+    issue('stream', `rate_per_s_usd must be at least ${MIN_STREAM_RATE_USD}`);
+  }
+  if (!(Number(p.stream.min_deposit_usd) >= MIN_STREAM_DEPOSIT_USD)) {
+    issue('stream', `min_deposit_usd must be at least ${MIN_STREAM_DEPOSIT_USD}`);
+  }
+  if (Number(p.price_usd) !== rate) {
+    issue(
+      'price_usd',
+      'a stream price is its per-second rate: omit price_usd or set it to rate_per_s_usd',
+    );
+  }
+  if (p.variants?.length) issue('variants', 'a stream product has no variants');
+  if (!p.fulfillment?.instant)
+    issue('fulfillment', 'fulfillment_mode stream needs fulfillment.instant.payload (the content)');
+}
+
 /**
  * F-2 catalog item, shared with INT-32/43 imports. Static rules only; the per-merchant
  * `price_usd <= limits.max_order_usd` ceiling is applied by `upsertCatalog`.
  */
-export const CatalogItemSchema = z
-  .object({
-    sku: z.string().regex(/^[A-Za-z0-9._:-]{1,64}$/),
-    title: clean(120).pipe(z.string().min(1)),
-    description: clean(2000).default(''),
-    price_usd: money,
-    is_test: z.boolean().default(false),
-    currency_display: z.string().min(1).max(8).optional(),
-    stock: z.number().int().min(0).nullable().optional(),
-    fulfillment_mode: z.enum(['instant', 'merchant', 'physical']).default('merchant'),
-    fulfillment: z
-      .object({ instant: z.object({ payload: z.string().min(1).max(20000) }).optional() })
-      .optional(),
-    tax_included: z.boolean().default(false),
-    tax_note: clean(500).optional(),
-    shipping_options: z
-      .array(
-        z.object({
-          id: idText,
-          label: clean(120),
-          price_usd: money,
-          eta_days: z.number().int().min(0).max(365).optional(),
-          regions: z.array(z.string().min(1).max(32)).max(250).optional(),
-        }),
-      )
-      .max(20)
-      .default([]),
-    delivery_slots: z
-      .array(z.object({ id: idText, label: clean(120), starts_at: z.string().max(40).optional() }))
-      .max(50)
-      .default([]),
-    requires_pii: z
-      .array(z.string().regex(/^[a-z_]{2,32}$/))
-      .max(10)
-      .default([]),
-    refund_window_days: z.number().int().min(0).max(365).optional(),
-    returns_accepted: z.boolean().default(false),
-    category: z.string().min(1).max(64),
-    images: z.array(z.string().url().max(2000).startsWith('https://')).max(10).default([]),
-    variants: z.array(VariantSchema).max(100).optional(),
-  })
-  .superRefine((p, ctx) => {
-    const c = cents(p.price_usd);
-    if (p.is_test !== (p.sku === TEST_SKU)) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['is_test'],
-        message: `is_test is reserved for the single ${TEST_SKU} item (and ${TEST_SKU} must set it)`,
-      });
-    } else if (p.is_test && c !== TEST_PRICE_CENTS) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['price_usd'],
-        message: 'the test SKU costs exactly $0.01',
-      });
-    } else if (!p.is_test && c < MIN_PRICE_CENTS) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['price_usd'],
-        message: 'price_usd must be at least $1.00',
-      });
-    }
-    for (const v of p.variants ?? []) {
-      if (v.price_usd !== undefined && cents(v.price_usd) < MIN_PRICE_CENTS && !p.is_test) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['variants'],
-          message: 'variant price must be at least $1.00',
-        });
+export const CatalogItemSchema = z.preprocess(
+  fillStreamPrice,
+  z
+    .object({
+      sku: z.string().regex(/^[A-Za-z0-9._:-]{1,64}$/),
+      title: clean(120).pipe(z.string().min(1)),
+      description: clean(2000).default(''),
+      price_usd: micro,
+      is_test: z.boolean().default(false),
+      currency_display: z.string().min(1).max(8).optional(),
+      stock: z.number().int().min(0).nullable().optional(),
+      fulfillment_mode: z.enum(['instant', 'merchant', 'physical', 'stream']).default('merchant'),
+      stream: StreamSchema.optional(),
+      fulfillment: z
+        .object({ instant: z.object({ payload: z.string().min(1).max(20000) }).optional() })
+        .optional(),
+      tax_included: z.boolean().default(false),
+      tax_note: clean(500).optional(),
+      shipping_options: z
+        .array(
+          z.object({
+            id: idText,
+            label: clean(120),
+            price_usd: money,
+            eta_days: z.number().int().min(0).max(365).optional(),
+            regions: z.array(z.string().min(1).max(32)).max(250).optional(),
+          }),
+        )
+        .max(20)
+        .default([]),
+      delivery_slots: z
+        .array(
+          z.object({ id: idText, label: clean(120), starts_at: z.string().max(40).optional() }),
+        )
+        .max(50)
+        .default([]),
+      requires_pii: z
+        .array(z.string().regex(/^[a-z_]{2,32}$/))
+        .max(10)
+        .default([]),
+      refund_window_days: z.number().int().min(0).max(365).optional(),
+      returns_accepted: z.boolean().default(false),
+      category: z.string().min(1).max(64),
+      images: z.array(z.string().url().max(2000).startsWith('https://')).max(10).default([]),
+      variants: z.array(VariantSchema).max(100).optional(),
+    })
+    .superRefine((p, ctx) => {
+      const issue = (path: string, message: string) =>
+        ctx.addIssue({ code: 'custom', path: [path], message });
+      const c = cents(p.price_usd);
+      if (p.fulfillment_mode === 'stream') {
+        streamIssues(p, issue);
+      } else {
+        if (!/^\d{1,13}(\.\d{1,2})?$/.test(p.price_usd)) {
+          issue('price_usd', 'price must be a decimal with at most 2 digits');
+        } else if (p.is_test !== (p.sku === TEST_SKU)) {
+          issue(
+            'is_test',
+            `is_test is reserved for the single ${TEST_SKU} item (and ${TEST_SKU} must set it)`,
+          );
+        } else if (p.is_test && c !== TEST_PRICE_CENTS) {
+          issue('price_usd', 'the test SKU costs exactly $0.01');
+        } else if (!p.is_test && c < MIN_PRICE_CENTS) {
+          issue('price_usd', 'price_usd must be at least $1.00');
+        }
+        if (p.stream) issue('stream', 'stream is only for fulfillment_mode stream');
       }
-    }
-    if (p.fulfillment_mode === 'instant' && !p.fulfillment?.instant) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['fulfillment'],
-        message: 'fulfillment_mode instant needs fulfillment.instant.payload',
-      });
-    }
-    if (p.fulfillment_mode !== 'instant' && p.fulfillment?.instant) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['fulfillment'],
-        message: 'fulfillment.instant is only for fulfillment_mode instant',
-      });
-    }
-  });
+      for (const v of p.variants ?? []) {
+        if (v.price_usd !== undefined && cents(v.price_usd) < MIN_PRICE_CENTS && !p.is_test) {
+          issue('variants', 'variant price must be at least $1.00');
+        }
+      }
+      if (p.fulfillment_mode === 'instant' && !p.fulfillment?.instant) {
+        issue('fulfillment', 'fulfillment_mode instant needs fulfillment.instant.payload');
+      }
+      if (
+        p.fulfillment_mode !== 'instant' &&
+        p.fulfillment_mode !== 'stream' &&
+        p.fulfillment?.instant
+      ) {
+        issue('fulfillment', 'fulfillment.instant is only for fulfillment_mode instant or stream');
+      }
+    }),
+);
 export type CatalogItem = z.infer<typeof CatalogItemSchema>;
 
 export interface CatalogItemError {
@@ -256,8 +321,14 @@ export async function upsertCatalog(
         continue;
       }
       const p = parsed.data;
-      if (!p.is_test && cents(p.price_usd) > maxOrder * 100) {
-        bad(`price_usd: above the merchant limit max_order_usd (${maxOrder})`);
+      // The order ceiling bounds what a buyer commits at once: a stream's is its minimum deposit.
+      const ceilingUsd = p.stream ? Number(p.stream.min_deposit_usd) : Number(p.price_usd);
+      if (!p.is_test && Math.round(ceilingUsd * 100) > maxOrder * 100) {
+        bad(
+          p.stream
+            ? `stream.min_deposit_usd: above the merchant limit max_order_usd (${maxOrder})`
+            : `price_usd: above the merchant limit max_order_usd (${maxOrder})`,
+        );
         continue;
       }
       if (seen.has(p.sku)) {
@@ -309,9 +380,9 @@ export async function upsertCatalog(
            (merchant_id, sku, title, description, price_usd, is_test, currency_display, available,
             fulfillment_mode, fulfillment_payload_encrypted, tax_included, tax_note, shipping_options,
             delivery_slots, requires_pii, refund_window_days, returns_accepted, category, images,
-            moderation_status)
+            moderation_status, stream)
          VALUES ($1::uuid, $2, $3, $4, $5::numeric, $6, $7, $8::int, $9, $10, $11, $12, $13::jsonb,
-                 $14::jsonb, $15::text[], $16::int, $17, $18, $19::text[], $20)
+                 $14::jsonb, $15::text[], $16::int, $17, $18, $19::text[], $20, $21::jsonb)
          ON CONFLICT (merchant_id, sku) DO UPDATE SET
            title = EXCLUDED.title, description = EXCLUDED.description, price_usd = EXCLUDED.price_usd,
            is_test = EXCLUDED.is_test, currency_display = EXCLUDED.currency_display,
@@ -321,7 +392,8 @@ export async function upsertCatalog(
            shipping_options = EXCLUDED.shipping_options, delivery_slots = EXCLUDED.delivery_slots,
            requires_pii = EXCLUDED.requires_pii, refund_window_days = EXCLUDED.refund_window_days,
            returns_accepted = EXCLUDED.returns_accepted, category = EXCLUDED.category,
-           images = EXCLUDED.images, moderation_status = EXCLUDED.moderation_status, updated_at = now()
+           images = EXCLUDED.images, moderation_status = EXCLUDED.moderation_status,
+           stream = EXCLUDED.stream, updated_at = now()
          RETURNING product_id`,
         merchant_id,
         p.sku,
@@ -343,6 +415,7 @@ export async function upsertCatalog(
         p.category,
         p.images,
         verdict.verdict === 'flagged' ? 'flagged' : 'ok',
+        p.stream ? JSON.stringify(p.stream) : null,
       );
       const product_id = rows[0].product_id;
 

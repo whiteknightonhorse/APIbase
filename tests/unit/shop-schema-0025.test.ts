@@ -22,6 +22,16 @@ const TABLES_WAVE2 = [
   'shop_pii_envelopes',
 ];
 
+/** Added by the one wave-3 migration 0027_wave3 (T-INT-40). */
+const TABLES_WAVE3 = [
+  'shop_payment_identifiers',
+  'shop_stream_sessions',
+  'shop_stream_settlements',
+  'shop_subscription_authorizations',
+  'shop_subscription_periods',
+  'shop_subscriptions',
+];
+
 const TABLES_5_1 = [
   'shop_acceptances',
   'shop_connect_events',
@@ -105,13 +115,15 @@ dbDescribe('0025 on a migrated database', () => {
   beforeAll(() => migrate());
   afterAll(() => db.$disconnect());
 
-  it('SC1: the 18 section-5.1 tables exist, list == snapshot (+ the wave-2 tables of 0026 and 0032)', async () => {
+  it('SC1: the 18 section-5.1 tables exist, list == snapshot (+ the wave-2 tables of 0026 and 0032, the wave-3 tables of 0027)', async () => {
     const rows = await db.$queryRawUnsafe<Array<{ tablename: string }>>(
       `SELECT c.relname AS tablename FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = 'public' AND c.relkind IN ('r','p') AND c.relname LIKE 'shop\\_%'
           AND NOT c.relispartition ORDER BY 1`,
     );
-    expect(rows.map((r) => r.tablename)).toEqual([...TABLES_5_1, ...TABLES_WAVE2].sort());
+    expect(rows.map((r) => r.tablename)).toEqual(
+      [...TABLES_5_1, ...TABLES_WAVE2, ...TABLES_WAVE3].sort(),
+    );
     expect(TABLES_5_1).toHaveLength(18);
   });
 

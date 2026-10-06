@@ -29,7 +29,7 @@ export interface ProductSummary {
   price_usd: string;
   availability: 'in_stock' | 'out_of_stock';
   requires_pii: string[];
-  fulfillment_mode: 'instant' | 'merchant' | 'physical';
+  fulfillment_mode: 'instant' | 'merchant' | 'physical' | 'stream';
 }
 
 interface MerchantRow {
@@ -123,6 +123,7 @@ export async function searchCatalog(
                     ELSE ts_rank(search, plainto_tsquery('simple', $2)) END) AS rank
          FROM shop_products
         WHERE merchant_id = $1::uuid AND NOT is_test AND moderation_status = 'ok'
+          AND fulfillment_mode <> 'stream'
           AND ($2::text IS NULL OR search @@ plainto_tsquery('simple', $2))
           AND ($3::text IS NULL OR category = $3)
           AND ($4::numeric IS NULL OR price_usd <= $4::numeric)
@@ -177,6 +178,8 @@ export interface ProductCard extends ProductSummary {
     availability: string;
     attributes: unknown;
   }>;
+  /** `fulfillment_mode = 'stream'` only (UC-7): the per-second terms and the one endpoint that sells them. */
+  stream?: { rate_per_s_usd: string; min_deposit_usd: string; unit: 'second'; url: string };
 }
 
 /** §6.1 shop.catalog.get: full card; flagged/rejected products are 404; the test SKU is fetchable. */
@@ -189,8 +192,10 @@ export async function getProduct(
   const m = await activeMerchant(db, input.merchant);
   const rows = await db.$queryRawUnsafe<
     Array<
-      Omit<ProductCard, 'availability' | 'refund_policy' | 'variants'> & {
+      Omit<ProductCard, 'availability' | 'refund_policy' | 'variants' | 'stream'> & {
         product_id: string;
+        price_raw: string;
+        stream: { rate_per_s_usd: string; min_deposit_usd: string; unit: 'second' } | null;
         available: number | null;
         reserved: number;
         refund_window_days: number | null;
@@ -201,7 +206,7 @@ export async function getProduct(
     `SELECT product_id, sku, title, description, price_usd::numeric(18,2)::text AS price_usd,
             currency_display, available, reserved, fulfillment_mode, tax_included, tax_note,
             shipping_options, delivery_slots, requires_pii, refund_window_days, returns_accepted,
-            category, images
+            category, images, stream, price_usd::text AS price_raw
        FROM shop_products
       WHERE merchant_id = $1::uuid AND sku = $2 AND moderation_status = 'ok'`,
     m.merchant_id,
@@ -228,7 +233,8 @@ export async function getProduct(
     sku: r.sku,
     title: r.title,
     description: r.description,
-    price_usd: r.price_usd,
+    // A stream price is a per-second rate (0.0001): the cent-rounded column would read 0.00.
+    price_usd: r.stream ? r.price_raw.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '') : r.price_usd,
     currency_display: r.currency_display,
     availability: availability(r.available, r.reserved),
     fulfillment_mode: r.fulfillment_mode,
@@ -250,6 +256,16 @@ export async function getProduct(
       availability: availability(v.available, v.reserved),
       attributes: v.attributes,
     })),
+    ...(r.stream
+      ? {
+          stream: {
+            rate_per_s_usd: r.stream.rate_per_s_usd,
+            min_deposit_usd: r.stream.min_deposit_usd,
+            unit: r.stream.unit,
+            url: `${(process.env.PUBLIC_BASE_URL || 'https://apibase.pro').replace(/\/+$/, '')}/api/v1/shop/m/${input.merchant}/stream/${r.sku}`,
+          },
+        }
+      : {}),
     merchant: card(m),
     merchant_encryption_key: m.encryption_key,
   };

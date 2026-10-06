@@ -52,6 +52,15 @@ export const ENCRYPTION_KEY = {
 export const encryptionKeyMessage = (k: { kid: string; alg: string; pub: string }): string =>
   `apibase.pro merchant encryption key\nkid: ${k.kid}\nalg: ${k.alg}\npub: ${k.pub}`;
 
+/**
+ * T-INT-40: the `demo-stream` text, 10 KB, released 16 characters per paid second (CONTENT_CHARS_PER_S). The shop must
+ * also have `shop_merchants.stream_settler = 'apibase_pilot'` (a dispatcher step, not an API call)
+ * and INTEGRATOR_STREAM_PILOT_TEMPO_KEY must be the key of its `payout_wallet_tempo`.
+ */
+export const DEMO_STREAM_TEXT = 'APIbase demo stream: this text is released second by second. '
+  .repeat(200)
+  .slice(0, 10240);
+
 export const DEMO_CATALOG = [
   {
     sku: TEST_SKU,
@@ -110,6 +119,22 @@ export const DEMO_CATALOG = [
     },
     category: DEMO_CATEGORY,
     refund_window_days: REFUND_WINDOW_DAYS,
+  },
+  {
+    // T-INT-40 (UC-7 / F-9): a per-second stream over an MPP session channel. price_usd = the rate.
+    sku: 'demo-stream',
+    title: 'APIbase demo text stream',
+    description:
+      'A 10 KB demo text delivered by the second over an MPP payment channel: deposit at least $1, pay $0.0001 per second, the unused deposit comes back.',
+    fulfillment_mode: 'stream',
+    stream: {
+      rate_per_s_usd: '0.0001',
+      min_deposit_usd: '1',
+      unit: 'second',
+      content_ref: 'demo-stream-text',
+    },
+    fulfillment: { instant: { payload: DEMO_STREAM_TEXT } },
+    category: DEMO_CATEGORY,
   },
 ];
 

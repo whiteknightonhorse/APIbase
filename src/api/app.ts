@@ -21,6 +21,7 @@ import { createLegalRouter } from '../shop/routes/legal.router';
 import { createIntegratorRouter } from '../shop/routes/integrator.router';
 import { createOwnerRouter } from '../shop/routes/owner.router';
 import { createStorefrontRouter } from '../shop/routes/storefront.router';
+import { createStreamRouter } from '../shop/routes/stream.router';
 import { createCheckRouter } from '../shop/routes/check.router';
 import { createModerationInternalRouter } from '../shop/routes/moderation-internal.router';
 import { executeRouter } from '../routes/execute.router';
@@ -86,6 +87,10 @@ export function createApp(): express.Express {
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false, limit: '64kb' }));
+
+  // --- Streams (INT-40): MPP session challenge/credentials of ONE route, handled by the route
+  // itself, so it runs BEFORE x402Middleware/mppMiddleware (those own tool-call and quote-pay URLs).
+  app.use(createStreamRouter());
 
   // --- OAuth 2.0 compatibility (RFC 6749 + RFC 7591) — before payment + MCP ---
   app.use(oauthRouter);

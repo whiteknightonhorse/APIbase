@@ -7,6 +7,8 @@ declare module 'mppx/server' {
     testnet?: boolean;
     chainId?: number;
     amount?: string;
+    suggestedDeposit?: string;
+    unitType?: string;
     decimals?: number;
     description?: string;
     memo?: string;
@@ -24,6 +26,13 @@ declare module 'mppx/server' {
     (options: TempoMethodParams): unknown;
     charge(options: TempoMethodParams): unknown;
     session(options: TempoMethodParams): unknown;
+    /** One-shot settle of the highest voucher in the channel store (T-INT-40). */
+    settle(
+      store: unknown,
+      client: unknown,
+      channelId: `0x${string}`,
+      options?: { account?: unknown; escrowContract?: `0x${string}` },
+    ): Promise<`0x${string}`>;
   }
   export const tempo: TempoFn;
 
@@ -43,6 +52,11 @@ declare module 'mppx/server' {
 
   export const Mppx: {
     create(options: { methods: unknown[]; secretKey?: string; realm?: string }): {
+      session(options: { amount?: string }): (request: Request) => Promise<{
+        status: number;
+        challenge: Response;
+        withReceipt(response: Response): Response;
+      }>;
       charge(options: { amount: string; currency?: string; recipient?: string }): (
         request: Request,
       ) => Promise<{
@@ -57,5 +71,23 @@ declare module 'mppx/server' {
       req: import('node:http').IncomingMessage,
       res: import('node:http').ServerResponse,
     ) => Promise<unknown>;
+  };
+}
+
+declare module 'mppx/tempo' {
+  export const Session: {
+    ChannelStore: { fromStore(store: unknown): unknown };
+    Chain: {
+      getOnChainChannel(
+        client: unknown,
+        escrowContract: `0x${string}`,
+        channelId: `0x${string}`,
+      ): Promise<{
+        closeRequestedAt: bigint;
+        deposit: bigint;
+        settled: bigint;
+        finalized: boolean;
+      }>;
+    };
   };
 }

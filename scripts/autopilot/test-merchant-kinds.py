@@ -41,6 +41,8 @@ OLD_KINDS = {
 NEW_KINDS = ["CONNECT_FAILED", "WEBHOOK_FAILED", "MERCHANT_UNRESPONSIVE", "REFUND_OVERDUE",
              "DISPUTE_UNANSWERED", "CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED",
              "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN"]
+# T-INT-40 (A3-0, migration 0027): the two wave-3 kinds, both AUTO_NO_MODEL (a merchant mail + an event).
+WAVE3_KINDS = ["STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED"]
 HUMAN_ONLY_FOUR = ["PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE"]
 ROUTE_CLASSES = {"AUTO", "AUTO_NO_MODEL", "MIXED", "HUMAN_KEY", "HUMAN_ONLY", "HUMAN_GENERIC"}
 
@@ -101,9 +103,9 @@ class RoutingSchema(unittest.TestCase):
             raw = json.load(f)
         self.routing = {k: v for k, v in raw.items() if not k.startswith("_")}
 
-    def test_ap1_24_kinds_and_schema(self):
-        self.assertEqual(len(self.routing), 24)
-        self.assertEqual(set(self.routing), set(OLD_KINDS) | set(NEW_KINDS))
+    def test_ap1_26_kinds_and_schema(self):
+        self.assertEqual(len(self.routing), 26)
+        self.assertEqual(set(self.routing), set(OLD_KINDS) | set(NEW_KINDS) | set(WAVE3_KINDS))
         for kind, cfg in self.routing.items():
             self.assertIn(cfg["route_class"], ROUTE_CLASSES, kind)
             self.assertIsInstance(cfg["fleet_task"], bool, kind)
@@ -115,6 +117,18 @@ class RoutingSchema(unittest.TestCase):
                 self.assertIsNone(cfg.get("model"), kind)
         self.assertEqual(set(ap.ROUTE_CLASS), set(self.routing))
         self.assertEqual(ap.KINDS, frozenset(self.routing))
+
+    def test_wave3_kinds_are_auto_no_model_mail_and_event(self):
+        templates = os.path.join(os.path.dirname(os.path.abspath(ap.__file__)), "templates", "merchant")
+        for kind in WAVE3_KINDS:
+            cfg = self.routing[kind]
+            self.assertEqual((cfg["route_class"], cfg["fleet_task"], cfg["review"]), ("AUTO_NO_MODEL", False, "none"), kind)
+            self.assertEqual(len(cfg["variants"]), 3, kind)
+            self.assertTrue(cfg["target_agent"], kind)
+            self.assertIn(kind, ap.KINDS)
+            self.assertIn(kind, ap.MERCHANT_KINDS)
+            self.assertNotIn(kind, ap.FLEET_TASK_KINDS)
+            self.assertTrue(os.path.exists(os.path.join(templates, cfg["template"] + ".en.md")), kind)
 
     def test_ap1_old_12_unchanged(self):
         for kind, cfg in OLD_KINDS.items():
@@ -414,6 +428,33 @@ class EngineWorlds(unittest.TestCase):
           f"('{m}', '2026-07', 2.00, now() - interval '40 days', 'overdue')")
         tick()
         self.assertEqual(len(incidents("FEE_INVOICE_OVERDUE")), 2, "dedup is per invoice")
+
+    def test_ss7_stream_settle_overdue_one_incident_per_channel_mail_then_resolved(self):
+        m = fx.new_merchant("stream-shop")
+        ins = ("INSERT INTO shop_stream_sessions (merchant_id, sku, channel_id, deposit_usd, rate_per_s, "
+               "settler_mode, settle_error_since) VALUES ")
+        q(ins + f"('{m}', 'demo-stream', '0xaaaa', 1, 0.0001, 'apibase_pilot', now() - interval '2 hours'), "
+          f"('{m}', 'demo-stream', '0xbbbb', 1, 0.0001, 'apibase_pilot', now() - interval '10 minutes'), "
+          f"('{m}', 'demo-stream', '0xcccc', 1, 0.0001, 'apibase_pilot', NULL)")
+        tick()
+        rows = incidents("STREAM_SETTLE_OVERDUE")
+        self.assertEqual(len(rows), 1, "one incident for the one channel failing for over an hour")
+        self.assertEqual(rows[0]["state"], "VERIFYING")
+        self.assertEqual(rows[0]["task"], "", "AUTO_NO_MODEL: no fleet task")
+        self.assertEqual(queue_files(), [])
+        self.assertEqual([r[1] for r in out_mail()], ["stream_settle_overdue"])
+        tick()
+        self.assertEqual(len(incidents("STREAM_SETTLE_OVERDUE")), 1, "a second tick opens nothing")
+        q("UPDATE shop_stream_sessions SET settle_error_since = NULL")
+        tick()
+        self.assertEqual([r["state"] for r in incidents("STREAM_SETTLE_OVERDUE")], ["RESOLVED"])
+        # the stream route refused to sell: the pilot key does not control the payout wallet
+        slug = q(f"SELECT slug FROM shop_merchants WHERE merchant_id = '{m}'").strip()
+        q("INSERT INTO shop_connect_events (error_code, path) VALUES "
+          f"('stream_settler_misconfigured', '/api/v1/shop/m/{slug}/stream/demo-stream')")
+        tick()
+        again = incidents("STREAM_SETTLE_OVERDUE")
+        self.assertEqual([r["state"] for r in again].count("VERIFYING"), 1, "one incident for the misconfiguration")
 
     def test_moderation_kinds(self):
         m = fx.new_merchant("mod-shop")

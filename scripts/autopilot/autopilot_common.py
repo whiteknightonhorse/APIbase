@@ -277,11 +277,15 @@ KINDS = frozenset([
     "CONNECT_FAILED", "WEBHOOK_FAILED", "MERCHANT_UNRESPONSIVE", "REFUND_OVERDUE",
     "DISPUTE_UNANSWERED", "CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED",
     "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN",
+    # T-INT-40 (A3-0, migration 0027 incidents_kind_check): wave-3 kinds, both AUTO_NO_MODEL.
+    "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED",
 ])
 MERCHANT_KINDS = frozenset([
     "CONNECT_FAILED", "WEBHOOK_FAILED", "MERCHANT_UNRESPONSIVE", "REFUND_OVERDUE",
     "DISPUTE_UNANSWERED", "CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED",
     "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN",
+    # T-INT-40 (A3-0, migration 0027 incidents_kind_check): wave-3 kinds, both AUTO_NO_MODEL.
+    "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED",
 ])
 SEVERITIES = frozenset(["SEV1", "SEV2", "SEV3"])
 STATES = frozenset(["OPEN", "REMEDIATION_QUEUED", "WAITING_HUMAN", "VERIFYING", "RESOLVED", "STUCK"])
@@ -642,7 +646,8 @@ def tg_send(text: str) -> bool:
 def classify_severity(kind: str, tool_count: int | None = None, revenue_pct: float | None = None) -> str:
     if kind in ("PAYMENT_REQUIRED", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH"):
         return "SEV1"
-    if kind in ("FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN", "MERCHANT_UNRESPONSIVE"):
+    if kind in ("FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN", "MERCHANT_UNRESPONSIVE",
+                "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED"):
         return "SEV2"
     if kind == "PROVIDER_DOWN":
         big = (tool_count is not None and tool_count >= 5) or (revenue_pct is not None and revenue_pct >= 1.0)

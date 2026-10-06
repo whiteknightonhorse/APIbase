@@ -439,6 +439,15 @@ export async function createQuote(
         documentation_url: DOCS,
       });
     }
+    if (product.fulfillment_mode === 'stream') {
+      throw new QuoteError(
+        422,
+        'validation_failed',
+        `product ${it.sku} is a stream: it is bought by opening a channel at its stream.url, not by a quote`,
+        'use_different_tool',
+        { sku: it.sku, documentation_url: DOCS },
+      );
+    }
     const variant = it.variant
       ? variants.find((v) => v.product_id === product.product_id && v.sku === it.variant)
       : undefined;

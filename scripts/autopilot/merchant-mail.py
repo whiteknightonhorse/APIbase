@@ -47,7 +47,8 @@ MAX_ATTEMPTS = 24
 LANG = "en"
 KINDS = ("connect_failed", "webhook_failed", "merchant_unresponsive", "refund_overdue",
          "catalog_rejected", "payout_change", "key_rotated", "pii_delivered", "pii_undeliverable",
-         "dispute_rate_warning", "merchant_disputes_suspended", "fee_invoice")
+         "dispute_rate_warning", "merchant_disputes_suspended", "fee_invoice",
+         "stream_settle_overdue", "subscription_pull_failed")
 
 log = logging.getLogger("merchant-mail")
 
