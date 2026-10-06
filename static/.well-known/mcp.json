@@ -10,7 +10,7 @@
   "tools_count": 1413,
   "shop_tools_count": 23,
   "providers_count": 401,
-  "merchants_count": 1,
+  "merchants_count": 5,
   "integrator": {
     "fee_pct": 0,
     "fee_enabled": false,
