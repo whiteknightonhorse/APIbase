@@ -1,11 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { Router, type Request, type Response } from 'express';
+import express, { Router, type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { ALLOWED_CATEGORIES } from '../moderation/categories';
 import { mdToHtml, titleOf } from '../integrator/md';
 import { renderTokens } from '../integrator/tokens';
 import { INTEGRATOR_DIR, layout } from '../integrator/layout';
+import { logger } from '../../config/logger';
+import {
+  X_APIBASE_DELIVERY_ID,
+  X_APIBASE_EVENT,
+  X_APIBASE_SIGNATURE,
+} from '../../config/http-headers';
 
 export { INTEGRATOR_DIR };
 export const PLATFORMS = ['shopify', 'woocommerce', 'tilda', 'wix', 'custom'] as const;
@@ -127,6 +133,59 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
     }
     send(req, res, `platforms/${name}`, mdPage);
   });
+
+  // T-INT-52: demo webhook receiver. Stateless, no secrets: logs one line per event, never verifies.
+  const sinkLimiter = rateLimit({
+    windowMs: 60_000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: false,
+    handler: (_req, res) => {
+      res.status(429).json({
+        error: 'rate_limited',
+        error_code: 'rate_limited',
+        message: 'too many requests from this address',
+        suggested_action: 'retry_after_delay',
+        documentation_url: '/docs/integrator',
+      });
+    },
+  });
+  router.post(
+    '/integrator/demo-webhook',
+    sinkLimiter,
+    express.raw({ type: () => true, limit: 16 * 1024 }),
+    (req: Request, res: Response) => {
+      const event = req.get(X_APIBASE_EVENT);
+      if (!event) {
+        res.status(204).end();
+        return;
+      }
+      logger.info(
+        {
+          delivery_id: req.get(X_APIBASE_DELIVERY_ID) ?? null,
+          event,
+          signature: req.get(X_APIBASE_SIGNATURE) ?? null,
+          body: Buffer.isBuffer(req.body) ? req.body.toString('utf-8') : '',
+        },
+        'demo webhook received',
+      );
+      res.status(200).json({ ok: true });
+    },
+    (err: { status?: number }, _req: Request, res: Response, next: NextFunction) => {
+      if (err.status === 413) {
+        res.status(413).json({
+          error: 'payload_too_large',
+          error_code: 'payload_too_large',
+          message: 'body must be at most 16 KB',
+          suggested_action: 'fix_request',
+          documentation_url: '/integrator',
+        });
+        return;
+      }
+      next(err);
+    },
+  );
 
   return router;
 }

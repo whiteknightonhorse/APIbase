@@ -307,6 +307,8 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 
 ## Demo merchant seed
 
+`POST /integrator/demo-webhook` is a demo receiver, logs only.
+
 `apibase-demo` (category `digital-goods`) sells the test SKU `__apibase_test` at $0.01 and two instant text products, `demo-guide` ($1.00) and `demo-bundle` ($5.00), refund window 14 days. It is created only through the public API by `scripts/shop/seed-demo-merchant.ts`:
 
 0. Decide the seller identity wallet yourself (an EOA you control and can sign with). It is not read from any endpoint; no `/health/operator` or other lookup is involved.
