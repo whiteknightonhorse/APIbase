@@ -17,6 +17,7 @@
     "fee_min_usd": 0.05,
     "min_order_usd": 1,
     "rails": [
+      "base",
       "tempo"
     ],
     "test_sku_usd": 0.01,
