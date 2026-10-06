@@ -28,6 +28,7 @@ export const WEBHOOK_EVENTS = [
   'subscription.past_due',
   'subscription.canceled',
   'subscription.expired',
+  'subscription.pull_failed',
   'stream.settle_due',
 ] as const;
 

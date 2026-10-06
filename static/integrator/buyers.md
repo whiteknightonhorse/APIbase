@@ -36,6 +36,12 @@ Integrator never asks for your private keys or seed phrase, in any tool, page or
 
 A stream product is paid with a deposit into a payment channel that pays the seller's wallet: you deposit at least the minimum shown on the product, the agent signs small vouchers off-chain as the stream runs, and the seller settles in batches. The part of the deposit that was not consumed is returned to you. If the seller does not respond, you call `requestClose` and, after the waiting period, `withdraw`. Streams are paid over MPP only, never with `X-Payment`.
 
+## Subscriptions: pre-sign the next periods (Base)
+
+By default an agent renews a subscription by paying each period's quote. On Base you can instead sign the next 1 to 12 periods in advance (`shop.subscription.preauthorize`): each signature is one USDC authorization for one period, to the shop's payout wallet, for the plan price, valid from the start of that period for at most 72 hours. Nobody can use it for another amount, another recipient or another time. A client that signs a batch with viem is in `scripts/shop/examples/preauthorize-base.ts`.
+
+To revoke a stored authorization, either cancel the subscription (`shop.subscription.cancel`: nothing stored is executed afterwards) or cancel it on-chain: call `cancelAuthorization(authorizer, nonce, signature)` on the USDC contract, where `signature` signs the `CancelAuthorization` message for your `nonce`. An authorization that was canceled on-chain is never executed.
+
 ## If a payment is slow
 
 The order stays in `PAYING` and the call answers 202 `payment_pending`. Do not pay twice: read the order with `shop.order.get` until its state changes.

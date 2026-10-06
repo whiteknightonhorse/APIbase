@@ -31,6 +31,7 @@ export const OUTBOX_TO_WEBHOOK: Record<string, string> = {
   'shop.subscription.past_due': 'subscription.past_due',
   'shop.subscription.canceled': 'subscription.canceled',
   'shop.subscription.expired': 'subscription.expired',
+  'shop.subscription.pull_failed': 'subscription.pull_failed',
   // T-INT-46: a merchant-settled stream channel waits for the merchant's settle for over an hour
   'shop.stream.settle_due': 'stream.settle_due',
 };

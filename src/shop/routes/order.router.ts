@@ -11,6 +11,7 @@ import { openDispute } from '../dispute.service';
 import { getOrderView } from '../order-payment.service';
 import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.service';
 import { cancelSubscription, getSubscription } from '../subscription.service';
+import { preauthorizeSubscription } from '../subscription-preauth.service';
 
 /** §6.3 buyer routes (quotes, cancel), mounted at /api/v1/shop/*. Same services as the /mcp tools. */
 export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
@@ -173,6 +174,27 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
       send(res, err);
     }
   });
+
+  // T-INT-47 (UC-9 on Base): the payer stores 1..12 pre-signed authorizations for future periods.
+  router.post(
+    '/api/v1/shop/subscriptions/:id/preauthorize',
+    async (req: Request, res: Response) => {
+      try {
+        res
+          .status(201)
+          .json(
+            await preauthorizeSubscription(
+              deps,
+              await buyerOf(req),
+              String(req.params.id),
+              (req.body ?? {}) as { authorizations?: unknown },
+            ),
+          );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
 
   router.post('/api/v1/shop/subscriptions/:id/cancel', async (req: Request, res: Response) => {
     try {

@@ -21,7 +21,7 @@ The buyer's agent finds the storefront, sees only your tools, gets a quote and p
 
 ### Subscriptions
 
-A subscription is renewed by the buyer's agent with an explicit payment; no funds are debited automatically. Each period is an ordinary order: the agent asks for the renewal quote inside a 72-hour window around the end of the paid period and pays it on Base or Tempo. If the period ends unpaid, the subscription is past due, you get `subscription.past_due` after 24 hours and it is canceled after 72 hours. Grant access from the `subscription.*` webhooks or by reading the subscription. Details: /docs/integrator#subscriptions.
+A subscription is renewed by the buyer's agent with an explicit payment; no funds are debited automatically unless the payer pre-signs the next periods on Base (see /docs/integrator#base-pull-subscriptions). Each period is an ordinary order: the agent asks for the renewal quote inside a 72-hour window around the end of the paid period and pays it on Base or Tempo. If the period ends unpaid, the subscription is past due, you get `subscription.past_due` after 24 hours and it is canceled after 72 hours. Grant access from the `subscription.*` webhooks or by reading the subscription. Details: /docs/integrator#subscriptions.
 
 ## What your buyer's agent sees
 

@@ -72,6 +72,8 @@ describe('outbox processor (T-0259)', () => {
       'shop.subscription.past_due',
       'shop.subscription.canceled',
       'shop.subscription.expired',
+      // T-INT-47
+      'shop.subscription.pull_failed',
       // T-INT-46
       'shop.stream.settle_due',
     ]);

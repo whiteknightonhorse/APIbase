@@ -16,7 +16,7 @@
 [5] settle → your wallet — APIbase never holds the money</div>
 <p>The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. See <a href="/integrator/why-base-tempo">why Base and Tempo</a>.</p>
 <h3 id="subscriptions">Subscriptions</h3>
-<p>A subscription is renewed by the buyer's agent with an explicit payment; funds are not debited automatically. Each period is an ordinary order: the agent asks for the renewal quote inside a 72-hour window around the end of the paid period and pays it on Base or Tempo. If the period ends unpaid, the subscription is past due, you get <code>subscription.past_due</code> after 24 hours and it is canceled after 72 hours. Grant access from the <code>subscription.*</code> webhooks or by reading the subscription. Details: <a href="/docs/integrator#subscriptions">/docs/integrator#subscriptions</a>.</p>
+<p>A subscription is renewed by the buyer's agent with an explicit payment; funds are not debited automatically unless the payer pre-signs the next periods on Base (see <a href="/docs/integrator#base-pull-subscriptions">Base pull subscriptions</a>). Each period is an ordinary order: the agent asks for the renewal quote inside a 72-hour window around the end of the paid period and pays it on Base or Tempo. If the period ends unpaid, the subscription is past due, you get <code>subscription.past_due</code> after 24 hours and it is canceled after 72 hours. Grant access from the <code>subscription.*</code> webhooks or by reading the subscription. Details: <a href="/docs/integrator#subscriptions">/docs/integrator#subscriptions</a>.</p>
 </section>
 
 <section id="demo-shop">

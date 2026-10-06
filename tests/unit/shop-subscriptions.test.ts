@@ -537,13 +537,14 @@ dbDescribe('subscriptions: agent-renewed on both rails', () => {
     ).toEqual([{ mode: 'in_tx', status: 'collected', fee: 1.34 }]);
   });
 
-  it('SB9: the shop tool list grew by exactly shop.subscription.get and shop.subscription.cancel', async () => {
+  it('SB9: the shop tool list carries shop.subscription.get and shop.subscription.cancel (T-INT-47 adds preauthorize)', async () => {
     const names = (await shopToolDefinitions()).map((t) => String(t.name));
     expect(names.filter((x) => x.startsWith('shop.subscription.')).sort()).toEqual([
       'shop.subscription.cancel',
       'shop.subscription.get',
+      'shop.subscription.preauthorize',
     ]);
-    expect(names).toHaveLength(23);
+    expect(names).toHaveLength(24);
     const defs = await shopToolDefinitions();
     for (const t of defs.filter((d) => String(d.name).startsWith('shop.subscription.'))) {
       expect(t.outputSchema).toBeDefined();
@@ -586,8 +587,8 @@ dbDescribe('subscriptions: agent-renewed on both rails', () => {
 });
 
 describe('SB10: webhook event types', () => {
-  it('HANDLED_EVENT_TYPES carries the five subscription types and no money type (WH7)', () => {
-    for (const t of ['started', 'renewed', 'past_due', 'canceled', 'expired']) {
+  it('HANDLED_EVENT_TYPES carries the six subscription types and no money type (WH7)', () => {
+    for (const t of ['started', 'renewed', 'past_due', 'canceled', 'expired', 'pull_failed']) {
       expect(HANDLED_EVENT_TYPES).toContain(`shop.subscription.${t}`);
     }
     expect(HANDLED_EVENT_TYPES).not.toContain('mpp_refund_owed');

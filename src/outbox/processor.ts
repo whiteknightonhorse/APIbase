@@ -23,6 +23,8 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
   'shop.subscription.past_due',
   'shop.subscription.canceled',
   'shop.subscription.expired',
+  // T-INT-47: a stored Base authorization was not executed in time
+  'shop.subscription.pull_failed',
   // T-INT-46: merchant-settled stream channel overdue
   'shop.stream.settle_due',
 ] as const;

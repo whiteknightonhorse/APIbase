@@ -4,7 +4,7 @@ import type { ShopTx } from './db';
  * T-INT-41 (UC-9 / F-8): subscription state, shared by the payment hook (order-payment.service)
  * and the service layer. A period is an ORDER: it is quoted, paid and delivered like any other
  * order, and renewal is always an explicit payment of the buyer's agent. Nothing here ever pulls
- * funds (no keys, no pre-authorization: INT-47/49).
+ * funds (only INT-47 stores pre-signed authorizations, executed by the `shop-subscription-pull` job).
  *
  * The link between an order and its subscription is the payload of the order's creation event
  * (`QUOTED`, seq 1): `{subscription: {subscribe: true, plan}}` for period 1 and
@@ -36,6 +36,8 @@ export interface SubscriptionRow {
   buyer_agent_id: string | null;
   plan: SubscriptionPlan;
   rail_pref: string | null;
+  /** T-INT-47: `base_preauth` once the payer stored pre-signed authorizations (else `none`). */
+  pull_mode: 'none' | 'base_preauth' | 'tempo_keychain';
   next_charge_at: Date | null;
   expires_at: Date | null;
   max_periods: number | null;
@@ -60,7 +62,7 @@ export interface SubscriptionBinding {
   period_no?: number;
 }
 
-export const SUBSCRIPTION_COLS = `subscription_id, merchant_id, sku, buyer_agent_id, plan, rail_pref,
+export const SUBSCRIPTION_COLS = `subscription_id, merchant_id, sku, buyer_agent_id, plan, rail_pref, pull_mode,
   next_charge_at, expires_at, max_periods, status, status_reason, canceled_at, created_at`;
 
 /** `date + count x unit` in UTC; a month keeps the day of month, clamped to the target month's end. */
@@ -80,7 +82,7 @@ export function addPeriod(date: Date, unit: 'day' | 'week' | 'month', count: num
 
 export const emitSubscriptionEvent = (
   tx: ShopTx,
-  type: 'started' | 'renewed' | 'past_due' | 'canceled' | 'expired',
+  type: 'started' | 'renewed' | 'past_due' | 'canceled' | 'expired' | 'pull_failed',
   payload: Record<string, unknown>,
 ) =>
   tx.$executeRawUnsafe(
@@ -88,6 +90,63 @@ export const emitSubscriptionEvent = (
     `shop.subscription.${type}`,
     JSON.stringify(payload),
   );
+
+/**
+ * T-INT-47: a canceled or expired subscription never executes a stored authorization. Every
+ * still-pending leg becomes `canceled` (submitted ones are in flight and are left to reconcile).
+ */
+export const cancelPendingAuthorizations = (tx: ShopTx, subscription_id: string) =>
+  tx.$executeRawUnsafe(
+    `UPDATE shop_subscription_authorizations SET status = 'canceled'
+      WHERE subscription_id = $1::uuid AND status = 'pending'`,
+    subscription_id,
+  );
+
+export interface PreauthorizedPeriod {
+  period_no: number;
+  status: string;
+  valid_after: string;
+  valid_before: string;
+  /** A second, fee-leg authorization is stored for this period (the fee settles in the same transaction). */
+  fee_leg: boolean;
+  tx_hash: string | null;
+}
+
+/** T-INT-47: the stored pre-signed periods of a subscription (never the signatures), oldest first. */
+export async function preauthorizedPeriods(
+  db: ShopTx,
+  subscription_id: string,
+): Promise<PreauthorizedPeriod[]> {
+  const rows = await db.$queryRawUnsafe<
+    Array<{
+      period_no: number;
+      status: string;
+      valid_after: Date;
+      valid_before: Date;
+      fee_leg: boolean;
+      tx_hash: string | null;
+    }>
+  >(
+    `SELECT a.period_no, a.status, a.valid_after, a.valid_before,
+            EXISTS (SELECT 1 FROM shop_subscription_authorizations f
+                     WHERE f.subscription_id = a.subscription_id AND f.period_no = a.period_no
+                       AND f.leg = 'fee' AND f.valid_before = a.valid_before) AS fee_leg,
+            (SELECT p.tx_hash FROM shop_payments p
+              WHERE p.eip3009_nonce = a.nonce AND p.chain_status = 'confirmed' LIMIT 1) AS tx_hash
+       FROM shop_subscription_authorizations a
+      WHERE a.subscription_id = $1::uuid AND a.leg = 'merchant'
+      ORDER BY a.period_no, a.valid_before`,
+    subscription_id,
+  );
+  return rows.map((r) => ({
+    period_no: r.period_no,
+    status: r.status,
+    valid_after: new Date(r.valid_after).toISOString(),
+    valid_before: new Date(r.valid_before).toISOString(),
+    fee_leg: r.fee_leg,
+    tx_hash: r.tx_hash,
+  }));
+}
 
 /** The subscription link carried by an order's creation event, or null for an ordinary order. */
 export async function bindingOfOrder(
@@ -202,7 +261,11 @@ export async function applySubscriptionPayment(
   const ins = await tx.$queryRawUnsafe<Array<{ period_no: number }>>(
     `INSERT INTO shop_subscription_periods (subscription_id, period_no, period_start, period_end, order_id, status)
      VALUES ($1::uuid, $2::int, $3::timestamptz, $4::timestamptz, $5::uuid, 'paid')
-     ON CONFLICT DO NOTHING RETURNING period_no`,
+     ON CONFLICT (subscription_id, period_no) DO UPDATE
+        SET period_start = EXCLUDED.period_start, period_end = EXCLUDED.period_end,
+            order_id = EXCLUDED.order_id, status = 'paid'
+      WHERE shop_subscription_periods.status <> 'paid'
+     RETURNING period_no`,
     sub.subscription_id,
     period_no,
     start.toISOString(),
@@ -268,6 +331,9 @@ export async function advanceSubscription(
       reason,
       new Date(nowMs).toISOString(),
     );
+    if (status === 'canceled' || status === 'expired') {
+      await cancelPendingAuthorizations(tx, subscription_id);
+    }
     return rows[0];
   };
 

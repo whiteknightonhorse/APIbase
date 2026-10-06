@@ -853,7 +853,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     expect(pub.body.payment_verified).toBe(true);
   });
 
-  it('A-10 (UC-1): discover -> initialize -> tools/list (6) -> quote -> pay -> get in <= 6 tool calls and < 60 s; paid to the seller payout', async () => {
+  it('A-10 (UC-1): discover -> initialize -> tools/list (8) -> quote -> pay -> get in <= 6 tool calls and < 60 s; paid to the seller payout', async () => {
     expect(demo).toBeDefined();
     const t0 = Date.now();
     const shopInfo = await http('GET', `/api/v1/shop/shops/${DEMO_SLUG}`);
@@ -869,7 +869,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     const c = new Client({ name: 'uc1-agent', version: '1' });
     await c.connect(t);
     const tools = (await c.listTools()).tools.map((x) => x.name);
-    expect(tools).toHaveLength(6);
+    expect(tools).toHaveLength(8);
     let calls = 0;
     const call = async (name: string, args: Row) => {
       calls++;

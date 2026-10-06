@@ -472,6 +472,33 @@ class EngineWorlds(unittest.TestCase):
         tick()
         self.assertEqual(len(incidents("STREAM_SETTLE_OVERDUE")), 1, "a repeat opens nothing")
 
+    def test_ss9_subscription_pull_failed_one_incident_per_period_mail_then_resolved(self):
+        # T-INT-47: a stored Base authorization the pull job could not execute in time (`failed`) is
+        # one incident per (subscription, period), AUTO_NO_MODEL, one merchant mail, and resolves
+        # when the signal is gone.
+        m = fx.new_merchant("sub-pull-shop")
+        sub = q("INSERT INTO shop_subscriptions (merchant_id, sku, plan, pull_mode, status) VALUES "
+                f"('{m}', 'plan', '{{}}'::jsonb, 'base_preauth', 'active') RETURNING subscription_id").split()[0]
+        ins = ("INSERT INTO shop_subscription_authorizations (subscription_id, period_no, leg, from_address, "
+               "to_address, value_micro, valid_after, valid_before, nonce, signature_enc, status) VALUES ")
+        q(ins + f"('{sub}', 2, 'merchant', '0xa', '0xb', 5000000, now() - interval '3 days', now() - interval '1 day', "
+          f"'0x01', '\\x00', 'failed'), "
+          f"('{sub}', 2, 'fee', '0xa', '0xc', 100000, now() - interval '3 days', now() - interval '1 day', "
+          f"'0x02', '\\x00', 'failed'), "
+          f"('{sub}', 3, 'merchant', '0xa', '0xb', 5000000, now() - interval '3 days', now() + interval '1 day', "
+          f"'0x03', '\\x00', 'pending')")
+        tick()
+        rows = incidents("SUBSCRIPTION_PULL_FAILED")
+        self.assertEqual(len(rows), 1, "one incident for the one failed period (the fee leg and the pending row add none)")
+        self.assertEqual(rows[0]["state"], "VERIFYING")
+        self.assertEqual(rows[0]["task"], "", "AUTO_NO_MODEL: no fleet task")
+        self.assertEqual([r[1] for r in out_mail()], ["subscription_pull_failed"])
+        tick()
+        self.assertEqual(len(incidents("SUBSCRIPTION_PULL_FAILED")), 1, "a second tick opens nothing")
+        q("UPDATE shop_subscription_authorizations SET status = 'canceled'")
+        tick()
+        self.assertEqual([r["state"] for r in incidents("SUBSCRIPTION_PULL_FAILED")], ["RESOLVED"])
+
     def test_moderation_kinds(self):
         m = fx.new_merchant("mod-shop")
         q("INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category) VALUES "

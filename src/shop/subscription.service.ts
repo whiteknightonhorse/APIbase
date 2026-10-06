@@ -6,12 +6,15 @@ import { createQuote, getQuote, type Buyer, type QuoteResponse } from './quote.s
 import {
   advanceSubscription,
   bindingOfOrder,
+  cancelPendingAuthorizations,
   emitSubscriptionEvent,
   latestPeriod,
+  preauthorizedPeriods,
   reachedEnd,
   RENEWAL_WINDOW_H,
   SUBSCRIPTION_COLS,
   type PeriodRow,
+  type PreauthorizedPeriod,
   type SubscriptionRow,
   type SubscriptionStatus,
 } from './subscription-core';
@@ -47,13 +50,16 @@ export interface SubscriptionView {
   current_period_end: string | null;
   next_charge_at: string | null;
   max_periods: number | null;
+  /** T-INT-47: `base_preauth` while pre-signed authorizations are stored for this subscription. */
+  pull_mode: string;
+  preauthorized_periods?: PreauthorizedPeriod[];
   canceled_at?: string;
   /** A canceled subscription keeps the period that was paid for until here. */
   access_until?: string;
   renew?: RenewView;
 }
 
-async function loadRow(db: ShopTx, id: unknown): Promise<SubscriptionRow> {
+export async function loadRow(db: ShopTx, id: unknown): Promise<SubscriptionRow> {
   if (typeof id !== 'string' || !UUID_RE.test(id)) throw notFound();
   const rows = await db.$queryRawUnsafe<SubscriptionRow[]>(
     `SELECT ${SUBSCRIPTION_COLS} FROM shop_subscriptions WHERE subscription_id = $1::uuid`,
@@ -64,7 +70,11 @@ async function loadRow(db: ShopTx, id: unknown): Promise<SubscriptionRow> {
 }
 
 /** The payer: the identity that quoted period 1, or the identity of the wallet that paid it. */
-async function assertPayer(db: ShopTx, sub: SubscriptionRow, identity: string): Promise<void> {
+export async function assertPayer(
+  db: ShopTx,
+  sub: SubscriptionRow,
+  identity: string,
+): Promise<void> {
   if (sub.buyer_agent_id && sub.buyer_agent_id === identity) return;
   const first = await db.$queryRawUnsafe<
     Array<{ buyer_identity: string | null; payer_wallet: string | null }>
@@ -103,6 +113,10 @@ async function viewOf(db: ShopTx, sub: SubscriptionRow, at: number): Promise<Sub
     current_period_end: end,
     next_charge_at: sub.next_charge_at ? new Date(sub.next_charge_at).toISOString() : null,
     max_periods: sub.max_periods,
+    pull_mode: sub.pull_mode ?? 'none',
+    ...(sub.pull_mode && sub.pull_mode !== 'none'
+      ? { preauthorized_periods: await preauthorizedPeriods(db, sub.subscription_id) }
+      : {}),
     ...(sub.canceled_at ? { canceled_at: new Date(sub.canceled_at).toISOString() } : {}),
     ...(sub.status === 'canceled' && sub.next_charge_at
       ? { access_until: new Date(sub.next_charge_at).toISOString() }
@@ -114,7 +128,7 @@ async function viewOf(db: ShopTx, sub: SubscriptionRow, at: number): Promise<Sub
  * The renewal quote of period n+1, created on demand and reused while it lives (15 min TTL by the
  * merchant's quote_ttl_s): a repeated `get` answers the same quote, an expired one is replaced.
  */
-async function renewalQuote(
+export async function renewalQuote(
   d: ShopDeps,
   sub: SubscriptionRow,
   buyer: Buyer,
@@ -250,6 +264,8 @@ async function endSubscription(
       by,
       new Date(at).toISOString(),
     );
+    // T-INT-47: a canceled subscription never executes a stored authorization.
+    await cancelPendingAuthorizations(tx, subscription_id);
     const last = await latestPeriod(tx, subscription_id);
     await emitSubscriptionEvent(tx, 'canceled', {
       subscription_id,

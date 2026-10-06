@@ -197,9 +197,15 @@ describe('HP11 facts render', () => {
     expect(run(ROOT).status).toBe(0);
     const dir = copyTree();
     const p = join(dir, 'static/index.html');
+    // the committed count moves with every merchant (the baseline is mcp.json): drift it from whatever it is now
+    const now = Number(/Merchants connected so far: (\d+)\./.exec(html())?.[1]);
+    expect(Number.isInteger(now)).toBe(true);
     writeFileSync(
       p,
-      html().replace('Merchants connected so far: 1.', 'Merchants connected so far: 7.'),
+      html().replace(
+        `Merchants connected so far: ${now}.`,
+        `Merchants connected so far: ${now + 6}.`,
+      ),
     );
     expect(run(dir).status).toBe(1);
     writeFileSync(p, html().replace('0% fee during the pilot', '1% fee'));

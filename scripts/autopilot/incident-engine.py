@@ -1438,6 +1438,20 @@ def _src_stream_settle_overdue():
     return sigs
 
 
+def _src_subscription_pull_failed():
+    # T-INT-47 (UC-9 on Base): a stored pre-signed authorization that was not executed in time. The
+    # pull job flips the legs to `failed` and writes ONE `subscription.pull_failed` event per period;
+    # ONE incident per (subscription, period), for a week after the failure (then it resolves itself).
+    rows = _rows(
+        "SELECT s.merchant_id::text, a.subscription_id::text, a.period_no::text "
+        "FROM shop_subscription_authorizations a JOIN shop_subscriptions s ON s.subscription_id = a.subscription_id "
+        "WHERE a.leg = 'merchant' AND a.status = 'failed' AND a.valid_before > now() - interval '7 days'")
+    return [_sig("SUBSCRIPTION_PULL_FAILED", mid,
+                 f"subscription {sub[:8]} could not be pulled for period {period}: the stored authorization was not executed in time",
+                 {"subscription_id": sub, "period_no": period}, merchant_id=mid, suffix=f"{sub}:{period}")
+            for mid, sub, period in rows]
+
+
 def _src_moderation():
     rows = _rows(
         "SELECT merchant_id::text, scope, verdict, COALESCE(category, ''), COALESCE(evidence_hash, ''), "
@@ -1476,6 +1490,8 @@ _MERCHANT_SOURCES = [
     (("FEE_INVOICE_OVERDUE",), ("shop_fee_invoices",), _src_fee_invoice_overdue),
     (("STREAM_SETTLE_OVERDUE",), ("shop_stream_sessions", "shop_connect_events", "shop_merchants"),
      _src_stream_settle_overdue),
+    (("SUBSCRIPTION_PULL_FAILED",), ("shop_subscription_authorizations", "shop_subscriptions"),
+     _src_subscription_pull_failed),
     (("CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED",
       "PAYMENT_MISMATCH"), ("shop_moderation_reviews",), _src_moderation),
 ]

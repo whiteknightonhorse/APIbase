@@ -22,6 +22,7 @@ import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
 import { runShopCatalogImportJob } from '../jobs/shop-catalog-import.job';
 import { runShopStreamSettle } from '../jobs/shop-stream-settle.job';
 import { runShopSubscriptionSweep } from '../jobs/shop-subscription-sweep.job';
+import { runShopSubscriptionPull } from '../jobs/shop-subscription-pull.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -340,6 +341,21 @@ const shopSubscriptionSweepTask = cron.schedule('*/5 * * * *', () => {
       shopSubscriptionSweepRunning = false;
     });
 });
+// Pre-signed Base authorizations (INT-47, UC-9): executed hourly, each through the ordinary ESCROW -> settle path.
+let shopSubscriptionPullRunning = false;
+const shopSubscriptionPullTask = cron.schedule('0 * * * *', () => {
+  if (shopSubscriptionPullRunning) {
+    return;
+  }
+  shopSubscriptionPullRunning = true;
+  runShopSubscriptionPull()
+    .catch((err) =>
+      logger.error({ err, job: 'shop-subscription-pull' }, 'subscription pull job failed'),
+    )
+    .finally(() => {
+      shopSubscriptionPullRunning = false;
+    });
+});
 const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
   runShopPaymentSample().catch((err) =>
     logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
@@ -406,6 +422,7 @@ function shutdown(signal: string): void {
   shopCatalogImportTask.stop();
   shopStreamSettleTask.stop();
   shopSubscriptionSweepTask.stop();
+  shopSubscriptionPullTask.stop();
   shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {

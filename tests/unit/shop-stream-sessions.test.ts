@@ -1406,7 +1406,7 @@ dbDescribe('stream sessions (INT-40)', () => {
     }
   });
 
-  it('ST11: tools/list (/mcp shop tools and storefronts) has no stream tool (T-INT-41 added the two subscription tools)', async () => {
+  it('ST11: tools/list (/mcp shop tools and storefronts) has no stream tool (T-INT-41 added the two subscription tools, T-INT-47 the third)', async () => {
     const names = (await shopToolDefinitions()).map((t) => String(t.name));
     expect(names.filter((x) => /stream/i.test(x))).toEqual([]);
     expect([...names].sort()).toMatchInlineSnapshot(`
@@ -1434,6 +1434,7 @@ dbDescribe('stream sessions (INT-40)', () => {
         "shop.order.quote",
         "shop.subscription.cancel",
         "shop.subscription.get",
+        "shop.subscription.preauthorize",
       ]
     `);
   });

@@ -267,7 +267,7 @@ The platform fee of settled amounts is a receivable, as for any stream.
 
 ## Subscriptions (UC-9 / F-8) {#subscriptions}
 
-A subscription is renewed by the buyer's agent with an explicit payment; funds are never debited automatically (there is no stored key and no pull). Each period is an ordinary order: it is quoted, paid on either rail, carries the platform fee of an order of that amount (§7.1) and is delivered like any other. The renewal is yours to honor: grant access from the `subscription.*` webhooks or by reading the subscription.
+A subscription is renewed by the buyer's agent with an explicit payment; by default funds are never debited automatically: the agent renews by paying. A Base payer can opt in to pre-signed authorizations that the platform executes period by period, see [Base pull subscriptions](#base-pull-subscriptions). Each period is an ordinary order: it is quoted, paid on either rail, carries the platform fee of an order of that amount (§7.1) and is delivered like any other. The renewal is yours to honor: grant access from the `subscription.*` webhooks or by reading the subscription.
 
 Catalog: `subscription: {period_unit: "day"|"week"|"month", period_count >= 1, max_periods? <= 120, trial: "none"}` on an `instant` or `merchant` item; `price_usd` (>= $1.00) is the price of one period.
 
@@ -281,9 +281,37 @@ Buyer flow:
 
 Merchant: `GET /api/v1/shop/merchants/me/subscriptions?status=&limit=&cursor=` (scope `orders:read`, your own only) and `POST /api/v1/shop/merchants/me/subscriptions/:id/cancel {reason}` (scope `orders:write`; `canceled`, `status_reason: merchant`, `subscription.canceled`; another shop's id is `404`). Webhook `data`: `{subscription_id, merchant_id, sku, period_no, ...}` (`order_id` and `current_period_end` on `started`/`renewed`; `access_until` on `canceled`). `shop.merchant.stats` reports `subscriptions_active` (no recurring-revenue figure). The worker job `shop-subscription-sweep` (every 5 minutes) applies the time-driven steps even when nobody calls `get`.
 
+## Base pull subscriptions {#base-pull-subscriptions}
+
+A payer who paid period 1 on Base can sign the next periods ahead of time, so the subscription renews without the agent being online. No allowance and no key is handed over: each stored item is one EIP-3009 `TransferWithAuthorization` for **one** future period, to a **fixed** recipient (the shop payout wallet), for a **fixed** amount (the plan price), valid in a **fixed** window. It works with any wallet that can sign typed data (a plain EOA); Coinbase Spend Permissions are not needed.
+
+Store them with `shop.subscription.preauthorize {subscription_id, authorizations[1..12]}` on `/mcp` or `POST /api/v1/shop/subscriptions/:id/preauthorize {authorizations}` (the payer only, another identity gets `404`; status `active` or `past_due`, paid on Base). Each item is `{period_no, authorization {from, to, value, validAfter, validBefore, nonce}, signature, fee_authorization? {authorization, signature}}` and is checked against the server's data:
+
+| Field | Must be |
+|-------|---------|
+| `period_no` | a future period (later than the last paid one) and not above `max_periods` |
+| `from` | the wallet that paid the subscription |
+| `to` | the shop payout wallet (the fee leg: the platform fee wallet) |
+| `value` | the plan price in micro-USDC; with the platform fee on and a fee leg: price minus fee, and the fee leg is exactly the fee |
+| `validAfter` | the unix start of the period (the end of the previous one) |
+| `validBefore` | between 1 h and 72 h after `validAfter` (the same on both legs) |
+| `nonce` | a fresh random 32 bytes, unique across all stored authorizations |
+| `signature` | a valid signature of `from` over the USDC domain (`USD Coin`, version `2`, Base) |
+
+One bad item refuses the whole call with `422` and stores nothing; a period that already has a live authorization is `409 period_already_preauthorized`. With the fee on, the fee leg is optional: with it the fee is settled in the same transaction (`in_tx`), without it the whole price goes to the shop and the fee is invoiced to the shop (`receivable`). Stored signatures are encrypted at rest and never returned or logged. `shop.subscription.get` shows `pull_mode: base_preauth` and `preauthorized_periods[] {period_no, status, valid_after, valid_before, fee_leg, tx_hash?}`.
+
+The worker job `shop-subscription-pull` (hourly, at :00) takes every stored authorization whose window has opened (`validAfter <= now < validBefore - 10 min`) for the next unpaid period of an `active` or `past_due` subscription. It reads `authorizationState(from, nonce)` on the USDC contract first: an authorization that was already used or canceled on-chain is marked `canceled` and never settled. Otherwise it creates the period quote on the server and pays it through the same ESCROW and settle path as `shop.order.pay` (the quote fixes the payee and the amount; the stored authorizations are the `X-Payment` payload). Outcomes:
+
+- paid: the period is credited (`subscription.renewed`), the authorization is `settled` and shows its `tx_hash`;
+- no receipt yet: `submitted`; the payment reconciler decides and the authorization follows it;
+- refused (for example not enough USDC): the authorization stays `pending` and is tried again on every tick until `validBefore - 10 min`;
+- time ran out: `failed`, the period is `past_due` (the agent can still renew it with the normal renewal quote), and the shop gets one `subscription.pull_failed` webhook `{subscription_id, merchant_id, sku, period_no, reason}`; the platform also opens a `SUBSCRIPTION_PULL_FAILED` incident.
+
+`shop.subscription.cancel` (and a subscription that ends or expires) turns every `pending` authorization into `canceled`: it is never executed. To revoke an authorization yourself, call `cancelAuthorization(authorizer, nonce, signature)` on the USDC contract. A working client that signs a batch with viem `signTypedData` (with the fee leg) is `scripts/shop/examples/preauthorize-base.ts`.
+
 ## Webhooks
 
-Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued`, `subscription.started`, `subscription.renewed`, `subscription.past_due`, `subscription.canceled`, `subscription.expired`, `stream.settle_due` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
+Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued`, `subscription.started`, `subscription.renewed`, `subscription.past_due`, `subscription.canceled`, `subscription.expired`, `subscription.pull_failed`, `stream.settle_due` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
 
 **URL rules.** `https://` only; every address the host resolves to must be public — RFC 1918, loopback, link-local (`169.254.169.254` included), CGNAT and IPv6 equivalents are `422`. The name is resolved again at every delivery and the connection is pinned to that address; redirects are never followed (a `3xx` counts as a failed attempt).
 
@@ -426,6 +454,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `POST /orders/:id/disputes`              | yes    | the payer only       |
 | `GET /subscriptions/:id`                 | yes    | T-INT-41             |
 | `POST /subscriptions/:id/cancel`         | yes    | T-INT-41             |
+| `POST /subscriptions/:id/preauthorize`   | yes    | T-INT-47, the payer only |
 | `GET /merchants/me/subscriptions`        | yes    | T-INT-41             |
 | `POST /merchants/me/subscriptions/:id/cancel` | yes | T-INT-41           |
 | `GET /auth/nonce`                        | yes    |                      |

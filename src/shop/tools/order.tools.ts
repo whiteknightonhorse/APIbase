@@ -12,6 +12,7 @@ import {
 import { openDispute, DISPUTE_REASONS, DISPUTE_NOTE_MAX } from '../dispute.service';
 import { getOrderView, type BuyerAgent } from '../order-payment.service';
 import { cancelSubscription, getSubscription } from '../subscription.service';
+import { preauthorizeSubscription } from '../subscription-preauth.service';
 import { QuoteError } from '../quote.errors';
 import type { PaymentContext } from '../../mcp/tool-adapter';
 
@@ -23,6 +24,7 @@ export const ORDER_TOOL_NAMES = [
   'shop.order.dispute',
   'shop.subscription.get',
   'shop.subscription.cancel',
+  'shop.subscription.preauthorize',
 ] as const;
 
 type Result = {
@@ -311,6 +313,8 @@ export function registerOrderTools(
         current_period_end: z.string().nullable(),
         next_charge_at: z.string().nullable(),
         max_periods: z.number().nullable(),
+        pull_mode: z.string(),
+        preauthorized_periods: z.array(z.record(z.unknown())).optional(),
         canceled_at: z.string().optional(),
         access_until: z.string().optional(),
         renew: z.record(z.unknown()).optional(),
@@ -359,6 +363,8 @@ export function registerOrderTools(
         current_period_end: z.string().nullable(),
         next_charge_at: z.string().nullable(),
         max_periods: z.number().nullable(),
+        pull_mode: z.string(),
+        preauthorized_periods: z.array(z.record(z.unknown())).optional(),
         canceled_at: z.string().optional(),
         access_until: z.string().optional(),
       },
@@ -375,6 +381,72 @@ export function registerOrderTools(
         const merchant_id = a.merchant ? await merchantIdBySlug(deps.db, a.merchant) : undefined;
         return ok({
           ...(await cancelSubscription(deps, buyer, a.subscription_id, a.reason, { merchant_id })),
+        });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.subscription.preauthorize',
+    {
+      title: 'Pre-authorize future subscription periods (Base)',
+      description:
+        "Store 1..12 pre-signed USDC authorizations (EIP-3009 TransferWithAuthorization, signed with viem signTypedData) for the FUTURE periods of a Base subscription you pay for, so the platform pulls each period when it starts. Each authorization is for one period: from = the wallet that paid the subscription, to = the merchant payout wallet, value = the plan price in micro-USDC (when the platform fee is on, value = price - fee plus a second fee_authorization to the fee wallet for the fee; without it the fee is invoiced to the merchant), validAfter = the unix start of the period, validBefore 1 h to 72 h after it, a fresh nonce. The whole call is refused (422, nothing stored) if any item does not match. Nothing is debited early; cancel with shop.subscription.cancel (stored authorizations are never executed after it) or on-chain with cancelAuthorization(authorizer, nonce, signature) on the USDC contract. Status active or past_due, Base only; another identity's subscription is 404.",
+      inputSchema: {
+        subscription_id: z.string(),
+        authorizations: z
+          .array(
+            z.object({
+              period_no: z.number().int().min(2),
+              authorization: z.object({
+                from: z.string(),
+                to: z.string(),
+                value: z.string(),
+                validAfter: z.string(),
+                validBefore: z.string(),
+                nonce: z.string(),
+              }),
+              signature: z.string(),
+              fee_authorization: z
+                .object({
+                  authorization: z.object({
+                    from: z.string(),
+                    to: z.string(),
+                    value: z.string(),
+                    validAfter: z.string(),
+                    validBefore: z.string(),
+                    nonce: z.string(),
+                  }),
+                  signature: z.string(),
+                })
+                .optional(),
+            }),
+          )
+          .min(1)
+          .max(12),
+      },
+      outputSchema: {
+        subscription_id: z.string(),
+        pull_mode: z.string(),
+        preauthorized_periods: z.array(z.record(z.unknown())),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: { subscription_id: string; authorizations: unknown[]; merchant?: string }) => {
+      try {
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
+        const merchant_id = a.merchant ? await merchantIdBySlug(deps.db, a.merchant) : undefined;
+        return ok({
+          ...(await preauthorizeSubscription(
+            deps,
+            buyer,
+            a.subscription_id,
+            { authorizations: a.authorizations },
+            { merchant_id },
+          )),
         });
       } catch (err) {
         return fail(err, requestId);
