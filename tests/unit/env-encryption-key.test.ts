@@ -12,7 +12,6 @@ describe('ENCRYPTION_KEY production fail-fast', () => {
     DATABASE_URL_OUTBOX: 'x',
     API_KEY_SECRET: 'k'.repeat(32),
     PROVIDER_KEY_OPENWEATHER: 'x',
-    POLYMARKET_WALLET_ADDRESS: '0x0',
   };
   const base = { ...required, NODE_ENV: 'production' };
 

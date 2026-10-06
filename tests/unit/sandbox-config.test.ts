@@ -84,6 +84,7 @@ describe('SB2 env template carries no values for keys', () => {
     expect(env).toMatch(/^PUBLIC_BASE_URL=https:\/\/sandbox\.apibase\.pro$/m);
     expect(env).toMatch(/^INTEGRATOR_BASE_ORDERS_ENABLED=/m);
     expect(env).toMatch(/^MPP_ENABLED=true$/m);
+    expect(env).toMatch(/^POLYMARKET_WALLET_ADDRESS=$/m);
     for (const k of ['MPP_SECRET_KEY', 'TEMPO_WALLET_ADDRESS', 'TEMPO_PRIVATE_KEY']) {
       expect(env).toMatch(new RegExp(`^${k}=$`, 'm'));
     }
