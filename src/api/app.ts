@@ -22,6 +22,7 @@ import { createIntegratorRouter } from '../shop/routes/integrator.router';
 import { createOwnerRouter } from '../shop/routes/owner.router';
 import { createStorefrontRouter } from '../shop/routes/storefront.router';
 import { createCheckRouter } from '../shop/routes/check.router';
+import { createModerationInternalRouter } from '../shop/routes/moderation-internal.router';
 import { executeRouter } from '../routes/execute.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
@@ -114,6 +115,7 @@ export function createApp(): express.Express {
   // --- API routes ---
   app.use(agentsRouter);
   app.use(createMerchantRouter());
+  app.use(createModerationInternalRouter());
   app.use(createOrderRouter());
   app.use(toolsRouter);
   app.use(executeRouter);

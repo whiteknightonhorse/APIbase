@@ -23,6 +23,7 @@ export const X_API_KEY = 'x-api-key';
 export const X_AGENT_NAME = 'x-agent-name';
 export const X_CACHE = 'x-cache';
 export const X_ROBOTS_TAG = 'x-robots-tag';
+export const X_ORCHESTRA_KEY = 'x-orchestra-key';
 export const X_POWERED_BY = 'x-powered-by';
 export const X_RATELIMIT_LIMIT = 'x-ratelimit-limit';
 export const X_RATELIMIT_REMAINING = 'x-ratelimit-remaining';
