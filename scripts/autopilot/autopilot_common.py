@@ -1422,26 +1422,36 @@ _PHASE_A_CONTEXT = {
 }
 
 
-def _phase_a_what(kind: str, provider: str, incident_id: str, cfg: dict) -> str:
+def _phase_a_what(kind: str, provider: str, incident_id: str, cfg: dict, task_id: str) -> str:
     """T-0265 phase A "What is needed": a MEASUREMENT by the evidence plus exactly three allowed
     outcomes, each one CLI command + VERDICT: DONE (or BLOCKED without CLI)."""
     health = f"\n- health_url: {cfg['health_url']}" if cfg.get("health_url") else ""
     cli = "python3 scripts/autopilot/incident-cli.py"
+    proof_dir = f"{TASKLOOP_ROOT}/logs/{task_id}"
+    health_arg = cfg.get("health_url") or "<health_url from evidence/provider-limits>"
     return f"""## What is needed
 {_PHASE_A_CONTEXT.get(kind, kind)}
 This is phase A: a MEASUREMENT and a conclusion, no code edits. Any work on the code (if it is needed at all) will be
 created by the engine as a separate task — only for a reproduced cause from outcome (b).{health}
 
 ### Measurement (per the evidence above)
-1. `date -u` and `curl -si "<health_url from evidence/provider-limits>"` — status, headers, body (raw output).
-2. `docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT … FROM probe_log WHERE provider='{provider}' ORDER BY ts DESC LIMIT 10"`
-   and the same for `provider_status` (SELECT only).
-3. If the failure is DNS/connection: `getent hosts <host>` and `dig +short <host>` FROM THE HOST.
-All raw output goes through `tee` to the attempt file, the path as a `PROOF: <abs. path>` line.
+Run each command below VERBATIM, one block each: `date -u` first, `tee` last (the proof is the file, not the console).
+{{ date -u; curl -si "{health_arg}"; }} 2>&1 | tee {proof_dir}/01-curl-health.txt
+{{ date -u; docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT ts, kind, http_status, result, detail FROM probe_log WHERE provider='{provider}' ORDER BY ts DESC LIMIT 10"; }} 2>&1 | tee {proof_dir}/02-probe-log.txt
+{{ date -u; docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT provider, state, state_reason, last_ok_at, last_probe_at, last_probe_result FROM provider_status WHERE provider='{provider}'"; }} 2>&1 | tee {proof_dir}/03-provider-status.txt
+{{ date -u; getent hosts <host>; dig +short <host>; }} 2>&1 | tee {proof_dir}/04-dns.txt   (only for DNS/connection failures, FROM THE HOST)
+Name every file as a `PROOF: <abs. path>` line. A proof file whose first line is not the `date -u` output is not a proof (T-11).
+
+### Cause
+State a cause ONLY as `cause: <one sentence> (PROOF: <file>:<line>)` where the cited line is raw
+output that shows it (status page body, `retry-after`, `x-ratelimit-*`, DNS failure, probe config).
+With no such line write exactly `cause: unknown`. Words like maintenance, rate limit, load shedding,
+outage window without a cited line = REJECT. This applies to `--reason`, the incident note and the
+Knowledge section.
 
 ### Three allowed outcomes (exactly one, each ends with `VERDICT: DONE`, except (c))
 (a) The provider recovers on its own (maintenance, window, limit resets):
-`{cli} wait --id {incident_id} --actor fleet --until <ISO-8601 UTC, from +1h to +72h> --reason "<why>"` → `VERDICT: DONE`
+`{cli} wait --id {incident_id} --actor fleet --until <ISO-8601 UTC, from +1h to +72h> --reason "<observation from the proofs, e.g. probe OK since <ts>, N FAIL_TRANSIENT before; a cause only per ### Cause>"` → `VERDICT: DONE`
 (b) The failure reproduces, the cause is in our code/probe config:
 `{cli} propose-fix --id {incident_id} --actor fleet --cause "<one sentence>" --repro "<command that produced the failure>" --paths <path[,path]> --fix "<one sentence>" --proof <abs. path to the PROOF file>` → `VERDICT: DONE`
 (paths — only from the repair allowlist; outside it the CLI returns rc=1, then outcome (c).)
@@ -1463,6 +1473,7 @@ def _phase_a_boundaries_and_footer(provider: str, incident_id: str, task_id: str
 One of the three outcomes above. Any claim about the provider or the DB is accompanied by the RAW command output
 (`curl -si`, `psql`, `getent`) with `date -u` in the SAME block — a paraphrase without raw output equals REJECT (T-11).
 Save the raw output via `tee` to a file under the attempt directory and name it with a `PROOF: <path>` line before `VERDICT:`.
+Cause only per ### Cause above; `cause: unknown` is an accepted answer.
 
 ## On completion
 Progress: `python3 scripts/autopilot/incident-cli.py note --id {incident_id} --actor fleet --action "<what was done>" --result "<outcome>"`
@@ -1590,7 +1601,7 @@ MAX_ATTEMPTS: 2
 incident_id: {incident['incident_id']}
 severity: {severity}{docs_line}
 
-{_phase_a_what(kind, provider, incident['incident_id'], cfg)}
+{_phase_a_what(kind, provider, incident['incident_id'], cfg, task_id)}
 
 ## Facts (evidence at routing time)
 ```
