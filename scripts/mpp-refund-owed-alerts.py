@@ -52,6 +52,10 @@ PAGE_ROW_USD = Decimal("1.00")
 PAGE_WALLET_24H_USD = Decimal("5.00")
 PAGE_UNKNOWN_PAYER_USD = Decimal("0.10")
 PAGE_EXT_ROWS_PER_HOUR = 100
+# Operator decision 2026-10-06 (option b): sub-cent external debt accumulates per wallet and is
+# refunded in ONE transfer once the wallet sum >= $0.05 or the oldest open row is >= 7 days old.
+DUE_WALLET_USD = Decimal("0.05")
+DUE_OLDEST_DAYS = 7
 UNKNOWN_PAYERS = ("unknown-mpp-payer", "?", "")
 
 
@@ -142,18 +146,66 @@ def total_usd(rows):
     return sum((usd(r["payload"]) for r in rows), Decimal(0))
 
 
-def build_digest(rows, internal, tg):
+def due_wallets(open_rows, internal, now):
+    """Pure. open_rows: unresolved rows (processed=false). Returns [(payer, total, n, oldest_days)]
+    for external wallets whose accumulated debt is >= DUE_WALLET_USD or whose oldest row is
+    >= DUE_OLDEST_DAYS old, biggest first."""
+    acc = {}
+    for r in open_rows:
+        if is_internal(r, internal):
+            continue
+        w = str(payer_of(r["payload"])).lower()
+        a = acc.setdefault(w, [Decimal(0), 0, r["created_at"]])
+        a[0] += usd(r["payload"])
+        a[1] += 1
+        a[2] = min(a[2], r["created_at"])
+    out = [(w, t, n, (now - o).days) for w, (t, n, o) in acc.items()
+           if t >= DUE_WALLET_USD or (now - o).days >= DUE_OLDEST_DAYS]
+    return sorted(out, key=lambda x: x[1], reverse=True)
+
+
+def render_due(due, tg):
+    if not due:
+        return ""
+    lines = "\n".join(tg["mpp_digest_due_line"].format(payer=w, total=fmt(t), n=n, days=d)
+                      for w, t, n, d in due[:10])
+    return tg["mpp_digest_due_head"].format(count=len(due)) + "\n" + lines
+
+
+def fetch_open_rows():
+    """All unresolved rows (processed=false) regardless of alerted_at."""
+    raw, rc = psql(
+        """
+        SELECT json_build_object('id', id,
+                 'created_at', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
+                 'alerted', payload->>'alerted_at' IS NOT NULL, 'payload', payload)
+        FROM outbox WHERE event_type = 'mpp_refund_owed' AND processed = false
+        """
+    )
+    if rc != 0:
+        return None
+    rows = []
+    for line in raw.splitlines():
+        r = json.loads(line)
+        r["created_at"] = datetime.fromisoformat(r["created_at"])
+        rows.append(r)
+    return rows
+
+
+def build_digest(rows, internal, tg, due=()):
     ext = [r for r in rows if not is_internal(r, internal)]
     ints = [r for r in rows if is_internal(r, internal)]
     tools = Counter(r["payload"].get("tool_id", "?") for r in rows)
     payers = Counter(str(payer_of(r["payload"])) for r in rows)
     reasons = Counter(str(r["payload"].get("reason", "?")) for r in rows)
-    return tg["mpp_digest"].format(
+    text = tg["mpp_digest"].format(
         n=len(rows), total=fmt(total_usd(rows)),
         tools=top(tools), payers=top(payers), reasons=top(reasons),
         int_n=len(ints), int_usd=fmt(total_usd(ints)),
         ext_n=len(ext), ext_usd=fmt(total_usd(ext)),
     )
+    extra = render_due(list(due), tg)
+    return text + ("\n" + extra if extra else "")
 
 
 def find_pages(rows, internal, now):
@@ -282,12 +334,13 @@ def tick():
     digested = 0
     if digest_due(now, state):
         pending = [r for r in rows if not r["alerted"]]
-        if pending and send_tg(build_digest(pending, internal, tg)):
+        due = due_wallets(fetch_open_rows() or [], internal, now)
+        if (pending or due) and send_tg(build_digest(pending, internal, tg, due)):
             if mark_alerted([r["id"] for r in pending]) != 0:
                 print("WARNING: digest sent but failed to mark alerted_at — rows re-appear in the next digest")
             state["digest_date"] = today
             digested = len(pending)
-        elif pending:
+        elif pending or due:
             print("FAILED to send digest — retry next tick")
     save_state(state)
     print(f"mpp-refund-owed-alerts: {paged} paged, {digested} rows in digest")
@@ -325,6 +378,12 @@ def selftest():
     assert not digest_due(now.replace(hour=5), {})
     text = build_digest([row(1, 0.5), row(2, 0.25, payer="0x" + "a" * 40)], internal, tg)
     assert "internal (Heartbeat): 1 / $0.25" in text and "external: 1 / $0.5" in text, text
+    ow = [row(1, 0.03, payer="0x" + "c" * 40), row(2, 0.03, payer="0x" + "c" * 40),
+          row(3, 0.001, payer="0x" + "d" * 40), row(4, 0.04, payer="0x" + "e" * 40),
+          row(5, 0.001, payer="0x" + "f" * 40, age_s=8 * 86400), row(6, 9.0, payer="0x" + "a" * 40)]
+    got = {w[-1]: t for w, t, _, _ in due_wallets(ow, internal, now)}
+    assert set(got) == {"c", "f"}, f"due wallets: {got}"  # c: 0.06 sum, f: 8 days old; d/e below both
+    assert "0.06" in build_digest([row(1, 0.5)], internal, tg, due_wallets(ow, internal, now))
     for kind, data in (("row", row(7, 1.5)), ("wallet", {"payer": "0x1", "total": Decimal(6), "n": 3}),
                        ("rate", {"n": 100, "tools": "t.x (100)"})):
         render_page(kind, data, tg)
