@@ -66,6 +66,12 @@ describe('outbox processor (T-0259)', () => {
       'shop.refund.overdue',
       'shop.refund.verified',
       'shop.dispute.opened',
+      // T-INT-41: subscription lifecycle (still no money types)
+      'shop.subscription.started',
+      'shop.subscription.renewed',
+      'shop.subscription.past_due',
+      'shop.subscription.canceled',
+      'shop.subscription.expired',
     ]);
     expect(HANDLED_EVENT_TYPES).not.toContain('mpp_refund_owed');
     expect(HANDLED_EVENT_TYPES).not.toContain('x402_settle_failed');
