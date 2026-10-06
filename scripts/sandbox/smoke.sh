@@ -49,7 +49,7 @@ echo "4. test-SKU quote on testnet"
 QUOTE_ID=""
 ORDER_ID=""
 call -X POST "$SANDBOX_URL/api/v1/shop/quotes" -H 'Content-Type: application/json' \
-  -H "Idempotency-Key: sandbox-smoke-$(date -u +%s)-$$" \
+  -H "x-idempotency-key: sandbox-smoke-$(date -u +%s)-$$" \
   -d "{\"merchant\":\"$MERCHANT\",\"items\":[{\"sku\":\"$TEST_SKU\",\"qty\":1}]}"
 if [ "$CODE" = 201 ]; then
   QUOTE_ID=$(printf '%s' "$BODY" | sed -n 's/.*"quote_id":"\([^"]*\)".*/\1/p')
