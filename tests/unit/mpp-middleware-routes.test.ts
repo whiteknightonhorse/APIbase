@@ -148,3 +148,47 @@ describe('mppMiddleware route/price gating (T-0256)', () => {
     }
   });
 });
+
+describe('mppMiddleware schema pre-check (T-0282)', () => {
+  const URL = '/api/v1/tools/orcid.get_person/call';
+  function makeRes() {
+    const res = { status: jest.fn(), json: jest.fn() };
+    res.status.mockReturnValue(res);
+    return res;
+  }
+  function runWith(req: Request, res: unknown): Promise<{ called: boolean; err?: unknown }> {
+    return new Promise((resolve) =>
+      mppMiddleware(req, res as never, (e?: unknown) => resolve({ called: true, err: e })),
+    );
+  }
+
+  beforeEach(() => {
+    mockPrice.mockImplementation((id: string) => (id === 'orcid.get_person' ? 0.25 : undefined));
+  });
+
+  it('S1: body failing the tool schema -> 400, charge never built, no next()', async () => {
+    const req = makeReq(URL, 'Payment x');
+    req.body = { wrong: 1 };
+    const res = makeRes();
+    const next = jest.fn();
+    mppMiddleware(req, res as never, next);
+    await new Promise((r) => setTimeout(r, 20));
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json.mock.calls[0][0]).toMatchObject({
+      error: 'schema_validation_failed',
+      tool_id: 'orcid.get_person',
+      charged: false,
+    });
+    expect(mockCharge).not.toHaveBeenCalled();
+    expect(chargeInner).not.toHaveBeenCalled();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it('S2: valid body -> charge proceeds', async () => {
+    const req = makeReq(URL, 'Payment x');
+    req.body = { orcid_id: '0000-0002-1825-0097' };
+    const out = await runWith(req, makeRes());
+    expect(out.err).toBeUndefined();
+    expect(mockCharge).toHaveBeenCalledWith({ amount: '0.25' });
+  });
+});

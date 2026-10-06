@@ -3,6 +3,7 @@ import { getMppConfig } from '../config/mpp.config';
 import { getToolPriceUsd } from '../pipeline/stages/tool-status.stage';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
+import { toolSchemas } from '../schemas';
 
 /**
  * F1/C-5 (2026-09-01): resolve the REAL on-chain payer address, not a stub.
@@ -248,7 +249,33 @@ export function mppMiddleware(req: Request, res: Response, next: NextFunction): 
     .catch(next);
 }
 
-/** Resolves false when the response was already sent (409 quote_already_paying). */
+/** T-0282: true when a 400 was sent because the body fails the tool's zod schema (no charge). */
+function rejectInvalidBody(req: Request, res: Response): boolean {
+  const toolId = toolIdFromUrl(req.originalUrl);
+  const schema = toolId ? toolSchemas[toolId] : undefined;
+  if (!toolId || !schema) return false;
+  const result = schema.safeParse(req.body);
+  if (result.success) return false;
+  const expected_params = Object.keys((schema as { shape?: Record<string, unknown> }).shape ?? {});
+  res.status(400).json({
+    error: 'schema_validation_failed',
+    message: `Request body validation failed. Expected params: ${expected_params.join(', ')}`,
+    tool_id: toolId,
+    issues: result.error.issues.slice(0, 10).map((i) => ({
+      path: i.path.join('.'),
+      message: i.message,
+      code: i.code,
+    })),
+    expected_params,
+    received_params: Object.keys((req.body ?? {}) as Record<string, unknown>),
+    hint: `Fetch schema: GET /api/v1/tools/${toolId}`,
+    request_id: req.requestId,
+    charged: false,
+  });
+  return true;
+}
+
+/** Resolves false when the response was already sent (409 quote_already_paying, 400 schema). */
 async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   const params = await resolveAmountForUrl(req.originalUrl);
   if (params === undefined) {
@@ -260,6 +287,9 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
 
   const quoteId = QUOTE_PAY_URL.exec(req.originalUrl.split('?')[0])?.[1];
   if (!quoteId) {
+    // T-0282: charge() settles on-chain and cannot be undone, so reject a body our own
+    // schema would refuse (400) BEFORE any money moves. Provider-side 422s are out of scope.
+    if (rejectInvalidBody(req, res)) return false;
     await chargeAndRecord(req, params);
     return true;
   }
