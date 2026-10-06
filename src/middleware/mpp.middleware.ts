@@ -119,6 +119,11 @@ async function loadQuoteRow(quoteId: string): Promise<QuoteRow> {
   return rows[0];
 }
 
+/** Tempo memo is bytes32: 16 zero bytes + the 16 bytes of the quote UUID (reversible). */
+export function quoteMemo(quoteId: string): `0x${string}` {
+  return `0x${'0'.repeat(32)}${quoteId.replace(/-/g, '').toLowerCase()}`;
+}
+
 /** F-5: recipient = payout_wallet_tempo, amount = total, splits only with the integrator fee on. */
 async function quoteChargeParams(q: QuoteRow): Promise<ChargeParams> {
   if (!q.rails_offered.includes('tempo')) {
@@ -131,7 +136,7 @@ async function quoteChargeParams(q: QuoteRow): Promise<ChargeParams> {
   return {
     amount: String(q.total_usd),
     recipient: currentPayout(q, 'tempo'),
-    memo: q.quote_id,
+    memo: quoteMemo(q.quote_id),
     ...(withFee && feeWallet
       ? { splits: [{ recipient: feeWallet, amount: String(q.fee_usd) }] }
       : {}),

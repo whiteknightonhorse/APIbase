@@ -142,7 +142,7 @@ Buyer path. A quote is a price snapshot plus a stock hold; nothing is charged by
 
 **Response** (`201`): `quote_id, order_id, items[{sku, variant?, title, qty, unit_price_usd, line_total_usd}], total_usd, fee_disclosed: false, expires_at, requires_pii[], requires_human_confirmation, pay`. Prices come from the server catalog, never from the request.
 
-**`pay`** contains only the rails the quote offers: `x402: {payTo, amount, network, asset, extra: {quote_id}}` — `payTo` is the merchant's `payout_wallet_base` (never the platform wallet), `amount` is micro-USDC (`toMicroUsdc(total_usd)`); `mpp: {url}` = `POST /api/v1/shop/quotes/{id}/pay`. On `/mcp` orders are paid by x402 only, so `pay.mpp` is omitted there.
+**`pay`** contains only the rails the quote offers: `x402: {payTo, amount, network, asset, extra: {quote_id}}` — `payTo` is the merchant's `payout_wallet_base` (never the platform wallet), `amount` is micro-USDC (`toMicroUsdc(total_usd)`); `mpp: {url}` = `POST /api/v1/shop/quotes/{id}/pay`. On `/mcp` orders are paid by x402 only, so `pay.mpp` is omitted there. Tempo memo is bytes32: 16 zero bytes followed by the 16 bytes of `quote_id`; decode it to find the quote on-chain.
 
 **TTL.** 15 minutes by default (`limits.quote_ttl_s`, merchant range 5–60 min). Past `expires_at` the quote is `expired`: `GET` returns `410 quote_expired` with a fresh quote in `quote` (same items, current prices); if the items have meanwhile sold out, `410` carries `alternatives` instead.
 
