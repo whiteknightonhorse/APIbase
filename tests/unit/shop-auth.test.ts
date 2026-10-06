@@ -11,7 +11,7 @@ import {
   type NonceRedis,
   type SignPurpose,
 } from '../../src/shop/auth/nonce.service';
-import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
+import { createMerchantRouter, PROBE_LIMIT_PER_MIN } from '../../src/shop/routes/merchant.router';
 import { issueKey, requireMerchantKey } from '../../src/shop/auth/merchant-key.service';
 import {
   changeIdentity,
@@ -66,6 +66,7 @@ function fakeDb(seed: { merchant: Record<string, unknown>; sanctioned?: string[]
       return keys.filter((k) => k.key_hash === v[0] && !k.revoked_at);
     if (sql.includes('FROM shop_sanctioned_addresses'))
       return (seed.sanctioned ?? []).includes(v[0] as string) ? [{ x: 1 }] : [];
+    if (sql.includes('FROM outbox')) return [];
     if (sql.includes('FROM shop_merchants')) return [merchant];
     throw new Error('unexpected ' + sql);
   };
@@ -378,5 +379,61 @@ describe('ID8 redactObject arrays', () => {
     );
     expect(out).not.toContain(key);
     expect(out).not.toContain('eeeeee');
+  });
+});
+
+describe('ID10 pre-auth probe limiter', () => {
+  const setup = () => {
+    const f = fakeDb({ merchant: mk() });
+    const app = express();
+    app.set('trust proxy', 1);
+    app.use(express.json());
+    app.use(
+      createMerchantRouter({
+        db: f.db as never,
+        transaction: (fn) => fn(f.db as never),
+        redis: new FakeRedis(now) as never,
+        now,
+      }),
+    );
+    const srv = app.listen(0);
+    const url = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/api/v1/shop/merchants/me/events`;
+    const get = (key: string, ip: string) =>
+      fetch(url, { headers: { authorization: `Bearer ${key}`, 'x-forwarded-for': ip } });
+    return { f, srv, get };
+  };
+  const junk = 'mk_live_' + '0'.repeat(32);
+
+  it('RL1 101st failed request from one address is 429', async () => {
+    const { srv, get } = setup();
+    try {
+      for (let i = 0; i < PROBE_LIMIT_PER_MIN; i++)
+        expect((await get(junk, '10.0.0.1')).status).toBe(401);
+      const r = await get(junk, '10.0.0.1');
+      expect(r.status).toBe(429);
+      expect((await r.json()).error).toBe('rate_limited');
+    } finally {
+      srv.close();
+    }
+  });
+
+  it('RL2 budget is per address', async () => {
+    const { srv, get } = setup();
+    try {
+      for (let i = 0; i < PROBE_LIMIT_PER_MIN + 1; i++) await get(junk, '10.0.0.1');
+      expect((await get(junk, '10.0.0.2')).status).toBe(401);
+    } finally {
+      srv.close();
+    }
+  });
+
+  it('RL3 successful requests are not counted', async () => {
+    const { f, srv, get } = setup();
+    try {
+      const key = await issueKey(f.db, 'm1', ['orders:read']);
+      for (let i = 0; i < 150; i++) expect((await get(key, '10.0.0.3')).status).toBe(200);
+    } finally {
+      srv.close();
+    }
   });
 });

@@ -84,7 +84,9 @@ export async function authenticateMerchantKey(
   return { merchant_id: rows[0].merchant_id, key_hash, scopes: rows[0].scopes };
 }
 
-/** express guard: requires every scope in `scopes` (403 otherwise), then rate-limits per key. */
+/** express guard: requires every scope in `scopes` (403 otherwise), then rate-limits per key.
+ *  The key lookup runs before that limiter: routes must put a per-address limiter in front
+ *  of this guard (merchant.router `probeLimiter`), CodeQL js/missing-rate-limiting. */
 export function requireMerchantKey(
   scopes: readonly string[],
   getDb: () => ShopTx | Promise<ShopTx>,

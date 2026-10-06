@@ -1,5 +1,5 @@
 import { Router, type Request, type Response } from 'express';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { type Options } from 'express-rate-limit';
 import { ShopAuthError } from '../auth/errors';
 import { reissueKeys, rotateKey } from '../auth/identity.service';
 import { requireMerchantKey } from '../auth/merchant-key.service';
@@ -43,10 +43,13 @@ const PURPOSES: readonly SignPurpose[] = [
   'owner',
 ];
 
-const limiter = (windowMs: number, limit: number) =>
+export const PROBE_LIMIT_PER_MIN = 100;
+
+const limiter = (windowMs: number, limit: number, extra: Partial<Options> = {}) =>
   rateLimit({
     windowMs,
     limit,
+    ...extra,
     standardHeaders: true,
     legacyHeaders: false,
     validate: false,
@@ -64,6 +67,11 @@ const limiter = (windowMs: number, limit: number) =>
 /** §6.3 merchant routes, mounted at /api/v1/shop/... (same services and codes as the /mcp tools). */
 export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router {
   const router = Router();
+  // CodeQL js/missing-rate-limiting: requireMerchantKey() does a key lookup BEFORE its per-key
+  // limiter can run, so every key-guarded route carries this per-address limiter in its own
+  // handler chain. Only failed (4xx/5xx) responses count: legitimate traffic keeps the per-key
+  // budget of merchant-key.service, while key probing from one address is capped.
+  const probeLimiter = limiter(60_000, PROBE_LIMIT_PER_MIN, { skipSuccessfulRequests: true });
   const send = (res: Response, err: unknown) => {
     const { status, body } = toApiError(err, res.req.requestId);
     res.status(status).json(body);
@@ -150,6 +158,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
 
   router.post(
     '/api/v1/shop/merchants/me/keys/rotate',
+    probeLimiter,
     requireMerchantKey([], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -197,6 +206,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
 
   router.post(
     '/api/v1/shop/merchants/me/deactivate',
+    probeLimiter,
     requireMerchantKey(['orders:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -211,6 +221,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // §6.3: the merchant comes from the key, never from the body.
   router.put(
     '/api/v1/shop/merchants/me/catalog',
+    probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -225,6 +236,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // F-2 / UC-11: feed import is a worker job; the merchant comes from the key. One import per 10 minutes.
   router.post(
     '/api/v1/shop/merchants/me/catalog/import',
+    probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -236,6 +248,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   );
   router.get(
     '/api/v1/shop/merchants/me/catalog/import/:id',
+    probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -249,6 +262,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // §6.3 orders: the merchant is the key's, never a parameter.
   router.get(
     '/api/v1/shop/merchants/me/orders',
+    probeLimiter,
     requireMerchantKey(['orders:read'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -279,6 +293,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
 
   router.post(
     '/api/v1/shop/merchants/me/orders/:id/confirm',
+    probeLimiter,
     requireMerchantKey(['orders:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -293,6 +308,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
 
   router.post(
     '/api/v1/shop/merchants/me/orders/:id/ship',
+    probeLimiter,
     requireMerchantKey(['orders:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -312,6 +328,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
 
   router.post(
     '/api/v1/shop/merchants/me/orders/:id/document',
+    probeLimiter,
     requireMerchantKey(['orders:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -332,6 +349,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // §6.3 refunds: the merchant comes from the key; the chain is only read (F-10).
   router.post(
     '/api/v1/shop/merchants/me/refunds',
+    probeLimiter,
     requireMerchantKey(['refunds:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -345,6 +363,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // §6.3 family /merchants/me/*: Base fee invoices (§7.1). The chain is only read; the merchant comes from the key.
   router.get(
     '/api/v1/shop/merchants/me/fee-invoices',
+    probeLimiter,
     requireMerchantKey(['stats:read'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -356,6 +375,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   );
   router.post(
     '/api/v1/shop/merchants/me/fee-invoices/:id/paid',
+    probeLimiter,
     requireMerchantKey(['refunds:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -376,6 +396,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // §6.3 webhooks: the merchant comes from the key, never from the body.
   router.put(
     '/api/v1/shop/merchants/me/webhooks',
+    probeLimiter,
     requireMerchantKey(['webhooks:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -389,6 +410,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // F-17: the full connection report (details included) for the key holder.
   router.get(
     '/api/v1/shop/merchants/me/check',
+    probeLimiter,
     requireMerchantKey([], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -402,6 +424,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   // F-12: the key holder's own aggregates; `format=csv` is one row per paid order (tx_hash, no full wallet).
   router.get(
     '/api/v1/shop/merchants/me/stats',
+    probeLimiter,
     requireMerchantKey(['stats:read'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
@@ -422,6 +445,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
 
   router.get(
     '/api/v1/shop/merchants/me/events',
+    probeLimiter,
     requireMerchantKey(['orders:read'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
