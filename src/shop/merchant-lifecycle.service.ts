@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { logger } from '../config/logger';
 import { CatalogError } from './catalog.errors';
+import type { SignerKind } from './wallet-signature';
 import { QuoteError } from './quote.errors';
 import { ShopAuthError } from './auth/errors';
 import { issueKey } from './auth/merchant-key.service';
@@ -93,6 +94,19 @@ async function byWallet(db: ShopTx, wallet: string): Promise<MerchantRow | null>
   return rows[0] ?? null;
 }
 
+/**
+ * shop_acceptances.method. The 0027 CHECK has no `checkbox+contract_wallet_signature` value (and
+ * this card ships no migration), so a contract-wallet acceptance is stored as
+ * `contract_wallet_signature` whether or not the INT-17 form sent the checkbox; the signature
+ * itself stays the evidence (§11.2).
+ */
+function acceptanceMethod(signer_kind: SignerKind, requested: AcceptInput['method']): string {
+  if (signer_kind === 'contract') return 'contract_wallet_signature';
+  return requested === 'checkbox+wallet_signature'
+    ? 'checkbox+wallet_signature'
+    : 'wallet_signature';
+}
+
 /** UC-10: verify the §11.2 acceptance, store 4 rows, activate, return the one-time key. */
 export async function acceptTerms(
   d: ShopDeps,
@@ -145,7 +159,7 @@ export async function acceptTerms(
     return { status: 'active' };
   }
 
-  await verifyBoundNonceSignature(
+  const { signer_kind } = await verifyBoundNonceSignature(
     {
       message: input.message,
       signature: input.signature,
@@ -167,9 +181,7 @@ export async function acceptTerms(
         doc.doc_id,
         doc.version,
         doc.sha256,
-        input.method === 'checkbox+wallet_signature'
-          ? 'checkbox+wallet_signature'
-          : 'wallet_signature',
+        acceptanceMethod(signer_kind, input.method),
         wallet,
         input.signature,
         input.message,
@@ -184,7 +196,7 @@ export async function acceptTerms(
     );
     if (won.length === 0) return { status: 'active' as const };
     const api_key = await issueKey(tx, m.merchant_id, undefined, 'initial');
-    logger.info({ merchant_id: m.merchant_id }, 'merchant activated');
+    logger.info({ merchant_id: m.merchant_id, signer_kind }, 'merchant activated');
     return { status: 'active' as const, api_key };
   });
 }
@@ -282,7 +294,8 @@ export function toApiError(err: unknown, request_id?: string): ApiErr {
   }
   if (err instanceof ShopAuthError) {
     const code =
-      err.status === 401
+      (err as { error_code?: string }).error_code ??
+      (err.status === 401
         ? 'unauthorized'
         : err.status === 403
           ? 'forbidden'
@@ -290,7 +303,7 @@ export function toApiError(err: unknown, request_id?: string): ApiErr {
             ? 'rate_limited'
             : err.status === 503
               ? 'service_unavailable'
-              : 'conflict';
+              : 'conflict');
     return base(err.status, code, err.message, {
       suggested_action:
         err.suggested_action ?? (err.status === 401 ? 'fix_request' : 'retry_after_delay'),

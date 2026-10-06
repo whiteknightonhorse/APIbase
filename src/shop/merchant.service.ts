@@ -1,13 +1,13 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { verifyMessage } from 'viem';
 import { logger } from '../config/logger';
 import { checkBan, recordBlock } from '../services/moderation-ban.service';
 import type { Alternative, SuggestedAction } from '../types/errors';
 import type { ShopTx } from './db';
 import { ShopAuthError } from './auth/errors';
 import { verifyWalletSignature, type NonceRedis } from './auth/nonce.service';
+import { verifyWalletSignature as checkWalletSignature } from './wallet-signature';
 import { isCategoryAllowed, nearestAllowed } from './moderation/categories';
 import { isRestrictedEntityCountry, isRestrictedIp } from './moderation/countries';
 import { isSanctioned } from './moderation/sanctions';
@@ -41,15 +41,12 @@ export async function verifyEncryptionKeySignature(
   wallet: string,
   k: Pick<EncryptionKey, 'kid' | 'alg' | 'pub' | 'sig_by_wallet'>,
 ): Promise<boolean> {
-  try {
-    return await verifyMessage({
-      address: wallet as `0x${string}`,
-      message: encryptionKeyMessage(k),
-      signature: k.sig_by_wallet as `0x${string}`,
-    });
-  } catch {
-    return false;
-  }
+  const r = await checkWalletSignature({
+    address: wallet,
+    message: encryptionKeyMessage(k),
+    signature: k.sig_by_wallet,
+  });
+  return r.ok;
 }
 
 export interface RegisterInput {
@@ -251,7 +248,7 @@ export async function registerMerchant(
     await checkIpRate(ctx);
 
     // 1. signature (INT-02, purpose register)
-    await verifyWalletSignature(
+    const { signer_kind } = await verifyWalletSignature(
       { ...input.signed, expectedAddress: wallet, purpose: 'register' },
       { redis: ctx.redis, now: ctx.now },
     );
@@ -395,7 +392,7 @@ export async function registerMerchant(
        VALUES ($1::uuid, 'merchant', 'rules', 'ok')`,
       merchant_id,
     );
-    logger.info({ merchant_id, slug: input.slug }, 'merchant registered (pending)');
+    logger.info({ merchant_id, slug: input.slug, signer_kind }, 'merchant registered (pending)');
     return { merchant_id, status: 'pending', agent_id: agent[0].agent_id };
   } catch (err) {
     const code =
@@ -403,7 +400,7 @@ export async function registerMerchant(
         ? err.error_code
         : err instanceof ShopAuthError
           ? err.status === 503
-            ? 'nonce_store_unavailable'
+            ? ((err as { error_code?: string }).error_code ?? 'nonce_store_unavailable')
             : 'unauthorized'
           : 'internal_error';
     await emitConnectEvent(ctx, wallet, code);

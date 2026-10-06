@@ -125,7 +125,7 @@ describe('ID1 nonce / EIP-191', () => {
 
   it('valid -> ok; replay -> 401', async () => {
     const s = await sign(owner, redis, 'register');
-    await expect(v(s)).resolves.toBeUndefined();
+    await expect(v(s)).resolves.toEqual({ signer_kind: 'eoa' });
     await expect(v(s)).rejects.toMatchObject({ status: 401 });
   });
   it('301 s later -> 401', async () => {
@@ -153,13 +153,10 @@ describe('ID1 nonce / EIP-191', () => {
       status: 401,
     });
   });
-  it('bad signature -> 401 with EOA hint', async () => {
+  it('bad signature -> 401', async () => {
     const s = await sign(owner, redis, 'register');
     const forged = await acct().signMessage({ message: s.message });
-    await expect(v({ ...s, signature: forged })).rejects.toMatchObject({
-      status: 401,
-      suggested_action: expect.stringContaining('EOA'),
-    });
+    await expect(v({ ...s, signature: forged })).rejects.toMatchObject({ status: 401 });
   });
   it('ID9 redis throws -> 503', async () => {
     const bad = {

@@ -11,6 +11,7 @@ import { encryptionKeyMessage } from '../../src/shop/merchant.service';
 import { assertTermsAccepted } from '../../src/shop/auth/terms.guard';
 import { issueNonce } from '../../src/shop/auth/nonce.service';
 import { acceptTermsMessage, type ShopDeps } from '../../src/shop/merchant-lifecycle.service';
+import { setSignaturePublicClient } from '../../src/shop/wallet-signature';
 import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
 import { CATALOG_TOOL_NAMES } from '../../src/shop/tools/catalog.tools';
 import { ORDER_TOOL_NAMES } from '../../src/shop/tools/order.tools';
@@ -532,5 +533,37 @@ describe('TA7 REST', () => {
     } finally {
       srv.close();
     }
+  });
+});
+
+describe('E2/E5 contract wallet acceptance (T-INT-45)', () => {
+  it('E2 contract wallet: register + accept_terms -> active, method contract_wallet_signature; E5 nonce reuse -> 401', async () => {
+    setSignaturePublicClient({
+      getCode: async () => '0x6080604052',
+      verifyMessage: async () => true,
+    });
+    const env = build();
+    const { call } = await connect(env);
+    const { wallet, body } = await regBody(env);
+    expect((await call('shop.merchant.register', body)).isError).toBe(false);
+    const acc = await acceptBody(env, wallet);
+    const r = await call('shop.merchant.accept_terms', {
+      ...acc,
+      method: 'checkbox+wallet_signature',
+    });
+    expect(r.isError).toBe(false);
+    expect(r.structured.status).toBe('active');
+    expect(env.merchants[0].status).toBe('active');
+    expect(env.acceptances).toHaveLength(4);
+    for (const a of env.acceptances) {
+      expect(a.method).toBe('contract_wallet_signature');
+      expect(a.signer).toBe(wallet.address.toLowerCase());
+      expect(a.signature).toBe(acc.signature);
+      expect(a.message).toBe(acc.message);
+    }
+    // E5: a second registration attempt reusing the spent register nonce is refused
+    const other = await regBody(env, { message: body.message, signature: body.signature });
+    const again = await call('shop.merchant.register', other.body);
+    expect(again.isError).toBe(true);
   });
 });

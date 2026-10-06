@@ -14,6 +14,7 @@ import {
 } from '../../src/shop/merchant.service';
 import { ALLOWED_CATEGORIES } from '../../src/shop/moderation/categories';
 import { isRestrictedIp } from '../../src/shop/moderation/countries';
+import { setSignaturePublicClient } from '../../src/shop/wallet-signature';
 import { addressesFromCsv, syncOfacSdn } from '../../src/shop/moderation/sanctions';
 
 // sanctions no longer pulls base.adapter/config; the mock stays as a guard against env validation.
@@ -346,5 +347,94 @@ describe('RG9/RG10 files and types', () => {
       documentation_url: '/d',
     };
     expect(e.alternatives).toBeUndefined();
+  });
+});
+
+/** T-INT-45: contract (ERC-1271) wallets. The chain client is a mock; every address below has code. */
+describe('E3/E4/E6/E7 contract wallet registration', () => {
+  const contractClient = (isValid: () => boolean | Promise<boolean>) => ({
+    getCode: async () => '0x6080604052',
+    verifyMessage: async () => isValid(),
+  });
+
+  it('E3 isValidSignature false -> 401, no row', async () => {
+    setSignaturePublicClient(contractClient(() => false));
+    const f = fakeDb();
+    const { input, redis } = await build();
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).rejects.toMatchObject({
+      status: 401,
+    });
+    expect(f.merchants).toHaveLength(0);
+  });
+
+  it('E4 RPC throws -> 503 auth_unavailable (never 401/200), no row, event recorded', async () => {
+    setSignaturePublicClient(
+      contractClient(() => {
+        throw new Error('rpc down');
+      }),
+    );
+    const f = fakeDb();
+    const { input, redis } = await build();
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).rejects.toMatchObject({
+      status: 503,
+      error_code: 'auth_unavailable',
+    });
+    expect(f.merchants).toHaveLength(0);
+    expect(f.events).toContainEqual(expect.objectContaining({ error_code: 'auth_unavailable' }));
+    // getCode itself failing is the same 503
+    setSignaturePublicClient({
+      getCode: async () => {
+        throw new Error('rpc down');
+      },
+      verifyMessage: async () => true,
+    });
+    const again = await build();
+    await expect(registerMerchant(again.input, ctxOf(f.db, again.redis))).rejects.toMatchObject({
+      status: 503,
+      error_code: 'auth_unavailable',
+    });
+  });
+
+  it('E6 OFAC payout for a contract wallet -> 403 + reject review', async () => {
+    setSignaturePublicClient(contractClient(() => true));
+    const f = fakeDb();
+    await syncOfacSdn(f.db, async () => ({ sdn: SDN_CSV, alt: '' }));
+    const { input, redis } = await build({ payout_wallet: FIXTURE_ADDR });
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).rejects.toMatchObject({
+      status: 403,
+      message: 'payout wallet cannot be used',
+    });
+    expect(f.reviews).toContainEqual(
+      expect.objectContaining({ verdict: 'reject', category: 'ofac' }),
+    );
+  });
+
+  it('E7 country=IR with a contract wallet -> 403 country_not_supported', async () => {
+    setSignaturePublicClient(contractClient(() => true));
+    const f = fakeDb();
+    const { input, redis } = await build({ country: 'IR' });
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).rejects.toMatchObject({
+      status: 403,
+      error_code: 'country_not_supported',
+    });
+    expect(f.merchants).toHaveLength(0);
+  });
+
+  it('a valid contract wallet registers pending', async () => {
+    const seen: string[] = [];
+    setSignaturePublicClient({
+      getCode: async () => '0x6080604052',
+      verifyMessage: async (a) => {
+        seen.push(a.address);
+        return true;
+      },
+    });
+    const f = fakeDb();
+    const { input, redis, wallet } = await build();
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).resolves.toMatchObject({
+      status: 'pending',
+    });
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen.every((a) => a === wallet.address.toLowerCase())).toBe(true);
   });
 });

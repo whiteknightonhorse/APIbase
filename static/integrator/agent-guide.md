@@ -4,7 +4,7 @@ For a merchant's agent. Read this page (or its Markdown form, `Accept: text/mark
 
 ## Preconditions
 
-1. A wallet with USDC on Base or Tempo, plus an x402 (Base) or MPP (Tempo) client able to sign a payment from it. Step 7 needs both for `payment_verified`. The merchant's own wallet signs steps 1 to 3. APIbase issues no wallets: see /integrator/wallet.
+1. A wallet with USDC on Base or Tempo, plus an x402 (Base) or MPP (Tempo) client able to sign a payment from it. Step 7 needs both for `payment_verified`. The merchant's own wallet signs steps 1 to 3; smart-contract wallets (ERC-1271) are accepted. APIbase issues no wallets: see /integrator/wallet.
 2. A shop with a public https site and a category from the allowed list (it is the drop-down in the form at /integrator/connect; a refused category returns the nearest allowed ones in `alternatives[]`).
 3. A https webhook URL that resolves to public addresses (optional; the check skips `webhook_ping` without it).
 4. Where to put the link afterwards: /integrator#options (variants A to D).
