@@ -33,8 +33,10 @@ export function hashApiKey(key: string): string {
   return createHash('sha256').update(key).digest('hex'); // nosemgrep: insufficient-password-hash
 }
 
-/** Validate API key format (prefix + 32 hex chars). */
-export function isValidApiKeyFormat(key: string): boolean {
+/** Validate API key format (prefix + 32 hex chars). Takes `unknown`: request-sourced values
+ *  may be arrays or objects, so the type check is the first guard (CodeQL js/type-confusion). */
+export function isValidApiKeyFormat(key: unknown): boolean {
+  if (typeof key !== 'string') return false;
   if (key.length !== 40) return false;
   if (!key.startsWith(LIVE_PREFIX) && !key.startsWith(TEST_PREFIX)) return false;
   const hexPart = key.slice(8);
