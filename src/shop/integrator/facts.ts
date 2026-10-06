@@ -1,4 +1,6 @@
-import { DEFAULT_SANDBOX_STATUS } from './tokens';
+import { DEFAULT_SANDBOX_STATUS, INTEGRATOR_BASE_FEE_MODE } from './tokens';
+
+export { INTEGRATOR_BASE_FEE_MODE };
 
 /**
  * The `integrator` block of static/.well-known/mcp.json (T-INT-19, F-3/§13.4), built by

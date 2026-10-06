@@ -3,6 +3,10 @@ import { parsePaymentPayload } from '@x402/core/schemas';
 import { logger } from '../../config/logger';
 import { buildServerX402Requirements } from '../../config/x402.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
+import type {
+  Eip3009Authorization,
+  LocalFacilitatorClient,
+} from '../../payments/local-facilitator';
 import type { ShopDeps } from '../../shop/merchant-lifecycle.service';
 import { fulfillPaidOrder } from '../../shop/adapters/shop-order.adapter';
 import {
@@ -21,6 +25,8 @@ export interface PayingOrder {
   amount_usd: number;
   pay_to: string;
   header: string | undefined;
+  /** T-INT-42: the payer signed two authorizations; settle is one Multicall3 `aggregate3`. */
+  fee_split?: { fee_to: string; fee_usd: number; fee_nonce: string };
   request_id?: string;
   buyer_agent?: BuyerAgent;
 }
@@ -29,6 +35,32 @@ export type SettleOutcome =
   | { kind: 'paid'; order: OrderView }
   | { kind: 'pending'; order_id: string }
   | { kind: 'failed'; order_id: string; reason: string };
+
+let feeSplitSettler: LocalFacilitatorClient | undefined;
+
+/** The two signed legs of a fee-split header -> one atomic settle on the local facilitator. */
+async function settleFeeSplitLegs(
+  payload: unknown,
+): Promise<{ success: boolean; transaction?: string; errorReason?: string }> {
+  const inner = (
+    payload as {
+      payload?: {
+        authorization?: Eip3009Authorization;
+        signature?: string;
+        feeAuthorization?: { authorization?: Eip3009Authorization; signature?: string };
+      };
+    }
+  ).payload;
+  const a1 = inner?.authorization;
+  const a2 = inner?.feeAuthorization?.authorization;
+  if (!a1 || !a2 || !inner?.signature || !inner.feeAuthorization?.signature) {
+    return { success: false, errorReason: 'fee_split_payload_unreadable' };
+  }
+  // Loaded only here: the ordinary settle path never pays the viem import.
+  const { buildLocalFacilitatorClient } = await import('../../payments/local-facilitator');
+  feeSplitSettler ??= buildLocalFacilitatorClient();
+  return feeSplitSettler.settleFeeSplit(a1, inner.signature, a2, inner.feeAuthorization.signature);
+}
 
 /** The PROVIDER_CALL leg for a confirmed payment: confirm (-> PAID) then the `shop` adapter. */
 export async function finalizeConfirmed(deps: ShopDeps, p: PaidInput): Promise<OrderView | null> {
@@ -79,9 +111,10 @@ export async function settleAndFinalize(
     // 30 s cap is enforced here. On timeout the settle keeps running: the row stays pending and
     // a late success is finalized below; a late failure is left to the reconcile job (the
     // transfer may still be mined, so it must not become PAYMENT_FAILED).
-    const settling = getSharedResourceServer().settlePayment(
-      payload.data as never,
-      requirements as never,
+    const settling = (
+      p.fee_split
+        ? settleFeeSplitLegs(payload.data)
+        : getSharedResourceServer().settlePayment(payload.data as never, requirements as never)
     ) as Promise<{ success: boolean; transaction?: string; errorReason?: string }>;
     let timer: NodeJS.Timeout | undefined;
     const timedOut = Symbol('timeout');

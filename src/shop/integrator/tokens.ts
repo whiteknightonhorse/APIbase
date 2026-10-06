@@ -20,6 +20,9 @@ function baselineMerchants(path: string): string {
 export const DEFAULT_SANDBOX_STATUS =
   'Sandbox: not yet available — use the $0.01 test SKU on mainnet';
 
+/** Facts key INTEGRATOR_BASE_FEE_MODE (T-INT-42): how the fee is collected on Base. */
+export const INTEGRATOR_BASE_FEE_MODE = 'in-tx for fee-split clients, invoiced otherwise';
+
 function feeState(): { on: boolean; pct: number } {
   const bps = Number(process.env.INTEGRATOR_FEE_BPS ?? 150);
   const on = process.env.INTEGRATOR_FEE_ENABLED === 'true' && Number.isFinite(bps) && bps > 0;
@@ -38,6 +41,7 @@ export function renderTokens(tpl: string, baselinePath: string = MCP_BASELINE): 
       /\{\{INTEGRATOR_MIN_ORDER\}\}/g,
       () => `$${(Number.isFinite(min) ? min : 1).toFixed(2)}`,
     )
+    .replace(/\{\{INTEGRATOR_BASE_FEE_MODE\}\}/g, () => INTEGRATOR_BASE_FEE_MODE)
     .replace(/\{\{MERCHANTS_COUNT\}\}/g, () => merchants)
     .replace(/\{\{SANDBOX_STATUS\}\}/g, () => process.env.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS);
 }

@@ -86,7 +86,7 @@ The check runs five steps: `storefront_initialize`, `tools_list_6`, `quote_test_
 Fee: {{INTEGRATOR_FEE_PCT}}. Minimum order: {{INTEGRATOR_MIN_ORDER}}. The test item carries no fee.
 
 - Tempo (MPP): when the fee is on, it is taken inside the buyer's transaction as a split; you receive the rest directly.
-- Base (x402): the fee is not in the transaction. You receive the full amount; the fee is recorded as a receivable and billed to you by invoice.
+- Base (x402): {{INTEGRATOR_BASE_FEE_MODE}}. When the buyer's client pays the fee split (two signatures), the fee is taken inside the same transaction and you receive the rest directly. Otherwise you receive the full amount, and the fee is recorded as a receivable and billed to you by invoice.
 
 While the fee is off, nothing is recorded or charged on either rail.
 

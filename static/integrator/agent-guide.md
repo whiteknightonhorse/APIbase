@@ -65,6 +65,33 @@ Errors: `quote_expired`, `out_of_stock`, `test_sku_daily_cap`, `payment_required
 
 Call the check again (step 6). `payment_verified` is `true` once a PAID test order made by your own agent exists. Then place link A, B, C or D on the merchant's site: /integrator#options.
 
+## Fee-split on Base: two signatures
+
+When the fee is on, the Base 402 of `POST /api/v1/shop/quotes/:id/pay` carries `accepts[0].extra.fee_split`:
+
+```json
+{"v": 1, "fee_to": "0x...", "fee_amount": "1340000", "merchant_amount": "87660000", "how": "..."}
+```
+
+A client that supports it signs two EIP-3009 `TransferWithAuthorization` messages with the same wallet and different random nonces: the first to `accepts[0].payTo` for `merchant_amount`, the second to `fee_to` for `fee_amount`. It sends the second one inside the payment payload:
+
+```json
+{
+  "x402Version": 2,
+  "accepted": {"scheme": "exact", "network": "eip155:8453"},
+  "payload": {
+    "authorization": {"from": "0x...", "to": "<payTo>", "value": "<merchant_amount>", "validAfter": "0", "validBefore": "<unix>", "nonce": "0x<32 bytes>"},
+    "signature": "0x...",
+    "feeAuthorization": {
+      "authorization": {"from": "0x...", "to": "<fee_to>", "value": "<fee_amount>", "validAfter": "0", "validBefore": "<unix>", "nonce": "0x<32 bytes>"},
+      "signature": "0x..."
+    }
+  }
+}
+```
+
+Base64-encode the JSON into the `X-Payment` header as usual. Any other amount, recipient or payer is refused with `payment_amount_mismatch` and nothing is claimed. Without `feeAuthorization` the single authorization for the full total still works and the fee is invoiced. Example client: `scripts/shop/examples/x402-fee-split-client.ts`.
+
 ## Error codes
 
 ### `quote_expired`

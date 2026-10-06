@@ -296,7 +296,7 @@ The public twin is `GET https://apibase.pro/integrator/check/<slug>`: the same s
 
 ## Fee invoices {#fee-invoices}
 
-Orders paid on Tempo carry the platform fee inside the payment. Orders paid on Base owe it as a receivable from the first order: on the 1st of each month every owed Base fee created before that month becomes one USDC invoice for the closed period (`{invoice_id, period, amount_usd, due_at}`, due 30 days after it is issued) and you get a mail with the amount, our wallet and the invoice id as the payment reference. With the fee switched off the amount is 0 and no invoice exists.
+Orders paid on Tempo carry the platform fee inside the payment, and so do Base orders paid with a fee-split client (two EIP-3009 signatures, one Multicall3 transaction; the ledger row is `collected`). Orders paid on Base with a single authorization owe it as a receivable from the first order: on the 1st of each month every owed Base fee created before that month becomes one USDC invoice for the closed period (`{invoice_id, period, amount_usd, due_at}`, due 30 days after it is issued) and you get a mail with the amount, our wallet and the invoice id as the payment reference. With the fee switched off the amount is 0 and no invoice exists.
 
 `GET /api/v1/shop/merchants/me/fee-invoices` (key scope `stats:read`) lists your invoices with `pay_to` and `memo`. After sending USDC on Base to `pay_to`, call `POST /api/v1/shop/merchants/me/fee-invoices/:id/paid {tx_hash}` (key scope `refunds:write`). APIbase only reads the chain: the transaction must be confirmed and carry a USDC transfer to the fee wallet of at least the invoice amount; otherwise `422 fee_payment_rejected` with the reason and the invoice is unchanged. A transaction pays one invoice only.
 

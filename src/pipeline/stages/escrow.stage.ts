@@ -136,6 +136,11 @@ export interface PaymentBinding {
   splits?: Array<{ wallet: string; amount_usd: number }>;
   /** `quote:*` only: our fee on this order (0 = switch off / test SKU) — the §5.4 ledger cost. */
   fee_usd?: number;
+  /**
+   * `quote:*` on Base only (T-INT-42): the fee leg a fee-split client may pay in the same
+   * transaction (second EIP-3009 authorization). Absent = the fee is invoiced (receivable).
+   */
+  fee_split?: { fee_to: string; fee_usd: number };
 }
 
 const isQuoteBinding = (b: PaymentBinding): boolean => b.resource.startsWith('quote:');
@@ -246,6 +251,18 @@ export async function buildPaymentBinding(
     splits: feeLeg ? [{ wallet: feeWallet, amount_usd: q.fee_usd }] : undefined,
     fee_usd: feeLeg && !q.is_test ? q.fee_usd : 0,
   };
+  const feeToBase = process.env['INTEGRATOR_FEE_WALLET_BASE'];
+  if (
+    rail === 'base' &&
+    q.fee_usd > 0 &&
+    q.fee_usd < q.total_usd &&
+    !q.is_test &&
+    integratorConfig().fee_enabled &&
+    feeToBase &&
+    getX402Config().facilitatorMode === 'local'
+  ) {
+    binding.fee_split = { fee_to: feeToBase, fee_usd: q.fee_usd };
+  }
   return ok({
     binding,
     quote: {
@@ -297,7 +314,12 @@ export function buildPaymentRequiredResponse(
         asset: cfg.usdcAddress,
         payTo: binding.pay_to,
         maxTimeoutSeconds: cfg.maxTimeoutSeconds,
-        extra: { name: 'USD Coin', version: '2', quote_id: quoteId },
+        extra: {
+          name: 'USD Coin',
+          version: '2',
+          quote_id: quoteId,
+          ...(binding.fee_split ? { fee_split: feeSplitChallenge(binding) } : {}),
+        },
       },
     ],
     request_id: meta.requestId,
@@ -314,6 +336,133 @@ export function buildPaymentRequiredResponse(
 interface VerifiedX402 {
   payer: string;
   nonce: string;
+  /** Set when the payer paid with two authorizations (T-INT-42); both nonces are claimed. */
+  feeSplit?: { fee_to: string; fee_usd: number; fee_nonce: string };
+}
+
+/** Micro-USDC legs of a fee-split: merchant = total - fee, exact integer arithmetic. */
+function feeSplitMicro(binding: PaymentBinding): { fee: string; merchant: string } {
+  const fee = BigInt(toMicroUsdc(binding.fee_split?.fee_usd ?? 0));
+  return { fee: String(fee), merchant: String(BigInt(toMicroUsdc(binding.amount_usd)) - fee) };
+}
+
+function feeSplitChallenge(binding: PaymentBinding): Record<string, unknown> {
+  const micro = feeSplitMicro(binding);
+  return {
+    v: 1,
+    fee_to: binding.fee_split?.fee_to,
+    fee_amount: micro.fee,
+    merchant_amount: micro.merchant,
+    how: 'sign a second EIP-3009 TransferWithAuthorization to fee_to for fee_amount and send it as payload.feeAuthorization; then the first authorization must be merchant_amount',
+  };
+}
+
+interface Eip3009Leg {
+  from?: unknown;
+  to?: unknown;
+  value?: unknown;
+  nonce?: unknown;
+  validBefore?: unknown;
+}
+
+/**
+ * Release a replay-guard claim made moments ago by this same request (fee-split: the second
+ * claim failed). Key format = payment-nonce.service (`payment-nonce:<rail>:<nonce>`), which
+ * this card may only call, not edit.
+ */
+async function releaseNonceClaims(nonces: string[]): Promise<void> {
+  const { ensureRedisConnected } = await import('../../services/redis.service');
+  const r = await ensureRedisConnected();
+  await r.del(...nonces.map((n) => `payment-nonce:x402:${n}`));
+}
+
+interface FeeSplitLeg {
+  nonce: string;
+  valid_before: number;
+  merchant_micro: string;
+  /** Synthetic payload + requirements for the facilitator's verify of the fee leg. */
+  payload: unknown;
+  requirements: Record<string, unknown>;
+}
+
+type FeeSplitCheck =
+  | { ok: true; leg: FeeSplitLeg }
+  | { ok: false; reason: string; message: string };
+
+/**
+ * T-INT-42: structural checks of a two-authorization payment against the SERVER binding. Strict:
+ * the fee leg exists only if the binding offers one, both legs come from the same `from`, the
+ * seller leg is exactly total - fee to the payout wallet, the fee leg exactly fee to `fee_to`,
+ * and the two nonces differ. Anything else is a mismatch (nothing is claimed yet).
+ */
+function verifyFeeSplitLegs(
+  binding: PaymentBinding,
+  payload: unknown,
+  auth1: Eip3009Leg,
+  feeAuthRaw: unknown,
+): FeeSplitCheck {
+  const bad = (reason: string, message: string): FeeSplitCheck => ({
+    ok: false,
+    reason,
+    message,
+  });
+  const split = binding.fee_split;
+  if (!split) {
+    return bad(
+      'fee_leg_not_offered',
+      'This quote has no fee leg; pay the quoted total with one authorization.',
+    );
+  }
+  const micro = feeSplitMicro(binding);
+  const fa = feeAuthRaw as { authorization?: Eip3009Leg; signature?: unknown } | null;
+  const auth2 = fa?.authorization;
+  if (!fa || !auth2 || typeof auth2 !== 'object' || typeof fa.signature !== 'string') {
+    return bad('fee_leg_malformed', 'payload.feeAuthorization must be {authorization, signature}.');
+  }
+  const low = (v: unknown) => String(v ?? '').toLowerCase();
+  if (String(auth1.value) !== micro.merchant) {
+    return bad(
+      'amount_mismatch',
+      `With a fee leg the first authorization must be exactly ${micro.merchant} micro-USDC (merchant_amount).`,
+    );
+  }
+  if (String(auth2.value) !== micro.fee) {
+    return bad(
+      'fee_amount_mismatch',
+      `The fee authorization must be exactly ${micro.fee} micro-USDC (fee_amount).`,
+    );
+  }
+  if (low(auth2.to) !== low(split.fee_to)) {
+    return bad('fee_to_mismatch', 'The fee authorization must pay fee_to.');
+  }
+  if (!auth1.from || low(auth1.from) !== low(auth2.from)) {
+    return bad('fee_from_mismatch', 'Both authorizations must come from the same payer.');
+  }
+  const n2 = extractX402Nonce({ payload: { authorization: auth2 } });
+  const n1 = extractX402Nonce(payload);
+  if (!n1 || !n2) return bad('missing_nonce', 'Both authorizations need a nonce and validBefore.');
+  if (low(n1.nonce) === low(n2.nonce)) {
+    return bad('fee_nonce_reused', 'The two authorizations need different nonces.');
+  }
+  const inner = (payload as { payload?: Record<string, unknown> }).payload ?? {};
+  const { feeAuthorization: _drop, ...rest } = inner;
+  return {
+    ok: true,
+    leg: {
+      nonce: n2.nonce,
+      valid_before: n2.validBefore,
+      merchant_micro: micro.merchant,
+      payload: {
+        ...(payload as object),
+        payload: { ...rest, authorization: auth2, signature: fa.signature },
+      },
+      requirements: {
+        ...buildServerX402Requirements(split.fee_usd),
+        payTo: split.fee_to,
+        amount: micro.fee,
+      },
+    },
+  };
 }
 
 /**
@@ -383,6 +532,7 @@ async function verifyX402Binding(
     return reject('decode_failed');
   }
 
+  let feeSplitLeg: FeeSplitLeg | undefined;
   if (quote) {
     // The client's numbers are only COMPARED with the server binding, never trusted.
     const p = payload as {
@@ -393,12 +543,20 @@ async function verifyX402Binding(
     if (!auth || typeof auth.to !== 'string' || auth.value === undefined) {
       return reject('quote_requires_eip3009_authorization');
     }
-    if (String(auth.value) !== toMicroUsdc(binding.amount_usd)) {
-      return reject(
-        'amount_mismatch',
-        'payment_amount_mismatch',
-        `The authorization must be for exactly ${toMicroUsdc(binding.amount_usd)} micro-USDC (the quoted total).`,
-      );
+    const feeAuthRaw = (payload as { payload?: { feeAuthorization?: unknown } }).payload
+      ?.feeAuthorization;
+    if (feeAuthRaw === undefined) {
+      if (String(auth.value) !== toMicroUsdc(binding.amount_usd)) {
+        return reject(
+          'amount_mismatch',
+          'payment_amount_mismatch',
+          `The authorization must be for exactly ${toMicroUsdc(binding.amount_usd)} micro-USDC (the quoted total).`,
+        );
+      }
+    } else {
+      const split = verifyFeeSplitLegs(binding, payload, auth as Eip3009Leg, feeAuthRaw);
+      if (!split.ok) return reject(split.reason, 'payment_amount_mismatch', split.message);
+      feeSplitLeg = split.leg;
     }
     if (auth.to.toLowerCase() !== binding.pay_to.toLowerCase()) {
       return reject('pay_to_mismatch');
@@ -409,7 +567,11 @@ async function verifyX402Binding(
   }
 
   const requirements = quote
-    ? { ...buildServerX402Requirements(binding.amount_usd), payTo: binding.pay_to }
+    ? {
+        ...buildServerX402Requirements(binding.amount_usd),
+        payTo: binding.pay_to,
+        ...(feeSplitLeg ? { amount: feeSplitLeg.merchant_micro } : {}),
+      }
     : buildServerX402Requirements(priceUsd);
   let result;
   try {
@@ -433,6 +595,36 @@ async function verifyX402Binding(
 
   if (!result.isValid) {
     return reject(result.invalidReason ?? 'invalid');
+  }
+  if (feeSplitLeg) {
+    // The fee leg goes through the same facilitator verify, against its own synthetic requirements.
+    let feeResult;
+    try {
+      feeResult = await getSharedResourceServer().verifyPayment(
+        feeSplitLeg.payload as never,
+        feeSplitLeg.requirements as never,
+      );
+    } catch (verifyErr) {
+      logger.error(
+        {
+          requestId: ctx.requestId,
+          err: verifyErr instanceof Error ? verifyErr.message : String(verifyErr),
+        },
+        'x402 binding: fee-leg verify threw — failing closed',
+      );
+      return err<PipelineError>({
+        code: 502,
+        error: 'bad_gateway',
+        message: 'Payment facilitator unavailable',
+      });
+    }
+    if (!feeResult.isValid) {
+      return reject(
+        `fee_leg_${feeResult.invalidReason ?? 'invalid'}`,
+        'payment_amount_mismatch',
+        'The fee authorization is not valid for the quoted fee.',
+      );
+    }
   }
 
   // Single-use guard (A-01): the facilitator verify above is stateless — the
@@ -461,10 +653,51 @@ async function verifyX402Binding(
     }
     return claim;
   }
+  if (feeSplitLeg) {
+    // Both nonces or neither: a refused second claim gives the first one back.
+    const feeTtl = feeSplitLeg.valid_before - Math.floor(Date.now() / 1000);
+    const second = await claimOrReject('x402', feeSplitLeg.nonce, feeTtl, priceUsd, {
+      toolId: ctx.toolId,
+      requestId: ctx.requestId,
+    });
+    if (!second.ok) {
+      try {
+        await releaseNonceClaims([nonceInfo.nonce]);
+      } catch (relErr) {
+        logger.error(
+          {
+            requestId: ctx.requestId,
+            err: relErr instanceof Error ? relErr.message : String(relErr),
+          },
+          'x402 fee-split: could not release the first nonce claim',
+        );
+      }
+      if (second.error.code === 402) {
+        return reject(
+          'fee_nonce_already_consumed',
+          'payment_required',
+          'This payment was already used.',
+        );
+      }
+      return second;
+    }
+  }
 
   // Authoritative payer for the ledger audit trail (§AP-9).
   ctx.x402Payer = result.payer ?? ctx.x402Payer ?? 'unknown';
-  return ok({ payer: ctx.x402Payer, nonce: nonceInfo.nonce });
+  return ok({
+    payer: ctx.x402Payer,
+    nonce: nonceInfo.nonce,
+    ...(feeSplitLeg && binding.fee_split
+      ? {
+          feeSplit: {
+            fee_to: binding.fee_split.fee_to,
+            fee_usd: binding.fee_split.fee_usd,
+            fee_nonce: feeSplitLeg.nonce,
+          },
+        }
+      : {}),
+  });
 }
 
 /**
@@ -535,6 +768,8 @@ interface PayingStep {
   payment_id: string;
   payer: string;
   binding: PaymentBinding;
+  /** T-INT-42: paid with two authorizations; settle goes through one Multicall3 call. */
+  feeSplit?: { fee_to: string; fee_usd: number; fee_nonce: string };
 }
 
 const DUPLICATE_REFUND_DAYS = 7;
@@ -688,6 +923,7 @@ export async function escrowQuotePayment(
         : await verifyX402Binding(ctx, binding, ({ payer }) => screen(payer));
       if (!verified.ok) return verified;
       const { payer } = verified.value;
+      const feeSplit = 'feeSplit' in verified.value ? verified.value.feeSplit : undefined;
       const nonce = 'nonce' in verified.value ? verified.value.nonce : verified.value.challengeId;
 
       // x402: pending until settle returns the receipt. MPP: charge() already settled on Tempo and
@@ -703,7 +939,20 @@ export async function escrowQuotePayment(
         payer,
         binding.pay_to,
         binding.amount_usd,
-        JSON.stringify(binding.splits ?? []),
+        JSON.stringify(
+          feeSplit
+            ? [
+                {
+                  wallet: feeSplit.fee_to,
+                  amount_usd: feeSplit.fee_usd,
+                  fee_to: feeSplit.fee_to,
+                  fee: feeSplit.fee_usd,
+                  mode: 'in_tx',
+                  nonce: feeSplit.fee_nonce,
+                },
+              ]
+            : (binding.splits ?? []),
+        ),
         binding.rail,
         mpp ? null : nonce,
         mpp ? (ctx.mppTxHash ?? null) : null,
@@ -720,7 +969,13 @@ export async function escrowQuotePayment(
         payer,
         binding.rail,
       );
-      return ok({ order_id: quote.order_id, payment_id: pay[0].payment_id, payer, binding });
+      return ok({
+        order_id: quote.order_id,
+        payment_id: pay[0].payment_id,
+        payer,
+        binding,
+        ...(feeSplit ? { feeSplit } : {}),
+      });
     });
   } catch (e) {
     // §9.1 "Two payments of one quote": a second live order row for the quote hits the INT-01 index.
@@ -774,6 +1029,7 @@ export async function escrowQuotePayment(
     payer: step.payer,
     amount_usd: step.binding.amount_usd,
     pay_to: step.binding.pay_to,
+    ...(step.feeSplit ? { fee_split: step.feeSplit } : {}),
     header: ctx.x402PaymentHeader,
     request_id: ctx.requestId,
     buyer_agent: agent,

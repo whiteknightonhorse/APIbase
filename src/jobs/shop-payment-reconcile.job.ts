@@ -76,6 +76,7 @@ interface PendingRow {
   eip3009_nonce: string | null;
   pay_to: string;
   amount_usd: string;
+  splits: Array<{ mode?: string; nonce?: string; fee?: number }> | null;
   created_at: Date;
   expired: boolean;
 }
@@ -91,7 +92,7 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
   const deps = opts?.deps ?? defaultShopDeps();
   const rows = await deps.db.$queryRawUnsafe<PendingRow[]>(
     `SELECT p.payment_id, p.order_id, o.quote_id, o.merchant_id, p.payer, p.eip3009_nonce, p.pay_to,
-            p.amount_usd::text AS amount_usd, p.created_at, (p.reconcile_until <= now()) AS expired
+            p.amount_usd::text AS amount_usd, p.splits, p.created_at, (p.reconcile_until <= now()) AS expired
        FROM shop_payments p JOIN shop_orders o ON o.order_id = p.order_id
       WHERE p.rail = 'base' AND o.state IN ('PAYING', 'PAYMENT_FAILED')
         AND (p.chain_status = 'pending' OR (p.chain_status = 'failed' AND p.reconcile_until > now()))
@@ -104,11 +105,26 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
     try {
       chain ??= await viemChain();
       let tx: string | undefined;
-      if (r.eip3009_nonce && (await chain.authorizationUsed(r.payer, r.eip3009_nonce))) {
+      // T-INT-42: a fee-split payment is two authorizations in one Multicall3 call; the seller leg
+      // is total - fee. Both nonces are read: one used and one not cannot happen with
+      // allowFailure=false, and if seen it is a PAYMENT_MISMATCH for a human, never a PAID.
+      const feeLeg = r.splits?.find((x) => x.mode === 'in_tx' && x.nonce);
+      let used = r.eip3009_nonce ? await chain.authorizationUsed(r.payer, r.eip3009_nonce) : false;
+      let valueMicro = toMicroUsdc(Number(r.amount_usd));
+      if (feeLeg?.nonce) {
+        const feeUsed = await chain.authorizationUsed(r.payer, feeLeg.nonce);
+        if (used !== feeUsed) {
+          await flagMismatch(deps, r);
+          continue;
+        }
+        used = used && feeUsed;
+        valueMicro = String(BigInt(valueMicro) - BigInt(toMicroUsdc(Number(feeLeg.fee ?? 0))));
+      }
+      if (used) {
         tx = await chain.findTransfer({
           payer: r.payer,
           to: r.pay_to,
-          valueMicro: toMicroUsdc(Number(r.amount_usd)),
+          valueMicro,
           sinceMs: new Date(r.created_at).getTime(),
         });
       }
@@ -131,6 +147,21 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
       );
     }
   }
+}
+
+async function flagMismatch(deps: ShopDeps, r: PendingRow): Promise<void> {
+  await deps.db.$executeRawUnsafe(
+    `INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category, evidence_hash)
+     SELECT $1::uuid, 'merchant', 'rules', 'flag', 'payment_mismatch', $2
+      WHERE NOT EXISTS (SELECT 1 FROM shop_moderation_reviews
+                         WHERE category = 'payment_mismatch' AND evidence_hash = $2)`,
+    r.merchant_id,
+    createHash('sha256').update(r.payment_id).digest('hex'),
+  );
+  logger.error(
+    { job: 'shop-payment-reconcile', orderId: r.order_id },
+    'fee-split: exactly one of two authorizations is used on-chain — PAYMENT_MISMATCH, human only',
+  );
 }
 
 async function giveUp(deps: ShopDeps, r: PendingRow): Promise<void> {

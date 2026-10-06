@@ -30,7 +30,7 @@ TOKEN_FILES = {
 HOME_FILES = ["static/index.html", "static/index.md"]
 HOME_FEE_RE = re.compile(r"<!--fee-->.*?<!--/fee-->")
 HOME_MERCH_RE = re.compile(r"<!--merchants-->.*?<!--/merchants-->", re.S)
-SENTENCE_RE = re.compile(r"Integrator: [^<\n]*? invoiced\.")
+SENTENCE_RE = re.compile(r"Integrator: [^<\n]*? invoiced(?: otherwise)?\.")
 MERCHANTS_RE = re.compile(r"Merchants connected: [0-9]+\.")
 
 
@@ -50,7 +50,7 @@ def facts():
 def sentence(f):
     return (
         "Integrator: %s fee from the merchant, min %s, orders from %s; "
-        "on Tempo inside the transaction, on Base invoiced." % (f["fee"], f["fee_min"], f["min_order"])
+        "on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise." % (f["fee"], f["fee_min"], f["min_order"])
     )
 
 

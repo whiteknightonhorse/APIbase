@@ -99,7 +99,7 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 <thead><tr><th>Rail</th><th>When the fee is on</th><th>You receive</th></tr></thead>
 <tbody>
 <tr><td>Tempo (MPP)</td><td>split inside the buyer's transaction</td><td>the rest, directly</td></tr>
-<tr><td>Base (x402)</td><td>recorded as a receivable, invoiced</td><td>the full amount</td></tr>
+<tr><td>Base (x402)</td><td>{{INTEGRATOR_BASE_FEE_MODE}}</td><td>the amount minus the fee when the buyer's client pays the fee split; the full amount otherwise</td></tr>
 </tbody>
 </table></div>
 <p>Fee: {{INTEGRATOR_FEE_PCT}}. Minimum order: {{INTEGRATOR_MIN_ORDER}}. The test item carries no fee.</p>
