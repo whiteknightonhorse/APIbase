@@ -464,7 +464,7 @@ export function registerMerchantTools(
     {
       title: 'My sales statistics',
       description:
-        'Your own sales statistics (needs stats:read), the test SKU excluded: quotes -> paid -> closed, gross/net/fee, average order, refunds, disputes, top-20 products, by rail, by agent (client name/version, user-agent family, 8-char wallet hash prefix), webhook success % and p95, overdue SLA counts. Optional from/to (ISO 8601, default last 30 days, at most 366), group day|week. format=csv returns one row per paid order with tx_hash (payer as hash prefix only). Cached for 60 s.',
+        'Your own sales statistics (needs stats:read), the test SKU excluded: quotes -> paid -> closed, gross/net/fee, average order, refunds, disputes, top-20 products, by rail, by agent (client name/version, user-agent family, 8-char wallet hash prefix), webhook success % and p95, overdue SLA counts, the Base fee receivable (owed, invoiced, open fee invoices). Optional from/to (ISO 8601, default last 30 days, at most 366), group day|week. format=csv returns one row per paid order with tx_hash (payer as hash prefix only). Cached for 60 s.',
       inputSchema: {
         from: z.string().optional(),
         to: z.string().optional(),
@@ -488,6 +488,7 @@ export function registerMerchantTools(
         by_agent: z.array(z.record(z.unknown())).optional(),
         webhook: z.record(z.unknown()).optional(),
         sla_overdue: z.record(z.unknown()).optional(),
+        fee_receivable: z.record(z.unknown()).optional(),
         csv: z.string().optional(),
       },
       annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },

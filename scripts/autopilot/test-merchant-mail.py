@@ -225,7 +225,8 @@ class TestSender(MailBase):
 class TestTemplates(unittest.TestCase):
     def test_ml4_every_template(self):
         vals = {"merchant_name": "Drill Shop", "slug": "drill-shop", "order_id": "ord-1",
-                "due_at": "2026-10-06 10:00 UTC", "category": "restricted-goods"}
+                "due_at": "2026-10-06 10:00 UTC", "category": "restricted-goods",
+                "invoice_id": "inv-1", "period": "2026-09", "amount_usd": "4.02", "fee_wallet": "0xfee"}
         for kind in MM.KINDS:
             for lang in ("en",):
                 with self.subTest(kind=kind, lang=lang):

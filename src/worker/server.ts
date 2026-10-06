@@ -14,6 +14,7 @@ import {
   run as runShopPaymentReconcile,
   runDailySample as runShopPaymentSample,
 } from '../jobs/shop-payment-reconcile.job';
+import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
 import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
@@ -270,6 +271,12 @@ const shopSweeperTask = cron.schedule('*/5 * * * *', () => {
       shopSweeperRunning = false;
     });
 });
+// Fee invoices (INT-25, §7.1): the 1st of the month, owed Base receivables of the closed months -> one USDC invoice.
+const shopFeeInvoiceTask = cron.schedule('10 3 1 * *', () => {
+  runShopFeeInvoice().catch((err) =>
+    logger.error({ err, job: 'shop-fee-invoice' }, 'fee invoice job failed'),
+  );
+});
 // Merchant domain proof (INT-15, UC-17): .well-known file or DNS TXT, once a day.
 const shopDomainVerifyTask = cron.schedule('30 4 * * *', () => {
   runShopDomainVerify().catch((err) =>
@@ -322,7 +329,7 @@ setTimeout(async () => {
 }, 5_000);
 
 logger.info(
-  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync + shop-payment-reconcile + shop-sla-sweeper cron active',
+  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync + shop-payment-reconcile + shop-sla-sweeper + shop-fee-invoice cron active',
 );
 
 // ---------------------------------------------------------------------------
@@ -341,6 +348,7 @@ function shutdown(signal: string): void {
   ofacSdnSyncTask.stop();
   shopReconcileTask.stop();
   shopSweeperTask.stop();
+  shopFeeInvoiceTask.stop();
   shopDomainVerifyTask.stop();
   shopStorefrontProbeTask.stop();
   shopPaymentSampleTask.stop();

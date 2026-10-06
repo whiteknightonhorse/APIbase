@@ -47,7 +47,7 @@ MAX_ATTEMPTS = 24
 LANG = "en"
 KINDS = ("connect_failed", "webhook_failed", "merchant_unresponsive", "refund_overdue",
          "catalog_rejected", "payout_change", "key_rotated", "pii_delivered", "pii_undeliverable",
-         "dispute_rate_warning", "merchant_disputes_suspended")
+         "dispute_rate_warning", "merchant_disputes_suspended", "fee_invoice")
 
 log = logging.getLogger("merchant-mail")
 
@@ -156,7 +156,9 @@ def _fmt(col):
 def template_values(template, merchant_id, m):
     """Best-effort placeholders; the engine queues only (template, merchant_id)."""
     vals = {"merchant_name": m["name"], "slug": m["slug"], "order_id": "(see the check page)",
-            "due_at": "(see the check page)", "category": "catalog review"}
+            "due_at": "(see the check page)", "category": "catalog review",
+            "invoice_id": "(see your owner page)", "period": "the last month", "amount_usd": "(see your owner page)",
+            "fee_wallet": "(see your owner page)"}
     mid = ap.sql_literal(merchant_id)
     try:
         if template == "merchant_unresponsive":
@@ -171,6 +173,13 @@ def template_values(template, merchant_id, m):
                       "AND r.due_at IS NOT NULL ORDER BY r.due_at LIMIT 1")
             if r:
                 vals["order_id"], vals["due_at"] = r[0]
+        elif template == "fee_invoice":
+            r = _rows("SELECT invoice_id::text, period, amount_usd::text, " + _fmt("due_at") + " FROM shop_fee_invoices "
+                      f"WHERE merchant_id = {mid}::uuid AND status IN ('open', 'overdue') "
+                      "ORDER BY created_at DESC LIMIT 1")
+            if r:
+                vals["invoice_id"], vals["period"], vals["amount_usd"], vals["due_at"] = r[0]
+            vals["fee_wallet"] = os.environ.get("INTEGRATOR_FEE_WALLET") or "(see the fee invoices in your owner page)"
         elif template == "catalog_rejected":
             r = _rows("SELECT category FROM shop_moderation_reviews WHERE "
                       f"merchant_id = {mid}::uuid AND category IS NOT NULL ORDER BY at DESC LIMIT 1")

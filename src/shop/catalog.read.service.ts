@@ -1,5 +1,5 @@
 import { CatalogError } from './catalog.errors';
-import { merchantUnavailable } from './auth/terms.guard';
+import { merchantUnavailable, reasonBlocks } from './auth/terms.guard';
 import type { ShopTx } from './db';
 import type { EncryptionKey } from './merchant.service';
 import { cents } from './catalog.service';
@@ -55,7 +55,8 @@ async function activeMerchant(db: ShopTx, slug: unknown): Promise<MerchantRow> {
     slug,
   );
   if (!rows[0]) throw notFound('merchant');
-  if (rows[0].status !== 'active' || rows[0].status_reason) throw merchantUnavailable();
+  if (rows[0].status !== 'active' || reasonBlocks(rows[0].status_reason))
+    throw merchantUnavailable();
   return rows[0];
 }
 

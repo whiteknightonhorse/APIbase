@@ -2,6 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { ShopAuthError } from './auth/errors';
 import { verifyWalletSignature } from './auth/nonce.service';
 import type { ShopDeps } from './merchant-lifecycle.service';
+import { loadFeeReceivables, type FeeReceivables } from './fee-invoice.service';
 import { webhookHealth } from './stats.service';
 
 export const OWNER_TOKEN_TTL_S = 900;
@@ -115,7 +116,12 @@ export async function authenticateOwner(
 
 export interface OwnerView {
   merchant: Pick<OwnerMerchant, 'slug' | 'name' | 'status' | 'status_reason'>;
-  fee: { owed_usd: string; collected_usd: string };
+  fee: {
+    owed_usd: string;
+    collected_usd: string;
+    invoiced_usd: string;
+    open_invoices: FeeReceivables['open_invoices'];
+  };
   orders: Array<{
     order_id: string;
     state: string;
@@ -138,10 +144,9 @@ export async function loadOwnerView(deps: ShopDeps, m: OwnerMerchant): Promise<O
   const now = (deps.now ?? Date.now)();
   const from = new Date(now - 30 * 86_400_000);
   const to = new Date(now + 1000);
-  const [fee, orders, endpoints, health] = await Promise.all([
-    deps.db.$queryRawUnsafe<Array<{ owed: string; collected: string }>>(
-      `SELECT coalesce(sum(fee_usd) FILTER (WHERE status = 'owed'), 0)::text AS owed,
-              coalesce(sum(fee_usd) FILTER (WHERE status = 'collected'), 0)::text AS collected
+  const [fee, orders, endpoints, health, recv] = await Promise.all([
+    deps.db.$queryRawUnsafe<Array<{ collected: string }>>(
+      `SELECT coalesce(sum(fee_usd) FILTER (WHERE status = 'collected'), 0)::text AS collected
          FROM shop_fee_ledger WHERE merchant_id = $1::uuid`,
       m.merchant_id,
     ),
@@ -160,10 +165,16 @@ export async function loadOwnerView(deps: ShopDeps, m: OwnerMerchant): Promise<O
       m.merchant_id,
     ),
     webhookHealth(deps.db, m.merchant_id, from, to),
+    loadFeeReceivables(deps.db, m.merchant_id),
   ]);
   return {
     merchant: { slug: m.slug, name: m.name, status: m.status, status_reason: m.status_reason },
-    fee: { owed_usd: fee[0]?.owed ?? '0', collected_usd: fee[0]?.collected ?? '0' },
+    fee: {
+      owed_usd: recv.owed_usd,
+      collected_usd: fee[0]?.collected ?? '0',
+      invoiced_usd: recv.invoiced_usd,
+      open_invoices: recv.open_invoices,
+    },
     orders: orders.map((o) => ({
       order_id: String(o.order_id),
       state: String(o.state),

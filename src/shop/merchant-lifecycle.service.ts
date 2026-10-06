@@ -8,6 +8,7 @@ import { verifyBoundNonceSignature, type NonceRedis } from './auth/nonce.service
 import {
   currentDocs,
   merchantUnavailable,
+  reasonBlocks,
   REQUIRED_DOCS,
   ShopGateError,
   termsNotAccepted,
@@ -110,7 +111,7 @@ export async function acceptTerms(
   const wallet = input.wallet.toLowerCase();
   const m = await byWallet(d.db, wallet);
   if (!m) throw new ShopAuthError(401, 'unknown merchant');
-  if (m.status === 'deactivated' || m.status === 'suspended' || m.status_reason) {
+  if (m.status === 'deactivated' || m.status === 'suspended' || reasonBlocks(m.status_reason)) {
     throw merchantUnavailable();
   }
 

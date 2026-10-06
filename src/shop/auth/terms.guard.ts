@@ -44,6 +44,13 @@ export const termsNotAccepted = (docs: LegalDoc[]) =>
     { docs: docs.map(docView) },
   );
 
+/** `status_reason` values that restrict one rail only (T-INT-25): they never take the shop offline. */
+export const RAIL_ONLY_REASONS: readonly string[] = ['fee_overdue_base_off'];
+
+/** True when `status_reason` takes the whole shop offline (410). */
+export const reasonBlocks = (reason: string | null | undefined): boolean =>
+  !!reason && !RAIL_ONLY_REASONS.includes(reason);
+
 export const merchantUnavailable = () =>
   new ShopGateError(
     410,
@@ -108,7 +115,7 @@ export async function assertTermsAccepted(
   if (
     merchant.status === 'deactivated' ||
     merchant.status === 'suspended' ||
-    merchant.status_reason
+    reasonBlocks(merchant.status_reason)
   ) {
     throw merchantUnavailable();
   }

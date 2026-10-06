@@ -388,6 +388,33 @@ class EngineWorlds(unittest.TestCase):
         tick()
         self.assertEqual(incidents("REFUND_OVERDUE")[0]["state"], "WAITING_HUMAN")
 
+    def test_fi6_fee_invoice_overdue_is_human_only_one_incident_per_invoice(self):
+        # T-INT-25: the wave-2 table is created here (the shared fixture stops before it, see the
+        # missing-tables test); the shape is the migration's.
+        q("DROP TABLE IF EXISTS shop_fee_invoices")
+        self.addCleanup(q, "DROP TABLE IF EXISTS shop_fee_invoices")
+        q("CREATE TABLE shop_fee_invoices (invoice_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), "
+          "merchant_id uuid NOT NULL, period text NOT NULL, amount_usd numeric(18,6) NOT NULL, "
+          "due_at timestamptz NOT NULL, paid_tx_hash text, status text NOT NULL DEFAULT 'open')")
+        m = fx.new_merchant("fee-shop")
+        q("INSERT INTO shop_fee_invoices (merchant_id, period, amount_usd, due_at, status) VALUES "
+          f"('{m}', '2026-08', 4.02, now() - interval '31 days', 'overdue'), "
+          f"('{m}', '2026-09', 1.00, now() + interval '20 days', 'open')")
+        tick()
+        rows = incidents("FEE_INVOICE_OVERDUE")
+        self.assertEqual(len(rows), 1, "one incident for the one overdue invoice")
+        self.assertEqual(rows[0]["state"], "WAITING_HUMAN")
+        self.assertEqual(rows[0]["task"], "", "no auto branch, no fleet task")
+        self.assertEqual(queue_files(), [])
+        self.assertEqual(ap.ROUTE_CLASS["FEE_INVOICE_OVERDUE"], "HUMAN_ONLY")
+        self.assertNotIn("FEE_INVOICE_OVERDUE", ap.FLEET_TASK_KINDS)
+        tick()
+        self.assertEqual(len(incidents("FEE_INVOICE_OVERDUE")), 1, "a second tick opens nothing")
+        q(f"INSERT INTO shop_fee_invoices (merchant_id, period, amount_usd, due_at, status) VALUES "
+          f"('{m}', '2026-07', 2.00, now() - interval '40 days', 'overdue')")
+        tick()
+        self.assertEqual(len(incidents("FEE_INVOICE_OVERDUE")), 2, "dedup is per invoice")
+
     def test_moderation_kinds(self):
         m = fx.new_merchant("mod-shop")
         q("INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category) VALUES "

@@ -278,9 +278,17 @@ The public twin is `GET https://apibase.pro/integrator/check/<slug>`: the same s
 
 `shop.merchant.stats` or `GET /api/v1/shop/merchants/me/stats?from&to&group=day|week` (key scope `stats:read`) returns your own aggregates for the range (default: the last 30 days, at most 366): the funnel quotes -> paid -> closed, `gross_usd` / `fee_usd` / `net_usd`, `avg_order_usd`, a `series` by day or week, refunds, disputes by status, the top 20 products, a cut by rail, a cut by agent (`client_name`, `client_version`, user-agent family, 8-character wallet hash prefix, never the full address), webhook success % and p95 delivery time, and the orders past their confirm/ship SLA. The `__apibase_test` item is never counted. The answer is cached for 60 s per merchant and parameters. `format=csv` returns one row per paid order with its `tx_hash`; the payer appears only as a hash prefix.
 
+## Fee invoices {#fee-invoices}
+
+Orders paid on Tempo carry the platform fee inside the payment. Orders paid on Base owe it as a receivable from the first order: on the 1st of each month every owed Base fee created before that month becomes one USDC invoice for the closed period (`{invoice_id, period, amount_usd, due_at}`, due 30 days after it is issued) and you get a mail with the amount, our wallet and the invoice id as the payment reference. With the fee switched off the amount is 0 and no invoice exists.
+
+`GET /api/v1/shop/merchants/me/fee-invoices` (key scope `stats:read`) lists your invoices with `pay_to` and `memo`. After sending USDC on Base to `pay_to`, call `POST /api/v1/shop/merchants/me/fee-invoices/:id/paid {tx_hash}` (key scope `refunds:write`). APIbase only reads the chain: the transaction must be confirmed and carry a USDC transfer to the fee wallet of at least the invoice amount; otherwise `422 fee_payment_rejected` with the reason and the invoice is unchanged. A transaction pays one invoice only.
+
+An invoice unpaid 30 days after `due_at` switches the Base rail off for your shop (new quotes offer Tempo only, `status_reason: fee_overdue_base_off`) and raises a `FEE_INVOICE_OVERDUE` notice for the operator; after 60 days the shop is suspended and quotes answer `410`. Paying the invoice lifts both limits automatically. `shop.merchant.stats` (`fee_receivable`) and the owner view show the owed amount and the open invoices.
+
 ## Owner view {#owner-view}
 
-`GET /m/<slug>/owner` is a read-only page for the merchant wallet: status, the last 50 orders, the accrued platform fee (owed / collected) and webhook health. It has no forms and writes nothing. Get a nonce with `GET /api/v1/shop/auth/nonce?wallet=<wallet>&purpose=owner`, sign the returned message with the merchant wallet, and send it base64-encoded in `X-Owner-Message` with the signature in `X-Owner-Signature`. The reply sets a 15-minute `HttpOnly` cookie, so later loads need no new signature. No credential is `401`; a valid signature of any other wallet is `404`.
+`GET /m/<slug>/owner` is a read-only page for the merchant wallet: status, the last 50 orders, the platform fee (owed, invoiced, collected), your open fee invoices and webhook health. It has no forms and writes nothing. Get a nonce with `GET /api/v1/shop/auth/nonce?wallet=<wallet>&purpose=owner`, sign the returned message with the merchant wallet, and send it base64-encoded in `X-Owner-Message` with the signature in `X-Owner-Signature`. The reply sets a 15-minute `HttpOnly` cookie, so later loads need no new signature. No credential is `401`; a valid signature of any other wallet is `404`.
 
 ## Legal documents
 

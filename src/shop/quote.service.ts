@@ -8,6 +8,7 @@ import type { ShopTx } from './db';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import { createQuotedOrder, transition } from './order-state';
 import { QuoteError } from './quote.errors';
+import { baseRailDisabled } from './fee-invoice.service';
 import { cancelPaidOrder } from './order-lifecycle.service';
 import { isPayer } from './order-payment.service';
 import { releaseReservation, reserveSlot, reserveStock, takenSlots } from './repository';
@@ -582,10 +583,21 @@ export async function createQuote(
     MAX_TTL_S,
   );
   const expires_at = new Date(t + ttl * 1000);
+  // T-INT-25 (§7.1): a fee invoice unpaid 30 days past due_at switches the Base rail off for this merchant.
+  const baseOff = cfg.base_orders_enabled && (await baseRailDisabled(d.db, merchant_id, t));
   const rails = [
-    ...(cfg.base_orders_enabled ? ['base'] : []),
+    ...(cfg.base_orders_enabled && !baseOff ? ['base'] : []),
     ...(cfg.mpp_enabled ? ['tempo'] : []),
   ];
+  if (baseOff && rails.length === 0) {
+    throw new QuoteError(
+      503,
+      'no_rail_available',
+      'no payment rail is available for this shop right now',
+      'retry_after_delay',
+      { documentation_url: DOCS },
+    );
+  }
   const humanAbove = Number(limits.human_confirm_above_usd ?? DEFAULT_HUMAN_CONFIRM_USD);
   const requires_human_confirmation = total > humanAbove;
   const requires_pii = [

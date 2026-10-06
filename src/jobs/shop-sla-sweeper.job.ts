@@ -3,6 +3,7 @@ import type { ShopTx } from '../shop/db';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
 import { AUTO_DELIVER_AFTER_DAYS, markDelivered } from '../shop/order-lifecycle.service';
 import { expireDisputes } from '../shop/dispute.service';
+import { enforceFeeOverdue } from '../shop/fee-invoice.service';
 import { transition } from '../shop/order-state';
 import { purgePii } from '../shop/pii/pii.service';
 import { releaseReservation } from '../shop/repository';
@@ -27,6 +28,8 @@ export interface SweepResult {
   payouts_applied: number;
   connect_events_deleted: number;
   pii_purged: number;
+  fee_invoices_overdue: number;
+  fee_merchants_restricted: number;
 }
 
 const emit = (db: ShopTx, event_type: string, payload: Record<string, unknown>) =>
@@ -341,6 +344,8 @@ export async function runShopSlaSweeper(
     payouts_applied: 0,
     connect_events_deleted: 0,
     pii_purged: 0,
+    fee_invoices_overdue: 0,
+    fee_merchants_restricted: 0,
   };
   const step = async (name: string, fn: () => Promise<void>) => {
     try {
@@ -378,5 +383,11 @@ export async function runShopSlaSweeper(
   );
   // T-INT-21 (spec 10.3): buyer-data envelopes are deleted by rule, not on request.
   await step('pii_purge', async () => void (out.pii_purged = await purgePii(d, now)));
+  // T-INT-25 (§7.1): fee invoices 30 days past due -> Base rail off + FEE_INVOICE_OVERDUE; 60 days -> suspended.
+  await step('fee_overdue', async () => {
+    const r = await enforceFeeOverdue(d, now);
+    out.fee_invoices_overdue = r.flagged;
+    out.fee_merchants_restricted = r.merchants_restricted;
+  });
   return out;
 }

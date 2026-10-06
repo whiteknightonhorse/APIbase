@@ -1277,7 +1277,7 @@ def _clean(value, extra="", limit=40) -> str:
 
 
 def _sig(kind, subject, what, evidence=None, merchant_id=None, order_id=None, event_at=None,
-         template="__routing__"):
+         template="__routing__", suffix=None):
     cfg = ap.ROUTING.get(kind, {})
     ev = dict(evidence or {})
     ev["what"] = what
@@ -1289,7 +1289,8 @@ def _sig(kind, subject, what, evidence=None, merchant_id=None, order_id=None, ev
         "kind": kind, "provider": f"{MERCHANT_PREFIX}{subject}", "order_id": order_id,
         "merchant_id": merchant_id, "what": what, "evidence": ev, "event_at": event_at,
         "template": cfg.get("template") if template == "__routing__" else template,
-        "dedup_key": ap.dedup_key(kind, f"{MERCHANT_PREFIX}{subject}", None, order_id),
+        "suffix": suffix or order_id,
+        "dedup_key": ap.dedup_key(kind, f"{MERCHANT_PREFIX}{subject}", None, suffix or order_id),
     }
 
 
@@ -1397,12 +1398,18 @@ def _src_dispute_unanswered():
 
 
 def _src_fee_invoice_overdue():
-    # Source table arrives with INT-25.
+    # T-INT-25: the worker flips an invoice to 'overdue' once it is 30 days past due_at; ONE incident per
+    # invoice (dedup by invoice id, not by merchant). A paid invoice leaves 'overdue', so it never re-signals.
     rows = _rows(
-        "SELECT merchant_id::text, count(*)::text FROM shop_fee_invoices WHERE paid_tx_hash IS NULL "
-        "AND due_at < now() GROUP BY merchant_id")
-    return [_sig("FEE_INVOICE_OVERDUE", mid, f"unpaid fee invoices: {n}", {"unpaid_invoices": int(n)},
-                 merchant_id=mid) for mid, n in rows]
+        "SELECT merchant_id::text, invoice_id::text, period, amount_usd::text FROM shop_fee_invoices "
+        "WHERE status = 'overdue' AND paid_tx_hash IS NULL")
+    sigs = []
+    for mid, inv, period, amount in rows:
+        s = _sig("FEE_INVOICE_OVERDUE", mid, f"fee invoice {inv} for {_clean(period)} is overdue",
+                 {"invoice_id": inv, "period": _clean(period), "amount_usd": _clean(amount)},
+                 merchant_id=mid, suffix=inv)
+        sigs.append(s)
+    return sigs
 
 
 def _src_moderation():
@@ -1511,7 +1518,7 @@ def open_merchant_incidents(signals):
             _, created = ap.open_or_merge_incident(
                 kind=s["kind"], provider=s["provider"], evidence=s["evidence"], detected_by="passive",
                 what=s["what"], system_did="incident opened by the engine from DB data (deterministic)",
-                actor="incident-engine", dedup_suffix=s["order_id"])
+                actor="incident-engine", dedup_suffix=s["suffix"])
             opened += 1 if created else 0
         except Exception as e:
             ap.notice(f"incident-engine: failed to open {s['kind']} for {s['provider']}: {e}")

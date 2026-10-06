@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import type { ShopTx } from './db';
+import { loadFeeReceivables } from './fee-invoice.service';
 import { QuoteError } from './quote.errors';
 
 const DOCS = '/docs/integrator#merchant-stats';
@@ -112,7 +113,7 @@ export async function webhookHealth(
 
 async function compute(db: ShopTx, merchant_id: string, r: Range) {
   const args = [merchant_id, r.from.toISOString(), r.to.toISOString()];
-  const [funnel, series, rails, agents, products, refunds, disputes, sla, webhooks] =
+  const [funnel, series, rails, agents, products, refunds, disputes, sla, webhooks, receivable] =
     await Promise.all([
       db.$queryRawUnsafe<Row[]>(
         `SELECT (SELECT count(*) FROM shop_quotes
@@ -193,6 +194,7 @@ async function compute(db: ShopTx, merchant_id: string, r: Range) {
         merchant_id,
       ),
       webhookHealth(db, merchant_id, r.from, r.to),
+      loadFeeReceivables(db, merchant_id),
     ]);
 
   // Agents: same client + UA family + wallet prefix merge, whatever the exact UA string was.
@@ -234,6 +236,7 @@ async function compute(db: ShopTx, merchant_id: string, r: Range) {
       .map((m) => ({ ...m, gross: m.gross.toFixed(6) })),
     webhook: webhooks,
     sla_overdue: sla[0] ?? { confirm: 0, ship: 0 },
+    fee_receivable: receivable,
   };
 }
 

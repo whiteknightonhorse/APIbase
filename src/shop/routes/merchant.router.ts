@@ -20,6 +20,7 @@ import {
 import { runCheck } from '../check.service';
 import { getMerchantStats } from '../stats.service';
 import { merchantRefund } from '../refund.service';
+import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { listEvents, setWebhook } from '../webhook/webhook.service';
 import {
@@ -308,6 +309,37 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(await merchantRefund(deps, req.merchant?.merchant_id ?? '', req.body ?? {}));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // §6.3 family /merchants/me/*: Base fee invoices (§7.1). The chain is only read; the merchant comes from the key.
+  router.get(
+    '/api/v1/shop/merchants/me/fee-invoices',
+    requireMerchantKey(['stats:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await listFeeInvoices(deps, req.merchant?.merchant_id ?? ''));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.post(
+    '/api/v1/shop/merchants/me/fee-invoices/:id/paid',
+    requireMerchantKey(['refunds:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await markFeeInvoicePaid(
+            deps,
+            req.merchant?.merchant_id ?? '',
+            req.params.id,
+            req.body ?? {},
+          ),
+        );
       } catch (err) {
         send(res, err);
       }
