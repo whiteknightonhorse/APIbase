@@ -195,3 +195,17 @@ describe('SB4 no overlap with the prod compose', () => {
     expect(sb).not.toMatch(/container_name:/);
   });
 });
+
+describe('SB6 the filled sandbox env file is ignored, the template stays tracked', () => {
+  const git = (...a: string[]) =>
+    spawnSync('git', a, { cwd: ROOT, encoding: 'utf8', timeout: 20000 });
+  it('the repo .gitignore (not a local exclude) matches the sandbox env file next to the compose file', () => {
+    // deploy.sh F2 aborts on any untracked path; the source must be .gitignore so every clone is covered.
+    const r = git('check-ignore', '-v', '--no-index', 'deploy/sandbox/.env.sandbox');
+    expect([r.status, r.stdout]).toEqual([0, expect.stringContaining('.gitignore:')]);
+  });
+  it('the template is tracked and not ignored', () => {
+    expect(git('ls-files', '--', ENV_EXAMPLE).stdout.trim()).toBe(ENV_EXAMPLE);
+    expect(git('check-ignore', '-q', '--no-index', ENV_EXAMPLE).status).toBe(1);
+  });
+});

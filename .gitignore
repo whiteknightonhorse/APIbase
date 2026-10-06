@@ -10,7 +10,12 @@ dist/
 .env.*.local
 .env.bak
 .env.bak.*
-
+# SANDBOX-DEPLOY-1006 (2026-10-06): the filled sandbox env file lives next to its compose file
+# (deploy/sandbox/, env_file in docker-compose.sandbox.yml) and is generated on the server,
+# never checked in. `.env` above matches only that exact basename, so the sandbox file sat
+# untracked and NOT ignored, and deploy.sh F2 ("deploy tree dirty") aborted two main deploys
+# (0a02373f, 2ec0da41). Glob, not exact name: a copy or variant must not re-arm F2 either.
+.env.sandbox*
 # Logs
 *.log
 logs/
