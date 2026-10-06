@@ -309,24 +309,54 @@ export async function recordSettlement(
   );
   let fee = streamFeeMicro(delta, cfg);
   if (fee > 0n) await insertFee(tx, s.merchant_id, s.session_id, fee);
-  if (cfg.fee_enabled && p.closing && !s.min_fee_applied && p.cumulative_micro > 0n) {
-    const paid = await tx.$queryRawUnsafe<Array<{ fee: string }>>(
-      `SELECT coalesce(sum(fee_usd), 0)::text AS fee FROM shop_fee_ledger
-        WHERE source = 'stream' AND source_ref = $1`,
-      s.session_id,
-    );
-    const minMicro = toMicro(String(cfg.fee_min_usd));
-    const total = toMicro(paid[0]?.fee ?? '0');
-    if (total < minMicro) {
-      await insertFee(tx, s.merchant_id, s.session_id, minMicro - total);
-      fee += minMicro - total;
-    }
-    await tx.$executeRawUnsafe(
-      `UPDATE shop_stream_sessions SET min_fee_applied = true WHERE session_id = $1::uuid`,
-      s.session_id,
-    );
-  }
+  if (p.closing) fee += await applyMinimumFee(tx, s, p.cumulative_micro, cfg);
   return { fee_micro: fee, delta_micro: delta };
+}
+
+/** The minimum fee, topped up once when a session closes; returns the amount added. */
+async function applyMinimumFee(
+  tx: ShopTx,
+  s: StreamSessionRow,
+  settledMicro: bigint,
+  cfg: ReturnType<typeof integratorConfig>,
+): Promise<bigint> {
+  if (!(cfg.fee_enabled && !s.min_fee_applied && settledMicro > 0n)) return 0n;
+  let added = 0n;
+  const paid = await tx.$queryRawUnsafe<Array<{ fee: string }>>(
+    `SELECT coalesce(sum(fee_usd), 0)::text AS fee FROM shop_fee_ledger
+      WHERE source = 'stream' AND source_ref = $1`,
+    s.session_id,
+  );
+  const minMicro = toMicro(String(cfg.fee_min_usd));
+  const total = toMicro(paid[0]?.fee ?? '0');
+  if (total < minMicro) {
+    await insertFee(tx, s.merchant_id, s.session_id, minMicro - total);
+    added = minMicro - total;
+  }
+  await tx.$executeRawUnsafe(
+    `UPDATE shop_stream_sessions SET min_fee_applied = true WHERE session_id = $1::uuid`,
+    s.session_id,
+  );
+  return added;
+}
+
+/**
+ * The payer withdrew and the channel is finalized on-chain: close the session. No settlement row
+ * (no settle/close tx happened) and no 1.5 % (no increment); the minimum fee applies as at any close.
+ */
+async function recordFinalized(
+  tx: ShopTx,
+  s: StreamSessionRow,
+  cfg: ReturnType<typeof integratorConfig>,
+): Promise<{ fee_micro: bigint; closed: boolean }> {
+  const n = await tx.$executeRawUnsafe(
+    `UPDATE shop_stream_sessions SET status = 'closed', closed_at = now(), settle_error_since = NULL
+      WHERE session_id = $1::uuid AND status = 'open'`,
+    s.session_id,
+  );
+  if (!n) return { fee_micro: 0n, closed: false };
+  const fee_micro = await applyMinimumFee(tx, s, toMicro(s.settled_usd), cfg);
+  return { fee_micro, closed: true };
 }
 
 /**
@@ -418,14 +448,17 @@ export async function discardChannel(m: Pick<StreamMethod, 'channels'>, channelI
 
 /** The two chain reads/writes of the job; the default talks to Tempo through mppx. */
 export interface StreamChain {
-  /** On-chain `closeRequestedAt` (0n = the payer has not asked to close). */
-  closeRequestedAt(m: StreamMethod, s: StreamSessionRow): Promise<bigint>;
+  /** On-chain channel state: `closeRequestedAt` (0n = no close requested) and `finalized` (payer withdrew). */
+  readChannel(
+    m: StreamMethod,
+    s: StreamSessionRow,
+  ): Promise<{ closeRequestedAt: bigint; finalized: boolean }>;
   /** `tempo.settle(store, channelId, { account })` of the highest voucher; returns the tx hash. */
   settle(m: StreamMethod, s: StreamSessionRow): Promise<string>;
 }
 
 export const mppxChain: StreamChain = {
-  async closeRequestedAt(m, s) {
+  async readChannel(m, s) {
     const { Session } = await import('mppx/tempo');
     const client = await createStreamClient(getMppConfig());
     const onChain = await Session.Chain.getOnChainChannel(
@@ -433,7 +466,7 @@ export const mppxChain: StreamChain = {
       (s.escrow_contract ?? undefined) as `0x${string}`,
       s.channel_id as `0x${string}`,
     );
-    return onChain.closeRequestedAt;
+    return { closeRequestedAt: onChain.closeRequestedAt, finalized: onChain.finalized === true };
   },
   async settle(m, s) {
     const { tempo } = await import('mppx/server');
@@ -457,6 +490,7 @@ export interface StreamSettleReport {
   settled: number;
   failed: number;
   close_requested: number;
+  finalized: number;
 }
 
 /**
@@ -471,7 +505,13 @@ export async function runStreamSettle(
   chain: StreamChain = mppxChain,
   cfg = integratorConfig(),
 ): Promise<StreamSettleReport> {
-  const report: StreamSettleReport = { checked: 0, settled: 0, failed: 0, close_requested: 0 };
+  const report: StreamSettleReport = {
+    checked: 0,
+    settled: 0,
+    failed: 0,
+    close_requested: 0,
+    finalized: 0,
+  };
   if (!getMppConfig().enabled) return report;
   const rows = await d.db.$queryRawUnsafe<JobRow[]>(
     `SELECT ${sessionCols('s')}, m.slug, m.payout_wallet_tempo, m.stream_settler,
@@ -500,24 +540,42 @@ export async function runStreamSettle(
     const terms = { rate_per_s_usd: s.rate_per_s, min_deposit_usd: s.min_deposit_usd ?? '1' };
     try {
       method = await getStreamMethod(merchant, terms);
-      if (!s.close_requested_at && highest >= 0n) {
-        const requested = await chain.closeRequestedAt(method, s);
-        if (requested !== 0n) {
-          await d.db.$executeRawUnsafe(
-            `UPDATE shop_stream_sessions SET close_requested_at = now() WHERE session_id = $1::uuid`,
-            s.session_id,
-          );
-          await emit(d.db, 'stream.close_requested', {
+      const oc = await chain.readChannel(method, s);
+      if (oc.finalized) {
+        const r = await d.transaction((tx) => recordFinalized(tx, s, cfg));
+        if (r.closed) {
+          if (r.fee_micro > 0n) await writeStreamLedger(d.db, s, r.fee_micro, null);
+          await emit(d.db, 'stream.closed', {
             merchant_id: s.merchant_id,
             session_id: s.session_id,
             channel_id: s.channel_id,
+            reason: 'finalized_on_chain',
+            settled_usd: s.settled_usd,
+            unsettled_usd: fromMicro(highest > settled ? highest - settled : 0n),
           });
-          report.close_requested++;
-          due = highest > settled;
+          if (highest > settled) {
+            logger.warn(
+              { channel: s.channel_id, unsettled_micro: (highest - settled).toString() },
+              'stream: channel finalized on-chain with unsettled vouchers',
+            );
+          }
+          report.finalized++;
         }
-      } else if (s.close_requested_at) {
-        due = highest > settled;
+        continue;
       }
+      if (!s.close_requested_at && oc.closeRequestedAt !== 0n) {
+        await d.db.$executeRawUnsafe(
+          `UPDATE shop_stream_sessions SET close_requested_at = now() WHERE session_id = $1::uuid`,
+          s.session_id,
+        );
+        await emit(d.db, 'stream.close_requested', {
+          merchant_id: s.merchant_id,
+          session_id: s.session_id,
+          channel_id: s.channel_id,
+        });
+        report.close_requested++;
+      }
+      if (s.close_requested_at || oc.closeRequestedAt !== 0n) due = highest > settled;
       if (!due) continue;
       const tx_hash = await chain.settle(method, s);
       const r = await d.transaction((tx) =>

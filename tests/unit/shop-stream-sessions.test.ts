@@ -40,6 +40,7 @@ interface MockChan {
   payer: string;
   deposit: bigint;
   closeRequestedAt: bigint;
+  finalized?: boolean;
 }
 const mockWorld = {
   chain: new Map<string, MockChan>(),
@@ -173,6 +174,7 @@ jest.mock('mppx/tempo', () => ({
     Chain: {
       getOnChainChannel: async (_c: unknown, _e: unknown, id: string) => ({
         closeRequestedAt: mockWorld.chain.get(id.toLowerCase())?.closeRequestedAt ?? 0n,
+        finalized: mockWorld.chain.get(id.toLowerCase())?.finalized ?? false,
       }),
     },
   },
@@ -634,6 +636,113 @@ dbDescribe('stream sessions (INT-40)', () => {
         await rows(`SELECT close_requested_at FROM shop_stream_sessions WHERE channel_id = $1`, ch)
       )[0].close_requested_at,
     ).not.toBeNull();
+  });
+
+  const finalizedChain = (ch: string, finalized: boolean) =>
+    mockWorld.chain.set(ch, {
+      payee: pilot.address,
+      payer: PAYER,
+      deposit: 0n,
+      closeRequestedAt: 5n,
+      finalized,
+    });
+  const closedEvents = (ch: string) =>
+    rows(
+      `SELECT payload->>'reason' AS reason, payload->>'unsettled_usd' AS unsettled_usd
+         FROM outbox WHERE event_type = 'stream.closed' AND payload->>'channel_id' = $1`,
+      ch,
+    );
+
+  it('ST13: channel finalized on-chain after a close request -> session closed, no settle, minimum fee once', async () => {
+    const s = await mkShop();
+    await mkStream(s.id);
+    const ch = await mkSession(s.id, 'demo-stream', {
+      highest: 2000n,
+      settled: 2000n,
+      lastSettleMinAgo: 5,
+    });
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_stream_sessions SET close_requested_at = now() WHERE channel_id = $1`,
+      ch,
+    );
+    finalizedChain(ch, true);
+    const rep = await runStreamSettle(deps as never, Date.now());
+    expect(rep.finalized).toBeGreaterThanOrEqual(1);
+    expect(settleCalls(ch)).toHaveLength(0);
+    const row = (
+      await rows(
+        `SELECT status, closed_at, settle_error_since, min_fee_applied, session_id::text
+           FROM shop_stream_sessions WHERE channel_id = $1`,
+        ch,
+      )
+    )[0];
+    expect(row.status).toBe('closed');
+    expect(row.closed_at).not.toBeNull();
+    expect(row.settle_error_since).toBeNull();
+    expect(row.min_fee_applied).toBe(true);
+    expect(
+      (
+        await rows(
+          `SELECT count(*)::int AS c FROM shop_stream_settlements WHERE channel_id = $1`,
+          ch,
+        )
+      )[0].c,
+    ).toBe(0);
+    expect(await closedEvents(ch)).toEqual([{ reason: 'finalized_on_chain', unsettled_usd: '0' }]);
+    const fees = await feeRows(row.session_id);
+    expect(fees).toHaveLength(1);
+    expect(fees[0].fee_usd).toBe('0.050000');
+    expect(fees[0].source).toBe('stream');
+    await runStreamSettle(deps as never, Date.now());
+    expect(settleCalls(ch)).toHaveLength(0);
+    expect(await closedEvents(ch)).toHaveLength(1);
+    expect(await feeRows(row.session_id)).toHaveLength(1);
+  });
+
+  it('ST13b: finalized with unsettled vouchers -> closed without settle, unsettled_usd reported', async () => {
+    const s = await mkShop();
+    await mkStream(s.id);
+    const ch = await mkSession(s.id, 'demo-stream', {
+      highest: 3000n,
+      settled: 2000n,
+      lastSettleMinAgo: 5,
+    });
+    finalizedChain(ch, true);
+    await runStreamSettle(deps as never, Date.now());
+    expect(settleCalls(ch)).toHaveLength(0);
+    expect((await session(ch)).status).toBe('closed');
+    expect(await closedEvents(ch)).toEqual([
+      { reason: 'finalized_on_chain', unsettled_usd: '0.001' },
+    ]);
+  });
+
+  it('ST13c: finalized with the integrator fee off -> closed, no fee rows', async () => {
+    process.env.INTEGRATOR_FEE_ENABLED = 'false';
+    const s = await mkShop();
+    await mkStream(s.id);
+    const ch = await mkSession(s.id, 'demo-stream', {
+      highest: 2000n,
+      settled: 2000n,
+      lastSettleMinAgo: 5,
+    });
+    finalizedChain(ch, true);
+    await runStreamSettle(deps as never, Date.now());
+    const ses = await session(ch);
+    expect(ses.status).toBe('closed');
+    expect(await feeRows(ses.session_id)).toEqual([]);
+  });
+
+  it('ST13d: not finalized, close requested -> settle once, close_requested event, stays open', async () => {
+    const s = await mkShop();
+    await mkStream(s.id);
+    const ch = await mkSession(s.id, 'demo-stream', { highest: 1000n, lastSettleMinAgo: 1 });
+    finalizedChain(ch, false);
+    const rep = await runStreamSettle(deps as never, Date.now());
+    expect(rep.finalized).toBe(0);
+    expect(rep.close_requested).toBeGreaterThanOrEqual(1);
+    expect(settleCalls(ch)).toHaveLength(1);
+    expect((await session(ch)).status).toBe('open');
+    expect(await closedEvents(ch)).toEqual([]);
   });
 
   it('ST6: close -> closeOnChain once by the demo account, status closed, minimum fee 0.05 topped up once', async () => {
