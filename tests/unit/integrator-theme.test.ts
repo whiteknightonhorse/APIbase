@@ -93,8 +93,8 @@ describe('integrator terminal theme', () => {
     let out = '';
     try {
       out = execSync(
-        "grep -rn '[А-Яа-яЁё]' static/integrator src/shop/integrator src/shop/routes/integrator.router.ts",
-        { cwd: ROOT, encoding: 'utf-8' },
+        "grep -rnP '[\\x{0400}-\\x{04FF}]' static/integrator src/shop/integrator src/shop/routes/integrator.router.ts",
+        { cwd: ROOT, encoding: 'utf-8', env: { ...process.env, LC_ALL: 'C.UTF-8' } },
       );
     } catch (e) {
       expect((e as { status?: number }).status).toBe(1);
