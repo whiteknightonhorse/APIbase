@@ -26,6 +26,7 @@ import { executeRouter } from '../routes/execute.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
 import { incidentsRouter } from '../routes/incidents.router';
+import { fleetSeaRouter } from '../routes/fleet-sea.router';
 import { oauthRouter } from '../routes/oauth.router';
 import { deviceConnectRouter } from '../routes/device-connect.router';
 import { apiEntryRouter } from '../routes/api-entry.router';
@@ -62,6 +63,7 @@ export function createApp(): express.Express {
   app.use(x402Router);
   app.use(dashboardRouter);
   app.use(incidentsRouter);
+  app.use(fleetSeaRouter);
 
   // --- x402/MPP entry-point marker (T-0187A) — GET /api, GET /api/v1. Must run
   // before x402Middleware/mppMiddleware below: those verify a real tool-call
