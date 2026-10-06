@@ -1,0 +1,24 @@
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 1.2rem;margin:0 0.75rem 0.75rem 0;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px}
+.btn.p{background:#00aa30;color:#0c0c0c;border:1px solid #00ff41;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1rem}
+.mock{background:#080808;border:1px solid #1a3a1a;border-radius:8px;padding:1rem}
+.mock .box{height:120px;border:1px dashed #1a3a1a;border-radius:4px;display:flex;align-items:center;justify-content:center;margin:0.5rem 0}
+.mock-btn{display:flex;align-items:center;justify-content:center;min-height:44px;margin-top:0.5rem;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px}
+pre{background:#080808;border:1px solid #1a3a1a;border-radius:4px;padding:1rem 5.5rem 1rem 1rem;margin:0 0 1rem;font-size:0.8rem;color:#00ff41;user-select:all;white-space:pre;overflow-x:auto}
+.code-wrap{position:relative}
+.code-wrap::after{content:'[ click to select ]';position:absolute;top:0.6rem;right:0.6rem;font-size:0.72rem;color:#2a942a;pointer-events:none}
+details{margin:0.4rem 0}
+summary{color:#33ff66;cursor:pointer}
+details p{color:#a0d8a0}
+form{margin:1rem 0}
+label{display:block;margin:0.6rem 0}
+input,select,button{background:#0a1a0a;border:1px solid #1a3a1a;color:#b0ffb0;font:inherit;padding:0.4rem 0.6rem;border-radius:4px}
+input,select{display:block;width:100%;margin-top:0.2rem}
+input[type=checkbox]{display:inline-block;width:auto}
+button{cursor:pointer;min-height:44px;padding:0 1.2rem}
+#out{white-space:pre-wrap;word-break:break-all;padding-right:1rem}
+.muted{color:#2a942a}
+section{margin-bottom:0.5rem}
+ul,ol{margin:0 0 1rem 1.4rem}
+p{margin:0 0 1rem}
+@media (prefers-reduced-motion: reduce){.window::before,.cursor,.cursor-blink,.sys-cursor,.sys-monitor .prompt{animation:none}}

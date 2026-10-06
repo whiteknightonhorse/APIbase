@@ -1,0 +1,335 @@
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  background:#1a1a2e;
+  color:#b0ffb0;
+  line-height:1.7;
+  padding:1.5rem;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:flex-start;
+}
+
+.window{
+  max-width:880px;
+  width:100%;
+  background:#0c0c0c;
+  border-radius:10px 10px 8px 8px;
+  border:1px solid #444;
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.6),
+    0 0 80px rgba(0,255,65,0.04),
+    inset 0 0 80px rgba(0,255,65,0.01);
+  overflow:hidden;
+  position:relative;
+}
+
+/* CRT scanline overlay */
+.window::after{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;bottom:0;
+  background:repeating-linear-gradient(
+    0deg,
+    rgba(0,0,0,0.06) 0px,
+    rgba(0,0,0,0.06) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  pointer-events:none;
+  z-index:2;
+}
+
+/* Animated scanline beam */
+.window::before{
+  content:'';
+  position:absolute;
+  top:-100%;left:0;right:0;
+  height:60px;
+  background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);
+  pointer-events:none;
+  z-index:3;
+  animation:scanline 8s linear infinite;
+}
+@keyframes scanline{0%{top:-60px}100%{top:100%}}
+
+.titlebar{
+  background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  border-bottom:1px solid #1a1a1a;
+  position:relative;
+  z-index:4;
+}
+
+.dots{display:flex;gap:7px;flex-shrink:0}
+.dot{
+  width:13px;height:13px;
+  border-radius:50%;
+  border:1px solid rgba(0,0,0,0.2);
+}
+.dot-red{background:#ff5f56;border-color:#e0446e}
+.dot-yellow{background:#ffbd2e;border-color:#dea123}
+.dot-green{background:#27c93f;border-color:#1aab29}
+
+.titlebar-text{
+  flex:1;
+  text-align:center;
+  color:#999;
+  font-size:0.78rem;
+  font-family:inherit;
+  letter-spacing:0.5px;
+}
+
+.cursor-blink{
+  display:inline-block;
+  width:8px;height:1.1em;
+  background:#999;
+  vertical-align:text-bottom;
+  animation:blink 1s step-end infinite;
+  margin-left:2px;
+}
+
+.container{
+  padding:1.8rem 2rem 2rem;
+  position:relative;
+  z-index:1;
+}
+
+nav{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.3rem;
+  margin-bottom:1rem;
+  padding:0.5rem 0;
+  border-bottom:1px solid #1a3a1a;
+}
+nav::before{content:'[';color:#555}
+nav::after{content:']';color:#555}
+nav .brand{
+  color:#00ff41;
+  font-weight:700;
+  font-size:1rem;
+  text-decoration:none;
+  text-shadow:0 0 8px rgba(0,255,65,0.4);
+  padding:0.55rem 0.35rem 0.55rem 0;
+  display:inline-block;
+}
+nav a{
+  color:#00cc33;
+  text-decoration:none;
+  font-size:1rem;
+  padding:0.55rem 0.35rem;
+  display:inline-block;
+}
+nav a::before{content:' | ';color:#333}
+nav .brand::before{content:''}
+nav a:hover{
+  color:#00ff41;
+  text-shadow:0 0 6px rgba(0,255,65,0.5);
+}
+
+/* System monitor line (htop style) */
+.sys-monitor{
+  margin-bottom:1.5rem;
+  font-size:0.82rem;
+  color:#00ff41;
+  letter-spacing:0.5px;
+  padding:0.3rem 0;
+}
+.sys-monitor .prompt{
+  color:#00aa30;
+  animation:blink 1s step-end infinite;
+}
+.sys-monitor .label{color:#2a942a}
+.sys-monitor strong{color:#00ff41}
+.sys-cursor{
+  display:inline-block;
+  width:7px;height:1em;
+  background:#00ff41;
+  vertical-align:text-bottom;
+  animation:blink 1s step-end infinite;
+  margin-left:3px;
+}
+
+.terminal{
+  background:#080808;
+  border:1px solid #1a3a1a;
+  border-radius:4px;
+  padding:1.5rem;
+  margin-bottom:2rem;
+  overflow-x:auto;
+  font-size:0.85rem;
+  line-height:1.6;
+  box-shadow:inset 0 0 30px rgba(0,255,65,0.02);
+}
+.terminal .prompt{color:#00ff41;font-weight:700}
+.terminal .json{color:#00ff41}
+.cursor{
+  display:inline-block;
+  width:8px;
+  height:1.1em;
+  background:#00ff41;
+  vertical-align:text-bottom;
+  animation:blink 1s step-end infinite;
+  margin-left:2px;
+}
+@keyframes blink{
+  0%,100%{opacity:1}
+  50%{opacity:0}
+}
+
+/* Phosphor glow on h1 */
+h1{
+  color:#00ff41;
+  font-size:1.3rem;
+  margin-bottom:2rem;
+  line-height:1.5;
+  text-shadow:0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 40px rgba(0,255,65,0.3);
+}
+h1::before{content:'> ';color:#00aa30}
+h2{
+  color:#00ff41;
+  font-size:1.05rem;
+  margin:2.5rem 0 1rem;
+  padding-left:1rem;
+  border-left:2px solid #00aa30;
+  text-shadow:0 0 6px rgba(0,255,65,0.2);
+}
+h2::before{content:'## ';color:#006620}
+h3{
+  color:#33ff66;
+  font-size:0.95rem;
+  margin:1.5rem 0 0.5rem;
+}
+h3::before{content:'### ';color:#006620}
+p{margin-bottom:1rem;font-size:1rem;color:#a0d8a0}
+strong{color:#33ff66}
+
+ul,ol{padding-left:1.5rem;margin-bottom:1rem}
+li{margin-bottom:0.4rem;font-size:1rem;color:#a0d8a0}
+li::marker{color:#00aa30}
+
+a{color:#00ccff;text-decoration:none}
+a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin:1rem 0;
+  font-size:0.82rem;
+  background:#080808;
+}
+/* T-60: table{width:100%} is only a target, not a hard cap -- if a cell's
+   longest unbreakable token (e.g. "rapidapi.com", "CRM/accounting") forces
+   the table wider than its container, the table itself grows past 100%
+   instead of shrinking, per the CSS2 table-width algorithm. With no wrapper,
+   that excess bleeds into .window, which sets overflow:hidden -- so the
+   overflow gets silently clipped (not scrolled) on narrow viewports. Same
+   .table-wrap pattern already used on pricing.html/dashboard.html: give the
+   table its OWN scroll container so overflow is reachable here, before it
+   ever reaches .window's clip. */
+.table-wrap{overflow-x:auto}
+th,td{
+  border:1px solid #1a3a1a;
+  padding:0.6rem 0.8rem;
+  text-align:left;
+}
+th{
+  color:#00ff41;
+  background:#0a1a0a;
+  text-shadow:0 0 4px rgba(0,255,65,0.2);
+}
+td{color:#88bb88}
+
+code{
+  background:#0a1a0a;
+  padding:0.15rem 0.4rem;
+  border-radius:3px;
+  font-size:0.85rem;
+  color:#00ff41;
+  border:1px solid #1a3a1a;
+  text-shadow:0 0 4px rgba(0,255,65,0.3);
+}
+
+/* Step wizard */
+.step-wizard{
+  font-size:0.85rem;
+  margin:1rem 0;
+  padding:0;
+  list-style:none;
+}
+.step-wizard li{
+  padding:0.4rem 0;
+  color:#2a942a;
+  font-family:inherit;
+  margin-bottom:0;
+}
+.step-wizard .step-num{color:#00aa30}
+.step-wizard .step-ready{color:#00ff41}
+.step-wizard .step-dots{color:#1a3a1a}
+.step-wizard .step-tag{font-weight:700}
+.step-wizard .tag-ready{color:#00ff41}
+.step-wizard .tag-pending{color:#333}
+
+/* Extended footer */
+.footer{
+  margin-top:2rem;
+  padding:0.6rem 0;
+  border-top:1px solid #1a3a1a;
+  color:#2a942a;
+  font-size:0.72rem;
+  display:flex;
+  flex-direction:column;
+  gap:0.2rem;
+}
+.footer-row{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:0.5rem;
+}
+.footer .online{color:#00aa30}
+
+/* Highlight box — reuses /connect's .path visual language (border + faint green tint) */
+.highlights{border:1px solid #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:0 0 2rem;background:rgba(0,255,65,0.02)}
+.highlights h2{margin-top:0}
+.highlights ul{margin-bottom:0}
+
+/* Copy-to-clipboard on every code block */
+.code-wrap{position:relative}
+.code-wrap pre{padding-right:4.6rem}
+.copy-btn{position:absolute;top:0.6rem;right:0.6rem;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px;padding:0.35rem 0.7rem;font:inherit;font-size:0.72rem;cursor:pointer;line-height:1;z-index:5;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}
+.copy-btn:hover{background:#1a5a1a;color:#00ff41}
+.copy-btn:focus-visible{outline:2px solid #00ff41;outline-offset:2px}
+.copy-btn.copied{background:#00aa30;color:#0c0c0c;border-color:#00aa30}
+
+/* Boot sequence */
+#boot-screen{
+  padding:2rem;
+  font-size:0.82rem;
+  color:#00ff41;
+  min-height:200px;
+  position:relative;
+  z-index:1;
+}
+#boot-screen .line{opacity:0;margin-bottom:2px}
+#boot-screen .line.visible{opacity:1}
+#boot-screen .ok{color:#27c93f}
+#boot-screen .sys{color:#ffbd2e}
+
+@media(max-width:600px){
+  body{padding:0.5rem}
+  .container{padding:1rem}
+  .titlebar{padding:8px 10px}
+  h1{font-size:1.05rem}
+  h1::before{content:''}
+  table{font-size:0.72rem}
+  th,td{padding:0.35rem}
+  .sys-monitor{font-size:0.72rem}
+  .footer{font-size:0.65rem}
+  nav::before,nav::after{display:none}
+}

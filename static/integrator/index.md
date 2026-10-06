@@ -1,6 +1,6 @@
 # Integrator — AI payment
 
-## 1. Offer
+## Offer
 
 Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. {{INTEGRATOR_FEE_PCT}} fee.
 
@@ -9,17 +9,21 @@ Sell to AI agents. One link on your site, and a buyer's agent places and pays th
 
 Merchants connected so far: {{MERCHANTS_COUNT}}.
 
-## 2. How it works
+## How it works
 
-Flow: merchant site -> link /m/<slug> -> buyer's AI agent -> storefront (MCP) -> quote with a fixed price -> USDC to the merchant wallet.
+1. merchant site → link /m/<slug>
+2. buyer's AI agent → storefront (MCP, only your tools)
+3. quote → fixed price, single-use nonce
+4. pay → USDC over x402 (Base) or MPP (Tempo)
+5. settle → your wallet — APIbase never holds the money
 
 The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. See /integrator/why-base-tempo.
 
-## 3. What your buyer's agent sees
+## What your buyer's agent sees
 
 An abstract shop page with a product and a button "Buy with your AI agent". The button is a plain link (variant A below). Real flow: /m/apibase-demo.
 
-## 4. Four ways to add it
+## Four ways to add it
 
 All four are markup or a link; nothing to install and no script from us. Replace `<slug>` and `<sku>`.
 
@@ -56,7 +60,7 @@ AI agents can buy here: https://apibase.pro/m/<slug>/llms.txt
 
 Website builders: /integrator/platforms/shopify, /integrator/platforms/woocommerce, /integrator/platforms/tilda, /integrator/platforms/wix, /integrator/platforms/custom.
 
-## 5. Connect in 10 minutes
+## Connect in 10 minutes
 
 You, by hand:
 
@@ -68,7 +72,7 @@ You, by hand:
 
 Your agent: give it /integrator/agent-guide. Every step is an exact call with its error codes. It needs a wallet with USDC on Base or Tempo and an x402/MPP client for the last step.
 
-## 6. Sandbox and the connection check
+## Sandbox and the connection check
 
 {{SANDBOX_STATUS}}
 
@@ -77,7 +81,7 @@ The check runs five steps: `storefront_initialize`, `tools_list_6`, `quote_test_
 - `connected`: the first four steps have no failure.
 - `payment_verified`: a paid test order made by your own agent exists.
 
-## 7. Fee and minimums
+## Fee and minimums
 
 Fee: {{INTEGRATOR_FEE_PCT}}. Minimum order: {{INTEGRATOR_MIN_ORDER}}. The test item carries no fee.
 
@@ -88,7 +92,7 @@ While the fee is off, nothing is recorded or charged on either rail.
 
 Why Base and Tempo: Base: USDC is native; x402 is an open Coinbase protocol for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP). Full text: /integrator/why-base-tempo.
 
-## 8. Security: what you can verify
+## Security: what you can verify
 
 - The quote's `pay.x402.payTo` is your payout wallet. It is never the platform wallet; compare it with the transfer on a block explorer.
 - The buyer signs an authorization for the exact quoted total to that exact address; the nonce is single-use.
@@ -99,7 +103,7 @@ Why Base and Tempo: Base: USDC is native; x402 is an open Coinbase protocol for 
 
 What stays outside our guarantees: spending limits belong to the buyer's wallet; human confirmation belongs to the buyer's agent client; safekeeping of your key is yours; refunds are the seller's duty (see the refund framework).
 
-## 9. Questions
+## Questions
 
 - Does APIbase hold the money? No. The buyer pays your payout wallet directly.
 - What can I sell? Digital items in the allowed categories (/legal/aup). Physical goods are not available yet.
@@ -108,7 +112,7 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 - What if a payment is slow? The order stays `PAYING` (202 `payment_pending`) and a job reconciles it against the chain.
 - Who is APIbase in this deal? Read /legal/merchant-agreement: APIbase is a technology intermediary, and the fee is charged to the seller.
 
-## 10. Legal documents
+## Legal documents
 
 Drafts, not yet published. A page shows its banner until the operator publishes it.
 
@@ -118,10 +122,10 @@ Drafts, not yet published. A page shows its banner until the operator publishes 
 - /legal/refund-framework
 - /legal/index.json (hashes)
 
-## 11. Make your site easy for agents
+## Make your site easy for agents
 
 Do AI agents visit your site? Check on AIpush.app: https://aipush.app. It shows how agents see your site and what to fix.
 
-## 12. For buyers
+## For buyers
 
 Add a storefront URL `https://apibase.pro/mcp/m/<slug>` to your agent's MCP client, or find shops with `apibase.discover` (`kind: merchant`). Limits live in your wallet, the quote fixes the price, and nobody asks for your keys. Details: /integrator/buyers.

@@ -1,71 +1,64 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Integrator — AI payment for your shop | APIbase</title>
-<meta name="description" content="Sell to AI agents: one link on your site, USDC settles to your wallet.">
-<style>
-body{background:#0b0e11;color:#d7dde4;font:15px/1.6 ui-monospace,Menlo,Consolas,monospace;margin:0}
-main{max-width:820px;margin:0 auto;padding:24px 16px}a{color:#4cc2ff}h1,h2,h3{color:#fff}
-section{border-top:1px solid #222;padding:12px 0}pre{background:#1a2027;padding:8px;overflow-x:auto;user-select:all}
-code{background:#1a2027;padding:1px 4px}svg{max-width:100%;height:auto}li{margin:4px 0}
-.btn{display:inline-block;margin:4px 8px 4px 0;padding:8px 14px;border:1px solid #4cc2ff;text-decoration:none}
-.btn.p{background:#4cc2ff;color:#0b0e11}.muted{color:#9aa5b1}details{margin:6px 0}summary{cursor:pointer}
-</style></head><body><main>
-<nav><a href="/">APIbase.pro</a> | <a href="/catalog">Catalog</a> | <a href="/shops">Shops</a> | <a href="/integrator/agent-guide">Agent guide</a></nav>
-
 <section id="offer">
-<h1>AI payment</h1>
+<div class="sys-monitor"><span class="prompt">></span> <span class="label">MODE:</span><strong>integrator</strong>  <span class="label">FEE:</span><strong>{{INTEGRATOR_FEE_PCT}}</strong>  <span class="label">MIN:</span><strong>{{INTEGRATOR_MIN_ORDER}}</strong>  <span class="label">RAILS:</span><strong>x402+MPP</strong></div>
+<h1>AI payment for your shop</h1>
 <p lang="en">Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. {{INTEGRATOR_FEE_PCT}} fee.</p>
 <p><a class="btn p" href="/integrator/connect">Connect AI payment</a><a class="btn" href="/m/apibase-demo">View the demo shop</a></p>
-<p class="muted">Connect AI payment · View the demo shop. Merchants connected so far: {{MERCHANTS_COUNT}}.</p>
+<p class="muted">Merchants connected so far: {{MERCHANTS_COUNT}}.</p>
 </section>
 
 <section id="how-it-works">
-<h2>2. How it works</h2>
-<svg viewBox="0 0 360 430" role="img" aria-label="Flow: merchant site, link, buyer agent, storefront, quote, USDC to the merchant wallet" font-family="monospace" font-size="14">
-<g fill="#1a2027" stroke="#4cc2ff"><rect x="60" y="6" width="240" height="46"/><rect x="60" y="76" width="240" height="46"/><rect x="60" y="146" width="240" height="46"/><rect x="60" y="216" width="240" height="46"/><rect x="60" y="286" width="240" height="46"/><rect x="60" y="356" width="240" height="46" stroke="#ffb454"/></g>
-<g fill="#d7dde4" text-anchor="middle"><text x="180" y="34">merchant site</text><text x="180" y="104">link /m/&lt;slug&gt;</text><text x="180" y="174">buyer's AI agent</text><text x="180" y="244">storefront (MCP)</text><text x="180" y="314">quote: fixed price</text><text x="180" y="384">USDC to merchant wallet</text></g>
-<g stroke="#4cc2ff" fill="#4cc2ff"><path d="M180 52v20M180 122v20M180 192v20M180 262v20M180 332v20"/><path d="M174 68l6 8 6-8M174 138l6 8 6-8M174 208l6 8 6-8M174 278l6 8 6-8M174 348l6 8 6-8"/></g>
-</svg>
+<h2>How it works</h2>
+<div class="terminal"><span class="prompt">$</span> trace --order-flow<br>
+[1] merchant site → link /m/&lt;slug&gt;<br>
+[2] buyer's AI agent → storefront (MCP, only your tools)<br>
+[3] quote → fixed price, single-use nonce<br>
+[4] pay → USDC over x402 (Base) or MPP (Tempo)<br>
+[5] settle → your wallet — APIbase never holds the money</div>
 <p>The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. See <a href="/integrator/why-base-tempo">why Base and Tempo</a>.</p>
 </section>
 
 <section id="demo-shop">
-<h2>3. What your buyer's agent sees</h2>
-<svg viewBox="0 0 360 230" role="img" aria-label="Illustration of an abstract shop with a Buy with your AI agent button" font-family="monospace" font-size="13">
-<rect x="10" y="10" width="340" height="210" fill="#12161b" stroke="#2a323b"/>
-<rect x="10" y="10" width="340" height="30" fill="#1a2027"/><circle cx="26" cy="25" r="5" fill="#ffb454"/><text x="40" y="29" fill="#9aa5b1">your-shop.example</text>
-<rect x="30" y="58" width="120" height="90" fill="#1a2027" stroke="#2a323b"/><path d="M45 135l30-45 25 30 15-18 25 33z" fill="#2a323b"/>
-<text x="170" y="76" fill="#fff">Digital guide</text><text x="170" y="98" fill="#9aa5b1">abstract product</text><text x="170" y="120" fill="#d7dde4">price</text>
-<rect x="170" y="134" width="170" height="30" fill="#4cc2ff"/><text x="255" y="154" text-anchor="middle" fill="#0b0e11">Buy with your AI agent</text>
-<text x="180" y="196" text-anchor="middle" fill="#9aa5b1">Buy with your AI agent</text><text x="180" y="212" text-anchor="middle" fill="#9aa5b1">illustration, not a real shop</text>
-</svg>
+<h2>What your buyer's agent sees</h2>
+<div class="grid">
+<div class="highlights mock">
+<div class="muted">your-shop.example</div>
+<div class="box muted">[PRODUCT IMAGE]</div>
+<strong>Digital guide</strong>
+<p>[PRICE] USDC</p>
+<a class="mock-btn" href="/m/apibase-demo">Buy with your AI agent</a>
+<div class="muted">illustration, not a real shop</div>
+</div>
+<div>
 <p>The button is a plain link (variant A below). Try the real flow in the <a href="/m/apibase-demo">demo shop</a>.</p>
+</div>
+</div>
 </section>
 
 <section id="options">
-<h2>4. Four ways to add it</h2>
+<h2>Four ways to add it</h2>
 <p>All four are markup or a link; nothing to install and no script from us. Replace <code>&lt;slug&gt;</code> and <code>&lt;sku&gt;</code>. Click a block to select it.</p>
 <h3>A. Button at the product</h3>
-<pre>&lt;a href="https://apibase.pro/m/&lt;slug&gt;/p/&lt;sku&gt;" rel="alternate payment" class="apibase-ai-buy"&gt;Buy with your AI agent&lt;/a&gt;</pre>
+<div class="code-wrap"><pre>&lt;a href="https://apibase.pro/m/&lt;slug&gt;/p/&lt;sku&gt;" rel="alternate payment" class="apibase-ai-buy"&gt;Buy with your AI agent&lt;/a&gt;</pre></div>
 <h3>B. Button at checkout (cart link)</h3>
-<pre>&lt;a href="https://apibase.pro/m/&lt;slug&gt;/cart?items=&lt;sku&gt;:1,&lt;sku&gt;:2" rel="alternate payment"&gt;Buy with your AI agent&lt;/a&gt;</pre>
+<div class="code-wrap"><pre>&lt;a href="https://apibase.pro/m/&lt;slug&gt;/cart?items=&lt;sku&gt;:1,&lt;sku&gt;:2" rel="alternate payment"&gt;Buy with your AI agent&lt;/a&gt;</pre></div>
 <h3>C. "AI purchase" block on the home page</h3>
-<pre>&lt;p&gt;AI purchase: AI agents can buy here. &lt;a href="https://apibase.pro/m/&lt;slug&gt;"&gt;Open our AI storefront&lt;/a&gt;&lt;/p&gt;</pre>
+<div class="code-wrap"><pre>&lt;p&gt;AI purchase: AI agents can buy here. &lt;a href="https://apibase.pro/m/&lt;slug&gt;"&gt;Open our AI storefront&lt;/a&gt;&lt;/p&gt;</pre></div>
 <h3>D. Machine markup only</h3>
-<pre>&lt;link rel="alternate" type="application/json" href="https://apibase.pro/m/&lt;slug&gt;/agent.json"&gt;
+<div class="code-wrap"><pre>&lt;link rel="alternate" type="application/json" href="https://apibase.pro/m/&lt;slug&gt;/agent.json"&gt;
 &lt;script type="application/ld+json"&gt;
 {"@context":"https://schema.org","@type":"Offer","potentialAction":
  {"@type":"BuyAction","target":"https://apibase.pro/mcp/m/&lt;slug&gt;"}}
 &lt;/script&gt;
 
 # llms.txt on your site
-AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre>
+AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 <p>Website builders: <a href="/integrator/platforms/shopify">Shopify</a> · <a href="/integrator/platforms/woocommerce">WooCommerce</a> · <a href="/integrator/platforms/tilda">Tilda</a> · <a href="/integrator/platforms/wix">Wix</a> · <a href="/integrator/platforms/custom">custom site</a>.</p>
 </section>
 
 <section id="quickstart">
-<h2>5. Connect in 10 minutes</h2>
+<h2>Connect in 10 minutes</h2>
+<div class="grid">
+<div class="highlights">
 <h3>You, by hand</h3>
 <ol>
 <li>Open <a href="/integrator/connect">/integrator/connect</a>, fill in the form, tick the box for the four documents and sign with your wallet.</li>
@@ -74,14 +67,26 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre>
 <li>Paste link A, B, C or D into your site.</li>
 <li>Run the check (next section).</li>
 </ol>
+</div>
+<div class="highlights">
 <h3>Your agent</h3>
 <p>Give it <a href="/integrator/agent-guide">/integrator/agent-guide</a>: every step is an exact call with its error codes. It needs a wallet with USDC on Base or Tempo and an x402/MPP client for the last step.</p>
+</div>
+</div>
 </section>
 
 <section id="check">
-<h2>6. Sandbox and the connection check</h2>
+<h2>Sandbox and the connection check</h2>
+<ul class="step-wizard">
+<li><span class="step-num">[1/5]</span> <span class="step-ready">storefront_initialize</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
+<li><span class="step-num">[2/5]</span> <span class="step-ready">tools_list_6</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
+<li><span class="step-num">[3/5]</span> <span class="step-ready">quote_test_sku</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
+<li><span class="step-num">[4/5]</span> <span class="step-ready">webhook_ping</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
+<li><span class="step-num">[5/5]</span> <span class="step-ready">payment_verified</span> <span class="step-dots">……</span> <span class="step-tag tag-pending">[ WAIT ]</span></li>
+</ul>
+<p class="muted">example output · connected = steps 1–4 pass · payment_verified = your own agent paid a test order</p>
 <p>{{SANDBOX_STATUS}}</p>
-<p>The check runs five steps: <code>storefront_initialize</code>, <code>tools_list_6</code>, <code>quote_test_sku</code>, <code>webhook_ping</code>, <code>payment_verified</code>. Call <code>shop.merchant.check</code> or <code>GET /api/v1/shop/merchants/me/check</code> with your key; anyone can read the statuses at <code>/integrator/check/&lt;slug&gt;</code>.</p>
+<p>Call <code>shop.merchant.check</code> or <code>GET /api/v1/shop/merchants/me/check</code> with your key; anyone can read the statuses at <code>/integrator/check/&lt;slug&gt;</code>.</p>
 <ul>
 <li><code>connected</code>: the first four steps have no failure.</li>
 <li><code>payment_verified</code>: a paid test order made by your own agent exists.</li>
@@ -89,19 +94,22 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre>
 </section>
 
 <section id="fee">
-<h2>7. Fee and minimums</h2>
+<h2>Fee and minimums</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Rail</th><th>When the fee is on</th><th>You receive</th></tr></thead>
+<tbody>
+<tr><td>Tempo (MPP)</td><td>split inside the buyer's transaction</td><td>the rest, directly</td></tr>
+<tr><td>Base (x402)</td><td>recorded as a receivable, invoiced</td><td>the full amount</td></tr>
+</tbody>
+</table></div>
 <p>Fee: {{INTEGRATOR_FEE_PCT}}. Minimum order: {{INTEGRATOR_MIN_ORDER}}. The test item carries no fee.</p>
-<ul>
-<li><strong>Tempo (MPP):</strong> when the fee is on, it is taken inside the buyer's transaction as a split; you receive the rest directly.</li>
-<li><strong>Base (x402):</strong> the fee is not in the transaction. You receive the full amount; the fee is recorded as a receivable and billed to you by invoice.</li>
-</ul>
 <p>While the fee is off, nothing is recorded or charged on either rail.</p>
 <h3>Why Base and Tempo</h3>
 <p>Base: USDC is native; x402 is an open Coinbase protocol for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP). Full text: <a href="/integrator/why-base-tempo">/integrator/why-base-tempo</a>.</p>
 </section>
 
 <section id="security">
-<h2>8. Security: what you can verify</h2>
+<h2>Security: what you can verify</h2>
 <ul>
 <li>The quote's <code>pay.x402.payTo</code> is your payout wallet. It is never the platform wallet; compare it with the transfer on a block explorer.</li>
 <li>The buyer signs an authorization for the exact quoted total to that exact address; the nonce is single-use.</li>
@@ -115,7 +123,7 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre>
 </section>
 
 <section id="faq">
-<h2>9. Questions</h2>
+<h2>Questions</h2>
 <details><summary>Does APIbase hold the money?</summary><p>No. The buyer pays your payout wallet directly.</p></details>
 <details><summary>What can I sell?</summary><p>Digital items in the allowed categories (<a href="/legal/aup">AUP</a>). Physical goods are not available yet.</p></details>
 <details><summary>Which wallet do I need?</summary><p>One that receives USDC on Base or Tempo. APIbase issues no wallets: see <a href="/integrator/wallet">wallet help</a>.</p></details>
@@ -125,7 +133,7 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre>
 </section>
 
 <section id="legal">
-<h2>10. Legal documents</h2>
+<h2>Legal documents</h2>
 <p>Drafts, not yet published. A page shows its banner until the operator publishes it.</p>
 <ul>
 <li><a href="/legal/merchant-agreement">Merchant agreement</a></li>
@@ -137,13 +145,11 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre>
 </section>
 
 <section id="aipush">
-<h2>11. Make your site easy for agents</h2>
+<h2>Make your site easy for agents</h2>
 <p>Do AI agents visit your site? Check on <a href="https://aipush.app">AIpush.app</a>. It shows how agents see your site and what to fix.</p>
 </section>
 
 <section id="buyers">
-<h2>12. For buyers</h2>
+<h2>For buyers</h2>
 <p>Add a storefront URL <code>https://apibase.pro/mcp/m/&lt;slug&gt;</code> to your agent's MCP client, or find shops with <code>apibase.discover</code> (<code>kind: merchant</code>). Limits live in your wallet, the quote fixes the price, and nobody asks for your keys. Details: <a href="/integrator/buyers">/integrator/buyers</a>.</p>
 </section>
-
-</main></body></html>
