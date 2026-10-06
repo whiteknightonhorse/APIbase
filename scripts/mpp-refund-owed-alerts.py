@@ -155,6 +155,8 @@ def due_wallets(open_rows, internal, now):
         if is_internal(r, internal):
             continue
         w = str(payer_of(r["payload"])).lower()
+        if w in UNKNOWN_PAYERS:
+            continue  # nowhere to send a refund
         a = acc.setdefault(w, [Decimal(0), 0, r["created_at"]])
         a[0] += usd(r["payload"])
         a[1] += 1
@@ -334,7 +336,10 @@ def tick():
     digested = 0
     if digest_due(now, state):
         pending = [r for r in rows if not r["alerted"]]
-        due = due_wallets(fetch_open_rows() or [], internal, now)
+        open_rows = fetch_open_rows()
+        if open_rows is None:
+            print("WARNING: open-rows query failed — digest sent without the refund-due block")
+        due = due_wallets(open_rows or [], internal, now)
         if (pending or due) and send_tg(build_digest(pending, internal, tg, due)):
             if mark_alerted([r["id"] for r in pending]) != 0:
                 print("WARNING: digest sent but failed to mark alerted_at — rows re-appear in the next digest")
@@ -384,6 +389,7 @@ def selftest():
     got = {w[-1]: t for w, t, _, _ in due_wallets(ow, internal, now)}
     assert set(got) == {"c", "f"}, f"due wallets: {got}"  # c: 0.06 sum, f: 8 days old; d/e below both
     assert "0.06" in build_digest([row(1, 0.5)], internal, tg, due_wallets(ow, internal, now))
+    assert due_wallets([row(1, 0.2, payer="unknown-mpp-payer", age_s=9 * 86400)], internal, now) == []
     for kind, data in (("row", row(7, 1.5)), ("wallet", {"payer": "0x1", "total": Decimal(6), "n": 3}),
                        ("rate", {"n": 100, "tools": "t.x (100)"})):
         render_page(kind, data, tg)
