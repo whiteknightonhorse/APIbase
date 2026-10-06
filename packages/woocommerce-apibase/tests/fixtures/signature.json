@@ -1,0 +1,6 @@
+{
+  "secret": "whsec_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "t": 1800000000,
+  "body": "{\"id\":\"ob1\",\"event\":\"order.paid\",\"created_at\":\"2026-10-06T00:00:00.000Z\",\"data\":{\"order_id\":\"o-1\",\"total_usd\":\"12.00\"}}",
+  "header": "t=1800000000,v1=6fc66726e936646ee91a9fe6e70028985416a98916f71595fecf384f71a921a7"
+}

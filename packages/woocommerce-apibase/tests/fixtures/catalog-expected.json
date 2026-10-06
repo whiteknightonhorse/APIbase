@@ -1,0 +1,76 @@
+[
+    {
+        "sku": "EBOOK-1",
+        "title": "E-book",
+        "description": "Read me",
+        "price_usd": "9.90",
+        "stock": null,
+        "images": [
+            "https://shop.test/img/3.jpg"
+        ],
+        "category": "books",
+        "fulfillment_mode": "merchant"
+    },
+    {
+        "sku": "MUG-1",
+        "title": "Mug",
+        "description": "A mug",
+        "price_usd": "12.00",
+        "stock": 4,
+        "images": [],
+        "category": "electronics",
+        "fulfillment_mode": "physical",
+        "shipping_options": [
+            {
+                "id": "zone1-7",
+                "label": "Europe",
+                "price_usd": "5.50",
+                "regions": [
+                    "DE",
+                    "FR"
+                ]
+            }
+        ]
+    },
+    {
+        "sku": "TEE",
+        "title": "T-shirt",
+        "description": "",
+        "price_usd": "20.00",
+        "stock": null,
+        "images": [],
+        "category": "electronics",
+        "fulfillment_mode": "physical",
+        "shipping_options": [
+            {
+                "id": "zone1-7",
+                "label": "Europe",
+                "price_usd": "5.50",
+                "regions": [
+                    "DE",
+                    "FR"
+                ]
+            }
+        ],
+        "variants": [
+            {
+                "sku": "TEE-S",
+                "title": "T-shirt S",
+                "price_usd": "20.00",
+                "stock": 2,
+                "attributes": {
+                    "size": "S"
+                }
+            },
+            {
+                "sku": "TEE-14",
+                "title": "T-shirt L",
+                "price_usd": "22.50",
+                "stock": null,
+                "attributes": {
+                    "size": "L"
+                }
+            }
+        ]
+    }
+]
