@@ -30,6 +30,7 @@ export interface SweepResult {
   pii_purged: number;
   fee_invoices_overdue: number;
   fee_merchants_restricted: number;
+  payment_identifiers_deleted: number;
 }
 
 const emit = (db: ShopTx, event_type: string, payload: Record<string, unknown>) =>
@@ -346,6 +347,7 @@ export async function runShopSlaSweeper(
     pii_purged: 0,
     fee_invoices_overdue: 0,
     fee_merchants_restricted: 0,
+    payment_identifiers_deleted: 0,
   };
   const step = async (name: string, fn: () => Promise<void>) => {
     try {
@@ -389,5 +391,14 @@ export async function runShopSlaSweeper(
     out.fee_invoices_overdue = r.flagged;
     out.fee_merchants_restricted = r.merchants_restricted;
   });
+  // T-INT-48: expired x402 payment identifiers (24 h) are deleted.
+  await step(
+    'payment_identifiers',
+    async () =>
+      void (out.payment_identifiers_deleted = await d.db.$executeRawUnsafe(
+        `DELETE FROM shop_payment_identifiers WHERE expires_at <= $1::timestamptz`,
+        now,
+      )),
+  );
   return out;
 }

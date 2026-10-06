@@ -18,6 +18,10 @@ import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
 import { claimPaymentNonce } from '../../services/payment-nonce.service';
 import { recordMppRefundOwed } from './escrow-finalize.stage';
+import {
+  declareOrderPaymentIdentifier,
+  withPaymentIdentifier,
+} from '../../shop/payment-identifier.service';
 
 /** Fallback replay-guard TTL (seconds) when a signed payment carries no
  *  discoverable expiry — bounds Redis memory without depending on the rail. */
@@ -322,6 +326,7 @@ export function buildPaymentRequiredResponse(
         },
       },
     ],
+    extensions: declareOrderPaymentIdentifier(),
     request_id: meta.requestId,
     error_code: 'payment_required',
     suggested_action: 'add_payment',
@@ -841,6 +846,14 @@ const isLiveOrderConflict = (e: unknown): boolean =>
  * delivery (`shop-settle.ts`). A pending receipt leaves the order PAYING (202 for the caller).
  */
 export async function escrowQuotePayment(
+  deps: ShopDeps,
+  ctx: PipelineContext,
+): Promise<QuotePayResult> {
+  // T-INT-48: x402 payment-identifier idempotency, before anything below runs (verify, claim, settle).
+  return withPaymentIdentifier(deps, ctx, () => escrowQuotePaymentOnce(deps, ctx));
+}
+
+async function escrowQuotePaymentOnce(
   deps: ShopDeps,
   ctx: PipelineContext,
 ): Promise<QuotePayResult> {
