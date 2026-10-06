@@ -13,7 +13,7 @@ never touches sales.db, never sends mail, never edits autopilot):
 
   1. The T-0155 organization list itself. No live machine-readable copy exists
      (the 11 orgs + channel + contact are prose in
-     AUTOPILOT-PROGRESS.md#T-0155-PROVIDER-REPLIES, "Что отправлено 2026-09-23").
+     AUTOPILOT-PROGRESS.md#T-0155-PROVIDER-REPLIES, "What was sent 2026-09-23").
      T0155_ORGANIZATIONS below IS the one machine-readable copy — keep it in
      sync with that section by hand if the anchor content ever changes; this
      script does not re-parse the prose.
@@ -25,8 +25,8 @@ never touches sales.db, never sends mail, never edits autopilot):
      PARTNER_REPLY. Read-only glob; nothing here writes into autopilot's tree.
 
 Output: /var/tmp/fleet-touches/apibase-touches.json, mode 644, one line per
-organization with date_sent + channel (SG-04 acceptance: "11 организаций с
-датами и каналами"), plus reply status when a PARTNER-*.md record exists.
+organization with date_sent + channel (SG-04 acceptance: "11 organizations with
+dates and channels"), plus reply status when a PARTNER-*.md record exists.
 
 Directory permission note (found by this task, not assumed): /var/tmp/fleet-touches
 already existed when this script was first written, created by sales's own
@@ -54,7 +54,7 @@ PARTNER_REPLY_DIR = "/home/apibase/autopilot/operator"
 OUTPUT_DIR = "/var/tmp/fleet-touches"
 OUTPUT_PATH = os.path.join(OUTPUT_DIR, "apibase-touches.json")
 
-# Source: AUTOPILOT-PROGRESS.md#T-0155-PROVIDER-REPLIES, "Что отправлено
+# Source: AUTOPILOT-PROGRESS.md#T-0155-PROVIDER-REPLIES, "What was sent
 # 2026-09-23" (FT-9b/FT-10 of T-0155, operator-sent). All 11 sent the same day.
 T0155_ORGANIZATIONS = [
     {"organization": "fireworks", "channel": "email", "contact": "support@fireworks.ai", "date_sent": "2026-09-23"},

@@ -125,7 +125,7 @@ model ModerationAppeal {
   response_due_at DateTime  @db.Timestamptz()
   resolved_at     DateTime? @db.Timestamptz()
 
-  // ШАГ 2 (2026-09-02): what tripped the rule -- full top-level field value
+  // STEP 2 (2026-09-02): what tripped the rule -- full top-level field value
   // (capped 4KB, content_truncated marks a cut), plus where in it the match
   // landed. NULL always for CSAM (category = 'csam') -- absolute exception,
   // never stored, see moderation.stage.ts's CSAM_CATEGORY guard. NULL also
@@ -277,7 +277,7 @@ model OnboardingSubmission {
 }
 
 // ---------------------------------------------------------------------------
-// device_connections -- Ф5 physical-device layer: per-agent vendor OAuth
+// device_connections -- F5 physical-device layer: per-agent vendor OAuth
 // account links (Tuya first). Never stores a vendor PASSWORD -- only the
 // OAuth access/refresh tokens the vendor issued for the user's own account
 // linking consent, and those are encrypted (AES-256-GCM, secret-crypto
@@ -326,7 +326,7 @@ model DeviceConnection {
 // provider_status — one row per provider, durable health truth (Redis stays a cache
 // in front of it). Written by the active-probe job (AP-3) and passively by real
 // traffic (AP-2/AP-3). NEVER defaults pct_remaining to 100 — null means NOINFO, not
-// "fine" (C0.3: "прошла" и "не запускалась" must differ in data).
+// "fine" (C0.3: "passed" and "did not run" must differ in data).
 model ProviderStatus {
   provider             String    @id
   state                String    // UNKNOWN | HEALTHY | DEGRADED | DOWN (F1)

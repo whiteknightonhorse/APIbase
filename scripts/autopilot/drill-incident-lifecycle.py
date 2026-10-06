@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """drill-incident-lifecycle.py — AP-11 (820-autopilot-drills.md, taskloop
 T-820), the incident-engine.py + incidents-API half of drills 1/3 and 2/3
-("синтетический DOWN-провайдер" through RESOLVED, "синтетический 401"
+("synthetic DOWN provider" through RESOLVED, "synthetic 401"
 through WAITING_HUMAN).
 
 Boundary with the TS half of this drill (tests/integration/autopilot-drill-
@@ -20,7 +20,7 @@ diagram + I1's routing table put PROVIDER_DOWN (route AUTO) at RESOLVED and
 AUTH_FAILED (route HUMAN_KEY) at WAITING_HUMAN — this drill does not force
 AUTH_FAILED further than that; WAITING_HUMAN *is* its correct, designed
 terminus (J1: key rotation is HUMAN-ONLY by construction), matching this
-task's own phrasing ("полный цикл до RESOLVED/WAITING_HUMAN").
+task's own phrasing ("full cycle through RESOLVED/WAITING_HUMAN").
 
 Same disposable-postgres pattern as incident-engine.py's own --selftest-db
 and email-intake.py's own --selftest-db (spin up postgres:16.2-alpine,
@@ -63,7 +63,7 @@ CONTAINER = "autopilot-ap11-drill-lifecycle-pg"
 PG_PORT = 55491
 SCRATCH = "/tmp/autopilot-ap11-drill"
 
-# "Проверка прошла" и "проверка не запускалась" must be distinguishable in the
+# "The check passed" and "the check never ran" must be distinguishable in the
 # data, not just readable in stdout (ruling-1, 820-autopilot-drills rejected
 # the prior cut for exactly this: verify_api() -> None fell through to a bare
 # SKIPPED print with no effect on the exit code, so a run where the API layer
@@ -100,7 +100,7 @@ def start_pg():
         return False
     for _ in range(60):
         time.sleep(1)
-        chk = sh(["docker", "exec", CONTAINER, "psql", "-U", "apibase", "-d", "apibase", "-tAc", "SELECT 1"])
+        chk = sh(["docker", "exec", CONTAINER, "psql", "-h", "127.0.0.1", "-U", "apibase", "-d", "apibase", "-tAc", "SELECT 1"])
         if chk.returncode == 0 and chk.stdout.strip() == "1":
             break
     else:
@@ -125,7 +125,9 @@ def start_pg():
        input=(
            "CREATE TABLE tools (tool_id text primary key, provider text, "
            "status text not null default 'healthy', status_source text, "
-           "status_changed_at timestamptz, status_reason text); "
+           "status_changed_at timestamptz, status_reason text, "
+           # sync_tool_status()'s promotion path (T-01 price-floor guard) reads these two columns
+           "price_usd numeric, price_floor_usd numeric); "
            "CREATE TABLE execution_ledger (execution_id text primary key default gen_random_uuid()::text, "
            "tool_id text, cost_usd numeric default 0, latency_ms integer, status text, "
            "billing_status text, created_at timestamptz default now());"
@@ -406,7 +408,7 @@ def drill_401(env):
     short_id = inc["incident_id"].replace("-", "")[:6]
     operator_file_written = os.path.exists(os.path.join(SCRATCH, "operator", f"INC-{short_id}.md"))
     assert not operator_file_written, (
-        "drill B: J3 — 'для KEY-инцидентов операторский файл НЕ дублируется' (the existing "
+        "drill B: J3 — 'for KEY incidents the operator file is NOT duplicated' (the existing "
         "connected_db.py letter IS the operator communication for the common missing-key case)")
     print("  OK: no duplicate J3 operator file for the common missing-key case")
 

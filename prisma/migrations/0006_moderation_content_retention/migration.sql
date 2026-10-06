@@ -1,4 +1,4 @@
--- ШАГ 2 (2026-09-02): moderation_appeals gains the matched-content fields
+-- STEP 2 (2026-09-02): moderation_appeals gains the matched-content fields
 -- and a content_expires_at column so retention is enforced by data, not
 -- discipline. Table was empty in production at migration time (checked:
 -- SELECT COUNT(*) FROM moderation_appeals = 0), so the NOT NULL column and

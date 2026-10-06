@@ -17,7 +17,7 @@
 --   b) adds 'namespace' (NOT NULL) and backfills it with the OLD prefix-derived value
 --      (tool_id.split('.')[0]) so REST consumers reading the old 'category' semantics keep
 --      that value, just renamed — nobody loses access to it (see 05-PROPOSED-FLEET-TASKS.md
---      'что нельзя сломать'). Every tool_id in this table contains a '.' (verified 2026-09-15),
+--      'what must not be broken'). Every tool_id in this table contains a '.' (verified 2026-09-15),
 --      so split_part(tool_id, '.', 1) is equivalent to the app-layer's old fallback-to-provider
 --      branch for every existing row; a future dot-less tool_id would need that fallback
 --      applied at seed time instead (scripts/seed.ts), since this column has no computed

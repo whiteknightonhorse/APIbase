@@ -161,8 +161,8 @@ class RoutingSchema(unittest.TestCase):
         inc = {"incident_id": "abcdef12-0000-0000-0000-000000000000", "kind": "PAYER_SANCTIONED",
                "severity": "SEV1", "provider": "merchant:m1", "what": "x"}
         msg = ap.format_tg_message(inc)
-        self.assertIn("Варианты: 1)", msg)
-        self.assertIn("Кому передать ответ:", msg)
+        self.assertIn(ap.tg("line_variants", opts="1)"), msg)
+        self.assertIn(ap.tg("line_handoff", target_agent="").rstrip(), msg)
         lines = ap.merchant_variant_lines("PAYER_SANCTIONED")
         self.assertEqual(len(lines), 2)
         opfile = ap.build_operator_file(inc)
@@ -171,8 +171,8 @@ class RoutingSchema(unittest.TestCase):
             self.assertIn(ln, opfile)
         # the original 12 stay byte-identical: no new lines for them
         old = ap.format_tg_message({**inc, "kind": "PAYMENT_REQUIRED"})
-        self.assertNotIn("Варианты", old)
-        self.assertNotIn("Кому передать ответ", old)
+        self.assertNotIn(ap.tg("line_variants", opts="").rstrip(": "), old)
+        self.assertNotIn(ap.tg("line_handoff", target_agent="").rstrip(": "), old)
 
 
 class EngineWorlds(unittest.TestCase):
@@ -286,7 +286,7 @@ class EngineWorlds(unittest.TestCase):
         inc = incidents("PAYOUT_WALLET_SANCTIONED")[0]
         sid = ap.short_id(inc["id"])
         with open(os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid}.md"), "w", encoding="utf-8") as f:
-            f.write("## Handoff\n---\nРЕЗУЛЬТАТ ОПЕРАТОРА: адрес проверен вручную, продавец заблокирован\n")
+            f.write("## Handoff\n---\n" + ap._RESULT_MARKER + " address verified manually, merchant blocked\n")
         e.advance_waiting_human()
         self.assertEqual(incidents("PAYOUT_WALLET_SANCTIONED")[0]["state"], "RESOLVED")
         self.assertEqual(queue_files(), [])
@@ -369,8 +369,8 @@ class EngineWorlds(unittest.TestCase):
         esc = [r for r in incidents("WEBHOOK_FAILED") if r["state"] == "WAITING_HUMAN"]
         self.assertEqual(len(esc), 1)
         self.assertTrue(os.path.isfile(esc[0]["operator_file"]))
-        self.assertIn("Варианты: 1)", open(esc[0]["operator_file"], encoding="utf-8").read())
-        self.assertIn("Кому передать ответ:", TG[-1])
+        self.assertIn(ap.tg("line_variants", opts="1)"), open(esc[0]["operator_file"], encoding="utf-8").read())
+        self.assertIn(ap.tg("line_handoff", target_agent="").rstrip(), TG[-1])
         self.assertIn("HUMAN", TG[-1].upper() + " HUMAN")  # escalated text uses the human route wording
         self.assertEqual(queue_files(), [])
 

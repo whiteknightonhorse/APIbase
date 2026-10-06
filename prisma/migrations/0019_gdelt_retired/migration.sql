@@ -2,7 +2,7 @@
 -- provider_status.state=DOWN, 429 rate-limited -- see AUTOPILOT-PROGRESS.md#T-0141-gdelt-is-
 -- chronically-slow-and-rate-limited) but status_source='autopilot', meaning sync_tool_status()
 -- would silently revive these two rows back to 'healthy' the moment provider_status.gdelt ever
--- reports HEALTHY again -- an outcome the operator's 2026-09-21 "Похоронить провайдера" decision
+-- reports HEALTHY again -- an outcome the operator's 2026-09-21 "Bury the provider" decision
 -- (see AUTOPILOT-PROGRESS.md#T-0152-gdelt-deprecation-assess-and-plan, ruling-1 in
 -- disputes/0152-gdelt-deprecation-assess-and-plan.ruling-1.md) explicitly does not want: gdelt is
 -- retired by operator choice, not by a transient provider outage that should self-heal.
@@ -14,7 +14,7 @@
 -- rows). Paired with T-0152a's provider-limits.json "retired" fact (probe + incident-detector
 -- skip) and this task's incident-cli.py retire calls on the 3 open gdelt incidents -- together
 -- the three locks ruling-1 calls for. Code (adapter, schema, tool-definitions.ts entry, T-0141's
--- regression test) is untouched: State A ("снят с каталога, код остаётся"), not State B, per
+-- regression test) is untouched: State A ("removed from the catalog, code stays"), not State B, per
 -- execution_ledger_tool_id_fkey ON DELETE RESTRICT physically preventing row deletion anyway.
 --
 -- Reverting this (only on an explicit operator decision to un-retire, never automatically): drop

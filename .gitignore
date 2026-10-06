@@ -77,15 +77,15 @@ static/video/*.mp4
 static-releases/
 static-current
 
-# --- A-02: секретные бэкапы и состояние оркестры ---------------------------------------------
-# Измерено 2026-08-24: `.env.bak-prov-0623` несёт 148 переменных, ПЯТЬ из них платёжные
-# (TEMPO_PRIVATE_KEY, X402_OPERATOR_PRIVATE_KEY, MPP_SECRET_KEY, CDP_API_KEY_*). Файл лежал
-# untracked и НЕ заигноренным в рабочем дереве ПУБЛИЧНОГО репозитория: одного `git add -A`
-# хватило бы, чтобы опубликовать живые платёжные ключи. В историю ничего не попало — проверено
-# `git log --all --diff-filter=A`, — то есть мина была взведена, но не сработала.
+# --- A-02: secret backups and orchestra state ---------------------------------------------
+# Measured 2026-08-24: `.env.bak-prov-0623` carries 148 variables, FIVE of them payment-related
+# (TEMPO_PRIVATE_KEY, X402_OPERATOR_PRIVATE_KEY, MPP_SECRET_KEY, CDP_API_KEY_*). The file sat
+# untracked and NOT ignored in the working tree of a PUBLIC repository: a single `git add -A`
+# would have been enough to publish live payment keys. Nothing reached history — verified with
+# `git log --all --diff-filter=A` — i.e. the mine was armed but did not go off.
 #
-# Прежние строки ловили `.env.bak` и `.env.bak.*` ЧЕРЕЗ ТОЧКУ и промахивались мимо `.env.bak-*`
-# ЧЕРЕЗ ДЕФИС. Правило, различающее точку и дефис, — это правило, которого нет.
+# The earlier lines caught `.env.bak` and `.env.bak.*` WITH A DOT and missed `.env.bak-*`
+# WITH A HYPHEN. A rule that tells a dot from a hyphen is a rule that does not exist.
 .env.bak*
 .env*.bak*
 *.bak-*

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """email-status-export.py — SG-21a (SG-21 ruling-1 §2/§4): apibase's half of
 the cross-tenant Gmail-status picture sales (SG-21b) needs to label INBOX
-mail with `Флот/*` labels. Same shape as scripts/fleet-touches-export.py
+mail with `Fleet/*` labels. Same shape as scripts/fleet-touches-export.py
 (SG-04): a READ-ONLY export apibase writes, sales reads — never a second
 writer into the mailbox. apibase does not touch Gmail at all, ever; this
 script's only output is a JSON file.
 
-Boundary (SG-21 ruling-1 §2, explicit): "email-intake.py не менять... apibase
-добавляет рядом с apibase-touches.json файл ... отдельным скриптом по своей
-БД email_events, не правкой интейка." This file never imports or edits
+Boundary (SG-21 ruling-1 §2, explicit): "do not change email-intake.py... apibase
+adds next to apibase-touches.json a file ... with a separate script over its own
+email_events DB, not by editing the intake." This file never imports or edits
 scripts/autopilot/email-intake.py; it only reads the email_events TABLE that
 script writes, via the same docker-exec-psql helper (autopilot_common.psql)
 every other autopilot script in this repo already uses.
@@ -28,8 +28,8 @@ CHECK constraints as literal Python sets, is the established convention in
 this codebase, not a new one. CLASS_STATUS_MAP's own selftest asserts it
 covers every class in EMAIL_CLASSES so the two can't silently drift apart.
 
-  - PARTNER_REPLY -> needs_operator (SG-21 ruling-1 §1: "apibase по экспорту:
-    статус needs_operator -> Ждёт вас + apibase"). ref is the PARTNER-*.md
+  - PARTNER_REPLY -> needs_operator (SG-21 ruling-1 §1: "apibase via export:
+    status needs_operator -> Waiting for you + apibase"). ref is the PARTNER-*.md
     filename email-intake.py's own write_partner_reply_operator_files()
     already writes to ap.OPERATOR_DIR — same digest formula
     (sha256(msg_id)[:6]) reproduced read-only here, never guessed, and
@@ -37,16 +37,16 @@ covers every class in EMAIL_CLASSES so the two can't silently drift apart.
     doesn't exist — see partner_reply_ref()).
   - HUMAN_KEY kinds (KEY_EXPIRES->CREDENTIAL_EXPIRED, KEY_REVOKED->AUTH_FAILED)
     and HUMAN_ONLY kinds (PAYMENT_FAILED/PRICING_CHANGE->PAYMENT_REQUIRED),
-    per config/autopilot/routing.json -> needs_operator ("оплата, ключ,
-    действие по аккаунту" — ruling-1's own three examples, literally these
+    per config/autopilot/routing.json -> needs_operator ("payment, key,
+    account action" — ruling-1's own three examples, literally these
     three routing.json route_classes).
   - AUTO/MIXED kinds that route.json has the ENGINE close itself
     (DEPRECATION/SUNSET/ENDPOINT_CHANGE/MAINTENANCE/SECURITY_CHANGE/
     ACCOUNT_ACTION/LIMIT_CHANGE -> EMAIL_NOTICE, AUTO; QUOTA -> QUOTA_LOW,
-    MIXED) -> handled ("классы, по которым инцидент закрывает автопилот сам").
+    MIXED) -> handled ("classes whose incident the autopilot closes itself").
   - MARKETING -> handled (ruling-1 §2, explicit).
   - UNMATCHED, DEFERRED_BUDGET -> never exported (ruling-1 §2, explicit:
-    "в экспорт не попадают" — a class with no owner is not apibase's status
+    "are not included in the export" — a class with no owner is not apibase's status
     to report, sales' own foreign_thread/unmatched handling already covers
     "nobody has taken this").
   - "replied" (the third value the shared schema allows, see sales'
@@ -57,13 +57,13 @@ covers every class in EMAIL_CLASSES so the two can't silently drift apart.
     with the shared status vocabulary ruling-1 defines once for both
     tenants, not because apibase emits it.
 
-Window: 14 days on received_at (ruling-1 §2: "Окно экспорта 14 дней"), same
+Window: 14 days on received_at (ruling-1 §2: "Export window 14 days"), same
 boundary D-48 draws for sales' own mailbox scan.
 
 Cron (dispatcher installs, not this task — same convention as fleet-touches-
 export.py's own header): runs right after email-intake.py's LIVE daily pull
 finishes, before sales' 08:00 incoming pass reads today's mail (ruling-1 §2:
-"07:25 -> 07:40, чтобы проход sales в 08:00 разметил письма того же утра").
+"07:25 -> 07:40, so that the sales pass at 08:00 labels the same morning's e-mails").
 email-intake.py's own header comment says 07:00, but the live crontab entry
 (`crontab -l`, apibase user) actually runs it at 07:25 — trust the live
 crontab, not the stale comment in a file this task may not edit. This
@@ -138,7 +138,7 @@ def partner_reply_ref(msg_id, provider_match, operator_dir=None):
     """Reproduces email-intake.py's write_partner_reply_operator_files()
     filename formula read-only (PARTNER-<provider>-<6 hex sha256(msg_id)>.md)
     and returns it ONLY if that exact file is actually on disk — never a
-    fabricated ref (SG-21a acceptance: 'ref на существующие PARTNER-*.md').
+    fabricated ref (SG-21a acceptance: 'ref to existing PARTNER-*.md').
     Missing file (e.g. this export raced ahead of write_partner_reply_
     operator_files() in the same intake run) -> None, logged, same fail-soft
     spirit as the rest of this codebase's exports."""
@@ -149,7 +149,7 @@ def partner_reply_ref(msg_id, provider_match, operator_dir=None):
     if os.path.exists(os.path.join(operator_dir, filename)):
         return filename
     ap.notice(
-        f"молчу: email-status-export expected {filename} in {operator_dir} for "
+        f"silent: email-status-export expected {filename} in {operator_dir} for "
         f"PARTNER_REPLY msg_id={msg_id!r} but the file is not there yet — ref left null"
     )
     return None
@@ -173,7 +173,7 @@ def fetch_rows(window_days=WINDOW_DAYS):
     )
     out, rc = ap.psql(sql)
     if rc != 0:
-        ap.notice(f"молчу: email-status-export could not read email_events: {out}")
+        ap.notice(f"silent: email-status-export could not read email_events: {out}")
         return []
     rows = []
     for line in out.splitlines():
@@ -181,7 +181,7 @@ def fetch_rows(window_days=WINDOW_DAYS):
             continue
         parts = line.split(ap.SEP)
         if len(parts) != 5:
-            ap.notice(f"молчу: email-status-export skipping malformed row: {line!r}")
+            ap.notice(f"silent: email-status-export skipping malformed row: {line!r}")
             continue
         rows.append(tuple(parts))
     return rows

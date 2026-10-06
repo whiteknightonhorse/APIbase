@@ -13,7 +13,7 @@
 -- standalone moderation_appeals row is unaffected -- it's written directly by
 -- moderation.stage.ts, not through this UPDATE).
 --
--- Found live, 2026-09-02, during the ШАГ 3 synthetic balance-probe run: the
+-- Found live, 2026-09-02, during the STEP 3 synthetic balance-probe run: the
 -- first fix (payload_status only) surfaced the SECOND constraint immediately
 -- on the very next probe run (Postgres error P2010/23514 on
 -- execution_ledger_status_check this time). Neither constraint is exercised

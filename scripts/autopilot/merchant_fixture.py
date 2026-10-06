@@ -77,7 +77,7 @@ def ensure_pg():
         raise RuntimeError(f"cannot start disposable postgres: {r.stderr}")
     for _ in range(60):
         time.sleep(1)
-        c = sh(["docker", "exec", CONTAINER, "psql", "-U", "apibase", "-d", "apibase", "-tAc", "SELECT 1"])
+        c = sh(["docker", "exec", CONTAINER, "psql", "-h", "127.0.0.1", "-U", "apibase", "-d", "apibase", "-tAc", "SELECT 1"])
         if c.returncode == 0 and c.stdout.strip() == "1":
             break
     else:

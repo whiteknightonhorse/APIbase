@@ -69,6 +69,6 @@ We follow coordinated disclosure. Vulnerabilities will be patched before public 
   force-push to a public shared branch, which is a destructive, hard-to-reverse action gated on
   explicit operator authorization per repo policy. The operator was not reachable at execution
   time.
-  **Decision: принята как есть, эскалировано (accepted as-is, escalated)** — pending operator
+  **Decision: accepted as-is, escalated** — pending operator
   choice between "accept the historical exposure permanently" or "manual history rewrite
   (BFG/filter-repo + coordinated force-push, contributors must re-clone)".

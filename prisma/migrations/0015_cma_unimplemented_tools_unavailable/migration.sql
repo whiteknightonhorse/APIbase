@@ -14,7 +14,7 @@
 -- heartbeat-5xx-classification task, and not something this migration invents.
 --
 -- Marked unavailable with status_source='manual' rather than left healthy-but-broken (the
--- "статус и реальность разошлись" defect this whole task exists to close) or silently
+-- "status and reality diverged" defect this whole task exists to close) or silently
 -- dropped from the catalog. status_source='manual' is the documented, permanent way to keep
 -- sync_tool_status()'s autopilot reconciler (scripts/autopilot/incident-engine.py) from ever
 -- reviving these rows back to 'healthy' off cma's overall provider_status -- cma.search and

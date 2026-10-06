@@ -116,7 +116,7 @@
     "resolution": "skip",
     "as": null,
     "base_url": null,
-    "evidence": "Operator 2026-10-01 verbatim: \"Я могу только ввести туда адрес карты и оплата по факту если есть такая возможность чтобы не покупать мне дополнительные тарифы\". Pay-per-use does not exist: tidesatlas.com/en/terms (March 2026): free = 50 one-time credits, paid = monthly subscriptions only (Hobby $7.99/mo ... Business $99/mo), no PAYG/top-up. Measured on record (2026-09-14): x-ratelimit-remaining 50->49 confirms one-shot quota. Terms also: 'Not redistribute raw data without authorisation'. A one-shot quota is not sellable.",
+    "evidence": "Operator 2026-10-01 verbatim: \"I can only enter a card address there and pay as I go, if that is possible, so that I do not have to buy extra plans\". Pay-per-use does not exist: tidesatlas.com/en/terms (March 2026): free = 50 one-time credits, paid = monthly subscriptions only (Hobby $7.99/mo ... Business $99/mo), no PAYG/top-up. Measured on record (2026-09-14): x-ratelimit-remaining 50->49 confirms one-shot quota. Terms also: 'Not redistribute raw data without authorisation'. A one-shot quota is not sellable.",
     "date": "2026-10-01"
   },
   "uncomtrade": {

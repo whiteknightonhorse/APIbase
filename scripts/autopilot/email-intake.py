@@ -28,8 +28,8 @@ exits 0 for a run that didn't read mail — N.18: "intake rc≠0" — a NOINFO r
 is rc=1, a completed run that read 0 real messages is rc=0, the two are
 never the same number) until a human drops the password there (chmod 600,
 created BY the human — this script only ever READS that file, same
-boundary as tg.env/connected_db.py's own secret: "не в apibase/.env, чтобы
-не смешивать с провайдерскими ключами").
+boundary as tg.env/connected_db.py's own secret: "not in apibase/.env, so as
+not to mix with provider keys").
 
 Cascade (H3, cheapest first, $0 until step 4):
   1. dedup on email_events.msg_id (the Message-ID header) — idempotent re-runs.
@@ -41,7 +41,7 @@ Cascade (H3, cheapest first, $0 until step 4):
      subject/body has an action-marker (H3 point 4's own gate). Capped at 3
      calls/day via its OWN disposable counter file (never AP-6's
      fleet-task counter — a different budget line, I2 vs this task's own
-     "потолок 3 вызова"). The model is invoked `--restricted --safe-mode
+     "cap of 3 calls"). The model is invoked `--restricted --safe-mode
      --strict-mcp-config --tools "" --permission-mode manual
      --no-session-persistence`, cwd pointed at a throwaway empty temp dir —
      `--tools ""` is the flag that actually disables every tool (verified
@@ -53,7 +53,7 @@ Cascade (H3, cheapest first, $0 until step 4):
      tool to the working directory, which is why the empty temp cwd is a
      second, independent layer rather than trusting one flag alone; NO
      CLAUDE.md/skills/hooks/MCP either (--safe-mode/--strict-mcp-config) —
-     H4's "классификатор вызывается без инструментов" enforced
+     H4's "the classifier is invoked without tools" enforced
      STRUCTURALLY (the binary cannot act, not "the prompt asks it not
      to"), plus a prompt-level reminder that the email body is untrusted
      data as defense in depth. `--json-schema` constrains the model's own
@@ -66,12 +66,12 @@ Cascade (H3, cheapest first, $0 until step 4):
      FIRST, falls back to the older `result` key SECOND, and
      re-validates whichever shape comes back against the schema either
      way (never trust a subprocess blindly) — invalid output is
-     UNMATCHED, never guessed into a real class (H3: "невалидный выход =
+     UNMATCHED, never guessed into a real class (H3: "invalid output =
      UNMATCHED"). Confirm the real shape at the first actual run and
      correct the read order here if it differs. Cost cap
      (--max-budget-usd) lives on the SAME subprocess.run() call as the
-     model invocation — the taskloop protocol's own LAW ("Потолок расхода
-     стоит в ТОЙ ЖЕ строке, что и вызов модели").
+     model invocation — the taskloop protocol's own LAW ("The spend cap
+     sits on the SAME line as the model call").
 
 DEFERRED_BUDGET is a queue, not a terminal state (T-14 ruling-1, P.5): once
 today's 3 haiku calls are spent, run() drains the backlog (drain_deferred_
@@ -89,14 +89,14 @@ task's own mapping, chosen to match I1's routing table and N's worked
 examples literally, not guessed:
   - PRICING_CHANGE and PAYMENT_FAILED both -> PAYMENT_REQUIRED. I1's own
     row groups them explicitly: "PAYMENT_REQUIRED / PAYMENT_FAILED /
-    PRICING_CHANGE | HUMAN-ONLY, всегда ... Автоветки не существует" — a
+    PRICING_CHANGE | HUMAN-ONLY, always ... There is no auto-branch" — a
     pricing-change email is a money fact, not a generic notice, and must
     never end up on the AUTO-routed EMAIL_NOTICE path (routing.json's own
     _load_routing() would refuse to load if it did; this mapping is the
     other half of that same LAW, checked again in selftest()).
   - KEY_REVOKED -> AUTH_FAILED, KEY_EXPIRES -> CREDENTIAL_EXPIRED: N.1/N.2's
-    worked examples ("email KEY_REVOKED (склейка по dedup_key — один
-    инцидент) ... email-evidence добавляется к существующему инциденту")
+    worked examples ("email KEY_REVOKED (merge by dedup_key — one
+    incident) ... email evidence is added to the existing incident")
     show a revoked-key email MERGING into the same dedup_key a probe's 401
     would open (AUTH_FAILED:<provider>) — this reuses open_or_merge_incident
     unchanged, no new merge logic needed. KEY_EXPIRES is the softer,
@@ -109,8 +109,8 @@ examples literally, not guessed:
     (corroborating evidence) or open one on its own if the numeric side
     hasn't caught it yet — same dedup-by-kind+provider mechanism as above.
   - DEPRECATION/SUNSET/ENDPOINT_CHANGE/MAINTENANCE/SECURITY_CHANGE/
-    ACCOUNT_ACTION -> EMAIL_NOTICE: I1's own row body text ("Письмо-
-    уведомление от провайдера (deprecation/sunset/endpoint change...")
+    ACCOUNT_ACTION -> EMAIL_NOTICE: I1's own row body text ("Notice
+    e-mail from the provider (deprecation/sunset/endpoint change...")
     already reads as the generic bucket for "provider sent a notice,
     someone should assess impact" and _AUTO_TASK_WHAT["EMAIL_NOTICE"] in
     autopilot_common.py (AP-6) already has the fleet-task body text for it.
@@ -218,7 +218,7 @@ PARTNER_REPLY_THREADS_PATH = os.environ.get(
     "AUTOPILOT_PARTNER_REPLY_THREADS_PATH",
     os.path.expanduser("~/.config/autopilot/partner-reply-threads.json"),
 )
-HAIKU_DAILY_CAP = 3  # H3 point 4: "Потолок 3 вызова/день"
+HAIKU_DAILY_CAP = 3  # H3 point 4: "Cap of 3 calls/day"
 EMAIL_HEARTBEAT_FILE = os.environ.get("AUTOPILOT_EMAIL_HEARTBEAT_FILE", "/tmp/autopilot-email-intake.hb")
 SETUP_FILE = os.path.join(ap.OPERATOR_DIR, "EMAIL-IMAP-SETUP.md")
 
@@ -248,8 +248,8 @@ CLASS_TO_KIND = {
     "SECURITY_CHANGE": "EMAIL_NOTICE",
     "ACCOUNT_ACTION": "EMAIL_NOTICE",
     # T-0168: decided by Fable's own FT-10 design text (AUTOPILOT-PROGRESS.md
-    # "Список задач для Fleet" п.14 body: "маппинг в CLASS_TO_KIND -> EMAIL_NOTICE,
-    # не QUOTA_LOW") — a limit CHANGE notice is not the same fact as "quota running
+    # "Task list for Fleet" item 14 body: "mapping to CLASS_TO_KIND -> EMAIL_NOTICE,
+    # not QUOTA_LOW") — a limit CHANGE notice is not the same fact as "quota running
     # low" and must not merge into a QUOTA_LOW incident.
     "LIMIT_CHANGE": "EMAIL_NOTICE",
     # PARTNER_REPLY deliberately absent, same as MARKETING/UNMATCHED/DEFERRED_BUDGET
@@ -277,7 +277,7 @@ ACTION_REQUIRED_DEFAULT = {
 
 # T-0168: classes that must NEVER be assigned by haiku — rules-only by explicit
 # requirement (FT-10's own acceptance text for LIMIT_CHANGE; the operator's
-# addition for PARTNER_REPLY says the same: "rules-only, без модели"). Excluding
+# addition for PARTNER_REPLY says the same: "rules-only, no model"). Excluding
 # them from the model's allowed-output schema means even a misfiring/adversarial
 # haiku call structurally cannot assign either class — the guarantee holds
 # whether or not classify_by_rules()/is_partner_reply_by_thread() ever run.
@@ -404,7 +404,7 @@ def write_setup_instructions():
             f.write(_SETUP_TEMPLATE)
         return True
     except OSError as e:
-        ap.notice(f"молчу: email-intake could not write setup instructions to {SETUP_FILE}: {e}")
+        ap.notice(f"silent: email-intake could not write setup instructions to {SETUP_FILE}: {e}")
         return False
 
 
@@ -466,7 +466,7 @@ def _load_provider_domain_aliases():
         with open(PROVIDER_DOMAINS_PATH, encoding="utf-8") as f:
             raw = json.load(f)
     except (OSError, json.JSONDecodeError) as e:
-        ap.notice(f"молчу: email-intake could not load {PROVIDER_DOMAINS_PATH}: {e}")
+        ap.notice(f"silent: email-intake could not load {PROVIDER_DOMAINS_PATH}: {e}")
         raw = {}
     aliases = {str(k).lower(): v for k, v in raw.get("aliases", {}).items()}
     whitelist = {str(d).lower() for d in raw.get("whitelist", [])}
@@ -478,15 +478,15 @@ def _load_provider_limits_for_domains():
         with open(ap.PROVIDER_LIMITS_PATH, encoding="utf-8") as f:
             return json.load(f)
     except (OSError, json.JSONDecodeError) as e:
-        ap.notice(f"молчу: email-intake could not load provider-limits.json: {e}")
+        ap.notice(f"silent: email-intake could not load provider-limits.json: {e}")
         return {}
 
 
 def build_domain_map():
     """Rebuilt fresh on every run (never cached to a second file) — the auto
     half tracks provider-limits.json live, so it can never go stale the way
-    a persisted generated artifact could (H3 point 2's 'строится один раз
-    скриптом' is read here as 'the construction is one deterministic
+    a persisted generated artifact could (H3 point 2's 'built once
+    by a script' is read here as 'the construction is one deterministic
     function', not 'written to disk once and never touched again').
 
     ruling-2 fix: registers TWO keys per docs_url/health_url — the full,
@@ -534,7 +534,7 @@ def build_domain_map():
             domain_to_provider[key] = next(iter(providers))
         else:
             ap.notice(
-                f"молчу: email-intake domain map key {key!r} claimed by {sorted(providers)} "
+                f"silent: email-intake domain map key {key!r} claimed by {sorted(providers)} "
                 f"— ambiguous, excluded from auto-match (no silent first-wins)"
             )
 
@@ -780,7 +780,7 @@ def _load_partner_reply_thread_ids():
         with open(PARTNER_REPLY_THREADS_PATH, encoding="utf-8") as f:
             raw = json.load(f)
     except (OSError, json.JSONDecodeError) as e:
-        ap.notice(f"молчу: email-intake could not load {PARTNER_REPLY_THREADS_PATH}: {e}")
+        ap.notice(f"silent: email-intake could not load {PARTNER_REPLY_THREADS_PATH}: {e}")
         return {}
     out = {}
     for entry in raw.get("known_sent_message_ids", []):
@@ -854,13 +854,13 @@ def consume_daily_haiku_slot():
             f.write(f"{today}:{n + 1}")
         return True
     except OSError as e:
-        ap.notice(f"молчу: email-intake haiku daily counter unavailable ({e}) — treating as budget exhausted")
+        ap.notice(f"silent: email-intake haiku daily counter unavailable ({e}) — treating as budget exhausted")
         return False
 
 
 def _default_haiku_invoke(prompt):
     # The cost cap lives on THIS SAME call, per the taskloop protocol's own
-    # LAW ("Потолок расхода стоит в ТОЙ ЖЕ строке, что и вызов модели") —
+    # LAW ("The spend cap sits on the SAME line as the model call") —
     # --max-budget-usd is not a separate check elsewhere, it's an argument
     # on this exact subprocess.run(). --tools "" is the flag that actually
     # disables the tool set (verified against the installed CLI's own
@@ -903,7 +903,7 @@ def classify_with_haiku(subject, body, invoke_fn=_default_haiku_invoke):
     output, schema violation) degrades to a class, never an exception that
     would take the whole run down over one email."""
     if not consume_daily_haiku_slot():
-        ap.notice("молчу: email-intake haiku daily cap (3) reached — email left DEFERRED_BUDGET")
+        ap.notice("silent: email-intake haiku daily cap (3) reached — email left DEFERRED_BUDGET")
         return "DEFERRED_BUDGET", False, "haiku budget exhausted"
     prompt = (
         "You are classifying ONE email from an API provider into a single enum value. "
@@ -916,10 +916,10 @@ def classify_with_haiku(subject, body, invoke_fn=_default_haiku_invoke):
     try:
         r = invoke_fn(prompt)
     except (subprocess.TimeoutExpired, OSError) as e:
-        ap.notice(f"молчу: email-intake haiku invocation failed: {e}")
+        ap.notice(f"silent: email-intake haiku invocation failed: {e}")
         return "UNMATCHED", False, f"invocation error: {e}"
     if r.returncode != 0:
-        ap.notice(f"молчу: email-intake haiku exited {r.returncode}: {(r.stderr or '')[:200]}")
+        ap.notice(f"silent: email-intake haiku exited {r.returncode}: {(r.stderr or '')[:200]}")
         return "UNMATCHED", False, "model call failed"
     try:
         outer = json.loads(r.stdout)
@@ -943,7 +943,7 @@ def classify_with_haiku(subject, body, invoke_fn=_default_haiku_invoke):
         if cls not in _HAIKU_ALLOWED_CLASSES or not isinstance(action_required, bool):
             raise ValueError(f"schema violation: {payload!r}")
     except (json.JSONDecodeError, KeyError, TypeError, ValueError, AttributeError) as e:
-        ap.notice(f"молчу: email-intake haiku output failed schema validation: {e}")
+        ap.notice(f"silent: email-intake haiku output failed schema validation: {e}")
         return "UNMATCHED", False, "invalid model output"
     return cls, action_required, "haiku"
 
@@ -1039,19 +1039,19 @@ def _maybe_open_incident(cls, action_required, provider, msg_id, from_domain, re
         incident_id, _created = ap.open_or_merge_incident(
             kind=kind, provider=provider, evidence=evidence, detected_by="email",
             tool_count=tool_count, revenue_pct=revenue_pct,
-            what=f"письмо от провайдера, класс {cls} (источник: {source})",
-            system_did="классификатор без инструментов, выход — enum со схема-валидацией (H4)",
+            what=f"provider e-mail, class {cls} (source: {source})",
+            system_did="tool-less classifier, output is an enum with schema validation (H4)",
             actor="email-intake",
         )
         return incident_id
     except (AssertionError, RuntimeError) as e:
-        ap.notice(f"молчу: email-intake failed to open/merge incident for {msg_id} "
+        ap.notice(f"silent: email-intake failed to open/merge incident for {msg_id} "
                   f"({provider}/{kind}): {e}")
         return None
 
 
 # ---------------------------------------------------------------------------
-# T-INT-18 (spec §12.2 «Входящая почта продавцов»): MERCHANT_REPLY. A reply to one of OUR merchant
+# T-INT-18 (spec §12.2 "Incoming merchant mail"): MERCHANT_REPLY. A reply to one of OUR merchant
 # letters (In-Reply-To/References carries the Resend id we stored as email_events.provider_message_id)
 # or mail from the domain of a merchant's site_url. The mail is DATA: it becomes a quoted note on the
 # merchant's open incident (cut to 2 KB) — no action, no task, no model call (so the haiku cap is
@@ -1118,7 +1118,7 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
     """Idempotent on msg_id (Message-ID). Returns the final class string.
 
     T-0168: source_folder ('inbox' or 'spam') is recorded on every row (FT-10's
-    own acceptance: "новые строки email_events помечены source_folder='spam'").
+    own acceptance: "new email_events rows are marked source_folder='spam'").
     allow_haiku=False (spam pass) is threaded through to _classify_message —
     see that function's docstring. known_thread_ids is injectable (None ->
     load the real file), same pattern as haiku_invoke — run() loads it ONCE
@@ -1151,7 +1151,7 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
             f"'UNMATCHED', FALSE, {ap.sql_literal(incident_id)}, {ap.sql_literal(summary)}, "
             f"{ap.sql_literal(source_folder)}, {ap.sql_literal(merchant_id)}::uuid) ON CONFLICT (msg_id) DO NOTHING")
         if rc3 != 0:
-            ap.notice(f"молчу: email-intake could not record MERCHANT_REPLY row for {msg_id}")
+            ap.notice(f"silent: email-intake could not record MERCHANT_REPLY row for {msg_id}")
         return MERCHANT_REPLY
     provider = match_provider(from_domain, domain_map)
     cls, action_required, source = _classify_message(
@@ -1185,7 +1185,7 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
         "ON CONFLICT (msg_id) DO NOTHING"
     )
     if rc2 != 0:
-        ap.notice(f"молчу: email-intake could not record email_events row for {msg_id}: {_}")
+        ap.notice(f"silent: email-intake could not record email_events row for {msg_id}: {_}")
     return cls
 
 
@@ -1196,7 +1196,7 @@ def process_message(msg_id, received_at, from_addr, subject, body, domain_map, w
 # scrolls out of that window, and process_message()'s own dedup-by-msg_id
 # means a re-fetched copy of the SAME email is a silent no-op — so without
 # this step, "3 calls/day" silently became "3 emails/day, ever" (T-14's own
-# finding: "отложенное без очереди — это выброшенное"). The email_events row
+# finding: "deferred without a queue is thrown away"). The email_events row
 # IS the queue: re-read each queued msg_id from the mailbox by Message-ID,
 # re-run the FULL cascade (rules may have changed since the email was
 # deferred — exactly what ruling-1 P.2's fix does for some of the real
@@ -1252,12 +1252,12 @@ def _update_deferred_row(msg_id, provider, cls, action_required, incident_id, su
         f"WHERE msg_id = {ap.sql_literal(msg_id)}"
     )
     if rc != 0:
-        ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain could not update {msg_id}")
+        ap.notice(f"silent: email-intake DEFERRED_BUDGET drain could not update {msg_id}")
 
 
 def _update_deferred_row_unmatched(msg_id):
     """The message is gone from the mailbox — an honest terminal, not a
-    silent loss (T-14: 'отложенное без очереди — это выброшенное', this is
+    silent loss (T-14: 'deferred without a queue is thrown away', this is
     the one case where there is genuinely nothing left to reclassify)."""
     _, rc = ap.psql(
         "UPDATE email_events SET class = 'UNMATCHED', action_required = FALSE, "
@@ -1265,7 +1265,7 @@ def _update_deferred_row_unmatched(msg_id):
         f"WHERE msg_id = {ap.sql_literal(msg_id)}"
     )
     if rc != 0:
-        ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain could not mark {msg_id} UNMATCHED")
+        ap.notice(f"silent: email-intake DEFERRED_BUDGET drain could not mark {msg_id} UNMATCHED")
 
 
 def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haiku_invoke,
@@ -1280,7 +1280,7 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
         "ORDER BY received_at"
     )
     if rc != 0:
-        ap.notice(f"молчу: email-intake could not read DEFERRED_BUDGET queue: {rows}")
+        ap.notice(f"silent: email-intake could not read DEFERRED_BUDGET queue: {rows}")
         return 0, 0
     queued = [line.split(ap.SEP) for line in rows.splitlines() if line.strip()]
     if not queued:
@@ -1293,7 +1293,7 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
     try:
         conn = imap_open_fn(env)
     except Exception as e:
-        ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain could not open mailbox: {e}")
+        ap.notice(f"silent: email-intake DEFERRED_BUDGET drain could not open mailbox: {e}")
         return 0, n_remaining
 
     try:
@@ -1306,7 +1306,7 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
                 # here, leave this row and everything after it exactly as
                 # queued (never UNMATCHED for a transient error).
                 ap.notice(
-                    f"молчу: email-intake DEFERRED_BUDGET drain aborted "
+                    f"silent: email-intake DEFERRED_BUDGET drain aborted "
                     f"(connection failure at {msg_id}): {e}"
                 )
                 break
@@ -1315,7 +1315,7 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
                 # this says nothing about whether the message still exists,
                 # so it must NOT become UNMATCHED. Leave it queued, try the
                 # next one; it gets another chance on tomorrow's drain.
-                ap.notice(f"молчу: email-intake DEFERRED_BUDGET drain fetch failed for {msg_id}: {e}")
+                ap.notice(f"silent: email-intake DEFERRED_BUDGET drain fetch failed for {msg_id}: {e}")
                 continue
             if fetched is None:
                 # The only honest case for UNMATCHED (T-14 ruling-2 P.5):
@@ -1353,7 +1353,7 @@ def drain_deferred_budget(env, domain_map, whitelist, haiku_invoke=_default_haik
 
     # One deduplicated note per run with the queue depth (T-14 P.5's own
     # acceptance bar) — never one line per drained message, that would be
-    # exactly the "молчу:" volume problem A7/notice_dedup already exists to
+    # exactly the "silent:" volume problem A7/notice_dedup already exists to
     # avoid, just for a class of event that didn't have it yet.
     ap.notice(f"email-intake: DEFERRED_BUDGET drain — {n_drained} reclassified this run, "
               f"{n_remaining} still queued")
@@ -1406,7 +1406,7 @@ def backfill_partner_reply_provider(env, known_thread_ids, imap_open_fn=_open_im
         "AND (provider_match IS NULL OR provider_match = '')"
     )
     if rc != 0:
-        ap.notice(f"молчу: email-intake could not read PARTNER_REPLY backfill candidates: {ids}")
+        ap.notice(f"silent: email-intake could not read PARTNER_REPLY backfill candidates: {ids}")
         return 0
     msg_ids = [line.strip() for line in ids.splitlines() if line.strip()]
     if not msg_ids or not known_thread_ids:
@@ -1415,7 +1415,7 @@ def backfill_partner_reply_provider(env, known_thread_ids, imap_open_fn=_open_im
     try:
         conn = imap_open_fn(env)
     except Exception as e:
-        ap.notice(f"молчу: email-intake PARTNER_REPLY provider_match backfill could not open mailbox: {e}")
+        ap.notice(f"silent: email-intake PARTNER_REPLY provider_match backfill could not open mailbox: {e}")
         return 0
 
     n_filled = 0
@@ -1424,7 +1424,7 @@ def backfill_partner_reply_provider(env, known_thread_ids, imap_open_fn=_open_im
             try:
                 headers = fetch_headers_fn(conn, msg_id)
             except Exception as e:
-                ap.notice(f"молчу: email-intake PARTNER_REPLY backfill header fetch failed for {msg_id}: {e}")
+                ap.notice(f"silent: email-intake PARTNER_REPLY backfill header fetch failed for {msg_id}: {e}")
                 continue
             if headers is None:
                 continue
@@ -1474,7 +1474,7 @@ def write_partner_reply_operator_files():
         "SELECT msg_id FROM email_events WHERE class = 'PARTNER_REPLY' ORDER BY received_at"
     )
     if rc != 0:
-        ap.notice(f"молчу: email-intake could not list PARTNER_REPLY rows for operator files: {ids}")
+        ap.notice(f"silent: email-intake could not list PARTNER_REPLY rows for operator files: {ids}")
         return 0
     n_written = 0
     for msg_id in (line.strip() for line in ids.splitlines() if line.strip()):
@@ -1484,7 +1484,7 @@ def write_partner_reply_operator_files():
             f"FROM email_events WHERE msg_id = {ap.sql_literal(msg_id)}"
         )
         if rc2 != 0 or not row:
-            ap.notice(f"молчу: email-intake could not read PARTNER_REPLY row {msg_id} for operator file: {row}")
+            ap.notice(f"silent: email-intake could not read PARTNER_REPLY row {msg_id} for operator file: {row}")
             continue
         from_domain, provider_match, received_at, source_folder, summary = row.split(ap.SEP)
         provider_label = provider_match or "unknown"
@@ -1498,7 +1498,7 @@ def write_partner_reply_operator_files():
             f"- received_at: {received_at}\n"
             f"- source_folder: {source_folder}\n\n"
             f"## Quote\n{summary}\n\n"
-            "Требует решения оператора, юридический фильтр T-0155 §9.\n"
+            "Requires an operator decision, legal filter T-0155 §9.\n"
         )
         try:
             os.makedirs(ap.OPERATOR_DIR, exist_ok=True)
@@ -1506,7 +1506,7 @@ def write_partner_reply_operator_files():
                 f.write(content)
             n_written += 1
         except OSError as e:
-            ap.notice(f"молчу: email-intake could not write PARTNER_REPLY operator file {path}: {e}")
+            ap.notice(f"silent: email-intake could not write PARTNER_REPLY operator file {path}: {e}")
     return n_written
 
 
@@ -1535,8 +1535,8 @@ def _extract_body(msg):
     the SAME text handed to the rules regexes and (if it gets that far) the
     haiku prompt as inert data. HTML-only messages get their tags stripped
     with a blunt regex (not a parser) — good enough for keyword/prompt text,
-    never used to reconstruct or follow links (M: 'ссылки из письма НЕ
-    переходятся автоматикой')."""
+    never used to reconstruct or follow links (M: 'links from the e-mail are NOT
+    followed by automation')."""
     if msg.is_multipart():
         plain, html = None, None
         for part in msg.walk():
@@ -1641,7 +1641,7 @@ def _discover_spam_folder(env, override=None):
     SPECIAL-USE), instead of trusting a hardcoded "[Gmail]/Spam" literal.
     Verified necessary against the REAL monitored mailbox: its Gmail UI is
     Russian-localized, so its actual Spam folder is
-    "[Gmail]/&BCEEPwQwBDw-" (IMAP modified UTF-7 for "Спам") — a hardcoded
+    "[Gmail]/&BCEEPwQwBDw-" (IMAP modified UTF-7 for "Spam") — a hardcoded
     English literal fails IMAP SELECT outright on this exact account (caught
     live: first production run of this feature returned 0 spam messages
     because SELECT '[Gmail]/Spam' failed, not because the folder was empty).
@@ -1678,7 +1678,7 @@ def _discover_spam_folder(env, override=None):
 
 
 # ---------------------------------------------------------------------------
-# N.18: "0 писем" (OK) must stay distinguishable from "не читал" (NOINFO),
+# N.18: "0 e-mails" (OK) must stay distinguishable from "did not read" (NOINFO),
 # and 3 consecutive NOINFO days escalate to a human incident.
 # ---------------------------------------------------------------------------
 def _load_state():
@@ -1698,7 +1698,7 @@ def _save_state(state):
         with open(EMAIL_STATE_PATH, "w", encoding="utf-8") as f:
             json.dump(state, f)
     except OSError as e:
-        ap.notice(f"молчу: email-intake could not persist state file {EMAIL_STATE_PATH}: {e}")
+        ap.notice(f"silent: email-intake could not persist state file {EMAIL_STATE_PATH}: {e}")
 
 
 def record_run_result(result, reason=None, n_read=None):
@@ -1719,7 +1719,7 @@ def record_run_result(result, reason=None, n_read=None):
 
 def noinfo_streak(history):
     """Pure function, no I/O — trailing run of NOINFO entries. An OK day
-    (even n_read=0) resets it: '0 писем' is a real answer, not a gap."""
+    (even n_read=0) resets it: '0 e-mails' is a real answer, not a gap."""
     streak = 0
     for h in reversed(history):
         if h.get("result") == "NOINFO":
@@ -1729,7 +1729,7 @@ def noinfo_streak(history):
     return streak
 
 
-NOINFO_ESCALATION_DAYS = 3  # N.18: "INC SEV3 после 3 суток подряд NOINFO"
+NOINFO_ESCALATION_DAYS = 3  # N.18: "INC SEV3 after 3 days in a row of NOINFO"
 
 
 def maybe_escalate_noinfo_streak():
@@ -1744,14 +1744,14 @@ def maybe_escalate_noinfo_streak():
                 "noinfo_streak_days": streak, "recent_history": history[-NOINFO_ESCALATION_DAYS:],
             },
             detected_by="email",
-            what=f"email-intake не смог прочитать почту {streak} суток подряд (NOINFO, см. reason в evidence)",
-            system_did="письма не обрабатываются — email-путь к EMAIL_NOTICE/PAYMENT_REQUIRED/"
-                       "AUTH_FAILED/CREDENTIAL_EXPIRED-инцидентам молчит, пробы/трафик по-прежнему работают",
+            what=f"email-intake could not read the mailbox for {streak} days in a row (NOINFO, see reason in evidence)",
+            system_did="e-mails are not processed — the e-mail path to EMAIL_NOTICE/PAYMENT_REQUIRED/"
+                       "AUTH_FAILED/CREDENTIAL_EXPIRED incidents is silent, probes/traffic still work",
             actor="email-intake",
         )
         return incident_id
     except (AssertionError, RuntimeError) as e:
-        ap.notice(f"молчу: email-intake failed to open NOINFO-streak incident: {e}")
+        ap.notice(f"silent: email-intake failed to open NOINFO-streak incident: {e}")
         return None
 
 
@@ -1794,7 +1794,7 @@ def run():
         record_run_result("NOINFO", reason=err)
         write_heartbeat()
         maybe_escalate_noinfo_streak()
-        ap.notice(f"молчу: email-intake NOINFO — {err}"
+        ap.notice(f"silent: email-intake NOINFO — {err}"
                   + (f" (wrote setup guide to {SETUP_FILE})" if created else ""))
         print(f"email-intake: NOINFO ({err}) — see {SETUP_FILE}")
         return 1  # N.18: rc≠0 distinguishes "didn't read mail" from "read mail, found 0" (rc=0 below)
@@ -1810,7 +1810,7 @@ def run():
         record_run_result("NOINFO", reason=f"IMAP fetch failed: {e}")
         write_heartbeat()
         maybe_escalate_noinfo_streak()
-        ap.notice(f"молчу: email-intake IMAP fetch failed: {e}")
+        ap.notice(f"silent: email-intake IMAP fetch failed: {e}")
         print(f"email-intake: NOINFO (IMAP fetch failed: {e})")
         return 1
 
@@ -1824,27 +1824,27 @@ def run():
             n_processed += 1
         except Exception as e:
             # One malformed/hostile message must never take down the rest of
-            # the run (N: "один 500 не роняет", same spirit here).
-            ap.notice(f"молчу: email-intake failed to process message {m.get('msg_id')}: {e}")
+            # the run (N: "one 500 does not take it down", same spirit here).
+            ap.notice(f"silent: email-intake failed to process message {m.get('msg_id')}: {e}")
 
     # T-0168 (FT-10): second pass over the configured spam folder. A separate,
     # independent fetch — never allowed to turn an otherwise-successful INBOX
     # run into NOINFO (folder name localization/absence on some accounts is
     # possible and is this pass's own problem, not the whole run's). rules-only
-    # (allow_haiku=False): FT-10's own acceptance text is "читает ... папку
-    # спама без вызова haiku", checked by the model-call counter in the PROOF
+    # (allow_haiku=False): FT-10's own acceptance text is "reads ... the spam
+    # folder without calling haiku", checked by the model-call counter in the PROOF
     # for this task, not re-derived from action-marker text here.
     spam_folder = _discover_spam_folder(env, override=env.get("IMAP_SPAM_FOLDER"))
     n_spam_processed = 0
     spam_messages = []
     if spam_folder is None:
-        ap.notice("молчу: email-intake could not find a \\Junk-flagged mailbox "
+        ap.notice("silent: email-intake could not find a \\Junk-flagged mailbox "
                   "(and IMAP_SPAM_FOLDER is not set) — skipping spam pass this run")
     else:
         try:
             spam_messages = fetch_messages(env, folder=spam_folder)
         except Exception as e:
-            ap.notice(f"молчу: email-intake spam folder fetch failed ({spam_folder!r}): {e}")
+            ap.notice(f"silent: email-intake spam folder fetch failed ({spam_folder!r}): {e}")
     for m in spam_messages:
         try:
             process_message(m["msg_id"], m["received_at"], m["from"], m["subject"], m["body"],
@@ -1853,7 +1853,7 @@ def run():
                              allow_haiku=False, known_thread_ids=known_thread_ids)
             n_spam_processed += 1
         except Exception as e:
-            ap.notice(f"молчу: email-intake failed to process spam message {m.get('msg_id')}: {e}")
+            ap.notice(f"silent: email-intake failed to process spam message {m.get('msg_id')}: {e}")
 
     # P.5 (ruling-1 on T-14): drain the DEFERRED_BUDGET backlog AFTER new
     # mail — new mail always wins a haiku-budget race, the backlog is
@@ -1867,7 +1867,7 @@ def run():
     n_partner_filled = backfill_partner_reply_provider(env, known_thread_ids)
     n_partner_files = write_partner_reply_operator_files()
 
-    record_run_result("OK", n_read=n_processed + n_spam_processed)  # OK even if 0 — "0 писем" is a real answer
+    record_run_result("OK", n_read=n_processed + n_spam_processed)  # OK even if 0 — "0 e-mails" is a real answer
     write_heartbeat()
     print(f"email-intake: run complete, {n_processed} message(s) processed "
           f"({n_spam_processed} from spam), {n_drained} DEFERRED_BUDGET drained "
@@ -1997,8 +1997,8 @@ def selftest():
         assert got == expected, f"rules: subject={subject!r} expected {expected}, got {got}"
     assert classify_by_rules("hello", "just saying hi, nothing here") is None
 
-    # --- T-0168 (FT-10) acceptance text, literally: "синтетическое письмо о
-    # смене лимитов классифицируется в LIMIT_CHANGE, не в QUOTA_LOW" — checked
+    # --- T-0168 (FT-10) acceptance text, literally: "a synthetic e-mail about a
+    # limit change is classified as LIMIT_CHANGE, not QUOTA_LOW" — checked
     # at both the class level (classify_by_rules) and the incident-kind level
     # (CLASS_TO_KIND), since QUOTA_LOW is what a QUOTA misclassification would
     # have merged into. ---
@@ -2386,7 +2386,7 @@ def selftest_db():
         # EVERY process_message() INSERT in this function (source_folder is
         # one of its listed columns unconditionally, T-0168's own FT-10
         # requirement) fails silently — ap.psql() returns a nonzero rc,
-        # process_message() logs a "молчу:" notice and returns the class
+        # process_message() logs a "silent:" notice and returns the class
         # anyway rather than raising, so the row is simply never written.
         # Caught live: this exact bug made World 1 (and everything after it)
         # fail with "email_events row missing after process_message" before
@@ -2864,7 +2864,7 @@ def selftest_db():
             assert os.path.exists(path), f"missing operator file {path}"
             with open(path, encoding="utf-8") as f:
                 body = f.read()
-            assert mid in body and "Требует решения оператора" in body, f"bad content in {path}"
+            assert mid in body and "Requires an operator decision" in body, f"bad content in {path}"
 
         n_written_again = write_partner_reply_operator_files()
         assert n_written_again == 0, (

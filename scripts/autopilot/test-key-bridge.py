@@ -302,6 +302,7 @@ class MutationTests(unittest.TestCase):
         r = subprocess.run([sys.executable, os.path.abspath(__file__), "-v"], capture_output=True, text=True,
                            env=dict(os.environ, KB_SCRIPT=path,
                                     AUTOPILOT_ROUTING_JSON=os.path.join(ROOT, "config", "autopilot", "routing.json"),
+                                    AUTOPILOT_TG_STRINGS_JSON=os.path.join(ROOT, "config", "autopilot", "tg-strings.ru.json"),
                                     AUTOPILOT_PROVIDER_LIMITS_JSON=os.path.join(ROOT, "src", "config",
                                                                                 "provider-limits.json")),
                            timeout=300)

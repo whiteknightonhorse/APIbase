@@ -8,7 +8,7 @@
  * the ruling identifies as penalized ("flat lists and over-nested paths both reduce the
  * score"). This generates a CANDIDATE tree only: root = category, middle = provider (the
  * toolId prefix), leaf = action (the rest of toolId). Nothing here renames anything live --
- * see the ⛔ Границы in the task brief: mcpName in prod, REST /api/v1/tools, and toolId are
+ * see the Boundaries in the task brief: mcpName in prod, REST /api/v1/tools, and toolId are
  * all untouched. Ruling item 3 (private Smithery proof) consumes this candidate next; prod
  * cutover (items 4-5) waits on that proof succeeding.
  *
@@ -163,7 +163,7 @@ function main(): void {
   const multiRootProviders = [...providerRootCounts.values()].filter((m) => m.size > 1).length;
 
   // Root-level singleton chains: roots with exactly ONE distinct provider under them -- the
-  // other penalized shape from ruling 0180 §1 ("корней ровно с одним потомком 2-го уровня",
+  // other penalized shape from ruling 0180 §1 ("roots with exactly one level-2 descendant",
   // 173 today) that attempt 2 left unmeasured (disputes/0183-mcp-tree-candidate-generator.
   // ruling-2.md point 2). Baseline: `category` field values used by exactly one provider across
   // ALL tools -- even a perfect root choice can't branch a category that only one provider is

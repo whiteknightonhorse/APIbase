@@ -1,16 +1,16 @@
 #!/usr/bin/env sh
-# Принуждение, а не инструкция. Правило про "не пушить из дерева деплоя" жило текстом в
-# .claude/skills/push/SKILL.md и обходилось обычным `git push` — замерено 2026-09-03
-# (`git push --dry-run` из дерева деплоя ПРОШЁЛ). Хук закрывает именно эту дыру.
+# Enforcement, not instruction. The rule "do not push from the deploy tree" lived as text in
+# .claude/skills/push/SKILL.md and was bypassed by a plain `git push` — measured 2026-09-03
+# (`git push --dry-run` from the deploy tree PASSED). This hook closes exactly that hole.
 #
-# Дерево деплоя принадлежит скрипту деплоя (гейт грязного дерева, находка F2). Работа идёт
-# в дереве флота. Пуш из дерева деплоя разводит прод на две версии.
+# The deploy tree belongs to the deploy script (dirty-tree gate, finding F2). Work happens
+# in the fleet tree. A push from the deploy tree splits prod into two versions.
 DEPLOY_TREE="/home/apibase/apibase"
 HERE="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 if [ "$HERE" = "$DEPLOY_TREE" ]; then
-  echo "BLOCKED: пуш из дерева ДЕПЛОЯ ($DEPLOY_TREE) запрещён." >&2
-  echo "         Работай в дереве флота и пушь оттуда." >&2
-  echo "         Обойти намеренно: git push --no-verify (и объясни зачем)." >&2
+  echo "BLOCKED: pushing from the DEPLOY tree ($DEPLOY_TREE) is forbidden." >&2
+  echo "         Work in the fleet tree and push from there." >&2
+  echo "         To bypass deliberately: git push --no-verify (and explain why)." >&2
   exit 1
 fi
 exit 0

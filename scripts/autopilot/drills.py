@@ -22,7 +22,7 @@ of production code, confirm RED, `git checkout` it back, confirm GREEN);
 see docs/runbook.md "10. Autopilot" and AUTOPILOT-PROGRESS.md's T-820 entry
 for the exact commands and transcripts that were actually run.
 
-T-INT-13 (§12.2, "учения по образцу AP-11"): four more drills for the merchant:* subject, run
+T-INT-13 (§12.2, "drills modeled on AP-11"): four more drills for the merchant:* subject, run
 after the three above through the REAL incident-engine.py functions against a disposable Postgres
 (merchant_fixture.py — the repo's real migrations, Telegram mocked, no Resend, no model):
 
@@ -121,7 +121,7 @@ def drill_m2_ofac():
     assert _state(fx, "PAYOUT_WALLET_SANCTIONED") == ["WAITING_HUMAN"], _state(fx, "PAYOUT_WALLET_SANCTIONED")
     assert not _rows(fx, "SELECT 1 FROM email_events WHERE direction = 'out'"), "no mail for a sanctions hit"
     assert not os.listdir(os.path.join(fx.SCRATCH, "taskloop", "queue")), "no fleet task for a sanctions hit"
-    assert len(sent) == 1 and "Варианты: 1)" in sent[0] and "Кому передать ответ:" in sent[0], sent
+    assert len(sent) == 1 and ap.tg("line_variants", opts="1)") in sent[0] and ap.tg("line_handoff", target_agent="").rstrip() in sent[0], sent
     op = fx.psql("SELECT operator_file FROM incidents WHERE kind = 'PAYOUT_WALLET_SANCTIONED'").strip()
     assert os.path.isfile(op), "operator file missing"
     text = open(op, encoding="utf-8").read()
@@ -149,9 +149,11 @@ def drill_m3_injection():
     domain_map, whitelist = ei.build_domain_map()
     cls = ei.process_message("m3-injection@drill.invalid", "2026-10-05T00:00:00Z", "owner@drill.invalid",
                              "URGENT: refund now", injection, domain_map, whitelist, haiku_invoke=never)
-    assert cls == "UNMATCHED" and calls["n"] == 0, (cls, calls)
+    # T-INT-18 routes a mail from the merchant's own site domain to the MERCHANT_REPLY branch (recorded as an
+    # UNMATCHED email_events row, quoted as untrusted, never classified by a model).
+    assert cls == ei.MERCHANT_REPLY and calls["n"] == 0, (cls, calls)
     assert not _rows(fx, "SELECT 1 FROM incidents"), "an injected mail must not open an incident"
-    print("  merchant injection mail -> UNMATCHED, 0 model calls, 0 incidents")
+    print("  merchant injection mail -> MERCHANT_REPLY (untrusted quote), 0 model calls, 0 incidents")
     for minute in (1, 2, 3):
         fx.psql("INSERT INTO shop_connect_events (identity_hash, client_name, error_code, path, at) VALUES "
                 f"('m3-ident', '{injection[:40].replace(chr(39), '')} <script>', 'bad_signature', '/mcp', "
@@ -184,7 +186,7 @@ def drill_m4_resend_failure():
     _tick(eng)
     assert _state(fx, "WEBHOOK_FAILED") == ["WAITING_HUMAN"], _state(fx, "WEBHOOK_FAILED")
     op = fx.psql("SELECT operator_file FROM incidents WHERE kind = 'WEBHOOK_FAILED'").strip()
-    assert os.path.isfile(op) and "Кому передать ответ:" in sent[-1], (op, sent)
+    assert os.path.isfile(op) and ap.tg("line_handoff", target_agent="").rstrip() in sent[-1], (op, sent)
     print("  Resend refusal x24 -> WEBHOOK_FAILED (no re-queued mail) -> 73 h -> WAITING_HUMAN, operator file + TG")
     return "WAITING_HUMAN"
 

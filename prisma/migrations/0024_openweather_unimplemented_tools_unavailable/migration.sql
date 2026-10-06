@@ -1,5 +1,5 @@
 -- T-0219 (2026-09-28, per taskloop/disputes/OW-attribution.ruling-1.md, Fable ruling-1,
--- operator decision "Б — пометить 5 инструментов как unavailable"): 5 of the 7 catalog
+-- operator decision "B — mark 5 tools as unavailable"): 5 of the 7 catalog
 -- tool_ids under provider openweathermap were shown healthy but have no adapter
 -- implementation. src/adapters/openweathermap/index.ts:38-52 only handles
 -- weather.get_current and weather.get_forecast; every other tool_id falls into the
@@ -22,7 +22,7 @@
 -- PROVIDER healthy, which would otherwise auto-promote these 5 right back (status_source
 -- LAW, migration 0014's comment). This is a per-tool defect, not a per-provider one.
 --
--- The other branch considered ("реализовать через One Call 3.0") was rejected by the
+-- The other branch considered ("implement via One Call 3.0") was rejected by the
 -- operator as a paid-plan dependency, out of scope here.
 --
 -- Reverting this (once real adapter support ships) is a normal status_source='manual'

@@ -16,7 +16,7 @@ Usage:
 
 --show prints the full record (rule/category/flagged field + content, if
 still retained) so the operator can actually review what was blocked before
-deciding -- one of the two access channels ШАГ 2 (2026-09-02) allows for the
+deciding -- one of the two access channels STEP 2 (2026-09-02) allows for the
 matched content (the other is the appeal page itself, seen by the appellant
 who already sent the content). Never logs, never posts to Telegram -- stdout
 only, read by whoever runs this interactively.
@@ -128,7 +128,7 @@ if status != "OPEN":
     print(f"moderation-appeal-resolve: appeal {appeal_id} is already {status}, not touching it")
     raise SystemExit(1)
 
-# ШАГ 2 retention: resolution is the point the real target (resolved_at+30d)
+# STEP 2 retention: resolution is the point the real target (resolved_at+30d)
 # becomes known -- set it here instead of leaving submitAppeal()'s generous
 # pending-resolution interim in place indefinitely.
 _, rc2 = psql(

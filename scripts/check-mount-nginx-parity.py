@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""check-mount-nginx-parity.py (ШАГ 6 gate, Fable's 4-finding consolidated
+"""check-mount-nginx-parity.py (STEP 6 gate, Fable's 4-finding consolidated
 verdict, 2026-09-02).
 
 Every Express route this server DECLARES (every literal path a *.router.ts

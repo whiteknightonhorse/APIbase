@@ -24,7 +24,7 @@ Fable ruling-1 (attempt 2 REJECT, fixed this attempt):
    script) and falls back to a free HEAD check instead — see `probeOne`/`recordEmergencySuppressed`
    there. This script no longer writes its OWN "paid probes suppressed" probe_log row on
    CRITICAL/EXHAUSTED — it never suppressed anything itself, that line was a false record of an
-   action that hadn't happened (the exact "двоемирие" this whole project forbids, just inverted).
+   action that hadn't happened (the exact "two-worlds divergence" this whole project forbids, just inverted).
    It still opens/merges the QUOTA_LOW/QUOTA_EXHAUSTED incident, unchanged.
 2. Risk classification now compares the EXACT (unrounded) pct_remaining, not the value already
    rounded for the `provider_status.pct_remaining` INTEGER column — see `compute_risk_for_usage`.
@@ -50,8 +50,8 @@ the exit code) and gating on it explicitly. NOINFO also never counts as "risk re
 QUOTA_* incident-closing path above (#3) — not knowing is not the same as knowing it's fine.
 
 AP-9 addition (`818-autopilot-score-dashboard-api.md`, ~/AUTOPILOT-DESIGN-2026-09-03.md section
-§20): reliability_score. §20's own prose assigns this step to "the limits script" ("шаг в
-limits-скрипте"); AP-5's own knowledge entry explicitly deferred it here because the P-table's
+§20): reliability_score. §20's own prose assigns this step to "the limits script" ("a step in
+the limits script"); AP-5's own knowledge entry explicitly deferred it here because the P-table's
 AP-5 row never mentioned it, and its AP-9 row does ("src/routes/, nginx" — this file isn't listed
 there either, but §20's literal instruction plus AP-5's own breadcrumb pointing straight at this
 file is a stronger signal than a summary table's cell staying terse, same latitude AP-5 itself
@@ -64,13 +64,13 @@ kind regardless of its own `result` classification, so this reads real 401/403/4
 achievability-only HEAD probes) and `incidents` (day-granularity incident-free fraction, the one
 component that is NEVER unmeasured — zero incidents in the window is real 0-day data, not a
 missing measurement). Unmeasured components (no real traffic, no probes, no probe errors) are
-EXCLUDED and the remaining weights renormalized (§20's own "незамеренное не голосует" law,
+EXCLUDED and the remaining weights renormalized (§20's own "unmeasured does not vote" law,
 generalized past its one literal example of availability's weight moving onto probe_uptime when
 there's no traffic) — see `compute_reliability_score`'s docstring. A provider with literally
 nothing measurable in 7 days gets `reliability_score = NULL`, never a fabricated number.
 
-"Daily-расчёт" (§20) on an hourly cron: rather than install a second schedule (this whole task
-plan's C0.1 posture is "не изобретай новую кассу"), a same-UTC-day marker file
+"Daily calculation" (§20) on an hourly cron: rather than install a second schedule (this whole task
+plan's C0.1 posture is "do not invent a new cash register"), a same-UTC-day marker file
 (`_reliability_marker_path()`) makes the actual computation a no-op on every run after the first one
 each day — the surrounding cron cadence stays exactly what AP-5 already left it at (not installed
 in this sandbox either, same boundary every AP-1..AP-8 knowledge entry already documents). No new
@@ -221,7 +221,7 @@ def compute_reliability_score(availability, probe_uptime, latency, auth_ok, rl_o
 
     `availability`/`probe_uptime`/`latency`/`auth_ok`/`rl_ok` are each a 0..1
     value or None ("unmeasured this window" — never assumed 0 or 1, §20's own
-    "незамеренное не голосует"). `incident_free` is REQUIRED, never None —
+    "unmeasured does not vote"). `incident_free` is REQUIRED, never None —
     the caller must always be able to answer "how many of the last 7 days had
     an open incident", and zero incidents is real 0-day data, not a missing
     measurement.
@@ -263,14 +263,14 @@ def compute_reliability_score(availability, probe_uptime, latency, auth_ok, rl_o
     known = {k: v for k, v in values.items() if v is not None}
     if not known:
         return None
-    # "несёт реальную доступность" gate: at least one of availability/
+    # "carries real availability" gate: at least one of availability/
     # probe_uptime (the two "does it actually work" signals — the ONLY ones
     # that can independently carry the redistributed 0.40+0.15) must be
     # known. Without it, latency/auth_ok/rl_ok/incident_free alone would let
     # a provider that has NEVER been called or probed still score up to 100
     # off pure absence-of-evidence (a fresh/unknown provider is, by
-    # definition, incident_free too) — exactly the "молчание не есть
-    # здоровье" law (C0.4) this whole autopilot exists to enforce, just
+    # definition, incident_free too) — exactly the "silence is not
+    # health" law (C0.4) this whole autopilot exists to enforce, just
     # applied to a score instead of a heartbeat. In practice this is mostly
     # theoretical (latency/auth_ok/rl_ok are themselves derived from real
     # traffic/probes, so they're already None whenever this fires for real),
@@ -352,7 +352,7 @@ def quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, l
         inc_id, state = row.split(ap.SEP)[:2]
         ap.notice_dedup(
             inc_id, "QUOTA_MONEY_ASKED",
-            f"молчу: {kind} {provider} — PAYMENT_REQUIRED INC-{ap.short_id(inc_id)} is {state}, "
+            f"silent: {kind} {provider} — PAYMENT_REQUIRED INC-{ap.short_id(inc_id)} is {state}, "
             f"quota fact recorded in provider_status/probe_log, no new incident (I1/J1) [QUOTA_MONEY_ASKED]")
         return True
 
@@ -391,7 +391,7 @@ def quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, l
         return False
     ap.notice_dedup(
         inc_id, "QUOTA_SAME_EPISODE",
-        f"молчу: {kind} {provider} — unchanged since INC-{ap.short_id(inc_id)} resolved "
+        f"silent: {kind} {provider} — unchanged since INC-{ap.short_id(inc_id)} resolved "
         f"(remaining {remaining_count}/{lim}, burn 0, fleet verdict recorded), same episode, "
         f"not reopening (F2) [QUOTA_SAME_EPISODE]")
     return True
@@ -401,14 +401,14 @@ def open_quota_incident(provider, risk, pct_remaining, remaining_count, burn_per
     kind = QUOTA_INCIDENT_KIND[risk]
     if quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, lt):
         return
-    eta_str = f"{eta_hours:.1f}h" if eta_hours is not None else "неизвестно (burn=0 сейчас)"
+    eta_str = f"{eta_hours:.1f}h" if eta_hours is not None else "unknown (burn=0 right now)"
     evidence = {
         "risk": risk, "pct_remaining": pct_remaining, "remaining_calls": remaining_count,
         "free_limit": lim, "limit_type": lt, "used_this_window": used,
         "burn_per_hour": round(burn_per_hour, 2) if burn_per_hour is not None else None,
         "exhaustion_eta_hours": round(eta_hours, 2) if eta_hours is not None else None,
     }
-    what = (f"{'квота исчерпана' if risk == 'EXHAUSTED' else 'квота почти исчерпана'} "
+    what = (f"{'quota exhausted' if risk == 'EXHAUSTED' else 'quota nearly exhausted'} "
             f"({pct_remaining}% remains, burn {burn_per_hour:.2f}/h, eta {eta_str})")
     try:
         ap.open_or_merge_incident(
@@ -423,7 +423,7 @@ QUOTA_KINDS = ("QUOTA_LOW", "QUOTA_EXHAUSTED")
 
 
 def advance_quota_incidents_if_recovered(provider, risk):
-    """Fable ruling-1 #3 / N7 ("risk спадает → RESOLVED"): this script is the
+    """Fable ruling-1 #3 / N7 ("risk drops -> RESOLVED"): this script is the
     only place that knows a provider's burn-rate risk just fell back below
     CRITICAL/EXHAUSTED — AP-4's incident-engine only watches
     provider_status.state (F1, reachability), never .risk (G3.2), so nothing
@@ -741,7 +741,7 @@ def check_billing_cap_risk(now=None):
 #
 # The streak is read from probe_log (kind='usage_api', already written every
 # run by check_billing_cap_risk() above) rather than a second JSON state file
-# — this project's own "не изобретай новую кассу" (C0.1) applies here exactly
+# — this project's own "do not invent a new cash register" (C0.1) applies here exactly
 # like it did to AP-9's daily-marker choice earlier in this file: the durable
 # history this needs to count already exists.
 #
@@ -806,28 +806,28 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
             # API key" from the ORGANIZATION SETTINGS page instead, a
             # different object). Name the exact page so this doesn't repeat.
             org_id = billing.get("organization_id", "")
-            what_ask = (f"Нужен рабочий ключ для Stats API — положите его в переменную окружения "
-                        f"**{key_var}** в контейнере api (docker exec / .env), это ОТДЕЛЬНАЯ от "
-                        f"PROVIDER_KEY_ZYTE переменная. PROVIDER_KEY_ZYTE — ключ извлечения, менять "
-                        f"его не нужно. ВАЖНО (T-0124): это НЕ ключ со страницы API Access "
-                        f"(app.zyte.com/o/{org_id}/api-access) — оттуда пробовали уже два разных ключа, "
-                        f"оба дали 403. Нужно значение поля API key со страницы Settings организации: "
-                        f"**https://app.zyte.com/o/{org_id}/settings** (документация Zyte называет это "
-                        f"\"Zyte dashboard API key\", в отличие от \"Zyte API key\"). См. "
-                        f"provider-limits.json {provider}.billing.stats_api за деталями и историей проверки.")
+            what_ask = (f"A working key for the Stats API is needed. Put it in the environment variable "
+                        f"**{key_var}** in the api container (docker exec / .env); it is SEPARATE from the "
+                        f"PROVIDER_KEY_ZYTE variable. PROVIDER_KEY_ZYTE is the extraction key and does not "
+                        f"need to change. IMPORTANT (T-0124): this is NOT the key from the API Access page "
+                        f"(app.zyte.com/o/{org_id}/api-access) - two different keys from there were already tried, "
+                        f"both returned 403. It needs the value of the API key field on the organization Settings page: "
+                        f"**https://app.zyte.com/o/{org_id}/settings** (the Zyte documentation calls this "
+                        f"\"Zyte dashboard API key\", as opposed to \"Zyte API key\"). See "
+                        f"provider-limits.json {provider}.billing.stats_api for details and the verification history.")
         else:
-            what_ask = (f"Нужен рабочий ключ для Stats API — положите его в переменную окружения "
-                        f"**{key_var}** в контейнере api (docker exec / .env), это ОТДЕЛЬНАЯ от "
-                        f"PROVIDER_KEY_{provider.upper()} переменная. PROVIDER_KEY_{provider.upper()} — "
-                        f"ключ извлечения, он уже подтверждённо не подходит (403 от Stats API), менять "
-                        f"его не нужно. См. provider-limits.json {provider}.billing.stats_api.")
+            what_ask = (f"A working key for the Stats API is needed. Put it in the environment variable "
+                        f"**{key_var}** in the api container (docker exec / .env); it is SEPARATE from the "
+                        f"PROVIDER_KEY_{provider.upper()} variable. PROVIDER_KEY_{provider.upper()} is "
+                        f"the extraction key, already confirmed not to work (403 from the Stats API), and does "
+                        f"not need to change. See provider-limits.json {provider}.billing.stats_api.")
     else:
         reason = (f"billing-cap spend query has no known fetch method implemented for {provider} "
                   f"yet (not just a missing key) — see provider-limits.json {provider}.billing "
                   f"if a stats_api URL is documented there")
-        what_ask = (f"Для потолка {provider} ещё не реализован способ получить фактический "
-                    f"расход в коде (usage_api). Нужна ручная проверка на стороне разработки, "
-                    f"не только ключ.")
+        what_ask = (f"No way to fetch actual spend for the {provider} cap is implemented in code yet "
+                    f"(usage_api). A manual check on the development side is needed, "
+                    f"not just a key.")
     try:
         ap.open_or_merge_incident(
             kind="UNKNOWN", provider=provider, detected_by="limits",
@@ -838,11 +838,11 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
                 "organization_id": billing.get("organization_id"),
                 "reason": reason,
             },
-            what=(f"{provider}: единственный долларовый потолок (${billing.get('cap_usd_month')}/мес) "
-                  f"в системе не измеряется {streak} проходов подряд (usage_api probe_log). "
+            what=(f"{provider}: the only dollar cap (${billing.get('cap_usd_month')}/month) "
+                  f"in the system has gone unmeasured for {streak} consecutive passes (usage_api probe_log). "
                   f"{what_ask}"),
-            system_did="риск по этому потолку пишется как NOINFO каждый час (не NORMAL, не 0) — "
-                       "но до этого инцидента никто не был явно спрошен за ключом (T-11 ruling-3/4)",
+            system_did="risk for this cap is written as NOINFO every hour (not NORMAL, not 0), "
+                       "but before this incident nobody had been explicitly asked for the key (T-11 ruling-3/4)",
             actor="provider-limit-alerts",
         )
     except (AssertionError, RuntimeError) as e:
@@ -868,7 +868,7 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
 #     for-tests-only convention as zyte_billing_period_start(now=None)
 #     earlier in this file. The gate re-evaluates every hourly run; it never
 #     remembers a verdict decided when this code (or the config note) was
-#     written ("ворота требуют живых часов").
+#     written ("the gate requires live hours").
 #   - It only fires when `probe_state == "attempted"` -- an authenticated
 #     call ran THIS run and still failed. A credential that was simply never
 #     supplied ("no_key") produces the exact same NOINFO/None spend_usd as a
@@ -894,8 +894,8 @@ def maybe_escalate_billing_cap_noinfo(provider, billing, streak):
 # reason, keep money-shaped state out of anything an unattended cron can
 # silently rewrite in the deployed tree without a commit). Instead the
 # "applied" fact is recorded the same durable, no-new-table way probe_log
-# already carries every other measurement (C0.1, "не изобретай новую
-# кассу"): a marker string in `detail` that zyte_fallback_marker_applied()
+# already carries every other measurement (C0.1, "do not invent a new
+# cash register"): a marker string in `detail` that zyte_fallback_marker_applied()
 # greps for, making the whole thing idempotent across every run after the
 # first.
 # ---------------------------------------------------------------------------
@@ -1216,7 +1216,7 @@ def compute_and_write_reliability_scores():
 
 def _reliability_score_already_ran_today():
     """§20 says "daily calc"; this script's own cron is hourly (unchanged —
-    C0.1's "не изобретай новую кассу" argues against a second schedule for
+    C0.1's "do not invent a new cash register" argues against a second schedule for
     one more column). A same-UTC-day marker file makes every run after the
     first one each day a cheap no-op instead of recomputing 24x. Fails OPEN
     on any read problem (missing file, bad content, permission error) —
@@ -1285,7 +1285,7 @@ def main():
             continue
         if c.get("retired"):
             ap.notice_dedup(f"retired:{prov}", "RETIRED_SKIP",
-                            f"молчу: provider-limit-alerts {prov} — retired in provider-limits.json, "
+                            f"silent: provider-limit-alerts {prov} — retired in provider-limits.json, "
                             f"skipping risk write/probe_log/incident/GH issue (T-0237 gate 3)")
             continue
         finite_providers += 1
@@ -1389,8 +1389,8 @@ def main():
 
 
 # ---------------------------------------------------------------------------
-# Selftests (AP-5 acceptance criteria: "тест: eta-математика + контроль «нет
-# данных ≠ NORMAL»"). Same split as incident-engine.py: --selftest is fast,
+# Selftests (AP-5 acceptance criteria: "test: eta math + control 'no
+# data != NORMAL'"). Same split as incident-engine.py: --selftest is fast,
 # pure logic, no DB; --selftest-db exercises the real provider_status/
 # probe_log/incidents writes against a disposable Postgres.
 # ---------------------------------------------------------------------------
@@ -1402,7 +1402,7 @@ def selftest():
     assert compute_eta_hours(100, None) is None, "unmeasured burn -> unmeasured eta"
     assert compute_eta_hours(None, 10.0) is None, "unmeasured remaining -> unmeasured eta"
 
-    # --- risk: the central "нет данных ≠ NORMAL" control ---
+    # --- risk: the central "no data != NORMAL" control ---
     assert classify_risk(None, None, None) == "NOINFO", "no measurement at all must be NOINFO, not NORMAL"
     assert classify_risk(None, None, None) != "NORMAL"
     assert classify_risk(100, 1000, None) == "NORMAL", "100% remaining, no burn -> genuinely fine"
@@ -1449,7 +1449,7 @@ def selftest():
     assert latency_score(500) == 1.0, "p95 BETTER than the floor -> clamped to 1.0, never >1"
     assert latency_score(None) is None, "no measured latency -> None, never defaulted to 0 or 1"
 
-    # --- AP-9: compute_reliability_score — the central "незамеренное не голосует" control ---
+    # --- AP-9: compute_reliability_score — the central "unmeasured does not vote" control ---
     assert compute_reliability_score(None, None, None, None, None, 1.0) is None, (
         "incident_free alone (no traffic, no probes) must NOT produce a score — "
         "an incident-free week says nothing without positive evidence the provider works"
@@ -1572,7 +1572,7 @@ def selftest():
         fb, "attempted", now=datetime(2026, 9, 22, tzinfo=timezone.utc)
     ) is True, "world A: deadline passed + attempted failure must fire"
     # Differentiating control: EXACTLY on the deadline date must also fire
-    # (brief says "к 2026-09-21" -- that day counts, not only strictly after it).
+    # (brief says "by 2026-09-21" -- that day counts, not only strictly after it).
     assert billing_cap_fallback_should_apply(
         fb, "attempted", now=datetime(2026, 9, 21, tzinfo=timezone.utc)
     ) is True, "world A2: deadline day itself must fire (boundary is inclusive)"

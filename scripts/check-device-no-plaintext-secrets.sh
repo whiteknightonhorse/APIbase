@@ -1,5 +1,5 @@
 #!/bin/bash
-# Ф5 -- post-run log hygiene gate for the physical-device MCP layer.
+# F5 -- post-run log hygiene gate for the physical-device MCP layer.
 #
 # Run this after any real device-connect flow (staging or production) to
 # grep the ACTUAL served logs for a leaked vendor token or password. Exits

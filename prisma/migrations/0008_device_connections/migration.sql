@@ -1,4 +1,4 @@
--- Ф5 (2026-09-02): physical-device MCP layer -- per-agent vendor OAuth
+-- F5 (2026-09-02): physical-device MCP layer -- per-agent vendor OAuth
 -- account links (Tuya first). Never a vendor password; access/refresh
 -- tokens are AES-256-GCM ciphertext (secret-crypto.service.ts), never
 -- plaintext in this table. Low volume, not partitioned, same class as

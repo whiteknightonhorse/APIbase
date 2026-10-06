@@ -28,16 +28,16 @@ Each tick, in order:
      AUTO/MIXED get a real fleet task filed (I2, capped 3/day, severity-
      ordered so SEV1 never loses a slot to an older SEV3) and move to
      REMEDIATION_QUEUED; PROVIDER_DOWN additionally waits for I1's own
-     ">24ч" age gate before it may spend a slot. AUTO_NO_MODEL
-     (RATE_LIMITED) gets an engine self-action (I1: "движок сам") straight
+     ">24h" age gate before it may spend a slot. AUTO_NO_MODEL
+     (RATE_LIMITED) gets an engine self-action (I1: "engine itself") straight
      to VERIFYING, no fleet task, no model, no cap spent.
   4. bridge_key_incidents() (AP-6) — WAITING_HUMAN AUTH_FAILED/
      CREDENTIAL_EXPIRED incidents get bridged into the existing
      connected_db.py key-request letter (I1's HUMAN_KEY row), once per
      incident.
-  5. advance_remediation_queued() (AP-6) — F3's other half: "автопилот
-     только кладёт файл и читает исход (done/, stuck/)". route_auto_
-     incidents() does the "кладёт файл" side; this reads back what the
+  5. advance_remediation_queued() (AP-6) — F3's other half: "the autopilot
+     only drops a file and reads back the outcome (done/, stuck/)". route_auto_
+     incidents() does the "drops a file" side; this reads back what the
      fleet actually did with it (never trusting the fleet's own report,
      only the taskloop machine's done/stuck placement) and moves
      REMEDIATION_QUEUED -> VERIFYING (fleet DONE) or -> STUCK (fleet
@@ -250,16 +250,16 @@ def detect_from_provider_status():
         if kind == "RATE_LIMITED":
             evidence["recent_429_of_10"] = count_429
         what = {
-            "AUTH_FAILED": f"проба вернула 401/403 при настроенном ключе ({reason or 'см. probe_log'})",
-            "ENDPOINT_CHANGED": f"проба вернула 404/схема изменилась ({reason or 'см. probe_log'})",
+            "AUTH_FAILED": f"probe returned 401/403 with a configured key ({reason or 'see probe_log'})",
+            "ENDPOINT_CHANGED": f"probe returned 404 / schema changed ({reason or 'see probe_log'})",
             "PROVIDER_DOWN": f"{ap.FAIL_THRESHOLD_DOWN if hasattr(ap, 'FAIL_THRESHOLD_DOWN') else 5} "
-                             f"подряд неудачных проб, провайдер недоступен",
-            "DEGRADED_QUALITY": "деградация: транзиентные отказы или error_rate по реальному трафику",
-            "RATE_LIMITED": f"провайдер отвечает 429 на {count_429} из последних 10 проб — лимит, не падение",
-            "UNKNOWN": f"детерминированный отказ, причина не распознана ({reason or 'нет деталей'})",
+                             f"consecutive failed probes, provider unavailable",
+            "DEGRADED_QUALITY": "degradation: transient failures or error_rate on real traffic",
+            "RATE_LIMITED": f"provider answers 429 on {count_429} of the last 10 probes — a rate limit, not an outage",
+            "UNKNOWN": f"deterministic failure, cause not recognized ({reason or 'no details'})",
         }.get(kind, kind)
-        system_did = "probe поставлена на паузу (FAIL_DETERMINISTIC, next_probe_at +24h)" \
-            if last_result == "FAIL_DETERMINISTIC" else "adaptive probe интервал ужат (F1)"
+        system_did = "probe paused (FAIL_DETERMINISTIC, next_probe_at +24h)" \
+            if last_result == "FAIL_DETERMINISTIC" else "adaptive probe interval tightened (F1)"
 
         try:
             incident_id, created = ap.open_or_merge_incident(
@@ -275,8 +275,8 @@ def detect_from_provider_status():
 
 
 def _self_action_rate_limited(incident_id, provider):
-    """I1: 'RATE_LIMITED (устойчиво) | AUTO без модели | движок сам: снизить
-    probe-частоту'. No fleet task, no model call, no daily-cap spend — lowers
+    """I1: 'RATE_LIMITED (sustained) | AUTO without a model | engine itself: lower
+    the probe frequency'. No fleet task, no model call, no daily-cap spend — lowers
     the provider's active-probe cadence directly (durable in
     provider_status.probe_interval_s/next_probe_at) and moves the incident
     straight to VERIFYING so the existing re-probe confirmation loop
@@ -291,13 +291,13 @@ def _self_action_rate_limited(incident_id, provider):
         f"WHERE provider = {ap.sql_literal(provider)}"
     )
     ap.note_incident(incident_id, "remediation-router", "throttled",
-                      "снижена частота активных проб (probe_interval_s удвоен, floor 1800s) "
-                      "— I1 AUTO_NO_MODEL, движок сам")
+                      "active probe frequency lowered (probe_interval_s doubled, floor 1800s) "
+                      "— I1 AUTO_NO_MODEL, engine itself")
     ap.transition_state(incident_id, "VERIFYING")
 
 
 def _provider_down_ready(incident_id, provider, created_at) -> bool:
-    """I1: 'PROVIDER_DOWN (SEV2+, >24ч)' — a PROVIDER_DOWN incident only gets
+    """I1: 'PROVIDER_DOWN (SEV2+, >24h)' — a PROVIDER_DOWN incident only gets
     a fleet task once it has been open >=24h (AP-3's own backoff runs
     1h->2h->4h->cap 24h in that same window: a provider that flips to DOWN
     this tick is very plausibly still self-healing, not yet worth a model
@@ -311,7 +311,7 @@ def _provider_down_ready(incident_id, provider, created_at) -> bool:
     model-spend side, same posture as consume_daily_task_slot())."""
     ts = _parse_ts(created_at)
     if ts is None:
-        ap.notice(f"молчу: {incident_id} ({provider}/PROVIDER_DOWN) — created_at unparseable, "
+        ap.notice(f"silent: {incident_id} ({provider}/PROVIDER_DOWN) — created_at unparseable, "
                   f"cannot confirm the >24h age gate (I1), staying OPEN")
         return False
     age = datetime.now(timezone.utc) - ts
@@ -321,7 +321,7 @@ def _provider_down_ready(incident_id, provider, created_at) -> bool:
         # tick for up to 24h. Deduped to once/hour; see notice_dedup().
         ap.notice_dedup(
             incident_id, "I1_AGE_GATE",
-            f"молчу: {incident_id} ({provider}/PROVIDER_DOWN) — only {age} old, "
+            f"silent: {incident_id} ({provider}/PROVIDER_DOWN) — only {age} old, "
             f"I1 requires >24h before a fleet task (backoff may still self-heal), staying OPEN",
         )
         return False
@@ -340,11 +340,11 @@ def route_auto_incidents():
 
     Candidates are read `ORDER BY severity, created_at` (SEV1 < SEV2 < SEV3
     sorts correctly as plain text) — I2's cap is scarce (≤3/day) and I1's own
-    table is severity-ordered prose ("SEV1 раньше SEV3 через 81x/85x/89x" for
+    table is severity-ordered prose ("SEV1 before SEV3 via 81x/85x/89x" for
     the filenames); without this ORDER BY a plain SELECT has no guaranteed
     ordering at all, so an older SEV3 could spend a cap slot a newer SEV1
     needed the same tick. PROVIDER_DOWN additionally gates on I1's own
-    literal condition ("SEV2+, >24ч") via `_provider_down_ready()` below —
+    literal condition ("SEV2+, >24h") via `_provider_down_ready()` below —
     everything else has no such age gate."""
     out, rc = ap.psql(
         f"SELECT incident_id, provider, kind, severity, evidence::text, attempts::text, "
@@ -374,7 +374,7 @@ def route_auto_incidents():
             # to once/hour per incident; see notice_dedup().
             ap.notice_dedup(
                 incident_id, "DAILY_CAP",
-                f"молчу: {incident_id} ({provider}/{kind}) — daily fleet-task cap "
+                f"silent: {incident_id} ({provider}/{kind}) — daily fleet-task cap "
                 f"({ap.DAILY_TASK_CAP}) reached, staying OPEN",
             )
             continue
@@ -455,7 +455,7 @@ def _file_phase_b(inc: dict, proposal: dict):
     if not ap.consume_daily_task_slot():
         ap.notice_dedup(
             incident_id, "DAILY_CAP",
-            f"молчу: {incident_id} ({provider}/{kind}) — phase-B fix task blocked, daily fleet-task "
+            f"silent: {incident_id} ({provider}/{kind}) — phase-B fix task blocked, daily fleet-task "
             f"cap ({ap.DAILY_TASK_CAP}) reached; retried next tick",
         )
         return
@@ -475,8 +475,8 @@ def _file_phase_b(inc: dict, proposal: dict):
 
 
 def advance_remediation_queued():
-    """AP-6/F3: 'Автопилот только кладёт файл и читает исход (done/, stuck/).'
-    route_auto_incidents() writes the fleet task (кладёт файл); this reads
+    """AP-6/F3: 'The autopilot only drops a file and reads back the outcome (done/, stuck/).'
+    route_auto_incidents() writes the fleet task (drops a file); this reads
     the outcome back — without it REMEDIATION_QUEUED is a permanent dead end,
     even once the fleet finishes the task, because nothing else in this
     codebase ever looks at taskloop's done/ or stuck/ dirs for an incident's
@@ -491,7 +491,7 @@ def advance_remediation_queued():
     against provider_status — one verification path, reused, not a second
     one invented here. 'fleet stuck' (exhausted MAX_ATTEMPTS, disputed past
     the ruling ceiling, or a permissions/no-verdict deadlock) has no re-probe
-    to attempt — F2's diagram routes it straight to STUCK, 'только человек'."""
+    to attempt — F2's diagram routes it straight to STUCK, 'human only'."""
     out, rc = ap.psql(
         "SELECT incident_id, provider, kind, fleet_task_id FROM incidents "
         "WHERE state = 'REMEDIATION_QUEUED' AND fleet_task_id IS NOT NULL"
@@ -566,7 +566,7 @@ def advance_waiting_human():
             if human_done_match:
                 human_done_result = ap.parse_human_done(human_done_match)
 
-        # 1. human-done watcher (J3/F2: "human-done файл -> REMEDIATION_QUEUED
+        # 1. human-done watcher (J3/F2: "human-done file -> REMEDIATION_QUEUED
         # (follow-up)"). Watches for a generic operator file either because
         # this kind's route normally gets one (HUMAN_ONLY/HUMAN_GENERIC), OR
         # because THIS SPECIFIC incident got one as a documented one-off
@@ -584,9 +584,9 @@ def advance_waiting_human():
         # condition (route class) would never let it act on — the reminder
         # and the consumer diverged, and that gap is exactly what let
         # INC-fdac7d sit WAITING_HUMAN for 7 days after T-0108 shipped: the
-        # reminder went quiet ("закрыть вручную: incident-cli.py
+        # reminder went quiet ("close manually: incident-cli.py
         # resolve-request"), nobody ran the manual command, and nothing else
-        # ever came back to it. A human who filled in РЕЗУЛЬТАТ ОПЕРАТОРА and
+        # ever came back to it. A human who filled in OPERATOR RESULT and
         # left the file under the exact naming convention every route
         # already watches IS proof of operator intent, stronger than which
         # bucket routing.json happened to sort this `kind` into — J3's
@@ -617,9 +617,9 @@ def advance_waiting_human():
             # (e.g. permissions, disk full).
             ap.notice_dedup(
                 incident_id, "HUMAN_DONE_DIR_MISSING",
-                f"молчу: {incident_id} ({provider}/{kind}) — HUMAN_DONE_DIR "
-                f"({ap.HUMAN_DONE_DIR}) не существует, ответ оператора по "
-                f"INC-{sid} физически негде принять",
+                f"silent: {incident_id} ({provider}/{kind}) — HUMAN_DONE_DIR "
+                f"({ap.HUMAN_DONE_DIR}) does not exist, so the operator answer for "
+                f"INC-{sid} has nowhere to land",
             )
         if can_auto_consume and os.path.isdir(ap.HUMAN_DONE_DIR):
             match = human_done_match
@@ -666,7 +666,7 @@ def advance_waiting_human():
                         # "reason" just because this call site is different.
                         ap.notice_dedup(
                             incident_id, "DAILY_CAP",
-                            f"молчу: {incident_id} ({provider}/{kind}) — human-done follow-up "
+                            f"silent: {incident_id} ({provider}/{kind}) — human-done follow-up "
                             f"blocked, daily fleet-task cap ({ap.DAILY_TASK_CAP}) reached; "
                             f"file left in {ap.HUMAN_DONE_DIR}/ for a later tick",
                         )
@@ -696,10 +696,10 @@ def advance_waiting_human():
                         ap.notice(f"WARN: could not archive human-done file {match}: {e}")
                     continue  # advanced past WAITING_HUMAN, nothing else to do this tick
                 else:
-                    ap.notice(f"молчу: {incident_id} human-done file present but "
-                              f"РЕЗУЛЬТАТ ОПЕРАТОРА not filled yet")
+                    ap.notice(f"silent: {incident_id} human-done file present but "
+                              f"OPERATOR RESULT not filled yet")
 
-        # 2. 72h reminder edge (F2: "напоминание раз в 72ч", C0.5: suppressed
+        # 2. 72h reminder edge (F2: "reminder every 72h", C0.5: suppressed
         # reminder is a logged line, not silence).
         #
         # T-0216/zz03-16 (2026-09-22): there used to be a branch here that
@@ -725,13 +725,13 @@ def advance_waiting_human():
         age = datetime.now(timezone.utc) - last_reminder
         if age >= timedelta(seconds=ap.WAITING_HUMAN_REMINDER_SECONDS):
             inc = ap.get_incident(incident_id)
-            sent = ap.tg_send(ap.format_tg_message({**inc, "what": f"[напоминание] {kind} всё ещё ждёт вас"}))
+            sent = ap.tg_send(ap.format_tg_message({**inc, "what": ap.tg("reminder_what", kind=kind)}))
             ap.note_incident(incident_id, "incident-engine", "waiting-human-reminder",
                               "sent" if sent else "TG unavailable")
             if not sent:
-                ap.notice(f"молчу: TG unavailable for 72h reminder on {incident_id}")
+                ap.notice(f"silent: TG unavailable for 72h reminder on {incident_id}")
         else:
-            ap.notice(f"молчу: {incident_id} ({provider}/{kind}) still WAITING_HUMAN, "
+            ap.notice(f"silent: {incident_id} ({provider}/{kind}) still WAITING_HUMAN, "
                       f"reminder not due for {timedelta(seconds=ap.WAITING_HUMAN_REMINDER_SECONDS) - age}")
 
 
@@ -961,11 +961,11 @@ def reconcile_stuck_incidents():
 
 # ---------------------------------------------------------------------------
 # AP-8: Tool.status autodemotion/promotion. E5's own schema comment named
-# this task before it existed: "`status` не пишет НИКТО — это первый
-# потребитель." Deliberately reuses F1's own hysteresis rather than building
+# this task before it existed: "nobody writes `status` — this is the first
+# consumer." Deliberately reuses F1's own hysteresis rather than building
 # a second one — provider_status.state ALREADY only changes after the
 # fail-streak/recovery-streak counters AP-3's computeTransition() enforces,
-# so mirroring `state` verbatim IS "гистерезис = F1-пороги" (the P-table
+# so mirroring `state` verbatim IS "hysteresis = F1 thresholds" (the P-table
 # row's own words), not a shortcut around it.
 # ---------------------------------------------------------------------------
 
@@ -985,7 +985,7 @@ def sync_tool_status():
     heal cron in this codebase: converges on its own, even if it somehow
     fell out of sync, rather than only reacting to a transition it
     witnessed). Independent of AP-6's routing (depends on AP-3's
-    provider_status only, per this task's own P-table row: "зависит от:
+    provider_status only, per this task's own P-table row: "depends on:
     AP-3").
 
     status_source LAW (manual status is never overwritten): 'manual' is the
@@ -1009,7 +1009,7 @@ def sync_tool_status():
     heartbeat.
 
     Journals into whichever OPEN-ish incident (state != 'RESOLVED') exists
-    for this provider — best-effort (P-table: "журнал в attempts"): the
+    for this provider — best-effort (P-table: "journal in attempts"): the
     status write above has already happened and must not be undone just
     because no incident exists yet or note_incident errors, so this half is
     wrapped separately and never re-raises.
@@ -1304,8 +1304,8 @@ def _src_connect_failed():
     for ident, n, client, code in rows:
         client, code = _clean(client, " "), _clean(code)
         s = _sig("CONNECT_FAILED", ident,
-                 f"{n} отказов подключения за {CONNECT_FAIL_WINDOW_MIN} мин от одной личности "
-                 f"(клиент: {client or 'неизвестен'}, последний код: {code or 'n/a'})",
+                 f"{n} connection failures in {CONNECT_FAIL_WINDOW_MIN} min from one identity "
+                 f"(client: {client or 'unknown'}, last code: {code or 'n/a'})",
                  {"identity_hash": ident, "failures": int(n), "client_name": client, "error_code": code},
                  template=None)
         # Edge trigger (F-15): any CONNECT_FAILED incident for this identity opened in the last
@@ -1327,7 +1327,7 @@ def _src_storefront_down():
         "GROUP BY m.merchant_id, m.slug"
     )
     return [_sig("STOREFRONT_DOWN", mid,
-                 f"витрина /mcp/m/{slug} не проходит initialize в пробе ({n} отказов за час)",
+                 f"storefront /mcp/m/{slug} fails initialize in the probe ({n} failures in an hour)",
                  {"slug": slug, "probe_failures_1h": int(n)}, merchant_id=mid)
             for mid, slug, n in rows]
 
@@ -1339,7 +1339,7 @@ def _src_webhook_failed():
         f"WHERE failures_in_row >= {WEBHOOK_FAILURES_IN_ROW} GROUP BY merchant_id")
     for mid, fir in rows:
         sigs[mid] = _sig("WEBHOOK_FAILED", mid,
-                         f"webhook продавца: {fir} отказов подряд",
+                         f"merchant webhook: {fir} consecutive failures",
                          {"failures_in_row": int(fir)}, merchant_id=mid)
     rows = _rows(
         "WITH f AS (SELECT merchant_id, count(*) AS n, max(created_at) AS last_fail "
@@ -1350,7 +1350,7 @@ def _src_webhook_failed():
         "WHERE s.merchant_id = f.merchant_id AND s.delivered_at IS NOT NULL AND s.delivered_at > f.last_fail)")
     for mid, n in rows:
         if mid not in sigs:
-            sigs[mid] = _sig("WEBHOOK_FAILED", mid, f"webhook продавца: {n} неудачных доставок за 48 ч",
+            sigs[mid] = _sig("WEBHOOK_FAILED", mid, f"merchant webhook: {n} failed deliveries in 48 h",
                              {"failed_deliveries_48h": int(n)}, merchant_id=mid)
     if _table_exists("email_events"):
         # INT-18's terminal state: 24 failed Resend attempts -> status='failed'. The notice mail
@@ -1365,7 +1365,7 @@ def _src_webhook_failed():
         for mid, n in rows:
             if mid not in sigs:
                 sigs[mid] = _sig("WEBHOOK_FAILED", mid,
-                                 f"письма продавцу не доходят: {n} в финальном отказе (24 попытки)",
+                                 f"emails to the merchant are not getting through: {n} in final failure (24 attempts)",
                                  {"mail_failed": int(n)}, merchant_id=mid, template=None)
     return list(sigs.values())
 
@@ -1374,7 +1374,7 @@ def _src_merchant_unresponsive():
     rows = _rows(
         "SELECT order_id::text, merchant_id::text, to_char(confirm_due_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS\"Z\"') "
         "FROM shop_orders WHERE state = 'PAID' AND confirm_due_at IS NOT NULL AND confirm_due_at < now()")
-    return [_sig("MERCHANT_UNRESPONSIVE", mid, f"заказ {oid} оплачен, подтверждение просрочено (срок {due})",
+    return [_sig("MERCHANT_UNRESPONSIVE", mid, f"order {oid} is paid, confirmation overdue (due {due})",
                  {"confirm_due_at": due}, merchant_id=mid, order_id=oid)
             for oid, mid, due in rows]
 
@@ -1383,7 +1383,7 @@ def _src_refund_overdue():
     rows = _rows(
         "SELECT r.order_id::text, o.merchant_id::text FROM shop_refunds r JOIN shop_orders o ON o.order_id = r.order_id "
         "WHERE r.status = 'overdue'")
-    return [_sig("REFUND_OVERDUE", mid, f"возврат по заказу {oid} просрочен", merchant_id=mid, order_id=oid)
+    return [_sig("REFUND_OVERDUE", mid, f"refund for order {oid} is overdue", merchant_id=mid, order_id=oid)
             for oid, mid in rows]
 
 
@@ -1392,7 +1392,7 @@ def _src_dispute_unanswered():
     rows = _rows(
         "SELECT d.order_id::text, o.merchant_id::text FROM shop_disputes d JOIN shop_orders o ON o.order_id = d.order_id "
         "WHERE d.status = 'expired'")
-    return [_sig("DISPUTE_UNANSWERED", mid, f"спор по заказу {oid} без ответа продавца",
+    return [_sig("DISPUTE_UNANSWERED", mid, f"dispute for order {oid} has no merchant reply",
                  merchant_id=mid, order_id=oid) for oid, mid in rows]
 
 
@@ -1401,7 +1401,7 @@ def _src_fee_invoice_overdue():
     rows = _rows(
         "SELECT merchant_id::text, count(*)::text FROM shop_fee_invoices WHERE paid_tx_hash IS NULL "
         "AND due_at < now() GROUP BY merchant_id")
-    return [_sig("FEE_INVOICE_OVERDUE", mid, f"неоплаченных счетов комиссии: {n}", {"unpaid_invoices": int(n)},
+    return [_sig("FEE_INVOICE_OVERDUE", mid, f"unpaid fee invoices: {n}", {"unpaid_invoices": int(n)},
                  merchant_id=mid) for mid, n in rows]
 
 
@@ -1417,14 +1417,14 @@ def _src_moderation():
         if cat == "ofac":
             payer = evh.startswith("payer:") or scope == "product"
             kind = "PAYER_SANCTIONED" if payer else "PAYOUT_WALLET_SANCTIONED"
-            what = ("адрес плательщика совпал со списком санкций (OFAC)" if payer
-                    else "payout-кошелёк продавца совпал со списком санкций (OFAC) при регистрации")
+            what = ("payer address matched a sanctions list (OFAC)" if payer
+                    else "merchant payout wallet matched a sanctions list (OFAC) at registration")
         elif cat == "payment_mismatch":
-            kind, what = "PAYMENT_MISMATCH", "сверка платежа не сошлась с заказом"
+            kind, what = "PAYMENT_MISMATCH", "payment reconciliation does not match the order"
         elif verdict == "reject":
-            kind, what = "CATALOG_REJECTED", f"каталог/товар отклонён модерацией (категория: {cat or 'n/a'})"
+            kind, what = "CATALOG_REJECTED", f"catalog/product rejected by moderation (category: {cat or 'n/a'})"
         elif verdict == "flag":
-            kind, what = "MODERATION_FLAG", f"модерация пометила каталог/товар (категория: {cat or 'n/a'})"
+            kind, what = "MODERATION_FLAG", f"moderation flagged the catalog/product (category: {cat or 'n/a'})"
         else:
             continue
         s = _sig(kind, mid, what, ev, merchant_id=mid, event_at=at)
@@ -1489,8 +1489,8 @@ def resolve_merchant_incidents(signals, evaluated):
         if gone or aged:
             ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
             ap.note_incident(incident_id, "incident-engine", "verified",
-                             "условие источника больше не выполняется" if gone else
-                             f"окно edge-trigger {CONNECT_EDGE_MIN} мин истекло")
+                             "source condition no longer holds" if gone else
+                             f"edge-trigger window of {CONNECT_EDGE_MIN} min expired")
             n += 1
     return n
 
@@ -1510,7 +1510,7 @@ def open_merchant_incidents(signals):
         try:
             _, created = ap.open_or_merge_incident(
                 kind=s["kind"], provider=s["provider"], evidence=s["evidence"], detected_by="passive",
-                what=s["what"], system_did="инцидент открыт движком по данным БД (детерминированно)",
+                what=s["what"], system_did="incident opened by the engine from DB data (deterministic)",
                 actor="incident-engine", dedup_suffix=s["order_id"])
             opened += 1 if created else 0
         except Exception as e:
@@ -1519,7 +1519,7 @@ def open_merchant_incidents(signals):
 
 
 def queue_merchant_email(incident_id, kind, merchant_id, template):
-    """§12.2 'Исходящая почта': the engine only QUEUES (email_events direction=out, status=queued);
+    """§12.2 'Outgoing mail': the engine only QUEUES (email_events direction=out, status=queued);
     the sender is INT-18. No body, no address here — the template and merchant_id are the whole
     contract (the address is read from shop_merchants at send time). Returns True if a row was
     written."""
@@ -1550,9 +1550,9 @@ def _suspend_if_unresponsive(merchant_id, incident_id):
         f"WHERE merchant_id = {ap.sql_literal(merchant_id)}::uuid AND status = 'active' RETURNING merchant_id")
     if rc == 0 and out.strip():
         ap.note_incident(incident_id, "incident-engine", "quotes-suspended",
-                         f"{UNRESPONSIVE_SUSPEND_AT} просроченных заказа подряд -> котировки приостановлены")
-        ap.tg_send(f"[apibase] \U0001F7E0 merchant:{merchant_id} — {UNRESPONSIVE_SUSPEND_AT} просроченных "
-                   f"подтверждения заказов, котировки приостановлены (shop_merchants.status=suspended)")
+                         f"{UNRESPONSIVE_SUSPEND_AT} consecutive overdue orders -> quotes suspended")
+        ap.tg_send("[apibase] \U0001F7E0 " + ap.tg("merchant_suspended", merchant_id=merchant_id,
+                                                      n=UNRESPONSIVE_SUSPEND_AT))
 
 
 def act_merchant_incidents():
@@ -1579,7 +1579,7 @@ def act_merchant_incidents():
             tg = ap.tg_send(ap.format_tg_message({
                 "incident_id": incident_id, "kind": kind, "severity": severity, "provider": provider,
                 "state": "OPEN", "what": ev.get("what", kind),
-                "system_did": "письмо продавцу поставлено в очередь" if queued else "инцидент открыт, автоответ не требуется"}))
+                "system_did": "email to the merchant queued" if queued else "incident opened, no auto-reply needed"}))
         ap.note_incident(incident_id, "incident-engine", "merchant-action",
                          f"mail={'queued:' + template if queued else 'none'} tg={'sent' if tg else 'no'}")
         if kind in _EVENT_LIKE:
@@ -1593,7 +1593,7 @@ def act_merchant_incidents():
 
 
 def repeat_merchant_mail():
-    """MERCHANT_UNRESPONSIVE: 'повтор через 24 ч' while the order is still unconfirmed."""
+    """MERCHANT_UNRESPONSIVE: 'repeat after 24 h' while the order is still unconfirmed."""
     rows = _rows(
         f"SELECT incident_id, kind, evidence::text, attempts::text FROM incidents "
         f"WHERE provider LIKE '{MERCHANT_PREFIX}%' AND state = 'VERIFYING'")
@@ -1634,7 +1634,7 @@ def escalate_merchant_incidents():
         inc = {"incident_id": incident_id, "kind": kind, "severity": severity, "provider": provider,
                "state": "WAITING_HUMAN", "route": ap.ROUTING[kind].get("escalate_to", "HUMAN_GENERIC"),
                "evidence": ev, "attempts": attempts, "created_at": created_at, "what": ev.get("what", kind),
-               "system_did": f"автоответ не помог {hours} ч — эскалация человеку"}
+               "system_did": f"auto-reply did not help in {hours} h — escalated to a human"}
         try:
             os.makedirs(ap.OPERATOR_DIR, exist_ok=True)
             op_path = os.path.join(ap.OPERATOR_DIR, f"INC-{ap.short_id(incident_id)}.md")
@@ -1646,9 +1646,9 @@ def escalate_merchant_incidents():
         ap.transition_state(incident_id, "WAITING_HUMAN",
                             extra_set=f", operator_file = {ap.sql_literal(op_path)}")
         ap.note_incident(incident_id, "incident-engine", "escalated",
-                         f"{kind}: {hours} ч без решения -> HUMAN_GENERIC, операторский файл {op_path}")
+                         f"{kind}: {hours} h without a resolution -> HUMAN_GENERIC, operator file {op_path}")
         if not ap.tg_send(ap.format_tg_message(inc)):
-            ap.notice(f"молчу: TG send failed/unconfigured for escalation of {incident_id} ({kind})")
+            ap.notice(f"silent: TG send failed/unconfigured for escalation of {incident_id} ({kind})")
         n += 1
     return n
 
@@ -1668,7 +1668,7 @@ def merchant_tick():
 
 
 def _merchant_tasks_today() -> int:
-    """Independent merchant:* counter (П.3): fleet tasks the router queued for merchant:* incidents
+    """Independent merchant:* counter (item 3): fleet tasks the router queued for merchant:* incidents
     today (UTC), read from the incidents' own attempts trail — no shared counter file, so it can
     neither draw from nor reduce DAILY_TASK_CAP."""
     rows = _rows(
@@ -1685,17 +1685,17 @@ def claim_task_slot(incident_id, provider, kind) -> bool:
         return ap.consume_daily_task_slot()
     if ap.fleet_paused():
         ap.notice_dedup(incident_id, "FLEET_PAUSED",
-                        f"молчу: {incident_id} ({provider}/{kind}) — флот на паузе, задача ждёт, инцидент открыт")
+                        f"silent: {incident_id} ({provider}/{kind}) — fleet paused, task waits, incident open")
         return False
     try:
         used = _merchant_tasks_today()
     except Exception as e:
-        ap.notice(f"молчу: merchant task counter unavailable ({e}) — treating as exhausted")
+        ap.notice(f"silent: merchant task counter unavailable ({e}) — treating as exhausted")
         return False
     if used >= ap.MERCHANT_DAILY_TASK_CAP:
         ap.notice_dedup(incident_id, "MERCHANT_DAILY_CAP",
-                        f"молчу: {incident_id} ({provider}/{kind}) — merchant:* cap "
-                        f"({ap.MERCHANT_DAILY_TASK_CAP}/день) исчерпан, инцидент остаётся OPEN")
+                        f"silent: {incident_id} ({provider}/{kind}) — merchant:* cap "
+                        f"({ap.MERCHANT_DAILY_TASK_CAP}/day) exhausted, incident stays OPEN")
         return False
     return True
 
@@ -1762,7 +1762,7 @@ def run():
 # ---------------------------------------------------------------------------
 def selftest():
     """Fast, no DB. Pure-logic checks only — see --selftest-db for the 3
-    worlds (открыл/склеил/закрыл) against a real (disposable) Postgres."""
+    worlds (open/merge/close) against a real (disposable) Postgres."""
     assert ap.dedup_key("PROVIDER_DOWN", "x") == "PROVIDER_DOWN:x"
     assert _classify_deterministic_fail("401 with configured key") == "AUTH_FAILED"
     assert _classify_deterministic_fail("403 forbidden") == "AUTH_FAILED"
@@ -1921,6 +1921,10 @@ def selftest():
         os.unlink(_detect_limits_path)
 
     print("incident-engine --selftest: OK")
+
+
+# Tag of the Russian TG reminder text, read from the TG strings file (no literal Cyrillic here).
+_REMINDER_TAG = ap.TG_RU["reminder_what"].split("{")[0].strip()
 
 
 def selftest_db():
@@ -2243,7 +2247,7 @@ def selftest_db():
             )
         opened4 = detect_from_provider_status()
         assert opened4 == 4, f"world 4 setup: expected 4 new PROVIDER_DOWN incidents, got {opened4}"
-        # I1's own age gate ("PROVIDER_DOWN (SEV2+, >24ч)") would otherwise
+        # I1's own age gate ("PROVIDER_DOWN (SEV2+, >24h)") would otherwise
         # leave these fresh-this-tick incidents OPEN regardless of cap space
         # -- world 9 below tests THAT gate in isolation; this world is about
         # the ≤3/day CAP once a PROVIDER_DOWN incident is already eligible,
@@ -2279,7 +2283,7 @@ def selftest_db():
                 # routing.json entry), 2 otherwise -- mirror build_remediation_task_body's own
                 # rule instead of a frozen literal, same reason the REVIEW/MODEL lines above
                 # already do this. Pre-existing drift found and fixed incidentally while
-                # verifying T-0141's World 21/21b: T-0140 Ч-3 (2026-09-21, same day) changed
+                # verifying T-0141's World 21/21b: T-0140 item 3 (2026-09-21, same day) changed
                 # PROVIDER_DOWN's review to "opus" and updated the real generator's rule to
                 # `review in ("fable", "opus")`, but this test's own local mirror still said
                 # `review == "fable"` and broke world 4 the moment routing.json's review field
@@ -2379,7 +2383,7 @@ def selftest_db():
         print("world 7 (routing.json money-guard rejects a rigged file): OK")
 
         # World 8 (AP-6): advance_remediation_queued() reads the fleet's
-        # outcome back from done/stuck -- the "и читает исход" half of F3
+        # outcome back from done/stuck -- the "and reads back the outcome" half of F3
         # that route_auto_incidents() alone doesn't cover (that function only
         # writes the file, never checks what became of it). Reuses two of
         # world 4's already-REMEDIATION_QUEUED ap6prov* incidents; the third
@@ -2416,7 +2420,7 @@ def selftest_db():
         print("world 8 (fleet outcome watcher: done->VERIFYING, stuck->STUCK, no-outcome stays put): OK")
 
         # World 9 (Fable ruling-1, point 1): PROVIDER_DOWN's I1 age gate
-        # ("SEV2+, >24ч") -- a PROVIDER_DOWN incident opened THIS tick must
+        # ("SEV2+, >24h") -- a PROVIDER_DOWN incident opened THIS tick must
         # NOT get a fleet task even with cap room, only once it's genuinely
         # >24h old. Mutation control: this is the RED case for the bug the
         # ruling found (route_auto_incidents used to queue every OPEN
@@ -2520,13 +2524,13 @@ def selftest_db():
         os.makedirs(ap.HUMAN_DONE_DIR, exist_ok=True)
         sid11 = ap.short_id(id11)
         with open(os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid11}.md"), "w", encoding="utf-8") as f:
-            f.write(f"# INC-{sid11}\n...\n---\nРЕЗУЛЬТАТ ОПЕРАТОРА:\nЭто ENDPOINT_CHANGED, "
-                    f"URL сменился на https://example.invalid/v2 -- обновите adapter.\n")
+            f.write(f"# INC-{sid11}\n...\n---\n{ap._RESULT_MARKER}\nThis is ENDPOINT_CHANGED, "
+                    f"the URL changed to https://example.invalid/v2 -- update the adapter.\n")
         advance_waiting_human()
         inc11b = ap.get_incident(id11)
         assert inc11b["state"] == "REMEDIATION_QUEUED", (
             f"world 11: human-done must move the incident to REMEDIATION_QUEUED (F2's own diagram: "
-            f"'human-done файл -> REMEDIATION_QUEUED (follow-up)'), not straight to VERIFYING -- "
+            f"'human-done file -> REMEDIATION_QUEUED (follow-up)'), not straight to VERIFYING -- "
             f"got {inc11b['state']}"
         )
         assert inc11b["fleet_task_id"], "world 11: expected a follow-up fleet_task_id"
@@ -2550,12 +2554,30 @@ def selftest_db():
         inc11c = ap.get_incident(id11)
         assert inc11c["state"] == "VERIFYING", f"world 11: expected VERIFYING after fleet DONE, got {inc11c['state']}"
         print("world 11 (human-done -> REMEDIATION_QUEUED follow-up -> VERIFYING, F2/J3): OK")
+        # World 11 legacy marker: a human-done file written with the legacy (pre-English)
+        # result marker must still be consumed, exactly like the current marker.
+        id11L, _ = ap.open_or_merge_incident(
+            kind="UNKNOWN", provider="ap6humandonelegacy", evidence={"probe": "connection reset, unrecognized"},
+            detected_by="probe", what="unrecognized deterministic fail",
+        )
+        sid11L = ap.short_id(id11L)
+        legacy_path11 = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid11L}.md")
+        with open(legacy_path11, "w", encoding="utf-8") as f:
+            f.write(f"# INC-{sid11L}\n...\n---\n{ap._RESULT_MARKER_LEGACY}\nlegacy-marker answer\n")
+        advance_waiting_human()
+        inc11L = ap.get_incident(id11L)
+        assert inc11L["state"] == "REMEDIATION_QUEUED", (
+            f"world 11 (legacy marker): human-done file with ap._RESULT_MARKER_LEGACY must be consumed, "
+            f"got {inc11L['state']}"
+        )
+        assert not os.path.exists(legacy_path11), "world 11 (legacy marker): consumed file must be archived"
+        print("world 11 (legacy result marker also consumed): OK")
 
         # World 11b: human-done arriving when the daily cap is already spent
         # must NOT fabricate a follow-up -- the incident stays WAITING_HUMAN
         # and the human-done file is left in place (not archived) so a later
         # tick, once the cap frees up, can still pick it up. Silence here is
-        # a logged "молчу", not data loss.
+        # a logged "staying silent", not data loss.
         with open(ap.DAILY_TASK_COUNTER_FILE, "w", encoding="utf-8") as f:
             f.write(f"{today}:3")  # cap exhausted
         id11d, _ = ap.open_or_merge_incident(
@@ -2565,7 +2587,7 @@ def selftest_db():
         sid11d = ap.short_id(id11d)
         human_done_path_d = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid11d}.md")
         with open(human_done_path_d, "w", encoding="utf-8") as f:
-            f.write(f"# INC-{sid11d}\n---\nРЕЗУЛЬТАТ ОПЕРАТОРА:\nsome answer\n")
+            f.write(f"# INC-{sid11d}\n---\n{ap._RESULT_MARKER}\nsome answer\n")
         advance_waiting_human()
         inc11d = ap.get_incident(id11d)
         assert inc11d["state"] == "WAITING_HUMAN", (
@@ -2601,19 +2623,19 @@ def selftest_db():
               "no duplicate attempts across repeated ticks): OK")
 
         # World 11c (T-03 required control): a human-done file that is
-        # PRESENT but has no usable РЕЗУЛЬТАТ ОПЕРАТОРА -- either the marker
+        # PRESENT but has no usable OPERATOR RESULT -- either the marker
         # line is missing entirely, or it's there but empty -- must NOT
         # advance the incident, must NOT archive the file (a later tick has
         # to keep looking, in case the operator finishes editing it), and
         # must NOT do this silently: parse_human_done() returning None hits
-        # the "молчу: ... not filled yet" notice, same логирование contract
-        # as every other "молчу:" branch in this engine (C0.5). Cap is reset
+        # the "silent: ... not filled yet" notice, same logging contract
+        # as every other "silent:" branch in this engine (C0.5). Cap is reset
         # first so this is isolated from world 11b's cap-exhaustion path --
         # a marker-less file must fail for ITS OWN reason, not get
         # (mis)attributed to the cap. Mutation control: this is exactly the
-        # T-03 brief's own required pair -- "файл с маркером -> уходит из
-        # WAITING_HUMAN; файл БЕЗ маркера -> ОСТАЁТСЯ, и это видно в журнале
-        # как отказ" -- a fix that only proves the marker'd half (world 11)
+        # T-03 brief's own required pair -- "file with the marker -> leaves
+        # WAITING_HUMAN; file WITHOUT the marker -> STAYS, and this is visible in the log
+        # as a refusal" -- a fix that only proves the marker'd half (world 11)
         # without this half could ship a reader that advances on ANY file,
         # marker or not.
         if os.path.exists(ap.DAILY_TASK_COUNTER_FILE):
@@ -2631,7 +2653,7 @@ def selftest_db():
         advance_waiting_human()
         inc11f = ap.get_incident(id11f)
         assert inc11f["state"] == "WAITING_HUMAN", (
-            f"world 11c: a human-done file with no РЕЗУЛЬТАТ ОПЕРАТОРА marker must NOT advance "
+            f"world 11c: a human-done file with no OPERATOR RESULT marker must NOT advance "
             f"the incident, got {inc11f['state']}"
         )
         assert os.path.isfile(no_marker_path), "world 11c: unfilled human-done file must NOT be archived"
@@ -2653,7 +2675,7 @@ def selftest_db():
         advance_waiting_human()
         inc11g = ap.get_incident(id11f)
         assert inc11g["state"] == "WAITING_HUMAN", (
-            f"world 11c: a human-done file with an EMPTY РЕЗУЛЬТАТ ОПЕРАТОРА must also NOT advance "
+            f"world 11c: a human-done file with an EMPTY OPERATOR RESULT must also NOT advance "
             f"the incident, got {inc11g['state']}"
         )
         assert os.path.isfile(no_marker_path), "world 11c: empty-marker human-done file must NOT be archived"
@@ -2697,7 +2719,7 @@ def selftest_db():
             os.makedirs(ap.HUMAN_DONE_DIR, exist_ok=True)
             human_done_path_20 = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{sid20}-keyprovreminder-rotated.md")
             with open(human_done_path_20, "w", encoding="utf-8") as f:
-                f.write(f"# INC-{sid20}\nРЕЗУЛЬТАТ ОПЕРАТОРА:\nключ перевыпущен, проверено 200 OK\n")
+                f.write(f"# INC-{sid20}\n{ap._RESULT_MARKER}\nkey reissued, verified 200 OK\n")
             ap.psql(f"UPDATE incidents SET created_at = now() - interval '73 hours' "
                     f"WHERE incident_id = '{id20}'")
 
@@ -2725,7 +2747,7 @@ def selftest_db():
             followup_path20 = os.path.join(ap.TASKLOOP_QUEUE_DIR, inc20b["fleet_task_id"])
             assert os.path.isfile(followup_path20), f"world 20: follow-up task file missing: {followup_path20}"
             followup_body20 = open(followup_path20, encoding="utf-8").read()
-            assert "ключ перевыпущен" in followup_body20, (
+            assert "key reissued" in followup_body20, (
                 "world 20: follow-up task must quote the operator's actual answer as data"
             )
             assert any(a["action"] == "human-done" for a in inc20b["attempts"]), inc20b["attempts"]
@@ -2737,8 +2759,8 @@ def selftest_db():
                 f"world 20: no reminder should ever have fired -- the incident left WAITING_HUMAN "
                 f"before any reminder edge could trigger, got {inc20b['attempts']}"
             )
-            assert not any(ap.short_id(id20) in t and "напоминание" in t for t in sent20), (
-                f"world 20: the [напоминание] tg_send must NOT fire for INC-{sid20} once its "
+            assert not any(ap.short_id(id20) in t and _REMINDER_TAG in t for t in sent20), (
+                f"world 20: the reminder tg_send must NOT fire for INC-{sid20} once its "
                 f"answer file exists (the OPEN-time SEV2 page from open_or_merge_incident is a "
                 f"separate, legitimate send and is excluded from this check), sent={sent20}"
             )
@@ -2752,8 +2774,8 @@ def selftest_db():
                 f"world 20b (control): a HUMAN_KEY incident with NO answer file must still get its "
                 f"72h reminder -- got {inc20c['attempts']}"
             )
-            assert any(ap.short_id(id20b) in t and "напоминание" in t for t in sent20), (
-                f"world 20b (control): the [напоминание] tg_send must fire for the file-less "
+            assert any(ap.short_id(id20b) in t and _REMINDER_TAG in t for t in sent20), (
+                f"world 20b (control): the reminder tg_send must fire for the file-less "
                 f"control incident, sent={sent20}"
             )
             print("world 20 (filled human-done file now auto-consumed for a HUMAN_KEY incident, "
@@ -2779,7 +2801,7 @@ def selftest_db():
                 "the fleet-owned note-only branch (world 15), not the manual-close branch"
             )
             rc20c = _cli20.cmd_resolve_request(_argparse20.Namespace(
-                id=id20b, actor="operator", result="ключ перевыпущен вручную, без human-done файла"))
+                id=id20b, actor="operator", result="key reissued manually, without a human-done file"))
             assert rc20c == 0, f"world 20c: resolve-request should succeed on WAITING_HUMAN (exit {rc20c})"
             inc20d = ap.get_incident(id20b)
             assert inc20d["state"] == "VERIFYING", (
@@ -2846,7 +2868,7 @@ def selftest_db():
         assert "queued" not in bridge_note["result"].lower(), (
             f"world 12: must not claim 'queued' for a key already in .env: {bridge_note['result']}"
         )
-        assert "уже присутствует" in bridge_note["result"], bridge_note["result"]
+        assert "already present" in bridge_note["result"], bridge_note["result"]
         assert inc12["operator_file"], "world 12: expected a fallback operator file for this exception"
         assert os.path.isfile(inc12["operator_file"]), f"world 12: {inc12['operator_file']} not written"
         op_body12 = open(inc12["operator_file"], encoding="utf-8").read()
@@ -2945,7 +2967,7 @@ def selftest_db():
         ap.psql(
             "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
             "probe_interval_s, last_probe_result, last_probe_at, state_reason) VALUES "
-            "('ap8down1', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now(), '5 подряд неудачных проб')"
+            "('ap8down1', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now(), '5 consecutive failed probes')"
         )
         opened13 = detect_from_provider_status()
         assert opened13 == 1, f"world 13 setup: expected 1 new PROVIDER_DOWN incident, got {opened13}"
@@ -3038,7 +3060,7 @@ def selftest_db():
         # Promote back: provider recovers to HEALTHY (AP-3's own 2-consecutive-
         # OK streak already happened upstream by the time `state` says so --
         # this function only reacts to the CURRENT F1 state column, no second
-        # streak of its own, per this task's own "гистерезис = F1-пороги").
+        # streak of its own, per this task's own "hysteresis = F1 thresholds").
         ap.psql(
             "UPDATE provider_status SET state = 'HEALTHY', last_probe_result = 'OK', "
             "last_probe_at = now(), state_reason = NULL WHERE provider = 'ap8down1'"
@@ -3171,7 +3193,7 @@ def selftest_db():
         print("world 23a (onboarding-style seed INSERT with zero AP-8 crossings -> reconciler "
               "triggers exactly once): OK")
 
-        # Mutation control for the acceptance criterion's own wording ("равные числа -- ноль"):
+        # Mutation control for the acceptance criterion's own wording ("equal numbers -- zero"):
         # HEAD now matches live (just re-baselined above) -- a reconciler that triggered
         # unconditionally, or on ANY tick regardless of whether counts actually differ, fails this.
         if os.path.exists(marker):
@@ -3322,7 +3344,7 @@ def selftest_db():
         ap.psql(
             "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
             "probe_interval_s, last_probe_result, last_probe_at, state_reason) VALUES "
-            "('ap16floordown', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now(), '5 подряд неудачных проб')"
+            "('ap16floordown', 'DOWN', now(), now(), 3600, 'FAIL_TRANSIENT', now(), '5 consecutive failed probes')"
         )
         sync_tool_status()
         row16c, _ = ap.psql("SELECT status FROM tools WHERE tool_id = 'ap16floor-tool3'")

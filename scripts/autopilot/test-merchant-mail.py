@@ -59,9 +59,10 @@ MM = load("merchant_mail_t18", "merchant-mail.py")
 EI = load("email_intake_t18", "email-intake.py")
 
 # §1 forbidden phrases (same list the integrator pages are held to), lower-case
+# Russian-language forbidden phrases (matched against Russian page text), written as \u escapes
 FORBIDDEN = [
-    "все агенты уже покупают", "chatgpt покупает у вас", "мгновенный возврат", "защита покупателя",
-    "законно везде", "без kyc", "де-факто", "стандарт", "подключиться к mcp-серверу",
+    "\u0432\u0441\u0435 \u0430\u0433\u0435\u043d\u0442\u044b \u0443\u0436\u0435 \u043f\u043e\u043a\u0443\u043f\u0430\u044e\u0442", "chatgpt \u043f\u043e\u043a\u0443\u043f\u0430\u0435\u0442 \u0443 \u0432\u0430\u0441", "\u043c\u0433\u043d\u043e\u0432\u0435\u043d\u043d\u044b\u0439 \u0432\u043e\u0437\u0432\u0440\u0430\u0442", "\u0437\u0430\u0449\u0438\u0442\u0430 \u043f\u043e\u043a\u0443\u043f\u0430\u0442\u0435\u043b\u044f",
+    "\u0437\u0430\u043a\u043e\u043d\u043d\u043e \u0432\u0435\u0437\u0434\u0435", "\u0431\u0435\u0437 kyc", "\u0434\u0435-\u0444\u0430\u043a\u0442\u043e", "\u0441\u0442\u0430\u043d\u0434\u0430\u0440\u0442", "\u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0438\u0442\u044c\u0441\u044f \u043a mcp-\u0441\u0435\u0440\u0432\u0435\u0440\u0443",
     "all agents already buy", "chatgpt buys from you", "instant refund", "buyer protection",
     "legal everywhere", "no kyc", "de facto", "standard", "connect to the mcp server", "guarantee",
 ]

@@ -202,7 +202,7 @@ Defined in `src/schemas/czso.schema.ts`, all `.strip()`ped Zod objects:
   bundesbank-timeseries, ine-spain) — resolves automatically once the hourly batch-pusher runs.
 - **Pre-existing branch-drift found and fixed at the start of this run (not part of czso's own
   scope, but required to avoid regressing production):** the local `main` git ref was stale,
-  missing 9 commits' worth of already-live work (UC-663 ine-spain, the Ф5 device-MCP layer, and
+  missing 9 commits' worth of already-live work (UC-663 ine-spain, the F5 device-MCP layer, and
   more) that had only been committed onto a differently-named local branch
   (`t30-content-seo-github`). That branch turned out to be a strict linear continuation of `main`
   (`main` was a pure ancestor, confirmed via `git merge-base --is-ancestor`), so local `main` was

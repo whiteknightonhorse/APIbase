@@ -364,8 +364,8 @@ def update_pricing_checked(provider, source):
     return True
 
 
-_SYSTEM_DID = ("детерминированная сверка чисел из provider-limits.json со страницей (pricing-recheck.py, "
-               "FT-7, T-0243) — модель не вызывалась, цена/price_floor_usd не менялись")
+_SYSTEM_DID = ("deterministic comparison of the numbers in provider-limits.json against the page (pricing-recheck.py, "
+               "FT-7, T-0243) - no model was called, price/price_floor_usd were not changed")
 
 
 def _open(provider, evidence, what):
@@ -382,17 +382,17 @@ def escalate_changed(provider, res):
           "config": res["config"], "snippets_from_last_month": res["snippets"],
           "detected_at": ap.now_iso()}
     _open(provider, ev,
-          f"{provider}: на странице {res['url']} больше нет чисел из конфига: {', '.join(res['missing'])}. "
-          f"Сверить лимиты/цену в provider-limits.json с живой страницей (фрагменты прошлого месяца в evidence).")
+          f"{provider}: the page {res['url']} no longer contains numbers from the config: {', '.join(res['missing'])}. "
+          f"Compare the limits/price in provider-limits.json with the live page (last month's fragments are in evidence).")
 
 
 def escalate_summary(changed, report_path):
     ev = {"changed": {p: r["missing"] for p, r in changed.items()}, "report": report_path,
           "detected_at": ap.now_iso()}
     _open("pricing-recheck", ev,
-          f"pricing-recheck: {len(changed)} провайдеров одновременно потеряли числа из конфига "
-          f"(> {MAX_ESCALATIONS_PER_RUN}) — вероятен дефект проверки, а не реальные изменения цен. "
-          f"Полный список: {report_path}")
+          f"pricing-recheck: {len(changed)} providers lost their config numbers at the same time "
+          f"(> {MAX_ESCALATIONS_PER_RUN}) - likely a check defect, not real price changes. "
+          f"Full list: {report_path}")
 
 
 def apply_escalations(results, report_path, one=None, summary=None):

@@ -34,7 +34,7 @@ const { version: PACKAGE_VERSION } = JSON.parse(
   readFileSync(resolve(__dirname, '..', 'package.json'), 'utf-8'),
 ) as { version: string };
 
-// ZZ-03-06 (zz-03 Q7 ruling-1, item 1 of the "Обязательный контроль"): TOOL_DEFINITIONS alone
+// ZZ-03-06 (zz-03 Q7 ruling-1, item 1 of the "Mandatory control"): TOOL_DEFINITIONS alone
 // has ~50 more entries than are actually seeded/active (never-seeded or since-demoted tools) —
 // that gap was the exact cause of a confirmed 52-path surplus in this file (1436 paths vs 1384
 // live tools). Filter to the same TOOL_DEFINITIONS ∩ active-DB-snapshot intersection
@@ -367,7 +367,7 @@ async function generate(): Promise<void> {
   const toolCount = activeDefs.length;
   const pathCount = Object.keys(paths).length;
 
-  // No indentation on purpose ("без отступов", ruling §2/§3) -- this is what keeps
+  // No indentation on purpose ("no indentation", ruling §2/§3) -- this is what keeps
   // the root document small enough for scanners to actually read past their size
   // cutoff; the full pretty-printed doc stays at .well-known/openapi.json for humans.
   const discoveryOutPath = resolve(

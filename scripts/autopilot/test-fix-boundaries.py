@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""test-fix-boundaries.py — T-0172 (0171 ruling-1, Задача 2): proves
+"""test-fix-boundaries.py — T-0172 (0171 ruling-1, Task 2): proves
 _fix_boundaries() extracts ONLY the ALLOWED/FORBIDDEN bullets from a
 fix.md-shaped file, truncated at each bullet's own sentence boundary,
 instead of gluing fix.md's completion-protocol paragraph ("Make the

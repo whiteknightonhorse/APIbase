@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """incident-cli.py — AP-4 (I4): the ONLY write handle for agents/other
-scripts. A fleet agent must never write incidents.* directly (M: "агент
-флота выходит за границы"); it calls this. Future producers (AP-5's
+scripts. A fleet agent must never write incidents.* directly (M: "a fleet
+agent oversteps its bounds"); it calls this. Future producers (AP-5's
 limits alert, AP-7's email intake, AP-8's tool-status job, the mcp-protocol-
 tester) also go through here rather than each re-implementing dedup/enum
-validation — see autopilot_common.py for why (I4, "обёртка над SQL с
-валидацией enum'ов").
+validation — see autopilot_common.py for why (I4, "a wrapper over SQL with
+enum validation").
 
 Commands:
   incident-cli.py open --kind K --provider P [--tool-id T] --detected-by D
@@ -17,7 +17,7 @@ Commands:
 
   incident-cli.py note --id ID --actor A --action ACT --result "..."
       Appends one {ts, actor, action, result} entry to attempts. This is
-      "что уже пробовали" (I2) — a fleet agent working a REMEDIATION_QUEUED
+      "what was already tried" (I2) — a fleet agent working a REMEDIATION_QUEUED
       incident calls this to record progress.
 
   incident-cli.py resolve-request --id ID --actor A --result "..."
@@ -50,8 +50,8 @@ Commands:
       reused rather than duplicated (LAW #ONE-PLACE).
 
   incident-cli.py wait --id ID --actor A --until <ISO-8601 UTC> --reason "..."
-      T-0263 (REMEDIATION-MODEL-1005 ruling-1): the ONLY legitimate "ждём
-      провайдера". From REMEDIATION_QUEUED or OPEN only; --until must be within
+      T-0263 (REMEDIATION-MODEL-1005 ruling-1): the ONLY legitimate "waiting for
+      the provider". From REMEDIATION_QUEUED or OPEN only; --until must be within
       [now+1h, now+72h] (else exit 1, no write). One UPDATE: next_recheck_at,
       attempts entry action="wait" result="until <ISO>: <reason>", state ->
       VERIFYING. advance_verifying() then leaves the incident alone until the
@@ -251,8 +251,9 @@ WAIT_MAX = timedelta(hours=72)
 WAIT_FROM_STATES = ("REMEDIATION_QUEUED", "OPEN")
 
 # T-0265: sha256 of the API_CHANGED task body (fix.md bullets pinned, filename-derived id masked) as
-# generated BEFORE the two-phase split -- single-phase kinds must stay byte-identical.
-API_CHANGED_BODY_SHA256 = "676f95d471fa4d0e66ca7db6beb6011e2aac040987e5668c008dfa85e03e8325"
+# generated BEFORE the two-phase split -- single-phase kinds must stay byte-identical. Re-pinned by
+# ENGLISH-ONLY-B (language-only change of the body text, same structure).
+API_CHANGED_BODY_SHA256 = "91735f023354e3a88eeeea657728421cd52505cccc33943ac0203df4d39e10db"
 
 
 def parse_wait_until(raw, now=None):
@@ -458,18 +459,18 @@ def selftest():
     # dedup_key shape
     assert ap.dedup_key("PROVIDER_DOWN", "openweathermap") == "PROVIDER_DOWN:openweathermap"
     assert ap.dedup_key("AUTH_FAILED", "x", "tool.y") == "AUTH_FAILED:x:tool.y"
-    # T-0140 Ч-3 (2026-09-21, Fable ruling-1): the opus tier is wired for exactly the kinds the
+    # T-0140 Ch-3 (2026-09-21, Fable ruling-1): the opus tier is wired for exactly the kinds the
     # ruling named — read-only diagnosis (PROVIDER_DOWN/DEGRADED_QUALITY) and narrow adapter/
     # probe-config edits (API_CHANGED/ENDPOINT_CHANGED) — and EMAIL_NOTICE stays on fable
     # unconditionally (untrusted inbound text that can claim a price/ToS change is money-and-
     # public-claims-shaped, never the cheap tier's job). Locks the routing.json values in code,
     # not just prose, so a future edit that silently reverts one kind fails THIS assertion.
     for _k in ("PROVIDER_DOWN", "API_CHANGED", "ENDPOINT_CHANGED", "DEGRADED_QUALITY"):
-        assert ap.REVIEW_FOR_KIND[_k] == "opus", f"{_k} must route to the opus tier (T-0140 Ч-3)"
+        assert ap.REVIEW_FOR_KIND[_k] == "opus", f"{_k} must route to the opus tier (T-0140 Ch-3)"
     assert ap.REVIEW_FOR_KIND["EMAIL_NOTICE"] == "fable", \
-        "EMAIL_NOTICE must stay on fable unconditionally (T-0140 Ч-3: untrusted inbound text)"
+        "EMAIL_NOTICE must stay on fable unconditionally (T-0140 Ch-3: untrusted inbound text)"
     # build_remediation_task_body's own MAX_ATTEMPTS must give review=opus the SAME ceiling as
-    # review=fable (ruling-1: "цикл REJECT есть и у яруса") -- checked on the actual generated
+    # review=fable (ruling-1: "the REJECT cycle exists for this tier too") -- checked on the actual generated
     # task body, not just the formula, so a refactor that forgets the "opus" branch is caught.
     _opus_incident = {
         "kind": "PROVIDER_DOWN", "provider": "__t0140_selftest_provider__", "severity": "SEV3",
@@ -481,16 +482,16 @@ def selftest():
     assert "MAX_ATTEMPTS: 2" in _content and "MODEL: haiku" in _content, "phase A: haiku, 2 attempts (T-0265)"
     assert "ALLOWED:" not in _content, "phase A body must carry no fix.md ALLOWED bullets (T-0265)"
     assert "propose-fix" in _content and "incident-cli.py wait" in _content and "VERDICT: BLOCKED" in _content
-    assert "чинить" not in _content and "предложить фикс" not in _content
+    assert "\u0447\u0438\u043d\u0438\u0442\u044c" not in _content and "\u043f\u0440\u0435\u0434\u043b\u043e\u0436\u0438\u0442\u044c \u0444\u0438\u043a\u0441" not in _content  # legacy Russian "fix" / "propose a fix" phrases must be absent
     for _pa in sorted(ap.PHASE_A_KINDS):
         _pf, _pc = ap.build_remediation_task_body(dict(_opus_incident, kind=_pa))
         assert "ALLOWED:" not in _pc and "propose-fix" in _pc and "MAX_ATTEMPTS: 2" in _pc and "MODEL: haiku" in _pc, _pa
         assert _pf.startswith(tuple("9")) and "-autopilot-remediation-" in _pf, _pf
-    # review=opus ceiling (T-0140 Ч-3) is now checked on a single-phase opus kind.
+    # review=opus ceiling (T-0140 Ch-3) is now checked on a single-phase opus kind.
     _api_incident = dict(_opus_incident, kind="API_CHANGED")
     _fname_api, _content_api = ap.build_remediation_task_body(_api_incident)
     assert "REVIEW: opus" in _content_api
-    assert "MAX_ATTEMPTS: 4" in _content_api, "review=opus must get the same MAX_ATTEMPTS: 4 ceiling as review=fable (T-0140 Ч-3)"
+    assert "MAX_ATTEMPTS: 4" in _content_api, "review=opus must get the same MAX_ATTEMPTS: 4 ceiling as review=fable (T-0140 Ch-3)"
     # T-0265 snapshot: single-phase kinds are byte-identical to before (fix.md text pinned, filename-derived id masked).
     import hashlib as _hl
     import argparse as _argparse
@@ -572,18 +573,18 @@ def selftest():
         "incident_id": "a1b2c3d4-0000-0000-0000-000000000000", "kind": "PAYMENT_REQUIRED",
         "severity": "SEV1", "provider": "openweathermap", "state": "WAITING_HUMAN",
         "evidence": {}, "created_at": "2026-09-03 06:40 UTC", "tool_count": 11,
-        "revenue_pct": 4.2, "what": "quota исчерпана, тариф требует оплаты",
-        "system_did": "снизила probe до emergency",
+        "revenue_pct": 4.2, "what": "quota exhausted, the plan requires a top-up",
+        "system_did": "lowered probe to emergency",
     })
     assert "SEV1 INC-a1b2c3 PAYMENT_REQUIRED" in msg
-    assert "Нужно от вас:" in msg and "После вас:" in msg
-    assert "Почему не сама:" in msg
+    assert ap.tg("line_need_from_you", text="").strip() in msg and ap.tg("line_after_you", text="").strip() in msg
+    assert ap.tg("line_why_not_auto", text="").strip() in msg
     # AUTO-classified incident's message admits AP-6 is missing, doesn't fake a queued task
     msg2 = ap.format_tg_message({
         "incident_id": "deadbeef-0000-0000-0000-000000000000", "kind": "PROVIDER_DOWN",
         "severity": "SEV2", "provider": "x", "state": "OPEN", "evidence": {},
     })
-    assert "AP-6" in msg2 and "Нужно от вас" not in msg2
+    assert "AP-6" in msg2 and ap.tg("line_need_from_you", text="").strip() not in msg2
     # human-done parsing: marker required, empty-after-marker is "not filled yet"
     assert ap.parse_human_done("/nonexistent/path") is None
     # T-07/A5 (Fable ruling-1): DAILY_TASK_CAP is derived from taskloop's own

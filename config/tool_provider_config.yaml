@@ -3057,26 +3057,26 @@ tools:
     upstream_cost_status: NOT_MEASURED
     upstream_cost_note: "no published per-screenshot rate; billed as Browser rendered (>= $0.01608/req documented max) + undocumented feature surcharge"
     upstream_cost_remeasure_by: "2026-09-30"
-    # T-01 (2026-09-05), law "не торговать в минус" (dispute 01-law-never-sell-below-cost,
+    # T-01 (2026-09-05), law "never sell below cost" (dispute 01-law-never-sell-below-cost,
     # Fable ruling-1 decisions A + C2). NOT read by scripts/seed.ts (unknown key, inert) --
     # this is the audit trail, not a machine-read field.
     price_note: >
-      Было 0.005, стало 0.024, 2026-09-05.
-      Основание (запасной путь, документированный максимум -- измерения нет):
-      browser max 0.01608 (zyte.com/pricing snapshot 2026-09-05) + надбавка 0.002
-      (T-11 оценка "additional costs for some features", не измерено) = 0.01808;
-      требуемый минимум = 0.01808 * 1.3 (config/margin.json MARGIN_MULTIPLIER) =
-      0.023504, округлено ВВЕРХ до сетки 0.001 (запасной путь округляется вверх,
-      измеренный -- до 0.0001, вниз никогда) = 0.024.
-      Распоряжение оператора 2026-09-05: "поднимай цену на screenshot, работать в
-      минус нельзя" -- покрывает публикацию именно этой цены для этого инструмента,
-      не переносится на другие тулы.
-      Задача: T-01 (закон "не торговать в минус"), диспут
+      Was 0.005, now 0.024, 2026-09-05.
+      Basis (fallback path, documented maximum -- no measurement):
+      browser max 0.01608 (zyte.com/pricing snapshot 2026-09-05) + surcharge 0.002
+      (T-11 estimate "additional costs for some features", not measured) = 0.01808;
+      required minimum = 0.01808 * 1.3 (config/margin.json MARGIN_MULTIPLIER) =
+      0.023504, rounded UP to the 0.001 grid (the fallback path rounds up,
+      a measured one to 0.0001, never down) = 0.024.
+      Operator directive 2026-09-05: "raise the screenshot price, working at a
+      loss is not allowed" -- covers publishing exactly this price for this tool,
+      does not carry over to other tools.
+      Task: T-01 (law "never sell below cost"), dispute
       01-law-never-sell-below-cost, ruling-1 decision A. tools.price_floor_usd =
       0.023504 (basis=documented_max) written the same run -- see migration 0013.
-      Пересмотреть после реального измерения себестоимости screenshot (Zyte Stats
-      API, PROVIDER_KEY_ZYTE_STATS, см. upstream_cost_remeasure_by выше); до тех
-      пор цена стоит на запасном пути и обязана остаться >= scrape.browser.
+      Revisit after a real measurement of the screenshot cost (Zyte Stats
+      API, PROVIDER_KEY_ZYTE_STATS, see upstream_cost_remeasure_by above); until
+      then the price stands on the fallback path and must stay >= scrape.browser.
     cache_ttl: 3600
 
   # --- UC-231: MarketCheck (Car Listings) ---
@@ -3085,7 +3085,7 @@ tools:
     provider: marketcheck
     price_usd: "0.0104"
     upstream_cost_usd: "0.0080"
-    # T-10 (2026-09-06), law "не торговать в минус" (T-01). Was 0.003, MarketCheck Data Fee
+    # T-10 (2026-09-06), law "never sell below cost" (T-01). Was 0.003, MarketCheck Data Fee
     # Schedule (operator snapshot 2026-09-06) prices this endpoint (Inventory Search API,
     # GET /search/car/active) at $0.0080/call, measured (not a fallback range) -- a $0.005
     # loss on every call once the account leaves the 500-call/mo Free plan.
@@ -3093,7 +3093,7 @@ tools:
     # already on the 'measured' rounding grid (0.0001, round up, never down) -- no further
     # rounding needed. tools.price_floor_usd = 0.0104 (basis='measured') written the same
     # run -- see migration 0016.
-    price_note: "Было 0.003, стало 0.0104, 2026-09-06 (T-10). Основание: MarketCheck Data Fee Schedule, Inventory Search API $0.0080/call (измерено, снимок оператора 2026-09-06) * 1.3 (MARGIN_MULTIPLIER) = 0.0104. tools.price_floor_usd = 0.0104 (basis=measured), см. migration 0016."
+    price_note: "Was 0.003, now 0.0104, 2026-09-06 (T-10). Basis: MarketCheck Data Fee Schedule, Inventory Search API $0.0080/call (measured, operator snapshot 2026-09-06) * 1.3 (MARGIN_MULTIPLIER) = 0.0104. tools.price_floor_usd = 0.0104 (basis=measured), see migration 0016."
     cache_ttl: 3600
   - tool_id: carmarket.listing
     name: Car Listing Details
@@ -3102,7 +3102,7 @@ tools:
     upstream_cost_usd: "0.0080"
     # T-10 (2026-09-06): same Inventory Search API endpoint family (GET /listing/car/{id}),
     # same $0.0080/call rate, same derivation as carmarket.search above. Was 0.002.
-    price_note: "Было 0.002, стало 0.0104, 2026-09-06 (T-10). Основание: MarketCheck Data Fee Schedule, Inventory Search API $0.0080/call (измерено, снимок оператора 2026-09-06) * 1.3 (MARGIN_MULTIPLIER) = 0.0104. tools.price_floor_usd = 0.0104 (basis=measured), см. migration 0016."
+    price_note: "Was 0.002, now 0.0104, 2026-09-06 (T-10). Basis: MarketCheck Data Fee Schedule, Inventory Search API $0.0080/call (measured, operator snapshot 2026-09-06) * 1.3 (MARGIN_MULTIPLIER) = 0.0104. tools.price_floor_usd = 0.0104 (basis=measured), see migration 0016."
     cache_ttl: 86400
 
   # --- UC-227: Threat Intelligence Platform ---
@@ -9080,7 +9080,7 @@ tools:
     price_usd: "0"
     cache_ttl: 0
 
-  # --- Ф5 physical-device MCP layer (2026-09-02) -- Tuya OAuth account
+  # --- F5 physical-device MCP layer (2026-09-02) -- Tuya OAuth account
   # linking, T1 classes only this cycle. provider is generic 'device' (not
   # 'device-tuya') because these tool_ids are vendor-agnostic -- the actual
   # vendor is resolved per-call from the caller's connection_id. cache_ttl:0

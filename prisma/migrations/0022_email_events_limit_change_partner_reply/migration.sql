@@ -1,8 +1,8 @@
--- T-0168 (FT-10 of T-0155 "Список задач для Fleet" п.14 + operator addition
+-- T-0168 (FT-10 of T-0155 "Fleet task list" item 14 + operator addition
 -- 2026-09-23): spam-folder support and two new email_events classes.
 --
 -- source_folder distinguishes which IMAP folder a row came from (FT-10's own
--- acceptance text: "новые строки email_events помечены source_folder='spam'").
+-- acceptance text: "new email_events rows are marked source_folder='spam'").
 -- Existing rows backfill 'inbox' -- the only folder email-intake.py read
 -- before this migration, so this is a true statement about their history,
 -- not a guess.

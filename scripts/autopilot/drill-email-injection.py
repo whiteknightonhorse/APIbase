@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """drill-email-injection.py — AP-11 (820-autopilot-drills.md, taskloop
-T-820), drill 3/3: "синтетическое письмо-инъекция", классифицируется без
-исполнения (M's own table row, H4).
+T-820), drill 3/3: "synthetic injection e-mail", classified without
+execution (M's own table row, H4).
 
 email-intake.py already carries its OWN H4 injection scenario inside
 `--selftest`/`--selftest-db` (a rules-matched email whose body also contains
@@ -64,19 +64,23 @@ def start_pg():
         return False
     for _ in range(60):
         time.sleep(1)
-        chk = sh(["docker", "exec", CONTAINER, "psql", "-U", "apibase", "-d", "apibase", "-tAc", "SELECT 1"])
+        chk = sh(["docker", "exec", CONTAINER, "psql", "-h", "127.0.0.1", "-U", "apibase", "-d", "apibase", "-tAc", "SELECT 1"])
         if chk.returncode == 0 and chk.stdout.strip() == "1":
             break
     else:
         print("drill: postgres never became ready")
         return False
-    migration_path = os.path.join(ROOT, "prisma", "migrations", "0009_autopilot_schema", "migration.sql")
-    with open(migration_path) as f:
-        migration_sql = f.read()
-    apply = sh(["docker", "exec", "-i", CONTAINER, "psql", "-U", "apibase", "-d", "apibase"], input=migration_sql)
-    if apply.returncode != 0:
-        print(f"drill: migration apply failed: {apply.stderr}")
-        return False
+    # 0022 (source_folder + the widened class CHECK) and 0028 (merchant_id / direction columns) are required by
+    # email-intake.py's current INSERT; 0009 alone predates both.
+    for mig in ("0009_autopilot_schema", "0022_email_events_limit_change_partner_reply",
+                "0028_email_events_outbound"):
+        migration_path = os.path.join(ROOT, "prisma", "migrations", mig, "migration.sql")
+        with open(migration_path) as f:
+            migration_sql = f.read()
+        apply = sh(["docker", "exec", "-i", CONTAINER, "psql", "-U", "apibase", "-d", "apibase"], input=migration_sql)
+        if apply.returncode != 0:
+            print(f"drill: migration {mig} apply failed: {apply.stderr}")
+            return False
     sh(["docker", "exec", "-i", CONTAINER, "psql", "-U", "apibase", "-d", "apibase"],
        input=("CREATE TABLE tools (tool_id text primary key, provider text, "
               "status text not null default 'healthy', status_source text, "
