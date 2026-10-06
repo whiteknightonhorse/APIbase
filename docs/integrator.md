@@ -220,3 +220,80 @@ Served by `src/shop/routes/integrator.router.ts` from `static/integrator/` (copi
 | `/integrator/connect`                                          | `connect.html`            | human form: fields, category list from `prohibited-categories.json`, checkbox with the document hashes from `/legal/index.json`, three `personal_sign` signatures (encryption key, register, accept_terms), `POST /api/v1/shop/merchants` then `POST /api/v1/shop/merchants/me/acceptances` with `method: checkbox+wallet_signature`; one inline script ≤ 40 lines, no libraries. The browser generates an X25519 key; its private half is shown once next to the API key. |
 
 **Tokens.** Templates carry `{{INTEGRATOR_FEE_PCT}}`, `{{INTEGRATOR_MIN_ORDER}}`, `{{MERCHANTS_COUNT}}`, `{{SANDBOX_STATUS}}`; they are filled at request time from `INTEGRATOR_FEE_ENABLED`/`INTEGRATOR_FEE_BPS`, `INTEGRATOR_MIN_ORDER_USD`, `SANDBOX_STATUS`; `MERCHANTS_COUNT` comes from `static/.well-known/mcp.json` (sync-counts baseline, in the image), not from env (INT-19 replaces the env defaults with sync-counts values). With the fee off the canon reads "0% fee during the pilot". The default sandbox line is "Sandbox: not yet available — use the $0.01 test SKU on mainnet".
+
+## Implementation status (T-INT-20 reconciliation)
+
+Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every route of §6.3 below is marked `yes` (implemented, covered by `tests/unit/shop-integrator-doc-parity.test.ts`) or `no` (not in wave 1; the wave that adds it is named). `tests/integration/shop-adversarial-e2e.test.ts` runs the wave-1 flows end to end.
+
+**Buyer tools (§6.1)**
+
+| Tool                  | Wave 1 | Notes                                          |
+| --------------------- | ------ | ---------------------------------------------- |
+| `shop.catalog.search` | yes    |                                                |
+| `shop.catalog.get`    | yes    |                                                |
+| `shop.order.quote`    | yes    |                                                |
+| `shop.order.pay`      | yes    | no `pii` argument yet (wave 2: physical goods) |
+| `shop.order.get`      | yes    |                                                |
+| `shop.order.cancel`   | yes    |                                                |
+| `shop.order.dispute`  | no     | wave 2                                         |
+
+**Merchant tools (§6.2)**
+
+| Tool                           | Wave 1 | Notes  |
+| ------------------------------ | ------ | ------ |
+| `shop.merchant.register`       | yes    |        |
+| `shop.merchant.accept_terms`   | yes    |        |
+| `shop.merchant.catalog_upsert` | yes    |        |
+| `shop.merchant.catalog_delete` | yes    |        |
+| `shop.merchant.orders_list`    | yes    |        |
+| `shop.merchant.order_confirm`  | yes    |        |
+| `shop.merchant.order_document` | yes    |        |
+| `shop.merchant.webhook_set`    | yes    |        |
+| `shop.merchant.check`          | yes    |        |
+| `shop.merchant.rotate_key`     | yes    |        |
+| `shop.merchant.deactivate`     | yes    |        |
+| `shop.merchant.order_ship`     | no     | wave 2 |
+| `shop.merchant.refund`         | no     | wave 2 |
+| `shop.merchant.stats`          | no     | wave 2 |
+
+**REST routes (§6.3, under `/api/v1/shop`)**
+
+| Route                                    | Wave 1 | Notes              |
+| ---------------------------------------- | ------ | ------------------ |
+| `GET /shops`                             | yes    |                    |
+| `GET /shops/:slug`                       | yes    |                    |
+| `GET /shops/:slug/products`              | yes    |                    |
+| `POST /quotes`                           | yes    |                    |
+| `GET /quotes/:id`                        | yes    |                    |
+| `POST /quotes/:id/pay`                   | yes    | x402 and MPP       |
+| `GET /quotes/:id/pay`                    | yes    | the challenge only |
+| `GET /orders/:id`                        | yes    |                    |
+| `POST /orders/:id/cancel`                | yes    |                    |
+| `POST /orders/:id/disputes`              | no     | wave 2             |
+| `GET /auth/nonce`                        | yes    |                    |
+| `POST /merchants`                        | yes    |                    |
+| `POST /merchants/me/acceptances`         | yes    |                    |
+| `PUT /merchants/me/catalog`              | yes    |                    |
+| `POST /merchants/me/catalog/import`      | no     | wave 2             |
+| `GET /merchants/me/orders`               | yes    |                    |
+| `POST /merchants/me/orders/:id/confirm`  | yes    |                    |
+| `POST /merchants/me/orders/:id/document` | yes    |                    |
+| `POST /merchants/me/orders/:id/ship`     | no     | wave 2             |
+| `POST /merchants/me/refunds`             | no     | wave 2             |
+| `PUT /merchants/me/webhooks`             | yes    |                    |
+| `GET /merchants/me/stats`                | no     | wave 2             |
+| `GET /merchants/me/events`               | yes    |                    |
+| `GET /merchants/me/check`                | yes    |                    |
+| `POST /merchants/me/deactivate`          | yes    |                    |
+| `POST /merchants/me/keys/rotate`         | yes    |                    |
+
+**Public routes (outside `/api/v1/shop`)**: `GET /m/:slug`, `/m/:slug/p/:sku`, `/m/:slug/cart`, `/m/:slug/agent.json`, `/m/:slug/llms.txt`, `/shops`, `/integrator/check/:slug`, `/legal/index.json` — yes. `/api/v1/fleet/sea` (spec §13.3) — no, it is not part of the shop surface.
+
+## Demo merchant seed
+
+`apibase-demo` (category `digital-goods`) sells the test SKU `__apibase_test` at $0.01 and two instant text products, `demo-guide` ($1.00) and `demo-bundle` ($5.00), refund window 14 days. It is created only through the public API by `scripts/shop/seed-demo-merchant.ts`:
+
+1. `npx tsx scripts/shop/seed-demo-merchant.ts --prepare --wallet <seller identity wallet> --base-url https://apibase.pro` prints three messages (register, accept_terms, encryption_key) and writes nothing. Sign each with the seller wallet (EIP-191 `personal_sign`) within 5 minutes and save `{wallet, register:{message, signature}, accept_terms:{message, signature}, encryption_key:{signature}}` as a JSON file.
+2. `npx tsx scripts/shop/seed-demo-merchant.ts --submit --signatures <file> --base-url https://apibase.pro --payout-base <Base wallet> --payout-tempo <Tempo wallet> --webhook-url <https receiver>` runs `POST /merchants`, `POST /merchants/me/acceptances`, `PUT /merchants/me/catalog`, `PUT /merchants/me/webhooks` and `GET /merchants/me/check`, then prints the `mk_live_` key and the webhook secret once.
+
+The automated test runs it only against an in-process test instance with a throwaway wallet; it is never run by CI against production.
