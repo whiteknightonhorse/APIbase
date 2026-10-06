@@ -41,10 +41,11 @@ echo "[deploy] Starting deploy: sha-${NEW_SHA}"
 # dirt; this is the immediate signal for the moment F2 actually bites.
 # No git operation here touches the working tree: fetch/rev-parse/hash-object
 # only. Never auto-revert, never auto-commit (T-20 prohibition still stands).
-f2_alert() {
+deploy_alert() {
+  local text="$1" label="${2:-alert}"
   local tg_env="${APP_DIR}/scripts/night-orchestra/state/tg.env"
   if [ ! -f "$tg_env" ]; then
-    echo "[deploy] F2 alert: tg.env missing, no page sent"
+    echo "[deploy] ${label}: tg.env missing, no page sent"
     return
   fi
 
@@ -68,10 +69,21 @@ f2_alert() {
   done < "$tg_env"
 
   if [ -z "$token" ] || [ -z "$chat_id" ]; then
-    echo "[deploy] F2 alert: tg.env missing, no page sent"
+    echo "[deploy] ${label}: tg.env missing, no page sent"
     return
   fi
 
+  local http_body="" curl_rc=0
+  http_body="$(curl -sS --max-time 10 -F "chat_id=${chat_id}" -F "text=${text}" \
+    "https://api.telegram.org/bot${token}/sendMessage")" || curl_rc=$?
+  if [ "$curl_rc" -eq 0 ] && printf '%s' "$http_body" | grep -q '"ok":true'; then
+    echo "[deploy] ${label}: sent"
+  else
+    echo "[deploy] ${label}: send FAILED (rc=${curl_rc})"
+  fi
+}
+
+f2_alert() {
   local run_id="${GITHUB_RUN_ID:-unknown}"
   local text="[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED at F2: deploy tree dirty (run ${run_id})"
   local porcelain status path incoming current
@@ -105,14 +117,7 @@ EOF
   text="${text}
 then: gh run rerun ${run_id} --failed"
 
-  local http_body="" curl_rc=0
-  http_body="$(curl -sS --max-time 10 -F "chat_id=${chat_id}" -F "text=${text}" \
-    "https://api.telegram.org/bot${token}/sendMessage")" || curl_rc=$?
-  if [ "$curl_rc" -eq 0 ] && printf '%s' "$http_body" | grep -q '"ok":true'; then
-    echo "[deploy] F2 alert: sent"
-  else
-    echo "[deploy] F2 alert: send FAILED (rc=${curl_rc})"
-  fi
+  deploy_alert "$text" "F2 alert"
 }
 
 # ---------------------------------------------------------------------------
@@ -149,6 +154,40 @@ fi
 # the actually-served pair.
 echo "[deploy] Checking out exact commit sha-${NEW_SHA}"
 git fetch origin main
+
+# T-0289: refuse a held REJECTED commit (promotion lock extended to deploy). Nothing is touched
+# yet, so no rollback is needed. Fail-closed when the lib is unreadable; bypass only via env.
+# The lib is read from NEW_SHA itself: the tree is still on the previous commit here, so the
+# first deploy that ships the lib would not find it on disk.
+lock_lib_src="$(git show "${NEW_SHA}:scripts/lib/deploy-lock.sh")" || {
+  echo "[deploy] ABORT: scripts/lib/deploy-lock.sh missing in sha-${NEW_SHA}" >&2
+  deploy_alert "[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED: deploy-lock lib missing in commit" "deploy lock"
+  exit 1
+}
+eval "$lock_lib_src"
+lock_rc=0
+lock_out="$(deploy_lock_check "$NEW_SHA" "${TASKLOOP_DISPUTES:-$HOME/taskloop/disputes}" \
+  "${REJECTED_COMMITS_LIB:-$HOME/taskloop/lib/rejected-commits.sh}" "$APP_DIR")" || lock_rc=$?
+if [ "${DEPLOY_LOCK_BYPASS:-}" = "1" ] && [ "$lock_rc" -ne 0 ]; then
+  echo "[deploy] WARNING: DEPLOY_LOCK_BYPASS=1 set, ignoring deploy lock result rc=${lock_rc}" >&2
+  lock_rc=0
+fi
+case "$lock_rc" in
+  0) ;;
+  2)
+    lock_sha="${lock_out%%$'\t'*}"
+    lock_ruling="${lock_out#*$'\t'}"
+    echo "[deploy] ABORT: held REJECTED commit ${lock_sha} (${lock_ruling}) in range" >&2
+    deploy_alert "[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED: held REJECTED commit ${lock_sha} (${lock_ruling}) in range" "deploy lock"
+    exit 1
+    ;;
+  *)
+    echo "[deploy] ABORT: rejected-commits lib unreadable" >&2
+    deploy_alert "[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED: rejected-commits lib unreadable (rc=${lock_rc})" "deploy lock"
+    exit 1
+    ;;
+esac
+
 git checkout --detach "$NEW_SHA"
 
 # ---------------------------------------------------------------------------
