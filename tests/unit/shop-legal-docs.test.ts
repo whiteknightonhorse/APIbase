@@ -12,7 +12,11 @@ import {
   LegalDocChangedError,
   syncLegalDocs,
 } from '../../src/shop/legal/legal-docs';
-import { createLegalRouter } from '../../src/shop/routes/legal.router';
+import {
+  createLegalRouter,
+  renderMarkdown,
+  stripHtmlComments,
+} from '../../src/shop/routes/legal.router';
 
 jest.mock('../../src/config', () => ({ config: {} }));
 
@@ -240,5 +244,26 @@ describe('T-INT-05 legal documents', () => {
     expect(codes.every((c) => c === 404)).toBe(true);
     expect((await fetch(`${s.base}/legal/unknown`)).status).toBe(429);
     await s.close();
+  });
+});
+
+describe('LG10 renderMarkdown strips comments completely', () => {
+  it('LG10a removes a terminated comment', () => {
+    const out = renderMarkdown('x <!-- hidden --> y');
+    expect(out).not.toContain('hidden');
+    expect(out).not.toContain('<!--');
+    expect(out).toContain('<p>x');
+  });
+
+  it('LG10b leaves no raw comment markers behind nested openers', () => {
+    const out = renderMarkdown('a <!<!---->-- b');
+    expect(out).not.toContain('<!--');
+    expect(out).not.toContain('-->');
+    expect(out).toContain('<p>a');
+  });
+
+  it('LG10c stripHtmlComments handles adjacent comments and plain text', () => {
+    expect(stripHtmlComments('<!-- a --><!-- b -->c')).toBe('c');
+    expect(stripHtmlComments('no comments')).toBe('no comments');
   });
 });

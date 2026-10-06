@@ -38,6 +38,19 @@ const inline = (s: string) =>
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
 
+/** Drop every terminated `<!-- ... -->` block. Scans with indexOf and restarts after each removal,
+ *  so a removal can never leave a new terminated comment behind; an unterminated opener is kept
+ *  and HTML-escaped downstream (CodeQL js/incomplete-multi-character-sanitization). */
+export function stripHtmlComments(md: string): string {
+  for (;;) {
+    const start = md.indexOf('<!--');
+    if (start === -1) return md;
+    const end = md.indexOf('-->', start + 4);
+    if (end === -1) return md;
+    md = md.slice(0, start) + md.slice(end + 3);
+  }
+}
+
 /** Minimal Markdown → HTML for the fixed legal files (headings, lists, quotes, rules, paragraphs). */
 export function renderMarkdown(md: string): string {
   const out: string[] = [];
@@ -51,7 +64,7 @@ export function renderMarkdown(md: string): string {
     if (list) out.push(`</${list}>`);
     list = null;
   };
-  for (const line of md.replace(/<!--[\s\S]*?-->/g, '').split(/\r?\n/)) {
+  for (const line of stripHtmlComments(md).split(/\r?\n/)) {
     const h = /^(#{1,3}) (.+)$/.exec(line);
     const li = /^(?:- |(\d+)\. )(.+)$/.exec(line);
     if (h || li || !line.trim() || line === '---' || line.startsWith('> ')) {
