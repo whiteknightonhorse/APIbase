@@ -85,6 +85,7 @@ interface MerchantRow {
   payout_wallet_base: string;
   payout_wallet_tempo: string;
   payout_pending: { rail: 'base' | 'tempo'; wallet: string; effective_at: string } | null;
+  encryption_key?: Record<string, unknown> | null;
 }
 
 interface ProductRow {
@@ -128,6 +129,8 @@ export interface QuoteResponse {
   expires_at: string;
   requires_pii: string[];
   requires_human_confirmation: boolean;
+  /** T-INT-21: present when requires_pii is non-empty; encrypt each kind to it (AAD = quote_id). */
+  merchant_encryption_key?: Record<string, unknown> | null;
   pay: {
     x402?: {
       payTo: string;
@@ -146,7 +149,7 @@ const usd = (c: number) => c / 100;
 const money = (c: number) => (c / 100).toFixed(2);
 
 const merchantCols = `merchant_id, slug, status, status_reason, created_at, limits, reputation,
-  payout_wallet_base, payout_wallet_tempo, payout_pending`;
+  payout_wallet_base, payout_wallet_tempo, payout_pending, encryption_key`;
 
 async function loadMerchant(db: ShopTx, merchant_id: string): Promise<MerchantRow> {
   const rows = await db.$queryRawUnsafe<MerchantRow[]>(
@@ -298,7 +301,10 @@ async function alternativesFor(
 }
 
 function buildResponse(
-  m: Pick<MerchantRow, 'payout_wallet_base' | 'payout_wallet_tempo' | 'payout_pending'>,
+  m: Pick<
+    MerchantRow,
+    'payout_wallet_base' | 'payout_wallet_tempo' | 'payout_pending' | 'encryption_key'
+  >,
   q: {
     quote_id: string;
     order_id: string;
@@ -335,6 +341,7 @@ function buildResponse(
     expires_at: q.expires_at.toISOString(),
     requires_pii: q.requires_pii,
     requires_human_confirmation: q.requires_human_confirmation,
+    ...(q.requires_pii.length > 0 ? { merchant_encryption_key: m.encryption_key ?? null } : {}),
     pay,
   };
 }

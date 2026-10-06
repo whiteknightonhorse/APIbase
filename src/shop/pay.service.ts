@@ -4,6 +4,8 @@ import type { ShopDeps } from './merchant-lifecycle.service';
 import { getQuote, type Buyer } from './quote.service';
 import { findPlacedOrder, payResponseBody, type BuyerAgent } from './order-payment.service';
 import type { PaymentBinding } from '../pipeline/stages/escrow.stage';
+import { parsePiiEnvelopes, PII_DOCS_URL, PiiRejected } from './pii/envelope.schema';
+import { checkPiiForPay, storeEnvelopes } from './pii/pii.service';
 
 export interface PayRequest {
   quote_id: string;
@@ -15,6 +17,8 @@ export interface PayRequest {
   host: string;
   waive_withdrawal?: boolean;
   buyer_company?: string;
+  /** T-INT-21: `{kind: {kid, alg, ciphertext_b64}}`, untouched caller input; parsed here, never logged. */
+  pii?: unknown;
   /** §8.4 client/version (MCP) or user agent (REST), for the PAID event only. */
   buyer_agent?: BuyerAgent;
   /** Set by mppMiddleware after charge() succeeded (REST only; never on /mcp). */
@@ -25,6 +29,8 @@ export interface PayResponse {
   status: number;
   body: Record<string, unknown>;
 }
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const SUGGESTED: Record<number, string> = {
   402: 'add_payment',
@@ -85,7 +91,70 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
       : {}),
   } as unknown as PipelineContext;
 
-  const res = await escrowQuotePayment(deps, ctx);
+  // T-INT-21: buyer data is validated before ESCROW sees the request. Only ciphertext is ever kept.
+  const refuse = async (
+    code: number,
+    error: string,
+    message: string,
+    extra: Record<string, unknown>,
+  ): Promise<PayResponse> => {
+    if (r.mpp) {
+      // mppMiddleware already charged this credential: a refusal here is a refund owed.
+      const { recordMppRefundOwed } = await import('../pipeline/stages/escrow-finalize.stage');
+      await recordMppRefundOwed(ctx, `pii_rejected:${error}`);
+    }
+    return {
+      status: code,
+      body: {
+        error,
+        error_code: error,
+        message,
+        request_id: r.requestId,
+        suggested_action: 'fix_request',
+        documentation_url: PII_DOCS_URL,
+        ...extra,
+      },
+    };
+  };
+  let pii: ReturnType<typeof parsePiiEnvelopes>;
+  try {
+    pii = parsePiiEnvelopes(r.pii);
+  } catch (e) {
+    if (e instanceof PiiRejected) return refuse(400, e.code, e.message, {});
+    throw e;
+  }
+  const settlement = Boolean(r.x402PaymentHeader || r.mpp);
+  if (UUID_RE.test(r.quote_id)) {
+    const q = await deps.db.$queryRawUnsafe<Array<{ merchant_id: string; requires_pii: string[] }>>(
+      `SELECT merchant_id, requires_pii FROM shop_quotes WHERE quote_id = $1::uuid`,
+      r.quote_id,
+    );
+    const refusal = q[0] ? await checkPiiForPay(deps.db, q[0], pii, settlement) : null;
+    if (refusal) return refuse(refusal.code, refusal.error, refusal.message, refusal.extra);
+  }
+  // The envelopes ride the transaction ESCROW opens first (lock + binding + PAYING): written there
+  // or not at all, so a refused or unverified payment leaves no ciphertext behind.
+  let first = true;
+  const escrowDeps: ShopDeps =
+    pii.size === 0
+      ? deps
+      : {
+          ...deps,
+          transaction: (fn) =>
+            deps.transaction(async (tx) => {
+              const res = await fn(tx);
+              if (first) {
+                first = false;
+                const v = res as { ok?: boolean; value?: { order_id?: string } };
+                if (v.ok === true && v.value?.order_id) {
+                  await storeEnvelopes(tx, v.value.order_id, pii);
+                }
+              }
+              return res;
+            }),
+        };
+
+  const res = await escrowQuotePayment(escrowDeps, ctx);
   if (res.ok) {
     return payResponseBody(res.value);
   }

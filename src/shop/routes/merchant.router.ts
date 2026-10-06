@@ -17,6 +17,7 @@ import {
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
+import { merchantEnvelopes } from '../pii/pii.service';
 import { listEvents, setWebhook } from '../webhook/webhook.service';
 import {
   acceptTerms,
@@ -150,9 +151,12 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
         const m = req.merchant;
         if (!m) throw new ShopAuthError(401, 'missing merchant key');
         const api_key = await deps.transaction((tx) =>
-          rotateKey({ db: tx, redis: deps.redis, now: deps.now }, m.merchant_id, {
-            key_hash: m.key_hash,
-          }),
+          rotateKey(
+            { db: tx, redis: deps.redis, now: deps.now },
+            m.merchant_id,
+            { key_hash: m.key_hash },
+            (req.body as { encryption_key?: never } | undefined)?.encryption_key,
+          ),
         );
         res.json(await withBanner(m.merchant_id, { api_key }));
       } catch (err) {
@@ -221,6 +225,23 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
       try {
         const q = req.query as Record<string, unknown>;
         res.json(await listMerchantOrders(deps, req.merchant?.merchant_id ?? '', q));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-INT-21 (spec 10.2 item 3): the buyer-data envelopes of one order, exactly as stored. The first
+  // read (or the first 2xx order.paid delivery) starts the 7-day passport clock.
+  router.get(
+    '/api/v1/shop/merchants/me/orders/:id/pii',
+    limiter(60_000, 60),
+    requireMerchantKey(['orders:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await merchantEnvelopes(deps, req.merchant?.merchant_id ?? '', String(req.params.id)),
+        );
       } catch (err) {
         send(res, err);
       }

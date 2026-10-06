@@ -94,6 +94,7 @@ export function registerOrderTools(
         expires_at: z.string(),
         requires_pii: z.array(z.string()),
         requires_human_confirmation: z.boolean(),
+        merchant_encryption_key: z.unknown().optional(),
         pay: z.record(z.unknown()),
         terms_update_pending: z.record(z.unknown()).optional(),
       },
@@ -117,11 +118,17 @@ export function registerOrderTools(
     {
       title: 'Pay a quoted order',
       description:
-        'Pay a quote with x402 (X-Payment header on this /mcp call, exact total_usd to the merchant payout wallet). The payment is settled and its receipt awaited BEFORE anything is delivered: status paid carries order {order_id, state, tx_hash, fulfillment?}; payment_pending (receipt not seen within 30 s) carries order_id, poll shop.order.get; repeating the call without payment on a quote you already paid returns already_placed. Without a payment the result is an error carrying the 402 challenge (accepts[0].payTo/amount, extra.quote_id) and pay.mpp.url for MPP clients. Errors: 402 payment_amount_mismatch, 410 quote_expired (a new quote is attached), 429 test_sku_daily_cap.',
+        'Pay a quote with x402 (X-Payment header on this /mcp call, exact total_usd to the merchant payout wallet). The payment is settled and its receipt awaited BEFORE anything is delivered: status paid carries order {order_id, state, tx_hash, fulfillment?}; payment_pending (receipt not seen within 30 s) carries order_id, poll shop.order.get; repeating the call without payment on a quote you already paid returns already_placed. Without a payment the result is an error carrying the 402 challenge (accepts[0].payTo/amount, extra.quote_id) and pay.mpp.url for MPP clients. Errors: 402 payment_amount_mismatch, 410 quote_expired (a new quote is attached), 429 test_sku_daily_cap, 422 pii_required (+ merchant_encryption_key), 409 merchant_key_rotated, 400 pii_plaintext_rejected.',
       inputSchema: {
         quote_id: z.string(),
         waive_withdrawal: z.boolean().optional(),
         buyer_company: z.string().max(200).optional(),
+        pii: z
+          .unknown()
+          .optional()
+          .describe(
+            'Buyer data the quote lists in requires_pii, ONE envelope per kind: {"<kind>": {kid, alg: "hpke-x25519-sha256-chacha20" | "sealed-box-x25519", ciphertext_b64}}, encrypted to merchant_encryption_key (AAD = quote_id, max 16 KB). Plaintext is refused with 400 pii_plaintext_rejected.',
+          ),
       },
       outputSchema: {
         status: z.string(),
@@ -131,7 +138,12 @@ export function registerOrderTools(
       },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },
-    async (a: { quote_id: string; waive_withdrawal?: boolean; buyer_company?: string }) => {
+    async (a: {
+      quote_id: string;
+      waive_withdrawal?: boolean;
+      buyer_company?: string;
+      pii?: unknown;
+    }) => {
       try {
         const buyer = await resolveBuyer({ apiKey, session: sessionId });
         // Lazy: the escrow stage pulls the x402 SDK, which the other order tools do not need.
@@ -144,6 +156,7 @@ export function registerOrderTools(
           host: new URL(integratorConfig().public_url).host,
           waive_withdrawal: a.waive_withdrawal,
           buyer_company: a.buyer_company,
+          pii: a.pii,
           buyer_agent: mcpClient(server),
         });
         if (r.status === 202 || r.status === 200) return ok(r.body);

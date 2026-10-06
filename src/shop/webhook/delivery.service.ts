@@ -13,6 +13,7 @@ import { BREAKER_THRESHOLD, MAX_ATTEMPTS, RETRY_DELAYS_MS } from './constants';
 import { defaultResolver, resolvePublicTarget, type HostResolver } from './ssrf';
 import { httpsTransport, WEBHOOK_TIMEOUT_MS, type WebhookTransport } from './transport';
 import { signPayload } from './webhook.service';
+import { loadWireEnvelopes, markDelivered, type WireEnvelope } from '../pii/pii.service';
 
 export { BREAKER_THRESHOLD, MAX_ATTEMPTS, RETRY_DELAYS_MS };
 export const DELIVERY_CONCURRENCY = 16;
@@ -47,12 +48,15 @@ export function excerptOf(body: Buffer): string {
 /** The exact body of an event, rebuilt identically on every attempt. */
 export function eventBody(
   r: Pick<DueRow, 'event_type' | 'outbox_id' | 'payload' | 'event_at'>,
+  pii: WireEnvelope[] = [],
 ): string {
   return JSON.stringify({
     id: String(r.outbox_id),
     event: r.event_type,
     created_at: new Date(r.event_at).toISOString(),
-    data: r.payload,
+    // T-INT-21: envelopes are read at send time (never copied into the outbox or the delivery row),
+    // so a purged envelope is never re-sent.
+    data: pii.length > 0 ? { ...r.payload, pii } : r.payload,
   });
 }
 
@@ -103,12 +107,18 @@ async function deliverOne(d: DeliveryDeps, r: DueRow, nowMs: number): Promise<vo
   let excerpt = '';
   let ok = false;
   let respBody: Buffer = Buffer.alloc(0);
+  let piiSent = 0;
   try {
     if (r.endpoint_status !== 'active' || !r.secret_enc) throw new Error('endpoint inactive');
     // DNS pinning: resolved again at delivery time, every address public, the connection uses that IP.
     const target = await resolvePublicTarget(r.url, d.resolve ?? defaultResolver);
     const secret = decryptSecret(r.secret_enc, config.ENCRYPTION_KEY);
-    const body = eventBody(r);
+    const pii =
+      r.event_type === 'order.paid'
+        ? await loadWireEnvelopes(d.db, String(r.payload.order_id ?? ''))
+        : [];
+    piiSent = pii.length;
+    const body = eventBody(r, pii);
     const t = Math.floor(nowMs / 1000);
     const send = d.transport ?? httpsTransport;
     const res = await withTimeout(
@@ -151,6 +161,9 @@ async function deliverOne(d: DeliveryDeps, r: DueRow, nowMs: number): Promise<vo
       }
     }
     await d.transaction(async (tx) => {
+      if (piiSent > 0) {
+        await markDelivered(tx, r.merchant_id, String(r.payload.order_id ?? ''), new Date(nowMs));
+      }
       await tx.$executeRawUnsafe(
         `UPDATE shop_webhook_deliveries
             SET status = 'delivered', status_code = $2, response_excerpt = $3,

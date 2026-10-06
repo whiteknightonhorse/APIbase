@@ -1,4 +1,7 @@
 import type { ShopTx } from '../db';
+import { verifyEncryptionKeySignature, type EncryptionKey } from '../merchant.service';
+import { flagUndeliverable } from '../pii/pii.service';
+import { QuoteError } from '../quote.errors';
 import { ShopAuthError } from './errors';
 import { issueKey, MERCHANT_SCOPES } from './merchant-key.service';
 import { verifyWalletSignature, type NonceRedis, type SignPurpose } from './nonce.service';
@@ -18,6 +21,7 @@ interface MerchantRow {
   payout_wallet_tempo: string;
   payout_pending: { wallet: string; rail: Rail; effective_at: string } | null;
   contact_email: string;
+  encryption_key: EncryptionKey | null;
 }
 interface Deps {
   db: ShopTx;
@@ -28,7 +32,7 @@ interface Deps {
 async function loadMerchant(db: ShopTx, where: string, v: string): Promise<MerchantRow | null> {
   const rows = await db.$queryRawUnsafe<MerchantRow[]>(
     `SELECT merchant_id, wallet_address, recovery_wallet, payout_wallet_base, payout_wallet_tempo,
-            payout_pending, contact_email FROM shop_merchants WHERE ${where}`,
+            payout_pending, contact_email, encryption_key FROM shop_merchants WHERE ${where}`,
     v,
   );
   return rows[0] ?? null;
@@ -65,12 +69,14 @@ export async function rotateKey(
   d: Deps,
   merchant_id: string,
   auth: { signature: Signed } | { key_hash: string },
+  encryption_key?: EncryptionKey,
 ): Promise<string> {
   const m = await loadMerchant(d.db, 'merchant_id = $1::uuid', merchant_id);
   if (!m) throw new ShopAuthError(401, 'unknown merchant');
   if ('signature' in auth) {
     await verifyOwner(d, m.wallet_address, auth.signature, 'rotate_key');
   }
+  if (encryption_key !== undefined) await rotateEncryptionKey(d.db, m, encryption_key);
   const key_hash = 'key_hash' in auth ? auth.key_hash : null;
   await d.db.$executeRawUnsafe(
     `UPDATE shop_merchant_keys SET revoked_at = now()
@@ -79,8 +85,51 @@ export async function rotateKey(
     key_hash,
   );
   const key = await issueKey(d.db, merchant_id, MERCHANT_SCOPES, 'rotated');
-  await emit(d.db, 'shop.merchant.key_rotated', { merchant_id });
+  // One event for the call; `encryption_kid` is present when the encryption key rotated too (F-6).
+  await emit(d.db, 'shop.merchant.key_rotated', {
+    merchant_id,
+    ...(encryption_key ? { encryption_kid: encryption_key.kid } : {}),
+  });
   return key;
+}
+
+/**
+ * T-INT-21 (spec 10.2 item 4): a new encryption key replaces the current one. Same `sig_by_wallet`
+ * check as registration; the kid must be new. Old envelopes are not re-encrypted: those still
+ * undelivered become `pii.undeliverable` (+ mail), open quotes keep their `requires_pii` and pay
+ * with the new kid (a payment with the old one is a 409 merchant_key_rotated).
+ */
+async function rotateEncryptionKey(db: ShopTx, m: MerchantRow, k: EncryptionKey): Promise<void> {
+  const bad = (message: string) =>
+    new QuoteError(400, 'invalid_encryption_key', message, 'fix_request', {
+      documentation_url: '/integrator#pii',
+    });
+  if (
+    !k ||
+    typeof k.kid !== 'string' ||
+    typeof k.alg !== 'string' ||
+    typeof k.pub !== 'string' ||
+    typeof k.sig_by_wallet !== 'string' ||
+    !k.kid ||
+    k.kid.length > 64 ||
+    !k.alg ||
+    !k.pub ||
+    !k.sig_by_wallet
+  ) {
+    throw bad('encryption_key {kid (max 64), alg, pub, sig_by_wallet} is required');
+  }
+  if (!(await verifyEncryptionKeySignature(m.wallet_address, k))) {
+    throw bad('encryption_key.sig_by_wallet is not a signature by the merchant wallet');
+  }
+  if (m.encryption_key?.kid === k.kid)
+    throw bad('encryption_key.kid must differ from the current kid');
+  const key = { kid: k.kid, alg: k.alg, pub: k.pub, sig_by_wallet: k.sig_by_wallet };
+  await db.$executeRawUnsafe(
+    `UPDATE shop_merchants SET encryption_key = $2::jsonb WHERE merchant_id = $1::uuid`,
+    m.merchant_id,
+    JSON.stringify(key),
+  );
+  await flagUndeliverable(db, m.merchant_id, k.kid);
 }
 
 /** Wallet signature (purpose reissue) revokes ALL keys and issues a fresh one. */

@@ -37,7 +37,11 @@ export const DEMO_CATEGORY = 'digital-goods';
 export const TEST_SKU = '__apibase_test';
 export const REFUND_WINDOW_DAYS = 14;
 
-/** The demo shop needs no buyer PII, so the encryption key is a fixed, public placeholder. */
+/**
+ * Public placeholder key (nobody holds its private half). The `demo-tour` product needs a real pair
+ * for 07 V3 M2-A: the operator replaces `pub` with the public half of a pair they generated
+ * (docs/integrator.md#pii) before the dispatcher runs the seed.
+ */
 export const ENCRYPTION_KEY = {
   kid: 'demo-1',
   alg: 'x25519',
@@ -85,6 +89,23 @@ export const DEMO_CATALOG = [
       instant: {
         payload:
           'APIbase agent commerce bundle: the guide, plus the merchant checklist (register, accept terms, upload the catalog, set a webhook, run check).',
+      },
+    },
+    category: DEMO_CATEGORY,
+    refund_window_days: REFUND_WINDOW_DAYS,
+  },
+  {
+    // T-INT-21 (07 V3 M2-A): the passport envelope flow end to end, for $1.00.
+    sku: 'demo-tour',
+    title: 'APIbase demo tour (passport required)',
+    description:
+      'A demo booking that needs a passport: the buyer data travels as an end-to-end encrypted envelope only the demo merchant can open.',
+    price_usd: 1.0,
+    requires_pii: ['passport'],
+    fulfillment_mode: 'instant',
+    fulfillment: {
+      instant: {
+        payload: 'APIbase demo tour booked. Your passport envelope was delivered to the merchant.',
       },
     },
     category: DEMO_CATEGORY,

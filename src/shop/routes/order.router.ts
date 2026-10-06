@@ -105,6 +105,7 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
         waive_withdrawal:
           typeof body.waive_withdrawal === 'boolean' ? body.waive_withdrawal : undefined,
         buyer_company: typeof body.buyer_company === 'string' ? body.buyer_company : undefined,
+        pii: body.pii,
         buyer_agent: { user_agent: req.get('user-agent')?.slice(0, 200) },
         mpp: req.method === 'POST' ? req.mppPayment : undefined,
       });

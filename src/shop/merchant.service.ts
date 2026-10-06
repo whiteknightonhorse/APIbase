@@ -36,6 +36,22 @@ export function encryptionKeyMessage(k: Pick<EncryptionKey, 'kid' | 'alg' | 'pub
   return `apibase.pro merchant encryption key\nkid: ${k.kid}\nalg: ${k.alg}\npub: ${k.pub}`;
 }
 
+/** `sig_by_wallet` check, the ONE implementation: registration (INT-03) and key rotation (INT-21). */
+export async function verifyEncryptionKeySignature(
+  wallet: string,
+  k: Pick<EncryptionKey, 'kid' | 'alg' | 'pub' | 'sig_by_wallet'>,
+): Promise<boolean> {
+  try {
+    return await verifyMessage({
+      address: wallet as `0x${string}`,
+      message: encryptionKeyMessage(k),
+      signature: k.sig_by_wallet as `0x${string}`,
+    });
+  } catch {
+    return false;
+  }
+}
+
 export interface RegisterInput {
   wallet: string;
   slug: string;
@@ -192,16 +208,7 @@ async function validate(input: RegisterInput): Promise<void> {
   const k = input.encryption_key;
   if (!k || !k.kid || !k.alg || !k.pub || !k.sig_by_wallet)
     throw bad('encryption_key {kid, alg, pub, sig_by_wallet} is required');
-  let ok = false;
-  try {
-    ok = await verifyMessage({
-      address: input.wallet as `0x${string}`,
-      message: encryptionKeyMessage(k),
-      signature: k.sig_by_wallet as `0x${string}`,
-    });
-  } catch {
-    ok = false;
-  }
+  const ok = await verifyEncryptionKeySignature(input.wallet, k);
   if (!ok) throw bad('encryption_key.sig_by_wallet is not a signature by wallet');
 }
 

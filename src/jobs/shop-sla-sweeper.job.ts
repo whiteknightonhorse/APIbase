@@ -2,6 +2,7 @@ import { logger } from '../config/logger';
 import type { ShopTx } from '../shop/db';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
 import { transition } from '../shop/order-state';
+import { purgePii } from '../shop/pii/pii.service';
 import { releaseReservation } from '../shop/repository';
 
 /** §5.3 / §12.2: a second `confirm_overdue` for the same order only after this long. */
@@ -18,6 +19,7 @@ export interface SweepResult {
   refunds_overdue: number;
   payouts_applied: number;
   connect_events_deleted: number;
+  pii_purged: number;
 }
 
 const emit = (db: ShopTx, event_type: string, payload: Record<string, unknown>) =>
@@ -250,6 +252,7 @@ export async function runShopSlaSweeper(
     refunds_overdue: 0,
     payouts_applied: 0,
     connect_events_deleted: 0,
+    pii_purged: 0,
   };
   const step = async (name: string, fn: () => Promise<void>) => {
     try {
@@ -274,5 +277,7 @@ export async function runShopSlaSweeper(
     'connect_events',
     async () => void (out.connect_events_deleted = await pruneConnectEvents(d, now)),
   );
+  // T-INT-21 (spec 10.3): buyer-data envelopes are deleted by rule, not on request.
+  await step('pii_purge', async () => void (out.pii_purged = await purgePii(d, now)));
   return out;
 }

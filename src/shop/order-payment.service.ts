@@ -6,6 +6,7 @@ import type { ShopTx } from './db';
 import { convertReservation } from './repository';
 import { transition } from './order-state';
 import { QuoteError } from './quote.errors';
+import { loadPiiSummary } from './pii/pii.service';
 import { refundPolicy, type RefundPolicy } from './order-lifecycle.service';
 
 /** §8.4: client/version (MCP initialize) or user agent (REST); the wallet is only a hash prefix. */
@@ -35,6 +36,8 @@ export interface OrderView {
   merchant_contact?: { email: string; site_url: string };
   documents?: Array<{ url: string; at: Date }>;
   refund_policy?: RefundPolicy;
+  /** T-INT-21: which buyer-data envelopes are held (kinds + hashes); never the ciphertext. */
+  pii?: { kinds: string[]; sha256: Record<string, string> };
 }
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -251,6 +254,8 @@ export async function getOrderView(
   );
   view.tracking = null;
   view.refund_policy = await refundPolicy(db, order_id);
+  const pii = await loadPiiSummary(db, order_id);
+  if (pii && payer) view.pii = pii;
   if (payer) {
     view.documents = await db.$queryRawUnsafe<Array<{ url: string; at: Date }>>(
       `SELECT payload->>'url' AS url, at FROM shop_order_events

@@ -795,7 +795,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
 
     const items = await rows(
       `SELECT sku, price_usd::float8 AS price, is_test, fulfillment_mode, refund_window_days
-         FROM shop_products WHERE merchant_id = $1::uuid ORDER BY price_usd`,
+         FROM shop_products WHERE merchant_id = $1::uuid ORDER BY price_usd, sku`,
       r.merchant_id,
     );
     expect(
@@ -803,6 +803,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     ).toEqual([
       [TEST_SKU, 0.01, true, 'instant', 14],
       ['demo-guide', 1, false, 'instant', 14],
+      ['demo-tour', 1, false, 'instant', 14],
       ['demo-bundle', 5, false, 'instant', 14],
     ]);
     const m = await row(

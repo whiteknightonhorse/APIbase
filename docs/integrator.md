@@ -171,6 +171,66 @@ Buyer path after a quote: pay with x402 (Base). **Settle comes before delivery**
 - **SLA sweeper** (`shop-sla-sweeper`, worker, every 5 minutes): expired open quotes → `expired` (stock released, `QUOTED` orders → `EXPIRED`); `PAID` past `confirm_due_at` (`PAID` + `policy.confirm_sla_h`, default 48 h, merchant-fulfilled orders only) → one `shop.order.confirm_overdue`, repeated every 24 h; three late orders in a row → the merchant gets `status_reason = unresponsive` and quotes answer `410` until the operator clears it; `close_after` passed → `CLOSED`; refund `due_at` passed → `overdue` + one `shop.refund.overdue`; `payout_pending.effective_at` passed → the new payout wallet is applied; `shop_connect_events` older than 30 days are deleted.
 - Paid orders emit the `shop.order.paid` event; the `PAID` order event records `request_id`, the buyer agent (client name/version or user agent) and the first 8 hex characters of the payer wallet's SHA-256 — never the wallet.
 
+## Buyer PII (end-to-end encrypted) {#pii}
+
+Some products need buyer data (`requires_pii`: `shipping_address`, `passport`, `phone`, `company`). APIbase is a processor on the merchant's behalf and **cannot read this data**: the buyer's agent encrypts it to the merchant's public key and the platform stores only the ciphertext. There is no server-side decryption anywhere, and no way to ask the platform for a plaintext copy.
+
+**1. Generate the key pair (merchant).** An X25519 pair, the public key as base64 of the raw 32 bytes:
+
+```sh
+# Node
+node -e "const c=require('crypto');const k=c.generateKeyPairSync('x25519');console.log('pub',k.publicKey.export({type:'spki',format:'der'}).subarray(-32).toString('base64'));console.log('priv',k.privateKey.export({type:'pkcs8',format:'der'}).subarray(-32).toString('base64'))"
+# Python (cryptography)
+python3 -c "import base64;from cryptography.hazmat.primitives import serialization as s;from cryptography.hazmat.primitives.asymmetric import x25519;k=x25519.X25519PrivateKey.generate();r=lambda b:base64.b64encode(b).decode();print('pub',r(k.public_key().public_bytes(s.Encoding.Raw,s.PublicFormat.Raw)));print('priv',r(k.private_bytes(s.Encoding.Raw,s.PrivateFormat.Raw,s.NoEncryption())))"
+# CLI (age-keygen prints an X25519 recipient; convert its key to raw bytes yourself)
+age-keygen
+```
+
+The private key never leaves you. Keep it out of APIbase, out of logs and out of the repository.
+
+**2. Publish it.** `encryption_key {kid, alg, pub, sig_by_wallet}` at registration (`kid` up to 64 characters). `sig_by_wallet` is an EIP-191 signature by the merchant identity wallet over exactly this text (the same text at registration and at rotation; `--prepare` of the seed script prints it):
+
+```
+apibase.pro merchant encryption key
+kid: <kid>
+alg: <alg>
+pub: <pub>
+```
+
+The signature is stored and handed to the buyer's agent together with the key (`merchant_encryption_key` in `shop.catalog.get` and in every quote that has `requires_pii`), so the agent can check that the key belongs to the merchant wallet.
+
+**3. Envelope (buyer's agent).** Encrypt the JSON (`{full_name, passport_number, nationality, dob, expiry}` for a passport, the address object for `shipping_address`) to `pub` with HPKE (RFC 9180, X25519-HKDF-SHA256 + ChaCha20-Poly1305, `alg: "hpke-x25519-sha256-chacha20"`) or libsodium `crypto_box_seal` (`alg: "sealed-box-x25519"`). **AAD = the `quote_id`** (HPKE; sealed boxes have no AAD, so the merchant checks the quote inside the decrypted JSON). Send one envelope per kind in `shop.order.pay` / `POST /quotes/:id/pay`:
+
+```json
+{
+  "pii": {
+    "passport": {
+      "kid": "<merchant kid>",
+      "alg": "hpke-x25519-sha256-chacha20",
+      "ciphertext_b64": "<base64>"
+    }
+  }
+}
+```
+
+At most 16 KB decoded per envelope. The platform accepts nothing else: a string, a number, an object with readable fields (`passport_number`, `address`, …), any extra field, a bad base64 or an oversize envelope is `400 pii_plaintext_rejected` ("encrypt with merchant key, see docs"); the value is never echoed, stored or logged. Other errors: `422 pii_required` (a kind the quote needs is missing; `extra.merchant_encryption_key` and `extra.required` say what to send), `409 merchant_key_rotated` (the `kid` is not the current one; `extra.merchant_encryption_key` is the new key; re-encrypt and pay, or request a new quote), `400 pii_unexpected_kind`, `400 pii_alg_unsupported`. The platform cannot check the AAD (it cannot decrypt): a wrong AAD only fails at the merchant.
+
+**4. Delivery to the merchant.** The same bytes arrive in the `order.paid` webhook as `data.pii[{kind, kid, alg, ciphertext_b64, sha256}]` and on `GET /api/v1/shop/merchants/me/orders/:id/pii` (Bearer, scope `orders:read`, 60 per minute) as `{order_id, envelopes[...]}`; another merchant's order is `404`. `sha256` is the hash of the ciphertext bytes. The buyer's `shop.order.get` and the merchant's `orders_list` show only `pii: {kinds, sha256}`, never ciphertext.
+
+**5. Merchant duties.** Fetch the envelopes (webhook or GET) **before** you rotate the key; decrypt with your private key; **store what you need yourself** — the platform keeps data only temporarily and cannot restore it. Retention (spec 10.3), enforced by the `shop-sla-sweeper` with a physical `DELETE` and a `pii.purged` order event:
+
+- passport: the first of 7 days after `delivered_to_merchant_at` (first successful webhook or first GET), the order reaching `DELIVERED`, `CANCELLED`, `REFUNDED` or `PAYMENT_FAILED`, or 30 days after creation;
+- shipping address, phone, company: 30 days after the order is `CLOSED`;
+- logs never contain an envelope or its hash; metrics are counters only.
+
+The merchant gets a "stored temporarily, keep your own copy" e-mail on the first delivery. There is no early-purge request route: data is purged by rule only. Terms: the data-processing agreement at [/legal/dpa](/legal/dpa) (APIbase acts as a processor on the merchant's behalf).
+
+**6. Rotation.** `POST /merchants/me/keys/rotate` / `shop.merchant.rotate_key` with `encryption_key {kid, alg, pub, sig_by_wallet}` (a NEW `kid`, signature as in step 2; this call also rotates the API key as before) replaces the published key and emits `merchant.key_rotated`. Stored envelopes are not re-encrypted: those not yet delivered get a `pii.undeliverable` order event and a `pii_undeliverable` e-mail (one per order) — fetch them and open them with the OLD private key. Open quotes keep their `requires_pii`; paying one with the old `kid` is `409 merchant_key_rotated`.
+
+### For buyer agents
+
+Passing a passport or an address to merchant X is a legal and privacy decision for your user: **a human confirmation is recommended before you send it** (UC-2). Always encrypt to the key in the quote, check `sig_by_wallet` if you can, send one envelope per required kind, and never log, echo or store the plaintext.
+
 ## Webhooks
 
 Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
@@ -242,15 +302,15 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 
 **Buyer tools (§6.1)**
 
-| Tool                  | Wave 1 | Notes                                          |
-| --------------------- | ------ | ---------------------------------------------- |
-| `shop.catalog.search` | yes    |                                                |
-| `shop.catalog.get`    | yes    |                                                |
-| `shop.order.quote`    | yes    |                                                |
-| `shop.order.pay`      | yes    | no `pii` argument yet (wave 2: physical goods) |
-| `shop.order.get`      | yes    |                                                |
-| `shop.order.cancel`   | yes    |                                                |
-| `shop.order.dispute`  | no     | wave 2                                         |
+| Tool                  | Wave 1 | Notes                                            |
+| --------------------- | ------ | ------------------------------------------------ |
+| `shop.catalog.search` | yes    |                                                  |
+| `shop.catalog.get`    | yes    |                                                  |
+| `shop.order.quote`    | yes    |                                                  |
+| `shop.order.pay`      | yes    | `pii` envelopes (INT-21); physical goods: wave 2 |
+| `shop.order.get`      | yes    |                                                  |
+| `shop.order.cancel`   | yes    |                                                  |
+| `shop.order.dispute`  | no     | wave 2                                           |
 
 **Merchant tools (§6.2)**
 
@@ -273,35 +333,36 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 
 **REST routes (§6.3, under `/api/v1/shop`)**
 
-| Route                                    | Wave 1 | Notes              |
-| ---------------------------------------- | ------ | ------------------ |
-| `GET /shops`                             | yes    |                    |
-| `GET /shops/:slug`                       | yes    |                    |
-| `GET /shops/:slug/products`              | yes    |                    |
-| `POST /quotes`                           | yes    |                    |
-| `GET /quotes/:id`                        | yes    |                    |
-| `POST /quotes/:id/pay`                   | yes    | x402 and MPP       |
-| `GET /quotes/:id/pay`                    | yes    | the challenge only |
-| `GET /orders/:id`                        | yes    |                    |
-| `POST /orders/:id/cancel`                | yes    |                    |
-| `POST /orders/:id/disputes`              | no     | wave 2             |
-| `GET /auth/nonce`                        | yes    |                    |
-| `POST /merchants`                        | yes    |                    |
-| `POST /merchants/me/acceptances`         | yes    |                    |
-| `PUT /merchants/me/catalog`              | yes    |                    |
-| `POST /merchants/me/catalog/import`      | no     | wave 2             |
-| `GET /merchants/me/orders`               | yes    |                    |
-| `POST /merchants/me/orders/:id/confirm`  | yes    |                    |
-| `POST /merchants/me/orders/:id/document` | yes    |                    |
-| `POST /merchants/me/orders/:id/ship`     | no     | wave 2             |
-| `POST /merchants/me/refunds`             | no     | wave 2             |
-| `PUT /merchants/me/webhooks`             | yes    |                    |
-| `GET /merchants/me/stats`                | no     | wave 2             |
-| `GET /merchants/me/events`               | yes    |                    |
-| `GET /merchants/me/check`                | yes    |                    |
-| `POST /merchants/me/deactivate`          | yes    |                    |
-| `POST /merchants/me/keys/rotate`         | yes    |                    |
-| `POST /merchants/me/keys/reissue`        | yes    |                    |
+| Route                                    | Wave 1 | Notes                |
+| ---------------------------------------- | ------ | -------------------- |
+| `GET /shops`                             | yes    |                      |
+| `GET /shops/:slug`                       | yes    |                      |
+| `GET /shops/:slug/products`              | yes    |                      |
+| `POST /quotes`                           | yes    |                      |
+| `GET /quotes/:id`                        | yes    |                      |
+| `POST /quotes/:id/pay`                   | yes    | x402 and MPP         |
+| `GET /quotes/:id/pay`                    | yes    | the challenge only   |
+| `GET /orders/:id`                        | yes    |                      |
+| `POST /orders/:id/cancel`                | yes    |                      |
+| `POST /orders/:id/disputes`              | no     | wave 2               |
+| `GET /auth/nonce`                        | yes    |                      |
+| `POST /merchants`                        | yes    |                      |
+| `POST /merchants/me/acceptances`         | yes    |                      |
+| `PUT /merchants/me/catalog`              | yes    |                      |
+| `POST /merchants/me/catalog/import`      | no     | wave 2               |
+| `GET /merchants/me/orders`               | yes    |                      |
+| `POST /merchants/me/orders/:id/confirm`  | yes    |                      |
+| `GET /merchants/me/orders/:id/pii`       | yes    | buyer-data envelopes |
+| `POST /merchants/me/orders/:id/document` | yes    |                      |
+| `POST /merchants/me/orders/:id/ship`     | no     | wave 2               |
+| `POST /merchants/me/refunds`             | no     | wave 2               |
+| `PUT /merchants/me/webhooks`             | yes    |                      |
+| `GET /merchants/me/stats`                | no     | wave 2               |
+| `GET /merchants/me/events`               | yes    |                      |
+| `GET /merchants/me/check`                | yes    |                      |
+| `POST /merchants/me/deactivate`          | yes    |                      |
+| `POST /merchants/me/keys/rotate`         | yes    |                      |
+| `POST /merchants/me/keys/reissue`        | yes    |                      |
 
 **Public routes (outside `/api/v1/shop`)**: `GET /m/:slug`, `/m/:slug/p/:sku`, `/m/:slug/cart`, `/m/:slug/agent.json`, `/m/:slug/llms.txt`, `/shops`, `/integrator/check/:slug`, `/legal/index.json` — yes. `/api/v1/fleet/sea` (spec §13.3) — no, it is not part of the shop surface.
 
@@ -309,7 +370,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 
 `POST /integrator/demo-webhook` is a demo receiver, logs only.
 
-`apibase-demo` (category `digital-goods`) sells the test SKU `__apibase_test` at $0.01 and two instant text products, `demo-guide` ($1.00) and `demo-bundle` ($5.00), refund window 14 days. It is created only through the public API by `scripts/shop/seed-demo-merchant.ts`:
+`apibase-demo` (category `digital-goods`) sells the test SKU `__apibase_test` at $0.01 and two instant text products, `demo-guide` ($1.00) and `demo-bundle` ($5.00), refund window 14 days, plus `demo-tour` ($1.00, `requires_pii: ['passport']`, instant) for the end-to-end encrypted passport flow. It is created only through the public API by `scripts/shop/seed-demo-merchant.ts`:
 
 0. Decide the seller identity wallet yourself (an EOA you control and can sign with). It is not read from any endpoint; no `/health/operator` or other lookup is involved.
 1. `npx tsx scripts/shop/seed-demo-merchant.ts --prepare --wallet <seller identity wallet> --base-url https://apibase.pro` prints three messages (register, accept_terms, encryption_key) and writes nothing. Sign each with the seller wallet (EIP-191 `personal_sign`) within 5 minutes and save `{wallet, register:{message, signature}, accept_terms:{message, signature}, encryption_key:{signature}}` as a JSON file.

@@ -185,17 +185,24 @@ export function registerMerchantTools(
       title: 'Rotate merchant API key',
       description:
         'Revoke the Bearer key used for this call and return a fresh mk_live_ key (shown once). Works for deactivated merchants too, so open orders can still be closed.',
-      inputSchema: {},
+      inputSchema: {
+        encryption_key: ENC_KEY.optional().describe(
+          'Optional: ALSO replace the buyer-data encryption key. New kid, same sig_by_wallet rule as registration. Envelopes sealed to the old kid are not re-encrypted: fetch them first.',
+        ),
+      },
       outputSchema: { api_key: z.string(), terms_update_pending: banner },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },
-    async () => {
+    async (a: { encryption_key?: z.infer<typeof ENC_KEY> }) => {
       try {
         const m = await bearer(deps, apiKey);
         const api_key = await deps.transaction((tx) =>
-          rotateKey({ db: tx, redis: deps.redis, now: deps.now }, m.merchant_id, {
-            key_hash: m.key_hash,
-          }),
+          rotateKey(
+            { db: tx, redis: deps.redis, now: deps.now },
+            m.merchant_id,
+            { key_hash: m.key_hash },
+            a?.encryption_key,
+          ),
         );
         return ok({ api_key, ...(await bannerFor(deps, m.merchant_id)) });
       } catch (err) {

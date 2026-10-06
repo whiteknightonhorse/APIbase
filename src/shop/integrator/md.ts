@@ -49,7 +49,12 @@ export function mdToHtml(md: string): string {
     if (h) {
       flush();
       close();
-      out.push(`<h${h[1].length} id="${slug(h[2])}">${inline(h[2])}</h${h[1].length}>`);
+      // `## Title {#id}` pins the anchor (the API error links use /integrator#pii).
+      const pin = /^(.*?)\s*\{#([a-z0-9_-]+)\}$/.exec(h[2]);
+      const text = pin ? pin[1] : h[2];
+      out.push(
+        `<h${h[1].length} id="${pin ? pin[2] : slug(text)}">${inline(text)}</h${h[1].length}>`,
+      );
     } else if (li) {
       flush();
       const kind = li[1] ? 'ol' : 'ul';

@@ -2,6 +2,7 @@ import type { ShopDeps } from './merchant-lifecycle.service';
 import type { ShopTx } from './db';
 import { ALL_STATES, transition, type State } from './order-state';
 import { QuoteError } from './quote.errors';
+import { loadPiiSummaries } from './pii/pii.service';
 import { listOrders, lockOrder } from './repository';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -191,6 +192,11 @@ export async function listMerchantOrders(
   });
   const page = rows.slice(0, limit);
   const last = page[page.length - 1];
+  // T-INT-21: kinds + hashes of held buyer-data envelopes, never the ciphertext.
+  const pii = await loadPiiSummaries(
+    d.db,
+    page.map((r) => r.order_id),
+  );
   return {
     orders: page.map((r) => ({
       order_id: r.order_id,
@@ -199,6 +205,7 @@ export async function listMerchantOrders(
       fee_usd: r.fee_usd,
       created_at: r.created_at,
       confirm_due_at: r.confirm_due_at,
+      ...(pii.has(r.order_id) ? { pii: pii.get(r.order_id) } : {}),
     })),
     next_cursor:
       rows.length > limit && last ? encodeCursor({ t: last.cursor_ts, id: last.order_id }) : null,

@@ -766,6 +766,54 @@ model ShopRefund {
   @@map("shop_refunds")
 }
 
+model ShopPiiEnvelope {
+  envelope_id              String    @id @default(uuid()) @db.Uuid
+  order_id                 String    @db.Uuid
+  kind                     String    // shipping_address|passport|phone|company
+  kid                      String
+  alg                      String    // hpke-x25519-sha256-chacha20|sealed-box-x25519
+  ciphertext               Bytes     // <= 16384 bytes (CHECK); the server never holds a key to open it
+  sha256                   String    @db.Char(64)
+  created_at               DateTime  @default(now()) @db.Timestamptz()
+  purge_after              DateTime? @db.Timestamptz()
+  delivered_to_merchant_at DateTime? @db.Timestamptz()
+
+  @@unique([order_id, kind])
+  @@index([purge_after])
+  @@map("shop_pii_envelopes")
+}
+
+model ShopDispute {
+  dispute_id        String    @id @default(uuid()) @db.Uuid
+  order_id          String    @db.Uuid
+  opened_by         String
+  reason_code       String
+  buyer_note        String?
+  merchant_response String?
+  due_at            DateTime? @db.Timestamptz()
+  status            String    @default("open") // open|merchant_responded|resolved_refund|resolved_rejected|expired
+  created_at        DateTime  @default(now()) @db.Timestamptz()
+
+  @@index([order_id])
+  @@index([status, due_at])
+  @@map("shop_disputes")
+}
+
+model ShopFeeInvoice {
+  invoice_id   String   @id @default(uuid()) @db.Uuid
+  merchant_id  String   @db.Uuid
+  period       String
+  amount_usd   Decimal  @db.Decimal(18, 6)
+  due_at       DateTime @db.Timestamptz()
+  paid_tx_hash String?
+  status       String   @default("open") // open|paid|overdue|written_off
+  created_at   DateTime @default(now()) @db.Timestamptz()
+
+  @@unique([merchant_id, period])
+  @@index([merchant_id])
+  @@map("shop_fee_invoices")
+}
+
 model ShopWebhookEndpoint {
   endpoint_id     String   @id @default(uuid()) @db.Uuid
   merchant_id     String   @db.Uuid

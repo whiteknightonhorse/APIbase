@@ -29,6 +29,7 @@ function maskEmail(email: string): string {
 function isSensitiveShopKey(lk: string): boolean {
   return (
     lk === 'pii' ||
+    lk === 'shipping_address' ||
     lk === 'encryption_key' ||
     lk === 'webhook_url' ||
     lk.startsWith('passport') ||
