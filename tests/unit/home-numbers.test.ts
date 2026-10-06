@@ -48,7 +48,7 @@ describe('H2 numbers only from sync-counts tokens', () => {
       ['static/index.html', '1389 tools', '1500 tools', 'baseline'],
       ['static/index.html', '$0.001–$0.035', '$0.001–$1.00', 'baseline'],
       ['static/ai.txt', 'Tools: 1389 across', 'Tools: 1390 across', 'baseline'],
-      ['static/index.html', 'many other services', '77 other services', 'untokenized'],
+      ['static/index.html', 'Who it is for', '77 who it is for', 'untokenized'],
     ];
     for (const [file, from, to, msg] of cases) {
       const src = read(file);

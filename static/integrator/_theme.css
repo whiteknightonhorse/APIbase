@@ -1,3 +1,4 @@
+
 *{margin:0;padding:0;box-sizing:border-box}
 
 body{
@@ -51,7 +52,6 @@ body{
   background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);
   pointer-events:none;
   z-index:3;
-  animation:scanline 8s linear infinite;
 }
 @keyframes scanline{0%{top:-60px}100%{top:100%}}
 
@@ -89,7 +89,6 @@ body{
   width:8px;height:1.1em;
   background:#999;
   vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
   margin-left:2px;
 }
 
@@ -142,7 +141,6 @@ nav a:hover{
 }
 .sys-monitor .prompt{
   color:#00aa30;
-  animation:blink 1s step-end infinite;
 }
 .sys-monitor .label{color:#2a942a}
 .sys-monitor strong{color:#00ff41}
@@ -151,7 +149,6 @@ nav a:hover{
   width:7px;height:1em;
   background:#00ff41;
   vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
   margin-left:3px;
 }
 
@@ -174,7 +171,6 @@ nav a:hover{
   height:1.1em;
   background:#00ff41;
   vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
   margin-left:2px;
 }
 @keyframes blink{
@@ -307,19 +303,37 @@ code{
 .copy-btn:focus-visible{outline:2px solid #00ff41;outline-offset:2px}
 .copy-btn.copied{background:#00aa30;color:#0c0c0c;border-color:#00aa30}
 
-/* Boot sequence */
-#boot-screen{
-  padding:2rem;
-  font-size:0.82rem;
-  color:#00ff41;
-  min-height:200px;
-  position:relative;
-  z-index:1;
+/* Links inside running text are underlined (not colour alone) */
+p a,li a,summary a{text-decoration:underline}
+
+/* Buttons and sections of the home page */
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 1.2rem;margin:0 0.75rem 0.75rem 0;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px;text-decoration:none}
+.btn.p{background:#00aa30;color:#0c0c0c;border:1px solid #00ff41;font-weight:700}
+.btn:hover{color:#00ff41}
+.btn.p:hover{color:#0c0c0c}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.slot{border:1px dashed #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:0 0 1rem}
+details{margin:0.4rem 0;border-bottom:1px solid #1a3a1a}
+summary{color:#33ff66;cursor:pointer;min-height:44px;display:flex;align-items:center}
+details p{color:#a0d8a0;margin:0.3rem 0 1rem}
+
+/* Burger navigation, 768 px and below (no script) */
+.nav-burger{display:none;border:1px solid #1a3a1a;border-radius:4px;margin:0 0 1rem;padding:0 0.8rem}
+.nav-burger summary{color:#00ff41}
+.burger-links a{display:block;color:#00cc33;text-decoration:none;padding:0.7rem 0;min-height:44px}
+@media(max-width:768px){
+  nav.nav-full{display:none}
+  .nav-burger{display:block}
 }
-#boot-screen .line{opacity:0;margin-bottom:2px}
-#boot-screen .line.visible{opacity:1}
-#boot-screen .ok{color:#27c93f}
-#boot-screen .sys{color:#ffbd2e}
+
+/* CRT scanlines, the moving beam and blinking cursors only when motion is welcome */
+@media(prefers-reduced-motion:no-preference){
+  .window::before{animation:scanline 8s linear infinite}
+  .cursor-blink,.sys-monitor .prompt,.sys-cursor,.cursor{animation:blink 1s step-end infinite}
+}
+@media(prefers-reduced-motion:reduce){
+  .window::before{display:none}
+}
 
 @media(max-width:600px){
   body{padding:0.5rem}

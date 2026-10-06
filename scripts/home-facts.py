@@ -93,7 +93,7 @@ ALLOW_CTX = [  # numbers legitimately outside the counters
     r"HTTP 402", r"402 Payment Required", r"402 payment", r"\b20\d\d(?:-\d\d-\d\d)?\b", r"chain 4217",
     r"32 hex", r"\{32hex\}", r"eip155:8453", r"0x[0-9a-fA-F]+", r"v\d+(?:\.\d+)*",
     r"https?://\S+", r"/[A-Za-z0-9_./-]*\d[A-Za-z0-9_./-]*", r"RFC \d+", r"SEP-\d+",
-    r"OpenAPI 3\.1", r"p\d\d(?:/p\d\d)?",
+    r"OpenAPI 3\.1", r"p\d\d(?:/p\d\d)?", r"Merchants connected so far: \d+",
 ]
 
 

@@ -85,7 +85,6 @@ body{
   background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);
   pointer-events:none;
   z-index:3;
-  animation:scanline 8s linear infinite;
 }
 @keyframes scanline{0%{top:-60px}100%{top:100%}}
 
@@ -123,7 +122,6 @@ body{
   width:8px;height:1.1em;
   background:#999;
   vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
   margin-left:2px;
 }
 
@@ -176,7 +174,6 @@ nav a:hover{
 }
 .sys-monitor .prompt{
   color:#00aa30;
-  animation:blink 1s step-end infinite;
 }
 .sys-monitor .label{color:#2a942a}
 .sys-monitor strong{color:#00ff41}
@@ -185,7 +182,6 @@ nav a:hover{
   width:7px;height:1em;
   background:#00ff41;
   vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
   margin-left:3px;
 }
 
@@ -208,7 +204,6 @@ nav a:hover{
   height:1.1em;
   background:#00ff41;
   vertical-align:text-bottom;
-  animation:blink 1s step-end infinite;
   margin-left:2px;
 }
 @keyframes blink{
@@ -341,19 +336,37 @@ code{
 .copy-btn:focus-visible{outline:2px solid #00ff41;outline-offset:2px}
 .copy-btn.copied{background:#00aa30;color:#0c0c0c;border-color:#00aa30}
 
-/* Boot sequence */
-#boot-screen{
-  padding:2rem;
-  font-size:0.82rem;
-  color:#00ff41;
-  min-height:200px;
-  position:relative;
-  z-index:1;
+/* Links inside running text are underlined (not colour alone) */
+p a,li a,summary a{text-decoration:underline}
+
+/* Buttons and sections of the home page */
+.btn{display:inline-flex;align-items:center;min-height:44px;padding:0 1.2rem;margin:0 0.75rem 0.75rem 0;background:#0f3a1f;color:#33ff66;border:1px solid #1a5a1a;border-radius:4px;text-decoration:none}
+.btn.p{background:#00aa30;color:#0c0c0c;border:1px solid #00ff41;font-weight:700}
+.btn:hover{color:#00ff41}
+.btn.p:hover{color:#0c0c0c}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.slot{border:1px dashed #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:0 0 1rem}
+details{margin:0.4rem 0;border-bottom:1px solid #1a3a1a}
+summary{color:#33ff66;cursor:pointer;min-height:44px;display:flex;align-items:center}
+details p{color:#a0d8a0;margin:0.3rem 0 1rem}
+
+/* Burger navigation, 768 px and below (no script) */
+.nav-burger{display:none;border:1px solid #1a3a1a;border-radius:4px;margin:0 0 1rem;padding:0 0.8rem}
+.nav-burger summary{color:#00ff41}
+.burger-links a{display:block;color:#00cc33;text-decoration:none;padding:0.7rem 0;min-height:44px}
+@media(max-width:768px){
+  nav.nav-full{display:none}
+  .nav-burger{display:block}
 }
-#boot-screen .line{opacity:0;margin-bottom:2px}
-#boot-screen .line.visible{opacity:1}
-#boot-screen .ok{color:#27c93f}
-#boot-screen .sys{color:#ffbd2e}
+
+/* CRT scanlines, the moving beam and blinking cursors only when motion is welcome */
+@media(prefers-reduced-motion:no-preference){
+  .window::before{animation:scanline 8s linear infinite}
+  .cursor-blink,.sys-monitor .prompt,.sys-cursor,.cursor{animation:blink 1s step-end infinite}
+}
+@media(prefers-reduced-motion:reduce){
+  .window::before{display:none}
+}
 
 @media(max-width:600px){
   body{padding:0.5rem}
@@ -381,22 +394,14 @@ code{
 <span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/index.html | render <span class="cursor-blink"></span></span>
 </div>
 
-<!-- Boot sequence (once per session) -->
-<div id="boot-screen" style="display:none">
-<div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
-<div class="line"><span class="ok">[OK]</span> Loading MCP gateway... 1389 tools, 402 providers</div>
-<div class="line"><span class="ok">[OK]</span> Connecting to payment rails (x402/Base + MPP/Tempo)...</div>
-<div class="line"><span class="ok">[OK]</span> Auto-registration system ready...</div>
-<div class="line sys">SYSTEM READY. Launching apibase.pro...</div>
-</div>
-
 <div class="container" id="main-content">
 
-<nav>
+<nav class="nav-full" aria-label="Main">
 <a class="brand" href="/">APIbase.pro</a>
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
 <a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
 <a href="/dashboard">Dashboard</a>
 <a href="/contact">Contact</a>
 <a href="/privacy">Privacy</a>
@@ -407,121 +412,117 @@ code{
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 <a href="https://x.com/apibase_pro">X</a>
 </nav>
+<details class="nav-burger">
+<summary>Menu</summary>
+<div class="burger-links">
+<a href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/policy/moderation">Moderation</a>
+<a href="/frameworks">Frameworks</a>
+<a href="/partners">Partners</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+<a href="https://x.com/apibase_pro">X</a>
+</div>
+</details>
 
+<section id="hero">
+<h1>Best unified API gateway — compare 1389 tools at pay-per-call pricing</h1>
+<p>One MCP + REST endpoint to 1389 tools from 402 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).</p>
+<p><a class="btn p" href="/connect">Connect your agent</a><a class="btn" href="/catalog">Browse the catalog</a></p>
+</section>
+
+<section id="audience">
+<h2>Who it is for</h2>
+<div class="cols">
+<div>
+<h3>AI agents</h3>
+<p>Call any of 1389 tools through <code>https://apibase.pro/mcp</code>. Pay per call from $0.001 to $0.035, with no subscription. Machine-readable entry points: <a href="/index.md">/index.md</a>, <a href="/llms.txt">/llms.txt</a>, <a href="/ai.txt">/ai.txt</a>.</p>
+</div>
+<div>
+<h3>Merchants</h3>
+<p>Let buyers' AI agents order and pay on your site. One link, USDC straight to your wallet. See <a href="/integrator">/integrator</a>.</p>
+</div>
+</div>
+</section>
+
+<section id="start">
+<h2>Get started in 3 steps</h2>
+<ol>
+<li>Point your MCP client at <code>https://apibase.pro/mcp</code>. It registers itself on the first request.</li>
+<li>Browse the <a href="/catalog">tool catalog</a> — 1389 tools, with prices and quality data.</li>
+<li>Fund a wallet — USDC on Base (x402) or <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> (MPP) — and call.</li>
+</ol>
+</section>
+
+<section id="integrator" class="highlights">
+<h2>Integrator — AI payment for merchants</h2>
+<p>Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. <!--fee-->0% fee during the pilot<!--/fee-->.</p>
+<!--merchants--><p>Merchants connected so far: 1.</p><!--/merchants-->
+<p><a class="btn p" href="/integrator">Connect AI payment</a><a class="btn" href="/m/apibase-demo">View the demo shop</a></p>
+</section>
+
+<section id="sea-hunter" class="slot">
+<h2>AI Fleet — Sea Hunter</h2>
+<p>Live fleet widget slot. Details will appear here.</p>
+</section>
+
+<section id="numbers">
+<h2>The numbers</h2>
 <div class="sys-monitor">
 <span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>402</strong>  <span class="label">TOOLS:</span><strong>1389</strong>  <span class="label">PRICE:</span><strong>$0.001–$0.035</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
 </div>
+<p>Every figure on this page comes from the same generated baseline as the <a href="/catalog">catalog</a> and <a href="/pricing">pricing</a> pages. Prices range from $0.001 to $0.035 per call depending on upstream cost.</p>
+</section>
 
-<h1>Best unified API gateway — compare 1389 tools at pay-per-call pricing</h1>
-
-<div class="highlights">
-<h2>Why teams pick APIbase</h2>
-<ul>
-<li><strong>Real pricing, no guesswork:</strong> published $ ranges per tier, a cache-hit discount, three payment rails compared side by side — <a href="/pricing">/pricing</a>.</li>
-<li><strong>Real catalog, not a marketing number:</strong> 402 providers, 1389 tools &mdash; generated straight from the database that actually serves them — <a href="/catalog">/catalog</a>.</li>
-<li><strong>Wallet in, zero forms:</strong> pay with a bare x402 or MPP wallet and your agent identity is created automatically, no signup or approval queue — <a href="/connect">/connect</a>.</li>
-</ul>
-</div>
-
-<h2>Short answer</h2>
-<p>APIbase.pro is a unified MCP gateway that connects 402 providers and 1389 tools through a single endpoint. Automated software clients connect once and access weather, travel, finance, entertainment, e-commerce, maps, education, health, and more. Every tool call is billed via x402 or MPP USDC micropayments — no subscriptions, no upfront commitments.</p>
-<p>Get started through the <a href="https://github.com/whiteknightonhorse/APIbase">GitHub repository</a>.</p>
-
-<h2>What to look for when choosing a unified API gateway</h2>
-<ul>
-<li><strong>Protocol support:</strong> does it speak MCP, REST, or both</li>
-<li><strong>Tool coverage:</strong> how many providers and tools are available through one connection</li>
-<li><strong>Pricing model:</strong> subscription vs. pay-per-call vs. freemium</li>
-<li><strong>Caching and deduplication:</strong> per-tool TTL, single-flight dedup to avoid thundering herd</li>
-<li><strong>Schema validation:</strong> typed request/response contracts that prevent malformed calls</li>
-<li><strong>Payment model:</strong> whether it supports machine-native payments (x402, MPP, USDC) or requires manual billing</li>
-</ul>
-
-<h2>Why people choose APIbase</h2>
-<ul>
-<li>One MCP endpoint (<code>https://apibase.pro/mcp</code>) replaces 402 separate provider integrations</li>
-<li>1389 tools across travel, finance, weather, entertainment, maps, e-commerce, health, education, music, jobs, science, and more</li>
-<li>Dual-rail payments — x402 (USDC on Base) or MPP (USDC on Tempo), from $0.001 to $0.035 depending on the tool</li>
-<li>Auto-registration — connect and receive credentials on first request, no signup form</li>
-<li>Batch API — execute multiple tool calls in a single request with parallel execution</li>
-<li>Usage analytics — track your calls, costs, cache hit rate, and per-tool breakdown in real time</li>
-<li>Tool quality index — check uptime, p50/p95 latency, and error rate for any tool before calling</li>
-<li>Multi-stage request pipeline: auth, idempotency, schema validation, caching, escrow, provider call, ledger</li>
-<li>Fail-closed architecture — validation errors reject immediately, no silent pass-through</li>
-<li>Per-tool response caching with configurable TTL (5s for crypto prices, 7 days for walkability scores)</li>
-</ul>
-
-<h2>vs alternatives: how APIbase compares</h2>
-<div class="table-wrap">
-<table>
-<thead>
-<tr><th>Option</th><th>Best for</th><th>Trade-offs</th><th>Next step</th></tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>APIbase.pro</strong></td>
-<td>Unified MCP access to 1389 tools, pay-per-call</td>
-<td>Newer platform, dual-rail USDC payments (x402 + MPP)</td>
-<td><a href="https://apibase.pro/mcp">Connect via MCP</a></td>
-</tr>
-<tr>
-<td>Direct provider access</td>
-<td>Full control over one provider</td>
-<td>Separate auth, billing, and error handling per provider</td>
-<td>Sign up at each provider</td>
-</tr>
-<tr>
-<td>RapidAPI</td>
-<td>Large marketplace, credit card billing</td>
-<td>No MCP support, subscription tiers, variable quality</td>
-<td>rapidapi.com</td>
-</tr>
-<tr>
-<td>Apideck</td>
-<td>Unified CRM/accounting connectors</td>
-<td>Narrow category focus, no pay-per-call</td>
-<td>apideck.com</td>
-</tr>
-</tbody>
-</table>
-</div>
-
-<h2>Pricing expectations for API tool calls</h2>
-<p>Tool call prices on APIbase range from $0.001 to $0.035 per call depending on the upstream provider cost and data richness. Free-upstream tools (public government data, open-source databases) are priced at the bottom of that range. Premium tools like flight search or e-commerce product lookup cost more, up to the top of it. All prices are listed in the <a href="https://apibase.pro/api/v1/tools">tool catalog</a> and billed per call via x402 or MPP (USDC) — no monthly minimums, no overage fees.</p>
-<p>See the full <a href="/pricing">pricing breakdown</a>.</p>
-
+<section id="faq">
 <h2>FAQ</h2>
-
-<h3>What is MCP?</h3>
+<details>
+<summary>What is MCP?</summary>
 <p>Model Context Protocol is an open standard for connecting software clients to external tools and data sources. It defines how a client discovers available tools, sends structured requests, and receives typed responses — all over a single HTTP connection.</p>
-
-<h3>How do x402 payments work?</h3>
+</details>
+<details>
+<summary>How do x402 payments work?</summary>
 <p>x402 is a machine-native payment protocol using USDC stablecoins on the Base network. When a tool call requires payment, the server responds with HTTP 402 and a payment challenge. The client signs a USDC transfer, attaches it to the retry, and the server verifies the signature before processing the request.</p>
-
-<h3>What is MPP and how does it work?</h3>
-<p>MPP (Machine Payments Protocol) is an IETF standard (draft-ryan-httpauth-payment) developed by Stripe and Tempo. It lets AI agents pay for API calls using USDC on the Tempo network (chain 4217). Agents set up a wallet once at <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> and can then pay any MPP-compatible service, including APIbase. The <code>mppx</code> npm SDK handles the payment flow automatically. APIbase is listed at <a href="https://mpp.dev/services">mpp.dev/services</a> alongside many other services including OpenAI and Anthropic.</p>
-
-<h3>How do I connect?</h3>
+</details>
+<details>
+<summary>What is MPP and how does it work?</summary>
+<p>MPP (Machine Payments Protocol) is an IETF standard (draft-ryan-httpauth-payment) developed by Stripe and Tempo. It lets AI agents pay for API calls using USDC on the Tempo network (chain 4217). Agents set up a wallet once at <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> and can then pay any MPP-compatible service, including APIbase. The <code>mppx</code> npm SDK handles the payment flow automatically.</p>
+</details>
+<details>
+<summary>How do I connect?</summary>
 <p>Point your MCP-compatible client at <code>https://apibase.pro/mcp</code>. The system auto-registers your software on first request and returns an <code>api_key</code>. Use that key for all subsequent calls. No forms, no approval process. Three concrete ways in (MCP address, REST + key, or a bare wallet with zero registration): <a href="/connect">/connect</a>.</p>
-
-<h3>What API categories are available?</h3>
-<p>Travel (flights, hotels), finance (exchange rates, market data), weather, entertainment (movies, events, games), e-commerce (product search), maps and geolocation, health and nutrition, chemistry and structural biology, education and research, music discovery, jobs and career data, space and astronomy, legal and regulatory, social media, and more — 25 categories total.</p>
-
-<h3>Is it production-ready?</h3>
+</details>
+<details>
+<summary>What API categories are available?</summary>
+<p>Travel (flights, hotels), finance (exchange rates, market data), weather, entertainment, e-commerce, maps and geolocation, health and nutrition, education and research, music, jobs, space, legal and regulatory, social media, and more — 25 categories total.</p>
+</details>
+<details>
+<summary>What is Integrator?</summary>
+<p>Integrator lets a merchant sell to AI agents: the buyer's agent finds the merchant's storefront, gets a fixed quote and pays in USDC over x402 (Base) or MPP (Tempo), straight to the merchant's wallet. APIbase does not hold the money. Details: <a href="/integrator">/integrator</a>.</p>
+</details>
+<details>
+<summary>Is it production-ready?</summary>
 <p>Yes. The platform runs on dedicated infrastructure with automated health checks, graceful shutdown, an append-only financial ledger, and Prometheus alerting. All tool calls are idempotent and escrow-protected.</p>
+</details>
+</section>
 
-<h2>Recommended next step</h2>
-<ul class="step-wizard">
-<li><span class="step-num">[STEP 1/4]</span> <span class="step-ready">Connect your MCP client to <code>https://apibase.pro/mcp</code></span> <span class="step-dots">........</span> <span class="step-tag tag-ready">[READY]</span></li>
-<li><span class="step-num">[STEP 2/4]</span> Browse the <a href="https://apibase.pro/catalog">tool catalog</a> — 1389 tools available <span class="step-dots">............</span> <span class="step-tag tag-pending">[ ]</span></li>
-<li><span class="step-num">[STEP 3/4]</span> Fund your wallet — USDC on Base (x402) or <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> (MPP) <span class="step-dots">.....</span> <span class="step-tag tag-pending">[ ]</span></li>
-<li><span class="step-num">[STEP 4/4]</span> Read the <a href="https://apibase.pro/llms.txt">documentation</a> for full protocol details <span class="step-dots">........</span> <span class="step-tag tag-pending">[ ]</span></li>
+<section id="links">
+<h2>Links</h2>
+<ul>
+<li><a href="/pricing">Pricing</a> · <a href="/catalog">Catalog</a> · <a href="/connect">Connect</a> · <a href="/integrator">Integrator</a> · <a href="/frameworks">Frameworks</a></li>
+<li><a href="https://apibase.pro/llms.txt">llms.txt</a> · <a href="/index.md">Markdown version</a> · <a href="https://apibase.pro/api/v1/tools">Tool catalog (JSON)</a></li>
+<li><a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a> · <a href="/partners">Partners</a> · <a href="/contact">Contact</a></li>
 </ul>
-
-<h2>Disclosure</h2>
 <p>This page is published and maintained by the APIbase.pro team. APIbase.pro is an independent platform and is not affiliated with any of the upstream API providers listed. Provider names and trademarks belong to their respective owners.</p>
-
 <!--#include virtual="/guides/_block.html" -->
+</section>
 
 <div class="footer">
 <div class="footer-row">
@@ -529,7 +530,7 @@ code{
 <span class="online"><!--#include virtual="/health/status-line" stub="statusfb" --></span>
 </div>
 <div class="footer-row">
-<a href="/guides/">Guides</a>  |  <span id="gen-time">Generated: --</span>
+<a href="/guides/">Guides</a>
 <span>BUILD: v1.0.0  |  TOOLS: 1389</span>
 </div>
 </div>
@@ -537,149 +538,39 @@ code{
 </div>
 </div>
 
+<!-- WebMCP: read-only page tools for in-browser AI agents. Feature-detected, no-op without WebMCP support. -->
 <script>
 (function(){
-
-  // --- Boot sequence (once per session) ---
-  var bootScreen = document.getElementById('boot-screen');
-  var mainContent = document.getElementById('main-content');
-
-  if (!sessionStorage.getItem('apibase_home_booted')) {
-    mainContent.style.opacity = '0';
-    bootScreen.style.display = 'block';
-    var lines = bootScreen.querySelectorAll('.line');
-    var delay = 0;
-    for (var i = 0; i < lines.length; i++) {
-      (function(line, d) {
-        setTimeout(function() { line.classList.add('visible'); }, d);
-      })(lines[i], delay);
-      delay += 400;
-    }
-    setTimeout(function() {
-      bootScreen.style.display = 'none';
-      mainContent.style.transition = 'opacity 0.5s';
-      mainContent.style.opacity = '1';
-      sessionStorage.setItem('apibase_home_booted', '1');
-    }, delay + 600);
-  } else {
-    bootScreen.style.display = 'none';
-    mainContent.style.opacity = '1';
+  var mc = navigator.modelContext;
+  if (!mc || typeof mc.provideContext !== 'function') return;
+  var cache = null, none = { type: 'object', properties: {}, additionalProperties: false };
+  function load() {
+    if (cache) return Promise.resolve(cache);
+    return fetch('/api/v1/tools', { headers: { Accept: 'application/json' } }).then(function(r){ return r.json(); })
+      .then(function(j){ cache = Array.isArray(j) ? j : (j.data || j.tools || []); return cache; });
   }
-
-  // --- Footer: generated time ---
-  var genEl = document.getElementById('gen-time');
-  if (genEl) genEl.textContent = 'Generated: ' + new Date().toLocaleTimeString();
-
-})();
-</script>
-<!-- WebMCP — expose read-only page tools to in-browser AI agents. Feature-detected: no-op on browsers without WebMCP support. -->
-<script>
-(function() {
-  if (!('modelContext' in navigator) || typeof navigator.modelContext.provideContext !== 'function') {
-    return;
-  }
-
-  var catalogCache = null;
-  async function loadCatalog() {
-    if (catalogCache) return catalogCache;
-    var r = await fetch('/api/v1/tools', { headers: { 'Accept': 'application/json' } });
-    var j = await r.json();
-    catalogCache = Array.isArray(j) ? j : (j.data || j.tools || []);
-    return catalogCache;
-  }
-
-  navigator.modelContext.provideContext({
-    tools: [
-      {
-        name: 'get_tool_catalog',
-        description: 'Return the full APIbase tool catalog (1389 tools across 402 providers, 25 categories). Each entry has id, name, description, category, endpoint, and pricing. Use to discover what capabilities are available on APIbase.pro.',
-        inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-        execute: async function() {
-          var tools = await loadCatalog();
-          return { count: tools.length, tools: tools };
-        }
-      },
-      {
-        name: 'get_tool_pricing',
-        description: 'Return pricing ($USD per call) for a specific tool by tool_id, or for all tools if tool_id is omitted. Prices range from $0.001 to $0.035 per call depending on upstream cost.',
-        inputSchema: {
-          type: 'object',
-          properties: { tool_id: { type: 'string', description: 'Tool id, e.g. amadeus.flight_search. Omit to get all tools.' } },
-          additionalProperties: false
-        },
-        execute: async function(input) {
-          var tools = await loadCatalog();
-          var id = input && input.tool_id;
-          if (id) {
-            var t = tools.find(function(x) { return x.id === id; });
-            return t ? { tool_id: id, pricing: t.pricing } : { error: 'tool_not_found', tool_id: id };
-          }
-          return {
-            count: tools.length,
-            pricing: tools.map(function(t) { return { tool_id: t.id, pricing: t.pricing }; })
-          };
-        }
-      },
-      {
-        name: 'get_mcp_connection_info',
-        description: 'Return the connection parameters for APIbase as an MCP server: endpoint URL, protocol version, supported auth methods, and supported payment rails. Use this to bootstrap an MCP client programmatically.',
-        inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-        execute: async function() {
-          return {
-            endpoint: 'https://apibase.pro/mcp',
-            protocol: 'MCP 2025-03-26 (Streamable HTTP)',
-            alternate_transports: { sse: 'https://apibase.pro/sse' },
-            auth_methods: [
-              { type: 'bearer', header: 'Authorization: Bearer <api_key>', key_format: 'ak_live_<32 hex>' },
-              { type: 'oauth2_client_credentials', token_endpoint: 'https://apibase.pro/oauth/token', registration_endpoint: 'https://apibase.pro/oauth/register' }
-            ],
-            payment_rails: [
-              { name: 'x402', header: 'X-PAYMENT', token: 'USDC', network: 'Base mainnet' },
-              { name: 'mpp', header: 'Authorization: Payment', token: 'USDC.e', network: 'Tempo mainnet' }
-            ],
-            discovery: {
-              server_card: 'https://apibase.pro/.well-known/mcp/server-card.json',
-              openapi: 'https://apibase.pro/.well-known/openapi.json',
-              api_catalog: 'https://apibase.pro/.well-known/api-catalog',
-              agent_skills: 'https://apibase.pro/.well-known/agent-skills/index.json'
-            },
-            auto_registration: 'First request without Authorization header auto-registers the agent and returns X-Agent-Id + X-API-Key in response headers (exactly once).'
-          };
-        }
-      }
-    ]
-  });
-})();
-</script>
-<!-- Copy-to-clipboard on every code block (friendliness pass, redesign cycle 1) -->
-<script>
-(function(){
-  document.querySelectorAll('pre').forEach(function(pre){
-    if (pre.closest('.code-wrap')) return;
-    var wrap = document.createElement('div');
-    wrap.className = 'code-wrap';
-    pre.parentNode.insertBefore(wrap, pre);
-    wrap.appendChild(pre);
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'copy-btn';
-    btn.textContent = 'Copy';
-    btn.setAttribute('aria-label', 'Copy code to clipboard');
-    btn.addEventListener('click', function(){
-      var text = pre.innerText;
-      var done = function(ok){
-        btn.textContent = ok ? 'Copied' : 'Failed';
-        btn.classList.toggle('copied', ok);
-        setTimeout(function(){ btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ done(false); });
-      } else {
-        done(false);
-      }
-    });
-    wrap.appendChild(btn);
-  });
+  mc.provideContext({ tools: [
+    { name: 'get_tool_catalog', inputSchema: none,
+      description: 'Return the full APIbase tool catalog (id, name, description, category, endpoint, pricing for every tool).',
+      execute: function(){ return load().then(function(t){ return { count: t.length, tools: t }; }); } },
+    { name: 'get_tool_pricing',
+      description: 'Return pricing (USD per call) for one tool by tool_id, or for all tools if tool_id is omitted.',
+      inputSchema: { type: 'object', properties: { tool_id: { type: 'string', description: 'For example amadeus.flight_search' } }, additionalProperties: false },
+      execute: function(i){ return load().then(function(t){
+        var id = i && i.tool_id;
+        if (!id) return { count: t.length, pricing: t.map(function(x){ return { tool_id: x.id, pricing: x.pricing }; }) };
+        var f = t.find(function(x){ return x.id === id; });
+        return f ? { tool_id: id, pricing: f.pricing } : { error: 'tool_not_found', tool_id: id };
+      }); } },
+    { name: 'get_mcp_connection_info', inputSchema: none,
+      description: 'Return the MCP endpoint, auth methods, payment rails and discovery URLs of APIbase.',
+      execute: function(){ return {
+        endpoint: 'https://apibase.pro/mcp', protocol: 'MCP 2025-03-26 (Streamable HTTP)',
+        auth_methods: [{ type: 'bearer', header: 'Authorization: Bearer <api_key>' }, { type: 'oauth2_client_credentials', token_endpoint: 'https://apibase.pro/oauth/token', registration_endpoint: 'https://apibase.pro/oauth/register' }],
+        payment_rails: [{ name: 'x402', header: 'X-PAYMENT', token: 'USDC', network: 'Base mainnet' }, { name: 'mpp', header: 'Authorization: Payment', token: 'USDC.e', network: 'Tempo mainnet' }],
+        discovery: { server_card: 'https://apibase.pro/.well-known/mcp/server-card.json', openapi: 'https://apibase.pro/.well-known/openapi.json' }
+      }; } }
+  ] });
 })();
 </script>
 </body>

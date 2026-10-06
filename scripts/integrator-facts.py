@@ -24,6 +24,12 @@ TOKEN_FILES = {
     "static/integrator/llms.txt": ["INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT"],
     "static/integrator/index.md": ["MERCHANTS_COUNT"],
 }
+# Homepage surfaces are static files (no request-time tokens): the fee phrase and the merchants line
+# sit between comment markers and are rendered here from the same baseline. Zero merchants -> the
+# merchants block is rendered empty (no number shown).
+HOME_FILES = ["static/index.html", "static/index.md"]
+HOME_FEE_RE = re.compile(r"<!--fee-->.*?<!--/fee-->")
+HOME_MERCH_RE = re.compile(r"<!--merchants-->.*?<!--/merchants-->", re.S)
 SENTENCE_RE = re.compile(r"Integrator: [^<\n]*? invoiced\.")
 MERCHANTS_RE = re.compile(r"Merchants connected: [0-9]+\.")
 
@@ -52,8 +58,32 @@ def merchants_line(f):
     return "Merchants connected: %d." % f["merchants"]
 
 
+def home_fee(f):
+    return "<!--fee-->%s<!--/fee-->" % ("0% fee during the pilot" if f["fee"] == "0% (pilot)" else f["fee"] + " fee")
+
+
+def home_merchants(f, path):
+    if f["merchants"] < 1:
+        return "<!--merchants--><!--/merchants-->"
+    line = "Merchants connected so far: %d." % f["merchants"]
+    if path.endswith(".html"):
+        line = "<p>%s</p>" % line
+    return "<!--merchants-->%s<!--/merchants-->" % line
+
+
+def render_home(s, f, path):
+    s = HOME_FEE_RE.sub(lambda m: home_fee(f), s)
+    return HOME_MERCH_RE.sub(lambda m: home_merchants(f, path), s)
+
+
 def render():
     f = facts()
+    for path in HOME_FILES:
+        s = open(path).read()
+        n = render_home(s, f, path)
+        if n != s:
+            open(path, "w").write(n)
+            print("  updated %s (home integrator facts)" % path)
     for path in RENDERED:
         s = open(path).read()
         n = SENTENCE_RE.sub(lambda m: sentence(f), s)
@@ -87,6 +117,14 @@ def check():
             problems.append("%s: hardcoded merchants count" % path)
     for path in list(TOKEN_FILES) + RENDERED:
         s = open(path).read()
+        if re.search(r"1[.,]5 ?%", s) and f["fee"] != "1.5%":
+            problems.append("%s: hardcoded 1.5%% fee" % path)
+    for path in HOME_FILES:
+        s = open(path).read()
+        if render_home(s, f, path) != s:
+            problems.append("%s: fee phrase / merchants line differ from the mcp.json baseline" % path)
+        if "/integrator" not in s or "Integrator" not in s:
+            problems.append("%s: Integrator block or /integrator link missing" % path)
         if re.search(r"1[.,]5 ?%", s) and f["fee"] != "1.5%":
             problems.append("%s: hardcoded 1.5%% fee" % path)
     for path in TOKEN_FILES:

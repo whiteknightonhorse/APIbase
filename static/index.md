@@ -14,6 +14,16 @@ juggling, no per-provider billing.
 - **OpenAPI 3.1 spec:** `GET https://apibase.pro/.well-known/openapi.json`
 - **Health:** `GET https://apibase.pro/health/ready`
 
+## Integrator — AI payment for merchants
+
+Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. <!--fee-->0% fee during the pilot<!--/fee-->.
+
+<!--merchants-->Merchants connected so far: 1.<!--/merchants-->
+
+- Connect AI payment: <https://apibase.pro/integrator>
+- Demo shop: <https://apibase.pro/m/apibase-demo>
+- Agent guide for merchants: <https://apibase.pro/integrator/agent-guide>
+
 ## Quick start for agents
 
 1. **Connect** — POST to `/mcp` using any MCP-compatible client (Claude Desktop,

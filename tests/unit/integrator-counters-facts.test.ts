@@ -18,6 +18,8 @@ const MCP = 'static/.well-known/mcp.json';
 const ACP_SHA256 = 'bb5ac8a04986370b7b4e8ba34a173ffb4c6a6e2a7435150d5c3b8e8145873c8f';
 const FACT_FILES = [
   MCP,
+  'static/index.html',
+  'static/index.md',
   'static/pricing.html',
   'static/llms.txt',
   'static/integrator/index.html',
