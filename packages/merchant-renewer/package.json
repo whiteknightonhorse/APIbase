@@ -1,0 +1,35 @@
+{
+  "name": "@apibase11/merchant-renewer",
+  "version": "0.1.0",
+  "description": "Renews your own APIbase Tempo subscriptions with your own access key. The key is generated and kept on your machine and never sent anywhere.",
+  "type": "module",
+  "bin": {
+    "apibase-merchant-renewer": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "apibase",
+    "mpp",
+    "tempo",
+    "subscriptions",
+    "access-key"
+  ],
+  "author": "APIbase.pro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whiteknightonhorse/APIbase"
+  },
+  "homepage": "https://apibase.pro",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "viem": "*"
+  }
+}
