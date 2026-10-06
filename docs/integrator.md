@@ -124,6 +124,14 @@ Item (zod schema `CatalogItemSchema`, `src/shop/catalog.service.ts`):
 
 Response: `{ upserted, flagged[{sku,reason}], rejected[{sku,reason,category,status:422}], errors[{index,sku,status:422,message}] }`. Items are judged one by one: a bad item never blocks the rest of the batch. More than 500 items → `422` for the whole call.
 
+**Feed import (F-2, UC-11).** `POST /api/v1/shop/merchants/me/catalog/import` (scope `catalog:write`, answer `202`) with `{ "source": "csv" | "gmc" | "shopify", "url"?: "https://…", "body"?: "<CSV text, ≤1 MB>", "category"?: "<slug for records without one>" }` returns `import_job_id`; a worker job downloads and imports it in batches of ≤500 through the same upsert and layer-1 moderation as `PUT …/catalog`. Poll `GET /api/v1/shop/merchants/me/catalog/import/:id` → `{status: queued|running|done|failed, total, upserted, rejected[{sku, reason}], rejected_count, error}` (the list shows the first 1000). One import per merchant per 10 minutes (`429`). Downloads follow the webhook rules: `https` only, public addresses only (DNS pinned), redirects are not followed, ≤10 MB, 20 s; a refused URL is `400`.
+
+- `csv` — our schema: header with `sku,title,price_usd` plus optional `description,category,stock,images` (`|`-separated),`currency_display,fulfillment_mode,tax_included,tax_note,returns_accepted,refund_window_days`.
+- `gmc` — Google Merchant Center RSS/XML: `g:id`→`sku`, `g:title`, `g:description`, `g:price` (`12.50 USD`; any other currency is rejected), `g:availability` (`in stock`→unlimited, `out of stock`/`preorder`/`backorder`→`0`), `g:image_link`→`images`, `g:product_type`→`category`. DOCTYPE/ENTITY declarations are refused.
+- `shopify` — the public `/products.json` of the shop (`url` may be the shop root): each product becomes an item, each `variants[]` entry a variant; prices are taken as USD.
+
+A feed `category` must be one of the allowed slugs, otherwise the record is rejected by moderation (the `category` request field only fills in records that have none).
+
 **Test SKU.** Exactly one item per merchant may be `sku: "__apibase_test"`, `is_test: true`, `price_usd: 0.01` (any other price or a second test item → `422`). It is not listed by `shop.catalog.search`, but `shop.catalog.get` returns it, so an agent can run an end-to-end purchase. No fee is taken on it.
 
 **Moderation.** Order per item: category in `allowed` (else `rejected`, `category_prohibited`) → prohibited-category keywords and the platform content filter (`rejected`) → hidden characters and instruction-like text (`ignore previous`, `you must`, `system:`, non-`https` URL schemes → `flagged`). Every check writes a `shop_moderation_reviews` row (`scope=product`, `layer=rules`). A `flagged` product is saved but invisible to buyers (`search` omits it, `get` → `404`) until it passes the LLM check; re-uploading the item moderates it again. A call with rejected items also emits one `shop.catalog.rejected` event.
@@ -370,7 +378,8 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `POST /merchants`                        | yes    |                      |
 | `POST /merchants/me/acceptances`         | yes    |                      |
 | `PUT /merchants/me/catalog`              | yes    |                      |
-| `POST /merchants/me/catalog/import`      | no     | wave 2               |
+| `POST /merchants/me/catalog/import`      | yes    | T-INT-32             |
+| `GET /merchants/me/catalog/import/:id`   | yes    | T-INT-32             |
 | `GET /merchants/me/orders`               | yes    |                      |
 | `POST /merchants/me/orders/:id/confirm`  | yes    |                      |
 | `GET /merchants/me/orders/:id/pii`       | yes    | buyer-data envelopes |

@@ -18,6 +18,7 @@ import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
 import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
+import { runShopCatalogImportJob } from '../jobs/shop-catalog-import.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -289,6 +290,19 @@ const shopStorefrontProbeTask = cron.schedule('7 * * * *', () => {
     logger.error({ err, job: 'shop-storefront-probe' }, 'storefront probe job failed'),
   );
 });
+// Catalog feed imports (INT-32, F-2): queued CSV / Google Merchant Center / Shopify imports, every minute.
+let shopCatalogImportRunning = false;
+const shopCatalogImportTask = cron.schedule('* * * * *', () => {
+  if (shopCatalogImportRunning) {
+    return;
+  }
+  shopCatalogImportRunning = true;
+  runShopCatalogImportJob()
+    .catch((err) => logger.error({ err, job: 'shop-catalog-import' }, 'catalog import job failed'))
+    .finally(() => {
+      shopCatalogImportRunning = false;
+    });
+});
 const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
   runShopPaymentSample().catch((err) =>
     logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
@@ -351,6 +365,7 @@ function shutdown(signal: string): void {
   shopFeeInvoiceTask.stop();
   shopDomainVerifyTask.stop();
   shopStorefrontProbeTask.stop();
+  shopCatalogImportTask.stop();
   shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {

@@ -15,7 +15,12 @@ import {
 } from './helpers/shop-db';
 
 /** Added by the one wave-2 migration 0026_integrator_wave2 (T-INT-21). */
-const TABLES_WAVE2 = ['shop_disputes', 'shop_fee_invoices', 'shop_pii_envelopes'];
+const TABLES_WAVE2 = [
+  'shop_catalog_imports',
+  'shop_disputes',
+  'shop_fee_invoices',
+  'shop_pii_envelopes',
+];
 
 const TABLES_5_1 = [
   'shop_acceptances',
@@ -100,7 +105,7 @@ dbDescribe('0025 on a migrated database', () => {
   beforeAll(() => migrate());
   afterAll(() => db.$disconnect());
 
-  it('SC1: the 18 section-5.1 tables exist, list == snapshot (+ the 3 wave-2 tables of 0026)', async () => {
+  it('SC1: the 18 section-5.1 tables exist, list == snapshot (+ the wave-2 tables of 0026 and 0032)', async () => {
     const rows = await db.$queryRawUnsafe<Array<{ tablename: string }>>(
       `SELECT c.relname AS tablename FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = 'public' AND c.relkind IN ('r','p') AND c.relname LIKE 'shop\\_%'

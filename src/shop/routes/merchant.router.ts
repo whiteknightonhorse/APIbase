@@ -11,6 +11,7 @@ import {
 } from '../auth/nonce.service';
 import { currentDocs, termsStatus } from '../auth/terms.guard';
 import { upsertCatalog } from '../catalog.service';
+import { createImport, getImport } from '../catalog-import/import.service';
 import {
   addMerchantDocument,
   confirmMerchantOrder,
@@ -221,6 +222,30 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     },
   );
 
+  // F-2 / UC-11: feed import is a worker job; the merchant comes from the key. One import per 10 minutes.
+  router.post(
+    '/api/v1/shop/merchants/me/catalog/import',
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.status(202).json(await createImport(deps, req.merchant?.merchant_id ?? '', req.body));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.get(
+    '/api/v1/shop/merchants/me/catalog/import/:id',
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await getImport(deps, req.merchant?.merchant_id ?? '', String(req.params.id)));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
   // §6.3 orders: the merchant is the key's, never a parameter.
   router.get(
     '/api/v1/shop/merchants/me/orders',
@@ -257,7 +282,9 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     requireMerchantKey(['orders:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
-        res.json(await confirmMerchantOrder(deps, req.merchant?.merchant_id ?? '', req.params.id));
+        res.json(
+          await confirmMerchantOrder(deps, req.merchant?.merchant_id ?? '', String(req.params.id)),
+        );
       } catch (err) {
         send(res, err);
       }
