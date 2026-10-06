@@ -44,10 +44,18 @@ describe('H2 numbers only from sync-counts tokens', () => {
   it('mutation: a hardcoded tool count / old price / stale 207 turns lint red', () => {
     const dir = mkdtempSync(join(tmpdir(), 'homenum-'));
     const cwd = ROOT;
+    // The counts-sync cron rewrites the tool count, so read it from the pages instead of hardcoding.
+    const count = /(\d+) tools/.exec(read('static/index.html'))![1];
+    const aiCount = /Tools: (\d+) across/.exec(read('static/ai.txt'))![1];
     const cases: Array<[string, string, string, string]> = [
-      ['static/index.html', '1389 tools', '1500 tools', 'baseline'],
+      ['static/index.html', `${count} tools`, '1500 tools', 'baseline'],
       ['static/index.html', '$0.001–$0.035', '$0.001–$1.00', 'baseline'],
-      ['static/ai.txt', 'Tools: 1389 across', 'Tools: 1390 across', 'baseline'],
+      [
+        'static/ai.txt',
+        `Tools: ${aiCount} across`,
+        `Tools: ${Number(aiCount) + 1} across`,
+        'baseline',
+      ],
       ['static/index.html', 'Who it is for', '77 who it is for', 'untokenized'],
     ];
     for (const [file, from, to, msg] of cases) {
