@@ -987,6 +987,22 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
     return out, True
 
 
+def fleet_task_location(fleet_task_id):
+    """Where a fleet task file currently sits, or None. Terminal outcomes win over queue/active."""
+    if not fleet_task_id:
+        return None
+    for name, path in (
+        ("done", os.path.join(TASKLOOP_ROOT, "done", fleet_task_id)),
+        ("stuck", os.path.join(TASKLOOP_ROOT, "stuck", fleet_task_id)),
+        ("parked", os.path.join(TASKLOOP_ROOT, "stuck", "parked", fleet_task_id)),
+        ("active", os.path.join(TASKLOOP_ROOT, "active", fleet_task_id)),
+        ("queue", os.path.join(TASKLOOP_QUEUE_DIR, fleet_task_id)),
+    ):
+        if os.path.isfile(path):
+            return name
+    return None
+
+
 def note_incident(incident_id: str, actor: str, action: str, result: str):
     entry = {"ts": now_iso(), "actor": actor, "action": action, "result": result}
     _, rc = psql(

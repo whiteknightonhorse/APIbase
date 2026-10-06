@@ -500,9 +500,8 @@ def advance_remediation_queued():
         return
     for line in out.splitlines():
         incident_id, provider, kind, fleet_task_id = line.split(ap.SEP)
-        done_path = os.path.join(ap.TASKLOOP_ROOT, "done", fleet_task_id)
-        stuck_path = os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)
-        if os.path.isfile(done_path):
+        loc = ap.fleet_task_location(fleet_task_id)
+        if loc == "done":
             # T-0263: the fleet task may already have moved this incident to
             # VERIFYING itself via `incident-cli.py wait` (the SELECT above is
             # a snapshot) -- then there is nothing to transition or note.
@@ -522,7 +521,7 @@ def advance_remediation_queued():
                               f"(re-probe will confirm, fleet's own report is not trusted alone)")
             ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
                       f"{fleet_task_id} done -> VERIFYING")
-        elif os.path.isfile(stuck_path):
+        elif loc in ("stuck", "parked"):
             ap.transition_state(incident_id, "STUCK")
             ap.note_incident(incident_id, "incident-engine", "fleet-stuck",
                               f"fleet task {fleet_task_id} landed in stuck/ — F2: "
@@ -759,7 +758,11 @@ def advance_verifying():
         # stuck/, this incident's "VERIFYING" was never a real verification,
         # so it goes to STUCK -- a human needs to look, not a probe that may
         # have coincidentally gone healthy since.
-        if fleet_task_id and os.path.isfile(os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)):
+        # T-0292: only when next_recheck_at IS NULL. A `wait` VERIFYING (T-0263)
+        # is a real verdict; the task's review verdict is about the proof form,
+        # not about the provider, so the re-probe at the deadline decides.
+        if (not recheck_at and fleet_task_id
+                and ap.fleet_task_location(fleet_task_id) in ("stuck", "parked")):
             ap.transition_state(incident_id, "STUCK", extra_set=", next_recheck_at = NULL")
             ap.note_incident(incident_id, "incident-engine", "fleet-stuck",
                               f"fleet task {fleet_task_id} found in stuck/ while incident was "
@@ -907,13 +910,10 @@ def reconcile_stuck_incidents():
             if a.get("actor") == "incident-engine" and a.get("action") in ("fleet-stuck", "verify-failed"):
                 last_stuck_reason = a.get("action")
                 break
-        queue_path = os.path.join(ap.TASKLOOP_QUEUE_DIR, fleet_task_id)
-        active_path = os.path.join(ap.TASKLOOP_ROOT, "active", fleet_task_id)
-        stuck_path = os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id)
-        done_path = os.path.join(ap.TASKLOOP_ROOT, "done", fleet_task_id)
-        if os.path.isfile(stuck_path):
+        loc = ap.fleet_task_location(fleet_task_id)
+        if loc in ("stuck", "parked"):
             continue  # still genuinely stuck this tick — nothing changed
-        if os.path.isfile(done_path):
+        if loc == "done":
             if last_stuck_reason == "verify-failed":
                 # Static world: done/ was already true before STUCK was set,
                 # so it is not evidence of a fresh revival. Stay STUCK,
@@ -933,8 +933,8 @@ def reconcile_stuck_incidents():
                               f"-> VERIFYING (re-probe will confirm, same as any other fleet-done)")
             ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
                       f"{fleet_task_id} revived (done) -> VERIFYING")
-        elif os.path.isfile(queue_path) or os.path.isfile(active_path):
-            where = "queue/" if os.path.isfile(queue_path) else "active/"
+        elif loc in ("queue", "active"):
+            where = loc + "/"
             ap.transition_state(incident_id, "REMEDIATION_QUEUED")
             ap.note_incident(incident_id, "incident-engine", "fleet-revived",
                               f"fleet task {fleet_task_id} left stuck/ and is back in {where} "
@@ -2470,6 +2470,25 @@ def selftest_db():
         )
         print("world 8 (fleet outcome watcher: done->VERIFYING, stuck->STUCK, no-outcome stays put): OK")
 
+        # World 8b (T-0292): stuck/parked/ is the arbiter's normal terminal location --
+        # REMEDIATION_QUEUED + task in stuck/parked/ -> STUCK with a fleet-stuck entry.
+        id8b, _ = ap.open_or_merge_incident(
+            kind="PROVIDER_DOWN", provider="ap8bparked",
+            evidence={"probe": "down"}, detected_by="probe",
+        )
+        task8b = "9981-t0292-parked-queued.md"
+        ap.transition_state(id8b, "REMEDIATION_QUEUED",
+                             extra_set=f", fleet_task_id = {ap.sql_literal(task8b)}")
+        parked_dir8b = os.path.join(ap.TASKLOOP_ROOT, "stuck", "parked")
+        os.makedirs(parked_dir8b, exist_ok=True)
+        with open(os.path.join(parked_dir8b, task8b), "w", encoding="utf-8") as f:
+            f.write("parked by arbiter\n")
+        advance_remediation_queued()
+        inc8b = ap.get_incident(id8b)
+        assert inc8b["state"] == "STUCK", f"world 8b: parked task must give STUCK, got {inc8b['state']}"
+        assert any(a["action"] == "fleet-stuck" for a in inc8b["attempts"]), inc8b["attempts"]
+        print("world 8b (REMEDIATION_QUEUED + task in stuck/parked/ -> STUCK, fleet-stuck entry): OK")
+
         # World 9 (Fable ruling-1, point 1): PROVIDER_DOWN's I1 age gate
         # ("SEV2+, >24h") -- a PROVIDER_DOWN incident opened THIS tick must
         # NOT get a fleet task even with cap room, only once it's genuinely
@@ -3326,6 +3345,32 @@ def selftest_db():
         print("world 15 (resolve-request no longer self-transitions a fleet-owned incident; "
               "advance_verifying() safety-nets a pre-fix stranded VERIFYING -> STUCK): OK")
 
+        # World 15c (T-0292): a `wait` VERIFYING (next_recheck_at in the future) whose fleet task
+        # was then rejected into stuck/ must stay VERIFYING and page nobody: the task's review
+        # verdict is about the proof form, not about the provider. Mutation: remove the
+        # `not recheck_at` gate in advance_verifying() -> this world goes red (STUCK + tg_send).
+        sent15c = []
+        _orig_tg_send15c = ap.tg_send
+        ap.tg_send = lambda text: (sent15c.append(text) or True)
+        try:
+            id15w, _ = ap.open_or_merge_incident(
+                kind="DEGRADED_QUALITY", provider="ap15cwait",
+                evidence={"probe": "quality degraded"}, detected_by="probe",
+            )
+            task15w = "9982-t0292-wait-stuck.md"
+            ap.transition_state(id15w, "VERIFYING",
+                                 extra_set=f", fleet_task_id = {ap.sql_literal(task15w)}"
+                                           ", next_recheck_at = now() + interval '12 hours'")
+            with open(os.path.join(stuck_dir15, task15w), "w", encoding="utf-8") as f:
+                f.write("stuck: proof form rejected\n")
+            advance_verifying()
+            inc15w = ap.get_incident(id15w)
+            assert inc15w["state"] == "VERIFYING" and inc15w["next_recheck_at"], inc15w
+            assert not sent15c, f"world 15c: no page expected, got {sent15c}"
+        finally:
+            ap.tg_send = _orig_tg_send15c
+        print("world 15c (wait-VERIFYING + task in stuck/ stays VERIFYING, zero tg_send): OK")
+
         # World 16 (T-01, 2026-09-05, Fable ruling-1 decision C1): a row priced below its
         # own price_floor_usd must never be auto-PROMOTED to a selling status (healthy),
         # but a floor never blocks DEMOTION to unavailable -- a floor protects revenue, not
@@ -3537,6 +3582,22 @@ def selftest_db():
         print("world 18 (STUCK re-derived every tick from the fleet task's real location: "
               "stuck/ stays STUCK, queue/active revives to REMEDIATION_QUEUED, done/ revives "
               "to VERIFYING, absent-everywhere stays STUCK but is logged distinctly): OK")
+
+        # World 18b (T-0292): a fleet-stuck STUCK whose task sits in stuck/parked/ is known
+        # location: stays STUCK and logs no STUCK_TASK_MISSING.
+        id18p = _mk_stuck18("ap18parked", "9983-t0292-parked.md", put_in=None)
+        parked_dir18 = os.path.join(stuck_dir18, "parked")
+        os.makedirs(parked_dir18, exist_ok=True)
+        with open(os.path.join(parked_dir18, "9983-t0292-parked.md"), "w", encoding="utf-8") as f:
+            f.write("parked by arbiter\n")
+        reconcile_stuck_incidents()
+        assert ap.get_incident(id18p)["state"] == "STUCK", "world 18b: parked task must stay STUCK"
+        with open(ap.NOTICES_LOG, encoding="utf-8") as f:
+            notices18b = f.read()
+        assert not any(id18p in ln and "STUCK_TASK_MISSING" in ln for ln in notices18b.splitlines()), (
+            "world 18b: a parked task is a known location, no STUCK_TASK_MISSING"
+        )
+        print("world 18b (STUCK + task in stuck/parked/ stays STUCK, no STUCK_TASK_MISSING): OK")
 
         # World 19 (T-08 ruling-1, 2026-09-06): reproduces the exact defect Fable's ruling
         # found in attempt 1 -- a STUCK set by advance_verifying()'s verify-failed branch
