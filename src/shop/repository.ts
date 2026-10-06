@@ -33,6 +33,8 @@ export async function getMerchant(
 
 export interface OrderListRow extends OrderRowOut {
   confirm_due_at: Date | null;
+  ship_due_at: Date | null;
+  delivery_eta: Date | null;
   /** created_at with microseconds: the keyset cursor must not lose Postgres precision. */
   cursor_ts: string;
 }
@@ -49,6 +51,7 @@ export async function listOrders(
   return db.$queryRawUnsafe<OrderListRow[]>(
     `SELECT order_id, quote_id, merchant_id, state, total_usd::text AS total_usd,
             fee_usd::text AS fee_usd, created_at, confirm_due_at,
+            ship_due_at, delivery_eta,
             to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS cursor_ts
        FROM shop_orders
       WHERE merchant_id = $1::uuid AND ($2::text IS NULL OR state = $2)
@@ -164,13 +167,64 @@ export async function reserveStock(
   return true;
 }
 
+/**
+ * T-INT-22: hold one delivery slot of a product for a quote (kind = 'slot', variant_id NULL). The
+ * unique index (product_id, slot_id) WHERE kind = 'slot' is the atomic check; a hold whose TTL has
+ * passed is dropped first, so an expired quote frees its slot at once (before the sweeper runs).
+ * Returns false when another live quote holds the slot (or a paid order owns it).
+ */
+export async function reserveSlot(
+  db: ShopTx,
+  scope: MerchantScoped,
+  input: { product_id: string; slot_id: string; quote_id: string; expires_at: Date },
+): Promise<boolean> {
+  await db.$executeRawUnsafe(
+    `DELETE FROM shop_inventory_reservations
+      WHERE merchant_id = $1::uuid AND product_id = $2::uuid AND slot_id = $3 AND kind = 'slot'
+        AND expires_at < now()`,
+    scope.merchant_id,
+    input.product_id,
+    input.slot_id,
+  );
+  const n = await db.$executeRawUnsafe(
+    `INSERT INTO shop_inventory_reservations
+        (merchant_id, product_id, variant_id, qty, quote_id, expires_at, kind, slot_id)
+     VALUES ($1::uuid, $2::uuid, NULL, 1, $3::uuid, $4::timestamptz, 'slot', $5)
+     ON CONFLICT (product_id, slot_id) WHERE kind = 'slot' DO NOTHING`,
+    scope.merchant_id,
+    input.product_id,
+    input.quote_id,
+    input.expires_at,
+    input.slot_id,
+  );
+  return n === 1;
+}
+
+/** Slot ids of `product_id` held by a live (unexpired) reservation. */
+export async function takenSlots(
+  db: ShopTx,
+  scope: MerchantScoped,
+  product_id: string,
+): Promise<Set<string>> {
+  const rows = await db.$queryRawUnsafe<Array<{ slot_id: string }>>(
+    `SELECT slot_id FROM shop_inventory_reservations
+      WHERE merchant_id = $1::uuid AND product_id = $2::uuid AND kind = 'slot'
+        AND expires_at >= now()`,
+    scope.merchant_id,
+    product_id,
+  );
+  return new Set(rows.map((r) => r.slot_id));
+}
+
 async function takeReservations(
   db: ShopTx,
   scope: MerchantScoped,
   quote_id: string,
+  kind: 'stock' | 'slot',
 ): Promise<Array<{ product_id: string; variant_id: string | null; qty: number }>> {
   return db.$queryRawUnsafe(
-    `DELETE FROM shop_inventory_reservations WHERE merchant_id = $1::uuid AND quote_id = $2::uuid
+    `DELETE FROM shop_inventory_reservations
+      WHERE merchant_id = $1::uuid AND quote_id = $2::uuid AND kind = '${kind}'
      RETURNING product_id, variant_id, qty`,
     scope.merchant_id,
     quote_id,
@@ -183,7 +237,9 @@ export async function releaseReservation(
   scope: MerchantScoped,
   quote_id: string,
 ): Promise<number> {
-  const held = await takeReservations(db, scope, quote_id);
+  // A slot hold is just deleted (the slot is free again); stock goes back to the counter.
+  await takeReservations(db, scope, quote_id, 'slot');
+  const held = await takeReservations(db, scope, quote_id, 'stock');
   for (const r of held) {
     await adjust(db, scope, r, false);
   }
@@ -196,7 +252,14 @@ export async function convertReservation(
   scope: MerchantScoped,
   quote_id: string,
 ): Promise<number> {
-  const held = await takeReservations(db, scope, quote_id);
+  // Paid: the slot stays taken for good (the hold never expires, the quote it names is paid).
+  await db.$executeRawUnsafe(
+    `UPDATE shop_inventory_reservations SET expires_at = 'infinity'
+      WHERE merchant_id = $1::uuid AND quote_id = $2::uuid AND kind = 'slot'`,
+    scope.merchant_id,
+    quote_id,
+  );
+  const held = await takeReservations(db, scope, quote_id, 'stock');
   for (const r of held) {
     await adjust(db, scope, r, true);
   }

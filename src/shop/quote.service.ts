@@ -10,7 +10,7 @@ import { createQuotedOrder, transition } from './order-state';
 import { QuoteError } from './quote.errors';
 import { cancelPaidOrder } from './order-lifecycle.service';
 import { isPayer } from './order-payment.service';
-import { releaseReservation, reserveStock } from './repository';
+import { releaseReservation, reserveSlot, reserveStock, takenSlots } from './repository';
 
 export const QUOTE_RATE_PER_MIN = 30;
 export const QUOTE_RATE_PER_HOUR = 300;
@@ -99,6 +99,8 @@ interface ProductRow {
   fulfillment_mode: string;
   requires_pii: string[];
   category: string | null;
+  shipping_options: Array<{ id: string; label: string; price_usd: string | number }>;
+  delivery_slots: Array<{ id: string; label: string; starts_at?: string }>;
 }
 
 interface VariantRow {
@@ -125,6 +127,10 @@ export interface QuoteResponse {
   order_id: string;
   items: QuoteLine[];
   total_usd: number;
+  /** T-INT-22: physical quotes only; already part of total_usd. */
+  shipping_usd?: number;
+  shipping_option?: string;
+  delivery_slot?: string;
   fee_disclosed: false;
   expires_at: string;
   requires_pii: string[];
@@ -259,14 +265,33 @@ function parseInput(input: unknown): QuoteInput {
       qty: it.qty as number,
     };
   });
-  // Wave 1 sells digital goods only: nothing consumes shipping or a delivery slot (INT-22).
-  if (i.shipping_option != null || i.delivery_slot != null) {
-    throw bad('shipping_option and delivery_slot are not supported for digital items yet');
+  for (const k of ['shipping_option', 'delivery_slot'] as const) {
+    if (i[k] != null && (typeof i[k] !== 'string' || i[k] === '' || (i[k] as string).length > 64)) {
+      throw bad(`${k} must be a non-empty string up to 64 characters`);
+    }
   }
   if (i.buyer_ref != null && (typeof i.buyer_ref !== 'string' || i.buyer_ref.length > 200)) {
     throw bad('buyer_ref must be a string up to 200 characters');
   }
-  return { items, ...(typeof i.buyer_ref === 'string' ? { buyer_ref: i.buyer_ref } : {}) };
+  return {
+    items,
+    ...(typeof i.shipping_option === 'string' ? { shipping_option: i.shipping_option } : {}),
+    ...(typeof i.delivery_slot === 'string' ? { delivery_slot: i.delivery_slot } : {}),
+    ...(typeof i.buyer_ref === 'string' ? { buyer_ref: i.buyer_ref } : {}),
+  };
+}
+
+/** The shipping options a quote could name (the answer to a missing/unknown `shipping_option`). */
+const shippingOffer = (products: Array<Pick<ProductRow, 'shipping_options'>>) =>
+  products.flatMap((p) => p.shipping_options ?? []);
+
+class SlotTaken extends Error {
+  constructor(
+    readonly sku: string,
+    readonly slot: string,
+  ) {
+    super('delivery slot taken');
+  }
 }
 
 class OutOfStock extends Error {
@@ -310,6 +335,9 @@ function buildResponse(
     order_id: string;
     items: QuoteLine[];
     total_usd: number;
+    shipping_usd?: number;
+    shipping_option?: string;
+    delivery_slot?: string;
     expires_at: Date;
     requires_pii: string[];
     requires_human_confirmation: boolean;
@@ -337,6 +365,13 @@ function buildResponse(
     order_id: q.order_id,
     items: q.items,
     total_usd: q.total_usd,
+    ...(q.shipping_option !== undefined
+      ? {
+          shipping_usd: q.shipping_usd,
+          shipping_option: q.shipping_option,
+          ...(q.delivery_slot !== undefined ? { delivery_slot: q.delivery_slot } : {}),
+        }
+      : {}),
     fee_disclosed: false,
     expires_at: q.expires_at.toISOString(),
     requires_pii: q.requires_pii,
@@ -375,7 +410,7 @@ export async function createQuote(
   const skus = input.items.map((i) => i.sku);
   const products = await d.db.$queryRawUnsafe<ProductRow[]>(
     `SELECT product_id, sku, title, price_usd::text AS price_usd, is_test, available, reserved,
-            fulfillment_mode, requires_pii, category
+            fulfillment_mode, requires_pii, category, shipping_options, delivery_slots
        FROM shop_products
       WHERE merchant_id = $1::uuid AND sku = ANY($2::text[]) AND moderation_status = 'ok'`,
     merchant_id,
@@ -415,9 +450,6 @@ export async function createQuote(
         { sku: it.sku, documentation_url: DOCS },
       );
     }
-    if (product.fulfillment_mode === 'physical') {
-      throw bad('physical fulfillment not available yet', { sku: it.sku });
-    }
     const unit_cents = cents(variant?.price_usd ?? product.price_usd);
     lines.push({
       product,
@@ -434,12 +466,56 @@ export async function createQuote(
     });
   }
 
+  // T-INT-22 (UC-4/UC-12): physical lines need a catalog shipping option and, where the product
+  // offers delivery slots, one slot; the option price is the quote's `shipping`.
+  const physical = lines.filter((l) => l.product.fulfillment_mode === 'physical');
+  let shippingCents = 0;
+  if (physical.length === 0) {
+    if (input.shipping_option != null || input.delivery_slot != null) {
+      throw bad('shipping_option and delivery_slot apply to physical items only');
+    }
+  } else {
+    if (input.shipping_option == null) {
+      throw bad('shipping_option is required for physical items', {
+        shipping_options: shippingOffer(physical.map((l) => l.product)),
+      });
+    }
+    for (const l of physical) {
+      const opt = (l.product.shipping_options ?? []).find((o) => o.id === input.shipping_option);
+      if (!opt) {
+        throw bad(`shipping_option ${input.shipping_option} is not offered for ${l.line.sku}`, {
+          sku: l.line.sku,
+          shipping_options: shippingOffer([l.product]),
+        });
+      }
+      shippingCents = Math.max(shippingCents, cents(String(opt.price_usd)));
+    }
+    const slotted = physical.filter((l) => (l.product.delivery_slots ?? []).length > 0);
+    if (slotted.length > 0 && input.delivery_slot == null) {
+      throw bad('delivery_slot is required: this item is delivered in slots', {
+        delivery_slots: slotted.flatMap((l) => l.product.delivery_slots),
+      });
+    }
+    if (input.delivery_slot != null) {
+      if (slotted.length === 0) throw bad('these items have no delivery slots');
+      for (const l of slotted) {
+        if (!l.product.delivery_slots.some((sl) => sl.id === input.delivery_slot)) {
+          throw bad(`delivery_slot ${input.delivery_slot} is not offered for ${l.line.sku}`, {
+            sku: l.line.sku,
+            delivery_slots: l.product.delivery_slots,
+          });
+        }
+      }
+    }
+  }
+
   const is_test = lines.some((l) => l.product.is_test || l.product.sku === TEST_SKU);
   if (is_test && (lines.length !== 1 || lines[0].line.qty !== 1)) {
     throw bad('the test SKU is bought alone, quantity 1');
   }
 
-  const totalCents = lines.reduce((s, l) => s + l.unit_cents * l.line.qty, 0);
+  const subtotalCents = lines.reduce((s, l) => s + l.unit_cents * l.line.qty, 0);
+  const totalCents = subtotalCents + shippingCents;
   const total = usd(totalCents);
   const limits = merchant.limits ?? {};
   if (!is_test) {
@@ -512,7 +588,12 @@ export async function createQuote(
   ];
   const humanAbove = Number(limits.human_confirm_above_usd ?? DEFAULT_HUMAN_CONFIRM_USD);
   const requires_human_confirmation = total > humanAbove;
-  const requires_pii = [...new Set(lines.flatMap((l) => l.product.requires_pii ?? []))];
+  const requires_pii = [
+    ...new Set([
+      ...lines.flatMap((l) => l.product.requires_pii ?? []),
+      ...(physical.length > 0 ? ['shipping_address'] : []),
+    ]),
+  ];
   const quote_id = randomUUID();
 
   let order_id: string;
@@ -521,20 +602,24 @@ export async function createQuote(
       await tx.$executeRawUnsafe(
         `INSERT INTO shop_quotes (quote_id, merchant_id, buyer_identity, items, subtotal, shipping,
             total_usd, fee_usd, rails_offered, requires_pii, requires_human_confirmation, is_test,
-            expires_at, status)
-         VALUES ($1::uuid, $2::uuid, $3, $4::jsonb, $5::numeric, 0, $5::numeric, $6::numeric,
-                 $7::text[], $8::text[], $9, $10, $11::timestamptz, 'open')`,
+            expires_at, status, shipping_option, delivery_slot)
+         VALUES ($1::uuid, $2::uuid, $3, $4::jsonb, $5::numeric, $12::numeric, $13::numeric,
+                 $6::numeric, $7::text[], $8::text[], $9, $10, $11::timestamptz, 'open', $14, $15)`,
         quote_id,
         merchant_id,
         buyer.identity,
         JSON.stringify(lines.map((l) => l.line)),
-        money(totalCents),
+        money(subtotalCents),
         money(feeCents),
         rails,
         requires_pii,
         requires_human_confirmation,
         is_test,
         expires_at.toISOString(),
+        money(shippingCents),
+        money(totalCents),
+        physical.length > 0 ? (input.shipping_option ?? null) : null,
+        physical.length > 0 ? (input.delivery_slot ?? null) : null,
       );
       const id = await createQuotedOrder(tx, {
         quote_id,
@@ -543,6 +628,21 @@ export async function createQuote(
         fee_usd: money(feeCents),
         actor: 'buyer',
       });
+      if (input.delivery_slot != null) {
+        for (const l of physical.filter((p) => (p.product.delivery_slots ?? []).length > 0)) {
+          const held = await reserveSlot(
+            tx,
+            { merchant_id },
+            {
+              product_id: l.product.product_id,
+              slot_id: input.delivery_slot,
+              quote_id,
+              expires_at,
+            },
+          );
+          if (!held) throw new SlotTaken(l.line.sku, input.delivery_slot);
+        }
+      }
       for (const l of lines) {
         const tracked = l.variant ? l.variant.available : l.product.available;
         if (tracked === null) continue; // stock not tracked: nothing to hold
@@ -569,6 +669,25 @@ export async function createQuote(
       return id;
     });
   } catch (err) {
+    if (err instanceof SlotTaken) {
+      const product = physical.find((l) => l.line.sku === err.sku)?.product;
+      const taken = product
+        ? await takenSlots(d.db, { merchant_id }, product.product_id)
+        : new Set();
+      throw new QuoteError(
+        409,
+        'slot_unavailable',
+        `delivery slot ${err.slot} is taken`,
+        'fix_request',
+        {
+          sku: err.sku,
+          alternatives: (product?.delivery_slots ?? []).filter(
+            (sl) => sl.id !== err.slot && !taken.has(sl.id),
+          ),
+          documentation_url: DOCS,
+        },
+      );
+    }
     if (err instanceof OutOfStock) {
       throw new QuoteError(409, 'out_of_stock', `${err.sku} is out of stock`, 'fix_request', {
         sku: err.sku,
@@ -588,6 +707,13 @@ export async function createQuote(
         order_id,
         items: lines.map((l) => l.line),
         total_usd: total,
+        ...(physical.length > 0
+          ? {
+              shipping_usd: usd(shippingCents),
+              shipping_option: input.shipping_option,
+              ...(input.delivery_slot != null ? { delivery_slot: input.delivery_slot } : {}),
+            }
+          : {}),
         expires_at,
         requires_pii,
         requires_human_confirmation,
@@ -605,6 +731,9 @@ interface QuoteRow {
   buyer_identity: string | null;
   items: QuoteLine[];
   total_usd: string;
+  shipping_usd: string;
+  shipping_option: string | null;
+  delivery_slot: string | null;
   rails_offered: string[];
   requires_pii: string[];
   requires_human_confirmation: boolean;
@@ -619,6 +748,7 @@ async function loadQuote(db: ShopTx, quote_id: string): Promise<QuoteRow> {
   }
   const rows = await db.$queryRawUnsafe<QuoteRow[]>(
     `SELECT q.quote_id, q.merchant_id, q.buyer_identity, q.items, q.total_usd::float8 AS total_usd,
+            q.shipping::float8 AS shipping_usd, q.shipping_option, q.delivery_slot,
             q.rails_offered, q.requires_pii, q.requires_human_confirmation, q.expires_at, q.status,
             (SELECT o.order_id FROM shop_orders o WHERE o.quote_id = q.quote_id LIMIT 1) AS order_id
        FROM shop_quotes q WHERE q.quote_id = $1::uuid`,
@@ -666,6 +796,13 @@ export async function getQuote(
         order_id: q.order_id ?? '',
         items: q.items,
         total_usd: Number(q.total_usd),
+        ...(q.shipping_option
+          ? {
+              shipping_usd: Number(q.shipping_usd),
+              shipping_option: q.shipping_option,
+              ...(q.delivery_slot ? { delivery_slot: q.delivery_slot } : {}),
+            }
+          : {}),
         expires_at: new Date(q.expires_at),
         requires_pii: q.requires_pii,
         requires_human_confirmation: q.requires_human_confirmation,
@@ -685,7 +822,11 @@ export async function getQuote(
   const again = q.items.map((l) => ({ sku: l.sku, variant: l.variant, qty: l.qty }));
   const who = buyer ?? { identity: q.buyer_identity ?? 'unknown' };
   try {
-    const fresh = await createQuote(d, q.merchant_id, who, { items: again });
+    const fresh = await createQuote(d, q.merchant_id, who, {
+      items: again,
+      ...(q.shipping_option ? { shipping_option: q.shipping_option } : {}),
+      ...(q.delivery_slot ? { delivery_slot: q.delivery_slot } : {}),
+    });
     throw new QuoteError(
       410,
       'quote_expired',

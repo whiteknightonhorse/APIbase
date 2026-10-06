@@ -7,6 +7,7 @@ import { termsStatus } from '../auth/terms.guard';
 import {
   addMerchantDocument,
   confirmMerchantOrder,
+  shipMerchantOrder,
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
@@ -45,6 +46,7 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.deactivate',
   'shop.merchant.orders_list',
   'shop.merchant.order_confirm',
+  'shop.merchant.order_ship',
   'shop.merchant.order_document',
   'shop.merchant.webhook_set',
   'shop.merchant.check',
@@ -282,6 +284,50 @@ export function registerMerchantTools(
       try {
         const m = await bearer(deps, apiKey, 'orders:write');
         return ok({ ...(await confirmMerchantOrder(deps, m.merchant_id, a.order_id)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.order_ship',
+    {
+      title: 'Ship a physical order',
+      description:
+        'CONFIRMED -> SHIPPED for a physical order (needs orders:write): tracking {carrier, number, url?} and delivery_eta (ISO 8601); stops the ship SLA. Later, call again with delivered_at to mark it DELIVERED (starts the refund window). The buyer sees the tracking in shop.order.get. Repeating is a no-op.',
+      inputSchema: {
+        order_id: z.string(),
+        tracking: z
+          .object({ carrier: z.string(), number: z.string(), url: z.string().optional() })
+          .optional(),
+        delivery_eta: z.string().optional(),
+        delivered_at: z.string().optional(),
+      },
+      outputSchema: {
+        order_id: z.string(),
+        state: z.string(),
+        tracking: z.record(z.unknown()).optional(),
+        delivery_eta: z.string().nullable().optional(),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async (a: {
+      order_id: string;
+      tracking?: unknown;
+      delivery_eta?: string;
+      delivered_at?: string;
+    }) => {
+      try {
+        const m = await bearer(deps, apiKey, 'orders:write');
+        const { order_id, ...rest } = a;
+        return ok({ ...(await shipMerchantOrder(deps, m.merchant_id, order_id, rest)) });
       } catch (err) {
         return fail(err, requestId);
       }

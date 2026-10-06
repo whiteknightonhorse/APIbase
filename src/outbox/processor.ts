@@ -1,7 +1,7 @@
 import { logger } from '../config/logger';
 import { BREAKER_THRESHOLD, OUTBOX_TO_WEBHOOK, RETRY_DELAYS_MS } from '../shop/webhook/constants';
 
-/** INT-09/11/12 events; shipped/delivered/dispute/refund.verified join with INT-22/23. */
+/** INT-09/11/12/22 events; dispute/refund.verified join with INT-23. */
 const SHOP_WEBHOOK_EVENT_TYPES = [
   'shop.order.paid',
   'shop.order.confirmed',
@@ -10,7 +10,10 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
   'shop.catalog.rejected',
   'shop.merchant.key_rotated',
   'shop.merchant.keys_reissued',
+  'shop.order.shipped',
+  'shop.order.delivered',
   'shop.order.confirm_overdue',
+  'shop.order.ship_overdue',
   'shop.refund.overdue',
 ] as const;
 

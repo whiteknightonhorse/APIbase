@@ -71,6 +71,7 @@ export const CatalogItemSchema = z
           label: clean(120),
           price_usd: money,
           eta_days: z.number().int().min(0).max(365).optional(),
+          regions: z.array(z.string().min(1).max(32)).max(250).optional(),
         }),
       )
       .max(20)

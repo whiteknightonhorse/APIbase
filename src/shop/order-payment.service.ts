@@ -31,8 +31,9 @@ export interface OrderView {
   tx_hash: string | null;
   fulfillment?: string;
   events?: OrderEventView[];
-  /** Wave 1 has no physical shipments (INT-22). */
-  tracking?: null;
+  /** T-INT-22: set by `order_ship`; null until a physical order is shipped. */
+  tracking?: { carrier: string; number: string; url?: string } | null;
+  delivery_eta?: Date | null;
   merchant_contact?: { email: string; site_url: string };
   documents?: Array<{ url: string; at: Date }>;
   refund_policy?: RefundPolicy;
@@ -199,6 +200,7 @@ interface ViewRow {
   buyer_identity: string | null;
   payer_wallet: string | null;
   merchant_id: string;
+  delivery_eta: Date | null;
 }
 
 /** UC-19: the merchant's contact is the payer's while the order is open (PAID ... not CLOSED). */
@@ -214,7 +216,7 @@ const CONTACT_STATES = [
 
 async function loadView(db: ShopTx, where: string, value: string): Promise<ViewRow | undefined> {
   const rows = await db.$queryRawUnsafe<ViewRow[]>(
-    `SELECT o.order_id, o.state, o.tx_hash, o.fulfillment_payload_enc, o.payer_wallet, o.merchant_id, q.buyer_identity
+    `SELECT o.order_id, o.state, o.tx_hash, o.fulfillment_payload_enc, o.payer_wallet, o.merchant_id, o.delivery_eta, q.buyer_identity
        FROM shop_orders o JOIN shop_quotes q ON q.quote_id = o.quote_id
       WHERE ${where} = $1::uuid
       ORDER BY o.created_at DESC LIMIT 1`,
@@ -232,7 +234,7 @@ function toView(r: ViewRow, withFulfillment: boolean): OrderView {
 }
 
 /**
- * §6.1 shop.order.get: state, events, tracking (null in wave 1), refund policy for everyone;
+ * §6.1 shop.order.get: state, events, tracking + delivery_eta (physical, once shipped), refund policy for everyone;
  * `fulfillment`, `merchant_contact` (open orders only) and `documents` for the payer's identity.
  */
 export async function getOrderView(
@@ -252,7 +254,13 @@ export async function getOrderView(
       WHERE order_id = $1::uuid ORDER BY seq`,
     order_id,
   );
-  view.tracking = null;
+  const shipped = await db.$queryRawUnsafe<Array<{ tracking: unknown }>>(
+    `SELECT payload->'tracking' AS tracking FROM shop_order_events
+      WHERE order_id = $1::uuid AND reason = 'shipped' ORDER BY seq DESC LIMIT 1`,
+    order_id,
+  );
+  view.tracking = (shipped[0]?.tracking as OrderView['tracking']) ?? null;
+  view.delivery_eta = r.delivery_eta;
   view.refund_policy = await refundPolicy(db, order_id);
   const pii = await loadPiiSummary(db, order_id);
   if (pii && payer) view.pii = pii;

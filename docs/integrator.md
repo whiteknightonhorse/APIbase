@@ -16,6 +16,7 @@ wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
 | —    | `POST /merchants/me/deactivate` (Bearer, `orders:write`)     | `shop.merchant.deactivate`     |
 | —    | `GET /merchants/me/orders` (Bearer, `orders:read`)           | `shop.merchant.orders_list`    |
 | —    | `POST /merchants/me/orders/:id/confirm` (`orders:write`)     | `shop.merchant.order_confirm`  |
+| —    | `POST /merchants/me/orders/:id/ship` (`orders:write`)        | `shop.merchant.order_ship`     |
 | —    | `POST /merchants/me/orders/:id/document` (`orders:write`)    | `shop.merchant.order_document` |
 | —    | `PUT /merchants/me/webhooks` (`webhooks:write`)              | `shop.merchant.webhook_set`    |
 | —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`)    | —                              |
@@ -138,7 +139,8 @@ Buyer path. A quote is a price snapshot plus a stock hold; nothing is charged by
 
 - `shop.order.quote {merchant, items[{sku, variant?, qty}], shipping_option?, delivery_slot?, buyer_ref?}` on `/mcp` · `POST /api/v1/shop/quotes` (same body, `X-Idempotency-Key` supported: a replay returns the same `quote_id` and holds stock once) · `GET /api/v1/shop/quotes/:id`.
 - `shop.order.cancel {order_id, reason}` · `POST /api/v1/shop/orders/:id/cancel {reason}`: free while the order is `QUOTED`; the quote is voided and the held stock released. After payment: `409 not_cancellable` (refund flow).
-- Digital items only for now: `shipping_option`/`delivery_slot` → `422`; a `physical` product → `422 physical fulfillment not available yet`.
+- **Physical items (T-INT-22).** A quote with a `physical` product needs `shipping_option` (an `id` from the product's `shipping_options[]`, else `422` listing the offered options); its `price_usd` is added once as `shipping_usd` and is part of `total_usd`. When the product lists `delivery_slots[]`, `delivery_slot` is required too: the slot is held until the quote expires (one live hold per product and slot); a taken slot answers `409 slot_unavailable` with `alternatives` (the free slots). A paid order keeps its slot. `requires_pii` always includes `shipping_address` (end-to-end encrypted, see the PII section); paying without it is `422 pii_required`. `shipping_option`/`delivery_slot` on a quote without physical items → `422`.
+- **Physical order flow.** `PAID` → `CONFIRMED` (merchant only, `order_confirm`; sets `ship_due_at = now + policy.ship_sla_h`, default 72 h) → `SHIPPED` (`order_ship {order_id, tracking: {carrier, number, url?}, delivery_eta}`; the buyer sees `tracking` and `delivery_eta` in `order.get`) → `DELIVERED` (the merchant calls `order_ship {order_id, delivered_at}`, or automatically `delivery_eta + 7 days`) → `CLOSED` when `close_after` (`DELIVERED` + `refund_window_days`) passes. There is no buyer-side confirm-delivery tool (not in §6): the buyer's way out is `shop.order.cancel` within the refund window or the automatic `DELIVERED`.
 
 **Response** (`201`): `quote_id, order_id, items[{sku, variant?, title, qty, unit_price_usd, line_total_usd}], total_usd, fee_disclosed: false, expires_at, requires_pii[], requires_human_confirmation, pay`. Prices come from the server catalog, never from the request.
 
@@ -167,8 +169,8 @@ Buyer path after a quote: pay with x402 (Base). **Settle comes before delivery**
 - **`200 already_placed`** — a repeat of `shop.order.pay` **without** a payment on a quote the same identity already paid returns the same order (with `fulfillment`); any other identity gets `402`.
 - `shop.order.get {order_id}` · `GET /api/v1/shop/orders/:id` → `{order_id, state, tx_hash, events[], tracking (null in wave 1), refund_policy {refund_window_days, returns_accepted}}`; for the identity that paid (the quote's buyer, or the wallet identity of the payer) also `fulfillment?` (same on every call), `documents[]` (merchant links) and, while the order is open (`PAID` … `DELIVERED`, `REFUND_PENDING`, `DISPUTED`; not `CLOSED`), `merchant_contact {email, site_url}`.
 - `shop.order.cancel` after payment: before the merchant confirms (`PAID`) it is always a refund → `REFUND_PENDING` and a `shop_refunds` row due in 7 days (`shop.refund.requested`); after `CONFIRMED` only if the SKUs accept returns and `refund_window_days` is still open, otherwise `409 not_cancellable` with the policy. Digital content delivered under `waive_withdrawal` (`FULFILLED`/`CLOSED`) is `409`.
-- **Merchant order tools.** `orders_list {state?, since?, cursor?, limit?}` (own orders only, `next_cursor` for the next page), `order_confirm {order_id}` (`PAID → CONFIRMED`, stops the confirm SLA; another merchant's order is `404`), `order_document {order_id, url}` (`https://` only, else `422`; shown in the buyer's `order.get.documents`).
-- **SLA sweeper** (`shop-sla-sweeper`, worker, every 5 minutes): expired open quotes → `expired` (stock released, `QUOTED` orders → `EXPIRED`); `PAID` past `confirm_due_at` (`PAID` + `policy.confirm_sla_h`, default 48 h, merchant-fulfilled orders only) → one `shop.order.confirm_overdue`, repeated every 24 h; three late orders in a row → the merchant gets `status_reason = unresponsive` and quotes answer `410` until the operator clears it; `close_after` passed → `CLOSED`; refund `due_at` passed → `overdue` + one `shop.refund.overdue`; `payout_pending.effective_at` passed → the new payout wallet is applied; `shop_connect_events` older than 30 days are deleted.
+- **Merchant order tools.** `orders_list {state?, since?, cursor?, limit?}` (own orders only, `next_cursor` for the next page), `order_confirm {order_id}` (`PAID → CONFIRMED`, stops the confirm SLA; another merchant's order is `404`), `order_ship {order_id, tracking?, delivery_eta?, delivered_at?}` (physical orders: `CONFIRMED → SHIPPED`, then `delivered_at` → `DELIVERED`; `409 not_shippable` otherwise), `order_document {order_id, url}` (`https://` only, else `422`; shown in the buyer's `order.get.documents`).
+- **SLA sweeper** (`shop-sla-sweeper`, worker, every 5 minutes): expired open quotes → `expired` (stock released, `QUOTED` orders → `EXPIRED`); `PAID` past `confirm_due_at` (`PAID` + `policy.confirm_sla_h`, default 48 h, merchant-fulfilled orders only) → one `shop.order.confirm_overdue`, repeated every 24 h; `CONFIRMED` physical past `ship_due_at` → one `shop.order.ship_overdue` (pull-only); `SHIPPED` with `delivery_eta` + 7 days passed → `DELIVERED`; three late orders in a row → the merchant gets `status_reason = unresponsive` and quotes answer `410` until the operator clears it; `close_after` passed → `CLOSED`; refund `due_at` passed → `overdue` + one `shop.refund.overdue`; `payout_pending.effective_at` passed → the new payout wallet is applied; `shop_connect_events` older than 30 days are deleted.
 - Paid orders emit the `shop.order.paid` event; the `PAID` order event records `request_id`, the buyer agent (client name/version or user agent) and the first 8 hex characters of the payer wallet's SHA-256 — never the wallet.
 
 ## Buyer PII (end-to-end encrypted) {#pii}
@@ -251,7 +253,7 @@ Any `2xx` within 10 s is delivery. Anything else (other status, timeout, connect
 
 **Instant fulfillment.** Answer `200` to `order.paid` with `{"fulfillment": "<text, up to 16 KB>"}` and the order goes `PAID → CONFIRMED → FULFILLED` at once (answering with the goods counts as the confirmation). Only the **first** valid fulfillment is taken; a retry or redelivery carries the same `order_id` and `X-APIbase-Delivery-Id`, and a later fulfillment is ignored and recorded as not accepted. **Deduplicate by `order_id`** on your side and make the handler idempotent.
 
-**Pull instead of push.** `GET /merchants/me/events?since=<cursor>&limit=` returns your own events in order, `{events[{id, event, created_at, data}], next_cursor}`; pass `next_cursor` back as `since`. The same list also carries `order.confirm_overdue` and `refund.overdue` notices, which are not pushed.
+**Pull instead of push.** `GET /merchants/me/events?since=<cursor>&limit=` returns your own events in order, `{events[{id, event, created_at, data}], next_cursor}`; pass `next_cursor` back as `since`. The same list also carries `order.confirm_overdue`, `order.ship_overdue` and `refund.overdue` notices, which are not pushed.
 
 ## Storefront MCP
 
@@ -302,15 +304,15 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 
 **Buyer tools (§6.1)**
 
-| Tool                  | Wave 1 | Notes                                            |
-| --------------------- | ------ | ------------------------------------------------ |
-| `shop.catalog.search` | yes    |                                                  |
-| `shop.catalog.get`    | yes    |                                                  |
-| `shop.order.quote`    | yes    |                                                  |
-| `shop.order.pay`      | yes    | `pii` envelopes (INT-21); physical goods: wave 2 |
-| `shop.order.get`      | yes    |                                                  |
-| `shop.order.cancel`   | yes    |                                                  |
-| `shop.order.dispute`  | no     | wave 2                                           |
+| Tool                  | Wave 1 | Notes                                             |
+| --------------------- | ------ | ------------------------------------------------- |
+| `shop.catalog.search` | yes    |                                                   |
+| `shop.catalog.get`    | yes    |                                                   |
+| `shop.order.quote`    | yes    |                                                   |
+| `shop.order.pay`      | yes    | `pii` envelopes (INT-21), physical goods (INT-22) |
+| `shop.order.get`      | yes    |                                                   |
+| `shop.order.cancel`   | yes    |                                                   |
+| `shop.order.dispute`  | no     | wave 2                                            |
 
 **Merchant tools (§6.2)**
 
@@ -327,7 +329,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `shop.merchant.check`          | yes    |        |
 | `shop.merchant.rotate_key`     | yes    |        |
 | `shop.merchant.deactivate`     | yes    |        |
-| `shop.merchant.order_ship`     | no     | wave 2 |
+| `shop.merchant.order_ship`     | yes    |        |
 | `shop.merchant.refund`         | no     | wave 2 |
 | `shop.merchant.stats`          | no     | wave 2 |
 
@@ -354,7 +356,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `POST /merchants/me/orders/:id/confirm`  | yes    |                      |
 | `GET /merchants/me/orders/:id/pii`       | yes    | buyer-data envelopes |
 | `POST /merchants/me/orders/:id/document` | yes    |                      |
-| `POST /merchants/me/orders/:id/ship`     | no     | wave 2               |
+| `POST /merchants/me/orders/:id/ship`     | yes    |                      |
 | `POST /merchants/me/refunds`             | no     | wave 2               |
 | `PUT /merchants/me/webhooks`             | yes    |                      |
 | `GET /merchants/me/stats`                | no     | wave 2               |

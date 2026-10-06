@@ -14,6 +14,7 @@ import { upsertCatalog } from '../catalog.service';
 import {
   addMerchantDocument,
   confirmMerchantOrder,
+  shipMerchantOrder,
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
@@ -254,6 +255,25 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(await confirmMerchantOrder(deps, req.merchant?.merchant_id ?? '', req.params.id));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/shop/merchants/me/orders/:id/ship',
+    requireMerchantKey(['orders:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await shipMerchantOrder(
+            deps,
+            req.merchant?.merchant_id ?? '',
+            req.params.id,
+            (req.body ?? {}) as Record<string, unknown>,
+          ),
+        );
       } catch (err) {
         send(res, err);
       }

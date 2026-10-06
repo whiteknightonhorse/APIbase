@@ -11,6 +11,16 @@ const DOCS = '/docs/integrator#orders';
 export const DEFAULT_REFUND_WINDOW_DAYS = 14;
 /** UC-13: a buyer-requested refund is due from the merchant within 7 days. */
 export const REFUND_DUE_DAYS = 7;
+/** UC-12: how long a merchant has to ship a CONFIRMED physical order unless `policy.ship_sla_h` says. */
+export const DEFAULT_SHIP_SLA_H = 72;
+/** UC-12: SHIPPED with no word from the merchant turns DELIVERED this long after delivery_eta. */
+export const AUTO_DELIVER_AFTER_DAYS = 7;
+/** An `o` (shop_orders) whose quote holds at least one physical product. */
+export const PHYSICAL_ORDER_SQL = `EXISTS (
+  SELECT 1 FROM shop_quotes pq
+    CROSS JOIN LATERAL jsonb_array_elements(pq.items) pi
+    JOIN shop_products pp ON pp.merchant_id = o.merchant_id AND pp.sku = pi->>'sku'
+   WHERE pq.quote_id = o.quote_id AND pp.fulfillment_mode = 'physical')`;
 const DOCUMENT_STATES: readonly State[] = [
   'PAID',
   'CONFIRMED',
@@ -205,6 +215,8 @@ export async function listMerchantOrders(
       fee_usd: r.fee_usd,
       created_at: r.created_at,
       confirm_due_at: r.confirm_due_at,
+      ...(r.ship_due_at ? { ship_due_at: r.ship_due_at } : {}),
+      ...(r.delivery_eta ? { delivery_eta: r.delivery_eta } : {}),
       ...(pii.has(r.order_id) ? { pii: pii.get(r.order_id) } : {}),
     })),
     next_cursor:
@@ -242,8 +254,173 @@ export async function confirmMerchantOrder(
       `UPDATE shop_orders SET confirm_due_at = NULL WHERE order_id = $1::uuid`,
       id,
     );
+    // UC-12 / 12.2: a physical order must be SHIPPED within the merchant's ship_sla_h (default 72)
+    // of being CONFIRMED; the sweeper watches ship_due_at.
+    await tx.$executeRawUnsafe(
+      `UPDATE shop_orders o
+          SET ship_due_at = now() + (COALESCE((m.policy->>'ship_sla_h')::numeric, $2::numeric) * interval '1 hour')
+         FROM shop_merchants m
+        WHERE o.order_id = $1::uuid AND m.merchant_id = o.merchant_id
+          AND ${PHYSICAL_ORDER_SQL}`,
+      id,
+      DEFAULT_SHIP_SLA_H,
+    );
     await emit(tx, 'shop.order.confirmed', { order_id: id, merchant_id });
     return { order_id: id, state: 'CONFIRMED' };
+  });
+}
+
+export interface ShipInput {
+  tracking?: unknown;
+  delivery_eta?: unknown;
+  delivered_at?: unknown;
+}
+
+function parseTracking(raw: unknown): { carrier: string; number: string; url?: string } {
+  const t = (raw ?? {}) as Record<string, unknown>;
+  const text = (v: unknown, max: number) =>
+    typeof v === 'string' && v.trim() !== '' && v.length <= max && !/[\u0000-\u001f]/.test(v);
+  if (!text(t.carrier, 64) || !text(t.number, 128)) {
+    throw invalid(
+      'tracking {carrier, number, url?} is required (carrier up to 64, number up to 128)',
+    );
+  }
+  let url: string | undefined;
+  if (t.url != null) {
+    let parsed: URL | undefined;
+    try {
+      parsed = typeof t.url === 'string' && t.url.length <= 2000 ? new URL(t.url) : undefined;
+    } catch {
+      parsed = undefined;
+    }
+    if (!parsed || parsed.protocol !== 'https:' || parsed.username || parsed.password) {
+      throw invalid(
+        'tracking.url must be an https:// link (up to 2000 characters, no credentials)',
+      );
+    }
+    url = parsed.href;
+  }
+  return {
+    carrier: (t.carrier as string).trim(),
+    number: (t.number as string).trim(),
+    ...(url ? { url } : {}),
+  };
+}
+
+/**
+ * DELIVERED (UC-12): the merchant said so (`order_ship` with `delivered_at`) or the sweeper did
+ * after `delivery_eta` + 7 days. Starts the refund window: close_after = now + refund_window_days.
+ * Runs inside the caller's transaction; the order must be SHIPPED.
+ */
+export async function markDelivered(
+  tx: ShopTx,
+  o: { order_id: string; merchant_id: string },
+  meta: { actor: 'merchant' | 'system'; reason: string; delivered_at?: Date },
+  nowMs: number,
+): Promise<void> {
+  const policy = await refundPolicy(tx, o.order_id);
+  await transition(tx, o.order_id, 'DELIVERED', {
+    actor: meta.actor,
+    reason: meta.reason,
+    payload: meta.delivered_at ? { delivered_at: meta.delivered_at.toISOString() } : {},
+  });
+  await tx.$executeRawUnsafe(
+    `UPDATE shop_orders SET close_after = $2::timestamptz + ($3::int * interval '1 day')
+      WHERE order_id = $1::uuid`,
+    o.order_id,
+    new Date(nowMs),
+    policy.refund_window_days ?? DEFAULT_REFUND_WINDOW_DAYS,
+  );
+  await emit(tx, 'shop.order.delivered', { order_id: o.order_id, merchant_id: o.merchant_id });
+}
+
+/**
+ * §6.2 order_ship: CONFIRMED -> SHIPPED with `tracking` and `delivery_eta` (stops the ship SLA);
+ * on a SHIPPED order `delivered_at` -> DELIVERED (the spec has no separate order_delivered tool).
+ * Repeating a call that changes nothing is a no-op. Physical orders only.
+ */
+export async function shipMerchantOrder(
+  d: ShopDeps,
+  merchant_id: string,
+  order_id: unknown,
+  input: ShipInput,
+  nowMs: number = Date.now(),
+): Promise<{ order_id: string; state: string; tracking?: unknown; delivery_eta?: string | null }> {
+  const id = ownOrderId(order_id);
+  let delivered_at: Date | undefined;
+  if (input.delivered_at != null) {
+    delivered_at = new Date(String(input.delivered_at));
+    if (Number.isNaN(delivered_at.getTime()) || delivered_at.getTime() > nowMs + 86_400_000) {
+      throw invalid('delivered_at must be an ISO 8601 date-time, not in the future');
+    }
+  }
+  let eta: Date | undefined;
+  if (input.delivery_eta != null) {
+    eta = new Date(String(input.delivery_eta));
+    if (Number.isNaN(eta.getTime())) throw invalid('delivery_eta must be an ISO 8601 date-time');
+  }
+  return d.transaction(async (tx) => {
+    const o = await lockOrder(tx, { merchant_id, order_id: id });
+    if (!o) throw notFound();
+    const wrong = (message: string) =>
+      new QuoteError(409, 'not_shippable', message, 'use_different_tool', {
+        state: o.state,
+        documentation_url: DOCS,
+      });
+    const phys = await tx.$queryRawUnsafe<unknown[]>(
+      `SELECT 1 FROM shop_orders o WHERE o.order_id = $1::uuid AND ${PHYSICAL_ORDER_SQL}`,
+      id,
+    );
+    if (phys.length === 0) throw wrong('only physical orders are shipped');
+    if (o.state === 'DELIVERED' && delivered_at) return { order_id: id, state: o.state };
+
+    if (o.state === 'CONFIRMED') {
+      const tracking = parseTracking(input.tracking);
+      if (!eta) throw invalid('delivery_eta is required when shipping');
+      await transition(tx, id, 'SHIPPED', {
+        actor: 'merchant',
+        reason: 'shipped',
+        payload: { tracking, delivery_eta: eta.toISOString() },
+      });
+      await tx.$executeRawUnsafe(
+        `UPDATE shop_orders SET ship_due_at = NULL, delivery_eta = $2::timestamptz WHERE order_id = $1::uuid`,
+        id,
+        eta,
+      );
+      await emit(tx, 'shop.order.shipped', {
+        order_id: id,
+        merchant_id,
+        tracking,
+        delivery_eta: eta.toISOString(),
+      });
+      if (delivered_at) {
+        await markDelivered(
+          tx,
+          { order_id: id, merchant_id },
+          { actor: 'merchant', reason: 'delivered', delivered_at },
+          nowMs,
+        );
+        return { order_id: id, state: 'DELIVERED', tracking, delivery_eta: eta.toISOString() };
+      }
+      return { order_id: id, state: 'SHIPPED', tracking, delivery_eta: eta.toISOString() };
+    }
+    if (o.state === 'SHIPPED') {
+      if (delivered_at) {
+        await markDelivered(
+          tx,
+          { order_id: id, merchant_id },
+          { actor: 'merchant', reason: 'delivered', delivered_at },
+          nowMs,
+        );
+        return { order_id: id, state: 'DELIVERED' };
+      }
+      return { order_id: id, state: o.state }; // already shipped: repeating is a no-op
+    }
+    throw wrong(
+      o.state === 'PAID'
+        ? 'order is PAID: confirm it first (order_confirm)'
+        : `order is ${o.state}: only a CONFIRMED order can be shipped`,
+    );
   });
 }
 

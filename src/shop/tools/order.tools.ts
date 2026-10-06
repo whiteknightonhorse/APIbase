@@ -69,7 +69,7 @@ export function registerOrderTools(
     {
       title: 'Quote an order',
       description:
-        'Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Errors: 409 out_of_stock (alternatives), 429 test_sku_daily_cap.',
+        'Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.',
       inputSchema: {
         merchant: z.string().describe('Merchant slug.'),
         items: z
@@ -90,6 +90,9 @@ export function registerOrderTools(
         order_id: z.string(),
         items: z.array(z.record(z.unknown())),
         total_usd: z.number(),
+        shipping_usd: z.number().optional(),
+        shipping_option: z.string().optional(),
+        delivery_slot: z.string().optional(),
         fee_disclosed: z.boolean(),
         expires_at: z.string(),
         requires_pii: z.array(z.string()),
@@ -206,7 +209,7 @@ export function registerOrderTools(
     {
       title: 'Get an order',
       description:
-        'Order state, events, tracking (null in wave 1), refund_policy and tx_hash. For the identity that paid also: fulfillment (the delivered content, repeatable), documents (merchant links), merchant_contact {email, site_url} while the order is open (not once CLOSED). Poll this after a payment_pending answer.',
+        'Order state, events, tracking {carrier, number, url?} and delivery_eta (null until the merchant ships), refund_policy and tx_hash. For the identity that paid also: fulfillment (the delivered content, repeatable), documents (merchant links), merchant_contact {email, site_url} while the order is open (not once CLOSED). Poll this after a payment_pending answer.',
       inputSchema: { order_id: z.string() },
       outputSchema: {
         order_id: z.string(),
@@ -214,7 +217,10 @@ export function registerOrderTools(
         tx_hash: z.string().nullable(),
         fulfillment: z.string().optional(),
         events: z.array(z.record(z.unknown())),
-        tracking: z.null(),
+        tracking: z
+          .object({ carrier: z.string(), number: z.string(), url: z.string().optional() })
+          .nullable(),
+        delivery_eta: z.string().nullable().optional(),
         merchant_contact: z.object({ email: z.string(), site_url: z.string() }).optional(),
         documents: z.array(z.record(z.unknown())).optional(),
         refund_policy: z.record(z.unknown()),

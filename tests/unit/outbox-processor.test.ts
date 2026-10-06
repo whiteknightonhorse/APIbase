@@ -59,7 +59,10 @@ describe('outbox processor (T-0259)', () => {
       'shop.catalog.rejected',
       'shop.merchant.key_rotated',
       'shop.merchant.keys_reissued',
+      'shop.order.shipped',
+      'shop.order.delivered',
       'shop.order.confirm_overdue',
+      'shop.order.ship_overdue',
       'shop.refund.overdue',
     ]);
     expect(HANDLED_EVENT_TYPES).not.toContain('mpp_refund_owed');

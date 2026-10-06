@@ -1,6 +1,7 @@
 import { logger } from '../config/logger';
 import type { ShopTx } from '../shop/db';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
+import { AUTO_DELIVER_AFTER_DAYS, markDelivered } from '../shop/order-lifecycle.service';
 import { transition } from '../shop/order-state';
 import { purgePii } from '../shop/pii/pii.service';
 import { releaseReservation } from '../shop/repository';
@@ -14,6 +15,8 @@ export const CONNECT_EVENTS_TTL_DAYS = 30;
 export interface SweepResult {
   quotes_expired: number;
   confirm_overdue: number;
+  ship_overdue: number;
+  orders_delivered: number;
   merchants_unresponsive: number;
   orders_closed: number;
   refunds_overdue: number;
@@ -146,6 +149,83 @@ async function flagUnresponsive(tx: ShopTx, merchant_id: string): Promise<boolea
   return true;
 }
 
+/**
+ * (b2) CONFIRMED physical past ship_due_at: ONE `shop.order.ship_overdue` (a pull-only SLA notice;
+ * the marker is an order event, so a rerun sees it and nothing repeats). §12.2 MERCHANT_UNRESPONSIVE
+ * consumers read the event / `ship_due_at`.
+ */
+async function shipOverdue(d: ShopDeps, now: Date): Promise<number> {
+  const due = await d.db.$queryRawUnsafe<Array<{ order_id: string; merchant_id: string }>>(
+    `SELECT order_id, merchant_id FROM shop_orders
+      WHERE state = 'CONFIRMED' AND ship_due_at < $1::timestamptz LIMIT 500`,
+    now,
+  );
+  let n = 0;
+  for (const o of due) {
+    n += await d.transaction(async (tx) => {
+      const lock = await tx.$queryRawUnsafe<Array<{ ship_due_at: Date }>>(
+        `SELECT ship_due_at FROM shop_orders
+          WHERE order_id = $1::uuid AND state = 'CONFIRMED' AND ship_due_at < $2::timestamptz
+            FOR UPDATE`,
+        o.order_id,
+        now,
+      );
+      if (lock.length === 0) return 0;
+      const prior = await tx.$queryRawUnsafe<unknown[]>(
+        `SELECT 1 FROM shop_order_events WHERE order_id = $1::uuid AND reason = 'ship_overdue' LIMIT 1`,
+        o.order_id,
+      );
+      if (prior.length > 0) return 0;
+      await tx.$executeRawUnsafe(
+        `INSERT INTO shop_order_events (order_id, seq, from_state, to_state, actor, reason, payload)
+         SELECT $1::uuid, COALESCE(MAX(seq), 0) + 1, 'CONFIRMED', 'CONFIRMED', 'system', 'ship_overdue', $2::jsonb
+           FROM shop_order_events WHERE order_id = $1::uuid`,
+        o.order_id,
+        JSON.stringify({ ship_due_at: lock[0].ship_due_at }),
+      );
+      await emit(tx, 'shop.order.ship_overdue', {
+        order_id: o.order_id,
+        merchant_id: o.merchant_id,
+        ship_due_at: lock[0].ship_due_at,
+      });
+      return 1;
+    });
+  }
+  return n;
+}
+
+/** (b3) UC-12: SHIPPED and delivery_eta + 7 days passed with no word -> DELIVERED (starts close_after). */
+async function autoDeliver(d: ShopDeps, now: Date): Promise<number> {
+  const due = await d.db.$queryRawUnsafe<Array<{ order_id: string }>>(
+    `SELECT order_id FROM shop_orders
+      WHERE state = 'SHIPPED' AND delivery_eta + ($2::int * interval '1 day') < $1::timestamptz LIMIT 500`,
+    now,
+    AUTO_DELIVER_AFTER_DAYS,
+  );
+  let n = 0;
+  for (const o of due) {
+    n += await d.transaction(async (tx) => {
+      const cur = await tx.$queryRawUnsafe<Array<{ merchant_id: string }>>(
+        `SELECT merchant_id FROM shop_orders
+          WHERE order_id = $1::uuid AND state = 'SHIPPED'
+            AND delivery_eta + ($3::int * interval '1 day') < $2::timestamptz FOR UPDATE`,
+        o.order_id,
+        now,
+        AUTO_DELIVER_AFTER_DAYS,
+      );
+      if (cur.length === 0) return 0;
+      await markDelivered(
+        tx,
+        { order_id: o.order_id, merchant_id: cur[0].merchant_id },
+        { actor: 'system', reason: 'auto_delivered' },
+        now.getTime(),
+      );
+      return 1;
+    });
+  }
+  return n;
+}
+
 /** (c) close_after passed on a FULFILLED/DELIVERED order -> CLOSED. */
 async function closeOrders(d: ShopDeps, now: Date): Promise<number> {
   const due = await d.db.$queryRawUnsafe<Array<{ order_id: string }>>(
@@ -247,6 +327,8 @@ export async function runShopSlaSweeper(
   const out: SweepResult = {
     quotes_expired: 0,
     confirm_overdue: 0,
+    ship_overdue: 0,
+    orders_delivered: 0,
     merchants_unresponsive: 0,
     orders_closed: 0,
     refunds_overdue: 0,
@@ -267,6 +349,8 @@ export async function runShopSlaSweeper(
     out.confirm_overdue = r.events;
     out.merchants_unresponsive = r.unresponsive;
   });
+  await step('ship_overdue', async () => void (out.ship_overdue = await shipOverdue(d, now)));
+  await step('auto_deliver', async () => void (out.orders_delivered = await autoDeliver(d, now)));
   await step('close_orders', async () => void (out.orders_closed = await closeOrders(d, now)));
   await step(
     'refunds_overdue',
