@@ -5,7 +5,7 @@ import { config } from '../config';
 import { logger } from '../config/logger';
 
 /**
- * Ф5 device-connection storage -- the ONE place a vendor OAuth token touches
+ * F5 device-connection storage -- the ONE place a vendor OAuth token touches
  * a database row. Never the vendor password (we never see it -- OAuth
  * authorization-code, cloud-to-cloud), and never plaintext at rest (AES-256-
  * GCM via secret-crypto.service.ts).

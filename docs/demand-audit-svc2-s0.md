@@ -29,8 +29,8 @@ classification and outside the text's "zero unclassified" claim. Fixed here by:
 
 ## Disclosed gap: no literal "7 test wallets" list exists
 
-The Specification and `05-PROPOSED-FLEET-TASKS.md` both say to exclude "7 тестовых
-кошельков оператора". No file in this repo, `~/taskloop/`, or the operator's Claude
+The Specification and `05-PROPOSED-FLEET-TASKS.md` both say to exclude "7 test
+wallets of the operator". No file in this repo, `~/taskloop/`, or the operator's Claude
 Code memory (`~/.claude/projects/-home-apibase-apibase/memory/`) records seven literal
 wallet addresses. What exists instead:
 

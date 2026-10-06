@@ -27,7 +27,7 @@ import {
  *   - ≥10 successes in 6h -> passive OK (a provider real traffic already
  *     vouches for doesn't need an active probe spent on it).
  *   - error_rate ≥25% over ≥20 calls in 1h -> passive FAIL_TRANSIENT (F1:
- *     "реальный трафик первичен" — don't wait for an active probe to notice
+ *     "real traffic is primary" — don't wait for an active probe to notice
  *     what real traffic already shows).
  */
 
@@ -122,8 +122,8 @@ async function applyPassiveStep(db: PrismaClient, redis: Redis): Promise<Set<str
 }
 
 /**
- * F1's other HEALTHY→DEGRADED trigger: "error_rate ≥25% за 1ч при ≥20
- * реальных вызовах" — real traffic is primary, so this doesn't wait for an
+ * F1's other HEALTHY→DEGRADED trigger: "error_rate ≥25% over 1h with ≥20
+ * real calls" — real traffic is primary, so this doesn't wait for an
  * active probe to notice. Fed through the SAME state machine as a
  * FAIL_TRANSIENT (counts toward consecutive_failures, escalates exactly like
  * a bad active probe would). Skips any provider already given a passive OK
@@ -131,12 +131,12 @@ async function applyPassiveStep(db: PrismaClient, redis: Redis): Promise<Set<str
  * one row within a single pass — a persisting problem still surfaces on the
  * next tick once the 6h success count no longer clears the OK threshold.
  *
- * AP-3 review fix (Fable) — F1 spacing: "между замерами ≥ probe_interval"
+ * AP-3 review fix (Fable) — F1 spacing: "between measurements ≥ probe_interval"
  * applies to passive measurements too, not just active ones. This function
  * runs every 10 min (tool-quality's own cadence) but re-aggregates the SAME
  * trailing window each time, so without a gate a single bad episode wrote a
  * fresh FAIL_TRANSIENT on every tick and could drive DOWN in ~50 minutes
- * (6 ticks) from one episode — exactly the "один случайный 500 роняет"
+ * (6 ticks) from one episode — exactly the "one random 500 takes it down"
  * outcome F1 forbids. Joined-in `next_probe_at` (the SAME column the active
  * probe's own priority queue is ordered by) gates this: a provider not yet
  * due for its next measurement is skipped here too, so a passive fail can

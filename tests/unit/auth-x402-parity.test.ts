@@ -1,5 +1,5 @@
 /**
- * ШАГ 5 (2026-09-02, Fable's 4-finding consolidated verdict): x402 wallet
+ * STEP 5 (2026-09-02, Fable's 4-finding consolidated verdict): x402 wallet
  * auto-registration parity with MPP's ensureMppAgent.
  *
  * Before this fix: a valid X-Payment with no API key and no Authorization
@@ -126,7 +126,7 @@ beforeEach(() => {
   };
 });
 
-describe('AUTH stage — x402 wallet auto-registration parity (ШАГ 5)', () => {
+describe('AUTH stage — x402 wallet auto-registration parity (STEP 5)', () => {
   it('⛔ ORDER: a well-formed but cryptographically INVALID X-Payment creates ZERO agent rows, then 401s', async () => {
     mockVerify.mockResolvedValue({ isValid: false, invalidReason: 'invalid_signature' });
     mockFindUnique.mockResolvedValue(null);

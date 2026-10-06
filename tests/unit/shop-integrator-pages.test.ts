@@ -6,7 +6,7 @@ import { createIntegratorRouter, PLATFORMS } from '../../src/shop/routes/integra
 jest.mock('../../src/config', () => ({ config: {} }));
 
 const F5_TEXT =
-  'Base: USDC нативен; x402 — открытый протокол Coinbase для оплаты HTTP-запросов в USDC; расчёт ведёт наш фасилитатор. Tempo: расчёт и комиссии сети в стейблкоине; нативные сплиты и сессии (MPP).';
+  'Base: USDC is native; x402 is an open Coinbase protocol for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP).';
 
 const SECTION_IDS = [
   'offer',
@@ -41,15 +41,6 @@ const CODES_6_4 = [
 ];
 
 const FORBIDDEN = [
-  'все агенты уже покупают',
-  'chatgpt покупает у вас',
-  'мгновенный возврат',
-  'защита покупателя',
-  'законно везде',
-  'без kyc',
-  'де-факто',
-  'стандарт',
-  'подключиться к mcp-серверу',
   'all agents already buy',
   'chatgpt buys from you',
   'instant refund',
@@ -110,19 +101,15 @@ describe('integrator pages', () => {
     expect(ids).toEqual(SECTION_IDS);
   });
 
-  it('IP2: canon RU and EN, fee on and off', async () => {
+  it('IP2: EN canon, fee on and off', async () => {
     process.env.INTEGRATOR_FEE_ENABLED = 'true';
     process.env.INTEGRATOR_FEE_BPS = '150';
     let { text } = await get('/integrator');
-    expect(text).toContain(
-      'Продавайте AI-агентам. Одна ссылка на сайте — и агент покупателя сам оформляет и оплачивает заказ. Деньги приходят на ваш кошелёк в USDC. Комиссия 1,5 %.',
-    );
     expect(text).toContain(
       "Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. 1.5% fee.",
     );
     process.env.INTEGRATOR_FEE_ENABLED = 'false';
     ({ text } = await get('/integrator'));
-    expect(text).toContain('Комиссия 0 % в пилоте.');
     expect(text).toContain('USDC settles to your wallet. 0% fee during the pilot.');
     expect(text).not.toContain('{{');
   });
@@ -167,7 +154,7 @@ describe('integrator pages', () => {
     for (const md of [false, true]) {
       const { text } = await get('/integrator/why-base-tempo', md);
       expect(text).toContain(F5_TEXT);
-      expect(text.toLowerCase()).not.toMatch(/де-факто|standard/);
+      expect(text.toLowerCase()).not.toMatch(/de facto|standard/);
     }
   });
 

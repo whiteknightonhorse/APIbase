@@ -1,6 +1,6 @@
 /**
  * T-0207 (ZZ-03-07, 03-SPECIFICATION.md R-2, Q2 ruling-1 variant D — "declared equivalence +
- * advisory routing"). Критерии готовности (pinned literally, one test each):
+ * advisory routing"). Acceptance criteria (pinned literally, one test each):
  *   1. a regional equivalent is never suggested for a global request
  *   2. a same_upstream_as tool_id is never suggested
  *   3. an unavailable tool is never suggested
@@ -32,7 +32,7 @@ function candidate(overrides: Partial<AlternativeCandidate> = {}): AlternativeCa
 }
 
 describe('computeAlternatives — pure matching rules (synthetic fixtures)', () => {
-  it('Критерий 1: does not suggest a regional equivalent for a global request', () => {
+  it('Criterion 1: does not suggest a regional equivalent for a global request', () => {
     const requesting = candidate({
       tool_id: 'weather.global_tool',
       provider: 'provider-a',
@@ -83,7 +83,7 @@ describe('computeAlternatives — pure matching rules (synthetic fixtures)', () 
     );
   });
 
-  it('Критерий 2: same_upstream_as is never suggested, even though it matches capability+scope', () => {
+  it('Criterion 2: same_upstream_as is never suggested, even though it matches capability+scope', () => {
     const requesting = candidate({ tool_id: 'fx.a', provider: 'provider-a' });
     const sameUpstream = candidate({ tool_id: 'fx.b', provider: 'provider-b' });
     const real = candidate({ tool_id: 'fx.c', provider: 'provider-c' });
@@ -103,7 +103,7 @@ describe('computeAlternatives — pure matching rules (synthetic fixtures)', () 
     expect(result.map((r) => r.tool_id)).toEqual(['emsc.search_earthquakes']);
   });
 
-  it('Критерий 3: an unavailable tool is never suggested', () => {
+  it('Criterion 3: an unavailable tool is never suggested', () => {
     const requesting = candidate({ tool_id: 'search.a', provider: 'provider-a' });
     const down = candidate({ tool_id: 'search.b', provider: 'provider-b', status: 'unavailable' });
     const healthy = candidate({ tool_id: 'search.c', provider: 'provider-c' });

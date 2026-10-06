@@ -148,7 +148,7 @@ describe('GET /api/v1/incidents', () => {
       severity: 'SEV1',
       provider: 'openweathermap',
     });
-    // L1: "без evidence-цитат писем" — the select clause itself must never
+    // L1: "no evidence quotes from e-mails" — the select clause itself must never
     // ask for `evidence`, not just "the response happens not to show it".
     expect(call.select).not.toHaveProperty('evidence');
     expect(call.select.incident_id).toBe(true);
@@ -191,7 +191,7 @@ describe('GET /api/v1/incidents', () => {
   // engine ran but heartbeat is stale, a DB error on the heartbeat read
   // (fails closed, never masquerades as "measured and clean"), and the
   // recovery direction (stale -> fresh flips `stale` back to false) — same
-  // "both directions" requirement the brief's "останови/верни" check states.
+  // "both directions" requirement the brief's "stop/restore" check states.
   describe('T-04: engine_heartbeat_at / engine_heartbeat_stale', () => {
     it('MUTATION: zero open incidents + engine NEVER ran -> stale=true, at=null (must NOT look like OK)', async () => {
       mockFindMany.mockResolvedValue([]);

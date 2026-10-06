@@ -21,14 +21,14 @@ import { PUBLIC_BASE } from '../shop/storefront/storefront.service';
  * Discovery service (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1).
  *
  * `discover(query)` is the ONE ranking implementation shared by three thin surfaces (zz-03
- * Q1 ruling-1, "P0 — Discovery contract (одна функция, три тонких поверхности)"):
+ * Q1 ruling-1, "P0 — Discovery contract (one function, three thin surfaces)"):
  *   - MCP tool `apibase.discover` (src/adapters/apibase/index.ts, runs in the pipeline like
  *     any other tool — one execution_ledger row per call, price_usd 0)
  *   - REST `GET /api/v1/discover` (src/routes/tools.router.ts)
  *   - the `discover_tools` prompt (src/mcp/prompt-adapter.ts), which renders its text from
  *     this same JSON instead of scoring on its own
  *
- * Response shape is the ruling's "Минимальный контракт ответа", field for field. See
+ * Response shape is the ruling's "Minimal response contract", field for field. See
  * `disputes/zz-03-apibase-design.q-1.ruling-1.md` for the source text this was built against.
  */
 

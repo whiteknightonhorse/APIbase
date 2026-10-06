@@ -1,5 +1,5 @@
 /**
- * ШАГ 2 (2026-09-02): filing an appeal pushes content_expires_at out past
+ * STEP 2 (2026-09-02): filing an appeal pushes content_expires_at out past
  * the 14-day never-appealed deadline, instead of leaving the original
  * creation-time value in place (which would let the cleanup job wipe the
  * content out from under an appeal that IS being actively reviewed).
@@ -52,7 +52,7 @@ beforeEach(() => {
   mockUpdate.mockReset();
 });
 
-describe('submitAppeal — content_expires_at extension (ШАГ 2)', () => {
+describe('submitAppeal — content_expires_at extension (STEP 2)', () => {
   it('pushes content_expires_at well past the original 14-day deadline once an appeal is actually filed', async () => {
     mockFindUnique.mockResolvedValue(OPEN_ROW);
     mockUpdate.mockImplementation(({ data }) => Promise.resolve({ ...OPEN_ROW, ...data }));

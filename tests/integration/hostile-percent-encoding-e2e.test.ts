@@ -1,5 +1,5 @@
 /**
- * Д-1 (2026-09-02): malformed percent-encoding in a route param
+ * D-1 (2026-09-02): malformed percent-encoding in a route param
  * (`GET /api/v1/appeals/a%ffb`, `/x402/retrieve/a%ffb`, `/api/v1/tools/a%ffb`) returned
  * a plain 500 `internal_error` on every parameterized route -- a client input mistake
  * leaking as an internal-failure signal, not a 4xx.
@@ -162,7 +162,7 @@ function rawGet(port: number, rawPath: string): Promise<{ status: number; body: 
   });
 }
 
-describe('Д-1: hostile percent-encoding through the real HTTP layer', () => {
+describe('D-1: hostile percent-encoding through the real HTTP layer', () => {
   let server: http.Server;
   let port: number;
 

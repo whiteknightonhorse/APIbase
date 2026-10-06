@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""merchant-mail.py — T-INT-18 (spec §12.2 «Исходящая почта»). Hourly cron CANDIDATE (not installed).
+"""merchant-mail.py — T-INT-18 (spec §12.2 "Outgoing mail"). Hourly cron CANDIDATE (not installed).
 
 Sends the transactional merchant mail that incident-engine.py only QUEUES (email_events,
 direction='out', status='queued'; see queue_merchant_email()). Resend API only, sender
 integrator@apibase.pro, recipient shop_merchants.contact_email, language always 'en' (RU/BY are
-RESTRICTED countries; the templates/merchant/*.ru.md files exist for a dispatcher's manual reply).
+RESTRICTED countries; the dispatcher translates by hand for any manual reply).
 
 Gates, in order, BEFORE any send:
   (a) config/integrator/mail-approval.json {ruling, approved_at} — written by the dispatcher after

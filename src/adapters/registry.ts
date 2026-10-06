@@ -461,7 +461,7 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
 
   switch (provider) {
     case 'device':
-      // Ф5 physical-device MCP layer: device.list/state/command all share
+      // F5 physical-device MCP layer: device.list/state/command all share
       // ONE generic adapter -- vendor dispatch happens per-connection
       // inside it (see device-tuya/index.ts's class doc). Registered
       // unconditionally (no cfgKey gate) because whether Tuya itself is

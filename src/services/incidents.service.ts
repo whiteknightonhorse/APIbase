@@ -4,13 +4,13 @@ import { getPrisma } from './prisma.service';
 import { ENGINE_HEARTBEAT_STALE_S } from '../config/autopilot';
 
 /**
- * Incidents read service (AP-9, L1: "read-only, публично-безопасная
- * проекция"). Writes to `incidents` happen ONLY through
- * `scripts/autopilot/incident-cli.py` / `incident-engine.py` (I4: "единственная
- * ручка записи для агентов") — this module never mutates the table.
+ * Incidents read service (AP-9, L1: "read-only, publicly safe
+ * projection"). Writes to `incidents` happen ONLY through
+ * `scripts/autopilot/incident-cli.py` / `incident-engine.py` (I4: "the only
+ * write handle for agents") — this module never mutates the table.
  *
- * Public projection deliberately DROPS `evidence` (L1: "без evidence-цитат
- * писем") — H4's own design is explicit that email-derived evidence is the
+ * Public projection deliberately DROPS `evidence` (L1: "no evidence quotes
+ * from e-mails") — H4's own design is explicit that email-derived evidence is the
  * ONLY field that can carry an `UNTRUSTED-EMAIL-QUOTE:`-tagged quote; every
  * other column is either an internal enum/timestamp or `attempts` (an
  * actor/action/result audit trail written by the engine/CLI). `attempts` is
@@ -28,7 +28,7 @@ import { ENGINE_HEARTBEAT_STALE_S } from '../config/autopilot';
  * `/home/apibase/autopilot/operator/INC-<id>.md`) — internal filesystem
  * layout, not something a public status page needs to hand an attacker for
  * free. The filename itself (`INC-<short_id>.md`) is a stable, opaque
- * per-incident identifier L2's "ссылка на операторский файл" can still key
+ * per-incident identifier L2's "link to the operator file" can still key
  * off of; only the directory prefix is dropped.
  */
 

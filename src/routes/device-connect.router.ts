@@ -14,7 +14,7 @@ import { exchangeTuyaCode } from '../pipeline/stages/device-oauth.stage';
 import type { TuyaConfig } from '../adapters/device-tuya/tuya-client';
 
 /**
- * Ф5 Connect-webview -- the ONLY place a user's vendor password touches a
+ * F5 Connect-webview -- the ONLY place a user's vendor password touches a
  * browser, and it is the VENDOR's own login page, never ours. Pattern:
  *
  *   1. Agent calls POST /connect/device/tuya/start with its OWN api_key

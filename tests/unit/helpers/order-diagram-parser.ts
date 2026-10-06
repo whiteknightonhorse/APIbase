@@ -7,8 +7,8 @@ import { ACTIVE_STATES, ALL_STATES } from '../../../src/shop/order-state';
  *  - a line starting with an arrow or `└─` has its source = rightmost state token at or
  *    left of that column on the nearest earlier line;
  *  - a `▼` line: source = the state above its column, target = first state of the next state line;
- *  - "Любое из PAID…DELIVERED:" makes following arrow-led lines start from ACTIVE_STATES;
- *  - the phrases "продолжает путь" / "возвращается в прежнее состояние" = back into ACTIVE_STATES.
+ *  - "Any of PAID…DELIVERED:" makes following arrow-led lines start from ACTIVE_STATES;
+ *  - the phrases "continues the path" / "returns to the previous state" = back into ACTIVE_STATES.
  */
 export function parseDiagram(text: string): Set<string> {
   const lines = text.split('\n');
@@ -28,7 +28,7 @@ export function parseDiagram(text: string): Set<string> {
   let group = false;
   lines.forEach((raw, idx) => {
     if (!raw.trim()) return;
-    if (raw.startsWith('Любое из')) {
+    if (raw.startsWith('Any of')) {
       group = true;
       return;
     }
@@ -67,7 +67,7 @@ export function parseDiagram(text: string): Set<string> {
         return;
       }
       const targets: string[] = [...toks];
-      if (/продолжает путь|возвращается в прежнее состояние/.test(seg))
+      if (/continues the path|returns to the previous state/.test(seg))
         targets.push(...ACTIVE_STATES);
       for (const s of sources) for (const t of targets) edges.add(`${s}->${t}`);
       // next arrow starts from the last token of this segment (if it names one)

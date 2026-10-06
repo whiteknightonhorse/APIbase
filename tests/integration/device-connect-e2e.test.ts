@@ -1,5 +1,5 @@
 /**
- * Ф5 full T1 scenario, proven end to end against an IN-MEMORY Prisma fake +
+ * F5 full T1 scenario, proven end to end against an IN-MEMORY Prisma fake +
  * a MOCKED Tuya HTTP server: connect (webview start -> callback) -> list ->
  * state -> command (safety-gated) -> revoke.
  *
@@ -137,7 +137,7 @@ function mockJson(body: unknown, status = 200): Response {
   });
 }
 
-describe('Ф5 device connect -> state -> command -> revoke (full T1 scenario)', () => {
+describe('F5 device connect -> state -> command -> revoke (full T1 scenario)', () => {
   const agentId = randomUUID();
   const originalFetch = globalThis.fetch;
   const logLines: string[] = [];

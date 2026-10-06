@@ -99,7 +99,7 @@ export function createApp(): express.Express {
   // content-type enforcement, same reason as onboardRouter above) ---
   app.use(appealsRouter);
 
-  // --- Ф5 device connect-webview (vendor OAuth redirect callback is a
+  // --- F5 device connect-webview (vendor OAuth redirect callback is a
   // plain browser GET, same "before content-type enforcement" reason as
   // onboardRouter/appealsRouter above) ---
   app.use(deviceConnectRouter);

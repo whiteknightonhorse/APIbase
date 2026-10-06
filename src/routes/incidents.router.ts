@@ -13,7 +13,7 @@ import { AppError, ErrorCode } from '../types/errors';
  * Incidents API (AP-9, L1). Read-only, public, no auth — same posture as
  * dashboardRouter: a status page, not a control surface. Writes to
  * `incidents` only ever happen through `incident-cli.py`/`incident-engine.py`
- * (I4's "единственная ручка записи для агентов") — nothing here mutates.
+ * (I4's "the only write handle for agents") — nothing here mutates.
  *
  * GET /api/v1/incidents?state=&severity=&provider= — filtered list (max 100),
  *   plus `engine_heartbeat_at`/`engine_heartbeat_stale` (T-04, 2026-09-04):

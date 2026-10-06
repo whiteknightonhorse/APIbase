@@ -160,7 +160,7 @@ function extractX402PayloadAndAmount(
 }
 
 /**
- * ШАГ 5 (2026-09-02, x402 wallet auto-registration parity): verify a bare
+ * STEP 5 (2026-09-02, x402 wallet auto-registration parity): verify a bare
  * X-Payment credential (no API key) well enough to trust the signer as an
  * identity -- mirrors ensureMppAgent's role for MPP, adapted to x402's real
  * constraint: FULL binding (payTo/asset/network/AMOUNT against the tool's
@@ -311,7 +311,7 @@ export const authStage: Stage = {
         }
       }
 
-      // ШАГ 5 (2026-09-02): x402 wallet auto-registration parity with MPP.
+      // STEP 5 (2026-09-02): x402 wallet auto-registration parity with MPP.
       // A valid X-Payment with no API key and no Authorization header must
       // not dead-end at the 401 below -- verify FIRST (real signature check
       // against our own payTo/network/asset), only THEN auto-register.
@@ -332,8 +332,8 @@ export const authStage: Stage = {
       // gets the same dual-rail 402 challenge as an escrow shortfall instead of 401 -- the
       // standard x402/MPP request->402->pay->retry cycle needs a 402 to start the dance. A
       // header that WAS sent but failed (bad key format, unknown key, unverifiable signature)
-      // still falls through to 401 below, per ruling: "401 остаётся для невалидных
-      // ключей и подписей". Raw header presence (not ctx.x402Paid, which is only true
+      // still falls through to 401 below, per ruling: "401 stays for invalid
+      // keys and signatures". Raw header presence (not ctx.x402Paid, which is only true
       // once verified) is what distinguishes "sent nothing" from "sent something bad".
       // ctx.headers[X_PAYMENT] is populated by resolveX402PaymentHeader() at every entry
       // point (execute.router.ts, mcp/server.ts) -- it already covers the PAYMENT-SIGNATURE

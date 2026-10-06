@@ -54,7 +54,7 @@ function renderPage(view: {
         view.resolution_note ? ` — ${escapeHtml(view.resolution_note)}` : ''
       }</p>`;
 
-  // ШАГ 2 (2026-09-02): show the flagged content back to the appellant --
+  // STEP 2 (2026-09-02): show the flagged content back to the appellant --
   // they already sent it, and the surrounding context is what makes a
   // reviewer's (or their own) judgment call possible. Absent for CSAM
   // (never stored, see moderation.stage.ts) and once content_expires_at has

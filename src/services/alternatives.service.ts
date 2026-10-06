@@ -5,11 +5,11 @@ import { logger } from '../config/logger';
 /**
  * Advisory alternatives (T-0207, ZZ-03-07, 03-SPECIFICATION.md R-2).
  *
- * "Совещательный роутинг": on a catalog lookup or a failed call, tell the agent which OTHER
+ * "Advisory routing": on a catalog lookup or a failed call, tell the agent which OTHER
  * tool_ids serve the same declared capability and scope right now — the agent decides whether
  * to call one, and pays that tool's own price (Q3 operator ruling 2026-09-15: never silently
  * switch, never charge a different price than the tool actually called). Nothing here changes
- * schema, price, or the ledger — see R2's own "ничего не подменяет автоматически".
+ * schema, price, or the ledger — see R2's own "nothing is substituted automatically".
  */
 
 export interface AlternativeTool {
@@ -36,8 +36,8 @@ export interface AlternativeCandidate {
  * request the requesting tool would have:
  *   - a 'global' candidate always qualifies (superset of any region).
  *   - a 'regional:<X>' candidate only qualifies for a request of the EXACT same region — never
- *     for a 'global' request (Критерий готовности: "региональный эквивалент не предлагается
- *     для глобального запроса") and never for a different region.
+ *     for a 'global' request (acceptance criterion: "a regional equivalent is not offered
+ *     for a global request") and never for a different region.
  *   - a missing scope on either side (null — incomplete registry data) never matches: an
  *     unscoped tool is not safely known to cover anything, so it is excluded rather than
  *     guessed into either bucket.
@@ -69,8 +69,8 @@ export function computeAlternatives(
     candidates
       .filter((c) => c.tool_id !== requesting.tool_id)
       .filter((c) => c.capability === requesting.capability)
-      .filter((c) => c.status !== 'unavailable') // Критерий готовности: unavailable никогда не предлагается
-      .filter((c) => !sameUpstreamIds.has(c.tool_id)) // Критерий готовности: same_upstream_as никогда не предлагается
+      .filter((c) => c.status !== 'unavailable') // Acceptance criterion: unavailable is never offered
+      .filter((c) => !sameUpstreamIds.has(c.tool_id)) // Acceptance criterion: same_upstream_as is never offered
       // Same provider = same adapter = same upstream host in this codebase (one adapter per
       // provider, src/adapters/registry.ts) — a mechanical backstop for T-0207 ruling-1's "same
       // upstream duplicates never proposed" beyond the cases a human remembered to mark
@@ -97,13 +97,13 @@ export function computeAlternatives(
  * DB-backed tool cache (status/price, refreshed every 60s by tool-status.stage.ts) to answer
  * "what else can serve this request right now". Returns [] for a tool with no declared
  * capability — the overwhelming majority of the catalog (≈4% of tools are in a capability
- * group today, Q2 ruling-1 поправка 1) — never an error.
+ * group today, Q2 ruling-1 amendment 1) — never an error.
  */
 export async function getAlternativesForTool(toolId: string): Promise<AlternativeTool[]> {
   const capEntry = getCapabilityEntry(toolId);
   if (!capEntry || !capEntry.capability) return [];
 
-  // Advisory-only (R2's own "ничего не подменяет автоматически") — a cache/DB hiccup here must
+  // Advisory-only (R2's own "nothing is substituted automatically") — a cache/DB hiccup here must
   // never break the caller's actual response (catalog entry, 503/502/504 body). Same "degrade
   // to no data rather than throw" posture toEntries() already takes for a Redis outage.
   let cacheEntries: Awaited<ReturnType<typeof getToolCacheEntries>>;

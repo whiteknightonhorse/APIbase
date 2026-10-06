@@ -1,6 +1,4 @@
-# Почему Base и Tempo / Why Base and Tempo
-
-Base: USDC нативен; x402 — открытый протокол Coinbase для оплаты HTTP-запросов в USDC; расчёт ведёт наш фасилитатор. Tempo: расчёт и комиссии сети в стейблкоине; нативные сплиты и сессии (MPP).
+# Why Base and Tempo
 
 Base: USDC is native; x402 is an open Coinbase protocol for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP).
 

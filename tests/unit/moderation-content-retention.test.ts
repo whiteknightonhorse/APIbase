@@ -1,5 +1,5 @@
 /**
- * ШАГ 2 (2026-09-02, Fable's 4-finding consolidated verdict): what the
+ * STEP 2 (2026-09-02, Fable's 4-finding consolidated verdict): what the
  * appeal record keeps of the content that tripped a rule.
  *
  * Covers:
@@ -25,7 +25,7 @@
 
 import { checkContent } from '../../src/services/content-filter';
 
-describe('checkContent — match offsets (ШАГ 2)', () => {
+describe('checkContent — match offsets (STEP 2)', () => {
   it('pattern rule: matchStart/matchEnd bound the actual regex match', () => {
     const result = checkContent('please join isis recruitment today', 'action');
     expect(result.allowed).toBe(false);
@@ -162,7 +162,7 @@ beforeEach(() => {
   mockAppealCreate.mockResolvedValue({ appeal_id: 'appeal-content-1' });
 });
 
-describe('moderation.stage.ts blockRequest — content capture (ШАГ 2)', () => {
+describe('moderation.stage.ts blockRequest — content capture (STEP 2)', () => {
   it('a non-CSAM PAID block stores the FULL matched field, not just the excerpt, plus offsets and a 14-day expiry', async () => {
     const text = 'hi, please join isis recruitment this weekend, more info inside';
     const before = Date.now();
@@ -216,7 +216,7 @@ describe('moderation.stage.ts blockRequest — content capture (ШАГ 2)', () =
   });
 });
 
-describe('moderation.stage.ts blockRequest — policy_url (ШАГ 4)', () => {
+describe('moderation.stage.ts blockRequest — policy_url (STEP 4)', () => {
   it('every block response links to /policy/moderation, paid or free', async () => {
     const paidResult = await moderationStage.execute(ctxFor({ text: 'buy cocaine now' }, 0.05));
     expect(paidResult.ok).toBe(false);
@@ -239,7 +239,7 @@ describe('moderation.stage.ts blockRequest — policy_url (ШАГ 4)', () => {
 // partition-cleanup.job.ts — cleanupExpiredModerationContent() query shape.
 // Real DB in production, not CI (see file header) -- this proves the SQL is
 // well-formed and scoped correctly; the actual "expired content does not
-// survive a run" guarantee is verified live (see SKILL.md's ШАГ 2 entry).
+// survive a run" guarantee is verified live (see SKILL.md's STEP 2 entry).
 // ---------------------------------------------------------------------------
 
 describe('partition-cleanup.job.ts cleanupExpiredModerationContent — query shape', () => {

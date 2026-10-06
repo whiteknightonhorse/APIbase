@@ -46,7 +46,7 @@ import {
  * durable state: provider_status + probe_log (Postgres, AP-1 migration 0009).
  * Redis provider:health:{p} and provider:limits:{p} writes are PRESERVED
  * (existing dashboard consumer) alongside the new durable writes, per G2's
- * "каркас и Redis-записи сохранить".
+ * "keep the skeleton and the Redis records".
  *
  * G3.4 emergency mode (AP-5 review fix, Fable ruling-1 on
  * 814-autopilot-limits-burnrate): before a `cost_class=paid` probe runs,
@@ -130,7 +130,7 @@ interface KeyExpiryFact {
 
 /**
  * T-0152a (ruling-1 on 0152-gdelt-deprecation-assess-and-plan, Answer 1):
- * "снят с каталога, код остаётся" needs a lock on the probe scheduler too —
+ * "removed from the catalog, code stays" needs a lock on the probe scheduler too —
  * without this, a provider whose key is present in `provider-limits.json`
  * keeps getting probed by AP-3 forever, which keeps writing DEGRADED/DOWN
  * `provider_status` rows, which keeps re-opening incidents (see
@@ -202,7 +202,7 @@ const STATE_RANK: Record<string, number> = { UNKNOWN: 0, HEALTHY: 0, DEGRADED: 1
  * Achievability-only classification (no configured auth): HEAD 2xx/3xx/4xx —
  * INCLUDING 401/403/404/405 — all mean "reachable", honestly labelled
  * kind='head' rather than passed off as proof the provider actually works
- * (G2: "не выдаём достижимость за работоспособность"). Only a genuine
+ * (G2: "we do not pass reachability off as working order"). Only a genuine
  * transport failure or 5xx counts against the provider.
  *
  * T-0141 (Fable ruling-1, Answer 4): 429 is carved out of that 4xx-is-OK
@@ -250,7 +250,7 @@ function probeTimeoutMs(probeCfg: ProbeConfig | undefined): number {
  * into FAIL_TRANSIENT rather than escalated to deterministic: telling a
  * genuine endpoint/schema drift apart from upstream noise needs adapter-level
  * knowledge this generic probe doesn't have — deliberately out of AP-3's
- * scope (see design G2, "auth-probe вводится инкрементально").
+ * scope (see design G2, "auth-probe is introduced incrementally").
  */
 export function classifyAuthResult(outcome: ProbeOutcome, expectStatus: number[]): ProbeResult {
   if (outcome.kind === 'timeout' || outcome.kind === 'network_error') return 'FAIL_TRANSIENT';
@@ -266,7 +266,7 @@ export type DashboardStatus = 'green' | 'orange' | 'red';
  * AP-3 review fix (Fable, minor #1): v1's dashboard had three colors — this
  * job's rewrite collapsed it to two (green/red from `result` alone), losing
  * "slow" (>2s) and 405 (HEAD unsupported, service alive) as their own
- * `orange` state. "Медленно" и "мертво" — разные миры: any non-OK `result`
+ * `orange` state. "Slow" and "dead" are different worlds: any non-OK `result`
  * (FAIL_TRANSIENT or FAIL_DETERMINISTIC — a probe that didn't succeed) is
  * `red`; a successful probe that was merely slow, or got the 405 HEAD isn't
  * wired for, is `orange`; everything else `green`. This is presentation
@@ -733,7 +733,7 @@ export async function recordProbeResult(
   });
 
   // Preserve the pre-existing Redis cache for the current dashboard (G2:
-  // "каркас и Redis-записи сохранить") until the dashboard reads
+  // "keep the skeleton and the Redis records") until the dashboard reads
   // provider_status directly (AP-9). Three colors, not two — see
   // classifyDashboardStatus (AP-3 review fix, Fable, minor #1).
   await redis.hmset(`provider:health:${provider}`, {
@@ -851,8 +851,8 @@ async function currentEmergencyRisk(db: PrismaClient, provider: string): Promise
 }
 
 /**
- * G3.4: "cost_class=paid probes останавливаются совсем (emergency mode:
- * только passive + бесплатный HEAD)". A real suppression — unlike
+ * G3.4: "cost_class=paid probes stop entirely (emergency mode:
+ * passive only + free HEAD)". A real suppression — unlike
  * provider-limit-alerts.py's now-removed row, this one is written by the
  * code that actually skipped the call. `provider_status` itself is left
  * alone here (no state/failure-count change — nothing was measured); the
@@ -1053,7 +1053,7 @@ async function probeOne(db: PrismaClient, redis: Redis, provider: string): Promi
 
 // ---------------------------------------------------------------------------
 // Usage/limits (pre-existing behaviour, preserved verbatim per G2's "Redis-
-// записи сохранить" — this is a ledger-count bookkeeping pass, independent
+// records" — this is a ledger-count bookkeeping pass, independent
 // of the probe budget above, so it runs for every selected provider
 // regardless of whether the active probe itself was skipped by budget).
 // ---------------------------------------------------------------------------

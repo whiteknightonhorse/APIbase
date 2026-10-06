@@ -10,8 +10,8 @@ import providerLimitsConfig from '../config/provider-limits.json';
  *   - PG: execution_ledger aggregate (calls_24h, avg_latency) + tools GROUP BY provider
  *   - PG: provider_status (AP-1..AP-9 durable truth — state/risk/reliability_score/
  *     last_probe_at) + incidents (open count) via one extra LEFT JOIN each (AP-9, L1:
- *     "дополнить полями state, risk, reliability_score, probe_age_s, open_incidents
- *     per provider (из provider_status — один JOIN)").
+ *     "extend with the fields state, risk, reliability_score, probe_age_s, open_incidents
+ *     per provider (from provider_status — one JOIN)").
  *
  * Cached in Redis for 60s to avoid repeated PG queries.
  */

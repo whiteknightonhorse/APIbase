@@ -53,7 +53,7 @@ function classify(provider: string | undefined): ModerationClass {
  * action-class tool is added. Scanning every string field costs nothing
  * extra and cannot miss one.
  *
- * The field name travels alongside its value (ШАГ 2, 2026-09-02) so a block
+ * The field name travels alongside its value (STEP 2, 2026-09-02) so a block
  * can record WHICH field the rule matched in, not just that some field did --
  * the appeal record stores the full field value the rule fired on (capped,
  * see CONTENT_MAX_BYTES below), because a short "matched" excerpt alone
@@ -70,10 +70,10 @@ function collectStrings(body: unknown): Array<{ field: string; value: string }> 
 }
 
 const APPEAL_WINDOW_MS = 72 * 60 * 60 * 1000;
-// ШАГ 2 retention: unappealed content is wiped 14 days after the block.
+// STEP 2 retention: unappealed content is wiped 14 days after the block.
 const CONTENT_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
 
-// ШАГ 2 (2026-09-02): what the appeal record keeps of the content that
+// STEP 2 (2026-09-02): what the appeal record keeps of the content that
 // tripped a rule -- and what it never does. See moderation-policy text /
 // policy/moderation for the operator-facing version of this same rule.
 const CONTENT_MAX_BYTES = 4096;
@@ -124,7 +124,7 @@ async function blockRequest(
   // MODERATION error branch runs ESCROW_FINALIZE + LEDGER_WRITE against
   // this same ctx before returning the block to the client). An unpaid
   // (free-tool) block has nothing to settle, so no appeal record either --
-  // there is no charge to contest, and ШАГ 2's boundary ("only for BLOCKED
+  // there is no charge to contest, and STEP 2's boundary ("only for BLOCKED
   // PAID requests") is enforced automatically: no row, nothing stored.
   let appealId: string | undefined;
   if (isPaid) {
@@ -147,7 +147,7 @@ async function blockRequest(
           content_truncated: capped?.truncated ?? false,
           match_start: !isCsam ? (match.matchStart ?? null) : null,
           match_end: !isCsam ? (match.matchEnd ?? null) : null,
-          // 14 days from creation if never appealed (§ШАГ 2 retention);
+          // 14 days from creation if never appealed (§STEP 2 retention);
           // submitAppeal() pushes this out on submission, and the operator
           // resolve script sets the final resolved_at+30d value.
           content_expires_at: new Date(Date.now() + CONTENT_RETENTION_MS),
@@ -194,7 +194,7 @@ async function blockRequest(
       rule_id: ruleId,
       category,
       settle_on_block: isPaid,
-      // ШАГ 4 (2026-09-02): every block response links to the policy page
+      // STEP 4 (2026-09-02): every block response links to the policy page
       // explaining how moderation works, appeals, and content retention --
       // present regardless of whether this block has an appeal (a free
       // block has nothing to contest, but the "why" is still worth linking).

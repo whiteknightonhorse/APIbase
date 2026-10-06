@@ -1,7 +1,7 @@
 /**
  * ZZ-03-05: `discover_tools` (MCP prompt) is now a thin text wrapper over discovery.service.ts's
  * discover() — same ranking/data as apibase.discover and GET /api/v1/discover, rendered as text
- * instead of JSON (zz-03 Q1 ruling-1, "discover_tools остаётся как обёртка над той же функцией").
+ * instead of JSON (zz-03 Q1 ruling-1, "discover_tools stays as a wrapper over the same function").
  * This pins that it actually calls discover() (rather than re-scoring on its own) and renders
  * from its result, without depending on the real DB/Redis.
  */

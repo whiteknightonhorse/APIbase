@@ -1,1 +1,1 @@
-Файлы `*.private.json` здесь — приватная конфигурация Integrator (в git не попадают, см. .gitignore); значения по умолчанию живут в коде.
+The `*.private.json` files here are private Integrator configuration (not tracked by git, see .gitignore); defaults live in the code.

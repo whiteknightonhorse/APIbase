@@ -1,4 +1,4 @@
-<!-- version: 1.0; effective_from: 2026-10-05; status: draft accepted by operator without legal review -->
+<!-- version: 1.1; effective_from: 2026-10-06; status: draft accepted by operator without legal review -->
 # Data Processing Addendum v1.0
 
 > Draft text. Not a legal opinion.
@@ -34,41 +34,3 @@ APIbase notifies the merchant of a personal data incident within 72 hours of bec
 Requests from data subjects go through the merchant as controller; APIbase helps on the merchant's request.
 
 APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant; the legal entity and jurisdiction will be announced.
-
----
-
-# Соглашение об обработке данных v1.0 (RU)
-
-> Черновик. Не юридическое заключение.
-
-## 1. Роли
-
-Для персональных данных в заказах (адрес доставки, паспортные данные, контакт плательщика) продавец — оператор (controller), APIbase — обработчик (processor).
-
-## 2. Инструкции
-
-APIbase обрабатывает эти данные только для временного хранения и передачи продавцу, по документированным инструкциям продавца и этому Соглашению.
-
-## 3. Шифрование
-
-Поля с персональными данными шифруются агентом покупателя под открытый ключ продавца до попадания к APIbase. APIbase хранит только шифротекст и его sha256. Конверты и хэши полей в логи не пишутся; метрики — только счётчики.
-
-## 4. Сроки хранения
-
-- Адрес доставки: удаляется при CLOSED + 30 дней (окно споров), либо по запросу продавца раньше.
-- Паспорт: удаляется при первом из событий — 7 дней после передачи продавцу; DELIVERED; CANCELLED или REFUNDED. Максимум 30 дней от создания.
-- Хранение у APIbase временное; продавец обязан сохранить свою копию.
-
-## 5. Субобработчики
-
-Hetzner (хостинг) и Resend (доставка почты).
-
-## 6. Инциденты
-
-APIbase уведомляет продавца об инциденте с персональными данными в течение 72 часов с момента, как о нём стало известно.
-
-## 7. Права субъектов данных
-
-Запросы субъектов данных идут через продавца как оператора; APIbase помогает по его запросу.
-
-APIbase — технологический посредник; средства покупателя не проходят через APIbase; комиссия взимается с продавца; юридическое лицо и юрисдикция — будут объявлены.

@@ -476,7 +476,7 @@ describe('run() — G3.4 emergency polling (AP-5 review fix, Fable ruling-1 #1 o
     // The configured paid auth probe (GET /usage) never fired at all.
     const usageCalled = fetchMock.mock.calls.some(([url]) => String(url).includes('/usage'));
     expect(usageCalled).toBe(false);
-    // A free HEAD check ran in its place — "только passive + бесплатный HEAD" (G3.4).
+    // A free HEAD check ran in its place — "passive only + free HEAD" (G3.4).
     const headCalled = fetchMock.mock.calls.some(
       ([url, init]) => String(url).includes('/health') && (init as RequestInit)?.method === 'HEAD',
     );

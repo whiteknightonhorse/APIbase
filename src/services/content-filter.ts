@@ -74,7 +74,7 @@ export interface FilterResult {
   category?: string;
   /** Offset of the match inside the ORIGINAL (not lowercased) text, so the
    * appeal record (moderation.stage.ts) can store where in the full field
-   * value the rule fired -- see ШАГ 2 (2026-09-02). Assumes toLowerCase()
+   * value the rule fired -- see STEP 2 (2026-09-02). Assumes toLowerCase()
    * preserves character offsets, true for the ASCII blocklist content this
    * filter matches against; not re-derived per rule type beyond that. */
   matchStart?: number;

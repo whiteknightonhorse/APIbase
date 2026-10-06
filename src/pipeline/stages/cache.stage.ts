@@ -18,7 +18,7 @@ import { logger } from '../../config/logger';
  *    - Timeout: promote waiter to lock owner (proceed as fresh request).
  * 4. Redis failure → fail closed (503) (§12.186).
  *
- * Ф5 (2026-09-02): the shared-cache-by-(toolId,params) design above is
+ * F5 (2026-09-02): the shared-cache-by-(toolId,params) design above is
  * correct and intentional for the 372 existing adapters -- they all read
  * PUBLIC data (weather for a city, a crypto price) that is genuinely the
  * same answer for every agent, so sharing the cache is the point. Device

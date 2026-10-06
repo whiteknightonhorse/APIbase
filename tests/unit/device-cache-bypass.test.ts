@@ -1,4 +1,4 @@
-// Ф5 (2026-09-02): device.* tools must NEVER reach the shared Redis cache --
+// F5 (2026-09-02): device.* tools must NEVER reach the shared Redis cache --
 // see cache.stage.ts's doc comment for why a shared cache hit would bypass
 // the per-agent connection-ownership check that lives in the provider-call
 // stage (PROVIDER_CALL runs the adapter; a cache hit skips it entirely).
@@ -22,7 +22,7 @@ function makeCtx(toolId: string): PipelineContext {
   } as unknown as PipelineContext;
 }
 
-describe('cache.stage.ts agent-scoped bypass (Ф5)', () => {
+describe('cache.stage.ts agent-scoped bypass (F5)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

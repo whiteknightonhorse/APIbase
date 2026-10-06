@@ -107,7 +107,7 @@ describe('T-INT-19', () => {
     try {
       const page = renderTokens(read('static/integrator/index.html'));
       expect(page).toContain('0% (pilot)');
-      expect(page).toContain('Комиссия 0 % в пилоте');
+      expect(page).toContain('0% fee during the pilot');
     } finally {
       process.env = saved;
     }

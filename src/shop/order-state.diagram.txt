@@ -1,15 +1,15 @@
 QUOTED ──(TTL)──► EXPIRED
   │  └─(cancel)─► CANCELLED
   ▼ pay presented
-PAYING ──(verify/settle fail)──► PAYMENT_FAILED (quote остаётся open до TTL)
-  │                                 │  └─(повторная оплата живой котировки)──► PAYING
-  │                                 └─(reconcile: цепь подтвердила по (payer, nonce))──► PAID
+PAYING ──(verify/settle fail)──► PAYMENT_FAILED (quote stays open until TTL)
+  │                                 │  └─(repeat payment of a live quote)──► PAYING
+  │                                 └─(reconcile: chain confirmed by (payer, nonce))──► PAID
   ▼ on-chain confirmed
 PAID ──(merchant confirm | auto for instant)──► CONFIRMED
   │  └─(cancel by buyer before CONFIRMED, grace)─► REFUND_PENDING
   ▼
 CONFIRMED ──(instant: fulfillment stored)──► FULFILLED ──► CLOSED
           ──(physical: ship)──► SHIPPED ──► DELIVERED ──(refund_window)──► CLOSED
-Любое из PAID…DELIVERED:
-  ──(refund request)──► REFUND_PENDING ──(merchant tx verified)──► REFUNDED (full) | PARTIALLY_REFUNDED → продолжает путь
-  ──(dispute)──► DISPUTED ──► (resolved_*) → возвращается в прежнее состояние или REFUND_PENDING
+Any of PAID…DELIVERED:
+  ──(refund request)──► REFUND_PENDING ──(merchant tx verified)──► REFUNDED (full) | PARTIALLY_REFUNDED → continues the path
+  ──(dispute)──► DISPUTED ──► (resolved_*) → returns to the previous state or REFUND_PENDING

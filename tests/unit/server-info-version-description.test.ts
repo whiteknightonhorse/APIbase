@@ -13,7 +13,7 @@
  * Reading the source as text and resolving the exact relative path it declares gets
  * equivalent coverage of the runtime behavior without paying that cost.
  *
- * Following the Д-2 lesson (margin-multiplier-single-source.test.ts): a bare substring
+ * Following the D-2 lesson (margin-multiplier-single-source.test.ts): a bare substring
  * check like `serverTs.includes('PACKAGE_VERSION')` would pass even if the read path
  * were wrong, so the version test below extracts the literal relative path the code
  * passes to readFileSync(), resolves it exactly the way `join(__dirname, ...)` would

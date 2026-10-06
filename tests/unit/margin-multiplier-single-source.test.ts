@@ -9,7 +9,7 @@
  * config/margin.json, and margin-gate-alerts.py must actually read that same file
  * rather than carrying its own hardcoded copy.
  *
- * Д-2 (2026-09-02): this test used to pass a SUBSTRING check
+ * D-2 (2026-09-02): this test used to pass a SUBSTRING check
  * (`expect(py).toMatch(/config\/margin\.json/)`) that is true of BOTH
  * "{ROOT}/config/margin.json" (broken -- root config/ doesn't exist, F6 actually put
  * the file at src/config/) AND "{ROOT}/src/config/margin.json" (correct) -- so it never

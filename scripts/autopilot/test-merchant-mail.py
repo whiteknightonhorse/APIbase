@@ -226,7 +226,7 @@ class TestTemplates(unittest.TestCase):
         vals = {"merchant_name": "Drill Shop", "slug": "drill-shop", "order_id": "ord-1",
                 "due_at": "2026-10-06 10:00 UTC", "category": "restricted-goods"}
         for kind in MM.KINDS:
-            for lang in ("en", "ru"):
+            for lang in ("en",):
                 with self.subTest(kind=kind, lang=lang):
                     subject, text = MM.render(kind, lang, vals)
                     full = subject + "\n" + text

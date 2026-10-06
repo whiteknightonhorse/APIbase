@@ -274,7 +274,7 @@ Detection (alert / monitoring / user report)
 3. Manual check: `SELECT * FROM execution_ledger WHERE status = 'pending' AND created_at < NOW() - INTERVAL '2 minutes'`
 4. Manual fix: `UPDATE execution_ledger SET status = 'failed', billing_status = 'REFUNDED' WHERE ...`
 
-**QUOTA_LOW / QUOTA_EXHAUSTED re-opening (T-0237):** `open_quota_incident` in `scripts/provider-limit-alerts.py` applies three gates before opening. (1) A live (non-RESOLVED) PAYMENT_REQUIRED for the same provider means money was already asked: no new incident (`QUOTA_MONEY_ASKED`). (2) The latest RESOLVED incident with the same dedup key carries a fleet `resolve-request` and identical `remaining_calls`/`free_limit`/`limit_type` with burn 0 now and then (for hourly/daily/monthly windows it must be resolved inside the current window): same episode, no reopen (`QUOTA_SAME_EPISODE`); any consumption reopens. (3) A provider marked `retired` in `provider-limits.json` is skipped entirely in `main()` (`RETIRED_SKIP`). The `provider_status` risk write and the `usage_api` probe_log row still happen every run for non-retired providers; every suppression is a "молчу:" line in notices.log, never silence (C0.5), and a failed gate query opens the incident anyway.
+**QUOTA_LOW / QUOTA_EXHAUSTED re-opening (T-0237):** `open_quota_incident` in `scripts/provider-limit-alerts.py` applies three gates before opening. (1) A live (non-RESOLVED) PAYMENT_REQUIRED for the same provider means money was already asked: no new incident (`QUOTA_MONEY_ASKED`). (2) The latest RESOLVED incident with the same dedup key carries a fleet `resolve-request` and identical `remaining_calls`/`free_limit`/`limit_type` with burn 0 now and then (for hourly/daily/monthly windows it must be resolved inside the current window): same episode, no reopen (`QUOTA_SAME_EPISODE`); any consumption reopens. (3) A provider marked `retired` in `provider-limits.json` is skipped entirely in `main()` (`RETIRED_SKIP`). The `provider_status` risk write and the `usage_api` probe_log row still happen every run for non-retired providers; every suppression is a "silent:" line in notices.log, never silence (C0.5), and a failed gate query opens the incident anyway.
 
 ### 4.4 Rollback
 
@@ -526,7 +526,7 @@ UNKNOWN --first OK--> HEALTHY <--2 consecutive OK (recovery)--+
                          |  URL, schema mismatch) skips the counters
                          +  entirely: straight to DEGRADED/DOWN, probe
                             paused (`deterministic_paused_until`, +24h) —
-                            "детерминированный отказ не перезапускается",
+                            "a deterministic failure is not restarted",
                             zero retries until that anchor expires or the
                             key contour reports a fix.
 ```
@@ -538,11 +538,11 @@ there, neither hardcodes a number. AP-8 mirrors this state onto `tools.status`
 (healthy|degraded|unavailable, `status_source='autopilot'`) every incident-engine tick —
 `status_source='manual'` (or legacy NULL sitting at a non-healthy status) is never touched.
 
-`DOWN` — терминальное состояние F1 по замыслу; состояния после него и предела по возрасту в F1
-нет. Дальше — F2 (§10.2): `detect_from_provider_status()` открывает/сливает `PROVIDER_DOWN`
-каждый тик, пока строка в `DOWN`. `consecutive_failures` считает дальше порога; после порога его
-никто не читает — счётчик, не сигнал. Проба без HTTP-статуса пишет причину в
-`probe_log.detail`/`state_reason`: `timeout after Nms` или `network_error: <код>` (T-0143).
+`DOWN` is a terminal state of F1 by design; F1 has no state after it and no age limit.
+Next comes F2 (§10.2): `detect_from_provider_status()` opens/merges `PROVIDER_DOWN`
+every tick while the row is in `DOWN`. `consecutive_failures` keeps counting past the threshold; after the threshold
+nobody reads it — a counter, not a signal. A probe without an HTTP status writes the reason to
+`probe_log.detail`/`state_reason`: `timeout after Nms` or `network_error: <code>` (T-0143).
 
 ### 10.2 Incident lifecycle (F2)
 
@@ -555,9 +555,9 @@ OPEN --router--> REMEDIATION_QUEUED --fleet DONE--> VERIFYING --re-probe OK--> R
                                                                                             STUCK (human only)
 ```
 
-`STUCK` пейджит человека ровно один раз — на переходе. Периодического напоминания для STUCK нет
-(в отличие от 72 ч у `WAITING_HUMAN`) — по замыслу. Возраст: `incident-cli.py list --state STUCK`.
-Действие человека: `reopen` (обратно в AP-6), `close` (verified ground: `--superseded-by` или `--provider-healthy`), `retire` (только retired-провайдер).
+`STUCK` pages the human exactly once — on the transition. There is no periodic reminder for STUCK
+(unlike the 72 h one for `WAITING_HUMAN`) — by design. Age: `incident-cli.py list --state STUCK`.
+Human action: `reopen` (back to AP-6), `close` (verified ground: `--superseded-by` or `--provider-healthy`), `retire` (retired providers only).
 
 Route classes (`config/autopilot/routing.json`, one file, loaded once): `AUTO`/`MIXED` file a real
 fleet task (`≤3/day` cap, severity-ordered so SEV1 never loses a slot to an older SEV3);

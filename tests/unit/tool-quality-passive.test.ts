@@ -123,7 +123,7 @@ describe('tool-quality.job passive-success step (G1)', () => {
   });
 });
 
-describe('tool-quality.job passive-degradation step (F1: "реальный трафик первичен")', () => {
+describe('tool-quality.job passive-degradation step (F1: "real traffic is primary")', () => {
   it('feeds a passive FAIL_TRANSIENT for a provider over the error-rate threshold', async () => {
     mockQueries([], [{ provider: 'flakyco', total: 20n, failed: 6n }]); // 30% error rate
 
@@ -187,7 +187,7 @@ describe('tool-quality.job passive-degradation step (F1: "реальный тр�
     expect(errorRateSql).toContain('next_probe_at');
   });
 
-  // F1 (~/AUTOPILOT-DESIGN-2026-09-03.md): "между замерами ≥ probe_interval" —
+  // F1 (~/AUTOPILOT-DESIGN-2026-09-03.md): "between measurements ≥ probe_interval" —
   // a passive fail must respect the SAME spacing an active probe would,
   // otherwise one bad hour re-aggregates on every 10-min tick and can drive
   // DOWN in ~50 minutes from a single episode (Fable's review, attempt 1).

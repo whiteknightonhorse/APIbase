@@ -1,4 +1,4 @@
-# Operator action needed -- SmartThings OAuth-In App (Ф5 device layer, new first vendor)
+# Operator action needed -- SmartThings OAuth-In App (F5 device layer, new first vendor)
 
 Filed 2026-09-02, replacing Tuya as the first device vendor (see
 `docs/OPERATOR-ACTION-device-vendor-tuya.md`, status SUPERSEDED, for why). SmartThings has a real

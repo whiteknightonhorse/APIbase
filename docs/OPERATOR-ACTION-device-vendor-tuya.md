@@ -1,4 +1,4 @@
-# Operator action -- Tuya IoT Cloud Project (Ф5 device layer)
+# Operator action -- Tuya IoT Cloud Project (F5 device layer)
 
 ## ⛔ STATUS: SUPERSEDED, 2026-09-02 -- do not act on this document
 

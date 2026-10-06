@@ -4,8 +4,8 @@ import type { ShopTx } from './db';
  * Order state machine (spec section 5.3). TRANSITIONS is the single source of truth;
  * tests/unit/shop-order-state.test.ts proves it equals order-state.diagram.txt both ways.
  *
- * "Любое из PAID…DELIVERED" in the diagram = PAID, CONFIRMED, FULFILLED, SHIPPED, DELIVERED
- * (ACTIVE_STATES). "продолжает путь" / "возвращается в прежнее состояние" = back into that set.
+ * "Any of PAID…DELIVERED" in the diagram = PAID, CONFIRMED, FULFILLED, SHIPPED, DELIVERED
+ * (ACTIVE_STATES). "continues the path" / "returns to the previous state" = back into that set.
  */
 export type State =
   | 'QUOTED'

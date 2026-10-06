@@ -2,8 +2,8 @@
  * AP-3 (2026-09-03): thresholds for the provider health state machine (F1) and
  * the active-probe scheduler (G2). Every number that decides a state
  * transition or a probe cadence lives HERE, exactly once — see the design doc
- * (~/AUTOPILOT-DESIGN-2026-09-03.md, section F1): "Пороги... живут ОДНИМ
- * местом". src/jobs/provider-health.job.ts and src/jobs/tool-quality.job.ts
+ * (~/AUTOPILOT-DESIGN-2026-09-03.md, section F1): "Thresholds... live in ONE
+ * place". src/jobs/provider-health.job.ts and src/jobs/tool-quality.job.ts
  * both import from here; neither hardcodes a threshold of its own.
  */
 
@@ -14,7 +14,7 @@
 /** consecutive FAIL_TRANSIENT probes before HEALTHY/UNKNOWN escalates to DEGRADED.
  *  Design note: the F1 ASCII diagram labels the UNKNOWN->DEGRADED arrow "3 FAIL"
  *  while the diagram's OWN prose thresholds list right below it states only one
- *  number for entering DEGRADED ("HEALTHY→DEGRADED: 2 последовательных
+ *  number for entering DEGRADED ("HEALTHY→DEGRADED: 2 consecutive
  *  transient-fail") and never a separate UNKNOWN figure. Treated as a diagram
  *  rendering artifact (the "3" likely misaligned from the neighboring DEGRADED->
  *  DOWN arrow) rather than a second real threshold — the prose is the numbers'
@@ -24,7 +24,7 @@ export const FAIL_THRESHOLD_DEGRADED = 2;
 
 /** consecutive FAIL_TRANSIENT probes (total, not reset at the DEGRADED boundary)
  *  before escalating to DOWN — i.e. 2 to enter DEGRADED + 3 more = 5 total,
- *  matching the design's "итого ≥5 замеров". */
+ *  matching the design's "total ≥5 measurements". */
 export const FAIL_THRESHOLD_DOWN = 5;
 
 /** consecutive OK probes required while DEGRADED/DOWN before returning to
@@ -62,7 +62,7 @@ export const INTERVAL_DOWN_CAP_S = 24 * 3600;
 /** FAIL_DETERMINISTIC (401/403 with a configured key, etc.): counters don't
  *  apply — pause probing for a full day; only a "key rotated" event or
  *  manual re-check should shortcut this (that event source is a later task,
- *  see design G2 "или события смены ключа"). */
+ *  see design G2 "or key-change events"). */
 export const INTERVAL_DETERMINISTIC_PAUSE_S = 24 * 3600;
 
 // ---------------------------------------------------------------------------
@@ -100,8 +100,8 @@ export const PASSIVE_MIN_SUCCESS_CALLS = 10;
 export const PASSIVE_WINDOW_HOURS = 6;
 
 /** F1's OTHER HEALTHY→DEGRADED trigger, alongside 2 consecutive active-probe
- *  fails: "error_rate ≥25% за 1ч при ≥20 реальных вызовах". Real traffic is
- *  primary (F1: "реальный трафик первичен") — a provider failing a quarter
+ *  fails: "error_rate ≥25% over 1h with ≥20 real calls". Real traffic is
+ *  primary (F1: "real traffic is primary") — a provider failing a quarter
  *  of its real calls counts as a FAIL_TRANSIENT fed through the same state
  *  machine as an active probe, even if no active probe happens to run that
  *  hour. A provider that ALSO qualifies for a passive OK this same tick
@@ -125,7 +125,7 @@ export const PASSIVE_ERROR_RATE_THRESHOLD = 0.25;
  * failing at high request volume would write a provider_status update +
  * probe_log row on every single failure — DB load piling on exactly when a
  * real incident is already in progress, and a violation of F1's own
- * "между замерами ≥ probe_interval" spacing rule (which
+ * "between measurements ≥ probe_interval" spacing rule (which
  * applyPassiveDegradation already enforces for its own, less frequent,
  * write path). This debounce is intentionally much shorter than any G2
  * probe_interval — the point isn't to replace the adaptive interval, only to

@@ -1,19 +1,15 @@
-# Integrator — AI оплата / AI payment
+# Integrator — AI payment
 
 ## 1. Offer
 
-Продавайте AI-агентам. Одна ссылка на сайте — и агент покупателя сам оформляет и оплачивает заказ. Деньги приходят на ваш кошелёк в USDC. Комиссия {{INTEGRATOR_FEE_PCT}}.
-
 Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. {{INTEGRATOR_FEE_PCT}} fee.
 
-- Подключить AI оплату / Connect AI payment: /integrator/connect
-- Посмотреть демо-магазин / View the demo shop: /m/apibase-demo
+- Connect AI payment: /integrator/connect
+- View the demo shop: /m/apibase-demo
 
 Merchants connected so far: {{MERCHANTS_COUNT}}.
 
 ## 2. How it works
-
-Заходят ли к вам AI-агенты? Проверьте на AIpush.app: https://aipush.app
 
 Flow: merchant site -> link /m/<slug> -> buyer's AI agent -> storefront (MCP) -> quote with a fixed price -> USDC to the merchant wallet.
 
@@ -21,7 +17,7 @@ The buyer's agent finds the storefront, sees only your tools, gets a quote and p
 
 ## 3. What your buyer's agent sees
 
-An abstract shop page with a product and a button "Купить через AI-агента" / "Buy with your AI agent". The button is a plain link (variant A below). Real flow: /m/apibase-demo.
+An abstract shop page with a product and a button "Buy with your AI agent". The button is a plain link (variant A below). Real flow: /m/apibase-demo.
 
 ## 4. Four ways to add it
 
@@ -124,7 +120,7 @@ Drafts, not yet published. A page shows its banner until the operator publishes 
 
 ## 11. Make your site easy for agents
 
-Заходят ли к вам AI-агенты? Проверьте на AIpush.app: https://aipush.app. It shows how agents see your site and what to fix.
+Do AI agents visit your site? Check on AIpush.app: https://aipush.app. It shows how agents see your site and what to fix.
 
 ## 12. For buyers
 

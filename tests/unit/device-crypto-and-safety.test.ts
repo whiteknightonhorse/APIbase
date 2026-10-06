@@ -6,7 +6,7 @@ import {
   getDeviceClass,
 } from '../../src/services/device-safety.service';
 
-describe('secret-crypto.service (Ф5 vendor-token encryption at rest)', () => {
+describe('secret-crypto.service (F5 vendor-token encryption at rest)', () => {
   const key = randomBytes(32).toString('hex');
 
   it('round-trips a secret exactly', () => {
@@ -45,7 +45,7 @@ describe('secret-crypto.service (Ф5 vendor-token encryption at rest)', () => {
   });
 });
 
-describe('device-safety.service (Ф5 confirm_required + numeric bounds gate)', () => {
+describe('device-safety.service (F5 confirm_required + numeric bounds gate)', () => {
   it('loads all 42 classes from config/device-classes.json', () => {
     // Spot-check a class from each tier rather than asserting the count here
     // (the count is asserted structurally by scripts/check-device-catalog.py,

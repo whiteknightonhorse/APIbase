@@ -64,7 +64,7 @@ export function errorHandlerMiddleware(
     return;
   }
 
-  // Д-1 (2026-09-02): Express's own router-level decodeURIComponent (used to
+  // D-1 (2026-09-02): Express's own router-level decodeURIComponent (used to
   // extract a matched :param segment, e.g. /api/v1/appeals/:id) throws a
   // URIError on invalid percent-encoding (`%ff` alone is not valid UTF-8;
   // `%c0%af` is an overlong encoding) BEFORE any route handler runs. This

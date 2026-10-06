@@ -32,7 +32,7 @@ export interface AppealView {
   resolution_note: string | null;
   contact_email: string | null;
   message: string | null;
-  // ШАГ 2 (2026-09-02): the matched content, if it hasn't expired (or was
+  // STEP 2 (2026-09-02): the matched content, if it hasn't expired (or was
   // never stored -- CSAM, or an unpaid/free block, neither of which has a
   // row at all). NULL means "nothing to show", not "nothing was ever there".
   matched_field: string | null;
@@ -94,7 +94,7 @@ export type SubmitAppealResult =
   | { ok: false; reason: 'not_found' }
   | { ok: false; reason: 'already_resolved'; appeal: AppealView };
 
-// ШАГ 2 retention: once an appeal is actually filed, the 14-day
+// STEP 2 retention: once an appeal is actually filed, the 14-day
 // never-appealed deadline no longer applies -- the real target is
 // resolved_at+30d, but resolution time isn't known yet. Push
 // content_expires_at out to a generous interim so it can't fire while the

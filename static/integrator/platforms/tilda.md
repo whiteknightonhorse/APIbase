@@ -15,6 +15,6 @@ For a Tilda site. Nothing to install, no plugin and no script: you paste a link.
 - B, button at checkout: `https://apibase.pro/m/<slug>/cart?items=<sku>:1`
 - C, "AI purchase" block on the home page: `https://apibase.pro/m/<slug>`
 
-Use the link text "Buy with your AI agent" (or «Купить через AI-агента»). Ready-made markup for each: /integrator#options.
+Use the link text "Buy with your AI agent". Ready-made markup for each: /integrator#options.
 
 Menu names change between versions of the builder; the link itself does not. Check the result at `/integrator/check/<slug>`.

@@ -1,4 +1,4 @@
-# Ф5 -- Physical-Device MCP Layer
+# F5 -- Physical-Device MCP Layer
 
 Status: design covers the full 42-class catalog; execution this cycle implements T1 only,
 through one vendor cloud (Tuya OAuth). Written 2026-09-02.
@@ -150,6 +150,6 @@ that file's `tiers` object):
   deliberately not purchased (operator default: not spending yet).
 - **Not touched**: `static/*.html` (another executor's redesign is in flight there this
   phase) and homepage/`server-card.json`/`mcp.json` tool-count propagation for these 3 new
-  tool_ids -- left stale on purpose rather than half-syncing counts the way the Ф6 redesign
+  tool_ids -- left stale on purpose rather than half-syncing counts the way the F6 redesign
   cycle's own bug report shows can go wrong; a follow-up count-sync pass should include these
   3 tool_ids the next time that maintenance runs.

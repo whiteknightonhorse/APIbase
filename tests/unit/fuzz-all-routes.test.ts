@@ -1,5 +1,5 @@
 /**
- * ШАГ 6, gate 1 (Fable's 4-finding consolidated verdict, 2026-09-02): FUZZ
+ * STEP 6, gate 1 (Fable's 4-finding consolidated verdict, 2026-09-02): FUZZ
  * every route the server actually declares, enumerated from the real
  * router objects' `.stack` -- never a hand-written list, which silently
  * goes stale about routes it doesn't know exist. One sweep covers the
@@ -30,7 +30,7 @@ jest.mock('../../src/config/index', () => ({
     X402_BASE_SEPOLIA_RPC_URL: 'https://sepolia.example',
     X402_OPERATOR_MIN_ETH_BALANCE: 0.01,
     REDIS_URL: 'redis://unused.example',
-    // Ф5: so /connect/device/tuya/start exercises its OWN input-handling
+    // F5: so /connect/device/tuya/start exercises its OWN input-handling
     // logic (auth check on a bare fuzz req with no req.agent -> 401) instead
     // of short-circuiting on "Tuya not configured" (503) before ever
     // touching the fuzzed body -- a legitimate status in production, but
@@ -49,7 +49,7 @@ jest.mock('../../src/services/prisma.service', () => ({
   getPrisma: () => ({
     agent: { findUnique: jest.fn().mockResolvedValue(null), create: jest.fn() },
     tool: { findMany: jest.fn().mockResolvedValue([]), count: jest.fn().mockResolvedValue(0) },
-    // Ф5 device-connect.router.ts: findPendingByState()/etc. read this table
+    // F5 device-connect.router.ts: findPendingByState()/etc. read this table
     // directly. null/empty results exercise the router's own
     // "unknown/expired state" and "no active connections" guard clauses --
     // the same not-found path a real fuzzed/replayed callback would hit,
@@ -308,7 +308,7 @@ async function invokeSafely(
   return { crashed, status: res.statusCode, nextErr };
 }
 
-describe('FUZZ gate — every declared route, enumerated from the real router tables (ШАГ 6)', () => {
+describe('FUZZ gate — every declared route, enumerated from the real router tables (STEP 6)', () => {
   for (const { name, router } of ROUTERS) {
     describe(name, () => {
       const routes = enumerateRoutes(router, name);

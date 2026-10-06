@@ -6,7 +6,7 @@ import { parse } from 'yaml';
  * Capability registry (T-0207, ZZ-03-07, 03-SPECIFICATION.md R-2 / Q2 ruling-1 variant D, R2/P1).
  *
  * "Declared equivalence + advisory routing": capability/scope/same_upstream_as are declared BY
- * A HUMAN in config/tool_provider_config.yaml (Q2 ruling-1 поправка 4 — equivalence can NOT be
+ * A HUMAN in config/tool_provider_config.yaml (Q2 ruling-1 amendment 4 — equivalence can NOT be
  * derived from tool_id/name, regional providers look like global ones and aren't). This module
  * is the one place that YAML is parsed at runtime, so every consumer (alternatives.service.ts,
  * the two Prometheus counters) reads the exact same source scripts/seed.ts backfills

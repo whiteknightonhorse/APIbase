@@ -723,7 +723,7 @@ export async function escrowQuotePayment(
       return ok({ order_id: quote.order_id, payment_id: pay[0].payment_id, payer, binding });
     });
   } catch (e) {
-    // §9.1 "Две оплаты котировки": a second live order row for the quote hits the INT-01 index.
+    // §9.1 "Two payments of one quote": a second live order row for the quote hits the INT-01 index.
     // The losing transaction rolled back, so the duplicate trail is written in a fresh one.
     const live = isLiveOrderConflict(e);
     if (ctx.mppPaid) {

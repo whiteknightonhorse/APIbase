@@ -9,7 +9,7 @@ import { defaultShopDeps, type ShopDeps } from './merchant-lifecycle.service';
 import { DEFAULT_REFUND_WINDOW_DAYS } from './order-lifecycle.service';
 import { loadShop } from './storefront/storefront.service';
 
-/** F-3 / §2 п.2: the only tools a merchant storefront (`/mcp/m/:slug`) exposes. */
+/** F-3 / §2 item 2: the only tools a merchant storefront (`/mcp/m/:slug`) exposes. */
 export const STOREFRONT_TOOL_NAMES = [
   'shop.catalog.search',
   'shop.catalog.get',
@@ -133,7 +133,7 @@ export const storefrontServerName = (m: Pick<StorefrontMerchant, 'name'>) =>
   `${m.name} via APIbase`;
 
 /**
- * F-3 / §2 п.2: an MCP server with the six buyer tools bound to ONE merchant. The tools are the
+ * F-3 / §2 item 2: an MCP server with the six buyer tools bound to ONE merchant. The tools are the
  * ones /mcp registers (same code, same schemas) with the `merchant` argument removed from the
  * schema and always supplied from `merchant.slug` -- whatever a client sends under that name is
  * dropped, so a storefront can never quote or read another merchant (§9.1 cross-tenant).

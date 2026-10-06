@@ -1,7 +1,7 @@
 import { z, type ZodSchema } from 'zod';
 
 /**
- * Ф5 device MCP projection schemas. `confirm` is a plain optional boolean
+ * F5 device MCP projection schemas. `confirm` is a plain optional boolean
  * at the schema layer (not z.literal(true)) so device.command validates for
  * EVERY class uniformly -- whether confirm is actually REQUIRED depends on
  * the specific device's class (T1 vs T2+), which is only known once the

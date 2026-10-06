@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, createHash } from 'node:crypto';
 
 /**
- * Vendor-secret encryption at rest (Ф5 physical-device layer).
+ * Vendor-secret encryption at rest (F5 physical-device layer).
  *
  * We NEVER store a device vendor's password -- only the OAuth access/refresh
  * tokens issued to the END USER's own account by the vendor (Tuya, etc.),

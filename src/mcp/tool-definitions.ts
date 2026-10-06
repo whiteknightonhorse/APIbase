@@ -4826,7 +4826,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
 
   // Discovery contract (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1) — the one MCP tool an agent
   // can actually reach (discover_tools was a *prompt*, a user-controlled primitive most
-  // autonomous agents never call — zz-03 Q1 ruling-1 poправка 1). Separate provider
+  // autonomous agents never call — zz-03 Q1 ruling-1 amendment 1). Separate provider
   // ('apibase', not 'platform') on purpose: this is the discovery surface, not another
   // platform-introspection tool alongside platform.tool_quality/platform.tool_rankings.
   {
@@ -17213,7 +17213,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: READ_ONLY,
   },
   // ---------------------------------------------------------------------------
-  // Ф5 physical-device MCP layer -- device.list/state/command (2026-09-02)
+  // F5 physical-device MCP layer -- device.list/state/command (2026-09-02)
   // Generic vendor-agnostic projection; Tuya is the only connected vendor
   // cloud this cycle (see adapters/device-tuya). Requires the caller to
   // have already linked a vendor account via /connect/device/tuya/start.

@@ -190,7 +190,7 @@ export const providerCallStage: Stage = {
  *     manual `unavailable` migration in this same task).
  *
  * Two independent throttles, not one — ruling-2 found the first alone still
- * broke F1's "между замерами ≥ probe_interval" spacing:
+ * broke F1's "between measurements ≥ probe_interval" spacing:
  *   1. A short (PASSIVE_CALL_FAILURE_DEBOUNCE_S) per-provider Redis SETNX —
  *      this runs on EVERY failing request, not once per aggregation tick
  *      like the ledger-based passive steps, so without ANY debounce a tool

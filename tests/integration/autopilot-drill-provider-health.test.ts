@@ -1,8 +1,8 @@
 /**
  * AP-11 (820-autopilot-drills.md, taskloop T-820) — drills 1/3 and 2/3 of
  * the three required by the design doc (~/AUTOPILOT-DESIGN-2026-09-03.md,
- * section P, row AP-11): "синтетический DOWN-провайдер (fake health_url)"
- * and "синтетический 401".
+ * section P, row AP-11): "synthetic DOWN provider (fake health_url)"
+ * and "synthetic 401".
  *
  * What makes this an ACCEPTANCE drill and not a repeat of
  * provider-health-run.test.ts / provider-health-state-machine.test.ts: the
@@ -331,7 +331,7 @@ describe('AP-11 drill A — synthetic DOWN provider, real socket, full F1 cycle 
   });
 });
 
-describe('AP-11 drill B — synthetic 401, real socket, zero retries (boundary: "детерминированный отказ не перезапускается")', () => {
+describe('AP-11 drill B — synthetic 401, real socket, zero retries (boundary: "a deterministic failure is not restarted")', () => {
   it('one real 401 -> FAIL_DETERMINISTIC -> DEGRADED + 24h pause; a second asap-flagged tick makes ZERO further real requests', async () => {
     const fake = await startFakeProvider();
     try {
@@ -366,7 +366,7 @@ describe('AP-11 drill B — synthetic 401, real socket, zero retries (boundary: 
         http_status: 401,
       });
 
-      // "ноль повторов": the client keeps re-flagging asap (a live 401 on
+      // "zero retries": the client keeps re-flagging asap (a live 401 on
       // real traffic would do exactly this) — the boundary is that the
       // ENGINE must not re-dial a call it already knows is deterministically
       // dead, proven here by the fake server's own counter staying at 1.
@@ -379,8 +379,8 @@ describe('AP-11 drill B — synthetic 401, real socket, zero retries (boundary: 
         deterministic_paused_until: pausedUntil, // untouched, not extended, not cleared
       });
 
-      // The suppression is itself a logged row (C0.5 — "подавленное действие
-      // записывается"), not silence.
+      // The suppression is itself a logged row (C0.5 — "a suppressed action
+      // is recorded"), not silence.
       const suppressedLog = db.probeLogs
         .filter((l) => l.provider === 'drill401')
         .find((l) => l.kind === 'suppressed');

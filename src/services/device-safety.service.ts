@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
- * Ф5 device-safety gate -- reads config/device-classes.json (calibration
+ * F5 device-safety gate -- reads config/device-classes.json (calibration
  * data, not code) and enforces it before any command reaches a vendor cloud.
  *
  * Two independent checks, both fail-closed:

@@ -12,7 +12,7 @@ import { logger } from '../config/logger';
  *
  * Uses DROP TABLE (instant, metadata-only) instead of DELETE.
  *
- * Also runs the ШАГ 2 (2026-09-02) moderation-content retention sweep --
+ * Also runs the STEP 2 (2026-09-02) moderation-content retention sweep --
  * moderation_appeals is explicitly NOT partitioned (schema.prisma: "low
  * volume, needs indefinite retention for audit + SLA tracking"), so its
  * expiry is a row-level UPDATE nulling the content columns, not a table

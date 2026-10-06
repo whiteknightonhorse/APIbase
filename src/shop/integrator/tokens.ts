@@ -31,16 +31,7 @@ export function renderTokens(tpl: string, baselinePath: string = MCP_BASELINE): 
   const min = Number(process.env.INTEGRATOR_MIN_ORDER_USD ?? 1);
   const merchants = baselineMerchants(baselinePath);
   let s = tpl;
-  if (on) {
-    s = s.replace(
-      /Комиссия \{\{INTEGRATOR_FEE_PCT\}\}/g,
-      `Комиссия ${String(pct).replace('.', ',')} %`,
-    );
-  } else {
-    s = s
-      .replace(/Комиссия \{\{INTEGRATOR_FEE_PCT\}\}/g, 'Комиссия 0 % в пилоте')
-      .replace(/\{\{INTEGRATOR_FEE_PCT\}\} fee/g, '0% fee during the pilot');
-  }
+  if (!on) s = s.replace(/\{\{INTEGRATOR_FEE_PCT\}\} fee/g, '0% fee during the pilot');
   return s
     .replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, on ? `${pct}%` : '0% (pilot)')
     .replace(

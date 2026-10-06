@@ -1,7 +1,7 @@
 /**
  * T-0207 (ZZ-03-07, 03-SPECIFICATION.md R-2, Q2 ruling-1 variant D): capability-registry.service
  * parses the REAL config/tool_provider_config.yaml (no mock) — this pins that the 16 measured
- * capability groups from the live 2026-09-14 measurement (Q2 ruling-1 поправка 1) are actually
+ * capability groups from the live 2026-09-14 measurement (Q2 ruling-1 amendment 1) are actually
  * declared in the YAML, not just described in a doc.
  */
 import {

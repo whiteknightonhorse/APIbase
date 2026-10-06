@@ -433,7 +433,7 @@ export const appEnvSchema = z.object({
   POLYMARKET_BUILDER_SECRET: z.string().optional().default(''),
   POLYMARKET_BUILDER_PASSPHRASE: z.string().optional().default(''),
 
-  // --- Ф5 physical-device MCP layer (device.list/state/command) ---
+  // --- F5 physical-device MCP layer (device.list/state/command) ---
   // AES-256-GCM key for vendor OAuth token encryption at rest
   // (secret-crypto.service.ts). 32+ char random secret, same generation
   // pattern as API_KEY_SECRET -- NOT a KDF-derived value, a raw random key.

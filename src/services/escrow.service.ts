@@ -141,7 +141,7 @@ export async function finalize(
   // "payment was charged" while the ledger row stays stuck at
   // billing_status='RESERVED' forever. This exact silent failure shipped
   // to production for the whole life of F2/C-3 (2026-09-01 through
-  // 2026-09-02, caught live by the ШАГ 3 synthetic-probe run) because
+  // 2026-09-02, caught live by the STEP 3 synthetic-probe run) because
   // every existing test mocks Prisma and never touches the real
   // constraint. Any new payload_status value here needs a matching
   // migration widening that CHECK, not just a code change.

@@ -888,7 +888,7 @@ describe('BATCH entry point (runBatch) — real batch.service code', () => {
     expect(mockReserve).toHaveBeenCalledTimes(2);
   });
 
-  it('FIXED: item 1 has enough balance and succeeds, item 2 does not and fails independently — item 1 is unaffected (Fable ШАГ 1 test contract #3)', async () => {
+  it('FIXED: item 1 has enough balance and succeeds, item 2 does not and fails independently — item 1 is unaffected (Fable STEP 1 test contract #3)', async () => {
     mockReserve
       .mockResolvedValueOnce({ executionId: 'exec-ok', amount: PRICE, createdAt: new Date() })
       .mockRejectedValueOnce(new MockInsufficientFundsError('agent-adversarial-1', PRICE));
@@ -956,7 +956,7 @@ describe('BATCH entry point (runBatch) — real batch.service code', () => {
 });
 
 // ---------------------------------------------------------------------------
-// NEW (2026-09-02) — Fable ШАГ 1 test contract: the balance fund-source
+// NEW (2026-09-02) — Fable STEP 1 test contract: the balance fund-source
 // branch in escrow.stage.ts, covered directly at the REST/MCP entry points
 // (BATCH's own coverage is above — it needed zero new code, only the fix).
 // Items (1) REST, (2) MCP, (3) batch partial success/failure (above),
@@ -1025,7 +1025,7 @@ describe('BALANCE ESCROW — authenticated agent, no signed payment (Fable fix, 
     // = balance_usd - $1 WHERE balance_usd >= $1`, escrow.service.ts,
     // deliberately untouched by this fix) can only be proven against a real
     // Postgres row lock — proven live against production as part of the
-    // ШАГ 3 synthetic-probe pass (two parallel probes on one funded balance,
+    // STEP 3 synthetic-probe pass (two parallel probes on one funded balance,
     // exactly one reserves), not mockable meaningfully at this level.
   });
 

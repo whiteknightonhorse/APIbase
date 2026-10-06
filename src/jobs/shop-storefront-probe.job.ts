@@ -11,7 +11,7 @@ import {
 
 /** §14: a random sample of this many active storefronts is initialised in-process each hour. */
 export const PROBE_SAMPLE = 100;
-/** §12.2 STOREFRONT_DOWN reads this code from shop_connect_events (plan §8 п.9). */
+/** §12.2 STOREFRONT_DOWN reads this code from shop_connect_events (plan §8 item 9). */
 export const PROBE_ERROR_CODE = 'storefront_probe_failed';
 
 export interface ProbeDeps {

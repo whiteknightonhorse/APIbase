@@ -31,7 +31,7 @@ import type Redis from 'ioredis';
 export const QUALITY_KEY_PREFIX = 'tool:quality:';
 
 /** Below this many calls in the window, a success rate or a latency
- *  percentile is noise, not signal (Q-1: "success_rate/p50/p95 = null пока
+ *  percentile is noise, not signal (Q-1: "success_rate/p50/p95 = null until
  *  calls < 10"). */
 export const QUALITY_MIN_CALLS = 10;
 
