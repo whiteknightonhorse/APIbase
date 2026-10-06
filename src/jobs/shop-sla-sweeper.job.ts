@@ -2,9 +2,11 @@ import { logger } from '../config/logger';
 import type { ShopTx } from '../shop/db';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
 import { AUTO_DELIVER_AFTER_DAYS, markDelivered } from '../shop/order-lifecycle.service';
+import { expireDisputes } from '../shop/dispute.service';
 import { transition } from '../shop/order-state';
 import { purgePii } from '../shop/pii/pii.service';
 import { releaseReservation } from '../shop/repository';
+import { refreshReputations } from '../shop/reputation.service';
 
 /** §5.3 / §12.2: a second `confirm_overdue` for the same order only after this long. */
 export const OVERDUE_REPEAT_MS = 24 * 3_600_000;
@@ -20,6 +22,8 @@ export interface SweepResult {
   merchants_unresponsive: number;
   orders_closed: number;
   refunds_overdue: number;
+  disputes_expired: number;
+  reputations_updated: number;
   payouts_applied: number;
   connect_events_deleted: number;
   pii_purged: number;
@@ -332,6 +336,8 @@ export async function runShopSlaSweeper(
     merchants_unresponsive: 0,
     orders_closed: 0,
     refunds_overdue: 0,
+    disputes_expired: 0,
+    reputations_updated: 0,
     payouts_applied: 0,
     connect_events_deleted: 0,
     pii_purged: 0,
@@ -355,6 +361,15 @@ export async function runShopSlaSweeper(
   await step(
     'refunds_overdue',
     async () => void (out.refunds_overdue = await overdueRefunds(d, now)),
+  );
+  // T-INT-23: dispute due_at passed -> expired + DISPUTE_UNANSWERED; reputation hourly per merchant (UC-17).
+  await step(
+    'disputes_expired',
+    async () => void (out.disputes_expired = await expireDisputes(d, now)),
+  );
+  await step(
+    'reputation',
+    async () => void (out.reputations_updated = (await refreshReputations(d, now)).updated),
   );
   await step('payouts', async () => void (out.payouts_applied = await applyPayouts(d, now)));
   await step(

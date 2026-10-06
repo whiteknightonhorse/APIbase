@@ -46,7 +46,8 @@ CHECK_URL = f"https://{MAIL_DOMAIN}/integrator/check/"
 MAX_ATTEMPTS = 24
 LANG = "en"
 KINDS = ("connect_failed", "webhook_failed", "merchant_unresponsive", "refund_overdue",
-         "catalog_rejected", "payout_change", "key_rotated", "pii_delivered", "pii_undeliverable")
+         "catalog_rejected", "payout_change", "key_rotated", "pii_delivered", "pii_undeliverable",
+         "dispute_rate_warning", "merchant_disputes_suspended")
 
 log = logging.getLogger("merchant-mail")
 

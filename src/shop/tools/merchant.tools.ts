@@ -11,6 +11,7 @@ import {
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
+import { merchantRefund } from '../refund.service';
 import { setWebhook, WEBHOOK_EVENTS } from '../webhook/webhook.service';
 import {
   acceptTerms,
@@ -48,6 +49,7 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.order_confirm',
   'shop.merchant.order_ship',
   'shop.merchant.order_document',
+  'shop.merchant.refund',
   'shop.merchant.webhook_set',
   'shop.merchant.check',
 ] as const;
@@ -349,6 +351,40 @@ export function registerMerchantTools(
       try {
         const m = await bearer(deps, apiKey, 'orders:write');
         return ok({ ...(await addMerchantDocument(deps, m.merchant_id, a.order_id, a.url)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.refund',
+    {
+      title: 'Register a refund you paid',
+      description:
+        "Register a refund (needs refunds:write). The refund is YOUR transaction: send USDC back to the payer's wallet on the order's rail, then pass its tx_hash. APIbase only reads the chain and verifies: the transaction is confirmed, pays the payer, value >= amount. Verified: the order goes REFUND_PENDING -> REFUNDED (the refunds reach the order total) or PARTIALLY_REFUNDED (send further refunds until the total); otherwise 422 refund_rejected with the reason and the order is unchanged. More than the order total is 400. The platform fee is not returned. A transaction settles one refund only.",
+      inputSchema: { order_id: z.string(), amount: z.string(), tx_hash: z.string() },
+      outputSchema: {
+        refund_id: z.string(),
+        order_id: z.string(),
+        state: z.string(),
+        status: z.string(),
+        verified_amount_usd: z.string(),
+        refunded_usd: z.string(),
+        order_total_usd: z.string(),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: false,
+        openWorldHint: false,
+      },
+    },
+    async (a: { order_id: string; amount: string; tx_hash: string }) => {
+      try {
+        const m = await bearer(deps, apiKey, 'refunds:write');
+        return ok({ ...(await merchantRefund(deps, m.merchant_id, a)) });
       } catch (err) {
         return fail(err, requestId);
       }

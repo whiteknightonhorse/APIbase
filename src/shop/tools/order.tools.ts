@@ -9,6 +9,7 @@ import {
   merchantIdBySlug,
   type QuoteResponse,
 } from '../quote.service';
+import { openDispute, DISPUTE_REASONS, DISPUTE_NOTE_MAX } from '../dispute.service';
 import { getOrderView, type BuyerAgent } from '../order-payment.service';
 import type { PaymentContext } from '../../mcp/tool-adapter';
 
@@ -17,6 +18,7 @@ export const ORDER_TOOL_NAMES = [
   'shop.order.cancel',
   'shop.order.pay',
   'shop.order.get',
+  'shop.order.dispute',
 ] as const;
 
 type Result = {
@@ -231,6 +233,43 @@ export function registerOrderTools(
       try {
         const buyer = await resolveBuyer({ apiKey, session: sessionId });
         return ok({ ...(await getOrderView(deps.db, a.order_id, buyer.identity)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.order.dispute',
+    {
+      title: 'Dispute an order',
+      description: `Open a dispute on an order you paid (PAID..DELIVERED). reason_code: ${DISPUTE_REASONS.join(', ')}; note up to ${DISPUTE_NOTE_MAX} characters. The order becomes DISPUTED and the merchant has 7 days to answer (by refunding it); an unanswered dispute expires and counts in the merchant's reputation, which can suspend its quotes. A verified refund resolves the dispute. One open dispute per order; another identity's order is 404.`,
+      inputSchema: {
+        order_id: z.string(),
+        reason_code: z.enum(DISPUTE_REASONS),
+        note: z.string().max(DISPUTE_NOTE_MAX).optional(),
+      },
+      outputSchema: {
+        dispute_id: z.string(),
+        order_id: z.string(),
+        status: z.string(),
+        reason_code: z.string(),
+        due_at: z.string().nullable(),
+        state: z.string(),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async (a: { order_id: string; reason_code: string; note?: string }) => {
+      try {
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
+        const r = await openDispute(deps, buyer, a);
+        return ok({ ...r, due_at: r.due_at ? new Date(r.due_at).toISOString() : null });
       } catch (err) {
         return fail(err, requestId);
       }

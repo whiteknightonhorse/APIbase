@@ -18,6 +18,7 @@ import {
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
+import { merchantRefund } from '../refund.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { listEvents, setWebhook } from '../webhook/webhook.service';
 import {
@@ -293,6 +294,19 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
             req.body?.url,
           ),
         );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // §6.3 refunds: the merchant comes from the key; the chain is only read (F-10).
+  router.post(
+    '/api/v1/shop/merchants/me/refunds',
+    requireMerchantKey(['refunds:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await merchantRefund(deps, req.merchant?.merchant_id ?? '', req.body ?? {}));
       } catch (err) {
         send(res, err);
       }

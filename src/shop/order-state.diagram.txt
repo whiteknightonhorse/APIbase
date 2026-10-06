@@ -13,3 +13,4 @@ CONFIRMED ──(instant: fulfillment stored)──► FULFILLED ──► CLOSE
 Any of PAID…DELIVERED:
   ──(refund request)──► REFUND_PENDING ──(merchant tx verified)──► REFUNDED (full) | PARTIALLY_REFUNDED → continues the path
   ──(dispute)──► DISPUTED ──► (resolved_*) → returns to the previous state or REFUND_PENDING
+PARTIALLY_REFUNDED ──(a further refund on the same order)──► REFUND_PENDING

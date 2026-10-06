@@ -762,6 +762,8 @@ model ShopRefund {
   verified_amount Decimal? @db.Decimal(18, 6)
   status          String   @default("requested") // requested|awaiting_merchant_tx|verified|rejected|overdue
   due_at          DateTime? @db.Timestamptz()
+  reject_reason   String?
+  verified_at     DateTime? @db.Timestamptz()
   created_at      DateTime @default(now()) @db.Timestamptz()
 
   @@index([order_id])
@@ -794,6 +796,7 @@ model ShopDispute {
   merchant_response String?
   due_at            DateTime? @db.Timestamptz()
   status            String    @default("open") // open|merchant_responded|resolved_refund|resolved_rejected|expired
+  resolved_at       DateTime? @db.Timestamptz()
   created_at        DateTime  @default(now()) @db.Timestamptz()
 
   @@index([order_id])

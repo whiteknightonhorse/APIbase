@@ -170,7 +170,10 @@ Buyer path after a quote: pay with x402 (Base). **Settle comes before delivery**
 - `shop.order.get {order_id}` · `GET /api/v1/shop/orders/:id` → `{order_id, state, tx_hash, events[], tracking (null in wave 1), refund_policy {refund_window_days, returns_accepted}}`; for the identity that paid (the quote's buyer, or the wallet identity of the payer) also `fulfillment?` (same on every call), `documents[]` (merchant links) and, while the order is open (`PAID` … `DELIVERED`, `REFUND_PENDING`, `DISPUTED`; not `CLOSED`), `merchant_contact {email, site_url}`.
 - `shop.order.cancel` after payment: before the merchant confirms (`PAID`) it is always a refund → `REFUND_PENDING` and a `shop_refunds` row due in 7 days (`shop.refund.requested`); after `CONFIRMED` only if the SKUs accept returns and `refund_window_days` is still open, otherwise `409 not_cancellable` with the policy. Digital content delivered under `waive_withdrawal` (`FULFILLED`/`CLOSED`) is `409`.
 - **Merchant order tools.** `orders_list {state?, since?, cursor?, limit?}` (own orders only, `next_cursor` for the next page), `order_confirm {order_id}` (`PAID → CONFIRMED`, stops the confirm SLA; another merchant's order is `404`), `order_ship {order_id, tracking?, delivery_eta?, delivered_at?}` (physical orders: `CONFIRMED → SHIPPED`, then `delivered_at` → `DELIVERED`; `409 not_shippable` otherwise), `order_document {order_id, url}` (`https://` only, else `422`; shown in the buyer's `order.get.documents`).
-- **SLA sweeper** (`shop-sla-sweeper`, worker, every 5 minutes): expired open quotes → `expired` (stock released, `QUOTED` orders → `EXPIRED`); `PAID` past `confirm_due_at` (`PAID` + `policy.confirm_sla_h`, default 48 h, merchant-fulfilled orders only) → one `shop.order.confirm_overdue`, repeated every 24 h; `CONFIRMED` physical past `ship_due_at` → one `shop.order.ship_overdue` (pull-only); `SHIPPED` with `delivery_eta` + 7 days passed → `DELIVERED`; three late orders in a row → the merchant gets `status_reason = unresponsive` and quotes answer `410` until the operator clears it; `close_after` passed → `CLOSED`; refund `due_at` passed → `overdue` + one `shop.refund.overdue`; `payout_pending.effective_at` passed → the new payout wallet is applied; `shop_connect_events` older than 30 days are deleted.
+- **Refunds** (`shop.merchant.refund {order_id, amount, tx_hash}` / `POST /merchants/me/refunds`, scope `refunds:write`). A refund is the merchant's own transaction: send USDC back to the payer's wallet on the order's rail, then pass the hash. APIbase only reads the chain (viem, read-only; it never sends or signs anything): the transaction must be confirmed, carry a USDC `Transfer` with `to` = the payer and `value >= amount`. Verified → `shop_refunds.verified`, the order goes `REFUND_PENDING → REFUNDED` (the refunds add up to `total_usd`) or `PARTIALLY_REFUNDED` (a further refund moves it through `REFUND_PENDING` again). A transaction that does not prove it → `422 refund_rejected` with `reject_reason`, the record is `rejected` and the order is unchanged; more than the order total is `400 refund_exceeds_total`; a transaction settles one refund only (`409 tx_already_used`). The platform fee is not returned; for `reason = duplicate` the fee leg is already `written_off`.
+- **Disputes** (`shop.order.dispute {order_id, reason_code, note?}` / `POST /orders/:id/disputes`, the payer only, another identity gets `404`). `reason_code`: `not_received | not_as_described | duplicate | canceled_recurring | agent_error | other`; `note` up to 1000 characters. `PAID`…`DELIVERED` → `DISPUTED`, `due_at` = +7 days, one open dispute per order, `shop.dispute.opened`. Merchant dispute response channel: the refund tool (a verified refund resolves the dispute) or the mail intake of §12.2 MERCHANT_REPLY; §6.3 has no REST reply route. After `due_at` the dispute is `expired`, the order returns to its prior state and one `shop.dispute.unanswered` (DISPUTE_UNANSWERED, pull-only) is queued. Escalation is reputation and suspension only.
+- **Reputation** (`shop_merchants.reputation`, recomputed by the sweeper once an hour): `closed_on_time_pct`, `dispute_rate`, `refund_rate` (fractions, `0.02` = 2%), `orders_closed`, `as_of`; published in `catalog.search`/`catalog.get`/`discover` (`merchant.reputation`) and on `/m/<slug>`. The test SKU and `reason = duplicate` are not counted. At 10 or more closed orders `dispute_rate >= 1%` queues a warning (mail + `shop.merchant.dispute_rate_warning`, at most weekly); `>= 2%` sets `status_reason = disputes` and quotes answer `410` until the operator clears it.
+- **SLA sweeper** (`shop-sla-sweeper`, worker, every 5 minutes): expired open quotes → `expired` (stock released, `QUOTED` orders → `EXPIRED`); `PAID` past `confirm_due_at` (`PAID` + `policy.confirm_sla_h`, default 48 h, merchant-fulfilled orders only) → one `shop.order.confirm_overdue`, repeated every 24 h; `CONFIRMED` physical past `ship_due_at` → one `shop.order.ship_overdue` (pull-only); `SHIPPED` with `delivery_eta` + 7 days passed → `DELIVERED`; three late orders in a row → the merchant gets `status_reason = unresponsive` and quotes answer `410` until the operator clears it; `close_after` passed → `CLOSED`; refund `due_at` passed → `overdue` + one `shop.refund.overdue`; dispute `due_at` passed → `expired` + one `shop.dispute.unanswered`; merchant reputation recomputed hourly (disputes ≥ 1% warn, ≥ 2% suspend); `payout_pending.effective_at` passed → the new payout wallet is applied; `shop_connect_events` older than 30 days are deleted.
 - Paid orders emit the `shop.order.paid` event; the `PAID` order event records `request_id`, the buyer agent (client name/version or user agent) and the first 8 hex characters of the payer wallet's SHA-256 — never the wallet.
 
 ## Buyer PII (end-to-end encrypted) {#pii}
@@ -312,7 +315,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `shop.order.pay`      | yes    | `pii` envelopes (INT-21), physical goods (INT-22) |
 | `shop.order.get`      | yes    |                                                   |
 | `shop.order.cancel`   | yes    |                                                   |
-| `shop.order.dispute`  | no     | wave 2                                            |
+| `shop.order.dispute`  | yes    | the payer only                                    |
 
 **Merchant tools (§6.2)**
 
@@ -330,7 +333,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `shop.merchant.rotate_key`     | yes    |        |
 | `shop.merchant.deactivate`     | yes    |        |
 | `shop.merchant.order_ship`     | yes    |        |
-| `shop.merchant.refund`         | no     | wave 2 |
+| `shop.merchant.refund`         | yes    |        |
 | `shop.merchant.stats`          | no     | wave 2 |
 
 **REST routes (§6.3, under `/api/v1/shop`)**
@@ -346,7 +349,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `GET /quotes/:id/pay`                    | yes    | the challenge only   |
 | `GET /orders/:id`                        | yes    |                      |
 | `POST /orders/:id/cancel`                | yes    |                      |
-| `POST /orders/:id/disputes`              | no     | wave 2               |
+| `POST /orders/:id/disputes`              | yes    | the payer only       |
 | `GET /auth/nonce`                        | yes    |                      |
 | `POST /merchants`                        | yes    |                      |
 | `POST /merchants/me/acceptances`         | yes    |                      |
@@ -357,7 +360,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `GET /merchants/me/orders/:id/pii`       | yes    | buyer-data envelopes |
 | `POST /merchants/me/orders/:id/document` | yes    |                      |
 | `POST /merchants/me/orders/:id/ship`     | yes    |                      |
-| `POST /merchants/me/refunds`             | no     | wave 2               |
+| `POST /merchants/me/refunds`             | yes    | `refunds:write`      |
 | `PUT /merchants/me/webhooks`             | yes    |                      |
 | `GET /merchants/me/stats`                | no     | wave 2               |
 | `GET /merchants/me/events`               | yes    |                      |

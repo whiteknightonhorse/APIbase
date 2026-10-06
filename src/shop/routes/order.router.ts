@@ -7,6 +7,7 @@ import { clearIdempotency, finalizeIdempotency } from '../../services/idempotenc
 import { resolveBuyer } from '../buyer';
 import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycle.service';
 import { resolveX402PaymentHeader } from '../../config/http-headers';
+import { openDispute } from '../dispute.service';
 import { getOrderView } from '../order-payment.service';
 import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.service';
 
@@ -141,6 +142,22 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
     try {
       res.json(
         await cancelOrder(deps, await buyerOf(req), String(req.params.id), req.body?.reason),
+      );
+    } catch (err) {
+      send(res, err);
+    }
+  });
+
+  // §6.3: only the payer; another identity's order is 404.
+  router.post('/api/v1/shop/orders/:id/disputes', async (req: Request, res: Response) => {
+    try {
+      const body = (req.body ?? {}) as Record<string, unknown>;
+      res.status(201).json(
+        await openDispute(deps, await buyerOf(req), {
+          order_id: String(req.params.id),
+          reason_code: body.reason_code,
+          note: body.note,
+        }),
       );
     } catch (err) {
       send(res, err);

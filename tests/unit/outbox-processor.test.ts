@@ -64,6 +64,8 @@ describe('outbox processor (T-0259)', () => {
       'shop.order.confirm_overdue',
       'shop.order.ship_overdue',
       'shop.refund.overdue',
+      'shop.refund.verified',
+      'shop.dispute.opened',
     ]);
     expect(HANDLED_EVENT_TYPES).not.toContain('mpp_refund_owed');
     expect(HANDLED_EVENT_TYPES).not.toContain('x402_settle_failed');

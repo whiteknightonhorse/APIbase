@@ -11,7 +11,7 @@ import { registerOrderTools } from './tools/order.tools';
  * version when a definition changes on purpose; the hash moves on any change at all (name,
  * description, schema, annotations), so a silent edit cannot go unnoticed.
  */
-export const SHOP_TOOLS_VERSION = '3';
+export const SHOP_TOOLS_VERSION = '4';
 
 const canon = (v: unknown): unknown =>
   Array.isArray(v)

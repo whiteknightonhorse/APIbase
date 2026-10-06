@@ -9,7 +9,7 @@ export const BREAKER_THRESHOLD = 10;
 
 /**
  * outbox event_type -> webhook event name. The two SLA notices are not subscribable (F-6): they are
- * pull-only through GET /merchants/me/events (`ship_overdue` is the third). dispute/refund.verified join with INT-23.
+ * pull-only through GET /merchants/me/events (`ship_overdue` is the third). refund.verified and dispute.opened (INT-23) are subscribable; dispute.unanswered is pull-only.
  */
 export const OUTBOX_TO_WEBHOOK: Record<string, string> = {
   'shop.order.paid': 'order.paid',
@@ -24,4 +24,6 @@ export const OUTBOX_TO_WEBHOOK: Record<string, string> = {
   'shop.order.confirm_overdue': 'order.confirm_overdue',
   'shop.order.ship_overdue': 'order.ship_overdue',
   'shop.refund.overdue': 'refund.overdue',
+  'shop.refund.verified': 'refund.verified',
+  'shop.dispute.opened': 'dispute.opened',
 };
