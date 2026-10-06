@@ -4,12 +4,14 @@ import { PAYMENT_SIGNATURE, X_PAYMENT } from '../../config/http-headers';
 import { logger } from '../../config/logger';
 import { defaultShopDeps, type ShopDeps } from '../merchant-lifecycle.service';
 import {
+  captureDeferredClose,
   contentPortion,
   fromMicro,
   getStreamMethod,
   isSettlementDeferred,
   StreamError,
   toMicro,
+  type DeferredClose,
   type StreamMethod,
 } from '../stream-session';
 import { CLOSE_PENDING_NOTE, recordDeferredClose } from '../stream-merchant.service';
@@ -225,30 +227,51 @@ export function createStreamRouter(opts: StreamRouterOptions = {}): Router {
       body,
     });
 
-    let result;
+    let result: {
+      status: number;
+      challenge: globalThis.Response;
+      withReceipt: (r: globalThis.Response) => globalThis.Response;
+    };
+    let deferredClose: DeferredClose | undefined;
     try {
-      result = await method.mppx.session({ amount: unitAmount })(fetchReq);
+      const captured = await captureDeferredClose(
+        (): Promise<typeof result> => method.mppx.session({ amount: unitAmount })(fetchReq),
+      );
+      result = captured.value;
+      deferredClose = captured.deferredClose;
     } catch (e) {
-      // INT-46: the merchant, not APIbase, executes the close of its channel (F-10: we hold no key)
-      if (
-        isSettlementDeferred(e) &&
-        session &&
-        cred?.action === 'close' &&
-        cred.cumulativeAmount &&
-        cred.signature
-      ) {
-        await recordDeferredClose(d, session, method, {
-          cumulativeAmount: BigInt(cred.cumulativeAmount),
-          signature: cred.signature,
-        });
-        res.status(202).json({
-          status: 'close_pending',
-          channel_id: session.channel_id,
-          note: CLOSE_PENDING_NOTE,
-        });
-        return;
-      }
-      throw e;
+      if (!(isSettlementDeferred(e) && session && cred?.action === 'close')) throw e;
+      // a mock or a future mppx may let the error through: same outcome as the 402 path below
+      deferredClose =
+        cred.cumulativeAmount && cred.signature
+          ? {
+              channel_id: session.channel_id,
+              cumulative_amount: BigInt(cred.cumulativeAmount),
+              signature: cred.signature,
+            }
+          : undefined;
+      result = { status: 402 } as typeof result;
+    }
+    // INT-46: the merchant, not APIbase, executes the close of its channel (F-10: we hold no key).
+    // mppx 0.5.17 swallows the signer's SettlementDeferredError into a 402 (and logs "mppx: internal
+    // verification error"); the deferred signer left the payer's voucher in the request store.
+    if (
+      result.status === 402 &&
+      deferredClose &&
+      session &&
+      cred?.action === 'close' &&
+      deferredClose.channel_id === session.channel_id.toLowerCase()
+    ) {
+      await recordDeferredClose(d, session, method, {
+        cumulativeAmount: deferredClose.cumulative_amount,
+        signature: deferredClose.signature,
+      });
+      res.status(202).json({
+        status: 'close_pending',
+        channel_id: session.channel_id,
+        note: CLOSE_PENDING_NOTE,
+      });
+      return;
     }
     if (result.status === 402) {
       await sendFetch(res, result.challenge);

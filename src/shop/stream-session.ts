@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { getMppConfig } from '../config/mpp.config';
 import { logger } from '../config/logger';
 import type { StreamTerms } from './catalog.service';
@@ -63,6 +64,61 @@ export function isSettlementDeferred(err: unknown): boolean {
   return false;
 }
 
+/** The close the deferred signer refused to send: the payer's final voucher, ready for the merchant. */
+export interface DeferredClose {
+  channel_id: string;
+  cumulative_amount: bigint;
+  signature: string;
+}
+
+/**
+ * Per-request side channel (INT-46 attempt 2). mppx's `Mppx.ts` wraps `verify` in a try/catch that
+ * turns any non-PaymentError into a generic 402 and rethrows nothing, so the SettlementDeferredError
+ * of `handleClose -> closeOnChain -> signTransaction` never reaches the route. The deferred signer
+ * therefore records the voucher it was asked to submit here, and the route reads it on a 402.
+ */
+const deferredCapture = new AsyncLocalStorage<{ close?: DeferredClose }>();
+
+/** Run `fn` with a fresh capture store; returns its result and the close the signer refused, if any. */
+export async function captureDeferredClose<T>(
+  fn: () => Promise<T>,
+): Promise<{ value: T; deferredClose?: DeferredClose }> {
+  const store: { close?: DeferredClose } = {};
+  const value = await deferredCapture.run(store, fn);
+  return { value, deferredClose: store.close };
+}
+
+/** The escrow `close` signature, as in mppx `escrow.abi.ts` (the mppx/tempo entry point does not export it). */
+const ESCROW_CLOSE_ABI = (parse: typeof import('viem').parseAbi) =>
+  parse(['function close(bytes32 channelId, uint128 cumulativeAmount, bytes signature)']);
+
+/** Records the escrow `close(channelId, cumulativeAmount, signature)` call in `tx.data`, if it is one. */
+async function noteDeferredTx(tx: unknown): Promise<void> {
+  const store = deferredCapture.getStore();
+  const data = (tx as { data?: unknown } | null)?.data;
+  if (!store || typeof data !== 'string') return;
+  try {
+    const { decodeFunctionData, parseAbi } = await import('viem');
+    const decoded = decodeFunctionData({
+      abi: ESCROW_CLOSE_ABI(parseAbi),
+      data: data as `0x${string}`,
+    });
+    if (decoded.functionName !== 'close') return;
+    const [channelId, cumulativeAmount, signature] = decoded.args as readonly [
+      string,
+      bigint,
+      string,
+    ];
+    store.close = {
+      channel_id: channelId.toLowerCase(),
+      cumulative_amount: cumulativeAmount,
+      signature,
+    };
+  } catch {
+    // not decodable: the route falls back to the generic 402
+  }
+}
+
 /**
  * A viem `Account` with the merchant's payout `address` and no key: reads and verification work,
  * every signature throws SettlementDeferredError (F-10: our code never sends crypto for a
@@ -76,7 +132,10 @@ export async function deferredSettlerAccount(address: string): Promise<{ address
   return toAccount({
     address: address as `0x${string}`,
     signMessage: deferred,
-    signTransaction: deferred,
+    signTransaction: async (tx: unknown) => {
+      await noteDeferredTx(tx);
+      return deferred();
+    },
     signTypedData: deferred,
   });
 }
