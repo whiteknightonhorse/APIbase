@@ -386,6 +386,26 @@ Use these examples as reference patterns when:
 | UC-799 | CensusMapper (censusmapper.ca) | Statistics Canada census data -- dataset list + data.csv by region/vector, CSV converted to JSON, StatCan attribution on every response | LOCALLY COMMITTED (local) | API key (POST form `api_key`), 2 tools | `usecases/UC-799-censusmapper.md` |
 
 ## How to Use
+| UC-800 | AquaView (aquaview.ai) — Ocean and water data monitoring | world (ocean/environment data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-800-aquaview.md` |
+| UC-801 | APimetro (apimetro.dev) — Public transit and mobility data | world (transit/transportation data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-801-apimetro.md` |
+| UC-802 | Hydrocron SWOT (earthdata.nasa.gov) — Hydrological and water cycle data | world (hydrology/environment data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-802-hydrocron.md` |
+| UC-803 | Ocean Facts API (public-api.org) — Oceanography reference data | world (oceanography/reference data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-803-ocean-facts.md` |
+| UC-804 | API Carto France (data.gouv.fr) — French cadastre and mapping data | world (government/cadastre data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-804-api-carto-france.md` |
+| UC-805 | Statistics Iceland (statice.is) — Icelandic statistical data | world (statistics/government data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-805-statistics-iceland.md` |
+| UC-806 | Peru SENAMHI (senamhi.gob.pe) — Peruvian meteorological and hydrological data | world (hydrology/weather data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-806-peru-senamhi.md` |
+| UC-807 | Hub Eau France (hubeau.eaufrance.fr) — French water resources data | world (water-resources data) | QUEUED_FOR_DISCOVERY (local) | No auth, 3 tools | `usecases/UC-807-hub-eau-france.md` |
+| UC-808 | JRC Forest Cover (data.jrc.ec.europa.eu) — European forest coverage data | world (forestry/environmental data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-808-jrc-forest-cover.md` |
+| UC-809 | Smithsonian Volcanism (volcano.si.edu) — Global volcano monitoring data | world (geology/environment data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-809-smithsonian-volcanism.md` |
+| UC-810 | Environment Agency Hydrology UK (environment.data.gov.uk) — UK hydrological data | world (hydrology/water data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-810-environment-agency-hydrology-uk.md` |
+| UC-811 | Taiwan BOCH Heritage (data.boch.gov.tw) — Taiwanese cultural heritage data | world (cultural-heritage data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-811-taiwan-boch-heritage.md` |
+| UC-812 | France Pop Heritage (culture.gouv.fr) — French cultural heritage data | world (cultural-heritage data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-812-france-pop-heritage.md` |
+| UC-813 | Ireland Museums Collections (data.gov.ie) — Irish museum collections data | world (museums/cultural data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-813-ireland-museums.md` |
+| UC-814 | Toronto Open Data (open.toronto.ca) — Toronto municipal data | world (urban-data/government data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-814-toronto-open-data.md` |
+| UC-815 | Cyprus Open Government (public-api.org) — Cypriot government data | world (government data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-815-cyprus-government.md` |
+| UC-816 | Malta Open Data (data.gov.mt) — Maltese government and statistical data | world (government data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-816-malta-open-data.md` |
+| UC-817 | Iceland Landmaelingar (lmi.is) — Icelandic cadastral and mapping data | world (cadastre/mapping data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-817-iceland-landmaelingar.md` |
+| UC-818 | Rwanda NISR Statistics (statistics.gov.rw) — Rwandan statistical data | world (statistics/government data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-818-rwanda-statistics.md` |
+| UC-819 | Ethiopia Open Data (data.gov.et) — Ethiopian government data | world (government data) | QUEUED_FOR_DISCOVERY (local) | No auth, 2 tools | `usecases/UC-819-ethiopia-data.md` |
 
 - `/user-usecases list` — show all use cases
 - `/user-usecases polymarket` — find use cases matching "polymarket"
