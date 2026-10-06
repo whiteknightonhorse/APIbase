@@ -15,443 +15,456 @@ import { z } from 'zod';
 // ---------------------------------------------------------------------------
 // App-level env vars (validated at startup)
 // ---------------------------------------------------------------------------
-export const appEnvSchema = z.object({
-  // Core
-  NODE_ENV: z.enum(['production', 'development', 'test']).default('production'),
-  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-
-  // Database — per-process connection strings with pool limits (§12.215)
-  DATABASE_URL: z.string().min(1),
-  DATABASE_URL_WORKER: z.string().min(1),
-  DATABASE_URL_OUTBOX: z.string().min(1),
-
-  // Redis (§12.214)
-  REDIS_URL: z.string().min(1).default('redis://redis:6379'),
-
-  // API key hashing salt — minimum 32 chars (§12.60)
-  API_KEY_SECRET: z.string().min(32),
-
-  // x402 payments (§8.6–8.9)
-  X402_NETWORK: z.string().min(1).default('base'),
-  X402_PAYMENT_ADDRESS: z.string().min(1).default('0x0000000000000000000000000000000000000000'),
-  X402_FACILITATOR_URL: z.string().url().default('https://facilitator.payai.network'),
-
-  // CDP x402 Facilitator — Coinbase Developer Platform (Bazaar discovery)
-  CDP_ENABLED: z.string().optional().default('false'),
-  CDP_API_KEY_ID: z.string().optional().default(''),
-  CDP_API_KEY_SECRET: z.string().optional().default(''),
-  CDP_FACILITATOR_URL: z
-    .string()
-    .optional()
-    .default('https://api.cdp.coinbase.com/platform/v2/x402'),
-
-  // Self-hosted x402 facilitator (CDP-free path).
-  // mode=local → APIbase submits transferWithAuthorization on Base directly via viem.
-  // mode=remote → existing HTTP facilitator behavior (PayAI / CDP).
-  X402_FACILITATOR_MODE: z.enum(['local', 'remote']).default('remote'),
-  // Operator wallet — pays gas only, separate from X402_PAYMENT_ADDRESS receiver.
-  // Required iff X402_FACILITATOR_MODE=local. Format: 0x + 64 hex chars.
-  X402_OPERATOR_PRIVATE_KEY: z.string().optional().default(''),
-  // Base RPC URLs (override with private RPC for high QPS).
-  X402_BASE_RPC_URL: z.string().url().default('https://mainnet.base.org'),
-  X402_BASE_SEPOLIA_RPC_URL: z.string().url().default('https://sepolia.base.org'),
-  // Operator wallet ETH balance threshold for low-balance alert (in ETH, not wei).
-  X402_OPERATOR_MIN_ETH_BALANCE: z.coerce.number().default(0.005),
-
-  // Provider API keys (§5.3)
-  PROVIDER_KEY_OPENWEATHER: z.string().min(1),
-  PROVIDER_KEY_COINGECKO: z.string().optional().default(''),
-  PROVIDER_KEY_POLYMARKET: z.string().optional().default(''),
-  PROVIDER_KEY_AVIASALES: z.string().optional().default(''),
-
-  // Sabre GDS (UC-023) — OAuth2 client credentials
-  SABRE_CLIENT_ID: z.string().optional().default(''),
-  SABRE_CLIENT_SECRET: z.string().optional().default(''),
-
-  // Amadeus Travel APIs (UC-022) — OAuth2 client credentials
-  AMADEUS_API_KEY: z.string().optional().default(''),
-  AMADEUS_API_SECRET: z.string().optional().default(''),
-
-  // Foursquare Places API (UC-003) — Service API Key (Bearer auth)
-  PROVIDER_KEY_FOURSQUARE: z.string().optional().default(''),
-
-  // Ticketmaster Discovery API (UC-008) — Consumer Key (query param auth)
-  PROVIDER_KEY_TICKETMASTER: z.string().optional().default(''),
-
-  // TMDB (UC-010) — v4 Read Access Token (Bearer auth)
-  TMDB_ACCESS_TOKEN: z.string().optional().default(''),
-
-  // Health & Nutrition (UC-011) — USDA FoodData Central + OpenFDA
-  PROVIDER_KEY_USDA: z.string().optional().default(''),
-  PROVIDER_KEY_OPENFDA: z.string().optional().default(''),
-
-  // Finance / Banking (UC-016) — FRED API key (free at fred.stlouisfed.org)
-  PROVIDER_KEY_FRED: z.string().optional().default(''),
+export const appEnvSchema = z
+  .object({
+    // Core
+    NODE_ENV: z.enum(['production', 'development', 'test']).default('production'),
+    PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+
+    // Database — per-process connection strings with pool limits (§12.215)
+    DATABASE_URL: z.string().min(1),
+    DATABASE_URL_WORKER: z.string().min(1),
+    DATABASE_URL_OUTBOX: z.string().min(1),
+
+    // Redis (§12.214)
+    REDIS_URL: z.string().min(1).default('redis://redis:6379'),
+
+    // API key hashing salt — minimum 32 chars (§12.60)
+    API_KEY_SECRET: z.string().min(32),
+
+    // x402 payments (§8.6–8.9)
+    X402_NETWORK: z.string().min(1).default('base'),
+    X402_PAYMENT_ADDRESS: z.string().min(1).default('0x0000000000000000000000000000000000000000'),
+    X402_FACILITATOR_URL: z.string().url().default('https://facilitator.payai.network'),
+
+    // CDP x402 Facilitator — Coinbase Developer Platform (Bazaar discovery)
+    CDP_ENABLED: z.string().optional().default('false'),
+    CDP_API_KEY_ID: z.string().optional().default(''),
+    CDP_API_KEY_SECRET: z.string().optional().default(''),
+    CDP_FACILITATOR_URL: z
+      .string()
+      .optional()
+      .default('https://api.cdp.coinbase.com/platform/v2/x402'),
+
+    // Self-hosted x402 facilitator (CDP-free path).
+    // mode=local → APIbase submits transferWithAuthorization on Base directly via viem.
+    // mode=remote → existing HTTP facilitator behavior (PayAI / CDP).
+    X402_FACILITATOR_MODE: z.enum(['local', 'remote']).default('remote'),
+    // Operator wallet — pays gas only, separate from X402_PAYMENT_ADDRESS receiver.
+    // Required iff X402_FACILITATOR_MODE=local. Format: 0x + 64 hex chars.
+    X402_OPERATOR_PRIVATE_KEY: z.string().optional().default(''),
+    // Base RPC URLs (override with private RPC for high QPS).
+    X402_BASE_RPC_URL: z.string().url().default('https://mainnet.base.org'),
+    X402_BASE_SEPOLIA_RPC_URL: z.string().url().default('https://sepolia.base.org'),
+    // Operator wallet ETH balance threshold for low-balance alert (in ETH, not wei).
+    X402_OPERATOR_MIN_ETH_BALANCE: z.coerce.number().default(0.005),
+
+    // Provider API keys (§5.3)
+    PROVIDER_KEY_OPENWEATHER: z.string().min(1),
+    PROVIDER_KEY_COINGECKO: z.string().optional().default(''),
+    PROVIDER_KEY_POLYMARKET: z.string().optional().default(''),
+    PROVIDER_KEY_AVIASALES: z.string().optional().default(''),
+
+    // Sabre GDS (UC-023) — OAuth2 client credentials
+    SABRE_CLIENT_ID: z.string().optional().default(''),
+    SABRE_CLIENT_SECRET: z.string().optional().default(''),
+
+    // Amadeus Travel APIs (UC-022) — OAuth2 client credentials
+    AMADEUS_API_KEY: z.string().optional().default(''),
+    AMADEUS_API_SECRET: z.string().optional().default(''),
+
+    // Foursquare Places API (UC-003) — Service API Key (Bearer auth)
+    PROVIDER_KEY_FOURSQUARE: z.string().optional().default(''),
+
+    // Ticketmaster Discovery API (UC-008) — Consumer Key (query param auth)
+    PROVIDER_KEY_TICKETMASTER: z.string().optional().default(''),
+
+    // TMDB (UC-010) — v4 Read Access Token (Bearer auth)
+    TMDB_ACCESS_TOKEN: z.string().optional().default(''),
+
+    // Health & Nutrition (UC-011) — USDA FoodData Central + OpenFDA
+    PROVIDER_KEY_USDA: z.string().optional().default(''),
+    PROVIDER_KEY_OPENFDA: z.string().optional().default(''),
+
+    // Finance / Banking (UC-016) — FRED API key (free at fred.stlouisfed.org)
+    PROVIDER_KEY_FRED: z.string().optional().default(''),
+
+    // Jobs / Career Intelligence (UC-015) — O*NET, BLS, CareerJet API keys
+    PROVIDER_KEY_ONET: z.string().optional().default(''),
+    PROVIDER_KEY_BLS: z.string().optional().default(''),
+    PROVIDER_KEY_CAREERJET: z.string().optional().default(''),
 
-  // Jobs / Career Intelligence (UC-015) — O*NET, BLS, CareerJet API keys
-  PROVIDER_KEY_ONET: z.string().optional().default(''),
-  PROVIDER_KEY_BLS: z.string().optional().default(''),
-  PROVIDER_KEY_CAREERJET: z.string().optional().default(''),
+    // Education / Academic Research (UC-017) — College Scorecard uses PROVIDER_KEY_API_DATA_GOV, PubMed key optional
+    PROVIDER_KEY_PUBMED: z.string().optional().default(''),
 
-  // Education / Academic Research (UC-017) — College Scorecard uses PROVIDER_KEY_API_DATA_GOV, PubMed key optional
-  PROVIDER_KEY_PUBMED: z.string().optional().default(''),
+    // Maps / Geolocation (UC-012) — Geoapify (OSM-based, free tier 3K credits/day)
+    PROVIDER_KEY_GEOAPIFY: z.string().optional().default(''),
 
-  // Maps / Geolocation (UC-012) — Geoapify (OSM-based, free tier 3K credits/day)
-  PROVIDER_KEY_GEOAPIFY: z.string().optional().default(''),
+    // AIPush AI Marketing (UC-019) — internal service-to-service
+    AIPUSH_INTERNAL_SECRET: z.string().optional().default(''),
+    AIPUSH_INTERNAL_URL: z.string().optional().default('http://172.17.0.1:3000'),
 
-  // AIPush AI Marketing (UC-019) — internal service-to-service
-  AIPUSH_INTERNAL_SECRET: z.string().optional().default(''),
-  AIPUSH_INTERNAL_URL: z.string().optional().default('http://172.17.0.1:3000'),
+    // Diffbot AI Extraction (UC-026) — query param auth, 10K free/month
+    PROVIDER_KEY_DIFFBOT: z.string().optional().default(''),
 
-  // Diffbot AI Extraction (UC-026) — query param auth, 10K free/month
-  PROVIDER_KEY_DIFFBOT: z.string().optional().default(''),
+    // WhoisXML API (UC-028) — query param auth, 500 free queries
+    PROVIDER_KEY_WHOISXML: z.string().optional().default(''),
 
-  // WhoisXML API (UC-028) — query param auth, 500 free queries
-  PROVIDER_KEY_WHOISXML: z.string().optional().default(''),
+    // Spoonacular Recipe API (UC-031) — query param auth, 150 points/day free
+    PROVIDER_KEY_SPOONACULAR: z.string().optional().default(''),
 
-  // Spoonacular Recipe API (UC-031) — query param auth, 150 points/day free
-  PROVIDER_KEY_SPOONACULAR: z.string().optional().default(''),
+    // NASA Open APIs (UC-034) — query param auth, 1K req/hour free
+    PROVIDER_KEY_NASA: z.string().optional().default(''),
 
-  // NASA Open APIs (UC-034) — query param auth, 1K req/hour free
-  PROVIDER_KEY_NASA: z.string().optional().default(''),
+    // Smithsonian Institution Open Access (UC-382) — api.data.gov key, 1K req/hour free
+    PROVIDER_KEY_SMITHSONIAN: z.string().optional().default(''),
 
-  // Smithsonian Institution Open Access (UC-382) — api.data.gov key, 1K req/hour free
-  PROVIDER_KEY_SMITHSONIAN: z.string().optional().default(''),
+    // RAWG Video Games Database (UC-037) — query param auth, unlimited free
+    PROVIDER_KEY_RAWG: z.string().optional().default(''),
 
-  // RAWG Video Games Database (UC-037) — query param auth, unlimited free
-  PROVIDER_KEY_RAWG: z.string().optional().default(''),
+    // IGDB Video Games Database (UC-039) — OAuth2 Twitch Client Credentials, unlimited free
+    IGDB_CLIENT_ID: z.string().optional().default(''),
+    IGDB_CLIENT_SECRET: z.string().optional().default(''),
 
-  // IGDB Video Games Database (UC-039) — OAuth2 Twitch Client Credentials, unlimited free
-  IGDB_CLIENT_ID: z.string().optional().default(''),
-  IGDB_CLIENT_SECRET: z.string().optional().default(''),
+    // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
+    PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
 
-  // ZeroBounce Email Validation (UC-055) — query param auth, 100 free/month, $39/2K credits
-  PROVIDER_KEY_ZEROBOUNCE: z.string().optional().default(''),
+    // Twilio SMS (UC-086) — Account SID + Auth Token, trial $15.50
+    TWILIO_ACCOUNT_SID: z.string().optional().default(''),
+    TWILIO_AUTH_TOKEN: z.string().optional().default(''),
 
-  // Twilio SMS (UC-086) — Account SID + Auth Token, trial $15.50
-  TWILIO_ACCOUNT_SID: z.string().optional().default(''),
-  TWILIO_AUTH_TOKEN: z.string().optional().default(''),
+    // Telnyx CPaaS (UC-395) — Bearer API key v2, trial $10
+    TELNYX_API_KEY: z.string().optional().default(''),
 
-  // Telnyx CPaaS (UC-395) — Bearer API key v2, trial $10
-  TELNYX_API_KEY: z.string().optional().default(''),
+    // AirNow EPA (UC-397) — US AQI, free key (instant)
+    PROVIDER_KEY_AIRNOW: z.string().optional().default(''),
+    // US National Park Service (UC-406) — free X-Api-Key
+    PROVIDER_KEY_NPS: z.string().optional().default(''),
+    // US Energy Information Administration (UC-407) — free api_key, 5K req/hr
+    PROVIDER_KEY_EIA: z.string().optional().default(''),
+    // api.data.gov shared key (UC-408 FEC + Census + NASA + ...) — 1K req/hr
+    PROVIDER_KEY_API_DATA_GOV: z.string().optional().default(''),
+    // Digital Public Library of America (UC-574) — free api_key, no documented rate limit
+    PROVIDER_KEY_DPLA: z.string().optional().default(''),
 
-  // AirNow EPA (UC-397) — US AQI, free key (instant)
-  PROVIDER_KEY_AIRNOW: z.string().optional().default(''),
-  // US National Park Service (UC-406) — free X-Api-Key
-  PROVIDER_KEY_NPS: z.string().optional().default(''),
-  // US Energy Information Administration (UC-407) — free api_key, 5K req/hr
-  PROVIDER_KEY_EIA: z.string().optional().default(''),
-  // api.data.gov shared key (UC-408 FEC + Census + NASA + ...) — 1K req/hr
-  PROVIDER_KEY_API_DATA_GOV: z.string().optional().default(''),
-  // Digital Public Library of America (UC-574) — free api_key, no documented rate limit
-  PROVIDER_KEY_DPLA: z.string().optional().default(''),
+    // Stability AI (UC-080) — Bearer header, 25 free credits
+    PROVIDER_KEY_STABILITY: z.string().optional().default(''),
 
-  // Stability AI (UC-080) — Bearer header, 25 free credits
-  PROVIDER_KEY_STABILITY: z.string().optional().default(''),
+    // Resend Email (UC-076) — Bearer header, 3K/month free
+    PROVIDER_KEY_RESEND: z.string().optional().default(''),
 
-  // Resend Email (UC-076) — Bearer header, 3K/month free
-  PROVIDER_KEY_RESEND: z.string().optional().default(''),
+    // OCR.space (UC-078) — apikey header, 25K req/month free, commercial OK
+    PROVIDER_KEY_OCRSPACE: z.string().optional().default(''),
 
-  // OCR.space (UC-078) — apikey header, 25K req/month free, commercial OK
-  PROVIDER_KEY_OCRSPACE: z.string().optional().default(''),
+    // Finnhub Stock Market (UC-074) — token query param, 60 req/min free
+    PROVIDER_KEY_FINNHUB: z.string().optional().default(''),
 
-  // Finnhub Stock Market (UC-074) — token query param, 60 req/min free
-  PROVIDER_KEY_FINNHUB: z.string().optional().default(''),
+    // NewsData.io (UC-070) — apikey query param, 200 credits/day free, commercial OK
+    PROVIDER_KEY_NEWSDATA: z.string().optional().default(''),
 
-  // NewsData.io (UC-070) — apikey query param, 200 credits/day free, commercial OK
-  PROVIDER_KEY_NEWSDATA: z.string().optional().default(''),
+    // Short.io URL Shortener (UC-112) — Bearer header, 1K links/mo free
+    PROVIDER_KEY_SHORTIO: z.string().optional().default(''),
 
-  // Short.io URL Shortener (UC-112) — Bearer header, 1K links/mo free
-  PROVIDER_KEY_SHORTIO: z.string().optional().default(''),
+    // ExchangeRate-API (UC-115) — key in URL, 1,500/mo free
+    PROVIDER_KEY_EXCHANGERATE: z.string().optional().default(''),
 
-  // ExchangeRate-API (UC-115) — key in URL, 1,500/mo free
-  PROVIDER_KEY_EXCHANGERATE: z.string().optional().default(''),
+    // Calendarific (UC-111) — api_key query param, 500/mo free
+    PROVIDER_KEY_CALENDARIFIC: z.string().optional().default(''),
 
-  // Calendarific (UC-111) — api_key query param, 500/mo free
-  PROVIDER_KEY_CALENDARIFIC: z.string().optional().default(''),
+    // NASA FIRMS (UC-108) — MAP_KEY, 5K tx/10min
+    PROVIDER_KEY_FIRMS: z.string().optional().default(''),
 
-  // NASA FIRMS (UC-108) — MAP_KEY, 5K tx/10min
-  PROVIDER_KEY_FIRMS: z.string().optional().default(''),
+    // ApiFlash Screenshot (UC-093) — access_key query param, 100/month free
+    PROVIDER_KEY_APIFLASH: z.string().optional().default(''),
 
-  // ApiFlash Screenshot (UC-093) — access_key query param, 100/month free
-  PROVIDER_KEY_APIFLASH: z.string().optional().default(''),
+    // API-Sports (UC-089) — x-apisports-key header, 100 req/day per sport
+    PROVIDER_KEY_APISPORTS: z.string().optional().default(''),
 
-  // API-Sports (UC-089) — x-apisports-key header, 100 req/day per sport
-  PROVIDER_KEY_APISPORTS: z.string().optional().default(''),
+    // Langbly Translation (UC-087) — Bearer header, 500K chars/mo free
+    PROVIDER_KEY_LANGBLY: z.string().optional().default(''),
 
-  // Langbly Translation (UC-087) — Bearer header, 500K chars/mo free
-  PROVIDER_KEY_LANGBLY: z.string().optional().default(''),
+    // Exa Semantic Search (UC-069) — x-api-key header, 1,000 req/month free
+    PROVIDER_KEY_EXA: z.string().optional().default(''),
 
-  // Exa Semantic Search (UC-069) — x-api-key header, 1,000 req/month free
-  PROVIDER_KEY_EXA: z.string().optional().default(''),
+    // Tavily AI Search (UC-068) — api_key in body, 1,000 credits/month free
+    PROVIDER_KEY_TAVILY: z.string().optional().default(''),
 
-  // Tavily AI Search (UC-068) — api_key in body, 1,000 credits/month free
-  PROVIDER_KEY_TAVILY: z.string().optional().default(''),
+    // Serper.dev Google Search (UC-067) — X-API-KEY header, 2,500 free one-time, PAYG $0.001/call
+    PROVIDER_KEY_SERPER: z.string().optional().default(''),
 
-  // Serper.dev Google Search (UC-067) — X-API-KEY header, 2,500 free one-time, PAYG $0.001/call
-  PROVIDER_KEY_SERPER: z.string().optional().default(''),
+    // US Real Estate via RapidAPI (UC-063) — header auth, 500K req/month free BASIC plan
+    PROVIDER_KEY_RAPIDAPI: z.string().optional().default(''),
 
-  // US Real Estate via RapidAPI (UC-063) — header auth, 500K req/month free BASIC plan
-  PROVIDER_KEY_RAPIDAPI: z.string().optional().default(''),
+    // Walk Score (UC-062) — query param auth, 5,000 calls/day free
+    PROVIDER_KEY_WALKSCORE: z.string().optional().default(''),
 
-  // Walk Score (UC-062) — query param auth, 5,000 calls/day free
-  PROVIDER_KEY_WALKSCORE: z.string().optional().default(''),
+    // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
+    PROVIDER_KEY_IQAIR: z.string().optional().default(''),
 
-  // IQAir AirVisual (UC-120) — query param auth, 10,000 calls/month free
-  PROVIDER_KEY_IQAIR: z.string().optional().default(''),
+    // AssemblyAI (UC-179) — speech-to-text, $50 free credits
+    PROVIDER_KEY_ASSEMBLYAI: z.string().optional().default(''),
 
-  // AssemblyAI (UC-179) — speech-to-text, $50 free credits
-  PROVIDER_KEY_ASSEMBLYAI: z.string().optional().default(''),
+    // Companies House (UC-174) — UK company registry, Basic Auth
+    PROVIDER_KEY_COMPANIES_HOUSE: z.string().optional().default(''),
 
-  // Companies House (UC-174) — UK company registry, Basic Auth
-  PROVIDER_KEY_COMPANIES_HOUSE: z.string().optional().default(''),
+    // Bluesky (UC-171) — AT Protocol, app-password auth
+    BLUESKY_HANDLE: z.string().optional().default(''),
+    BLUESKY_APP_PASSWORD: z.string().optional().default(''),
 
-  // Bluesky (UC-171) — AT Protocol, app-password auth
-  BLUESKY_HANDLE: z.string().optional().default(''),
-  BLUESKY_APP_PASSWORD: z.string().optional().default(''),
+    // NameSilo (UC-202) — domain registration, pre-funded balance
+    PROVIDER_KEY_NAMESILO: z.string().optional().default(''),
 
-  // NameSilo (UC-202) — domain registration, pre-funded balance
-  PROVIDER_KEY_NAMESILO: z.string().optional().default(''),
+    // Pexels (UC-207) — stock photos & videos
+    PROVIDER_KEY_PEXELS: z.string().optional().default(''),
 
-  // Pexels (UC-207) — stock photos & videos
-  PROVIDER_KEY_PEXELS: z.string().optional().default(''),
+    // Browserbase (UC-205) — managed browser sessions
+    BROWSERBASE_API_KEY: z.string().optional().default(''),
+    BROWSERBASE_PROJECT_ID: z.string().optional().default(''),
 
-  // Browserbase (UC-205) — managed browser sessions
-  BROWSERBASE_API_KEY: z.string().optional().default(''),
-  BROWSERBASE_PROJECT_ID: z.string().optional().default(''),
+    // Telegram Bot API (UC-204) — messaging, unlimited free
+    TELEGRAM_BOT_TOKEN: z.string().optional().default(''),
 
-  // Telegram Bot API (UC-204) — messaging, unlimited free
-  TELEGRAM_BOT_TOKEN: z.string().optional().default(''),
+    // Cloudflare (UC-201) — DNS, CDN, infrastructure management
+    CLOUDFLARE_API_KEY: z.string().optional().default(''),
+    CLOUDFLARE_EMAIL: z.string().optional().default(''),
 
-  // Cloudflare (UC-201) — DNS, CDN, infrastructure management
-  CLOUDFLARE_API_KEY: z.string().optional().default(''),
-  CLOUDFLARE_EMAIL: z.string().optional().default(''),
+    // Europeana (UC-161) — EU cultural heritage, unlimited free
+    PROVIDER_KEY_EUROPEANA: z.string().optional().default(''),
 
-  // Europeana (UC-161) — EU cultural heritage, unlimited free
-  PROVIDER_KEY_EUROPEANA: z.string().optional().default(''),
+    // ConvertAPI (UC-148) — file conversion, 250 free conversions
+    PROVIDER_KEY_CONVERTAPI: z.string().optional().default(''),
 
-  // ConvertAPI (UC-148) — file conversion, 250 free conversions
-  PROVIDER_KEY_CONVERTAPI: z.string().optional().default(''),
+    // API2PDF (UC-146) — PDF generation, $1 starting balance
+    PROVIDER_KEY_API2PDF: z.string().optional().default(''),
 
-  // API2PDF (UC-146) — PDF generation, $1 starting balance
-  PROVIDER_KEY_API2PDF: z.string().optional().default(''),
+    // PodcastIndex (UC-141) — HMAC-SHA1 auth, fully free
+    PROVIDER_KEY_PODCASTINDEX: z.string().optional().default(''),
+    PROVIDER_SECRET_PODCASTINDEX: z.string().optional().default(''),
 
-  // PodcastIndex (UC-141) — HMAC-SHA1 auth, fully free
-  PROVIDER_KEY_PODCASTINDEX: z.string().optional().default(''),
-  PROVIDER_SECRET_PODCASTINDEX: z.string().optional().default(''),
+    // Geocodio (UC-131) — query param auth, 2,500 lookups/day free
+    PROVIDER_KEY_GEOCODIO: z.string().optional().default(''),
 
-  // Geocodio (UC-131) — query param auth, 2,500 lookups/day free
-  PROVIDER_KEY_GEOCODIO: z.string().optional().default(''),
+    // Auto.dev (UC-127) — query param auth, 1,000 calls/month free
+    PROVIDER_KEY_AUTODEV: z.string().optional().default(''),
 
-  // Auto.dev (UC-127) — query param auth, 1,000 calls/month free
-  PROVIDER_KEY_AUTODEV: z.string().optional().default(''),
+    // Hunter.io (UC-128) — query param auth, 50 credits/month free
+    PROVIDER_KEY_HUNTER: z.string().optional().default(''),
 
-  // Hunter.io (UC-128) — query param auth, 50 credits/month free
-  PROVIDER_KEY_HUNTER: z.string().optional().default(''),
+    // FatSecret (UC-126) — OAuth 2.0 client credentials, 5,000 calls/day free
+    FATSECRET_CLIENT_ID: z.string().optional().default(''),
+    FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
 
-  // FatSecret (UC-126) — OAuth 2.0 client credentials, 5,000 calls/day free
-  FATSECRET_CLIENT_ID: z.string().optional().default(''),
-  FATSECRET_CLIENT_SECRET: z.string().optional().default(''),
+    // BallDontLie Sports (UC-251) — Authorization header, $0/sport free
+    PROVIDER_KEY_BDL: z.string().optional().default(''),
 
-  // BallDontLie Sports (UC-251) — Authorization header, $0/sport free
-  PROVIDER_KEY_BDL: z.string().optional().default(''),
+    // Adzuna Job Search (UC-253) — app_id+app_key query params, Trial free
+    ADZUNA_APP_ID: z.string().optional().default(''),
+    ADZUNA_APP_KEY: z.string().optional().default(''),
 
-  // Adzuna Job Search (UC-253) — app_id+app_key query params, Trial free
-  ADZUNA_APP_ID: z.string().optional().default(''),
-  ADZUNA_APP_KEY: z.string().optional().default(''),
+    // DHL Shipment Tracking (UC-228) — DHL-API-Key header, 250 req/day production
+    PROVIDER_KEY_DHL: z.string().optional().default(''),
 
-  // DHL Shipment Tracking (UC-228) — DHL-API-Key header, 250 req/day production
-  PROVIDER_KEY_DHL: z.string().optional().default(''),
+    // ShipEngine (UC-246) — API-Key header, Free plan $0/mo
+    PROVIDER_KEY_SHIPENGINE: z.string().optional().default(''),
 
-  // ShipEngine (UC-246) — API-Key header, Free plan $0/mo
-  PROVIDER_KEY_SHIPENGINE: z.string().optional().default(''),
+    // WeatherAPI.com (UC-243) — key= query param, 10M calls/month Business trial
+    PROVIDER_KEY_WEATHERAPI: z.string().optional().default(''),
 
-  // WeatherAPI.com (UC-243) — key= query param, 10M calls/month Business trial
-  PROVIDER_KEY_WEATHERAPI: z.string().optional().default(''),
+    // Zyte API Web Scraping (UC-233) — Basic Auth, $5 free credit trial
+    PROVIDER_KEY_ZYTE: z.string().optional().default(''),
 
-  // Zyte API Web Scraping (UC-233) — Basic Auth, $5 free credit trial
-  PROVIDER_KEY_ZYTE: z.string().optional().default(''),
+    // MarketCheck Car Listings (UC-231) — api_key query param, 500 free/month
+    PROVIDER_KEY_MARKETCHECK: z.string().optional().default(''),
 
-  // MarketCheck Car Listings (UC-231) — api_key query param, 500 free/month
-  PROVIDER_KEY_MARKETCHECK: z.string().optional().default(''),
+    // Threat Intelligence Platform (UC-227) — apiKey query param, 100 free credits
+    PROVIDER_KEY_THREATINTEL: z.string().optional().default(''),
 
-  // Threat Intelligence Platform (UC-227) — apiKey query param, 100 free credits
-  PROVIDER_KEY_THREATINTEL: z.string().optional().default(''),
+    // Listen Notes Podcast Search (UC-225) — X-ListenAPI-Key header, 50 free/month
+    PROVIDER_KEY_LISTENNOTES: z.string().optional().default(''),
 
-  // Listen Notes Podcast Search (UC-225) — X-ListenAPI-Key header, 50 free/month
-  PROVIDER_KEY_LISTENNOTES: z.string().optional().default(''),
+    // AudD Music Recognition (UC-226) — api_token query param, 300 free trial
+    PROVIDER_KEY_AUDD: z.string().optional().default(''),
 
-  // AudD Music Recognition (UC-226) — api_token query param, 300 free trial
-  PROVIDER_KEY_AUDD: z.string().optional().default(''),
+    // Materials Project (UC-222) — X-API-KEY header, free unlimited, CC BY 4.0
+    PROVIDER_KEY_MATERIALS_PROJECT: z.string().optional().default(''),
 
-  // Materials Project (UC-222) — X-API-KEY header, free unlimited, CC BY 4.0
-  PROVIDER_KEY_MATERIALS_PROJECT: z.string().optional().default(''),
+    // 17TRACK Package Tracking (UC-221) — 17token header, 200 free registers/month
+    PROVIDER_KEY_17TRACK: z.string().optional().default(''),
 
-  // 17TRACK Package Tracking (UC-221) — 17token header, 200 free registers/month
-  PROVIDER_KEY_17TRACK: z.string().optional().default(''),
+    // TheirStack Job Market Intelligence (UC-254) — Bearer JWT, 200 credits/month free
+    PROVIDER_KEY_THEIRSTACK: z.string().optional().default(''),
 
-  // TheirStack Job Market Intelligence (UC-254) — Bearer JWT, 200 credits/month free
-  PROVIDER_KEY_THEIRSTACK: z.string().optional().default(''),
+    // Jooble Job Aggregator (UC-255) — API key in URL path, 500 requests default
+    PROVIDER_KEY_JOOBLE: z.string().optional().default(''),
 
-  // Jooble Job Aggregator (UC-255) — API key in URL path, 500 requests default
-  PROVIDER_KEY_JOOBLE: z.string().optional().default(''),
+    // Reed.co.uk UK Job Board (UC-257) — HTTP Basic Auth (key as username), free read-only
+    PROVIDER_KEY_REED: z.string().optional().default(''),
 
-  // Reed.co.uk UK Job Board (UC-257) — HTTP Basic Auth (key as username), free read-only
-  PROVIDER_KEY_REED: z.string().optional().default(''),
+    // Canopy API Amazon Product Data (UC-265) — API-KEY header, 100 req/month free, $0.01/req PAYG
+    PROVIDER_KEY_CANOPY: z.string().optional().default(''),
 
-  // Canopy API Amazon Product Data (UC-265) — API-KEY header, 100 req/month free, $0.01/req PAYG
-  PROVIDER_KEY_CANOPY: z.string().optional().default(''),
+    // Spider.cloud Web Scraping (UC-274) — Bearer sk-..., 2500 credits free, PAYG no subscription
+    PROVIDER_KEY_SPIDER: z.string().optional().default(''),
 
-  // Spider.cloud Web Scraping (UC-274) — Bearer sk-..., 2500 credits free, PAYG no subscription
-  PROVIDER_KEY_SPIDER: z.string().optional().default(''),
+    // Imgflip Meme Generator (UC-286) — username+password in POST body, free unlimited
+    IMGFLIP_USERNAME: z.string().optional().default(''),
+    IMGFLIP_PASSWORD: z.string().optional().default(''),
 
-  // Imgflip Meme Generator (UC-286) — username+password in POST body, free unlimited
-  IMGFLIP_USERNAME: z.string().optional().default(''),
-  IMGFLIP_PASSWORD: z.string().optional().default(''),
+    // GitHub API (UC-332) — PAT token, 5K req/hour, read-only public data
+    PROVIDER_KEY_GITHUB: z.string().optional().default(''),
 
-  // GitHub API (UC-332) — PAT token, 5K req/hour, read-only public data
-  PROVIDER_KEY_GITHUB: z.string().optional().default(''),
+    // Tempo MPP — Machine Payments Protocol (dual-rail with x402)
+    MPP_ENABLED: z.string().optional().default('false'),
+    MPP_SECRET_KEY: z.string().optional().default(''),
+    TEMPO_WALLET_ADDRESS: z.string().optional().default(''),
+    TEMPO_PRIVATE_KEY: z.string().optional().default(''),
+    MPP_REALM: z.string().optional().default('apibase.pro'),
+    MPP_TESTNET: z.string().optional().default('false'),
 
-  // Tempo MPP — Machine Payments Protocol (dual-rail with x402)
-  MPP_ENABLED: z.string().optional().default('false'),
-  MPP_SECRET_KEY: z.string().optional().default(''),
-  TEMPO_WALLET_ADDRESS: z.string().optional().default(''),
-  TEMPO_PRIVATE_KEY: z.string().optional().default(''),
-  MPP_REALM: z.string().optional().default('apibase.pro'),
-  MPP_TESTNET: z.string().optional().default('false'),
+    // RateAPI (UC-197) — MCP-native US lending rates
+    PROVIDER_KEY_RATEAPI: z.string().optional().default(''),
 
-  // RateAPI (UC-197) — MCP-native US lending rates
-  PROVIDER_KEY_RATEAPI: z.string().optional().default(''),
+    // TwitterAPI.io (UC-198) — Twitter/X data, pay-per-call
+    PROVIDER_KEY_TWITTERAPI: z.string().optional().default(''),
 
-  // TwitterAPI.io (UC-198) — Twitter/X data, pay-per-call
-  PROVIDER_KEY_TWITTERAPI: z.string().optional().default(''),
+    // Currents API (UC-210) — global news 70+ countries
+    PROVIDER_KEY_CURRENTS: z.string().optional().default(''),
 
-  // Currents API (UC-210) — global news 70+ countries
-  PROVIDER_KEY_CURRENTS: z.string().optional().default(''),
+    // IBANAPI (UC-212) — IBAN validation + bank identification
+    PROVIDER_KEY_IBANAPI: z.string().optional().default(''),
 
-  // IBANAPI (UC-212) — IBAN validation + bank identification
-  PROVIDER_KEY_IBANAPI: z.string().optional().default(''),
+    // PubChem / NCBI (UC-213) — optional, raises rate limit from 5 to 10 req/sec
+    PROVIDER_KEY_NCBI: z.string().optional().default(''),
 
-  // PubChem / NCBI (UC-213) — optional, raises rate limit from 5 to 10 req/sec
-  PROVIDER_KEY_NCBI: z.string().optional().default(''),
+    // Open Charge Map (UC-214) — EV charging stations, unlimited free
+    PROVIDER_KEY_OPENCHARGEMAP: z.string().optional().default(''),
 
-  // Open Charge Map (UC-214) — EV charging stations, unlimited free
-  PROVIDER_KEY_OPENCHARGEMAP: z.string().optional().default(''),
+    // IPQualityScore (UC-217) — fraud detection, 1K lookups/month free
+    PROVIDER_KEY_IPQS: z.string().optional().default(''),
 
-  // IPQualityScore (UC-217) — fraud detection, 1K lookups/month free
-  PROVIDER_KEY_IPQS: z.string().optional().default(''),
+    // WhoisJSON (UC-326) — SSL cert check + subdomain discovery, 1K req/month free
+    PROVIDER_KEY_WHOISJSON: z.string().optional().default(''),
 
-  // WhoisJSON (UC-326) — SSL cert check + subdomain discovery, 1K req/month free
-  PROVIDER_KEY_WHOISJSON: z.string().optional().default(''),
+    // US Census Bureau (UC-333) — population, demographics, income, housing, unlimited
+    PROVIDER_KEY_CENSUS: z.string().optional().default(''),
+    PROVIDER_KEY_CENSUSMAPPER: z.string().optional().default(''),
+    PROVIDER_KEY_EPA_AQS: z.string().optional().default(''),
 
-  // US Census Bureau (UC-333) — population, demographics, income, housing, unlimited
-  PROVIDER_KEY_CENSUS: z.string().optional().default(''),
-  PROVIDER_KEY_CENSUSMAPPER: z.string().optional().default(''),
-  PROVIDER_KEY_EPA_AQS: z.string().optional().default(''),
+    // SAM.gov (UC-338) — federal contractor registry, 10K/day, key expires every 90 days
+    PROVIDER_KEY_SAM: z.string().optional().default(''),
 
-  // SAM.gov (UC-338) — federal contractor registry, 10K/day, key expires every 90 days
-  PROVIDER_KEY_SAM: z.string().optional().default(''),
+    // Congress.gov (UC-336) — US legislation, members, 5K/hr
+    PROVIDER_KEY_CONGRESS: z.string().optional().default(''),
 
-  // Congress.gov (UC-336) — US legislation, members, 5K/hr
-  PROVIDER_KEY_CONGRESS: z.string().optional().default(''),
+    // NOAA NCEI (UC-343) — historical climate data, 1K/day
+    PROVIDER_KEY_NOAA_NCEI: z.string().optional().default(''),
 
-  // NOAA NCEI (UC-343) — historical climate data, 1K/day
-  PROVIDER_KEY_NOAA_NCEI: z.string().optional().default(''),
+    // OpenFIGI (UC-357) — Bloomberg financial identifier resolution, 25K/day free
+    PROVIDER_KEY_OPENFIGI: z.string().optional().default(''),
 
-  // OpenFIGI (UC-357) — Bloomberg financial identifier resolution, 25K/day free
-  PROVIDER_KEY_OPENFIGI: z.string().optional().default(''),
+    // Solar System OpenData (UC-354) — planetary science, MIT license
+    PROVIDER_KEY_SOLARSYSTEM: z.string().optional().default(''),
 
-  // Solar System OpenData (UC-354) — planetary science, MIT license
-  PROVIDER_KEY_SOLARSYSTEM: z.string().optional().default(''),
+    // Predictive Pre-fetching (F8) — fire-and-forget cache warming
+    PREFETCH_ENABLED: z.string().optional().default('false'),
 
-  // Predictive Pre-fetching (F8) — fire-and-forget cache warming
-  PREFETCH_ENABLED: z.string().optional().default('false'),
+    // NIST NVD (UC-413) — CVE/CPE vulnerability database, 50 req/30s with key
+    PROVIDER_KEY_NVD: z.string().optional().default(''),
 
-  // NIST NVD (UC-413) — CVE/CPE vulnerability database, 50 req/30s with key
-  PROVIDER_KEY_NVD: z.string().optional().default(''),
+    // NREL — AFDC (EV chargers) + PVWatts (solar) (UC-414) — 1000 req/hour shared
+    PROVIDER_KEY_NREL: z.string().optional().default(''),
 
-  // NREL — AFDC (EV chargers) + PVWatts (solar) (UC-414) — 1000 req/hour shared
-  PROVIDER_KEY_NREL: z.string().optional().default(''),
+    // USAJOBS OPM (UC-415) — US federal civil-service job postings
+    PROVIDER_KEY_USAJOBS: z.string().optional().default(''),
 
-  // USAJOBS OPM (UC-415) — US federal civil-service job postings
-  PROVIDER_KEY_USAJOBS: z.string().optional().default(''),
+    // OpenDota — Dota 2 statistics API (UC-418) — upstream cost $0.0001/call, unlimited/day, 3000 req/min
+    PROVIDER_KEY_OPENDOTA: z.string().optional().default(''),
 
-  // OpenDota — Dota 2 statistics API (UC-418) — upstream cost $0.0001/call, unlimited/day, 3000 req/min
-  PROVIDER_KEY_OPENDOTA: z.string().optional().default(''),
+    // CheckWX Aviation Weather (UC-423) — X-API-Key header, pre-decoded METAR/TAF JSON
+    PROVIDER_KEY_CHECKWX: z.string().optional().default(''),
 
-  // CheckWX Aviation Weather (UC-423) — X-API-Key header, pre-decoded METAR/TAF JSON
-  PROVIDER_KEY_CHECKWX: z.string().optional().default(''),
+    // AVWX Aviation Weather (UC-424) — Authorization: BEARER header, parsed NOTAMs + PIREPs
+    PROVIDER_KEY_AVWX: z.string().optional().default(''),
 
-  // AVWX Aviation Weather (UC-424) — Authorization: BEARER header, parsed NOTAMs + PIREPs
-  PROVIDER_KEY_AVWX: z.string().optional().default(''),
+    // WTO Timeseries API (UC-494) — Azure APIM, 10 req/s, 10K/h per key
+    PROVIDER_KEY_WTO: z.string().optional().default(''),
+    PROVIDER_KEY_WTO_SECONDARY: z.string().optional().default(''),
 
-  // WTO Timeseries API (UC-494) — Azure APIM, 10 req/s, 10K/h per key
-  PROVIDER_KEY_WTO: z.string().optional().default(''),
-  PROVIDER_KEY_WTO_SECONDARY: z.string().optional().default(''),
+    // INSEE Sirene API (UC-495) — French company/establishment registry, X-INSEE-Api-Key-Integration header
+    PROVIDER_KEY_INSEE: z.string().optional().default(''),
 
-  // INSEE Sirene API (UC-495) — French company/establishment registry, X-INSEE-Api-Key-Integration header
-  PROVIDER_KEY_INSEE: z.string().optional().default(''),
+    // Biodiversity Heritage Library (UC-496) — public-domain natural-history literature, apikey query param
+    PROVIDER_KEY_BHL: z.string().optional().default(''),
 
-  // Biodiversity Heritage Library (UC-496) — public-domain natural-history literature, apikey query param
-  PROVIDER_KEY_BHL: z.string().optional().default(''),
+    // Global Fishing Watch (UC-497) — fishing vessel tracking, AIS events, fishing effort; Bearer JWT
+    PROVIDER_KEY_GFW: z.string().optional().default(''),
 
-  // Global Fishing Watch (UC-497) — fishing vessel tracking, AIS events, fishing effort; Bearer JWT
-  PROVIDER_KEY_GFW: z.string().optional().default(''),
+    // OpenStates (UC-498) — US state legislative data; bills, legislators, committees; X-API-Key header
+    PROVIDER_KEY_OPENSTATES: z.string().optional().default(''),
 
-  // OpenStates (UC-498) — US state legislative data; bills, legislators, committees; X-API-Key header
-  PROVIDER_KEY_OPENSTATES: z.string().optional().default(''),
+    // OpenTopography (UC-537) — global DEM elevation + LiDAR catalog; free registration, 5K req/day
+    PROVIDER_KEY_OPENTOPO: z.string().optional().default('demoapikeyot2022'),
 
-  // OpenTopography (UC-537) — global DEM elevation + LiDAR catalog; free registration, 5K req/day
-  PROVIDER_KEY_OPENTOPO: z.string().optional().default('demoapikeyot2022'),
+    // Australian Business Register (UC-543) — ABN/ACN/name lookup; free GUID registration
+    PROVIDER_KEY_ABR: z.string().optional().default(''),
 
-  // Australian Business Register (UC-543) — ABN/ACN/name lookup; free GUID registration
-  PROVIDER_KEY_ABR: z.string().optional().default(''),
+    // Banco de México SIE (UC-544) — FX rates, target rate, TIIE, INPC; token-based auth
+    PROVIDER_KEY_BANXICO: z.string().optional().default(''),
 
-  // Banco de México SIE (UC-544) — FX rates, target rate, TIIE, INPC; token-based auth
-  PROVIDER_KEY_BANXICO: z.string().optional().default(''),
+    // Bureau of Economic Analysis (UC-545) — GDP, personal income, trade balance, state GDP; api_key auth
+    PROVIDER_KEY_BEA: z.string().optional().default(''),
 
-  // Bureau of Economic Analysis (UC-545) — GDP, personal income, trade balance, state GDP; api_key auth
-  PROVIDER_KEY_BEA: z.string().optional().default(''),
+    // Africa API (UC-546) — Pan-African economic data for 54 countries; Bearer token auth
+    PROVIDER_KEY_AFRICAAPI: z.string().optional().default(''),
 
-  // Africa API (UC-546) — Pan-African economic data for 54 countries; Bearer token auth
-  PROVIDER_KEY_AFRICAAPI: z.string().optional().default(''),
+    // HuggingFace Inference API (UC-547) — NLP: sentiment, NER, zero-shot, translation, summarization
+    PROVIDER_KEY_HF_INFERENCE: z.string().optional().default(''),
 
-  // HuggingFace Inference API (UC-547) — NLP: sentiment, NER, zero-shot, translation, summarization
-  PROVIDER_KEY_HF_INFERENCE: z.string().optional().default(''),
+    // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
+    GEONAMES_USERNAME: z.string().optional().default('APIbase'),
 
-  // GeoNames geographical database (UC-512) — place search, postal codes, country info, timezones
-  GEONAMES_USERNAME: z.string().optional().default('APIbase'),
+    // Destatis GENESIS-Online (UC-452) — German official statistics (Statistisches Bundesamt)
+    DESTATIS_USERNAME: z.string().optional().default(''),
+    DESTATIS_PASSWORD: z.string().optional().default(''),
 
-  // Destatis GENESIS-Online (UC-452) — German official statistics (Statistisches Bundesamt)
-  DESTATIS_USERNAME: z.string().optional().default(''),
-  DESTATIS_PASSWORD: z.string().optional().default(''),
+    // Polymarket trading — Phase 2 (UC-001 §3-§8)
+    POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
+    POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),
+    POLYMARKET_BUILDER_API_KEY: z.string().optional().default(''),
+    POLYMARKET_BUILDER_SECRET: z.string().optional().default(''),
+    POLYMARKET_BUILDER_PASSPHRASE: z.string().optional().default(''),
 
-  // Polymarket trading — Phase 2 (UC-001 §3-§8)
-  POLYMARKET_WALLET_ADDRESS: z.string().startsWith('0x').optional().default(''),
-  POLYMARKET_PRIVATE_KEY: z.string().optional().default(''),
-  POLYMARKET_BUILDER_API_KEY: z.string().optional().default(''),
-  POLYMARKET_BUILDER_SECRET: z.string().optional().default(''),
-  POLYMARKET_BUILDER_PASSPHRASE: z.string().optional().default(''),
-
-  // --- F5 physical-device MCP layer (device.list/state/command) ---
-  // AES-256-GCM key for vendor OAuth token encryption at rest
-  // (secret-crypto.service.ts). 32+ char random secret, same generation
-  // pattern as API_KEY_SECRET -- NOT a KDF-derived value, a raw random key.
-  ENCRYPTION_KEY: z.string().optional().default(''),
-  // Tuya IoT Cloud Project credentials (Cloud Development platform,
-  // "Authorization Management" service). Operator-provisioned -- see
-  // docs/OPERATOR-ACTION-device-vendor-tuya.md. Empty = adapter resolves to
-  // undefined (503), same convention as every other optional provider key.
-  TUYA_CLIENT_ID: z.string().optional().default(''),
-  TUYA_CLIENT_SECRET: z.string().optional().default(''),
-  // Data-center-specific REST base, e.g. https://openapi.tuyaus.com
-  TUYA_API_BASE_URL: z.string().optional().default(''),
-  // The Tuya-hosted OAuth "Link Tuya App Account" H5 authorization page URL
-  // for this Cloud Project, as shown in the Tuya IoT console once
-  // "Authorization Management" is approved for the project. We append our
-  // own `state` query param to it (device-connect.router.ts).
-  TUYA_AUTHORIZE_URL: z.string().optional().default(''),
-});
+    // --- F5 physical-device MCP layer (device.list/state/command) ---
+    // AES-256-GCM key for vendor OAuth token encryption at rest
+    // (secret-crypto.service.ts). 32+ char random secret, same generation
+    // pattern as API_KEY_SECRET -- NOT a KDF-derived value, a raw random key.
+    ENCRYPTION_KEY: z.string().optional().default(''),
+    // Tuya IoT Cloud Project credentials (Cloud Development platform,
+    // "Authorization Management" service). Operator-provisioned -- see
+    // docs/OPERATOR-ACTION-device-vendor-tuya.md. Empty = adapter resolves to
+    // undefined (503), same convention as every other optional provider key.
+    TUYA_CLIENT_ID: z.string().optional().default(''),
+    TUYA_CLIENT_SECRET: z.string().optional().default(''),
+    // Data-center-specific REST base, e.g. https://openapi.tuyaus.com
+    TUYA_API_BASE_URL: z.string().optional().default(''),
+    // The Tuya-hosted OAuth "Link Tuya App Account" H5 authorization page URL
+    // for this Cloud Project, as shown in the Tuya IoT console once
+    // "Authorization Management" is approved for the project. We append our
+    // own `state` query param to it (device-connect.router.ts).
+    TUYA_AUTHORIZE_URL: z.string().optional().default(''),
+  })
+  .superRefine((env, ctx) => {
+    // Fail at startup, not with a 503 on the first encrypted write. Production
+    // only: CI/test environments do not carry the secret.
+    if (env.NODE_ENV === 'production' && env.ENCRYPTION_KEY.length < 32) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['ENCRYPTION_KEY'],
+        message:
+          'ENCRYPTION_KEY must be at least 32 characters in production (see docs/OPERATOR-ACTION-encryption-key.md)',
+      });
+    }
+  });
 
 export type AppEnv = z.infer<typeof appEnvSchema>;
 
