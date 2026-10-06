@@ -1419,7 +1419,7 @@ def _src_stream_settle_overdue():
     # refused to sell; one shop_connect_events row per merchant and hour, no identity).
     sigs = []
     rows = _rows(
-        "SELECT merchant_id::text, channel_id FROM shop_stream_sessions WHERE status = 'open' "
+        "SELECT merchant_id::text, channel_id FROM shop_stream_sessions WHERE status IN ('open', 'close_pending') "
         "AND settle_error_since IS NOT NULL AND settle_error_since < now() - interval '1 hour'")
     for mid, channel in rows:
         ch = _clean(channel, limit=70)

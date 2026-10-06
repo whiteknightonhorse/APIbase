@@ -25,6 +25,11 @@ import { merchantRefund } from '../refund.service';
 import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { listEvents, setWebhook } from '../webhook/webhook.service';
+import {
+  confirmMerchantSettled,
+  listSettleQueue,
+  patchStreamSettings,
+} from '../stream-merchant.service';
 import { listMerchantSubscriptions, merchantCancelSubscription } from '../subscription.service';
 import {
   acceptTerms,
@@ -254,6 +259,51 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
           });
           return;
         }
+        send(res, err);
+      }
+    },
+  );
+
+  // T-INT-46 (UC-7 variant b): the merchant settles its own stream channels; the merchant is the key's.
+  router.patch(
+    '/api/v1/shop/merchants/me/stream-settings',
+    probeLimiter,
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await patchStreamSettings(deps, req.merchant?.merchant_id ?? '', req.body));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.get(
+    '/api/v1/shop/merchants/me/streams/settle-queue',
+    probeLimiter,
+    requireMerchantKey(['orders:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await listSettleQueue(deps, req.merchant?.merchant_id ?? ''));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.post(
+    '/api/v1/shop/merchants/me/streams/:channel_id/settled',
+    probeLimiter,
+    requireMerchantKey(['orders:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await confirmMerchantSettled(
+            deps,
+            req.merchant?.merchant_id ?? '',
+            req.params.channel_id,
+            req.body ?? {},
+          ),
+        );
+      } catch (err) {
         send(res, err);
       }
     },

@@ -1,0 +1,36 @@
+{
+  "name": "@apibase11/stream-settler",
+  "version": "0.1.0",
+  "description": "Settles and closes your own APIbase shop stream channels on Tempo with your own key. The key never leaves your machine.",
+  "type": "module",
+  "bin": {
+    "apibase-stream-settler": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "apibase",
+    "mpp",
+    "tempo",
+    "stream",
+    "settler"
+  ],
+  "author": "APIbase.pro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/whiteknightonhorse/APIbase"
+  },
+  "homepage": "https://apibase.pro",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "mppx": "*",
+    "viem": "*"
+  }
+}

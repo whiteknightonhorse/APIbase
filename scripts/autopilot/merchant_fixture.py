@@ -22,7 +22,7 @@ SCRATCH = "/tmp/autopilot-int13"
 MIGRATIONS = ["0009_autopilot_schema", "0010_provider_status_pause_anchor",
               "0022_email_events_limit_change_partner_reply", "0025_integrator_shop",
               "0026_shop_quote_buyer_company", "0027_shop_quote_mpp_challenge_header",
-              "0028_email_events_outbound", "0027_wave3"]
+              "0028_email_events_outbound", "0027_wave3", "0033_stream_merchant_settler"]
 
 
 def configure_env():

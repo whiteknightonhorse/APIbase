@@ -119,7 +119,7 @@ export interface StreamSessionRow {
 }
 
 /** Session columns, qualified by the table alias (the job joins merchants and products). */
-const sessionCols = (a: string) =>
+export const sessionCols = (a: string) =>
   [
     'session_id',
     'merchant_id',
@@ -294,12 +294,12 @@ export async function recordSettlement(
     fromMicro(p.cumulative_micro),
     p.tx_hash,
     p.submitted_by,
-    p.submitted_by === 'apibase',
+    true, // a row exists only for a settle we executed or verified on-chain (INT-46)
   );
   await tx.$executeRawUnsafe(
     `UPDATE shop_stream_sessions
         SET settled_usd = GREATEST(settled_usd, $2::numeric), last_settle_at = now(),
-            settle_error_since = NULL,
+            settle_error_since = NULL, settle_due_at = NULL,
             status = CASE WHEN $3::boolean THEN 'closed' ELSE status END,
             closed_at = CASE WHEN $3::boolean THEN now() ELSE closed_at END
       WHERE session_id = $1::uuid`,
@@ -494,7 +494,7 @@ export interface StreamSettleReport {
 }
 
 /**
- * For every open `apibase_pilot` channel: settle when `highest - settled >= $0.50`, or when an hour
+ * For every open `apibase_pilot` channel (a `merchant` channel is only watched: finalized / close request): settle when `highest - settled >= $0.50`, or when an hour
  * passed since the last settle and `highest > settled`, or at once when the payer asked to close
  * on-chain (`stream.close_requested`). A failing settle stamps `settle_error_since`; an hour of
  * that is STREAM_SETTLE_OVERDUE (raised by the incident engine, one incident per channel).
@@ -519,7 +519,7 @@ export async function runStreamSettle(
        FROM shop_stream_sessions s
        JOIN shop_merchants m ON m.merchant_id = s.merchant_id
        LEFT JOIN shop_products p ON p.merchant_id = s.merchant_id AND p.sku = s.sku
-      WHERE s.status = 'open' AND s.settler_mode = 'apibase_pilot'
+      WHERE s.status = 'open' AND s.settler_mode IN ('apibase_pilot', 'merchant')
       ORDER BY s.opened_at LIMIT ${JOB_BATCH}`,
   );
   for (const s of rows) {
@@ -573,8 +573,17 @@ export async function runStreamSettle(
           session_id: s.session_id,
           channel_id: s.channel_id,
         });
+        if (s.settler_mode === 'merchant') {
+          // INT-46: the merchant has an hour to settle; the overdue sweep reads this stamp
+          await d.db.$executeRawUnsafe(
+            `UPDATE shop_stream_sessions SET settle_error_since = COALESCE(settle_error_since, now())
+              WHERE session_id = $1::uuid`,
+            s.session_id,
+          );
+        }
         report.close_requested++;
       }
+      if (s.settler_mode === 'merchant') continue; // the merchant settles with its own key (INT-46)
       if (s.close_requested_at || oc.closeRequestedAt !== 0n) due = highest > settled;
       if (!due) continue;
       const tx_hash = await chain.settle(method, s);
@@ -589,6 +598,13 @@ export async function runStreamSettle(
       await writeStreamLedger(d.db, s, r.fee_micro, null);
       report.settled++;
     } catch (err) {
+      if (s.settler_mode === 'merchant') {
+        logger.warn(
+          { err: err instanceof Error ? err.message : String(err), channel: s.channel_id },
+          'stream: on-chain read of a merchant-settled channel failed',
+        );
+        continue;
+      }
       report.failed++;
       logger.error(
         { err: err instanceof Error ? err.message : String(err), channel: s.channel_id },

@@ -28,6 +28,7 @@ export const WEBHOOK_EVENTS = [
   'subscription.past_due',
   'subscription.canceled',
   'subscription.expired',
+  'stream.settle_due',
 ] as const;
 
 export const sha256hex = (s: string) => createHash('sha256').update(s).digest('hex');

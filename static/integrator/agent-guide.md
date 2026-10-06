@@ -65,6 +65,18 @@ Errors: `quote_expired`, `out_of_stock`, `test_sku_daily_cap`, `payment_required
 
 Call the check again (step 6). `payment_verified` is `true` once a PAID test order made by your own agent exists. Then place link A, B, C or D on the merchant's site: /integrator#options.
 
+## Streaming for your shop: run the settler with your own key
+
+A shop that sells streams (`fulfillment_mode: "stream"`) is paid over an on-chain payment channel. Only the channel payee, your `payout_wallet_tempo`, can settle or close it on-chain. APIbase never holds your key: you run the settler yourself, and APIbase keeps the accounting and verifies the buyer's vouchers.
+
+1. Call the check (step 6), then `PATCH /api/v1/shop/merchants/me/stream-settings` with `{"settler": "merchant"}` (scope `catalog:write`). The shop must be active.
+2. Install the CLI (MIT, source in `packages/stream-settler`): `apibase-stream-settler --key-env MERCHANT_TEMPO_KEY --api https://apibase.pro --mk mk_live_... --interval 60`. The key of your payout wallet is read from your own environment variable or file and signs on your machine only; it is never sent to APIbase. Your merchant key needs the scopes `orders:read` and `orders:write`.
+3. Every pass reads `GET /api/v1/shop/merchants/me/streams/settle-queue` (scope `orders:read`): your channels with at least $0.50 unsettled, or an hour since the last settle, or a close requested. Each item is `{channel_id, escrow_contract, chain_id, cumulative_amount, signature, action}` with `action` = `settle` or `close`. The CLI sends the transaction from your wallet, then calls `POST /api/v1/shop/merchants/me/streams/:channel_id/settled` with `{tx_hash}` (scope `orders:write`). APIbase reads the chain: the transaction must come from your payout wallet and the channel's `settled` amount must have advanced (for a close, the channel must be finalized).
+4. When a buyer closes a channel, the reply is `202 {"status": "close_pending", "channel_id": ..., "note": ...}`: you settle within the grace period; the buyer may request a close and withdraw on-chain after `CLOSE_GRACE_PERIOD`.
+5. A `close_pending` channel, or one the buyer asked to close on-chain, that you have not settled for an hour raises the `stream.settle_due` event (webhook and events feed) and a notice by e-mail. Keep the CLI running.
+
+The platform fee of settled amounts is a receivable, as for any stream.
+
 ## Fee-split on Base: two signatures
 
 When the fee is on, the Base 402 of `POST /api/v1/shop/quotes/:id/pay` carries `accepts[0].extra.fee_split`:

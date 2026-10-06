@@ -7,10 +7,12 @@ import {
   contentPortion,
   fromMicro,
   getStreamMethod,
+  isSettlementDeferred,
   StreamError,
   toMicro,
   type StreamMethod,
 } from '../stream-session';
+import { CLOSE_PENDING_NOTE, recordDeferredClose } from '../stream-merchant.service';
 import {
   discardChannel,
   findSession,
@@ -59,17 +61,28 @@ const errBody = (e: StreamError) => ({
 /** `Authorization: Payment <base64url json>` -> the session action and channel id (null: no credential). */
 export function readCredential(
   header: string | undefined,
-): { action: string; channelId?: string } | null {
+): { action: string; channelId?: string; cumulativeAmount?: string; signature?: string } | null {
   const m = /^Payment\s+(\S+)/i.exec(header ?? '');
   if (!m) return null;
   try {
     const wire = JSON.parse(Buffer.from(m[1], 'base64url').toString('utf8')) as {
-      payload?: { action?: unknown; channelId?: unknown };
+      payload?: {
+        action?: unknown;
+        channelId?: unknown;
+        cumulativeAmount?: unknown;
+        signature?: unknown;
+      };
     };
     const action = wire.payload?.action;
     if (typeof action !== 'string') return null;
     const channelId = wire.payload?.channelId;
-    return { action, ...(typeof channelId === 'string' ? { channelId } : {}) };
+    const { cumulativeAmount, signature } = wire.payload ?? {};
+    return {
+      action,
+      ...(typeof channelId === 'string' ? { channelId } : {}),
+      ...(typeof cumulativeAmount === 'string' ? { cumulativeAmount } : {}),
+      ...(typeof signature === 'string' ? { signature } : {}),
+    };
   } catch {
     return null;
   }
@@ -192,6 +205,9 @@ export function createStreamRouter(opts: StreamRouterOptions = {}): Router {
       if (session.status === 'closed') {
         throw new StreamError(409, 'channel_closed', 'this channel is closed');
       }
+      if (session.status === 'close_pending' && cred.action !== 'close') {
+        throw new StreamError(409, 'channel_closed', 'this channel is closing');
+      }
     }
 
     const rateMicro = toMicro(product.terms.rate_per_s_usd);
@@ -209,7 +225,31 @@ export function createStreamRouter(opts: StreamRouterOptions = {}): Router {
       body,
     });
 
-    const result = await method.mppx.session({ amount: unitAmount })(fetchReq);
+    let result;
+    try {
+      result = await method.mppx.session({ amount: unitAmount })(fetchReq);
+    } catch (e) {
+      // INT-46: the merchant, not APIbase, executes the close of its channel (F-10: we hold no key)
+      if (
+        isSettlementDeferred(e) &&
+        session &&
+        cred?.action === 'close' &&
+        cred.cumulativeAmount &&
+        cred.signature
+      ) {
+        await recordDeferredClose(d, session, method, {
+          cumulativeAmount: BigInt(cred.cumulativeAmount),
+          signature: cred.signature,
+        });
+        res.status(202).json({
+          status: 'close_pending',
+          channel_id: session.channel_id,
+          note: CLOSE_PENDING_NOTE,
+        });
+        return;
+      }
+      throw e;
+    }
     if (result.status === 402) {
       await sendFetch(res, result.challenge);
       return;

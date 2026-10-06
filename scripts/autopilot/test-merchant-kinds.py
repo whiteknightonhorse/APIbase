@@ -456,6 +456,22 @@ class EngineWorlds(unittest.TestCase):
         again = incidents("STREAM_SETTLE_OVERDUE")
         self.assertEqual([r["state"] for r in again].count("VERIFYING"), 1, "one incident for the misconfiguration")
 
+    def test_ss8_merchant_settled_close_pending_for_over_an_hour_one_incident_per_channel(self):
+        # T-INT-46: a `close_pending` channel of a merchant-settled shop that the merchant has not
+        # settled for an hour (settle_error_since is the clock) is the same kind, once per channel.
+        m = fx.new_merchant("stream-merchant-shop")
+        ins = ("INSERT INTO shop_stream_sessions (merchant_id, sku, channel_id, deposit_usd, rate_per_s, "
+               "settler_mode, status, settle_error_since) VALUES ")
+        q(ins + f"('{m}', 'demo-stream', '0xdddd', 1, 0.0001, 'merchant', 'close_pending', now() - interval '61 minutes'), "
+          f"('{m}', 'demo-stream', '0xeeee', 1, 0.0001, 'merchant', 'close_pending', now() - interval '20 minutes')")
+        tick()
+        rows = incidents("STREAM_SETTLE_OVERDUE")
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["state"], "VERIFYING")
+        self.assertEqual([r[1] for r in out_mail()], ["stream_settle_overdue"])
+        tick()
+        self.assertEqual(len(incidents("STREAM_SETTLE_OVERDUE")), 1, "a repeat opens nothing")
+
     def test_moderation_kinds(self):
         m = fx.new_merchant("mod-shop")
         q("INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category) VALUES "

@@ -72,6 +72,8 @@ describe('outbox processor (T-0259)', () => {
       'shop.subscription.past_due',
       'shop.subscription.canceled',
       'shop.subscription.expired',
+      // T-INT-46
+      'shop.stream.settle_due',
     ]);
     expect(HANDLED_EVENT_TYPES).not.toContain('mpp_refund_owed');
     expect(HANDLED_EVENT_TYPES).not.toContain('x402_settle_failed');

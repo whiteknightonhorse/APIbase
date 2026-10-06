@@ -40,6 +40,47 @@ export class StreamError extends Error {
   }
 }
 
+/**
+ * Thrown by every signing method of a deferred settler account (INT-46): APIbase holds no key of a
+ * `merchant`-settled shop, so any attempt to sign (settle / close) stops here instead of failing
+ * on-chain. The stream route turns it into 202 `close_pending`.
+ */
+export class SettlementDeferredError extends Error {
+  constructor() {
+    super('settlement is deferred to the merchant: APIbase holds no key for this channel payee');
+    this.name = 'SettlementDeferredError';
+  }
+}
+
+/** True for the error itself or anywhere in its `cause` chain (viem wraps what a signer throws). */
+export function isSettlementDeferred(err: unknown): boolean {
+  let e: unknown = err;
+  for (let i = 0; i < 8 && e; i++) {
+    if (e instanceof SettlementDeferredError) return true;
+    if (e instanceof Error && e.name === 'SettlementDeferredError') return true;
+    e = (e as { cause?: unknown }).cause;
+  }
+  return false;
+}
+
+/**
+ * A viem `Account` with the merchant's payout `address` and no key: reads and verification work,
+ * every signature throws SettlementDeferredError (F-10: our code never sends crypto for a
+ * merchant; the merchant settles with its own key through the `packages/stream-settler` CLI).
+ */
+export async function deferredSettlerAccount(address: string): Promise<{ address: string }> {
+  const { toAccount } = await import('viem/accounts');
+  const deferred = async (): Promise<never> => {
+    throw new SettlementDeferredError();
+  };
+  return toAccount({
+    address: address as `0x${string}`,
+    signMessage: deferred,
+    signTransaction: deferred,
+    signTypedData: deferred,
+  });
+}
+
 export interface StreamMerchant {
   merchant_id: string;
   slug: string;
@@ -93,8 +134,11 @@ export async function resolveStreamAccount(
   merchant: StreamMerchant,
   env: NodeJS.ProcessEnv = process.env,
 ): Promise<{ address: string }> {
+  if (merchant.stream_settler === 'merchant') {
+    return deferredSettlerAccount(merchant.payout_wallet_tempo);
+  }
   if (merchant.stream_settler !== 'apibase_pilot') {
-    // null: streaming not enabled for the merchant; 'merchant': settled with the merchant's own key (INT-46)
+    // null: streaming not enabled for the merchant
     throw new StreamError(409, 'stream_unavailable', 'streaming is not available for this shop');
   }
   const key = env.INTEGRATOR_STREAM_PILOT_TEMPO_KEY;
@@ -174,6 +218,7 @@ export async function getStreamMethod(
   }
   const key = [
     merchant.merchant_id,
+    merchant.stream_settler,
     recipient.toLowerCase(),
     terms.rate_per_s_usd,
     terms.min_deposit_usd,

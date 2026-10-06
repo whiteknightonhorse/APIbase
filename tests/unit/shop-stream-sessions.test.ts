@@ -19,6 +19,8 @@ import {
   STREAM_LRU_MAX,
   clearStreamMethodCache,
   contentPortion,
+  deferredSettlerAccount,
+  SettlementDeferredError,
   fromMicro,
   getStreamMethod,
   streamMethodCacheSize,
@@ -30,6 +32,13 @@ import { mppxChain, runStreamSettle, streamFeeMicro } from '../../src/shop/strea
 import { CatalogItemSchema, upsertCatalog } from '../../src/shop/catalog.service';
 import { getProduct, searchCatalog } from '../../src/shop/catalog.read.service';
 import { shopToolDefinitions } from '../../src/shop/tool-definitions';
+import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
+import { issueKey } from '../../src/shop/auth/merchant-key.service';
+import {
+  confirmMerchantSettled,
+  listSettleQueue,
+  runMerchantSettleDue,
+} from '../../src/shop/stream-merchant.service';
 import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
 
 // ---------------------------------------------------------------------------
@@ -46,7 +55,7 @@ const mockWorld = {
   chain: new Map<string, MockChan>(),
   channels: new Map<string, any>(),
   settle: jest.fn(async (..._a: unknown[]) => '0xsettletx'),
-  closeOnChain: jest.fn((..._a: unknown[]) => undefined),
+  closeOnChain: jest.fn(async (..._a: unknown[]): Promise<void> => undefined),
   sessionCalls: [] as any[],
 };
 
@@ -104,12 +113,13 @@ function mockSessionHandler(params: any, opts: { amount: string }) {
       if (p.action === 'voucher' || p.action === 'close') {
         const cum = BigInt(p.cumulativeAmount);
         if (cum > st.deposit || cum < st.highestVoucherAmount) return refuse();
+        if (p.action === 'close') {
+          // like mppx handleClose: the on-chain close runs BEFORE the store is updated
+          await mockWorld.closeOnChain(params.account, id, cum);
+          st.finalized = true;
+        }
         st.highestVoucherAmount = cum;
         st.highestVoucher = { channelId: id, cumulativeAmount: cum, signature: '0xsig' };
-      }
-      if (p.action === 'close') {
-        mockWorld.closeOnChain(params.account, id, st.highestVoucherAmount);
-        st.finalized = true;
       }
     }
     const management = p.action === 'close' || p.action === 'topUp';
@@ -309,14 +319,15 @@ dbDescribe('stream sessions (INT-40)', () => {
   beforeEach(async () => {
     // the job scans every open channel: leave only this test's own
     await prisma.$executeRawUnsafe(
-      `UPDATE shop_stream_sessions SET status = 'closed' WHERE status = 'open'`,
+      `UPDATE shop_stream_sessions SET status = 'closed' WHERE status IN ('open', 'close_pending')`,
     );
     process.env.INTEGRATOR_STREAM_PILOT_TEMPO_KEY = PILOT_KEY;
     process.env.INTEGRATOR_FEE_ENABLED = 'true';
     process.env.INTEGRATOR_FEE_BPS = '150';
     process.env.INTEGRATOR_FEE_MIN_USD = '0.05';
     mockWorld.settle.mockClear();
-    mockWorld.closeOnChain.mockClear();
+    mockWorld.closeOnChain.mockReset();
+    mockWorld.closeOnChain.mockImplementation(async () => undefined);
     clearStreamMethodCache();
   });
 
@@ -396,16 +407,26 @@ dbDescribe('stream sessions (INT-40)', () => {
   async function mkSession(
     merchant_id: string,
     sku: string,
-    o: { highest: bigint; settled?: bigint; lastSettleMinAgo?: number; channel?: string },
+    o: {
+      highest: bigint;
+      settled?: bigint;
+      lastSettleMinAgo?: number;
+      channel?: string;
+      mode?: string;
+      status?: string;
+      errorMinAgo?: number;
+    },
   ) {
     const channel = o.channel ?? `0x${randomBytes(32).toString('hex')}`;
     await prisma.$executeRawUnsafe(
       `INSERT INTO shop_stream_sessions
          (merchant_id, sku, buyer_agent_id, channel_id, deposit_usd, rate_per_s, settled_usd,
-          settler_mode, escrow_contract, chain_id, highest_voucher, last_settle_at, opened_at)
-       VALUES ($1::uuid, $2, $3, $4, 1, $5::numeric, $6::numeric, 'apibase_pilot', '0xescrow', 42431,
+          settler_mode, escrow_contract, chain_id, highest_voucher, last_settle_at, opened_at,
+          status, settle_error_since)
+       VALUES ($1::uuid, $2, $3, $4, 1, $5::numeric, $6::numeric, $9, '0xescrow', 42431,
                $7::jsonb, CASE WHEN $8::int IS NULL THEN NULL ELSE now() - ($8::int * interval '1 minute') END,
-               now() - interval '3 hours')`,
+               now() - interval '3 hours', $10,
+               CASE WHEN $11::int IS NULL THEN NULL ELSE now() - ($11::int * interval '1 minute') END)`,
       merchant_id,
       sku,
       PAYER,
@@ -418,14 +439,17 @@ dbDescribe('stream sessions (INT-40)', () => {
         signature: '0xsig',
       }),
       o.lastSettleMinAgo ?? null,
+      o.mode ?? 'apibase_pilot',
+      o.status ?? 'open',
+      o.errorMinAgo ?? null,
     );
     return channel;
   }
   const settleCalls = (channel: string) =>
     mockWorld.settle.mock.calls.filter((c) => c[2] === channel);
 
-  it('ST1: stream_settler null / merchant / no key -> 409 stream_unavailable, no challenge', async () => {
-    for (const settler of [null, 'merchant'] as const) {
+  it('ST1: stream_settler null / no key -> 409 stream_unavailable, no challenge', async () => {
+    for (const settler of [null] as const) {
       const s = await mkShop({ settler });
       await mkStream(s.id);
       const calls = mockWorld.sessionCalls.length;
@@ -974,6 +998,353 @@ dbDescribe('stream sessions (INT-40)', () => {
         { encryptionKey: KEY },
       );
       expect(bad.errors).toHaveLength(1); // the test SKU can never be a stream
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // T-INT-46: stream_settler = 'merchant'
+  // -------------------------------------------------------------------------
+  describe('INT-46 merchant settler (MS)', () => {
+    const MW = privateKeyToAccount(generatePrivateKey()); // the merchant's own payout wallet
+    const merchantShop = () => mkShop({ settler: 'merchant', wallet: MW.address });
+    const outboxDue = (ch: string) =>
+      rows(
+        `SELECT payload->>'channel_id' AS ch FROM outbox
+          WHERE event_type = 'shop.stream.settle_due' AND payload->>'channel_id' = $1`,
+        ch,
+      );
+    let sent = 0;
+    let deferredThrown = 0;
+    /** What the real close does for a deferred account: mppx closeOnChain signs, the signer throws. */
+    const realisticClose = async (account: any) => {
+      try {
+        await account.signTransaction({});
+      } catch (e) {
+        deferredThrown += (e as Error).name === 'SettlementDeferredError' ? 1 : 0;
+        throw e;
+      }
+      sent++;
+    };
+
+    beforeEach(() => {
+      sent = 0;
+      deferredThrown = 0;
+    });
+
+    it('MS1: open/voucher work, close -> 202 close_pending, nothing signed or sent, highest voucher kept', async () => {
+      mockWorld.closeOnChain.mockImplementation(realisticClose as never);
+      const s = await merchantShop();
+      await mkStream(s.id);
+      const id = newChannel(MW.address, 1_000_000n);
+      expect((await open(s.slug, 'demo-stream', id)).status).toBe(200);
+      expect((await voucher(s.slug, 'demo-stream', id, 2n * UNIT_MICRO)).status).toBe(200);
+      expect((await session(id)).settler_mode).toBe('merchant');
+
+      const close = await get(url(s.slug, 'demo-stream'), {
+        authorization: cred('close', id, {
+          cumulativeAmount: (3n * UNIT_MICRO).toString(),
+          signature: '0xclosesig',
+        }),
+      });
+      expect(close.status).toBe(202);
+      const body = await close.json();
+      expect(body).toMatchObject({ status: 'close_pending', channel_id: id });
+      expect(body.note).toContain('CLOSE_GRACE_PERIOD');
+      expect(deferredThrown).toBe(1); // the signer refused
+      expect(sent).toBe(0);
+      expect(mockWorld.settle).not.toHaveBeenCalled();
+      const ses = await session(id);
+      expect(ses).toMatchObject({ status: 'close_pending', settled_usd: '0.000000' });
+      const hv = (
+        await rows(`SELECT highest_voucher FROM shop_stream_sessions WHERE channel_id = $1`, id)
+      )[0].highest_voucher;
+      expect(hv).toMatchObject({
+        cumulativeAmount: (3n * UNIT_MICRO).toString(),
+        signature: '0xclosesig',
+      });
+      expect(await rows(`SELECT 1 FROM shop_stream_settlements WHERE channel_id = $1`, id)).toEqual(
+        [],
+      );
+      // a closing channel takes no more vouchers
+      expect((await voucher(s.slug, 'demo-stream', id, 4n * UNIT_MICRO)).status).toBe(409);
+    });
+
+    it('MS1b: the deferred account has the merchant address and every signature throws', async () => {
+      const acct: any = await deferredSettlerAccount(MW.address);
+      expect(acct.address).toBe(MW.address);
+      for (const fn of ['signTransaction', 'signMessage', 'signTypedData']) {
+        await expect(acct[fn]({ message: 'x' })).rejects.toBeInstanceOf(SettlementDeferredError);
+      }
+    });
+
+    it("MS2: the queue holds only this merchant's channels, and only those due", async () => {
+      const a = await merchantShop();
+      const b = await merchantShop();
+      await mkStream(a.id);
+      await mkStream(b.id);
+      const aDue = await mkSession(a.id, 'demo-stream', { highest: 600_000n, mode: 'merchant' });
+      const aBelow = await mkSession(a.id, 'demo-stream', {
+        highest: 100_000n,
+        lastSettleMinAgo: 5,
+        mode: 'merchant',
+      });
+      const aClosing = await mkSession(a.id, 'demo-stream', {
+        highest: 1_000n,
+        lastSettleMinAgo: 5,
+        mode: 'merchant',
+        status: 'close_pending',
+      });
+      const aPilot = await mkSession(a.id, 'demo-stream', { highest: 900_000n });
+      const bDue = await mkSession(b.id, 'demo-stream', { highest: 700_000n, mode: 'merchant' });
+      const qa = (await listSettleQueue(deps as never, a.id)).queue;
+      expect(qa.map((i) => i.channel_id).sort()).toEqual([aDue, aClosing].sort());
+      expect(qa.find((i) => i.channel_id === aDue)).toMatchObject({
+        action: 'settle',
+        cumulative_amount: '600000',
+        signature: '0xsig',
+        escrow_contract: '0xescrow',
+        chain_id: 42431,
+      });
+      expect(qa.find((i) => i.channel_id === aClosing)?.action).toBe('close');
+      expect(qa.map((i) => i.channel_id)).not.toContain(bDue);
+      expect(qa.map((i) => i.channel_id)).not.toContain(aBelow);
+      expect(qa.map((i) => i.channel_id)).not.toContain(aPilot);
+      expect((await listSettleQueue(deps as never, b.id)).queue.map((i) => i.channel_id)).toEqual([
+        bDue,
+      ]);
+    });
+
+    describe('settled confirmation', () => {
+      let TX = '';
+      beforeEach(() => {
+        TX = `0x${randomBytes(32).toString('hex')}`;
+      });
+      const proof = (
+        o: Partial<{
+          from: string;
+          settled: bigint;
+          finalized: boolean;
+          success: boolean;
+          found: boolean;
+        }> = {},
+      ) => ({
+        read: jest.fn(async () => ({
+          found: true,
+          success: true,
+          from: MW.address,
+          settled: 600_000n,
+          finalized: false,
+          ...o,
+        })),
+      });
+
+      it('MS3: a tx not sent from the payout wallet -> 400, no row; the right one -> verified, settled_usd, fee', async () => {
+        const s = await merchantShop();
+        await mkStream(s.id);
+        const ch = await mkSession(s.id, 'demo-stream', { highest: 600_000n, mode: 'merchant' });
+        const wrong = proof({ from: privateKeyToAccount(OTHER_KEY).address });
+        await expect(
+          confirmMerchantSettled({ ...deps, reader: wrong } as never, s.id, ch, { tx_hash: TX }),
+        ).rejects.toMatchObject({ status: 400, error_code: 'settle_not_proven' });
+        expect(
+          await rows(`SELECT 1 FROM shop_stream_settlements WHERE channel_id = $1`, ch),
+        ).toEqual([]);
+        expect((await session(ch)).settled_usd).toBe('0.000000');
+
+        const ok = await confirmMerchantSettled({ ...deps, reader: proof() } as never, s.id, ch, {
+          tx_hash: TX,
+        });
+        expect(ok).toMatchObject({ verified: true, status: 'open', settled_usd: '0.600000' });
+        const sett = await rows(
+          `SELECT submitted_by, verified, tx_hash, cumulative_amount::text AS c
+             FROM shop_stream_settlements WHERE channel_id = $1`,
+          ch,
+        );
+        expect(sett).toEqual([
+          { submitted_by: 'merchant', verified: true, tx_hash: TX, c: '0.600000' },
+        ]);
+        const ses = await rows(
+          `SELECT settled_usd::text, last_settle_at IS NOT NULL AS ls, session_id::text AS sid
+             FROM shop_stream_sessions WHERE channel_id = $1`,
+          ch,
+        );
+        expect(ses[0]).toMatchObject({ settled_usd: '0.600000', ls: true });
+        expect((await feeRows(ses[0].sid)).map((f) => f.fee_usd)).toEqual(['0.009000']);
+        // the same report again is harmless; the same tx for another channel is refused
+        await confirmMerchantSettled({ ...deps, reader: proof() } as never, s.id, ch, {
+          tx_hash: TX,
+        });
+        expect(
+          (await rows(`SELECT 1 FROM shop_stream_settlements WHERE channel_id = $1`, ch)).length,
+        ).toBe(1);
+        const other = await mkSession(s.id, 'demo-stream', { highest: 600_000n, mode: 'merchant' });
+        await expect(
+          confirmMerchantSettled({ ...deps, reader: proof() } as never, s.id, other, {
+            tx_hash: TX,
+          }),
+        ).rejects.toMatchObject({ status: 409 });
+      });
+
+      it("MS3b: not advanced / reverted / unknown tx / another merchant's channel are refused; a close needs finalized", async () => {
+        const s = await merchantShop();
+        const o = await merchantShop();
+        await mkStream(s.id);
+        const ch = await mkSession(s.id, 'demo-stream', { highest: 600_000n, mode: 'merchant' });
+        const run = (r: any, m = s.id, c = ch) =>
+          confirmMerchantSettled({ ...deps, reader: r } as never, m, c, { tx_hash: TX });
+        await expect(run(proof({ settled: 0n }))).rejects.toMatchObject({ status: 400 });
+        await expect(run(proof({ success: false }))).rejects.toMatchObject({ status: 400 });
+        await expect(run(proof({ found: false }))).rejects.toMatchObject({ status: 400 });
+        await expect(run(proof(), o.id)).rejects.toMatchObject({ status: 404 });
+        await expect(
+          confirmMerchantSettled({ ...deps, reader: proof() } as never, s.id, ch, {
+            tx_hash: 'nope',
+          }),
+        ).rejects.toMatchObject({ status: 400 });
+        const closing = await mkSession(s.id, 'demo-stream', {
+          highest: 600_000n,
+          mode: 'merchant',
+          status: 'close_pending',
+        });
+        await expect(run(proof({ finalized: false }), s.id, closing)).rejects.toMatchObject({
+          status: 400,
+        });
+        const done = await run(proof({ finalized: true }), s.id, closing);
+        expect(done).toMatchObject({ status: 'closed', verified: true });
+        const row = await rows(
+          `SELECT status, closed_at IS NOT NULL AS c FROM shop_stream_sessions WHERE channel_id = $1`,
+          closing,
+        );
+        expect(row[0]).toEqual({ status: 'closed', c: true });
+      });
+
+      it('the merchant routes: settings, queue and settled over HTTP with the merchant key', async () => {
+        const reader = proof();
+        const app = express();
+        app.use(express.json());
+        app.use(createMerchantRouter({ ...deps, reader } as never));
+        const srv = await new Promise<Server>((r) => {
+          const x = app.listen(0, '127.0.0.1', () => r(x));
+        });
+        const b = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/api/v1/shop/merchants/me`;
+        try {
+          const s = await mkShop({ settler: null, wallet: MW.address });
+          const mk = await issueKey(prisma as never, s.id);
+          const hdr = { authorization: `Bearer ${mk}`, 'content-type': 'application/json' };
+          const bad = await fetch(`${b}/stream-settings`, {
+            method: 'PATCH',
+            headers: hdr,
+            body: JSON.stringify({ settler: 'apibase_pilot' }),
+          });
+          expect(bad.status).toBe(422);
+          const set = await fetch(`${b}/stream-settings`, {
+            method: 'PATCH',
+            headers: hdr,
+            body: JSON.stringify({ settler: 'merchant' }),
+          });
+          expect(set.status).toBe(200);
+          expect(
+            (
+              await rows(
+                `SELECT stream_settler FROM shop_merchants WHERE merchant_id = $1::uuid`,
+                s.id,
+              )
+            )[0].stream_settler,
+          ).toBe('merchant');
+          const ch = await mkSession(s.id, 'demo-stream', { highest: 600_000n, mode: 'merchant' });
+          const q = await (await fetch(`${b}/streams/settle-queue`, { headers: hdr })).json();
+          expect(q.queue.map((i: any) => i.channel_id)).toEqual([ch]);
+          const r = await fetch(`${b}/streams/${ch}/settled`, {
+            method: 'POST',
+            headers: hdr,
+            body: JSON.stringify({ tx_hash: TX }),
+          });
+          expect(r.status).toBe(200);
+          expect((await r.json()).settled_usd).toBe('0.600000');
+          const noScope = await issueKey(prisma as never, s.id, ['stats:read']);
+          expect(
+            (
+              await fetch(`${b}/streams/settle-queue`, {
+                headers: { authorization: `Bearer ${noScope}` },
+              })
+            ).status,
+          ).toBe(403);
+        } finally {
+          await new Promise((r2) => srv.close(r2));
+        }
+      });
+    });
+
+    it('MS4: close_pending for 61 min -> one stream.settle_due event, none on a repeat 5 minutes later', async () => {
+      const s = await merchantShop();
+      await mkStream(s.id);
+      const fresh = await mkSession(s.id, 'demo-stream', {
+        highest: 1_000n,
+        mode: 'merchant',
+        status: 'close_pending',
+        errorMinAgo: 30,
+      });
+      const ch = await mkSession(s.id, 'demo-stream', {
+        highest: 1_000n,
+        mode: 'merchant',
+        status: 'close_pending',
+        errorMinAgo: 61,
+      });
+      const first = await runMerchantSettleDue(deps as never, Date.now());
+      expect(first.notified).toBeGreaterThanOrEqual(1);
+      expect(await outboxDue(ch)).toHaveLength(1);
+      expect(await outboxDue(fresh)).toHaveLength(0);
+      await runMerchantSettleDue(deps as never, Date.now() + 5 * 60_000);
+      expect(await outboxDue(ch)).toHaveLength(1);
+      // the engine reads the same stamp: STREAM_SETTLE_OVERDUE needs status in (open, close_pending)
+      const due = await rows(
+        `SELECT channel_id FROM shop_stream_sessions WHERE status IN ('open', 'close_pending')
+          AND settle_error_since IS NOT NULL AND settle_error_since < now() - interval '1 hour'
+          AND channel_id = $1`,
+        ch,
+      );
+      expect(due).toHaveLength(1);
+    });
+
+    it('MS4b: a payer close request on-chain stamps the clock of a merchant channel; the job never settles it', async () => {
+      const s = await merchantShop();
+      await mkStream(s.id);
+      const ch = await mkSession(s.id, 'demo-stream', { highest: 900_000n, mode: 'merchant' });
+      mockWorld.chain.set(ch, {
+        payee: MW.address,
+        payer: PAYER,
+        deposit: 1_000_000n,
+        closeRequestedAt: 5n,
+      });
+      await runStreamSettle(deps as never, Date.now(), mppxChain);
+      expect(mockWorld.settle).not.toHaveBeenCalled();
+      const r = await rows(
+        `SELECT close_requested_at IS NOT NULL AS cr, settle_error_since IS NOT NULL AS se
+           FROM shop_stream_sessions WHERE channel_id = $1`,
+        ch,
+      );
+      expect(r[0]).toEqual({ cr: true, se: true });
+      const q = (await listSettleQueue(deps as never, s.id)).queue;
+      expect(q.map((i) => i.channel_id)).toEqual([ch]);
+    });
+
+    it('MS6: apibase_pilot is unchanged: a pilot close still runs closeOnChain with the demo key, a pilot session still settles', async () => {
+      const s = await mkShop();
+      await mkStream(s.id);
+      const id = newChannel(pilot.address, 1_000_000n);
+      expect((await open(s.slug, 'demo-stream', id)).status).toBe(200);
+      const close = await get(url(s.slug, 'demo-stream'), {
+        authorization: cred('close', id, { cumulativeAmount: UNIT_MICRO.toString() }),
+      });
+      expect(close.status).toBe(204);
+      expect((mockWorld.closeOnChain.mock.calls[0][0] as { address: string }).address).toBe(
+        pilot.address,
+      );
+      expect((await session(id)).status).toBe('closed');
+      const due = await mkSession(s.id, 'demo-stream', { highest: 600_000n });
+      await runStreamSettle(deps as never, Date.now(), mppxChain);
+      expect(settleCalls(due)).toHaveLength(1);
+      expect((await listSettleQueue(deps as never, s.id)).queue).toEqual([]);
     });
   });
 

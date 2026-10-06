@@ -1,5 +1,6 @@
 import { logger } from '../config/logger';
 import { defaultShopDeps } from '../shop/merchant-lifecycle.service';
+import { runMerchantSettleDue } from '../shop/stream-merchant.service';
 import { runStreamSettle, type StreamSettleReport } from '../shop/stream.service';
 
 /**
@@ -8,7 +9,11 @@ import { runStreamSettle, type StreamSettleReport } from '../shop/stream.service
  * session closed once the payer has withdrawn (channel finalized on-chain).
  */
 export async function runShopStreamSettle(nowMs: number = Date.now()): Promise<StreamSettleReport> {
-  const report = await runStreamSettle(defaultShopDeps(), nowMs);
+  const deps = defaultShopDeps();
+  const report = await runStreamSettle(deps, nowMs);
+  const due = await runMerchantSettleDue(deps, nowMs);
+  if (due.notified > 0)
+    logger.info({ job: 'shop-stream-settle', ...due }, 'stream settle due notices');
   if (
     report.settled > 0 ||
     report.failed > 0 ||
