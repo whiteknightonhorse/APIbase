@@ -18,6 +18,7 @@ import {
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
+import { getMerchantStats } from '../stats.service';
 import { merchantRefund } from '../refund.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { listEvents, setWebhook } from '../webhook/webhook.service';
@@ -333,6 +334,27 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(await runCheck(deps, req.merchant?.merchant_id ?? ''));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // F-12: the key holder's own aggregates; `format=csv` is one row per paid order (tx_hash, no full wallet).
+  router.get(
+    '/api/v1/shop/merchants/me/stats',
+    requireMerchantKey(['stats:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        const r = await getMerchantStats(deps, req.merchant?.merchant_id ?? '', req.query);
+        if ('csv' in r) {
+          res
+            .type('text/csv; charset=utf-8')
+            .set('Content-Disposition', 'attachment; filename="orders.csv"')
+            .send(r.csv);
+          return;
+        }
+        res.json(r);
       } catch (err) {
         send(res, err);
       }

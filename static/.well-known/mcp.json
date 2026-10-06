@@ -7,8 +7,8 @@
   "url": "https://apibase.pro/mcp",
   "version": "2.1.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
-  "tools_count": 1409,
-  "shop_tools_count": 20,
+  "tools_count": 1410,
+  "shop_tools_count": 21,
   "providers_count": 402,
   "merchants_count": 1,
   "integrator": {

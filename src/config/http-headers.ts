@@ -44,3 +44,7 @@ export function resolveX402PaymentHeader(
 export const X_APIBASE_EVENT = 'X-APIbase-Event';
 export const X_APIBASE_DELIVERY_ID = 'X-APIbase-Delivery-Id';
 export const X_APIBASE_SIGNATURE = 'X-APIbase-Signature';
+
+// T-INT-24: the owner page credential (base64 sign-in message + EIP-191 signature), GET /m/:slug/owner.
+export const X_OWNER_MESSAGE = 'x-owner-message';
+export const X_OWNER_SIGNATURE = 'x-owner-signature';

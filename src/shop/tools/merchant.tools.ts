@@ -11,6 +11,7 @@ import {
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
+import { getMerchantStats } from '../stats.service';
 import { merchantRefund } from '../refund.service';
 import { setWebhook, WEBHOOK_EVENTS } from '../webhook/webhook.service';
 import {
@@ -52,6 +53,7 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.refund',
   'shop.merchant.webhook_set',
   'shop.merchant.check',
+  'shop.merchant.stats',
 ] as const;
 
 type Result = {
@@ -450,6 +452,50 @@ export function registerMerchantTools(
       try {
         const m = await bearer(deps, apiKey);
         return ok({ ...(await runCheck(deps, m.merchant_id)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.stats',
+    {
+      title: 'My sales statistics',
+      description:
+        'Your own sales statistics (needs stats:read), the test SKU excluded: quotes -> paid -> closed, gross/net/fee, average order, refunds, disputes, top-20 products, by rail, by agent (client name/version, user-agent family, 8-char wallet hash prefix), webhook success % and p95, overdue SLA counts. Optional from/to (ISO 8601, default last 30 days, at most 366), group day|week. format=csv returns one row per paid order with tx_hash (payer as hash prefix only). Cached for 60 s.',
+      inputSchema: {
+        from: z.string().optional(),
+        to: z.string().optional(),
+        group: z.enum(['day', 'week']).optional(),
+        format: z.enum(['json', 'csv']).optional(),
+      },
+      outputSchema: {
+        from: z.string().optional(),
+        to: z.string().optional(),
+        group: z.string().optional(),
+        funnel: z.record(z.unknown()).optional(),
+        gross_usd: z.string().optional(),
+        fee_usd: z.string().optional(),
+        net_usd: z.string().optional(),
+        avg_order_usd: z.string().optional(),
+        series: z.array(z.record(z.unknown())).optional(),
+        refunds: z.record(z.unknown()).optional(),
+        disputes: z.record(z.unknown()).optional(),
+        top_products: z.array(z.record(z.unknown())).optional(),
+        by_rail: z.array(z.record(z.unknown())).optional(),
+        by_agent: z.array(z.record(z.unknown())).optional(),
+        webhook: z.record(z.unknown()).optional(),
+        sla_overdue: z.record(z.unknown()).optional(),
+        csv: z.string().optional(),
+      },
+      annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: Record<string, unknown>) => {
+      try {
+        const m = await bearer(deps, apiKey, 'stats:read');
+        return ok({ ...(await getMerchantStats(deps, m.merchant_id, a)) });
       } catch (err) {
         return fail(err, requestId);
       }

@@ -19,6 +19,7 @@ import { createMerchantRouter } from '../shop/routes/merchant.router';
 import { createOrderRouter } from '../shop/routes/order.router';
 import { createLegalRouter } from '../shop/routes/legal.router';
 import { createIntegratorRouter } from '../shop/routes/integrator.router';
+import { createOwnerRouter } from '../shop/routes/owner.router';
 import { createStorefrontRouter } from '../shop/routes/storefront.router';
 import { createCheckRouter } from '../shop/routes/check.router';
 import { executeRouter } from '../routes/execute.router';
@@ -72,6 +73,7 @@ export function createApp(): express.Express {
   app.use(createLegalRouter());
 
   // --- Public merchant storefront pages: /shops, /m/:slug… (GET only, own rate limit) ---
+  app.use(createOwnerRouter());
   app.use(createStorefrontRouter());
   // --- Public connection check: /integrator/check/:slug (statuses and codes only) ---
   app.use(createCheckRouter());
