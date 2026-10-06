@@ -311,6 +311,8 @@ else
   # the mcp.json baseline just regenerated above (see scripts/integrator-facts.py).
   b1=$(md5sum static/pricing.html | cut -d" " -f1); b2=$(md5sum static/llms.txt | cut -d" " -f1)
   python3 scripts/integrator-facts.py render
+  # T-INT-27: categories / price range / provider-integration numbers on index.html, index.md, ai.txt.
+  python3 scripts/home-facts.py render
   [ "$(md5sum static/pricing.html | cut -d" " -f1)" != "$b1" ] && CHANGED=$((CHANGED+1))
   [ "$(md5sum static/llms.txt | cut -d" " -f1)" != "$b2" ] && CHANGED=$((CHANGED+1))
 
@@ -577,8 +579,11 @@ PY
 # SANDBOX_STATUS vs the mcp.json baseline: rendered phrases on pricing/llms, tokens (no
 # hardcoded numbers) on /integrator/*. Same check in both modes -- self-heal just rendered them.
 STALE_INTEGRATOR=$(python3 scripts/integrator-facts.py check 2>&1 || true)
+# T-INT-27: homepage / ai.txt / index.md numbers vs the same baseline, both modes.
+STALE_HOME=$(python3 scripts/home-facts.py check 2>&1 || true)
 
 FAIL=0
+[ -n "$STALE_HOME" ] && { echo "sync-counts: STALE homepage facts:"; echo "$STALE_HOME"; FAIL=1; }
 [ -n "$STALE_INTEGRATOR" ] && { echo "sync-counts: STALE integrator facts:"; echo "$STALE_INTEGRATOR"; FAIL=1; }
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }
 [ -n "$STALE_AI_TXT" ] && { echo "sync-counts: STALE ai.txt 'Tools: N across' remains: $STALE_AI_TXT"; FAIL=1; }

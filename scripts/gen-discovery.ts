@@ -44,6 +44,8 @@ const ROOT = resolve(__dirname, '..');
 // instead of writing one — closes the whole class at once instead of adding a fifth regex.
 const CHECK_MODE = process.argv.includes('--check');
 const driftPaths: string[] = [];
+/** Single source of the public per-call price range; mcp.json carries it, home-facts.py renders it. */
+const PRICE_RANGE_USD = { min: 0.001, max: 0.035 };
 
 function reportDrift(path: string, candidateStr: string, existingRaw: string | null): void {
   driftPaths.push(path);
@@ -327,6 +329,7 @@ async function main(): Promise<void> {
         merchants_count: MERCHANTS,
         integrator: INTEGRATOR,
         categories_count: CATS,
+        price_range_usd: PRICE_RANGE_USD,
         authentication: {
           type: 'bearer',
           required: false,
@@ -416,7 +419,7 @@ async function main(): Promise<void> {
           protocols: ['x402', 'mpp'],
           network: 'eip155:8453',
           token: 'USDC',
-          price_range_usd: [0.001, 0.035],
+          price_range_usd: [PRICE_RANGE_USD.min, PRICE_RANGE_USD.max],
         },
         discovery: {
           ai_txt: 'https://apibase.pro/ai.txt',
@@ -521,7 +524,7 @@ async function main(): Promise<void> {
           payment: {
             rails: ['x402', 'mpp'],
             token: 'USDC',
-            price_range_usd: { min: 0.001, max: 0.035 },
+            price_range_usd: PRICE_RANGE_USD,
             wallet: '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480',
           },
           documentation: 'https://apibase.pro/ai.txt',

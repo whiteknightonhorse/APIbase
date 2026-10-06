@@ -45,11 +45,11 @@ Tool prices: **$0.001–$0.035 per call**, depending on upstream cost.
 
 Full payment metadata: <https://apibase.pro/.well-known/x402-payment.json>
 
-## Tool categories (21)
+## Tool categories (25)
 
-travel, weather, finance, crypto, search, news, location, health,
-entertainment, education, jobs, space, social, legal, business,
-developer, media, infrastructure, messaging, marketing, world.
+business, crypto, developer, device, education, entertainment, finance, health,
+infrastructure, jobs, legal, location, logistics, marketing, media, messaging, music,
+news, podcasts, search, social, space, travel, weather, world.
 
 ## Discovery artifacts
 
@@ -68,5 +68,5 @@ developer, media, infrastructure, messaging, marketing, world.
 ## Source & contact
 
 - GitHub: <https://github.com/whiteknightonhorse/APIbase>
-- Status: 16/16 production containers healthy
+- Status: <https://apibase.pro/health/ready>
 - Region: Hetzner (EU)

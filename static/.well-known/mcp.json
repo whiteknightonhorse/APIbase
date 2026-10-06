@@ -24,6 +24,10 @@
     "sandbox_status": "Sandbox: not yet available — use the $0.01 test SKU on mainnet"
   },
   "categories_count": 25,
+  "price_range_usd": {
+    "min": 0.001,
+    "max": 0.035
+  },
   "authentication": {
     "type": "bearer",
     "required": false,
