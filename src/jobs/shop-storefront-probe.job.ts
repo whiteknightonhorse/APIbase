@@ -27,7 +27,7 @@ export interface ProbeResult {
   coverage: number;
 }
 
-/** One storefront: build it, `initialize`, `tools/list` must be exactly the six buyer tools. */
+/** One storefront: build it, `initialize`, `tools/list` must be exactly the eight buyer tools. */
 export async function probeStorefront(d: ProbeDeps, slug: string): Promise<void> {
   const m = await loadStorefront(d.db, slug, { fresh: true });
   const t = await (d.selfTest ?? selfTestStorefront)(m);

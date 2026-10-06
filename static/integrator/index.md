@@ -19,6 +19,10 @@ Merchants connected so far: {{MERCHANTS_COUNT}}.
 
 The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. See /integrator/why-base-tempo.
 
+### Subscriptions
+
+A subscription is renewed by the buyer's agent with an explicit payment; no funds are debited automatically. Each period is an ordinary order: the agent asks for the renewal quote inside a 72-hour window around the end of the paid period and pays it on Base or Tempo. If the period ends unpaid, the subscription is past due, you get `subscription.past_due` after 24 hours and it is canceled after 72 hours. Grant access from the `subscription.*` webhooks or by reading the subscription. Details: /docs/integrator#subscriptions.
+
 ## What your buyer's agent sees
 
 An abstract shop page with a product and a button "Buy with your AI agent". The button is a plain link (variant A below). Real flow: /m/apibase-demo.

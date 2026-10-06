@@ -185,6 +185,8 @@ export interface ProductCard extends ProductSummary {
   }>;
   /** `fulfillment_mode = 'stream'` only (UC-7): the per-second terms and the one endpoint that sells them. */
   stream?: { rate_per_s_usd: string; min_deposit_usd: string; unit: 'second'; url: string };
+  /** T-INT-41 (UC-9): present on a subscription item; `price_usd` is the price of one period. */
+  subscription?: { period_unit: string; period_count: number; max_periods?: number; trial: 'none' };
 }
 
 /** §6.1 shop.catalog.get: full card; flagged/rejected products are 404; the test SKU is fetchable. */
@@ -197,10 +199,14 @@ export async function getProduct(
   const m = await activeMerchant(db, input.merchant);
   const rows = await db.$queryRawUnsafe<
     Array<
-      Omit<ProductCard, 'availability' | 'refund_policy' | 'variants' | 'stream'> & {
+      Omit<
+        ProductCard,
+        'availability' | 'refund_policy' | 'variants' | 'stream' | 'subscription'
+      > & {
         product_id: string;
         price_raw: string;
         stream: { rate_per_s_usd: string; min_deposit_usd: string; unit: 'second' } | null;
+        subscription: NonNullable<ProductCard['subscription']> | null;
         available: number | null;
         reserved: number;
         refund_window_days: number | null;
@@ -211,7 +217,7 @@ export async function getProduct(
     `SELECT product_id, sku, title, description, price_usd::numeric(18,2)::text AS price_usd,
             currency_display, available, reserved, fulfillment_mode, tax_included, tax_note,
             shipping_options, delivery_slots, requires_pii, refund_window_days, returns_accepted,
-            category, images, stream, price_usd::text AS price_raw
+            category, images, stream, subscription, price_usd::text AS price_raw
        FROM shop_products
       WHERE merchant_id = $1::uuid AND sku = $2 AND moderation_status = 'ok'`,
     m.merchant_id,
@@ -271,6 +277,7 @@ export async function getProduct(
           },
         }
       : {}),
+    ...(r.subscription ? { subscription: r.subscription } : {}),
     merchant: card(m),
     merchant_encryption_key: m.encryption_key,
   };

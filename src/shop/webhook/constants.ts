@@ -26,4 +26,9 @@ export const OUTBOX_TO_WEBHOOK: Record<string, string> = {
   'shop.refund.overdue': 'refund.overdue',
   'shop.refund.verified': 'refund.verified',
   'shop.dispute.opened': 'dispute.opened',
+  'shop.subscription.started': 'subscription.started',
+  'shop.subscription.renewed': 'subscription.renewed',
+  'shop.subscription.past_due': 'subscription.past_due',
+  'shop.subscription.canceled': 'subscription.canceled',
+  'shop.subscription.expired': 'subscription.expired',
 };

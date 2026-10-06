@@ -11,6 +11,8 @@ import {
 } from '../quote.service';
 import { openDispute, DISPUTE_REASONS, DISPUTE_NOTE_MAX } from '../dispute.service';
 import { getOrderView, type BuyerAgent } from '../order-payment.service';
+import { cancelSubscription, getSubscription } from '../subscription.service';
+import { QuoteError } from '../quote.errors';
 import type { PaymentContext } from '../../mcp/tool-adapter';
 
 export const ORDER_TOOL_NAMES = [
@@ -19,6 +21,8 @@ export const ORDER_TOOL_NAMES = [
   'shop.order.pay',
   'shop.order.get',
   'shop.order.dispute',
+  'shop.subscription.get',
+  'shop.subscription.cancel',
 ] as const;
 
 type Result = {
@@ -41,6 +45,13 @@ function fail(err: unknown, request_id: string): Result {
 export function forMcp(q: QuoteResponse): QuoteResponse {
   const { mpp: _mpp, ...pay } = q.pay;
   return { ...q, pay };
+}
+
+/** F-5 for a renewal: `/mcp` offers x402 only, in the answer and in the 402 error alike. */
+function renewForMcp<T extends { renew?: { pay: Record<string, unknown> } }>(v: T): T {
+  if (!v.renew) return v;
+  const { mpp: _mpp, ...pay } = v.renew.pay;
+  return { ...v, renew: { ...v.renew, pay } };
 }
 
 /** §8.4: the MCP client name/version from `initialize`, when the transport has one. */
@@ -71,7 +82,7 @@ export function registerOrderTools(
     {
       title: 'Quote an order',
       description:
-        'Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.',
+        'Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). A subscription item is quoted alone with subscribe: true (422 if the item has no subscription); the quote is period 1. Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.',
       inputSchema: {
         merchant: z.string().describe('Merchant slug.'),
         items: z
@@ -86,6 +97,12 @@ export function registerOrderTools(
         shipping_option: z.string().optional(),
         delivery_slot: z.string().optional(),
         buyer_ref: z.string().max(200).optional(),
+        subscribe: z
+          .boolean()
+          .optional()
+          .describe(
+            'true: quote period 1 of the item subscription (one item, qty 1). The answer carries subscription_terms.',
+          ),
       },
       outputSchema: {
         quote_id: z.string(),
@@ -102,6 +119,7 @@ export function registerOrderTools(
         merchant_encryption_key: z.unknown().optional(),
         pay: z.record(z.unknown()),
         terms_update_pending: z.record(z.unknown()).optional(),
+        subscription_terms: z.record(z.unknown()).optional(),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },
@@ -226,6 +244,7 @@ export function registerOrderTools(
         merchant_contact: z.object({ email: z.string(), site_url: z.string() }).optional(),
         documents: z.array(z.record(z.unknown())).optional(),
         refund_policy: z.record(z.unknown()),
+        subscription: z.object({ id: z.string(), period_no: z.number() }).optional(),
       },
       annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },
@@ -270,6 +289,93 @@ export function registerOrderTools(
         const buyer = await resolveBuyer({ apiKey, session: sessionId });
         const r = await openDispute(deps, buyer, a);
         return ok({ ...r, due_at: r.due_at ? new Date(r.due_at).toISOString() : null });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+  reg.call(
+    server,
+    'shop.subscription.get',
+    {
+      title: 'Get a subscription',
+      description:
+        "Status of a subscription you pay for: status (active | past_due | canceled | expired), period_no, current_period_end, next_charge_at. From 72 h before to 72 h after current_period_end the answer carries renew {quote_id, expires_at, total_usd, period_no, pay}: pay that quote with x402 (shop.order.pay) to buy the next period; the same quote is returned while it lives, a new one once it expired. Nothing is charged automatically: the buyer's agent renews by paying. Once the period is over unpaid the call fails with 402 subscription_renewal_due (same renew attached); 72 h later the subscription is canceled (status_reason unpaid). Another identity's subscription is 404.",
+      inputSchema: { subscription_id: z.string() },
+      outputSchema: {
+        subscription_id: z.string(),
+        sku: z.string(),
+        status: z.string(),
+        status_reason: z.string().nullable(),
+        period_no: z.number(),
+        current_period_end: z.string().nullable(),
+        next_charge_at: z.string().nullable(),
+        max_periods: z.number().nullable(),
+        canceled_at: z.string().optional(),
+        access_until: z.string().optional(),
+        renew: z.record(z.unknown()).optional(),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: { subscription_id: string; merchant?: string }) => {
+      try {
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
+        const merchant_id = a.merchant ? await merchantIdBySlug(deps.db, a.merchant) : undefined;
+        return ok({
+          ...renewForMcp(await getSubscription(deps, buyer, a.subscription_id, { merchant_id })),
+        });
+      } catch (err) {
+        if (err instanceof QuoteError && err.extra?.renew) {
+          return fail(
+            new QuoteError(
+              err.status,
+              err.error_code,
+              err.message,
+              err.suggested_action,
+              renewForMcp(err.extra as { renew?: { pay: Record<string, unknown> } }),
+            ),
+            requestId,
+          );
+        }
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.subscription.cancel',
+    {
+      title: 'Cancel a subscription',
+      description:
+        "Cancel a subscription you pay for. The period already paid runs to current_period_end (access_until); no further renewal quotes are issued. Idempotent. Another identity's subscription is 404.",
+      inputSchema: { subscription_id: z.string(), reason: z.string().max(500).optional() },
+      outputSchema: {
+        subscription_id: z.string(),
+        sku: z.string(),
+        status: z.string(),
+        status_reason: z.string().nullable(),
+        period_no: z.number(),
+        current_period_end: z.string().nullable(),
+        next_charge_at: z.string().nullable(),
+        max_periods: z.number().nullable(),
+        canceled_at: z.string().optional(),
+        access_until: z.string().optional(),
+      },
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    async (a: { subscription_id: string; reason?: string; merchant?: string }) => {
+      try {
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
+        const merchant_id = a.merchant ? await merchantIdBySlug(deps.db, a.merchant) : undefined;
+        return ok({
+          ...(await cancelSubscription(deps, buyer, a.subscription_id, a.reason, { merchant_id })),
+        });
       } catch (err) {
         return fail(err, requestId);
       }

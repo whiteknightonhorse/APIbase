@@ -451,7 +451,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
   });
 
   // =========================================================================
-  // Merchant storefront — /mcp/m/:slug (F-3): six buyer tools bound to one merchant
+  // Merchant storefront — /mcp/m/:slug (F-3): eight buyer tools bound to one merchant
   // =========================================================================
 
   const shopDeps = (): ShopDeps => opts.shopDeps ?? defaultShopDeps();

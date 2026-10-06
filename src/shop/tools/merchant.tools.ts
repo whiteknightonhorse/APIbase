@@ -489,6 +489,7 @@ export function registerMerchantTools(
         webhook: z.record(z.unknown()).optional(),
         sla_overdue: z.record(z.unknown()).optional(),
         fee_receivable: z.record(z.unknown()).optional(),
+        subscriptions_active: z.number().optional(),
         csv: z.string().optional(),
       },
       annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },

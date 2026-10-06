@@ -17,6 +17,8 @@ export const STOREFRONT_TOOL_NAMES = [
   'shop.order.pay',
   'shop.order.get',
   'shop.order.cancel',
+  'shop.subscription.get',
+  'shop.subscription.cancel',
 ] as const;
 
 /** §14: at most this many storefront descriptors are kept in memory (least recently used out first). */
@@ -133,7 +135,7 @@ export const storefrontServerName = (m: Pick<StorefrontMerchant, 'name'>) =>
   `${m.name} via APIbase`;
 
 /**
- * F-3 / §2 item 2: an MCP server with the six buyer tools bound to ONE merchant. The tools are the
+ * F-3 / §2 item 2: an MCP server with the eight buyer tools bound to ONE merchant. The tools are the
  * ones /mcp registers (same code, same schemas) with the `merchant` argument removed from the
  * schema and always supplied from `merchant.slug` -- whatever a client sends under that name is
  * dropped, so a storefront can never quote or read another merchant (§9.1 cross-tenant).

@@ -52,6 +52,16 @@ const StreamSchema = z.object({
 });
 export type StreamTerms = z.infer<typeof StreamSchema>;
 
+/** Subscription terms (UC-9 / F-8): the item's `price_usd` is the price of ONE period. */
+export const MAX_SUBSCRIPTION_PERIODS = 120;
+export const SubscriptionSchema = z.object({
+  period_unit: z.enum(['day', 'week', 'month']),
+  period_count: z.number().int().min(1).max(1000),
+  max_periods: z.number().int().min(1).max(MAX_SUBSCRIPTION_PERIODS).optional(),
+  trial: z.literal('none').default('none'),
+});
+export type SubscriptionTerms = z.infer<typeof SubscriptionSchema>;
+
 /** A stream item may omit `price_usd`: the price of a stream product IS its per-second rate. */
 const fillStreamPrice = (raw: unknown): unknown => {
   const r = raw as {
@@ -129,6 +139,7 @@ export const CatalogItemSchema = z.preprocess(
       stock: z.number().int().min(0).nullable().optional(),
       fulfillment_mode: z.enum(['instant', 'merchant', 'physical', 'stream']).default('merchant'),
       stream: StreamSchema.optional(),
+      subscription: SubscriptionSchema.optional(),
       fulfillment: z
         .object({ instant: z.object({ payload: z.string().min(1).max(20000) }).optional() })
         .optional(),
@@ -182,6 +193,19 @@ export const CatalogItemSchema = z.preprocess(
           issue('price_usd', 'price_usd must be at least $1.00');
         }
         if (p.stream) issue('stream', 'stream is only for fulfillment_mode stream');
+      }
+      if (p.subscription) {
+        if (p.fulfillment_mode !== 'instant' && p.fulfillment_mode !== 'merchant') {
+          issue('subscription', 'subscription is only for fulfillment_mode instant or merchant');
+        }
+        if (p.is_test) issue('is_test', 'the test SKU cannot be a subscription');
+        if (p.variants?.length) issue('variants', 'a subscription product has no variants');
+        if (p.stock !== undefined && p.stock !== null) {
+          issue('stock', 'a subscription product has no stock count (stock must be null)');
+        }
+        if (p.requires_pii.length > 0) {
+          issue('requires_pii', 'a subscription product cannot require buyer data');
+        }
       }
       for (const v of p.variants ?? []) {
         if (v.price_usd !== undefined && cents(v.price_usd) < MIN_PRICE_CENTS && !p.is_test) {
@@ -380,9 +404,9 @@ export async function upsertCatalog(
            (merchant_id, sku, title, description, price_usd, is_test, currency_display, available,
             fulfillment_mode, fulfillment_payload_encrypted, tax_included, tax_note, shipping_options,
             delivery_slots, requires_pii, refund_window_days, returns_accepted, category, images,
-            moderation_status, stream)
+            moderation_status, stream, subscription)
          VALUES ($1::uuid, $2, $3, $4, $5::numeric, $6, $7, $8::int, $9, $10, $11, $12, $13::jsonb,
-                 $14::jsonb, $15::text[], $16::int, $17, $18, $19::text[], $20, $21::jsonb)
+                 $14::jsonb, $15::text[], $16::int, $17, $18, $19::text[], $20, $21::jsonb, $22::jsonb)
          ON CONFLICT (merchant_id, sku) DO UPDATE SET
            title = EXCLUDED.title, description = EXCLUDED.description, price_usd = EXCLUDED.price_usd,
            is_test = EXCLUDED.is_test, currency_display = EXCLUDED.currency_display,
@@ -393,7 +417,7 @@ export async function upsertCatalog(
            requires_pii = EXCLUDED.requires_pii, refund_window_days = EXCLUDED.refund_window_days,
            returns_accepted = EXCLUDED.returns_accepted, category = EXCLUDED.category,
            images = EXCLUDED.images, moderation_status = EXCLUDED.moderation_status,
-           stream = EXCLUDED.stream, updated_at = now()
+           stream = EXCLUDED.stream, subscription = EXCLUDED.subscription, updated_at = now()
          RETURNING product_id`,
         merchant_id,
         p.sku,
@@ -416,6 +440,7 @@ export async function upsertCatalog(
         p.images,
         verdict.verdict === 'flagged' ? 'flagged' : 'ok',
         p.stream ? JSON.stringify(p.stream) : null,
+        p.subscription ? JSON.stringify(p.subscription) : null,
       );
       const product_id = rows[0].product_id;
 

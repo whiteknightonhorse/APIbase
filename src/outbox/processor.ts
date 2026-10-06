@@ -17,6 +17,12 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
   'shop.refund.overdue',
   'shop.refund.verified',
   'shop.dispute.opened',
+  // T-INT-41 (UC-9): subscription lifecycle. Still no money types (mpp_refund_owed, x402_settle_failed).
+  'shop.subscription.started',
+  'shop.subscription.renewed',
+  'shop.subscription.past_due',
+  'shop.subscription.canceled',
+  'shop.subscription.expired',
 ] as const;
 
 /**

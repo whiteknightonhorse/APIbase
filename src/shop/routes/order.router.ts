@@ -10,6 +10,7 @@ import { resolveX402PaymentHeader } from '../../config/http-headers';
 import { openDispute } from '../dispute.service';
 import { getOrderView } from '../order-payment.service';
 import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.service';
+import { cancelSubscription, getSubscription } from '../subscription.service';
 
 /** §6.3 buyer routes (quotes, cancel), mounted at /api/v1/shop/*. Same services as the /mcp tools. */
 export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
@@ -158,6 +159,30 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
           reason_code: body.reason_code,
           note: body.note,
         }),
+      );
+    } catch (err) {
+      send(res, err);
+    }
+  });
+
+  // T-INT-41 (UC-9): the payer's subscription; renewal is the agent paying the `renew` quote.
+  router.get('/api/v1/shop/subscriptions/:id', async (req: Request, res: Response) => {
+    try {
+      res.json(await getSubscription(deps, await buyerOf(req), String(req.params.id)));
+    } catch (err) {
+      send(res, err);
+    }
+  });
+
+  router.post('/api/v1/shop/subscriptions/:id/cancel', async (req: Request, res: Response) => {
+    try {
+      res.json(
+        await cancelSubscription(
+          deps,
+          await buyerOf(req),
+          String(req.params.id),
+          (req.body as Record<string, unknown> | undefined)?.reason,
+        ),
       );
     } catch (err) {
       send(res, err);

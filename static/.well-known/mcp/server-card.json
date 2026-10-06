@@ -18,9 +18,9 @@
   },
   "hasTools": false,
   "shop_tools": {
-    "version": "6",
-    "count": 21,
-    "sha256": "10ce445c456bb34bf4844275ead18585225fe8560984d4dab2e8563c70457c85"
+    "version": "7",
+    "count": 23,
+    "sha256": "8e36282ccd668d0b71838574f216eca1bfcf1df35356b0071a11d25382d63666"
   },
   "prompts": [
     {

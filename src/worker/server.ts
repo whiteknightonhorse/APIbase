@@ -21,6 +21,7 @@ import { runShopProvekRegistrySync } from '../jobs/shop-provek-registry-sync.job
 import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
 import { runShopCatalogImportJob } from '../jobs/shop-catalog-import.job';
 import { runShopStreamSettle } from '../jobs/shop-stream-settle.job';
+import { runShopSubscriptionSweep } from '../jobs/shop-subscription-sweep.job';
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -324,6 +325,21 @@ const shopStreamSettleTask = cron.schedule('* * * * *', () => {
       shopStreamSettleRunning = false;
     });
 });
+// Subscription dunning (INT-41, UC-9): past_due at period end, notice at +24 h, canceled unpaid at +72 h.
+let shopSubscriptionSweepRunning = false;
+const shopSubscriptionSweepTask = cron.schedule('*/5 * * * *', () => {
+  if (shopSubscriptionSweepRunning) {
+    return;
+  }
+  shopSubscriptionSweepRunning = true;
+  runShopSubscriptionSweep()
+    .catch((err) =>
+      logger.error({ err, job: 'shop-subscription-sweep' }, 'subscription sweep job failed'),
+    )
+    .finally(() => {
+      shopSubscriptionSweepRunning = false;
+    });
+});
 const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
   runShopPaymentSample().catch((err) =>
     logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
@@ -389,6 +405,7 @@ function shutdown(signal: string): void {
   shopStorefrontProbeTask.stop();
   shopCatalogImportTask.stop();
   shopStreamSettleTask.stop();
+  shopSubscriptionSweepTask.stop();
   shopPaymentSampleTask.stop();
 
   if (heartbeatTimer) {

@@ -8,6 +8,7 @@ import { transition } from './order-state';
 import { QuoteError } from './quote.errors';
 import { loadPiiSummary } from './pii/pii.service';
 import { refundPolicy, type RefundPolicy } from './order-lifecycle.service';
+import { applySubscriptionPayment } from './subscription-core';
 
 /** §8.4: client/version (MCP initialize) or user agent (REST); the wallet is only a hash prefix. */
 export interface BuyerAgent {
@@ -39,6 +40,8 @@ export interface OrderView {
   refund_policy?: RefundPolicy;
   /** T-INT-21: which buyer-data envelopes are held (kinds + hashes); never the ciphertext. */
   pii?: { kinds: string[]; sha256: Record<string, string> };
+  /** T-INT-41: set when this order is a period of a subscription. */
+  subscription?: { id: string; period_no: number };
 }
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -88,10 +91,18 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
       rail,
     );
     const a = p.buyer_agent ?? {};
+    // T-INT-41: a subscription period creates / extends its subscription in this very transaction.
+    const sub = await applySubscriptionPayment(tx, {
+      order_id: p.order_id,
+      merchant_id: o.merchant_id,
+      rail,
+      at: new Date((deps.now ?? Date.now)()),
+    });
     await transition(tx, p.order_id, 'PAID', {
       actor: 'system',
       reason: 'payment_confirmed',
       payload: {
+        ...(sub ? { ...sub } : {}),
         request_id: p.request_id ?? null,
         rail,
         tx_hash: p.tx_hash,
@@ -160,6 +171,7 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
         total_usd: o.total_usd,
         tx_hash: p.tx_hash,
         request_id: p.request_id ?? null,
+        ...(sub ? { subscription_id: sub.subscription_id, period_no: sub.period_no } : {}),
       }),
     );
     return true;
@@ -268,6 +280,12 @@ export async function getOrderView(
   view.refund_policy = await refundPolicy(db, order_id);
   const pii = await loadPiiSummary(db, order_id);
   if (pii && payer) view.pii = pii;
+  const period = await db.$queryRawUnsafe<Array<{ subscription_id: string; period_no: number }>>(
+    `SELECT subscription_id, period_no FROM shop_subscription_periods WHERE order_id = $1::uuid`,
+    order_id,
+  );
+  if (period[0])
+    view.subscription = { id: period[0].subscription_id, period_no: period[0].period_no };
   if (payer) {
     view.documents = await db.$queryRawUnsafe<Array<{ url: string; at: Date }>>(
       `SELECT payload->>'url' AS url, at FROM shop_order_events

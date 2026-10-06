@@ -120,6 +120,7 @@ Item (zod schema `CatalogItemSchema`, `src/shop/catalog.service.ts`):
 | `fulfillment_mode`                                                                                                                                                                          | `instant` · `merchant` · `physical` · `stream`                                         |
 | `fulfillment.instant.payload`                                                                                                                                                               | required for `instant`; stored encrypted with the server key, never returned or logged |
 | `tax_included`, `tax_note`, `shipping_options[]`, `delivery_slots[]`, `requires_pii[]`, `refund_window_days`, `returns_accepted`, `currency_display`, `images[]` (https URLs), `variants[]` | as in the spec; no discounts or coupons                                                |
+| `subscription` | `{period_unit: day\|week\|month, period_count >= 1, max_periods? <= 120, trial: none}` for `instant`/`merchant` items; `price_usd` is the price of ONE period (>= $1.00). No stock count, variants, buyer data or test SKU. See [Subscriptions](#subscriptions) |
 | `category`                                                                                                                                                                                  | one of `config/integrator/prohibited-categories.json` → `allowed`                      |
 
 Response: `{ upserted, flagged[{sku,reason}], rejected[{sku,reason,category,status:422}], errors[{index,sku,status:422,message}] }`. Items are judged one by one: a bad item never blocks the rest of the batch. More than 500 items → `422` for the whole call.
@@ -145,7 +146,7 @@ Buyer path (`/mcp`, free, read-only, `merchant` = slug is required, only `active
 
 Buyer path. A quote is a price snapshot plus a stock hold; nothing is charged by it (payment is a separate step).
 
-- `shop.order.quote {merchant, items[{sku, variant?, qty}], shipping_option?, delivery_slot?, buyer_ref?}` on `/mcp` · `POST /api/v1/shop/quotes` (same body, `X-Idempotency-Key` supported: a replay returns the same `quote_id` and holds stock once) · `GET /api/v1/shop/quotes/:id`.
+- `shop.order.quote {merchant, items[{sku, variant?, qty}], shipping_option?, delivery_slot?, buyer_ref?, subscribe?}` on `/mcp` · `POST /api/v1/shop/quotes` (same body, `X-Idempotency-Key` supported: a replay returns the same `quote_id` and holds stock once) · `GET /api/v1/shop/quotes/:id`.
 - `shop.order.cancel {order_id, reason}` · `POST /api/v1/shop/orders/:id/cancel {reason}`: free while the order is `QUOTED`; the quote is voided and the held stock released. After payment: `409 not_cancellable` (refund flow).
 - **Physical items (T-INT-22).** A quote with a `physical` product needs `shipping_option` (an `id` from the product's `shipping_options[]`, else `422` listing the offered options); its `price_usd` is added once as `shipping_usd` and is part of `total_usd`. When the product lists `delivery_slots[]`, `delivery_slot` is required too: the slot is held until the quote expires (one live hold per product and slot); a taken slot answers `409 slot_unavailable` with `alternatives` (the free slots). A paid order keeps its slot. `requires_pii` always includes `shipping_address` (end-to-end encrypted, see the PII section); paying without it is `422 pii_required`. `shipping_option`/`delivery_slot` on a quote without physical items → `422`.
 - **Physical order flow.** `PAID` → `CONFIRMED` (merchant only, `order_confirm`; sets `ship_due_at = now + policy.ship_sla_h`, default 72 h) → `SHIPPED` (`order_ship {order_id, tracking: {carrier, number, url?}, delivery_eta}`; the buyer sees `tracking` and `delivery_eta` in `order.get`) → `DELIVERED` (the merchant calls `order_ship {order_id, delivered_at}`, or automatically `delivery_eta + 7 days`) → `CLOSED` when `close_after` (`DELIVERED` + `refund_window_days`) passes. There is no buyer-side confirm-delivery tool (not in §6): the buyer's way out is `shop.order.cancel` within the refund window or the automatic `DELIVERED`.
@@ -252,9 +253,25 @@ A product with `fulfillment_mode: "stream"` is sold by the second over an MPP `t
 
 Who may settle: on-chain only the channel payee, which is always the merchant's `payout_wallet_tempo`. `shop_merchants.stream_settler` is `apibase_pilot` only for the APIbase demo shop (the pilot key `INTEGRATOR_STREAM_PILOT_TEMPO_KEY` must be the key of that payout wallet, else `500 stream_settler_misconfigured`), `merchant` (settlement with the merchant's own key, INT-46) or empty (`409 stream_unavailable`). The worker job `shop-stream-settle` runs every minute: it settles at `highest - settled >= $0.50`, hourly while `highest > settled`, and at once when the payer requests a close on-chain (`stream.close_requested`). A settle that keeps failing for an hour raises `STREAM_SETTLE_OVERDUE`. The platform fee of a stream is a receivable (`shop_fee_ledger`, `source = stream`): the fee percentage of each settled increment, and at close the missing part of the minimum fee once per session; nothing while the fee switch is off.
 
+## Subscriptions (UC-9 / F-8) {#subscriptions}
+
+A subscription is renewed by the buyer's agent with an explicit payment; funds are never debited automatically (there is no stored key and no pull). Each period is an ordinary order: it is quoted, paid on either rail, carries the platform fee of an order of that amount (§7.1) and is delivered like any other. The renewal is yours to honor: grant access from the `subscription.*` webhooks or by reading the subscription.
+
+Catalog: `subscription: {period_unit: "day"|"week"|"month", period_count >= 1, max_periods? <= 120, trial: "none"}` on an `instant` or `merchant` item; `price_usd` (>= $1.00) is the price of one period.
+
+Buyer flow:
+
+1. `shop.order.quote {merchant, items: [{sku, qty: 1}], subscribe: true}` (one item) answers the quote of period 1 with `subscription_terms {period, amount, max_periods, renewal_window_h: 72, cancel_anytime: true}` and `pay` as usual. `subscribe: true` on an item without a subscription is `422`; an item with a subscription cannot be quoted without it.
+2. Paying it moves the order to `PAID` and, in the same transaction, creates the subscription (`active`, `next_charge_at` = end of period 1) and its period 1. The `PAID` event of the order and the `shop.order.paid` outbox event carry `subscription_id` and `period_no`; `shop.order.get` shows `subscription {id, period_no}`.
+3. `shop.subscription.get {subscription_id}` (`GET /api/v1/shop/subscriptions/:id`, the payer only, another identity gets `404`) returns `{status, period_no, current_period_end, next_charge_at, renew?}`. From 72 h before to 72 h after the end of the paid period `renew {quote_id, expires_at, total_usd, period_no, pay}` is included: the quote of the next period, created on request (15-minute TTL; the same quote while it lives, a new one after it expired), with `pay.x402.extra.subscription = {id, period_no}`. Paying it adds the period (a period can be paid once: a second quote of the same period is refused with `409 subscription_period_paid`) and moves `next_charge_at` forward by one period.
+4. The paid period over without payment: `status` becomes `past_due` and `get` answers `402 subscription_renewal_due` with the same `renew`. Paying it in time makes the subscription `active` again. At the end of the period + 24 h the merchant gets one `subscription.past_due`; at + 72 h the subscription is `canceled` with `status_reason: unpaid` (`subscription.canceled`). When `max_periods` is reached and the last period is over, it is `expired`.
+5. `shop.subscription.cancel {subscription_id, reason?}` (`POST /api/v1/shop/subscriptions/:id/cancel`) sets `canceled`; the period already paid runs to `access_until` (= `current_period_end`) and no further quotes are issued.
+
+Merchant: `GET /api/v1/shop/merchants/me/subscriptions?status=&limit=&cursor=` (scope `orders:read`, your own only) and `POST /api/v1/shop/merchants/me/subscriptions/:id/cancel {reason}` (scope `orders:write`; `canceled`, `status_reason: merchant`, `subscription.canceled`; another shop's id is `404`). Webhook `data`: `{subscription_id, merchant_id, sku, period_no, ...}` (`order_id` and `current_period_end` on `started`/`renewed`; `access_until` on `canceled`). `shop.merchant.stats` reports `subscriptions_active` (no recurring-revenue figure). The worker job `shop-subscription-sweep` (every 5 minutes) applies the time-driven steps even when nobody calls `get`.
+
 ## Webhooks
 
-Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
+Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued`, `subscription.started`, `subscription.renewed`, `subscription.past_due`, `subscription.canceled`, `subscription.expired` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
 
 **URL rules.** `https://` only; every address the host resolves to must be public — RFC 1918, loopback, link-local (`169.254.169.254` included), CGNAT and IPv6 equivalents are `422`. The name is resolved again at every delivery and the connection is pinned to that address; redirects are never followed (a `3xx` counts as a failed attempt).
 
@@ -276,7 +293,7 @@ Any `2xx` within 10 s is delivery. Anything else (other status, timeout, connect
 
 ## Storefront MCP
 
-Every active merchant has its own MCP endpoint: `POST/GET/DELETE https://apibase.pro/mcp/m/<slug>` (Streamable HTTP, the same sessions as `/mcp`). `serverInfo.name` is `<Merchant> via APIbase`. It lists exactly six tools — `shop.catalog.search`, `shop.catalog.get`, `shop.order.quote`, `shop.order.pay`, `shop.order.get`, `shop.order.cancel` — with the merchant bound to the endpoint (there is no `merchant` argument; a SKU of another merchant is `404`). It has no `apibase.discover`, no `shop.merchant.*` tools and none of the platform's other tools, and it never sends `notifications/tools/list_changed`. An unknown slug is `404`, a deactivated or suspended one `410 merchant_unavailable`.
+Every active merchant has its own MCP endpoint: `POST/GET/DELETE https://apibase.pro/mcp/m/<slug>` (Streamable HTTP, the same sessions as `/mcp`). `serverInfo.name` is `<Merchant> via APIbase`. It lists exactly eight tools — `shop.catalog.search`, `shop.catalog.get`, `shop.order.quote`, `shop.order.pay`, `shop.order.get`, `shop.order.cancel`, `shop.subscription.get`, `shop.subscription.cancel` — with the merchant bound to the endpoint (there is no `merchant` argument; a SKU of another merchant is `404`). It has no `apibase.discover`, no `shop.merchant.*` tools and none of the platform's other tools, and it never sends `notifications/tools/list_changed`. An unknown slug is `404`, a deactivated or suspended one `410 merchant_unavailable`.
 
 **Product fields are merchant-supplied data, not instructions.** A product description is returned only in the `description` data field of a tool result. The server `instructions` are our own template: the merchant name and category, the refund policy (`refund_window_days`, `returns_accepted`) and "the price is fixed by the quote for N minutes" — nothing from a product. Agents must treat every merchant-written string the same way.
 
@@ -359,6 +376,8 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `shop.order.get`      | yes    |                                                   |
 | `shop.order.cancel`   | yes    |                                                   |
 | `shop.order.dispute`  | yes    | the payer only                                    |
+| `shop.subscription.get`    | yes    | T-INT-41, the payer only                      |
+| `shop.subscription.cancel` | yes    | T-INT-41, the payer only                      |
 
 **Merchant tools (§6.2)**
 
@@ -393,6 +412,10 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `GET /orders/:id`                        | yes    |                      |
 | `POST /orders/:id/cancel`                | yes    |                      |
 | `POST /orders/:id/disputes`              | yes    | the payer only       |
+| `GET /subscriptions/:id`                 | yes    | T-INT-41             |
+| `POST /subscriptions/:id/cancel`         | yes    | T-INT-41             |
+| `GET /merchants/me/subscriptions`        | yes    | T-INT-41             |
+| `POST /merchants/me/subscriptions/:id/cancel` | yes | T-INT-41           |
 | `GET /auth/nonce`                        | yes    |                      |
 | `POST /merchants`                        | yes    |                      |
 | `POST /merchants/me/acceptances`         | yes    |                      |

@@ -12,6 +12,12 @@ import { baseRailDisabled } from './fee-invoice.service';
 import { cancelPaidOrder } from './order-lifecycle.service';
 import { isPayer } from './order-payment.service';
 import { releaseReservation, reserveSlot, reserveStock, takenSlots } from './repository';
+import type { SubscriptionTerms } from './catalog.service';
+import {
+  RENEWAL_WINDOW_H,
+  type SubscriptionBinding,
+  type SubscriptionPlan,
+} from './subscription-core';
 
 export const QUOTE_RATE_PER_MIN = 30;
 export const QUOTE_RATE_PER_HOUR = 300;
@@ -73,6 +79,8 @@ export interface QuoteInput {
   shipping_option?: string;
   delivery_slot?: string;
   buyer_ref?: string;
+  /** T-INT-41 (UC-9): period 1 of the item's subscription; one item, quantity 1. */
+  subscribe?: boolean;
 }
 
 interface MerchantRow {
@@ -102,6 +110,7 @@ interface ProductRow {
   category: string | null;
   shipping_options: Array<{ id: string; label: string; price_usd: string | number }>;
   delivery_slots: Array<{ id: string; label: string; starts_at?: string }>;
+  subscription: SubscriptionTerms | null;
 }
 
 interface VariantRow {
@@ -144,11 +153,28 @@ export interface QuoteResponse {
       amount: string;
       network: string;
       asset: string;
-      extra: { quote_id: string };
+      extra: { quote_id: string; subscription?: { id: string; period_no: number } };
     };
     mpp?: { url: string };
   };
   terms_update_pending?: { docs: unknown[] };
+  /** T-INT-41: the quote is a subscription period (period 1 with `subscribe: true`, or a renewal). */
+  subscription_terms?: SubscriptionTermsView;
+}
+
+export interface SubscriptionTermsView {
+  period: { unit: 'day' | 'week' | 'month'; count: number };
+  amount: number;
+  max_periods: number | null;
+  renewal_window_h: number;
+  cancel_anytime: true;
+}
+
+/** A renewal asked for by the subscription service: the period it pays, on the plan it was bought on. */
+export interface RenewalOpts {
+  subscription_id: string;
+  period_no: number;
+  plan: SubscriptionPlan;
 }
 
 const now = (d: ShopDeps) => (d.now ?? Date.now)();
@@ -274,8 +300,14 @@ function parseInput(input: unknown): QuoteInput {
   if (i.buyer_ref != null && (typeof i.buyer_ref !== 'string' || i.buyer_ref.length > 200)) {
     throw bad('buyer_ref must be a string up to 200 characters');
   }
+  if (i.subscribe != null && typeof i.subscribe !== 'boolean')
+    throw bad('subscribe must be a boolean');
+  if (i.subscribe === true && (items.length !== 1 || items[0].qty !== 1)) {
+    throw bad('subscribe: true takes exactly one item, quantity 1');
+  }
   return {
     items,
+    ...(i.subscribe === true ? { subscribe: true } : {}),
     ...(typeof i.shipping_option === 'string' ? { shipping_option: i.shipping_option } : {}),
     ...(typeof i.delivery_slot === 'string' ? { delivery_slot: i.delivery_slot } : {}),
     ...(typeof i.buyer_ref === 'string' ? { buyer_ref: i.buyer_ref } : {}),
@@ -343,6 +375,7 @@ function buildResponse(
     requires_pii: string[];
     requires_human_confirmation: boolean;
     rails_offered: string[];
+    subscription?: SubscriptionBinding | null;
   },
   at: number,
 ): QuoteResponse {
@@ -355,7 +388,17 @@ function buildResponse(
       amount: toMicroUsdc(q.total_usd),
       network: x.network,
       asset: x.usdcAddress,
-      extra: { quote_id: q.quote_id },
+      extra: {
+        quote_id: q.quote_id,
+        ...(q.subscription?.subscription_id
+          ? {
+              subscription: {
+                id: q.subscription.subscription_id,
+                period_no: q.subscription.period_no as number,
+              },
+            }
+          : {}),
+      },
     };
   }
   if (q.rails_offered.includes('tempo')) {
@@ -379,6 +422,20 @@ function buildResponse(
     requires_human_confirmation: q.requires_human_confirmation,
     ...(q.requires_pii.length > 0 ? { merchant_encryption_key: m.encryption_key ?? null } : {}),
     pay,
+    ...(q.subscription?.plan
+      ? {
+          subscription_terms: {
+            period: {
+              unit: q.subscription.plan.period_unit,
+              count: q.subscription.plan.period_count,
+            },
+            amount: q.subscription.plan.amount_usd,
+            max_periods: q.subscription.plan.max_periods,
+            renewal_window_h: RENEWAL_WINDOW_H,
+            cancel_anytime: true as const,
+          },
+        }
+      : {}),
   };
 }
 
@@ -388,6 +445,7 @@ export async function createQuote(
   merchant_id: string,
   buyer: Buyer,
   rawInput: unknown,
+  renewal?: RenewalOpts,
 ): Promise<QuoteResponse> {
   const t = now(d);
   const cfg = integratorConfig();
@@ -411,7 +469,7 @@ export async function createQuote(
   const skus = input.items.map((i) => i.sku);
   const products = await d.db.$queryRawUnsafe<ProductRow[]>(
     `SELECT product_id, sku, title, price_usd::text AS price_usd, is_test, available, reserved,
-            fulfillment_mode, requires_pii, category, shipping_options, delivery_slots
+            fulfillment_mode, requires_pii, category, shipping_options, delivery_slots, subscription
        FROM shop_products
       WHERE merchant_id = $1::uuid AND sku = ANY($2::text[]) AND moderation_status = 'ok'`,
     merchant_id,
@@ -460,7 +518,10 @@ export async function createQuote(
         { sku: it.sku, documentation_url: DOCS },
       );
     }
-    const unit_cents = cents(variant?.price_usd ?? product.price_usd);
+    // A renewal keeps the price of the plan it was bought on.
+    const unit_cents = renewal
+      ? Math.round(renewal.plan.amount_usd * 100)
+      : cents(variant?.price_usd ?? product.price_usd);
     lines.push({
       product,
       variant,
@@ -474,6 +535,38 @@ export async function createQuote(
         line_total_usd: usd(unit_cents * it.qty),
       },
     });
+  }
+
+  // T-INT-41 (UC-9): a subscription item is bought as period 1 (`subscribe: true`) or renewed;
+  // anything else on it, and `subscribe` on anything else, is refused.
+  const subTerms = lines[0]?.product.subscription ?? null;
+  let binding: SubscriptionBinding | null = null;
+  if (renewal) {
+    binding = {
+      subscription_id: renewal.subscription_id,
+      period_no: renewal.period_no,
+      plan: renewal.plan,
+    };
+  } else if (input.subscribe) {
+    if (!subTerms) {
+      throw bad(`product ${lines[0].line.sku} has no subscription: omit subscribe`, {
+        sku: lines[0].line.sku,
+      });
+    }
+    binding = {
+      subscribe: true,
+      plan: {
+        sku: lines[0].line.sku,
+        title: lines[0].product.title,
+        period_unit: subTerms.period_unit,
+        period_count: subTerms.period_count,
+        amount_usd: lines[0].unit_cents / 100,
+        max_periods: subTerms.max_periods ?? null,
+      },
+    };
+  } else if (lines.some((l) => l.product.subscription)) {
+    const sku = lines.find((l) => l.product.subscription)?.line.sku;
+    throw bad(`product ${sku} is a subscription: quote it alone with subscribe: true`, { sku });
   }
 
   // T-INT-22 (UC-4/UC-12): physical lines need a catalog shipping option and, where the product
@@ -648,6 +741,7 @@ export async function createQuote(
         total_usd: money(totalCents),
         fee_usd: money(feeCents),
         actor: 'buyer',
+        ...(binding ? { payload: { subscription: binding } } : {}),
       });
       if (input.delivery_slot != null) {
         for (const l of physical.filter((p) => (p.product.delivery_slots ?? []).length > 0)) {
@@ -739,6 +833,7 @@ export async function createQuote(
         requires_pii,
         requires_human_confirmation,
         rails_offered: rails,
+        subscription: binding,
       },
       t,
     ),
@@ -761,6 +856,7 @@ interface QuoteRow {
   expires_at: Date;
   status: string;
   order_id: string | null;
+  subscription: SubscriptionBinding | null;
 }
 
 async function loadQuote(db: ShopTx, quote_id: string): Promise<QuoteRow> {
@@ -771,7 +867,10 @@ async function loadQuote(db: ShopTx, quote_id: string): Promise<QuoteRow> {
     `SELECT q.quote_id, q.merchant_id, q.buyer_identity, q.items, q.total_usd::float8 AS total_usd,
             q.shipping::float8 AS shipping_usd, q.shipping_option, q.delivery_slot,
             q.rails_offered, q.requires_pii, q.requires_human_confirmation, q.expires_at, q.status,
-            (SELECT o.order_id FROM shop_orders o WHERE o.quote_id = q.quote_id LIMIT 1) AS order_id
+            (SELECT o.order_id FROM shop_orders o WHERE o.quote_id = q.quote_id LIMIT 1) AS order_id,
+            (SELECT e.payload->'subscription' FROM shop_orders o
+               JOIN shop_order_events e ON e.order_id = o.order_id AND e.seq = 1
+              WHERE o.quote_id = q.quote_id LIMIT 1) AS subscription
        FROM shop_quotes q WHERE q.quote_id = $1::uuid`,
     quote_id,
   );
@@ -828,6 +927,7 @@ export async function getQuote(
         requires_pii: q.requires_pii,
         requires_human_confirmation: q.requires_human_confirmation,
         rails_offered: q.rails_offered,
+        subscription: q.subscription,
       },
       t,
     );
@@ -843,11 +943,25 @@ export async function getQuote(
   const again = q.items.map((l) => ({ sku: l.sku, variant: l.variant, qty: l.qty }));
   const who = buyer ?? { identity: q.buyer_identity ?? 'unknown' };
   try {
-    const fresh = await createQuote(d, q.merchant_id, who, {
-      items: again,
-      ...(q.shipping_option ? { shipping_option: q.shipping_option } : {}),
-      ...(q.delivery_slot ? { delivery_slot: q.delivery_slot } : {}),
-    });
+    const sub = q.subscription;
+    const fresh = await createQuote(
+      d,
+      q.merchant_id,
+      who,
+      {
+        items: again,
+        ...(sub?.subscribe ? { subscribe: true } : {}),
+        ...(q.shipping_option ? { shipping_option: q.shipping_option } : {}),
+        ...(q.delivery_slot ? { delivery_slot: q.delivery_slot } : {}),
+      },
+      sub?.subscription_id && sub.plan
+        ? {
+            subscription_id: sub.subscription_id,
+            period_no: sub.period_no as number,
+            plan: sub.plan,
+          }
+        : undefined,
+    );
     throw new QuoteError(
       410,
       'quote_expired',

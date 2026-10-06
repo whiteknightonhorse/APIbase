@@ -346,6 +346,66 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
     });
   });
 
+  it('MP4b (T-INT-41 SB8): a Tempo subscription period carries the order fee as `splits` in the charge and is credited to its period', async () => {
+    E['INTEGRATOR_FEE_ENABLED'] = 'true';
+    const f = await fixture(89);
+    const sku = f.quote.items[0].sku;
+    const plan = {
+      sku,
+      title: 'Thing',
+      period_unit: 'week',
+      period_count: 1,
+      amount_usd: 89,
+      max_periods: null,
+    };
+    const sub = await row(
+      `INSERT INTO shop_subscriptions (merchant_id, sku, buyer_agent_id, plan, rail_pref, next_charge_at, status)
+       VALUES ($1::uuid, $2, $3, $4::jsonb, 'tempo', now() + interval '1 hour', 'active')
+       RETURNING subscription_id`,
+      f.m,
+      sku,
+      f.b.identity,
+      JSON.stringify(plan),
+    );
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO shop_subscription_periods (subscription_id, period_no, period_start, period_end, status)
+       VALUES ($1::uuid, 1, now() - interval '6 days', now() + interval '1 hour', 'paid')`,
+      sub.subscription_id,
+    );
+    const renewal = await createQuote(
+      deps,
+      f.m,
+      f.b,
+      { items: [{ sku, qty: 1 }] },
+      { subscription_id: sub.subscription_id, period_no: 2, plan: plan as never },
+    );
+    expect(renewal.subscription_terms?.amount).toBe(89);
+    const o = await run(quotePath({ ...f, quote: renewal }), credential());
+    expect(o.next).toBe(true);
+    expect(mockCharge).toHaveBeenCalledWith({
+      amount: '89',
+      recipient: PAYOUT_TEMPO,
+      memo: quoteMemo(renewal.quote_id),
+      splits: [{ recipient: FEE_WALLET, amount: '1.34' }],
+    });
+    const r = await payQuote(deps, {
+      quote_id: renewal.quote_id,
+      buyer: f.b,
+      requestId: 'r',
+      host: 'apibase.pro',
+      mpp: o.req.mppPayment,
+    });
+    finish(o);
+    expect(r.status).toBe(200);
+    const period = await row(
+      `SELECT p.status, o.fee_settlement, o.rail FROM shop_subscription_periods p
+         JOIN shop_orders o ON o.order_id = p.order_id
+        WHERE p.subscription_id = $1::uuid AND p.period_no = 2`,
+      sub.subscription_id,
+    );
+    expect(period).toEqual({ status: 'paid', fee_settlement: 'in_tx', rail: 'tempo' });
+  });
+
   it('MP5: POST /mcp + Authorization: Payment -> 400, charge never called (0256 M1)', async () => {
     const o = await run('/mcp', 'Payment x');
     expect(o.err).toBeInstanceOf(AppError);

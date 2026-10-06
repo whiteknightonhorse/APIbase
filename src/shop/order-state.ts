@@ -213,6 +213,8 @@ export async function createQuotedOrder(
     total_usd: string;
     fee_usd: string;
     actor?: Actor;
+    /** T-INT-41: the creation event's payload (a subscription period names itself here). */
+    payload?: Record<string, unknown>;
   },
 ): Promise<string> {
   const rows = await tx.$queryRawUnsafe<Array<{ order_id: string }>>(
@@ -226,9 +228,10 @@ export async function createQuotedOrder(
   const order_id = rows[0].order_id;
   await tx.$executeRawUnsafe(
     `INSERT INTO shop_order_events (order_id, seq, from_state, to_state, actor, reason, payload)
-     VALUES ($1::uuid, 1, NULL, 'QUOTED', $2, NULL, '{}'::jsonb)`,
+     VALUES ($1::uuid, 1, NULL, 'QUOTED', $2, NULL, $3::jsonb)`,
     order_id,
     o.actor ?? 'buyer',
+    JSON.stringify(o.payload ?? {}),
   );
   return order_id;
 }

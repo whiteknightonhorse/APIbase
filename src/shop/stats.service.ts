@@ -3,6 +3,7 @@ import type { ShopDeps } from './merchant-lifecycle.service';
 import type { ShopTx } from './db';
 import { loadFeeReceivables } from './fee-invoice.service';
 import { QuoteError } from './quote.errors';
+import { countActiveSubscriptions } from './subscription-core';
 
 const DOCS = '/docs/integrator#merchant-stats';
 const DAY_MS = 86_400_000;
@@ -237,6 +238,7 @@ async function compute(db: ShopTx, merchant_id: string, r: Range) {
     webhook: webhooks,
     sla_overdue: sla[0] ?? { confirm: 0, ship: 0 },
     fee_receivable: receivable,
+    subscriptions_active: await countActiveSubscriptions(db, merchant_id),
   };
 }
 

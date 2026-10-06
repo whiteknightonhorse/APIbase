@@ -6,6 +6,7 @@ import { findPlacedOrder, payResponseBody, type BuyerAgent } from './order-payme
 import type { PaymentBinding } from '../pipeline/stages/escrow.stage';
 import { parsePiiEnvelopes, PII_DOCS_URL, PiiRejected } from './pii/envelope.schema';
 import { checkPiiForPay, storeEnvelopes } from './pii/pii.service';
+import { periodRefusal } from './subscription.service';
 
 export interface PayRequest {
   quote_id: string;
@@ -116,6 +117,16 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
       },
     };
   };
+  // T-INT-41: a period that is already paid (or of a subscription that ended) is refused BEFORE
+  // ESCROW, so no money moves for it.
+  if (UUID_RE.test(r.quote_id)) {
+    const no = await periodRefusal(deps.db, r.quote_id);
+    if (no) {
+      return refuse(no.code, no.error, no.message, {
+        documentation_url: '/docs/integrator#subscriptions',
+      });
+    }
+  }
   let pii: ReturnType<typeof parsePiiEnvelopes>;
   try {
     pii = parsePiiEnvelopes(r.pii);

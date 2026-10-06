@@ -101,7 +101,7 @@ async function listOf(server: McpServer): Promise<string[]> {
 describe('merchant storefront MCP server (INT-16)', () => {
   beforeEach(() => clearStorefrontCache());
 
-  it('SF1: tools/list of a storefront is exactly the six buyer tools (snapshot)', async () => {
+  it('SF1: tools/list of a storefront is exactly the eight buyer tools (snapshot)', async () => {
     const names = await listOf(createMerchantMcpServer(merchant('skate-hut')));
     expect(names.sort()).toMatchInlineSnapshot(`
       [
@@ -111,6 +111,8 @@ describe('merchant storefront MCP server (INT-16)', () => {
         "shop.order.get",
         "shop.order.pay",
         "shop.order.quote",
+        "shop.subscription.cancel",
+        "shop.subscription.get",
       ]
     `);
     expect([...STOREFRONT_TOOL_NAMES].sort()).toEqual(names);
@@ -240,7 +242,7 @@ describe('merchant storefront MCP server (INT-16)', () => {
         },
       );
       expect(list.status).toBe(200);
-      expect((await list.text()).match(/"name":"shop\./g)).toHaveLength(6);
+      expect((await list.text()).match(/"name":"shop\./g)).toHaveLength(8);
       // the same session on /mcp/m/<another shop> is not found
       shops.set('other-shop', {
         merchant_id: 'id-5',
@@ -310,6 +312,6 @@ describe('merchant storefront MCP server (INT-16)', () => {
     registerTools(base, '', 'req', {} as never);
     const baseNames = await listOf(base);
     expect(full.filter((n) => !n.startsWith('shop.')).sort()).toEqual(baseNames.sort());
-    expect(shopNames).toHaveLength(21);
+    expect(shopNames).toHaveLength(23);
   });
 });

@@ -25,6 +25,7 @@ import { merchantRefund } from '../refund.service';
 import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { listEvents, setWebhook } from '../webhook/webhook.service';
+import { listMerchantSubscriptions, merchantCancelSubscription } from '../subscription.service';
 import {
   acceptTerms,
   acceptTermsMessage,
@@ -462,6 +463,40 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
           return;
         }
         res.json(r);
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-INT-41 (UC-9): the merchant's own subscriptions; another shop's are invisible (404 on cancel).
+  router.get(
+    '/api/v1/shop/merchants/me/subscriptions',
+    probeLimiter,
+    requireMerchantKey(['orders:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await listMerchantSubscriptions(deps, req.merchant?.merchant_id ?? '', req.query));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/shop/merchants/me/subscriptions/:id/cancel',
+    probeLimiter,
+    requireMerchantKey(['orders:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await merchantCancelSubscription(
+            deps,
+            req.merchant?.merchant_id ?? '',
+            String(req.params.id),
+            (req.body as Record<string, unknown> | undefined)?.reason,
+          ),
+        );
       } catch (err) {
         send(res, err);
       }
