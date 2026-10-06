@@ -14,7 +14,8 @@ jest.mock('../../src/config', () => ({ config: {} }));
 const ROOT = join(__dirname, '..', '..');
 const read = (p: string) => readFileSync(join(ROOT, p), 'utf8');
 const MCP = 'static/.well-known/mcp.json';
-const ACP_SHA256 = '5a9d25087f69d99de5c243eecb5cdf7da952cbb9c8d7de2e6363961ce98a9f5c';
+// acp.json is rewritten daily by the counts cron (`count`, `updated_at`): both are normalized before hashing.
+const ACP_SHA256 = 'bb5ac8a04986370b7b4e8ba34a173ffb4c6a6e2a7435150d5c3b8e8145873c8f';
 const FACT_FILES = [
   MCP,
   'static/pricing.html',
@@ -130,9 +131,10 @@ describe('T-INT-19', () => {
   });
 
   it('CN5 acp.json is untouched', () => {
-    const sha = createHash('sha256')
-      .update(readFileSync(join(ROOT, 'static/.well-known/acp.json')))
-      .digest('hex');
+    const normalized = readFileSync(join(ROOT, 'static/.well-known/acp.json'), 'utf8')
+      .replace(/"count": \d+/, '"count": 0')
+      .replace(/"updated_at": "[^"]*"/, '"updated_at": "-"');
+    const sha = createHash('sha256').update(normalized).digest('hex');
     expect(sha).toBe(ACP_SHA256);
   });
 
