@@ -3,13 +3,14 @@ import { hashApiKey, isValidApiKeyFormat } from '../services/api-key.service';
 import type { Buyer } from './quote.service';
 
 /**
- * Buyer identity (§8.4): the agent behind the API key, else a wallet hash, else the IP.
+ * Buyer identity (§8.4): the agent behind the API key, else a wallet hash, else the anonymous MCP session id, else the IP.
  * It keys the quote rate limit, the moderation-ban counter and X-Idempotency-Key.
  */
 export async function resolveBuyer(p: {
   apiKey?: string;
   wallet?: string;
   ip?: string;
+  session?: string;
 }): Promise<Buyer> {
   if (p.apiKey && isValidApiKeyFormat(p.apiKey)) {
     try {
@@ -28,5 +29,6 @@ export async function resolveBuyer(p: {
       identity: `wallet:${createHash('sha256').update(p.wallet.toLowerCase()).digest('hex')}`,
     };
   }
+  if (p.session) return { identity: `session:${p.session}` };
   return { identity: `ip:${p.ip ?? 'unknown'}` };
 }

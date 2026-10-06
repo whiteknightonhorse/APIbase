@@ -182,12 +182,13 @@ export function createMcpServer(
   apiKey: string,
   requestId: string,
   paymentCtxRef: PaymentContext,
+  sessionId?: string,
 ): McpServer {
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
   registerMerchantTools(mcpServer, apiKey, requestId);
   registerCatalogTools(mcpServer, apiKey, requestId);
-  registerOrderTools(mcpServer, apiKey, requestId, undefined, paymentCtxRef);
+  registerOrderTools(mcpServer, apiKey, requestId, undefined, paymentCtxRef, sessionId);
   registerPrompts(mcpServer);
   return mcpServer;
 }
@@ -250,7 +251,7 @@ async function openStreamableSession(
   req: express.Request,
   res: express.Response,
   slug: string | undefined,
-  build: (apiKey: string, requestId: string, ctx: PaymentContext) => McpServer,
+  build: (apiKey: string, requestId: string, ctx: PaymentContext, sessionId: string) => McpServer,
 ): Promise<void> {
   // Session cap check
   if (sessions.size >= MAX_SESSIONS) {
@@ -280,8 +281,10 @@ async function openStreamableSession(
   // Create mutable payment context ref — updated per-request, read by tool callbacks
   const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
 
+  // Fixed before the server is built: an anonymous buyer's identity is `session:<sid>`.
+  const sessionId = randomUUID();
   const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: () => randomUUID(),
+    sessionIdGenerator: () => sessionId,
     onsessioninitialized: (sid: string) => {
       sessions.set(sid, transport);
       if (slug) sessionSlug.set(sid, slug);
@@ -303,7 +306,7 @@ async function openStreamableSession(
     logger.error({ request_id: requestId, err: error }, 'MCP Streamable HTTP transport error');
   };
 
-  const mcpServer = build(apiKey, requestId, paymentCtxRef);
+  const mcpServer = build(apiKey, requestId, paymentCtxRef, sessionId);
   await mcpServer.connect(transport);
 
   await transport.handleRequest(req, res, req.body);
@@ -371,8 +374,8 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
         return;
       }
 
-      await openStreamableSession(req, res, undefined, (apiKey, requestId, ctx) =>
-        createMcpServer(apiKey, requestId, ctx),
+      await openStreamableSession(req, res, undefined, (apiKey, requestId, ctx, sid) =>
+        createMcpServer(apiKey, requestId, ctx, sid),
       );
       return;
     } catch (error) {
@@ -515,8 +518,8 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
         });
         return;
       }
-      await openStreamableSession(req, res, merchant.slug, (apiKey, requestId, ctx) =>
-        createMerchantMcpServer(merchant, apiKey, requestId, ctx, shopDeps()),
+      await openStreamableSession(req, res, merchant.slug, (apiKey, requestId, ctx, sid) =>
+        createMerchantMcpServer(merchant, apiKey, requestId, ctx, shopDeps(), sid),
       );
     } catch (error) {
       logger.error({ err: error }, 'MCP storefront POST error');
@@ -585,7 +588,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
 
     // Create mutable payment context for SSE session
     const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
-    const mcpServer = createMcpServer(apiKey, requestId, paymentCtxRef);
+    const mcpServer = createMcpServer(apiKey, requestId, paymentCtxRef, sessionId);
 
     sessions.set(sessionId, transport);
     sessionPaymentCtx.set(sessionId, paymentCtxRef);

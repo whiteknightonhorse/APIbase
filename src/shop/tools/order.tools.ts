@@ -58,6 +58,7 @@ export function registerOrderTools(
   requestId: string,
   deps: ShopDeps = defaultShopDeps(),
   paymentCtx?: PaymentContext,
+  sessionId?: string,
 ): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK generics recurse on complex Zod shapes
   const reg = server.registerTool as any;
@@ -101,7 +102,7 @@ export function registerOrderTools(
     async (a: { merchant: string } & Record<string, unknown>) => {
       try {
         const { merchant, ...input } = a;
-        const buyer = await resolveBuyer({ apiKey });
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
         const q = await createQuote(deps, await merchantIdBySlug(deps.db, merchant), buyer, input);
         return ok({ ...forMcp(q) });
       } catch (err) {
@@ -132,7 +133,7 @@ export function registerOrderTools(
     },
     async (a: { quote_id: string; waive_withdrawal?: boolean; buyer_company?: string }) => {
       try {
-        const buyer = await resolveBuyer({ apiKey });
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
         // Lazy: the escrow stage pulls the x402 SDK, which the other order tools do not need.
         const { payQuote } = await import('../pay.service');
         const r = await payQuote(deps, {
@@ -178,7 +179,7 @@ export function registerOrderTools(
     },
     async (a: { order_id: string; reason: string }) => {
       try {
-        const buyer = await resolveBuyer({ apiKey });
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
         return ok({ ...(await cancelOrder(deps, buyer, a.order_id, a.reason)) });
       } catch (err) {
         return fail(err, requestId);
@@ -209,7 +210,7 @@ export function registerOrderTools(
     },
     async (a: { order_id: string }) => {
       try {
-        const buyer = await resolveBuyer({ apiKey });
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
         return ok({ ...(await getOrderView(deps.db, a.order_id, buyer.identity)) });
       } catch (err) {
         return fail(err, requestId);

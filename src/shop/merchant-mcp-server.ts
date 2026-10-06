@@ -146,6 +146,7 @@ export function createMerchantMcpServer(
   requestId = 'storefront',
   paymentCtx?: PaymentContext,
   deps: ShopDeps = defaultShopDeps(),
+  sessionId?: string,
 ): McpServer {
   const server = new McpServer(
     { name: storefrontServerName(merchant), version: '1.0.0' },
@@ -179,7 +180,7 @@ export function createMerchantMcpServer(
     },
   });
   registerCatalogTools(shim, apiKey, requestId, deps);
-  registerOrderTools(shim, apiKey, requestId, deps, paymentCtx);
+  registerOrderTools(shim, apiKey, requestId, deps, paymentCtx, sessionId);
   return server;
 }
 
