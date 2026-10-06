@@ -289,6 +289,8 @@ $COMPOSE pull api worker outbox-worker
 $COMPOSE up -d api worker outbox-worker
 ```
 
+`IMAGE_TAG=latest` in `.env` is the normal setting. Any `up -d` for `api/worker/outbox-worker` must be run only with `IMAGE_TAG="sha-$(cat .last-successful-sha)"` and followed by `restart nginx`.
+
 ### 4.5 Tool Kill Switch
 
 Disable a tool immediately:

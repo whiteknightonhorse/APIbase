@@ -156,11 +156,14 @@ git checkout --detach "$NEW_SHA"
 # ---------------------------------------------------------------------------
 export IMAGE_TAG="sha-${NEW_SHA}"
 echo "[deploy] Pulling images: IMAGE_TAG=${IMAGE_TAG}"
-$COMPOSE_CMD pull api worker outbox-worker 2>/dev/null || {
+if $COMPOSE_CMD pull api worker outbox-worker 2>/dev/null; then
+  # Keep the local :latest equal to what is deployed, so a bare `up -d` cannot roll back.
+  docker tag "ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG}" "ghcr.io/whiteknightonhorse/apibase:latest"
+else
   echo "[deploy] GHCR pull failed, building locally"
   docker build -t "ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG}" -f docker/Dockerfile .
   docker tag "ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG}" "ghcr.io/whiteknightonhorse/apibase:latest"
-}
+fi
 
 # ---------------------------------------------------------------------------
 # Restart application containers (5-10s downtime — Phase 1)

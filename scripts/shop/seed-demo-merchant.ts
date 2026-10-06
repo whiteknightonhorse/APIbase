@@ -8,6 +8,10 @@
  *       and saves {register, accept_terms, encryption_key} signatures in a JSON file.
  *       Nonces live 300 s: sign right away.
  *
+ *   --resume --api-key-file <file> --base-url <url> [--webhook-url <https url>]
+ *       Runs catalog, webhooks and check with an existing mk_live_ key (first line of the file),
+ *       after a --submit died past accept_terms.
+ *
  *   --submit --signatures <file> --base-url <url> --payout-base <addr> --payout-tempo <addr>
  *            [--webhook-url <https url>] [--country US] [--contact-email <e-mail>] [--site-url <https url>]
  *       POST /merchants, POST /merchants/me/acceptances, PUT /merchants/me/catalog and, with
@@ -18,6 +22,9 @@
  *     "register":       { "message": "<printed>", "signature": "0x..." },
  *     "accept_terms":   { "message": "<printed>", "signature": "0x..." },
  *     "encryption_key": { "signature": "0x..." } }
+ *
+ * --submit writes one JSON line {"step":"accept_terms","merchant_id","api_key"} to stdout right
+ * after accept_terms, before the catalog, so a late failure never loses the one-time key.
  *
  * The server stores payout wallets as given: they decide where buyers' USDC goes.
  * The mk_live_ key and the webhook secret are printed once, to stdout only.
@@ -169,6 +176,8 @@ export interface SubmitOptions {
   signatures: Signatures;
   payoutBase: string;
   payoutTempo: string;
+  /** Called right after accept_terms, before the catalog, with the one-time key. */
+  onAcceptTerms?: (r: { merchant_id: string; api_key: string }) => void;
   webhookUrl?: string;
   country?: string;
   contactEmail?: string;
@@ -234,7 +243,35 @@ export async function submit(o: SubmitOptions, f: FetchFn = fetch): Promise<Subm
   );
   const key = String(acc['api_key'] ?? '');
   if (!key) throw new Error('accept_terms returned no api_key (already accepted?)');
+  const merchant_id = String(reg['merchant_id']);
+  o.onAcceptTerms?.({ merchant_id, api_key: key });
+  try {
+    return await finish(f, o.baseUrl, key, merchant_id, o.webhookUrl);
+  } catch (err) {
+    throw new Error(`${(err as Error).message} (api_key already written to stdout)`);
+  }
+}
 
+export interface ResumeOptions {
+  baseUrl: string;
+  apiKey: string;
+  webhookUrl?: string;
+}
+
+/** --resume: catalog, webhooks and check with an existing key. */
+export async function resume(o: ResumeOptions, f: FetchFn = fetch): Promise<SubmitResult> {
+  if (!o.apiKey) throw new Error('the api key file is empty');
+  return finish(f, o.baseUrl, o.apiKey, '', o.webhookUrl);
+}
+
+async function finish(
+  f: FetchFn,
+  baseUrl: string,
+  key: string,
+  merchant_id: string,
+  webhookUrl?: string,
+): Promise<SubmitResult> {
+  const o = { baseUrl, webhookUrl };
   const cat = must(
     await call(f, o.baseUrl, 'PUT', '/api/v1/shop/merchants/me/catalog', {
       key,
@@ -261,7 +298,7 @@ export async function submit(o: SubmitOptions, f: FetchFn = fetch): Promise<Subm
     'check',
   );
   return {
-    merchant_id: String(reg['merchant_id']),
+    merchant_id,
     slug: DEMO_SLUG,
     api_key: key,
     webhook_secret,
@@ -283,6 +320,14 @@ async function main(argv: string[]): Promise<void> {
     console.log(JSON.stringify(await prepare({ wallet, baseUrl }), null, 2));
     return;
   }
+  if (argv.includes('--resume')) {
+    const file = arg(argv, '--api-key-file');
+    if (!file) throw new Error('--api-key-file is required');
+    const apiKey = readFileSync(file, 'utf8').split('\n')[0].trim();
+    const r = await resume({ baseUrl, apiKey, webhookUrl: arg(argv, '--webhook-url') });
+    console.log(JSON.stringify(r, null, 2));
+    return;
+  }
   if (argv.includes('--submit')) {
     const file = arg(argv, '--signatures');
     const payoutBase = arg(argv, '--payout-base');
@@ -297,6 +342,7 @@ async function main(argv: string[]): Promise<void> {
       payoutBase,
       payoutTempo,
       webhookUrl: arg(argv, '--webhook-url'),
+      onAcceptTerms: (r) => console.log(JSON.stringify({ step: 'accept_terms', ...r })),
       country: arg(argv, '--country'),
       contactEmail: arg(argv, '--contact-email'),
       siteUrl: arg(argv, '--site-url'),
@@ -304,7 +350,7 @@ async function main(argv: string[]): Promise<void> {
     console.log(JSON.stringify(r, null, 2));
     return;
   }
-  throw new Error('use --prepare or --submit');
+  throw new Error('use --prepare, --submit or --resume');
 }
 
 if (require.main === module) {
