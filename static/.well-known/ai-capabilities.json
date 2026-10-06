@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.1.0",
   "updated_at": "2026-10-06T00:00:00Z",
-  "tools_count": 1387,
-  "providers_count": 401,
+  "tools_count": 1383,
+  "providers_count": 400,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1387 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1383 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -49,8 +49,8 @@
     },
     {
       "name": "education",
-      "tools": 108,
-      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
+      "tools": 104,
+      "providers": "Bhl, Bible, Cordis, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
       "examples": "Call discover_tools with category=\"education\" for the current tool list and descriptions."
     },
     {
