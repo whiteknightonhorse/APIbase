@@ -3,8 +3,11 @@ import rateLimit from 'express-rate-limit';
 import { X_ROBOTS_TAG } from '../../config/http-headers';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
+import { runCheck } from '../check.service';
+import { buildDeclaration, loadEvidence } from '../provek/provek.service';
 import {
   getProductCard,
+  loadProvekDeclarationInput,
   listProducts,
   listShops,
   loadShop,
@@ -28,7 +31,14 @@ export interface StorefrontRouterOptions {
   db?: ShopTx;
   /** requests per minute per address on each public prefix (§6.3: 60). */
   limit?: number;
+  /** Test seam: the last-check result behind `connected` / `payment_verified` of evidence.json. */
+  check?: (merchant_id: string) => Promise<{ connected: boolean; payment_verified: boolean }>;
+  now?: () => number;
 }
+
+const SLUG_RE = /^[a-z0-9-]{3,40}$/;
+const EVIDENCE_TTL_MS = 60_000;
+const EVIDENCE_CACHE_MAX = 1000;
 
 const wantsMarkdown = (req: Request) => /text\/markdown/i.test(req.get('accept') ?? '');
 const wantsJson = (req: Request) =>
@@ -107,6 +117,38 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
   router.get('/api/v1/shop/shops', jsonIndex);
   router.get('/api/v1/shop/shops/:slug', jsonShop);
   router.get('/api/v1/shop/shops/:slug/products', jsonProducts);
+
+  // A3-9: aggregates only (no wallets, e-mail or orders); one answer is reused for 60 s per slug.
+  const evidenceCache = new Map<string, { at: number; body: unknown }>();
+  const connectedOf =
+    opts.check ??
+    (async (merchant_id: string) => {
+      const r = await runCheck(defaultShopDeps(), merchant_id);
+      return { connected: r.status === 'connected', payment_verified: r.payment_verified };
+    });
+  router.get(
+    '/api/v1/shop/shops/:slug/evidence.json',
+    guard(async (req, res) => {
+      const slug = String(req.params.slug);
+      const nowMs = (opts.now ?? Date.now)();
+      const hit = evidenceCache.get(slug);
+      if (hit && nowMs - hit.at < EVIDENCE_TTL_MS) {
+        res.set('Cache-Control', 'public, max-age=60').json(hit.body);
+        return;
+      }
+      const r = SLUG_RE.test(slug)
+        ? await loadEvidence(db(), slug, connectedOf, new Date(nowMs))
+        : { gone: false as const, missing: true as const };
+      if (r.gone) throw new StorefrontError(410, 'gone', 'this shop is no longer available');
+      if (!('body' in r)) throw new StorefrontError(404, 'not_found', 'shop not found');
+      evidenceCache.delete(slug);
+      evidenceCache.set(slug, { at: nowMs, body: r.body });
+      while (evidenceCache.size > EVIDENCE_CACHE_MAX) {
+        evidenceCache.delete(evidenceCache.keys().next().value as string);
+      }
+      res.set('Cache-Control', 'public, max-age=60').json(r.body);
+    }),
+  );
   router.get('/shops/:slug', jsonShop);
   router.get('/shops/:slug/products', jsonProducts);
 
@@ -174,6 +216,13 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
     guard(async (req, res) => {
       const { merchant_id, shop } = await loadShop(db(), req.params.slug);
       res.json(agentJson(shop, await listProducts(db(), merchant_id, 3)));
+    }),
+  );
+  router.get(
+    '/m/:slug/provek.json',
+    guard(async (req, res) => {
+      const { shop, provek } = await loadProvekDeclarationInput(db(), String(req.params.slug));
+      res.json(buildDeclaration(shop, provek));
     }),
   );
   router.get(

@@ -1,5 +1,6 @@
 import type { ShopTx } from '../db';
 import { cents } from '../catalog.service';
+import { provekIfDeclared, type ProvekPublic, type ProvekStored } from '../provek/provek.service';
 
 export const PUBLIC_BASE = 'https://apibase.pro';
 export const mcpUrl = (slug: string) => `${PUBLIC_BASE}/mcp/m/${slug}`;
@@ -21,6 +22,8 @@ export interface PublicShop {
   domain_verified: boolean;
   reputation: Record<string, unknown>;
   policy: Record<string, unknown>;
+  /** Only for a merchant that opted in to the Provek declaration (A3-9). */
+  provek?: ProvekPublic;
 }
 
 export interface PublicProduct {
@@ -52,7 +55,8 @@ export class StorefrontError extends Error {
   }
 }
 
-interface ShopRow extends PublicShop {
+interface ShopRow extends Omit<PublicShop, 'provek'> {
+  provek: ProvekStored | null;
   merchant_id: string;
   status: string;
   status_reason: string | null;
@@ -62,9 +66,10 @@ const availability = (available: number | null, reserved: number) =>
   available === null || available - reserved > 0 ? 'in_stock' : 'out_of_stock';
 
 const SHOP_COLS = `merchant_id, slug, name, category, site_url, domain_verified, status,
-                   status_reason, reputation, policy`;
+                   status_reason, reputation, policy, provek`;
 
 const strip = (r: ShopRow): PublicShop => ({
+  ...(provekIfDeclared(r.provek) ? { provek: provekIfDeclared(r.provek) } : {}),
   slug: r.slug,
   name: r.name,
   category: r.category,
@@ -255,4 +260,19 @@ export async function priceCart(
     });
   }
   return { lines, total_usd: usd(total) };
+}
+
+/** Opted-in merchant's stored declaration inputs for `/m/<slug>/provek.json`; 404 unless `opt_in`. */
+export async function loadProvekDeclarationInput(
+  db: ShopTx,
+  slug: string,
+): Promise<{ shop: PublicShop; provek: ProvekStored }> {
+  const { shop } = await loadShop(db, slug);
+  const rows = await db.$queryRawUnsafe<Array<{ provek: ProvekStored | null }>>(
+    `SELECT provek FROM shop_merchants WHERE slug = $1`,
+    shop.slug,
+  );
+  const p = rows[0]?.provek;
+  if (!p || p.opt_in !== true) throw new StorefrontError(404, 'not_found', 'no Provek declaration');
+  return { shop, provek: p };
 }

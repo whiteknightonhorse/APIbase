@@ -17,6 +17,7 @@ import {
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
+import { runShopProvekRegistrySync } from '../jobs/shop-provek-registry-sync.job';
 import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
 import { runShopCatalogImportJob } from '../jobs/shop-catalog-import.job';
 import { runShopStreamSettle } from '../jobs/shop-stream-settle.job';
@@ -285,6 +286,12 @@ const shopDomainVerifyTask = cron.schedule('30 4 * * *', () => {
     logger.error({ err, job: 'shop-domain-verify' }, 'domain verify job failed'),
   );
 });
+// Provek registry sync (INT-44, §14): which opted-in merchants are listed at provek.dev, once a day.
+const shopProvekSyncTask = cron.schedule('50 4 * * *', () => {
+  runShopProvekRegistrySync().catch((err) =>
+    logger.error({ err, job: 'shop-provek-registry-sync' }, 'provek registry sync job failed'),
+  );
+});
 // Storefront probe (INT-16, §14): 100 random active /mcp/m/<slug> initialised in-process, hourly.
 const shopStorefrontProbeTask = cron.schedule('7 * * * *', () => {
   runShopStorefrontProbe().catch((err) =>
@@ -378,6 +385,7 @@ function shutdown(signal: string): void {
   shopSweeperTask.stop();
   shopFeeInvoiceTask.stop();
   shopDomainVerifyTask.stop();
+  shopProvekSyncTask.stop();
   shopStorefrontProbeTask.stop();
   shopCatalogImportTask.stop();
   shopStreamSettleTask.stop();

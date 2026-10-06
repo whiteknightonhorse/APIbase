@@ -1,4 +1,5 @@
 import { layout } from '../integrator/layout';
+import { PROVEK_DISCLOSURE, type ProvekPublic } from '../provek/provek.service';
 import {
   mcpUrl,
   PUBLIC_BASE,
@@ -52,11 +53,11 @@ const page = (
   title: string,
   path: string,
   body: string,
-  o: { noindex?: boolean; ld?: unknown[] } = {},
+  o: { noindex?: boolean; ld?: unknown[]; head?: string } = {},
 ) =>
   layout({
     title: `${esc(title)} — APIbase`,
-    head: (o.noindex ? NOINDEX : '') + ldScripts(o.ld ?? []),
+    head: (o.noindex ? NOINDEX : '') + (o.head ?? '') + ldScripts(o.ld ?? []),
     path,
     body,
     footer: FOOTER,
@@ -95,6 +96,34 @@ export function shopsMarkdown(r: ShopsResult): string {
   return `# Shops\n\n${r.shops.map((s) => `- [${s.name}](${shopUrl(s.slug)}) — ${s.category}`).join('\n')}\n\npage ${r.page}/${pageCount(r)}\n`;
 }
 
+/** One status line, no number (SG-14); "verified" is only ever said for a registry listing. */
+const provekStatus = (p: ProvekPublic) =>
+  p.listed
+    ? 'declared by the merchant; listed in the Provek registry (verified against the registry data)'
+    : 'declared by the merchant; not listed in the Provek registry';
+
+const provekMarkdown = (s: PublicShop): string[] =>
+  s.provek
+    ? [
+        '',
+        '## Provek declaration (optional)',
+        '',
+        `- status: ${provekStatus(s.provek)}`,
+        `- declaration: ${shopUrl(s.slug)}/provek.json`,
+        ...(s.provek.registry_url ? [`- registry: ${s.provek.registry_url}`] : []),
+        `- disclosure: ${PROVEK_DISCLOSURE}`,
+      ]
+    : [];
+
+const provekHtml = (s: PublicShop): string =>
+  s.provek
+    ? '<h2>Provek declaration (optional)</h2>' +
+      `<p>${esc(provekStatus(s.provek))}. <a href="/m/${esc(s.slug)}/provek.json">provek.json</a>` +
+      (s.provek.registry_url ? ` · <a href="${esc(s.provek.registry_url)}">registry</a>` : '') +
+      '</p>' +
+      `<p class="muted">${esc(PROVEK_DISCLOSURE)}</p>`
+    : '';
+
 // ---- /m/<slug> ----
 export function shopMarkdown(s: PublicShop, products: PublicProduct[]): string {
   return [
@@ -116,6 +145,7 @@ export function shopMarkdown(s: PublicShop, products: PublicProduct[]): string {
     ...products.map(
       (p) => `- [${p.title}](${productUrl(s.slug, p.sku)}) — $${p.price_usd} (${p.availability})`,
     ),
+    ...provekMarkdown(s),
     '',
   ].join('\n');
 }
@@ -175,7 +205,8 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
     `<h2>Products</h2><div class="grid">${cards}</div>` +
     `<h2>Policy</h2><div class="table-wrap"><table>${policyRows}` +
     `<tr><td class="k">Payment</td><td>USDC on Base (x402) or Tempo (MPP), to the merchant's wallet</td></tr></table></div>` +
-    reputation;
+    reputation +
+    provekHtml(s);
   const ld = [
     {
       '@context': 'https://schema.org',
@@ -190,7 +221,10 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
       itemListElement: products.map((p) => offerLd(s.slug, p)),
     },
   ];
-  return page(s.name, `/m/${s.slug}`, body, { ld });
+  const head = s.provek
+    ? `<link rel="alternate" type="application/json" href="/m/${esc(s.slug)}/provek.json">`
+    : '';
+  return page(s.name, `/m/${s.slug}`, body, { ld, head });
 }
 
 // ---- /m/<slug>/p/<sku> ----
@@ -276,6 +310,7 @@ export const agentJson = (s: PublicShop, sample: PublicProduct[]) => ({
   rest_base: REST_BASE,
   payment: { rails: ['x402', 'mpp'] },
   policy: s.policy,
+  ...(s.provek ? { provek: s.provek } : {}),
   products_sample: sample.slice(0, 3),
 });
 

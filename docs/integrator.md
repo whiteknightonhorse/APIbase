@@ -290,6 +290,17 @@ An hourly job initialises 100 random active storefronts in-process; a failure is
 
 The public twin is `GET https://apibase.pro/integrator/check/<slug>`: the same steps with `name`, `status` and `code` only — no webhook URL, email, payout address or response body. It is limited to 20 requests/min per address and a slug's result is reused for 60 seconds.
 
+## Provek declaration (optional)
+
+`PATCH /api/v1/shop/merchants/me/provek` (key scope `catalog:write`) with `{opt_in: boolean, insurance?: {exists: boolean, note?: string (at most 140 characters)}, claims_url?: https URL}` publishes or withdraws a Provek declaration for your shop. The merchant comes from the key; unknown fields are rejected with `422`. While `opt_in` is true:
+
+- `GET https://apibase.pro/m/<slug>/provek.json` serves a `provek_declaration: "1.1.0"` document: the claims addressee (`claims_url`, else your `site_url`), the emergency stop (`shop.merchant.deactivate` makes the storefront answer `410`), your insurance statement, a dispute path on your shop page, and the order, offering and pricing URLs. Your `contact_email` is never part of it. With `opt_in` false the path answers `404`, for a deactivated shop `410`. Your shop page links to it with `<link rel="alternate" type="application/json">`.
+- `provek {declared, listed, registry_url}` appears in `shop.catalog.get` (`merchant`), in `apibase.discover` results of kind `merchant`, in `agent.json`, and on `/m/<slug>`.
+- `listed` becomes true only when a daily job finds the host of your `site_url` in the public Provek registry (`https://provek.dev/data/registry.json`; public addresses only, no redirects, 20 s timeout, at most 10 MB; if the download fails the previous values stay). Only then does a page call the entry "verified"; a declaration alone says "declared by the merchant; not listed in the Provek registry".
+- Provek and APIbase belong to the same owner; the assessment is not independent. This line is shown next to every mention of Provek.
+
+`GET /api/v1/shop/shops/<slug>/evidence.json` (public, cached for 60 s) returns aggregates only: `{slug, as_of, reputation {closed_on_time_pct, dispute_rate, refund_rate, orders_closed}, domain_verified, connected, payment_verified, active_since, rails, provek}`. No wallet, e-mail or order data. The `__apibase_test` item is never counted.
+
 ## Merchant stats {#merchant-stats}
 
 `shop.merchant.stats` or `GET /api/v1/shop/merchants/me/stats?from&to&group=day|week` (key scope `stats:read`) returns your own aggregates for the range (default: the last 30 days, at most 366): the funnel quotes -> paid -> closed, `gross_usd` / `fee_usd` / `net_usd`, `avg_order_usd`, a `series` by day or week, refunds, disputes by status, the top 20 products, a cut by rail, a cut by agent (`client_name`, `client_version`, user-agent family, 8-character wallet hash prefix, never the full address), webhook success % and p95 delivery time, and the orders past their confirm/ship SLA. The `__apibase_test` item is never counted. The answer is cached for 60 s per merchant and parameters. `format=csv` returns one row per paid order with its `tx_hash`; the payer appears only as a hash prefix.

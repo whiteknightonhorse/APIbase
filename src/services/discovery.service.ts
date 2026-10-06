@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import {
+  provekIfDeclared,
+  type ProvekPublic,
+  type ProvekStored,
+} from '../shop/provek/provek.service';
 import { getPrisma } from './prisma.service';
 import { ensureRedisConnected } from './redis.service';
 import {
@@ -155,6 +160,7 @@ export interface MerchantDiscoverResult {
   mcp_url: string;
   products_sample: Array<{ sku: string; title: string; price_usd: string }>;
   reputation: Record<string, unknown>;
+  provek?: ProvekPublic;
   payment: { rails: string[]; x402: { network: string; asset: string } };
 }
 
@@ -401,9 +407,10 @@ async function merchantCandidates(
       name: string;
       category: string;
       reputation: Record<string, unknown> | null;
+      provek: ProvekStored | null;
     }>
   >(
-    `SELECT m.merchant_id, m.slug, m.name, m.category, m.reputation
+    `SELECT m.merchant_id, m.slug, m.name, m.category, m.reputation, m.provek
        FROM shop_merchants m
        JOIN shop_products p ON p.merchant_id = m.merchant_id
       WHERE m.status = 'active' AND NOT p.is_test AND p.moderation_status = 'ok'
@@ -441,6 +448,7 @@ async function merchantCandidates(
       .filter((r) => r.merchant_id === f.merchant_id)
       .map(({ sku, title, price_usd }) => ({ sku, title, price_usd })),
     reputation: f.reputation ?? {},
+    ...(provekIfDeclared(f.provek) ? { provek: provekIfDeclared(f.provek) } : {}),
     payment: { rails: ['x402'], x402: { network: config.X402_NETWORK, asset: 'USDC' } },
   }));
 }

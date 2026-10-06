@@ -155,6 +155,13 @@ export const mcpSessionsActive = new client.Gauge({
   registers: [register],
 });
 
+/** Daily shop-provek-registry-sync: registry downloads that failed (stored values kept). */
+export const provekRegistrySyncFailures = new client.Counter({
+  name: 'provek_registry_sync_failures_total',
+  help: 'Provek registry loads that failed in shop-provek-registry-sync',
+  registers: [register],
+});
+
 /** §14: share of active merchant storefronts the hourly probe reached (sample of 100 / active). */
 export const storefrontProbeCoverage = new client.Gauge({
   name: 'storefront_probe_coverage',

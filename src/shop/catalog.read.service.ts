@@ -2,6 +2,7 @@ import { CatalogError } from './catalog.errors';
 import { merchantUnavailable, reasonBlocks } from './auth/terms.guard';
 import type { ShopTx } from './db';
 import type { EncryptionKey } from './merchant.service';
+import { provekIfDeclared, type ProvekPublic, type ProvekStored } from './provek/provek.service';
 import { cents } from './catalog.service';
 
 export const SEARCH_MAX_LIMIT = 50;
@@ -12,6 +13,8 @@ export interface MerchantCard {
   name: string;
   reputation: Record<string, unknown>;
   policy_summary: Record<string, unknown>;
+  /** Only for a merchant that opted in to the Provek declaration. */
+  provek?: ProvekPublic;
 }
 
 export interface SearchInput {
@@ -40,6 +43,7 @@ interface MerchantRow {
   reputation: Record<string, unknown> | null;
   policy: Record<string, unknown> | null;
   encryption_key: EncryptionKey | null;
+  provek: ProvekStored | null;
 }
 
 const notFound = (what: string) =>
@@ -50,7 +54,7 @@ const notFound = (what: string) =>
 async function activeMerchant(db: ShopTx, slug: unknown): Promise<MerchantRow> {
   if (typeof slug !== 'string' || !/^[a-z0-9-]{3,40}$/.test(slug)) throw notFound('merchant');
   const rows = await db.$queryRawUnsafe<MerchantRow[]>(
-    `SELECT merchant_id, name, status, status_reason, reputation, policy, encryption_key
+    `SELECT merchant_id, name, status, status_reason, reputation, policy, encryption_key, provek
        FROM shop_merchants WHERE slug = $1`,
     slug,
   );
@@ -64,6 +68,7 @@ const card = (m: MerchantRow): MerchantCard => ({
   name: m.name,
   reputation: m.reputation ?? {},
   policy_summary: m.policy ?? {},
+  ...(provekIfDeclared(m.provek) ? { provek: provekIfDeclared(m.provek) } : {}),
 });
 
 const availability = (available: number | null, reserved: number) =>

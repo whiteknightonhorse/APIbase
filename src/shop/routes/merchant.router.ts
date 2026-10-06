@@ -19,6 +19,7 @@ import {
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
+import { patchProvek, ProvekInputError } from '../provek/provek.service';
 import { getMerchantStats } from '../stats.service';
 import { merchantRefund } from '../refund.service';
 import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
@@ -228,6 +229,30 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
         const r = await upsertCatalog(deps, req.merchant?.merchant_id ?? '', req.body?.items);
         res.json(r);
       } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // A3-9: the optional Provek declaration; the merchant comes from the key, never from the body.
+  router.patch(
+    '/api/v1/shop/merchants/me/provek',
+    probeLimiter,
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await patchProvek(deps, req.merchant?.merchant_id ?? '', req.body));
+      } catch (err) {
+        if (err instanceof ProvekInputError) {
+          res.status(422).json({
+            error: 'validation_failed',
+            error_code: 'validation_failed',
+            message: err.message,
+            suggested_action: 'fix_request',
+            documentation_url: '/docs/integrator#provek-declaration-optional',
+          });
+          return;
+        }
         send(res, err);
       }
     },
