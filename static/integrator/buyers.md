@@ -42,6 +42,12 @@ By default an agent renews a subscription by paying each period's quote. On Base
 
 To revoke a stored authorization, either cancel the subscription (`shop.subscription.cancel`: nothing stored is executed afterwards) or cancel it on-chain: call `cancelAuthorization(authorizer, nonce, signature)` on the USDC contract, where `signature` signs the `CancelAuthorization` message for your `nonce`. An authorization that was canceled on-chain is never executed.
 
+## Subscriptions: let the shop renew with its own key (Tempo)
+
+On Tempo a shop can renew your subscription with an access key that it keeps itself. Your agent authorizes only that key's **address** (`accessKey.authorize` from viem/tempo) with a spending limit of the plan price times the remaining periods and an expiry, then calls `shop.subscription.confirm_pull`. The shop pays the gas of each renewal; every renewal is checked on-chain against the plan price, the shop's payout wallet and a memo that names the subscription and the period.
+
+To stop it, cancel the subscription (`shop.subscription.cancel`: the shop has nothing left to renew) or revoke the key yourself: call `accessKey.revoke` for the key address from your paying account. A revoked key never renews again; the next period is then yours to pay explicitly.
+
 ## If a payment is slow
 
 The order stays in `PAYING` and the call answers 202 `payment_pending`. Do not pay twice: read the order with `shop.order.get` until its state changes.

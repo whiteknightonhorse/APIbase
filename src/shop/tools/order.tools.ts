@@ -12,6 +12,7 @@ import {
 import { openDispute, DISPUTE_REASONS, DISPUTE_NOTE_MAX } from '../dispute.service';
 import { getOrderView, type BuyerAgent } from '../order-payment.service';
 import { cancelSubscription, getSubscription } from '../subscription.service';
+import { confirmPull } from '../subscription-keychain.service';
 import { preauthorizeSubscription } from '../subscription-preauth.service';
 import { QuoteError } from '../quote.errors';
 import type { PaymentContext } from '../../mcp/tool-adapter';
@@ -25,6 +26,7 @@ export const ORDER_TOOL_NAMES = [
   'shop.subscription.get',
   'shop.subscription.cancel',
   'shop.subscription.preauthorize',
+  'shop.subscription.confirm_pull',
 ] as const;
 
 type Result = {
@@ -315,6 +317,7 @@ export function registerOrderTools(
         max_periods: z.number().nullable(),
         pull_mode: z.string(),
         preauthorized_periods: z.array(z.record(z.unknown())).optional(),
+        pull_setup: z.record(z.unknown()).optional(),
         canceled_at: z.string().optional(),
         access_until: z.string().optional(),
         renew: z.record(z.unknown()).optional(),
@@ -445,6 +448,48 @@ export function registerOrderTools(
             buyer,
             a.subscription_id,
             { authorizations: a.authorizations },
+            { merchant_id },
+          )),
+        });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+  reg.call(
+    server,
+    'shop.subscription.confirm_pull',
+    {
+      title: 'Confirm the renewal key of a Tempo subscription',
+      description:
+        "Tempo subscription of a merchant that runs its own renewal key: shop.subscription.get then carries pull_setup {key_id, token, limit, expiry, how}. Authorize that key address from the paying account (viem/tempo accessKey.authorize with expiry and limits [{token, amount: limit}], key address = pull_setup.key_id), then call this with the authorize tx_hash. The platform reads the keychain: the key must be authorized by the paying wallet, not revoked, not expired, and its remaining USDC limit must cover one period (400 keychain_not_authorized | keychain_expired | keychain_limit_too_low). On success pull_mode = tempo_keychain: the merchant renews each period with its key and pays the gas; you never sign again. Cancel with shop.subscription.cancel (the merchant then has nothing to pull) or revoke the key yourself with accessKey.revoke. Active or past_due, Tempo only; another identity's subscription is 404.",
+      inputSchema: { subscription_id: z.string(), tx_hash: z.string() },
+      outputSchema: {
+        subscription_id: z.string(),
+        sku: z.string(),
+        status: z.string(),
+        status_reason: z.string().nullable(),
+        period_no: z.number(),
+        current_period_end: z.string().nullable(),
+        next_charge_at: z.string().nullable(),
+        max_periods: z.number().nullable(),
+        pull_mode: z.string(),
+        pull_setup: z.record(z.unknown()).optional(),
+        canceled_at: z.string().optional(),
+        access_until: z.string().optional(),
+      },
+      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+    },
+    async (a: { subscription_id: string; tx_hash: string; merchant?: string }) => {
+      try {
+        const buyer = await resolveBuyer({ apiKey, session: sessionId });
+        const merchant_id = a.merchant ? await merchantIdBySlug(deps.db, a.merchant) : undefined;
+        return ok({
+          ...(await confirmPull(
+            deps,
+            buyer,
+            a.subscription_id,
+            { tx_hash: a.tx_hash },
             { merchant_id },
           )),
         });

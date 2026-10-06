@@ -11,12 +11,15 @@ import {
   latestPeriod,
   preauthorizedPeriods,
   reachedEnd,
+  renewerKeyOf,
   RENEWAL_WINDOW_H,
   SUBSCRIPTION_COLS,
   type PeriodRow,
   type PreauthorizedPeriod,
+  type PullSetup,
   type SubscriptionRow,
   type SubscriptionStatus,
+  tempoPullSetup,
 } from './subscription-core';
 
 const DOCS = '/docs/integrator#subscriptions';
@@ -50,9 +53,11 @@ export interface SubscriptionView {
   current_period_end: string | null;
   next_charge_at: string | null;
   max_periods: number | null;
-  /** T-INT-47: `base_preauth` while pre-signed authorizations are stored for this subscription. */
+  /** `base_preauth` (T-INT-47) or `tempo_keychain` (T-INT-49) while a pull is set up, else `none`. */
   pull_mode: string;
   preauthorized_periods?: PreauthorizedPeriod[];
+  /** T-INT-49: Tempo subscription of a merchant that registered a renewal key: what to authorize. */
+  pull_setup?: PullSetup;
   canceled_at?: string;
   /** A canceled subscription keeps the period that was paid for until here. */
   access_until?: string;
@@ -114,7 +119,7 @@ async function viewOf(db: ShopTx, sub: SubscriptionRow, at: number): Promise<Sub
     next_charge_at: sub.next_charge_at ? new Date(sub.next_charge_at).toISOString() : null,
     max_periods: sub.max_periods,
     pull_mode: sub.pull_mode ?? 'none',
-    ...(sub.pull_mode && sub.pull_mode !== 'none'
+    ...(sub.pull_mode === 'base_preauth'
       ? { preauthorized_periods: await preauthorizedPeriods(db, sub.subscription_id) }
       : {}),
     ...(sub.canceled_at ? { canceled_at: new Date(sub.canceled_at).toISOString() } : {}),
@@ -122,6 +127,14 @@ async function viewOf(db: ShopTx, sub: SubscriptionRow, at: number): Promise<Sub
       ? { access_until: new Date(sub.next_charge_at).toISOString() }
       : {}),
   };
+}
+
+/** The plain view of a subscription (no renew quote, no 402): for the services that changed it. */
+export async function subscriptionViewById(
+  d: ShopDeps,
+  subscription_id: string,
+): Promise<SubscriptionView> {
+  return viewOf(d.db, await loadRow(d.db, subscription_id), now(d));
 }
 
 /**
@@ -202,6 +215,8 @@ export async function getSubscription(
   const view = await viewOf(d.db, sub, at);
   const last = await latestPeriod(d.db, sub.subscription_id);
   const n = last?.period_no ?? 1;
+  const setup = tempoPullSetup(sub, last, await renewerKeyOf(d.db, sub.merchant_id), at);
+  if (setup) view.pull_setup = setup;
   if (inWindow(sub, n, at)) view.renew = await renewalQuote(d, sub, buyer, n + 1, at);
   if (sub.status === 'past_due') {
     throw new QuoteError(

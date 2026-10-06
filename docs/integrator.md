@@ -282,6 +282,16 @@ Buyer flow:
 
 Merchant: `GET /api/v1/shop/merchants/me/subscriptions?status=&limit=&cursor=` (scope `orders:read`, your own only) and `POST /api/v1/shop/merchants/me/subscriptions/:id/cancel {reason}` (scope `orders:write`; `canceled`, `status_reason: merchant`, `subscription.canceled`; another shop's id is `404`). Webhook `data`: `{subscription_id, merchant_id, sku, period_no, ...}` (`order_id` and `current_period_end` on `started`/`renewed`; `access_until` on `canceled`). `shop.merchant.stats` reports `subscriptions_active` (no recurring-revenue figure). The worker job `shop-subscription-sweep` (every 5 minutes) applies the time-driven steps even when nobody calls `get`.
 
+## Tempo keychain subscriptions {#tempo-keychain-subscriptions}
+
+A subscription paid on Tempo can renew without the agent being online, with an access key that **the shop generates and keeps**. APIbase holds the schedule, verifies on-chain and does the accounting; it never receives, stores or uses a private key and never sends a transaction. The shop pays the gas of each renewal.
+
+1. The shop runs `apibase-merchant-renewer init` (source in `packages/merchant-renewer`): it creates the key on the shop's machine and prints only its address. Register the address with `PUT /api/v1/shop/merchants/me/renewer-key {key_id, expires_at}` (scope `catalog:write`). Only a 20-byte address and a future expiry are accepted: a private key in the body is refused with `422`, as is any other field. `DELETE /api/v1/shop/merchants/me/renewer-key` removes it.
+2. For a Tempo subscription of a shop with a key, `shop.subscription.get` carries `pull_setup {method: "tempo_keychain", key_id, token, limit, expiry, how}`: the USDC token on Tempo, `limit` = plan price x remaining periods in micro-USDC, `expiry` = the earlier of the key expiry and the end of the subscription term. The payer's agent calls `accessKey.authorize({accessKey: key_id, expiry, limits: [{token, amount: limit}]})` (viem/tempo) from the paying account, then `shop.subscription.confirm_pull {subscription_id, tx_hash}` (or `POST /api/v1/shop/subscriptions/:id/confirm-pull {tx_hash}`). APIbase reads the keychain: the key must be authorized by the paying wallet, not revoked, not expired, and its remaining USDC limit must cover one period (`400 keychain_not_authorized | keychain_expired | keychain_limit_too_low`). Then `pull_mode` is `tempo_keychain`.
+3. The shop's CLI reads `GET /api/v1/shop/merchants/me/subscriptions/renew-queue` (scope `orders:read`): the shop's own `tempo_keychain` subscriptions whose next period has started, as `{subscription_id, period_no, payer, amount, memo, recipient, token, splits?}` where `memo` = `0x` + sha256(`subscription_id:period_no`), `recipient` is the shop's Tempo payout wallet and `splits` names the platform fee wallet and the fee when the platform fee is on. For each item the CLI sends, from the payer's account signed by the access key, one `transferWithMemo` of `amount - fee` to `recipient` and one of `fee` to the fee wallet, then calls `POST /api/v1/shop/merchants/me/subscriptions/:id/renewed {period_no, tx_hashes[]}` (scope `orders:write`).
+4. APIbase reads every transaction: it must have succeeded and show, for the memo of that period, transfers `from` the payer, one to the shop payout wallet and (fee on) one to the fee wallet, with the exact amounts. Anything else is `400 renewal_not_proven` with a `reject_reason`. The period is then paid through its order (rail `tempo`, `subscription.renewed`). With the fee on and no fee transfer the shop must have received the whole price: the period is paid and the fee is recorded as a receivable; with both transfers it is collected `in_tx`.
+5. If the key is revoked or expired, or its limit no longer covers a period, the item is not queued, `pull_mode` returns to `none`, the shop gets one `subscription.pull_failed` webhook (`reason`: `key_revoked`, `key_expired` or `limit_exceeded`) and the period stays due: the agent renews it explicitly and the usual `past_due` rules apply. `shop.subscription.cancel` (or the end of the term) empties the queue; the payer can also revoke the key at any time with `accessKey.revoke`.
+
 ## Base pull subscriptions {#base-pull-subscriptions}
 
 A payer who paid period 1 on Base can sign the next periods ahead of time, so the subscription renews without the agent being online. No allowance and no key is handed over: each stored item is one EIP-3009 `TransferWithAuthorization` for **one** future period, to a **fixed** recipient (the shop payout wallet), for a **fixed** amount (the plan price), valid in a **fixed** window. It works with any wallet that can sign typed data (a plain EOA); Coinbase Spend Permissions are not needed.
@@ -456,8 +466,13 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `GET /subscriptions/:id`                 | yes    | T-INT-41             |
 | `POST /subscriptions/:id/cancel`         | yes    | T-INT-41             |
 | `POST /subscriptions/:id/preauthorize`   | yes    | T-INT-47, the payer only |
+| `POST /subscriptions/:id/confirm-pull`   | yes    | T-INT-49, the payer only |
 | `GET /merchants/me/subscriptions`        | yes    | T-INT-41             |
 | `POST /merchants/me/subscriptions/:id/cancel` | yes | T-INT-41           |
+| `PUT /merchants/me/renewer-key`          | yes    | T-INT-49, address only |
+| `DELETE /merchants/me/renewer-key`       | yes    | T-INT-49             |
+| `GET /merchants/me/subscriptions/renew-queue` | yes | T-INT-49        |
+| `POST /merchants/me/subscriptions/:id/renewed` | yes | T-INT-49       |
 | `GET /auth/nonce`                        | yes    |                      |
 | `POST /merchants`                        | yes    |                      |
 | `POST /merchants/me/acceptances`         | yes    |                      |

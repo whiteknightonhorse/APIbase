@@ -78,6 +78,15 @@ A shop that sells streams (`fulfillment_mode: "stream"`) is paid over an on-chai
 
 The platform fee of settled amounts is a receivable, as for any stream.
 
+## Subscriptions on Tempo: renew with your own key
+
+A subscription paid on Tempo can be renewed by your shop with an access key that you generate and keep; APIbase never sees a private key and sends no transaction, and you pay the gas.
+
+1. Run `apibase-merchant-renewer init` (MIT, source in `packages/merchant-renewer`): it writes the key to a local file and prints the address. Register the address with `PUT /api/v1/shop/merchants/me/renewer-key` and `{"key_id": "0x...", "expires_at": "<ISO 8601>"}` (scope `catalog:write`; a private key in the body is refused with `422`). `DELETE` on the same path removes it.
+2. The buyer's agent sees `pull_setup` in `shop.subscription.get`, authorizes your key address with `accessKey.authorize` (limit = price x remaining periods) and calls `shop.subscription.confirm_pull`.
+3. Run `apibase-merchant-renewer run --key-file ... --mk mk_live_... --interval 60`. Each pass reads `GET /api/v1/shop/merchants/me/subscriptions/renew-queue` (scope `orders:read`), sends `transferWithMemo` transfers from the payer's account with your key (`amount - fee` to your payout wallet and, when the platform fee is on, `fee` to the fee wallet) and reports them with `POST /api/v1/shop/merchants/me/subscriptions/:id/renewed {period_no, tx_hashes}` (scope `orders:write`). APIbase verifies recipient, amount, memo and payer on-chain; a wrong transfer is `400 renewal_not_proven`.
+4. A revoked key, an expired key or an exhausted limit raises `subscription.pull_failed` and the buyer's agent renews explicitly. A canceled subscription leaves nothing in the queue. Details: /docs/integrator#tempo-keychain-subscriptions.
+
 ## Fee-split on Base: two signatures
 
 When the fee is on, the Base 402 of `POST /api/v1/shop/quotes/:id/pay` carries `accepts[0].extra.fee_split`:

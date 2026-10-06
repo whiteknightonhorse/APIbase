@@ -1,3 +1,5 @@
+import { getMppConfig } from '../config/mpp.config';
+import { toMicroUsdc } from '../config/x402.config';
 import type { ShopTx } from './db';
 
 /**
@@ -379,4 +381,84 @@ export async function countActiveSubscriptions(db: ShopTx, merchant_id: string):
     merchant_id,
   );
   return r[0]?.n ?? 0;
+}
+
+// ---------------------------------------------------------------------------
+// T-INT-49 (UC-9 on Tempo): the merchant's renewal key (address only) and the payer's setup
+// ---------------------------------------------------------------------------
+
+/**
+ * The renewal key of a merchant: its ADDRESS and expiry only. The private key is generated and kept
+ * by the merchant (`packages/merchant-renewer`); this server never receives or stores one. Kept in
+ * `shop_merchants.limits.renewer_key` (migration 0027 has no `renewer_key` column).
+ */
+export interface RenewerKey {
+  key_id: string;
+  expires_at: string;
+}
+
+export async function renewerKeyOf(db: ShopTx, merchant_id: string): Promise<RenewerKey | null> {
+  const rows = await db.$queryRawUnsafe<Array<{ k: RenewerKey | null }>>(
+    `SELECT limits->'renewer_key' AS k FROM shop_merchants WHERE merchant_id = $1::uuid`,
+    merchant_id,
+  );
+  const k = rows[0]?.k;
+  return k && typeof k.key_id === 'string' && typeof k.expires_at === 'string' ? k : null;
+}
+
+export interface PullSetup {
+  method: 'tempo_keychain';
+  key_id: string;
+  token: string;
+  /** micro-USDC (6 decimals) as a decimal string: price x remaining periods. */
+  limit: string;
+  /** unix seconds */
+  expiry: number;
+  how: string;
+}
+
+/** The periods after `last` that still start before `until` (and inside max_periods). */
+export function remainingPeriods(
+  sub: Pick<SubscriptionRow, 'plan' | 'max_periods'>,
+  last: Pick<PeriodRow, 'period_no' | 'period_end'>,
+  until: Date,
+): number {
+  let n = 0;
+  let cursor = new Date(last.period_end);
+  for (let no = last.period_no + 1; no <= last.period_no + 400; no++) {
+    if (sub.max_periods != null && no > sub.max_periods) break;
+    if (cursor.getTime() >= until.getTime()) break;
+    n++;
+    cursor = addPeriod(cursor, sub.plan.period_unit, sub.plan.period_count);
+  }
+  return n;
+}
+
+/** What the payer's agent must authorize for the merchant's key, or null (no key / nothing left). */
+export function tempoPullSetup(
+  sub: Pick<SubscriptionRow, 'plan' | 'max_periods' | 'expires_at' | 'rail_pref' | 'status'>,
+  last: Pick<PeriodRow, 'period_no' | 'period_end'> | null,
+  key: RenewerKey | null,
+  nowMs: number,
+): PullSetup | null {
+  if (!key || !last || sub.rail_pref !== 'tempo') return null;
+  if (sub.status !== 'active' && sub.status !== 'past_due') return null;
+  let until = new Date(key.expires_at);
+  if (sub.expires_at && new Date(sub.expires_at).getTime() < until.getTime()) {
+    until = new Date(sub.expires_at);
+  }
+  if (until.getTime() <= nowMs) return null;
+  const periods = remainingPeriods(sub, last, until);
+  if (periods < 1) return null;
+  const limit = (BigInt(toMicroUsdc(sub.plan.amount_usd)) * BigInt(periods)).toString();
+  const expiry = Math.floor(until.getTime() / 1000);
+  const token = getMppConfig().usdcAddress;
+  return {
+    method: 'tempo_keychain',
+    key_id: key.key_id,
+    token,
+    limit,
+    expiry,
+    how: `call accessKey.authorize({accessKey: '${key.key_id}', expiry: ${expiry}, limits: [{token: '${token}', amount: ${limit}n}]}) from the payer account (viem/tempo), then call shop.subscription.confirm_pull`,
+  };
 }

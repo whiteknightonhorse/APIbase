@@ -118,15 +118,22 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
     // Tempo took it in the same transaction (collected); Base owes it (receivable, wave-2 invoice).
     // T-INT-42: a Base split marked `mode: in_tx` was paid by a second authorization in the same
     // Multicall3 transaction, so it is collected, not owed.
-    const legs = await tx.$queryRawUnsafe<Array<{ fee: string; in_tx: boolean }>>(
+    // T-INT-49: a Tempo split marked `mode: receivable` was NOT paid by the merchant's renewal key
+    // (the fee transfer is missing): the fee is owed, not collected.
+    const legs = await tx.$queryRawUnsafe<Array<{ fee: string; in_tx: boolean; owed: boolean }>>(
       `SELECT coalesce(sum((e->>'amount_usd')::numeric), 0)::text AS fee,
-              coalesce(bool_or(e->>'mode' = 'in_tx'), false) AS in_tx
+              coalesce(bool_or(e->>'mode' = 'in_tx'), false) AS in_tx,
+              coalesce(bool_or(e->>'mode' = 'receivable'), false) AS owed
          FROM shop_payments, jsonb_array_elements(splits) e WHERE payment_id = $1::uuid`,
       p.payment_id,
     );
     const fee = Number(legs[0]?.fee ?? 0);
     const settlement =
-      fee > 0 ? (rail === 'tempo' || legs[0]?.in_tx ? 'in_tx' : 'receivable') : 'none';
+      fee > 0
+        ? !legs[0]?.owed && (rail === 'tempo' || legs[0]?.in_tx)
+          ? 'in_tx'
+          : 'receivable'
+        : 'none';
     if (fee > 0) {
       await tx.$executeRawUnsafe(
         `INSERT INTO shop_fee_ledger (merchant_id, order_id, fee_usd, mode, status)

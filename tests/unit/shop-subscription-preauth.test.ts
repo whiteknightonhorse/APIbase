@@ -642,15 +642,16 @@ dbDescribe('subscriptions: Base pull with pre-signed authorizations', () => {
     for (const a of auths) expect(logged).not.toContain(a.signature.slice(2, 40));
   });
 
-  it('the shop tool list grew by exactly shop.subscription.preauthorize', async () => {
+  it('the shop tool list carries shop.subscription.preauthorize (T-INT-49 adds confirm_pull)', async () => {
     const defs = await shopToolDefinitions();
     const names = defs.map((t) => String(t.name));
     expect(names.filter((x) => x.startsWith('shop.subscription.')).sort()).toEqual([
       'shop.subscription.cancel',
+      'shop.subscription.confirm_pull',
       'shop.subscription.get',
       'shop.subscription.preauthorize',
     ]);
-    expect(names).toHaveLength(24);
+    expect(names).toHaveLength(25);
     const t = defs.find((d) => d.name === 'shop.subscription.preauthorize')!;
     expect(t.outputSchema).toBeDefined();
   });

@@ -32,6 +32,12 @@ import {
 } from '../stream-merchant.service';
 import { listMerchantSubscriptions, merchantCancelSubscription } from '../subscription.service';
 import {
+  deleteRenewerKey,
+  listRenewQueue,
+  putRenewerKey,
+  recordRenewal,
+} from '../subscription-keychain.service';
+import {
   acceptTerms,
   acceptTermsMessage,
   defaultShopDeps,
@@ -527,6 +533,64 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(await listMerchantSubscriptions(deps, req.merchant?.merchant_id ?? '', req.query));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-INT-49 (UC-9 on Tempo): the merchant renews with its OWN access key (packages/merchant-renewer).
+  // The server only ever sees the key's ADDRESS; it queues work and verifies the result on-chain.
+  router.put(
+    '/api/v1/shop/merchants/me/renewer-key',
+    probeLimiter,
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await putRenewerKey(deps, req.merchant?.merchant_id ?? '', req.body));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.delete(
+    '/api/v1/shop/merchants/me/renewer-key',
+    probeLimiter,
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await deleteRenewerKey(deps, req.merchant?.merchant_id ?? ''));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.get(
+    '/api/v1/shop/merchants/me/subscriptions/renew-queue',
+    probeLimiter,
+    requireMerchantKey(['orders:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await listRenewQueue(deps, req.merchant?.merchant_id ?? ''));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.post(
+    '/api/v1/shop/merchants/me/subscriptions/:id/renewed',
+    probeLimiter,
+    requireMerchantKey(['orders:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await recordRenewal(
+            deps,
+            req.merchant?.merchant_id ?? '',
+            String(req.params.id),
+            req.body ?? {},
+          ),
+        );
       } catch (err) {
         send(res, err);
       }

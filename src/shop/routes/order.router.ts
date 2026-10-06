@@ -11,6 +11,7 @@ import { openDispute } from '../dispute.service';
 import { getOrderView } from '../order-payment.service';
 import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.service';
 import { cancelSubscription, getSubscription } from '../subscription.service';
+import { confirmPull } from '../subscription-keychain.service';
 import { preauthorizeSubscription } from '../subscription-preauth.service';
 
 /** §6.3 buyer routes (quotes, cancel), mounted at /api/v1/shop/*. Same services as the /mcp tools. */
@@ -190,6 +191,25 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
               (req.body ?? {}) as { authorizations?: unknown },
             ),
           );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-INT-49 (UC-9 on Tempo): the payer says it authorized the merchant's renewal key.
+  router.post(
+    '/api/v1/shop/subscriptions/:id/confirm-pull',
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await confirmPull(
+            deps,
+            await buyerOf(req),
+            String(req.params.id),
+            (req.body ?? {}) as { tx_hash?: unknown },
+          ),
+        );
       } catch (err) {
         send(res, err);
       }
