@@ -24,7 +24,9 @@ import {
   streamMethodCacheSize,
   toMicro,
 } from '../../src/shop/stream-session';
-import { runStreamSettle, streamFeeMicro } from '../../src/shop/stream.service';
+import { createClient } from 'viem';
+import { getMppConfig } from '../../src/config/mpp.config';
+import { mppxChain, runStreamSettle, streamFeeMicro } from '../../src/shop/stream.service';
 import { CatalogItemSchema, upsertCatalog } from '../../src/shop/catalog.service';
 import { getProduct, searchCatalog } from '../../src/shop/catalog.read.service';
 import { shopToolDefinitions } from '../../src/shop/tool-definitions';
@@ -750,6 +752,39 @@ dbDescribe('stream sessions (INT-40)', () => {
       );
     }
     expect(streamMethodCacheSize()).toBe(STREAM_LRU_MAX);
+  });
+
+  it('ST12: the payee client carries the USDC fee token: session getClient and mppxChain.settle', async () => {
+    clearStreamMethodCache();
+    const cfg = getMppConfig();
+    const createClientMock = createClient as unknown as jest.Mock;
+    const merchant = {
+      merchant_id: 'm-st12',
+      slug: 'slug-st12',
+      payout_wallet_tempo: pilot.address,
+      stream_settler: 'apibase_pilot',
+    };
+    const method = await getStreamMethod(merchant, { rate_per_s_usd: RATE, min_deposit_usd: '1' });
+    const params = mockWorld.sessionCalls[mockWorld.sessionCalls.length - 1];
+    expect(typeof params.getClient).toBe('function');
+    createClientMock.mockClear();
+    await params.getClient();
+    expect(createClientMock).toHaveBeenCalledTimes(1);
+    const a = createClientMock.mock.calls[0][0];
+    expect(a.chain.feeToken).toBe(cfg.usdcAddress);
+    expect(a.chain.id).toBe(cfg.chainId);
+    expect(a.transport).toBeDefined();
+
+    createClientMock.mockClear();
+    mockWorld.settle.mockClear();
+    const row = { channel_id: `0x${'ab'.repeat(32)}`, escrow_contract: '0xescrow' };
+    await mppxChain.settle(method, row as never);
+    expect(createClientMock).toHaveBeenCalledTimes(1);
+    expect(createClientMock.mock.calls[0][0].chain.feeToken).toBe(cfg.usdcAddress);
+    expect(mockWorld.settle).toHaveBeenCalledTimes(1);
+    const sc = mockWorld.settle.mock.calls[0];
+    expect(sc[1]).toBeDefined();
+    expect((sc[3] as { account: { address: string } }).account.address).toBe(pilot.address);
   });
 
   describe('catalog (INT-06 upsert) and the read surface', () => {

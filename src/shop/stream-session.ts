@@ -137,6 +137,25 @@ async function streamStore() {
 }
 
 /**
+ * The Tempo chain with the USDC fee token set: mppx close/settle write without `feePayer`, and the
+ * viem Tempo hook takes `feeToken` only from `chain.feeToken`; without it the node bills the
+ * account's default fee token, which the payee does not hold.
+ */
+export async function streamChain(cfg = getMppConfig()) {
+  const { tempo, tempoModerato } = await import('viem/chains');
+  return {
+    ...(cfg.testnet ? tempoModerato : tempo),
+    feeToken: cfg.usdcAddress as `0x${string}`,
+  };
+}
+
+/** The one viem client used for every stream chain read/write. */
+export async function createStreamClient(cfg = getMppConfig()) {
+  const { createClient, http } = await import('viem');
+  return createClient({ chain: await streamChain(cfg), transport: http(cfg.rpcUrl) });
+}
+
+/**
  * Per-merchant (and per-terms) session method, cached in an LRU of 1 000 like the storefronts.
  * Throws StreamError 409 `stream_unavailable` / 500 `stream_settler_misconfigured` BEFORE any
  * challenge can be built.
@@ -181,6 +200,7 @@ export async function getStreamMethod(
     amount: terms.rate_per_s_usd,
     store,
     testnet: cfg.testnet,
+    getClient: () => createStreamClient(cfg),
     waitForConfirmation: true,
   } as never);
   const mppx = Mppx.create({ methods: [method], secretKey: cfg.secretKey, realm: cfg.realm });

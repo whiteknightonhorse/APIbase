@@ -8,6 +8,7 @@ import type { StreamTerms } from './catalog.service';
 import { integratorConfig } from './quote.service';
 import { reasonBlocks } from './auth/terms.guard';
 import {
+  createStreamClient,
   fromMicro,
   getStreamMethod,
   StreamError,
@@ -423,17 +424,10 @@ export interface StreamChain {
   settle(m: StreamMethod, s: StreamSessionRow): Promise<string>;
 }
 
-async function chainClient(m: StreamMethod) {
-  const { createClient, http } = await import('viem');
-  const { tempo, tempoModerato } = await import('viem/chains');
-  const chain = m.chainId === tempoModerato.id ? tempoModerato : tempo;
-  return createClient({ chain, transport: http(m.rpcUrl) });
-}
-
 export const mppxChain: StreamChain = {
   async closeRequestedAt(m, s) {
     const { Session } = await import('mppx/tempo');
-    const client = await chainClient(m);
+    const client = await createStreamClient(getMppConfig());
     const onChain = await Session.Chain.getOnChainChannel(
       client as never,
       (s.escrow_contract ?? undefined) as `0x${string}`,
@@ -443,7 +437,7 @@ export const mppxChain: StreamChain = {
   },
   async settle(m, s) {
     const { tempo } = await import('mppx/server');
-    const client = await chainClient(m);
+    const client = await createStreamClient(getMppConfig());
     return tempo.settle(m.channels, client as never, s.channel_id as `0x${string}`, {
       account: m.account as never,
       ...(s.escrow_contract ? { escrowContract: s.escrow_contract as `0x${string}` } : {}),
