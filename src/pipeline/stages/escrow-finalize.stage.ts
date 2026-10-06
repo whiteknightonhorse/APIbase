@@ -3,6 +3,7 @@ import { finalize, refund } from '../../services/escrow.service';
 import { logger } from '../../config/logger';
 import { settleX402 } from './x402-settle';
 import { getPrisma } from '../../services/prisma.service';
+import { isInternalWallet } from '../../config/internal-wallets';
 
 /**
  * F1/C-5 (2026-09-01): MPP is charged by mppMiddleware BEFORE this pipeline
@@ -44,10 +45,14 @@ export async function recordMppRefundOwed(
   // the debt was missed) and ESCROW + the pipeline executor can't double-book.
   if (ctx.mppRefundRecorded) return;
   ctx.mppRefundRecorded = true;
+  // T-0280: our own Heartbeat wallets — keep the row (free QA report on 422s) but it is
+  // not a debt: processed=true so it never blocks partition-cleanup's 7-day retention.
+  const internal = isInternalWallet(ctx.mppPayer);
   try {
     await getPrisma().outbox.create({
       data: {
         event_type: 'mpp_refund_owed',
+        ...(internal ? { processed: true } : {}),
         payload: {
           request_id: ctx.requestId,
           tool_id: ctx.toolId,
@@ -59,6 +64,7 @@ export async function recordMppRefundOwed(
           network: 'tempo',
           tx_hash: ctx.mppTxHash ?? 'unknown',
           reason,
+          ...(internal ? { internal_wallet: true } : {}),
         },
       },
     });

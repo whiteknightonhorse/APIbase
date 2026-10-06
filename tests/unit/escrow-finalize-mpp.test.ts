@@ -93,6 +93,26 @@ describe('recordMppRefundOwed (F1/C-5)', () => {
     mockOutboxCreate.mockRejectedValue(new Error('db unreachable'));
     await expect(recordMppRefundOwed(ctx(), 'x')).resolves.toBeUndefined();
   });
+
+  it('T-0280: external payer row is a debt (no processed override, no internal_wallet flag)', async () => {
+    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    await recordMppRefundOwed(ctx(), 'r');
+    const data = mockOutboxCreate.mock.calls[0][0].data;
+    expect(data.processed).toBeUndefined();
+    expect(data.payload.internal_wallet).toBeUndefined();
+  });
+
+  it('T-0280: internal (Heartbeat) payer row is kept but written processed=true with internal_wallet=true, case-insensitive', async () => {
+    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    const c = ctx();
+    c.mppPayer = '0x46F110B1AD8195AC1E59366149DFC39E3A88638B';
+    await recordMppRefundOwed(c, 'pipeline_stopped:X:422:bad');
+    const data = mockOutboxCreate.mock.calls[0][0].data;
+    expect(data.processed).toBe(true);
+    expect(data.payload.internal_wallet).toBe(true);
+    expect(data.payload.reason).toBe('pipeline_stopped:X:422:bad');
+    expect(data.payload.refund_to).toBe(c.mppPayer);
+  });
 });
 
 describe('escrowFinalizeStage — MPP paths (F1/C-5)', () => {

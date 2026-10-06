@@ -47,6 +47,7 @@ row, rc = psql(
     SELECT COUNT(*), COALESCE(SUM((payload->>'amount_usd')::numeric), 0), MIN(created_at)
     FROM outbox
     WHERE event_type = 'mpp_refund_owed' AND processed = false
+      AND (payload->>'internal_wallet')::boolean IS NOT TRUE
     """
 )
 if rc != 0:
