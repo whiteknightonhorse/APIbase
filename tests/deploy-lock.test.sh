@@ -103,6 +103,26 @@ run_suite() { # LIB
   out=$(deploy_lock_check "$SHORT" "$DISP" "$RCLIB" "$REPO"); rc=$?
   check "short SHA in trailer is ignored -> 2" 2 "$(printf '%s\tT-1.ruling-1.md' "$BAD")" "$rc" "$out"
 
+  # T-0296: BASE_SHA range
+  local want2; want2="$(printf '%s\tT-1.ruling-1.md' "$BAD")"
+  out=$(deploy_lock_check "$C2" "$DISP" "$RCLIB" "$REPO" "$C0" 2>/dev/null); rc=$?
+  check "held in BASE..NEW -> 2" 2 "$want2" "$rc" "$out"
+
+  out=$(deploy_lock_check "$C2" "$DISP" "$RCLIB" "$REPO" "$C2" 2>/dev/null); rc=$?
+  check "held ancestor of BASE -> 0" 0 "" "$rc" "$out"
+
+  out=$(deploy_lock_check "$C2" "$DISP" "$RCLIB" "$REPO" "$SIDE" 2>/dev/null); rc=$?
+  check "BASE not an ancestor of NEW -> 2" 2 "$want2" "$rc" "$out"
+
+  out=$(deploy_lock_check "$C2" "$DISP" "$RCLIB" "$REPO" "" 2>/dev/null); rc=$?
+  check "BASE empty -> 2" 2 "$want2" "$rc" "$out"
+
+  out=$(deploy_lock_check "$C2" "$DISP" "$RCLIB" "$REPO" "${C2:0:8}" 2>/dev/null); rc=$?
+  check "BASE short SHA -> 2" 2 "$want2" "$rc" "$out"
+
+  out=$(deploy_lock_check "$C2" "$DISP" "$RCLIB" "$REPO" "" 2>&1 >/dev/null)
+  check "unusable base warns on stderr" 0 "deploy_lock_check: base '' unusable, checking full ancestry of $C2" 0 "$out"
+
   reset_disputes
   out=$(deploy_lock_check "$C2" "$DISP" "$RCLIB" "$REPO"); rc=$?
   check "nothing held -> 0" 0 "" "$rc" "$out"
@@ -159,6 +179,7 @@ mutate() { # name sed-expression
 }
 mutate no-revert-check 's/\*"This reverts commit \$sha"\*) continue/*"NEVER-MATCHES"*) continue/'
 mutate head-compare 's|git -C "\$repo" merge-base --is-ancestor "\$sha" "\$new_sha" 2>/dev/null|[ "$sha" = "$(git -C "$repo" rev-parse HEAD)" ]|'
+mutate no-base-skip '/is-ancestor "\$sha" "\$base_sha"/,/^    fi$/d'
 mutate rc7-to-0 's/return 7/return 0/g'
 
 if [ "$BASE_RC" -ne 0 ] || [ "$F2_FAIL" -ne 0 ] || [ "$MUT_FAIL" -ne 0 ]; then

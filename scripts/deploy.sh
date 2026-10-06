@@ -166,8 +166,10 @@ lock_lib_src="$(git show "${NEW_SHA}:scripts/lib/deploy-lock.sh")" || {
 }
 eval "$lock_lib_src"
 lock_rc=0
+lock_base="$(cat "$LAST_GOOD_FILE" 2>/dev/null || true)"
+echo "[deploy] deploy lock range: ${lock_base:-<full ancestry>}..${NEW_SHA}"
 lock_out="$(deploy_lock_check "$NEW_SHA" "${TASKLOOP_DISPUTES:-$HOME/taskloop/disputes}" \
-  "${REJECTED_COMMITS_LIB:-$HOME/taskloop/lib/rejected-commits.sh}" "$APP_DIR")" || lock_rc=$?
+  "${REJECTED_COMMITS_LIB:-$HOME/taskloop/lib/rejected-commits.sh}" "$APP_DIR" "$lock_base")" || lock_rc=$?
 if [ "${DEPLOY_LOCK_BYPASS:-}" = "1" ] && [ "$lock_rc" -ne 0 ]; then
   echo "[deploy] WARNING: DEPLOY_LOCK_BYPASS=1 set, ignoring deploy lock result rc=${lock_rc}" >&2
   lock_rc=0
