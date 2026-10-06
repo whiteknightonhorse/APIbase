@@ -22,6 +22,7 @@ export const WEBHOOK_EVENTS = [
   'dispute.opened',
   'catalog.rejected',
   'merchant.key_rotated',
+  'merchant.keys_reissued',
 ] as const;
 
 export const sha256hex = (s: string) => createHash('sha256').update(s).digest('hex');

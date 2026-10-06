@@ -1,7 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { ShopAuthError } from '../auth/errors';
-import { rotateKey } from '../auth/identity.service';
+import { reissueKeys, rotateKey } from '../auth/identity.service';
 import { requireMerchantKey } from '../auth/merchant-key.service';
 import {
   buildSignInMessage,
@@ -155,6 +155,31 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
           }),
         );
         res.json(await withBanner(m.merchant_id, { api_key }));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // Lost key: no Bearer. The wallet signature (purpose reissue) is the credential; revokes ALL keys.
+  router.post(
+    '/api/v1/shop/merchants/me/keys/reissue',
+    limiter(3_600_000, 5),
+    async (req: Request, res: Response) => {
+      try {
+        const { wallet, message, signature } = (req.body ?? {}) as Record<string, unknown>;
+        if (
+          typeof wallet !== 'string' ||
+          !/^0x[0-9a-fA-F]{40}$/.test(wallet) ||
+          typeof message !== 'string' ||
+          typeof signature !== 'string'
+        ) {
+          throw new ShopAuthError(401, 'wallet signature required', 'sign the reissue message');
+        }
+        const api_key = await deps.transaction((tx) =>
+          reissueKeys({ db: tx, redis: deps.redis, now: deps.now }, wallet, { message, signature }),
+        );
+        res.json({ api_key });
       } catch (err) {
         send(res, err);
       }

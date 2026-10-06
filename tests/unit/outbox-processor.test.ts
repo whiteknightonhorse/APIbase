@@ -58,6 +58,7 @@ describe('outbox processor (T-0259)', () => {
       'shop.refund.requested',
       'shop.catalog.rejected',
       'shop.merchant.key_rotated',
+      'shop.merchant.keys_reissued',
       'shop.order.confirm_overdue',
       'shop.refund.overdue',
     ]);

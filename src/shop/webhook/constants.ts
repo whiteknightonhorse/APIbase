@@ -18,6 +18,7 @@ export const OUTBOX_TO_WEBHOOK: Record<string, string> = {
   'shop.refund.requested': 'refund.requested',
   'shop.catalog.rejected': 'catalog.rejected',
   'shop.merchant.key_rotated': 'merchant.key_rotated',
+  'shop.merchant.keys_reissued': 'merchant.keys_reissued',
   'shop.order.confirm_overdue': 'order.confirm_overdue',
   'shop.refund.overdue': 'refund.overdue',
 };

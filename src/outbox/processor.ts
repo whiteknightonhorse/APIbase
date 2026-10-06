@@ -9,6 +9,7 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
   'shop.refund.requested',
   'shop.catalog.rejected',
   'shop.merchant.key_rotated',
+  'shop.merchant.keys_reissued',
   'shop.order.confirm_overdue',
   'shop.refund.overdue',
 ] as const;

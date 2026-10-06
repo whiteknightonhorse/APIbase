@@ -5,19 +5,20 @@
 A merchant goes `pending` → `active` in three calls. Everything is authenticated by the merchant
 wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
 
-| Step | REST (`/api/v1/shop`)                                     | MCP tool                       |
-| ---- | --------------------------------------------------------- | ------------------------------ |
-| 1    | `GET /auth/nonce?wallet=0x…&purpose=register`             | —                              |
-| 2    | `POST /merchants`                                         | `shop.merchant.register`       |
-| 3    | `GET /auth/nonce?wallet=0x…&purpose=accept_terms`         | —                              |
-| 4    | `POST /merchants/me/acceptances`                          | `shop.merchant.accept_terms`   |
-| —    | `POST /merchants/me/keys/rotate` (Bearer)                 | `shop.merchant.rotate_key`     |
-| —    | `POST /merchants/me/deactivate` (Bearer, `orders:write`)  | `shop.merchant.deactivate`     |
-| —    | `GET /merchants/me/orders` (Bearer, `orders:read`)        | `shop.merchant.orders_list`    |
-| —    | `POST /merchants/me/orders/:id/confirm` (`orders:write`)  | `shop.merchant.order_confirm`  |
-| —    | `POST /merchants/me/orders/:id/document` (`orders:write`) | `shop.merchant.order_document` |
-| —    | `PUT /merchants/me/webhooks` (`webhooks:write`)           | `shop.merchant.webhook_set`    |
-| —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`) | —                              |
+| Step | REST (`/api/v1/shop`)                                        | MCP tool                       |
+| ---- | ------------------------------------------------------------ | ------------------------------ |
+| 1    | `GET /auth/nonce?wallet=0x…&purpose=register`                | —                              |
+| 2    | `POST /merchants`                                            | `shop.merchant.register`       |
+| 3    | `GET /auth/nonce?wallet=0x…&purpose=accept_terms`            | —                              |
+| 4    | `POST /merchants/me/acceptances`                             | `shop.merchant.accept_terms`   |
+| —    | `POST /merchants/me/keys/rotate` (Bearer)                    | `shop.merchant.rotate_key`     |
+| —    | `POST /merchants/me/keys/reissue` (no Bearer, wallet-signed) | —                              |
+| —    | `POST /merchants/me/deactivate` (Bearer, `orders:write`)     | `shop.merchant.deactivate`     |
+| —    | `GET /merchants/me/orders` (Bearer, `orders:read`)           | `shop.merchant.orders_list`    |
+| —    | `POST /merchants/me/orders/:id/confirm` (`orders:write`)     | `shop.merchant.order_confirm`  |
+| —    | `POST /merchants/me/orders/:id/document` (`orders:write`)    | `shop.merchant.order_document` |
+| —    | `PUT /merchants/me/webhooks` (`webhooks:write`)              | `shop.merchant.webhook_set`    |
+| —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`)    | —                              |
 
 1. **Nonce.** `GET /auth/nonce` returns `{nonce, issued_at, expires_in, message}`; `message` is the exact
    text to sign for that purpose. A nonce is single-use and lives 300 s.
@@ -83,6 +84,20 @@ The reason is not disclosed. Policy: `/legal/refund-framework`.
 Other codes: `unauthorized` (401, bad/missing signature, nonce used or expired), `rate_limited` (429),
 `validation_failed` (422), `slug_taken`/`wallet_registered` (409), `payout_wallet_sanctioned` (403).
 Limits per IP: nonce 30/min, `POST /merchants` 5/hour, acceptances 10/min.
+
+## Lost key
+
+If you lost your `mk_live_` key there is no Bearer to call `keys/rotate` with. Recover with the
+merchant wallet instead:
+
+1. `GET /api/v1/shop/auth/nonce?wallet=0x…&purpose=reissue` returns a `message` to sign.
+2. Sign it with the merchant (identity) wallet (EIP-191) and call
+   `POST /api/v1/shop/merchants/me/keys/reissue` with `{wallet, message, signature}` and no `Authorization` header.
+3. The response is `{api_key}`: a fresh `mk_live_` key, shown once. **All earlier keys are revoked**
+   immediately. The nonce is single-use and expires after 5 minutes; a bad or replayed signature is `401`.
+
+The route is rate-limited to 5 requests per hour per address. A `merchant.keys_reissued` event is
+recorded (subscribable through webhooks, also in `GET /merchants/me/events`). This route is an addition to §6.3 of the spec.
 
 ## Catalog
 
@@ -158,7 +173,7 @@ Buyer path after a quote: pay with x402 (Base). **Settle comes before delivery**
 
 ## Webhooks
 
-Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
+Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
 
 **URL rules.** `https://` only; every address the host resolves to must be public — RFC 1918, loopback, link-local (`169.254.169.254` included), CGNAT and IPv6 equivalents are `422`. The name is resolved again at every delivery and the connection is pinned to that address; redirects are never followed (a `3xx` counts as a failed attempt).
 
@@ -286,6 +301,7 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `GET /merchants/me/check`                | yes    |                    |
 | `POST /merchants/me/deactivate`          | yes    |                    |
 | `POST /merchants/me/keys/rotate`         | yes    |                    |
+| `POST /merchants/me/keys/reissue`        | yes    |                    |
 
 **Public routes (outside `/api/v1/shop`)**: `GET /m/:slug`, `/m/:slug/p/:sku`, `/m/:slug/cart`, `/m/:slug/agent.json`, `/m/:slug/llms.txt`, `/shops`, `/integrator/check/:slug`, `/legal/index.json` — yes. `/api/v1/fleet/sea` (spec §13.3) — no, it is not part of the shop surface.
 

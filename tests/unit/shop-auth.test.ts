@@ -11,13 +11,17 @@ import {
   type NonceRedis,
   type SignPurpose,
 } from '../../src/shop/auth/nonce.service';
+import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
 import { issueKey, requireMerchantKey } from '../../src/shop/auth/merchant-key.service';
 import {
   changeIdentity,
   currentPayout,
+  reissueKeys,
   requestPayoutChange,
   rotateKey,
 } from '../../src/shop/auth/identity.service';
+
+jest.mock('../../src/config', () => ({ config: {} }));
 
 class FakeRedis implements NonceRedis {
   m = new Map<string, { v: string; exp: number }>();
@@ -234,6 +238,58 @@ describe('ID4-ID6 identity', () => {
     expect(f.keys.find((k) => k.key_hash === hashApiKey(old))!.revoked_at).not.toBeNull();
     expect(f.keys.find((k) => k.key_hash === hashApiKey(fresh))!.revoked_at).toBeNull();
     expect(f.outbox.filter((o) => o.event_type === 'shop.merchant.key_rotated')).toHaveLength(1);
+  });
+  it('ID4b reissueKeys revokes all keys, emits keys_reissued; wrong wallet -> 401', async () => {
+    const f = fakeDb({ merchant: mk() });
+    const a = await issueKey(f.db, 'm1');
+    const b = await issueKey(f.db, 'm1');
+    const fresh = await reissueKeys(
+      { db: f.db, redis, now },
+      owner.address,
+      await sign(owner, redis, 'reissue'),
+    );
+    for (const old of [a, b])
+      expect(f.keys.find((k) => k.key_hash === hashApiKey(old))!.revoked_at).not.toBeNull();
+    expect(f.keys.find((k) => k.key_hash === hashApiKey(fresh))!.revoked_at).toBeNull();
+    expect(f.outbox.filter((o) => o.event_type === 'shop.merchant.keys_reissued')).toHaveLength(1);
+    const other = acct();
+    await expect(
+      reissueKeys({ db: f.db, redis, now }, owner.address, await sign(other, redis, 'reissue')),
+    ).rejects.toMatchObject({ status: 401 });
+  });
+  it('ID4c POST /merchants/me/keys/reissue works without Bearer', async () => {
+    const f = fakeDb({ merchant: mk() });
+    const old = await issueKey(f.db, 'm1');
+    const app = express();
+    app.use(express.json());
+    app.use(
+      createMerchantRouter({
+        db: f.db as never,
+        transaction: (fn) => fn(f.db as never),
+        redis: redis as never,
+        now,
+      }),
+    );
+    const srv = app.listen(0);
+    const url = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/api/v1/shop/merchants/me/keys/reissue`;
+    const post = (body: unknown) =>
+      fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+    try {
+      expect((await post({ wallet: owner.address })).status).toBe(401);
+      const s = await sign(owner, redis, 'reissue');
+      const r = await post({ wallet: owner.address, ...s });
+      expect(r.status).toBe(200);
+      const { api_key } = (await r.json()) as { api_key: string };
+      expect(api_key).toMatch(/^mk_live_/);
+      expect(f.keys.find((k) => k.key_hash === hashApiKey(old))!.revoked_at).not.toBeNull();
+      expect((await post({ wallet: owner.address, ...s })).status).toBe(401);
+    } finally {
+      srv.close();
+    }
   });
   it('ID5 changeIdentity', async () => {
     const rec = acct();
