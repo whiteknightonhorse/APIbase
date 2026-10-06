@@ -2,7 +2,7 @@ import type { ShopTx } from '../db';
 import { cents } from '../catalog.service';
 
 export const PUBLIC_BASE = 'https://apibase.pro';
-export const MCP_URL = `${PUBLIC_BASE}/mcp`;
+export const mcpUrl = (slug: string) => `${PUBLIC_BASE}/mcp/m/${slug}`;
 export const REST_BASE = `${PUBLIC_BASE}/api/v1/shop`;
 const SHOPS_PAGE_SIZE = 50;
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;

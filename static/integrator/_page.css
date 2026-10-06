@@ -22,3 +22,15 @@ section{margin-bottom:0.5rem}
 ul,ol{margin:0 0 1rem 1.4rem}
 p{margin:0 0 1rem}
 @media (prefers-reduced-motion: reduce){.window::before,.cursor,.cursor-blink,.sys-cursor,.sys-monitor .prompt{animation:none}}
+.sub{color:#a0d8a0}
+.ok{color:#00aa30}
+.warn{color:#ffbd2e;border:1px solid #ffbd2e;border-radius:4px;padding:.6rem .9rem}
+.card{background:#080808;border:1px solid #1a3a1a;border-radius:8px;padding:1rem;display:flex;flex-direction:column;gap:.5rem}
+.card .row{display:flex;justify-content:space-between;align-items:center;margin-top:auto}
+.price{color:#00ff41;font-weight:700;font-size:1.15rem}
+.stock{color:#00aa30;font-size:.8rem}
+.kv{background:#080808;border:1px solid #1a3a1a;border-radius:4px;padding:.9rem 1.1rem;line-height:2}
+.kv .k{color:#2a942a}
+.kv .dots{color:#1a3a1a}
+.kv strong{color:#00ff41}
+td.k{color:#00ff41;background:#0a1a0a;width:40%}

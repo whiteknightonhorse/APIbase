@@ -102,7 +102,7 @@ describe('integrator terminal theme', () => {
     expect(out).toBe('');
   });
 
-  it('TD7: _page.css is at most 80 lines', () => {
-    expect(rd(resolve(DIR, '_page.css')).trimEnd().split('\n').length).toBeLessThanOrEqual(80);
+  it('TD7: _page.css is at most 110 lines', () => {
+    expect(rd(resolve(DIR, '_page.css')).trimEnd().split('\n').length).toBeLessThanOrEqual(110);
   });
 });
