@@ -313,6 +313,9 @@ p a,li a,summary a{text-decoration:underline}
 .btn.p:hover{color:#0c0c0c}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
 .slot{border:1px dashed #1a3a1a;border-radius:8px;padding:1rem 1.2rem;margin:0 0 1rem}
+.sh{margin:0 0 .5rem}
+.sh canvas{display:block;width:100%;height:200px;background:#07121c;border:1px solid #1a3a1a;border-radius:6px;touch-action:pan-y;cursor:grab}
+.sh figcaption{margin-top:.5rem;min-height:3em}
 details{margin:0.4rem 0;border-bottom:1px solid #1a3a1a}
 summary{color:#33ff66;cursor:pointer;min-height:44px;display:flex;align-items:center}
 details p{color:#a0d8a0;margin:0.3rem 0 1rem}

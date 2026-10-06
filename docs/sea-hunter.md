@@ -36,3 +36,11 @@ and the pause reason or author. The exporter reads only the first line of the pa
 (never lists) the active task directory, and reads mtimes. The mapping from internal systems to
 the neutral classes lives only in `scripts/sea-fleet-export.py`. The serializer
 (`src/services/fleet-sea.service.ts`) is a whitelist: any field not picked explicitly is dropped.
+
+## The home page widget (T-INT-30)
+
+`static/js/sea-hunter.js` is the readable source. `node scripts/inline-sea-hunter.cjs` minifies it
+and inlines it into `<section id="sea-hunter">` of `static/index.html` (`--check` fails on drift;
+tests/unit/sea-hunter.test.ts enforces it). The widget fetches only `/api/v1/fleet/sea`, every 10 s,
+and only while it is in view and the tab is visible. Canvas 2D, offscreen silhouettes, no libraries.
+Stale data shows "Telemetry stale" and stops the animation; `prefers-reduced-motion` gets one static frame.
