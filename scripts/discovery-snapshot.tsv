@@ -677,6 +677,9 @@ irena.generation_country	irena
 irena.share_renewables	irena
 iss.position	iss
 iss.tle	iss
+istat.data	istat
+istat.dataflows	istat
+istat.structure	istat
 itistaxonomy.get_full_record	itistaxonomy
 itistaxonomy.search_common_name	itistaxonomy
 itistaxonomy.search_scientific_name	itistaxonomy
