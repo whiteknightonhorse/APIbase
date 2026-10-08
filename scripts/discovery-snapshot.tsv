@@ -678,6 +678,10 @@ irail.vehicle	irail
 irctc.station_search	irctc
 irctc.train_search	irctc
 irctc.train_status	irctc
+irena.capacity_country	irena
+irena.capacity_region	irena
+irena.generation_country	irena
+irena.share_renewables	irena
 iss.position	iss
 iss.tle	iss
 istat.data	istat
