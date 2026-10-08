@@ -367,10 +367,6 @@ ecb-rates.yield_curve	ecb-rates
 ecdc-surveillance.cases_deaths	ecdc-surveillance
 ecdc-surveillance.hospital_icu	ecdc-surveillance
 ecdc-surveillance.testing_rate	ecdc-surveillance
-echo.air_facilities	echo
-echo.facility_detail	echo
-echo.facility_search	echo
-echo.violations	echo
 edgar.company_facts	edgar
 edgar.company_search	edgar
 edgar.filings	edgar
