@@ -96,11 +96,6 @@ bcb.usd_brl	bcb
 bdl.games	balldontlie
 bdl.players	balldontlie
 bdl.teams	balldontlie
-bea.gdp	bea
-bea.industry_gdp	bea
-bea.personal_income	bea
-bea.state_gdp	bea
-bea.trade_balance	bea
 bgs-ogcapi.borehole_search	bgs-ogcapi
 bgs-ogcapi.earthquake_search	bgs-ogcapi
 bgs-ogcapi.geology_bedrock	bgs-ogcapi
