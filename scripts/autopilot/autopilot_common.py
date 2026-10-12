@@ -1010,10 +1010,64 @@ def fleet_task_location(fleet_task_id):
     return None
 
 
+ATTEMPTS_CAP = 500        # T-0334: hard ceiling on incidents.attempts length
+ATTEMPTS_KEEP_HEAD = 50   # first 50 + marker + last 449 = 500
+ATTEMPTS_KEEP_TAIL = ATTEMPTS_CAP - ATTEMPTS_KEEP_HEAD - 1
+
+
+def capped_attempts_sql(expr: str) -> str:
+    """T-0334: SQL for `expr` (a jsonb array expression, may reference the row's
+    `attempts`) limited to ATTEMPTS_CAP entries: first 50, one
+    {"action":"truncated","dropped":N} marker, last 449. N counts the removed
+    entries; a removed older marker contributes its own `dropped`, so repeated
+    truncation never forgets how much was lost. Every attempts write goes through this."""
+    h, t = ATTEMPTS_KEEP_HEAD, ATTEMPTS_KEEP_TAIL
+    return (
+        f"(SELECT CASE WHEN jsonb_array_length(s.a) <= {ATTEMPTS_CAP} THEN s.a ELSE "
+        f"(SELECT COALESCE(jsonb_agg(x.e ORDER BY x.o), '[]'::jsonb) "
+        f"FROM jsonb_array_elements(s.a) WITH ORDINALITY x(e, o) WHERE x.o <= {h}) "
+        f"|| jsonb_build_array(jsonb_build_object('action', 'truncated', 'dropped', "
+        f"(SELECT COALESCE(sum(CASE WHEN x.e->>'action' = 'truncated' "
+        f"THEN COALESCE((x.e->>'dropped')::int, 1) ELSE 1 END), 0) "
+        f"FROM jsonb_array_elements(s.a) WITH ORDINALITY x(e, o) "
+        f"WHERE x.o > {h} AND x.o <= jsonb_array_length(s.a) - {t}))) "
+        f"|| (SELECT COALESCE(jsonb_agg(x.e ORDER BY x.o), '[]'::jsonb) "
+        f"FROM jsonb_array_elements(s.a) WITH ORDINALITY x(e, o) "
+        f"WHERE x.o > jsonb_array_length(s.a) - {t}) END "
+        f"FROM (SELECT {expr} AS a) s)"
+    )
+
+
+def append_attempt_sql(entry: dict) -> str:
+    """SET-clause value that appends `entry` to attempts under the hard cap."""
+    return capped_attempts_sql(f"COALESCE(attempts, '[]'::jsonb) || {sql_jsonb_literal([entry])}")
+
+
 def note_incident(incident_id: str, actor: str, action: str, result: str):
-    entry = {"ts": now_iso(), "actor": actor, "action": action, "result": result}
+    """Append an attempts entry. T-0334: a "recurrence" whose predecessor (the LAST entry) is a
+    recurrence with the same actor and the same result text is folded into it
+    (`count` += 1, `last_at` = now) instead of appended; a differing result is a new entry.
+    One UPDATE, so the fold is atomic under the row lock. Other actions append unchanged."""
+    now = now_iso()
+    if action.startswith("recurrence"):
+        entry = {"ts": now, "actor": actor, "action": action, "result": result, "count": 1}
+        last = "attempts->-1"
+        fold = (
+            f"jsonb_set(jsonb_set(attempts, '{{-1,count}}', "
+            f"to_jsonb(COALESCE(({last}->>'count')::int, 1) + 1)), "
+            f"'{{-1,last_at}}', to_jsonb({sql_literal(now)}::text))"
+        )
+        same_as_last = (
+            f"jsonb_array_length(COALESCE(attempts, '[]'::jsonb)) > 0 "
+            f"AND {last}->>'action' = {sql_literal(action)} "
+            f"AND {last}->>'actor' = {sql_literal(actor)} "
+            f"AND {last}->>'result' = {sql_literal(result)}"
+        )
+        value = f"CASE WHEN {same_as_last} THEN {fold} ELSE {append_attempt_sql(entry)} END"
+    else:
+        value = append_attempt_sql({"ts": now, "actor": actor, "action": action, "result": result})
     _, rc = psql(
-        f"UPDATE incidents SET attempts = attempts || {sql_jsonb_literal([entry])}, updated_at = now() "
+        f"UPDATE incidents SET attempts = {value}, updated_at = now() "
         f"WHERE incident_id = {sql_literal(incident_id)}"
     )
     if rc != 0:
@@ -1049,7 +1103,7 @@ def wait_incident(incident_id: str, actor: str, until_iso: str, result: str, fro
     states_sql = ", ".join(sql_literal(s) for s in from_states)
     out, rc = psql(
         f"UPDATE incidents SET state = 'VERIFYING', next_recheck_at = {sql_literal(until_iso)}::timestamptz, "
-        f"attempts = attempts || {sql_jsonb_literal([entry])}, updated_at = now() "
+        f"attempts = {append_attempt_sql(entry)}, updated_at = now() "
         f"WHERE incident_id = {sql_literal(incident_id)} AND state IN ({states_sql}) "
         f"RETURNING incident_id"
     )

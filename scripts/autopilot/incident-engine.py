@@ -738,7 +738,45 @@ def advance_waiting_human():
 WAIT_MAX_NOTES = 2  # T-0263: action="wait" entries per incident (CLI wait + one auto-extend)
 
 
+def schedule_orphan_recheck(incident_id, provider, kind):
+    """T-0334: a VERIFYING row with next_recheck_at NULL that this tick could not decide (no
+    provider_status row, or no probe since it entered VERIFYING) was never going to be looked at
+    again by anything (UNKNOWN/night-orchestra sat 5 weeks, PROVIDER_DOWN/jikan 1,310 notes).
+    Give it a deadline 1 h out. Only reached when there is no verdict this tick, so a row that
+    the re-probe can decide right now is still decided right now. The stuck/parked case is
+    handled before this (T-0292)."""
+    until_iso = (datetime.now(timezone.utc) + timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    _, rc = ap.psql(
+        f"UPDATE incidents SET next_recheck_at = {ap.sql_literal(until_iso)}::timestamptz "
+        f"WHERE incident_id = {ap.sql_literal(incident_id)} AND state = 'VERIFYING' "
+        f"AND next_recheck_at IS NULL"
+    )
+    if rc != 0:
+        return
+    ap.note_incident(incident_id, "incident-engine", "recheck", "recheck scheduled (orphan)")
+    ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) VERIFYING with no recheck "
+              f"deadline and no verdict -> recheck at {until_iso}")
+
+
+def list_rate_limited_orphans():
+    """T-0334: RATE_LIMITED incidents in STUCK with no fleet task have nobody working them;
+    list them for the dispatcher (notice log only, no state change)."""
+    out, rc = ap.psql(
+        "SELECT incident_id, provider FROM incidents "
+        "WHERE state = 'STUCK' AND kind = 'RATE_LIMITED' AND fleet_task_id IS NULL"
+    )
+    if rc != 0 or not out:
+        return []
+    rows = [line.split(ap.SEP) for line in out.splitlines()]
+    for incident_id, provider in rows:
+        ap.notice_dedup(incident_id, "rate-limited-stuck-no-task",
+                        f"incident-engine: {incident_id} ({provider}/RATE_LIMITED) STUCK with no "
+                        f"fleet task -> for the dispatcher")
+    return rows
+
+
 def advance_verifying():
+    list_rate_limited_orphans()
     out, rc = ap.psql(
         f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('updated_at')}, fleet_task_id, "
         f"{UTC_TS_EXPR('next_recheck_at')}, COALESCE(next_recheck_at <= now(), false), "
@@ -776,7 +814,9 @@ def advance_verifying():
             continue
         # T-0263: a `wait` verdict (incident-cli.py wait) parks the incident
         # until next_recheck_at -- no RESOLVED, no STUCK, even on a FAIL probe.
-        waiting = bool(recheck_at)
+        # T-0334: only a deadline written by `wait` (it always leaves an action="wait" entry) parks
+        # the incident; the 1 h orphan deadline is bookkeeping and must not delay a fresh verdict.
+        waiting = bool(recheck_at) and int(wait_count) > 0
         if waiting and expired != "t":
             continue
         pv, rc2 = ap.psql(
@@ -784,6 +824,8 @@ def advance_verifying():
             f"WHERE provider = {ap.sql_literal(provider)}"
         )
         if rc2 != 0 or not pv:
+            if not recheck_at:
+                schedule_orphan_recheck(incident_id, provider, kind)
             continue  # NOINFO — no provider_status row at all, nothing to confirm against yet
         state, last_result, last_probe_at = pv.split(ap.SEP)
         probe_ts = _parse_ts(last_probe_at)
@@ -791,6 +833,8 @@ def advance_verifying():
         if probe_ts is None or verify_ts is None or probe_ts <= verify_ts:
             # No measurement SINCE we entered VERIFYING — still NOINFO, not a
             # verdict either way. Do not resolve on stale data (C0.3).
+            if not recheck_at:
+                schedule_orphan_recheck(incident_id, provider, kind)
             continue
         if state == "HEALTHY" or last_result == "OK":
             ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
@@ -812,6 +856,8 @@ def advance_verifying():
                               f"re-probe still {last_result} — F2: VERIFYING+FAIL -> STUCK")
             ap.tg_send(f"[apibase] \U0001F534 STUCK INC-{ap.short_id(incident_id)} {kind} "
                        f"({provider}) — re-probe still failing, needs a human now")
+        elif not recheck_at:
+            schedule_orphan_recheck(incident_id, provider, kind)
         # SKIPPED_BUDGET/NOINFO: genuinely no answer yet, leave in VERIFYING.
 
 
