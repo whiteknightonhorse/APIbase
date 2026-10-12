@@ -487,23 +487,19 @@ RPO: 24 hours (daily backup). RTO: < 3 hours.
 ### 9.2 Database Corruption
 
 1. Stop write traffic: `$COMPOSE stop api worker outbox-worker`
-2. Restore from backup: `pg_restore -U apibase -d apibase --clean < backup.dump`
+2. Restore from backup (plain SQL gzip, not a custom-format dump): `gunzip -c backups/last/apibase-latest.sql.gz | $COMPOSE exec -T postgres psql -v ON_ERROR_STOP=1 -U apibase -d apibase`
 3. Restart: `$COMPOSE start api worker outbox-worker`
 4. Verify: smoke tests + ledger integrity check
 
 ### 9.3 Backup Verification
 
-Monthly: restore backup to a test database, verify row counts and data integrity.
+Monthly: `bash scripts/backup-restore-drill.sh`; report in backups/restore-drill/; a month without a report is an incident.
 
-```bash
-# Create test DB
-$COMPOSE exec postgres createdb -U apibase apibase_test
-$COMPOSE exec -T postgres pg_restore -U apibase -d apibase_test < backup.dump
-# Verify
-$COMPOSE exec postgres psql -U apibase -d apibase_test -c "SELECT count(*) FROM agents;"
-# Cleanup
-$COMPOSE exec postgres dropdb -U apibase apibase_test
-```
+The script restores the dump into a throwaway postgres container and checks table count, row counts and ledger freshness.
+
+### 9.4 Off-box Copy
+
+Off-box copy: see docs/backup-offsite.md (T-0313)
 
 ---
 
