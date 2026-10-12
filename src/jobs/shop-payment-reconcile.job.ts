@@ -199,10 +199,14 @@ export async function runDailySample(opts?: {
   chain?: ChainReader;
 }): Promise<number> {
   const deps = opts?.deps ?? defaultShopDeps();
+  // Base only: receiptOk reads the Base RPC, so a Tempo tx hash would look "not found" and raise a
+  // false payment_mismatch. Tempo receipts are not verified here (no Tempo RPC reader exists;
+  // adding one is a separate card).
   const rows = await deps.db.$queryRawUnsafe<Array<{ tx_hash: string; merchant_id: string }>>(
     `SELECT p.tx_hash, o.merchant_id
        FROM shop_payments p JOIN shop_orders o ON o.order_id = p.order_id
       WHERE p.chain_status = 'confirmed' AND p.tx_hash IS NOT NULL
+        AND p.rail = 'base'
         AND p.confirmed_at > now() - interval '1 day'
       ORDER BY random() LIMIT 100`,
   );
