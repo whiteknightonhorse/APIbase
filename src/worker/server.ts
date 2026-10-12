@@ -1,5 +1,10 @@
 import Redis from 'ioredis';
 import cron from 'node-cron';
+import {
+  registerJob as registerJobTracked,
+  workerStartedMessage,
+  type JobSpec,
+} from './job-runner';
 import { config } from '../config';
 import { logger } from '../config/logger';
 import { createHealthServer, updateHeartbeatTimestamp } from './health';
@@ -24,6 +29,11 @@ import { runShopCatalogImportJob } from '../jobs/shop-catalog-import.job';
 import { runShopStreamSettle } from '../jobs/shop-stream-settle.job';
 import { runShopSubscriptionSweep } from '../jobs/shop-subscription-sweep.job';
 import { runShopSubscriptionPull } from '../jobs/shop-subscription-pull.job';
+
+const registeredTasks: Array<{ stop: () => void }> = [];
+function registerJob(spec: JobSpec): void {
+  registeredTasks.push(registerJobTracked(spec));
+}
 
 /**
  * Worker process entry point (§12.194, §12.244).
@@ -230,89 +240,70 @@ const partitionCleanupTask = cron.schedule('0 4 * * *', () => {
 
 // OFAC SDN -> shop_sanctioned_addresses daily at 05:30 UTC (F-13). Startup run (skipIfFresh)
 // fills an empty table so registration sanctions checks are not a no-op until the first cron.
-let ofacSdnSyncRunning = false;
-async function runOfacSdnSyncSafe(opts?: { skipIfFresh?: boolean }): Promise<void> {
-  if (ofacSdnSyncRunning) {
-    return;
-  }
-  ofacSdnSyncRunning = true;
-  try {
-    await runOfacSdnSync(opts);
-  } catch (err) {
-    logger.error({ err, job: 'ofac-sdn-sync' }, 'OFAC SDN sync job failed');
-  } finally {
-    ofacSdnSyncRunning = false;
-  }
-}
-const ofacSdnSyncTask = cron.schedule('30 5 * * *', () => {
-  runOfacSdnSyncSafe().catch(() => {});
+registerJob({
+  name: 'ofac-sdn-sync',
+  cron: '30 5 * * *',
+  expect_every_s: 86400,
+  run: () => runOfacSdnSync(),
 });
-setTimeout(() => runOfacSdnSyncSafe({ skipIfFresh: true }).catch(() => {}), 20_000);
+setTimeout(
+  () =>
+    runOfacSdnSync({ skipIfFresh: true }).catch((err) =>
+      logger.error({ err, job: 'ofac-sdn-sync' }, 'OFAC SDN sync job failed'),
+    ),
+  20_000,
+);
 
 // Order payments (INT-09, §7.2): pending/failed shop_payments are re-read on-chain every 5 min;
 // a daily sample of confirmed ones is re-checked against the receipt (PAYMENT_MISMATCH source).
-let shopReconcileRunning = false;
-const shopReconcileTask = cron.schedule('*/5 * * * *', () => {
-  if (shopReconcileRunning) {
-    return;
-  }
-  shopReconcileRunning = true;
-  runShopPaymentReconcile()
-    .catch((err) => logger.error({ err, job: 'shop-payment-reconcile' }, 'reconcile job failed'))
-    .finally(() => {
-      shopReconcileRunning = false;
-    });
+registerJob({
+  name: 'shop-payment-reconcile',
+  cron: '*/5 * * * *',
+  expect_every_s: 300,
+  run: () => runShopPaymentReconcile(),
 });
 // Order SLA sweeper (INT-12, §5.3): expired quotes, confirm_overdue, close_after, refund due_at,
-// payout_pending, connect_events TTL.
-let shopSweeperRunning = false;
-const shopSweeperTask = cron.schedule('*/5 * * * *', () => {
-  if (shopSweeperRunning) {
-    return;
-  }
-  shopSweeperRunning = true;
-  runShopSlaSweeper()
-    .catch((err) => logger.error({ err, job: 'shop-sla-sweeper' }, 'sweeper job failed'))
-    .finally(() => {
-      shopSweeperRunning = false;
-    });
+// payout_pending, connect_events TTL, PII purge, fee overdue, payment identifiers.
+registerJob({
+  name: 'shop-sla-sweeper',
+  cron: '*/5 * * * *',
+  expect_every_s: 300,
+  run: () => runShopSlaSweeper(),
 });
 // Fee invoices (INT-25, §7.1): the 1st of the month, owed Base receivables of the closed months -> one USDC invoice.
-const shopFeeInvoiceTask = cron.schedule('10 3 1 * *', () => {
-  runShopFeeInvoice().catch((err) =>
-    logger.error({ err, job: 'shop-fee-invoice' }, 'fee invoice job failed'),
-  );
+registerJob({
+  name: 'shop-fee-invoice',
+  cron: '10 3 1 * *',
+  expect_every_s: 2678400,
+  run: () => runShopFeeInvoice(),
 });
 // Merchant domain proof (INT-15, UC-17): .well-known file or DNS TXT, once a day.
-const shopDomainVerifyTask = cron.schedule('30 4 * * *', () => {
-  runShopDomainVerify().catch((err) =>
-    logger.error({ err, job: 'shop-domain-verify' }, 'domain verify job failed'),
-  );
+registerJob({
+  name: 'shop-domain-verify',
+  cron: '30 4 * * *',
+  expect_every_s: 86400,
+  run: () => runShopDomainVerify(),
 });
 // Provek registry sync (INT-44, §14): which opted-in merchants are listed at provek.dev, once a day.
-const shopProvekSyncTask = cron.schedule('50 4 * * *', () => {
-  runShopProvekRegistrySync().catch((err) =>
-    logger.error({ err, job: 'shop-provek-registry-sync' }, 'provek registry sync job failed'),
-  );
+registerJob({
+  name: 'shop-provek-registry-sync',
+  cron: '50 4 * * *',
+  expect_every_s: 86400,
+  run: () => runShopProvekRegistrySync(),
 });
 // Storefront probe (INT-16, §14): 100 random active /mcp/m/<slug> initialised in-process, hourly.
-const shopStorefrontProbeTask = cron.schedule('7 * * * *', () => {
-  runShopStorefrontProbe().catch((err) =>
-    logger.error({ err, job: 'shop-storefront-probe' }, 'storefront probe job failed'),
-  );
+registerJob({
+  name: 'shop-storefront-probe',
+  cron: '7 * * * *',
+  expect_every_s: 3600,
+  run: () => runShopStorefrontProbe(),
 });
 // Catalog feed imports (INT-32, F-2): queued CSV / Google Merchant Center / Shopify imports, every minute.
-let shopCatalogImportRunning = false;
-const shopCatalogImportTask = cron.schedule('* * * * *', () => {
-  if (shopCatalogImportRunning) {
-    return;
-  }
-  shopCatalogImportRunning = true;
-  runShopCatalogImportJob()
-    .catch((err) => logger.error({ err, job: 'shop-catalog-import' }, 'catalog import job failed'))
-    .finally(() => {
-      shopCatalogImportRunning = false;
-    });
+registerJob({
+  name: 'shop-catalog-import',
+  cron: '* * * * *',
+  expect_every_s: 60,
+  run: async () => ({ count: await runShopCatalogImportJob() }),
 });
 // Layer-1 re-moderation when the rule files change (T-0315): hourly, no-op unless the rules hash differs.
 let catalogRemoderateRunning = false;
@@ -330,52 +321,31 @@ const catalogRemoderateTask = cron.schedule('17 * * * *', () => {
     });
 });
 // Stream channel settlement (INT-40, F-9): $0.50 / hourly / payer-requested close, every minute.
-let shopStreamSettleRunning = false;
-const shopStreamSettleTask = cron.schedule('* * * * *', () => {
-  if (shopStreamSettleRunning) {
-    return;
-  }
-  shopStreamSettleRunning = true;
-  runShopStreamSettle()
-    .catch((err) => logger.error({ err, job: 'shop-stream-settle' }, 'stream settle job failed'))
-    .finally(() => {
-      shopStreamSettleRunning = false;
-    });
+registerJob({
+  name: 'shop-stream-settle',
+  cron: '* * * * *',
+  expect_every_s: 60,
+  run: () => runShopStreamSettle(),
 });
 // Subscription dunning (INT-41, UC-9): past_due at period end, notice at +24 h, canceled unpaid at +72 h.
-let shopSubscriptionSweepRunning = false;
-const shopSubscriptionSweepTask = cron.schedule('*/5 * * * *', () => {
-  if (shopSubscriptionSweepRunning) {
-    return;
-  }
-  shopSubscriptionSweepRunning = true;
-  runShopSubscriptionSweep()
-    .catch((err) =>
-      logger.error({ err, job: 'shop-subscription-sweep' }, 'subscription sweep job failed'),
-    )
-    .finally(() => {
-      shopSubscriptionSweepRunning = false;
-    });
+registerJob({
+  name: 'shop-subscription-sweep',
+  cron: '*/5 * * * *',
+  expect_every_s: 300,
+  run: () => runShopSubscriptionSweep(),
 });
 // Pre-signed Base authorizations (INT-47, UC-9): executed hourly, each through the ordinary ESCROW -> settle path.
-let shopSubscriptionPullRunning = false;
-const shopSubscriptionPullTask = cron.schedule('0 * * * *', () => {
-  if (shopSubscriptionPullRunning) {
-    return;
-  }
-  shopSubscriptionPullRunning = true;
-  runShopSubscriptionPull()
-    .catch((err) =>
-      logger.error({ err, job: 'shop-subscription-pull' }, 'subscription pull job failed'),
-    )
-    .finally(() => {
-      shopSubscriptionPullRunning = false;
-    });
+registerJob({
+  name: 'shop-subscription-pull',
+  cron: '0 * * * *',
+  expect_every_s: 3600,
+  run: () => runShopSubscriptionPull(),
 });
-const shopPaymentSampleTask = cron.schedule('15 6 * * *', () => {
-  runShopPaymentSample().catch((err) =>
-    logger.error({ err, job: 'shop-payment-sample' }, 'daily payment sample failed'),
-  );
+registerJob({
+  name: 'shop-payment-sample',
+  cron: '15 6 * * *',
+  expect_every_s: 86400,
+  run: async () => ({ count: await runShopPaymentSample() }),
 });
 
 // Create partitions for next 7 days at startup (catch up after restart/missed crons)
@@ -411,9 +381,7 @@ setTimeout(async () => {
   }
 }, 5_000);
 
-logger.info(
-  'Worker started — heartbeat + reconciliation + provider-health + x402-health + partition-create + partition-cleanup + ofac-sdn-sync + shop-payment-reconcile + shop-sla-sweeper + shop-fee-invoice cron active',
-);
+logger.info(workerStartedMessage());
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown (§12.230 — 60s stop_grace_period)
@@ -428,19 +396,10 @@ function shutdown(signal: string): void {
   partitionCreateTask.stop();
   toolQualityTask.stop();
   partitionCleanupTask.stop();
-  ofacSdnSyncTask.stop();
-  shopReconcileTask.stop();
-  shopSweeperTask.stop();
-  shopFeeInvoiceTask.stop();
-  shopDomainVerifyTask.stop();
-  shopProvekSyncTask.stop();
-  shopStorefrontProbeTask.stop();
-  shopCatalogImportTask.stop();
   catalogRemoderateTask.stop();
-  shopStreamSettleTask.stop();
-  shopSubscriptionSweepTask.stop();
-  shopSubscriptionPullTask.stop();
-  shopPaymentSampleTask.stop();
+  for (const task of registeredTasks) {
+    task.stop();
+  }
 
   if (heartbeatTimer) {
     clearInterval(heartbeatTimer);

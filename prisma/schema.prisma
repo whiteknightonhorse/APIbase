@@ -895,3 +895,18 @@ model ShopConnectEvent {
   @@index([at])
   @@map("shop_connect_events")
 }
+
+// worker_job_runs — T-0321: one row per in-process worker cron job (src/worker/job-runner.ts),
+// so an audit can see the last run, its outcome and its report without reading container logs.
+model WorkerJobRun {
+  job              String    @id
+  expect_every_s   Int
+  last_started_at  DateTime? @db.Timestamptz()
+  last_finished_at DateTime? @db.Timestamptz()
+  last_ok          Boolean?
+  last_result      Json?
+  last_error       String?
+  runs_total       BigInt    @default(0)
+
+  @@map("worker_job_runs")
+}
