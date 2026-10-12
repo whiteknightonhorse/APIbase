@@ -6,6 +6,7 @@
  * Version:     1.0.0
  * Requires at least: 6.0
  * Requires PHP: 7.4
+ * WC tested up to: 11.2
  * Author:      APIbase
  * Author URI:  https://apibase.pro
  * License:     GPL-2.0-or-later

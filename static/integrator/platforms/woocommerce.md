@@ -8,6 +8,8 @@ For a WooCommerce store. The GPL-2.0-or-later plugin "APIbase AI payment for Woo
 2. In WordPress open Plugins, Add New, Upload Plugin, choose the zip, install and activate.
 3. Open WooCommerce, Settings, AI payment.
 
+Tested with WordPress 7.1 and WooCommerce 11.2 (October 2026).
+
 ## Settings
 
 - Merchant slug, the `mk_live_` API key and the `whsec_` webhook secret. Both secrets are stored encrypted (AES-256-GCM) and shown masked.
