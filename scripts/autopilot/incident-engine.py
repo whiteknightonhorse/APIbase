@@ -85,6 +85,7 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -531,6 +532,138 @@ def advance_remediation_queued():
             ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
                       f"{fleet_task_id} stuck -> STUCK")
         # else: still in queue/ or active/ -- genuinely no outcome yet (NOINFO), leave queued.
+
+
+PARKED_MAX_AGE_S = 14 * 86400
+PARKED_UNRECOGNIZED = "harness did not recognize DONE"
+# Cards the ruling named as "harness did not recognize DONE" (the marker lives in taskloop logs, not in
+# the card): listed for the dispatcher even when their incident is RESOLVED, never moved.
+PARKED_DISPATCHER_ONLY = (
+    "9615-autopilot-remediation-DEGRADED_QUALITY-adbkidb.md",
+    "9629-autopilot-remediation-DEGRADED_QUALITY-cbs.md",
+    "0111-anime-search-paid-rails-red-four-days.md",
+)
+
+
+def _out(dry_run, line):
+    if dry_run:
+        print(line)
+    else:
+        ap.notice(line)
+
+
+def _healthy_after_card(provider, card_mtime):
+    """T-0335 D5.2 proof: provider_status HEALTHY, last_probe_at later than the card's mtime, and the
+    last 2 probe_log results OK. Returns the probe timestamp string, or None when not proven."""
+    pv, rc = ap.psql(
+        f"SELECT state, EXTRACT(EPOCH FROM last_probe_at)::float8, {UTC_TS_EXPR('last_probe_at')} "
+        f"FROM provider_status WHERE provider = {ap.sql_literal(provider)}"
+    )
+    if rc != 0 or not pv:
+        return None
+    state, epoch, probe_ts = (pv.split(ap.SEP) + [""] * 3)[:3]
+    if state != "HEALTHY" or not epoch or float(epoch) <= card_mtime:
+        return None
+    last2, rc = ap.psql(
+        f"SELECT result FROM probe_log WHERE provider = {ap.sql_literal(provider)} "
+        f"AND kind <> 'suppressed' ORDER BY ts DESC LIMIT 2"
+    )
+    results = last2.splitlines() if rc == 0 and last2 else []
+    if len(results) < 2 or any(r.strip() != "OK" for r in results):
+        return None
+    return probe_ts
+
+
+def close_healthy_remediations(dry_run=False):
+    """T-0335: (1) REMEDIATION_QUEUED/VERIFYING/STUCK incidents whose provider is provably healthy since the
+    card was filed -> RESOLVED, card -> done/ with an AUTO-CLOSED-BY trailer; (2) cards parked > 14 d
+    whose incident is RESOLVED -> done/, orphan/unrecognized parked cards only listed; (3) retired
+    providers' open PROVIDER_DOWN incidents get one WAITING_HUMAN note instead of cards.
+    dry_run prints what would happen and writes nothing. Returns the number of actions."""
+    n = 0
+    out, rc = ap.psql(
+        "SELECT incident_id, provider, kind, fleet_task_id FROM incidents "
+        "WHERE state IN ('REMEDIATION_QUEUED','VERIFYING','STUCK') AND fleet_task_id IS NOT NULL"
+    )
+    for line in (out.splitlines() if rc == 0 and out else []):
+        incident_id, provider, kind, fleet_task_id = line.split(ap.SEP)
+        loc = ap.fleet_task_location(fleet_task_id)
+        if loc not in ("queue", "stuck", "parked", "done"):
+            continue  # active/ is owned by a running attempt; no file = no mtime to compare
+        path = {"done": os.path.join(ap.TASKLOOP_ROOT, "done", fleet_task_id),
+                "stuck": os.path.join(ap.TASKLOOP_ROOT, "stuck", fleet_task_id),
+                "parked": os.path.join(ap.TASKLOOP_ROOT, "stuck", "parked", fleet_task_id),
+                "queue": os.path.join(ap.TASKLOOP_QUEUE_DIR, fleet_task_id)}[loc]
+        try:
+            mtime = os.path.getmtime(path)
+        except OSError:
+            continue
+        probe_ts = _healthy_after_card(provider, mtime)
+        if probe_ts is None:
+            continue
+        card_ts = datetime.fromtimestamp(mtime, timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
+        text = f"auto-closed: provider healthy at {probe_ts}, card filed {card_ts}"
+        n += 1
+        if dry_run:
+            print(f"WOULD RESOLVE {incident_id} ({provider}/{kind}) card {fleet_task_id} [{loc}/]"
+                  f"{' -> done/' if loc != 'done' else ' (already in done/)'}: {text}")
+            continue
+        if loc != "done" and ap.fleet_task_retire(fleet_task_id, incident_id) is None:
+            continue  # card changed under us (taken by taskloop?) -- retry next tick
+        ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
+        ap.note_incident(incident_id, "incident-engine", "auto-closed", text)
+        ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) {text}; card {fleet_task_id} -> done/")
+
+    parked_dir = os.path.join(ap.TASKLOOP_ROOT, "stuck", "parked")
+    listed = []
+    now = time.time()
+    for name in sorted(os.listdir(parked_dir)) if os.path.isdir(parked_dir) else []:
+        path = os.path.join(parked_dir, name)
+        try:
+            if not os.path.isfile(path) or now - os.path.getmtime(path) <= PARKED_MAX_AGE_S:
+                continue
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                body = fh.read()
+        except OSError:
+            continue
+        row, rc = ap.psql(
+            f"SELECT incident_id, state FROM incidents WHERE fleet_task_id = {ap.sql_literal(name)} "
+            f"ORDER BY created_at DESC LIMIT 1"
+        )
+        if rc != 0:
+            continue
+        if row and PARKED_UNRECOGNIZED not in body and name not in PARKED_DISPATCHER_ONLY:
+            incident_id, state = row.split(ap.SEP)
+            if state == "RESOLVED":
+                n += 1
+                if dry_run:
+                    print(f"WOULD MOVE parked {name} -> done/ (incident {incident_id} RESOLVED)")
+                else:
+                    ap.fleet_task_retire(name, incident_id)
+            continue
+        listed.append(name)
+    if listed:
+        _out(dry_run, "incident-engine: parked > 14 d, needs the dispatcher (no incident or harness did "
+                      "not recognize DONE): " + ", ".join(listed))
+
+    out, rc = ap.psql(
+        "SELECT i.incident_id, i.provider, i.state FROM incidents i WHERE i.kind = 'PROVIDER_DOWN' "
+        "AND i.state IN ('OPEN','WAITING_HUMAN') AND NOT EXISTS (SELECT 1 FROM tools t "
+        "WHERE t.provider = i.provider AND t.status <> 'unavailable') "
+        "AND EXISTS (SELECT 1 FROM tools t WHERE t.provider = i.provider) "
+        "AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(i.attempts) e WHERE e->>'action' = 'retired-provider')"
+    )
+    for line in (out.splitlines() if rc == 0 and out else []):
+        incident_id, provider, state = line.split(ap.SEP)
+        n += 1
+        if dry_run:
+            print(f"WOULD NOTE retired provider {provider}: {incident_id} ({state}) -> WAITING_HUMAN")
+            continue
+        if state != "WAITING_HUMAN":
+            ap.transition_state(incident_id, "WAITING_HUMAN")
+        ap.note_incident(incident_id, "incident-engine", "retired-provider",
+                         "retired provider, operator decides")
+    return n
 
 
 def advance_waiting_human():
@@ -1871,6 +2004,7 @@ def run():
     # this branch now claims its slot(s) first; route_auto_incidents() gets
     # whatever the day's budget has left over.
     advance_waiting_human()
+    close_healthy_remediations()
     route_auto_incidents()
     bridge_key_incidents()
     advance_remediation_queued()
@@ -4118,6 +4252,9 @@ def selftest_db():
 if __name__ == "__main__":
     if "--selftest" in sys.argv:
         selftest()
+        raise SystemExit(0)
+    if "--dry-run" in sys.argv:
+        close_healthy_remediations(dry_run=True)
         raise SystemExit(0)
     if "--selftest-db" in sys.argv:
         raise SystemExit(selftest_db())

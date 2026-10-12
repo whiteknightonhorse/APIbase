@@ -926,6 +926,9 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
     assert kind in KINDS, f"unknown incident kind: {kind}"
     assert detected_by in DETECTED_BY, f"unknown detected_by: {detected_by}"
     dk = dedup_key(kind, provider, tool_id, dedup_suffix)
+    # T-0335: a retired provider (0 tools with status <> 'unavailable') never opens PROVIDER_DOWN.
+    if kind == "PROVIDER_DOWN" and detected_by != "manual" and provider_is_retired(provider):
+        return None, False
 
     existing, rc = psql(f"SELECT incident_id FROM incidents WHERE dedup_key = {sql_literal(dk)} "
                          f"AND state <> 'RESOLVED'")
@@ -1008,6 +1011,50 @@ def fleet_task_location(fleet_task_id):
         if os.path.isfile(path):
             return name
     return None
+
+
+def fleet_task_retire(fleet_task_id, incident_id, dry_run=False):
+    """T-0335: move a card from queue/ | stuck/ | stuck/parked/ to done/ with an
+    `AUTO-CLOSED-BY: incident-engine <incident_id>` trailer. Never touches active/ (a running attempt
+    owns that file) and never overwrites an existing done/ file. Returns the source location it
+    left ("queue"|"stuck"|"parked") or None when nothing was (or, with dry_run, would not be) moved."""
+    if not fleet_task_id or os.path.basename(fleet_task_id) != fleet_task_id:
+        return None
+    dst = os.path.join(TASKLOOP_ROOT, "done", fleet_task_id)
+    if os.path.exists(dst):
+        return None
+    for name, path in (
+        ("stuck", os.path.join(TASKLOOP_ROOT, "stuck", fleet_task_id)),
+        ("parked", os.path.join(TASKLOOP_ROOT, "stuck", "parked", fleet_task_id)),
+        ("queue", os.path.join(TASKLOOP_QUEUE_DIR, fleet_task_id)),
+    ):
+        if not os.path.isfile(path):
+            continue
+        if dry_run:
+            return name
+        try:
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(f"\n\nAUTO-CLOSED-BY: incident-engine {incident_id}\n")
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            os.rename(path, dst)
+        except OSError as e:
+            notice(f"WARN: fleet_task_retire {fleet_task_id} from {name}/ failed: {e}")
+            return None
+        return name
+    return None
+
+
+def provider_is_retired(provider) -> bool:
+    """T-0335: the provider has tool rows but none with status <> 'unavailable'. A provider with no
+    tool rows at all is NOT retired (unknown, e.g. a name mismatch) and a failed query is not either."""
+    out, rc = psql(
+        f"SELECT count(*) FILTER (WHERE status <> 'unavailable') || ',' || count(*) "
+        f"FROM tools WHERE provider = {sql_literal(provider)}"
+    )
+    if rc != 0 or not out or "," not in out:
+        return False
+    active, total = out.split(",", 1)
+    return total.strip() != "0" and active.strip() == "0"
 
 
 ATTEMPTS_CAP = 500        # T-0334: hard ceiling on incidents.attempts length
