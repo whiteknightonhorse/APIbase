@@ -127,6 +127,7 @@ class AttemptsCounter(unittest.TestCase):
         iid = self._verifying("jikan")
         engine().advance_verifying()
         self.assertEqual(self.row(iid), ["VERIFYING", "t"])
+        fx.psql("DELETE FROM provider_status WHERE provider = 'jikan'")
         fx.psql("INSERT INTO provider_status (provider, state, state_since, next_probe_at, probe_interval_s, "
                 "last_probe_result, last_probe_at) VALUES ('jikan', 'HEALTHY', now(), now(), 300, 'OK', now())")
         engine().advance_verifying()
