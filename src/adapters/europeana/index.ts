@@ -43,7 +43,15 @@ export class EuropeanaAdapter extends BaseAdapter {
     }
   }
 
-  parseResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
+  // T-0252-11: BaseAdapter.call() does `raw.body = this.parseResponse(raw, req)`, so this
+  // must return the parsed body itself. Returning the whole ProviderRawResponse nested every
+  // field at raw.body.body.*. shapeResponse() keeps the per-tool mapping; the `status` it sets
+  // on error is never read by the caller (only .body is reassigned).
+  parseResponse(raw: ProviderRawResponse, req: ProviderRequest): unknown {
+    return this.shapeResponse(raw, req).body;
+  }
+
+  private shapeResponse(raw: ProviderRawResponse, req: ProviderRequest): ProviderRawResponse {
     const body = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body;
 
     if (!body?.success) {
