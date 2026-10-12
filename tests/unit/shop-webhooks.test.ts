@@ -122,13 +122,14 @@ dbDescribe('merchant webhooks (F-6)', () => {
   /** An outbox event of `type` for merchant m, run through the real processEvent. */
   async function emit(type: string, payload: Row) {
     const rows = await q(
-      `INSERT INTO outbox (event_type, payload) VALUES ($1, $2::jsonb) RETURNING id, created_at`,
+      `INSERT INTO outbox (event_type, payload) VALUES ($1, $2::jsonb) RETURNING id, created_at, created_at::text AS created_at_txt`,
       type,
       JSON.stringify(payload),
     );
     const ev = {
       id: BigInt(rows[0].id),
       created_at: rows[0].created_at,
+      created_at_txt: rows[0].created_at_txt,
       event_type: type,
       payload,
     };

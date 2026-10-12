@@ -822,7 +822,7 @@ dbDescribe('shop PII is never plaintext (INT-21, wave 2)', () => {
     const env = envelope(s, q, 'hpke-x25519-sha256-chacha20', passportJson(canary()));
     expect((await pay(q, { passport: wire(env) })).status).toBe(200);
     const ob = await row(
-      `SELECT id, created_at, event_type, payload FROM outbox
+      `SELECT id, created_at, created_at::text AS created_at_txt, event_type, payload FROM outbox
         WHERE event_type = 'shop.order.paid' AND payload->>'order_id' = $1`,
       q.body.order_id,
     );
@@ -830,6 +830,7 @@ dbDescribe('shop PII is never plaintext (INT-21, wave 2)', () => {
       {
         id: BigInt(ob.id),
         created_at: ob.created_at,
+        created_at_txt: ob.created_at_txt,
         event_type: ob.event_type,
         payload: ob.payload,
       },

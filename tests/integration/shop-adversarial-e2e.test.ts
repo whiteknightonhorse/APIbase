@@ -645,7 +645,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     expect(paid.status).toBe(200);
     expect(await orderState(q.body.order_id)).toBe('PAID');
     const ob = await row(
-      `SELECT id, created_at, event_type, payload FROM outbox
+      `SELECT id, created_at, created_at::text AS created_at_txt, event_type, payload FROM outbox
         WHERE event_type = 'shop.order.paid' AND payload->>'order_id' = $1`,
       q.body.order_id,
     );
@@ -654,6 +654,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
         {
           id: BigInt(ob.id),
           created_at: ob.created_at,
+          created_at_txt: ob.created_at_txt,
           event_type: ob.event_type,
           payload: ob.payload,
         },
