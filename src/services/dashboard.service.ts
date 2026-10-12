@@ -184,7 +184,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       COUNT(el.execution_id) AS calls_total,
       COUNT(el.execution_id) FILTER (WHERE el.billing_status = 'PAID' AND el.created_at >= NOW() - INTERVAL '24 hours') AS paid_calls_24h,
       SUM(el.cost_usd) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours')::numeric AS revenue_24h,
-      ROUND(AVG(el.latency_ms) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours'))::integer AS avg_latency_ms,
+      ROUND(AVG(el.provider_latency_ms) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours'))::integer AS avg_latency_ms,
       ps.state AS provider_state,
       ps.risk AS provider_risk,
       ps.reliability_score AS reliability_score,
