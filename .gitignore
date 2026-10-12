@@ -63,7 +63,9 @@ backups/
 # Internal files (not for public repo)
 CLAUDE.md
 plan.md
-.claude/skills/
+.claude/skills/*
+# F-20 allow-list, mirrors taskloop PUBLIC_SKILL_ALLOWLIST
+!.claude/skills/user-usecases/
 
 TASK-FOR-AIPUSH-CLAUDE.md
 static/video/*.mov

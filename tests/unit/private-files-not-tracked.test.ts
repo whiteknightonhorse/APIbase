@@ -19,6 +19,16 @@ describe('private files stay out of git', () => {
     expect(offenders(tracked(root))).toEqual([]);
   });
 
+  it('only .claude/skills/user-usecases/ is tracked under .claude/skills (F-20 allow-list)', () => {
+    const files = execFileSync('git', ['ls-files', '--', '.claude/skills'], {
+      cwd: root,
+      encoding: 'utf8',
+    })
+      .split('\n')
+      .filter(Boolean);
+    expect(files.filter((f) => !f.startsWith('.claude/skills/user-usecases/'))).toEqual([]);
+  });
+
   it('control: a `.private.` file made visible to git (git add -N) IS caught', () => {
     const dir = mkdtempSync(join(tmpdir(), 'priv-'));
     try {
