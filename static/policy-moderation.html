@@ -103,11 +103,11 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 </nav>
 
 <div class="sys-monitor">
-<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>404</strong>  <span class="label">TOOLS:</span><strong>1400</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">NET:</span><strong>Base/USDC</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
+<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>404</strong>  <span class="label">PRICE:</span><strong>$0.001–$1.00</strong>  <span class="label">NET:</span><strong>Base/USDC</strong>  <span class="label">STATUS:</span><strong>ONLINE</strong><span class="sys-cursor"></span>
 </div>
 
 <h1>Moderation Policy</h1>
-<p class="updated">Last updated: September 2, 2026</p>
+<p class="updated">Last updated: October 12, 2026</p>
 <p><strong>APIbase is a tool for developers and software agents. It is not a consumer service.</strong></p>
 
 <p>Every call to an <strong>action-class</strong> tool — one that sends a message, places a call, or posts content on your behalf (currently: Telegram, Twilio, Telnyx, Resend, Device) — is scanned automatically against a fixed prohibited-content ruleset before it reaches the provider. Every other tool (search, data lookups, and everything else) is checked only against one absolute rule: child sexual abuse material (CSAM). See <a href="/terms#prohibited-uses">Terms of Service §5</a> for the full list of prohibited categories.</p>
@@ -140,6 +140,16 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 <li>A human reviews every submitted appeal within <strong>72 hours</strong> and marks it <strong>upheld</strong> (the block stands) or <strong>overturned</strong> (the block was wrong).</li>
 <li>If the block was our error, we refund or credit the full charge — that is owed, not discretionary. A balance credit is applied promptly and is the default; an on-chain refund is processed manually and may take up to 14 days after the appeal is upheld.</li>
 </ul>
+
+<h2 id="merchant-catalogs">Merchant catalogs (Integrator)</h2>
+<p>Merchants who list products through the Integrator are moderated separately from tool calls. Three layers apply, in order, and we do not disclose the individual rules:</p>
+<ul>
+<li><strong>Deterministic checks</strong> run at registration and on every catalog write.</li>
+<li><strong>A nightly model review</strong> looks at catalog items again.</li>
+<li><strong>A human decision</strong> settles anything the earlier layers could not.</li>
+</ul>
+<p>What a seller sees: a rejected write returns the <strong>category only</strong>, never the rule that matched. An item that is <strong>flagged</strong> stays hidden until it has been reviewed.</p>
+<p>Prohibited categories are listed in the <a href="/legal/aup#categories">Acceptable Use Policy</a>; supported and excluded countries are in the <a href="/legal/aup">Acceptable Use Policy</a>; the order of checks is described in the <a href="/docs/integrator#moderation">Integrator documentation</a>.</p>
 
 <h2>Repeat blocks</h2>
 <p>Repeated blocked calls within a short period suspend further service, regardless of payment status, independent of any individual appeal's outcome.</p>
