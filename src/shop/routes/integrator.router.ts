@@ -106,7 +106,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       return;
     }
     const options = ALLOWED_CATEGORIES.map((c) => `<option>${esc(c)}</option>`).join('');
-    const body = read('connect.html').replace('{{CATEGORY_OPTIONS}}', () => options);
+    const body = renderTokens(read('connect.html')).replace('{{CATEGORY_OPTIONS}}', () => options);
     res.type('html').send(
       layout({
         title: 'Connect AI payment | APIbase Integrator',

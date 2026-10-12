@@ -118,7 +118,7 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 
 ## Legal documents
 
-Drafts, not yet published. A page shows its banner until the operator publishes it.
+{{LEGAL_STATUS}}
 
 - /legal/merchant-agreement
 - /legal/aup

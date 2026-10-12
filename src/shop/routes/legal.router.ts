@@ -1,4 +1,3 @@
-import { existsSync, readFileSync } from 'node:fs';
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
@@ -7,6 +6,7 @@ import {
   isLegalDocId,
   LEGAL_DIR,
   LEGAL_PUBLISHED_FILE,
+  isLegalPublished,
   legalIndex,
   readLegalFile,
 } from '../legal/legal-docs';
@@ -136,16 +136,7 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
     }),
   );
 
-  /** Draft until the operator's `legal-published.json {published_at, by}` exists (07 V2). */
-  const isPublished = (): boolean => {
-    if (!existsSync(publishedFile)) return false;
-    try {
-      const j = JSON.parse(readFileSync(publishedFile, 'utf-8'));
-      return !!j && typeof j.published_at === 'string' && typeof j.by === 'string';
-    } catch {
-      return false;
-    }
-  };
+  const isPublished = (): boolean => isLegalPublished(publishedFile).published;
 
   const sendIndex = async (res: Response) => {
     try {

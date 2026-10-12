@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { ShopTx } from '../db';
 
@@ -13,6 +13,23 @@ export const LEGAL_PUBLISHED_FILE = resolve(
   __dirname,
   '../../../config/integrator/legal-published.json',
 );
+
+/** Draft until the operator's committed `legal-published.json {published_at, by}` exists (07 V2). */
+export function isLegalPublished(file: string = LEGAL_PUBLISHED_FILE): {
+  published: boolean;
+  published_at?: string;
+} {
+  if (!existsSync(file)) return { published: false };
+  try {
+    const j = JSON.parse(readFileSync(file, 'utf-8'));
+    if (!!j && typeof j.published_at === 'string' && typeof j.by === 'string') {
+      return { published: true, published_at: j.published_at };
+    }
+  } catch {
+    // unreadable or invalid JSON counts as not published
+  }
+  return { published: false };
+}
 
 const HEADER_RE =
   /^<!-- version: ([0-9][0-9A-Za-z.]*); effective_from: (\d{4}-\d{2}-\d{2}); status: [^>]*-->(?:\r?\n|$)/;

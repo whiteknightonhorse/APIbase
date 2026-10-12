@@ -3,7 +3,7 @@
 
 Source: the `integrator` block + `merchants_count` of static/.well-known/mcp.json (written by
 scripts/gen-discovery.ts from env / one SQL). Tokens: MERCHANTS_COUNT, INTEGRATOR_FEE_PCT,
-INTEGRATOR_MIN_ORDER, SANDBOX_STATUS, STREAM_CLOSE_GRACE_S (`integrator.stream_close_grace_s`).
+INTEGRATOR_MIN_ORDER, SANDBOX_STATUS, LEGAL_STATUS (legal-published.json), STREAM_CLOSE_GRACE_S (`integrator.stream_close_grace_s`).
 
   render  rewrite the Integrator sentence in the nginx-static surfaces (pricing.html, llms.txt)
   check   read-only; exit 1 on any disagreement (used by sync-counts.sh in both modes)
@@ -11,7 +11,9 @@ INTEGRATOR_MIN_ORDER, SANDBOX_STATUS, STREAM_CLOSE_GRACE_S (`integrator.stream_c
 /integrator/* pages are rendered at request time (src/shop/integrator/tokens.ts) and must keep
 the {{TOKEN}} placeholders -- a hardcoded number there is drift, `check` fails on it.
 """
+import glob
 import json
+import os
 import re
 import sys
 
@@ -20,9 +22,11 @@ RENDERED = ["static/pricing.html", "static/llms.txt"]
 TOKEN_FILES = {
     "static/integrator/index.html": [
         "INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT", "INTEGRATOR_MIN_ORDER", "SANDBOX_STATUS",
+        "LEGAL_STATUS",
     ],
     "static/integrator/llms.txt": ["INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT"],
-    "static/integrator/index.md": ["MERCHANTS_COUNT"],
+    "static/integrator/index.md": ["MERCHANTS_COUNT", "LEGAL_STATUS"],
+    "static/integrator/connect.html": ["LEGAL_STATUS"],
     "static/integrator/buyers.md": ["STREAM_CLOSE_GRACE_S"],
 }
 # Homepage surfaces are static files (no request-time tokens): the fee phrase and the merchants line
@@ -129,6 +133,12 @@ def check():
             problems.append("%s: Integrator block or /integrator link missing" % path)
         if re.search(r"1[.,]5 ?%", s) and f["fee"] != "1.5%":
             problems.append("%s: hardcoded 1.5%% fee" % path)
+    for path in glob.glob("static/integrator/**", recursive=True):
+        if os.path.isfile(path):
+            s = open(path).read()
+            for lit in ("not yet published", "may still be drafts"):
+                if lit in s:
+                    problems.append("%s: hardcoded legal status %r (use {{LEGAL_STATUS}})" % (path, lit))
     for path in TOKEN_FILES:
         s = open(path).read()
         if re.search(r"\b%d\b" % f["grace_s"], s):

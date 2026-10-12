@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { isLegalPublished, LEGAL_PUBLISHED_FILE } from '../legal/legal-docs';
 
 export const MCP_BASELINE = resolve(__dirname, '../../../static/.well-known/mcp.json');
 
@@ -30,13 +31,26 @@ export const INTEGRATOR_BASE_FEE_MODE = 'in-tx for fee-split clients, invoiced o
  */
 export const STREAM_CLOSE_GRACE_S = 900;
 
+export const DRAFT_LEGAL_STATUS =
+  'Drafts, not yet published. A page shows its banner until the operator publishes it.';
+
+function legalStatus(file: string): string {
+  const { published, published_at } = isLegalPublished(file);
+  if (!published) return DRAFT_LEGAL_STATUS;
+  return `Published on ${(published_at ?? '').slice(0, 10)}; the hashes are in /legal/index.json.`;
+}
+
 function feeState(): { on: boolean; pct: number } {
   const bps = Number(process.env.INTEGRATOR_FEE_BPS ?? 150);
   const on = process.env.INTEGRATOR_FEE_ENABLED === 'true' && Number.isFinite(bps) && bps > 0;
   return { on, pct: bps / 100 };
 }
 
-export function renderTokens(tpl: string, baselinePath: string = MCP_BASELINE): string {
+export function renderTokens(
+  tpl: string,
+  baselinePath: string = MCP_BASELINE,
+  legalFile: string = LEGAL_PUBLISHED_FILE,
+): string {
   const { on, pct } = feeState();
   const min = Number(process.env.INTEGRATOR_MIN_ORDER_USD ?? 1);
   const merchants = baselineMerchants(baselinePath);
@@ -51,5 +65,6 @@ export function renderTokens(tpl: string, baselinePath: string = MCP_BASELINE): 
     .replace(/\{\{INTEGRATOR_BASE_FEE_MODE\}\}/g, () => INTEGRATOR_BASE_FEE_MODE)
     .replace(/\{\{STREAM_CLOSE_GRACE_S\}\}/g, () => String(STREAM_CLOSE_GRACE_S))
     .replace(/\{\{MERCHANTS_COUNT\}\}/g, () => merchants)
+    .replace(/\{\{LEGAL_STATUS\}\}/g, () => legalStatus(legalFile))
     .replace(/\{\{SANDBOX_STATUS\}\}/g, () => process.env.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS);
 }

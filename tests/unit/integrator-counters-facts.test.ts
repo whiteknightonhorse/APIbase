@@ -26,6 +26,7 @@ const FACT_FILES = [
   'static/integrator/index.md',
   'static/integrator/llms.txt',
   'static/integrator/buyers.md',
+  'static/integrator/connect.html',
 ];
 
 function factsCheck(dir: string) {
@@ -146,6 +147,58 @@ describe('T-INT-19', () => {
       const r = factsCheck(dir);
       expect(r.status).not.toBe(0);
       expect(r.stdout).toContain('STREAM_CLOSE_GRACE_S');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('CN12 legal status without the publish file reads as draft', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'legal-'));
+    try {
+      const page = renderTokens(
+        read('static/integrator/index.html'),
+        MCP_BASELINE,
+        join(dir, 'missing.json'),
+      );
+      expect(page).toContain('not yet published');
+      expect(page).not.toContain('Published on');
+      expect(page).not.toContain('{{LEGAL_STATUS}}');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('CN13 legal status with a publish file reads as published', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'legal-'));
+    try {
+      const p = join(dir, 'legal-published.json');
+      writeFileSync(p, JSON.stringify({ published_at: '2026-10-20T10:00:00Z', by: 'operator' }));
+      const page = renderTokens(read('static/integrator/index.html'), MCP_BASELINE, p);
+      expect(page).toContain('Published on 2026-10-20; the hashes are in /legal/index.json.');
+      expect(page).not.toContain('not yet published');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('CN14 connect.html render has no hardcoded draft literal; the facts check catches one in index.md', () => {
+    expect(renderTokens(read('static/integrator/connect.html'))).not.toContain(
+      'may still be drafts',
+    );
+    expect(read('static/integrator/connect.html')).not.toContain('may still be drafts');
+    const dir = copyTree();
+    try {
+      const p = join(dir, 'static/integrator/index.md');
+      writeFileSync(
+        p,
+        readFileSync(p, 'utf8').replace(
+          '{{LEGAL_STATUS}}',
+          'Drafts, not yet published. A page shows its banner until the operator publishes it.',
+        ),
+      );
+      const r = factsCheck(dir);
+      expect(r.status).not.toBe(0);
+      expect(r.stdout).toContain('LEGAL_STATUS');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
