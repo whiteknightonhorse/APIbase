@@ -19,7 +19,7 @@ function baselineMerchants(path: string): string {
  * baseline (mcp.json); fee/min order default from env. Numbers live only in tokens, never in the templates.
  */
 export const DEFAULT_SANDBOX_STATUS =
-  'Sandbox: not yet available — use the $0.01 test SKU on mainnet';
+  'Sandbox: https://sandbox.apibase.pro — the same image on Base Sepolia and Tempo testnet with its own database; register and run the connection check there first, then repeat on mainnet with the $0.01 test SKU.';
 
 /** Facts key INTEGRATOR_BASE_FEE_MODE (T-INT-42): how the fee is collected on Base. */
 export const INTEGRATOR_BASE_FEE_MODE = 'in-tx for fee-split clients, invoiced otherwise';

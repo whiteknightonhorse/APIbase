@@ -127,7 +127,7 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 <section id="faq">
 <h2>Questions</h2>
 <details><summary>Does APIbase hold the money?</summary><p>No. The buyer pays your payout wallet directly.</p></details>
-<details><summary>What can I sell?</summary><p>Digital items in the allowed categories (<a href="/legal/aup">AUP</a>). Physical goods are not available yet.</p></details>
+<details><summary>What can I sell?</summary><p>Digital items and physical goods in the allowed categories (<a href="/legal/aup">AUP</a>). For physical goods the shipping address travels end-to-end encrypted (see /integrator/docs#pii); shipping options and delivery slots are part of the quote.</p></details>
 <details><summary>Which wallet do I need?</summary><p>One that receives USDC on Base or Tempo. APIbase issues no wallets: see <a href="/integrator/wallet">wallet help</a>.</p></details>
 <details><summary>Which countries are served?</summary><p>The list is in the AUP. Others get <code>country_not_supported</code> (403).</p></details>
 <details><summary>What if a payment is slow?</summary><p>The order stays <code>PAYING</code> (202 <code>payment_pending</code>) and a job reconciles it against the chain.</p></details>
@@ -153,5 +153,5 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 
 <section id="buyers">
 <h2>For buyers</h2>
-<p>Add a storefront URL <code>https://apibase.pro/mcp/m/&lt;slug&gt;</code> to your agent's MCP client, or find shops with <code>apibase.discover</code> (<code>kind: merchant</code>). Limits live in your wallet, the quote fixes the price, and nobody asks for your keys. Details: <a href="/integrator/buyers">/integrator/buyers</a>.</p>
+<p>Add a storefront URL <code>https://apibase.pro/mcp/m/&lt;slug&gt;</code> to your agent's MCP client, or find shops with <code>apibase.discover</code>: pass what the buyer wants as <code>intent</code>; shops come back as results of <code>kind: "merchant"</code> (add <code>kind=merchant</code> to get shops only). Limits live in your wallet, the quote fixes the price, and nobody asks for your keys. Details: <a href="/integrator/buyers">/integrator/buyers</a>.</p>
 </section>

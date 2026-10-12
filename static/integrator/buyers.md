@@ -4,7 +4,7 @@ For people who hand a wallet to a trusted agent, and for the agents themselves. 
 
 ## Find a shop
 
-Each shop has its own MCP storefront at `https://apibase.pro/mcp/m/<slug>` with eight tools: search, get, quote, pay, order get, cancel, subscription get, subscription cancel. `apibase.discover` also returns shops (`kind: merchant`). A public page for each shop lives at `/m/<slug>`.
+Each shop has its own MCP storefront at `https://apibase.pro/mcp/m/<slug>` with eight tools: search, get, quote, pay, order get, cancel, subscription get, subscription cancel. Find shops with `apibase.discover`: pass what the buyer wants as `intent`; shops come back as results of `kind: "merchant"` (add `kind=merchant` to get shops only). A public page for each shop lives at `/m/<slug>`.
 
 ## Set limits in your wallet
 

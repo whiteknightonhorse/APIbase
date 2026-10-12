@@ -132,6 +132,7 @@ toolsRouter.get(
 //   ?category=<name>            — one of TOOL_DEFINITIONS[].category's values (ZZ-03-01)
 //   ?max_price_usd=N            — only tools priced at or below N
 //   ?limit=N                    — max results (1..50, default 10)
+//   ?kind=merchant              — shops only (needs intent; 'tool' = default behaviour)
 //   ?include_unavailable=true   — include tools currently marked unavailable (default: excluded)
 toolsRouter.get('/api/v1/discover', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -164,6 +165,7 @@ toolsRouter.get('/api/v1/discover', async (req: Request, res: Response, next: Ne
       max_price_usd: maxPriceUsd,
       limit,
       include_unavailable: includeUnavailable,
+      kind: req.query.kind,
     });
 
     res.setHeader('Cache-Control', 'public, max-age=60');

@@ -228,8 +228,8 @@ describe('integrator pages', () => {
     );
     const { text } = await get('/integrator');
     const block = /<section id="check">([\s\S]*?)<\/section>/.exec(text)![1];
-    expect(block).toContain('Sandbox: not yet available — use the $0.01 test SKU on mainnet');
-    expect(block.toLowerCase()).not.toMatch(/sandbox (is|will be) (available|live)|coming soon/);
+    expect(block).toContain('https://sandbox.apibase.pro');
+    expect(block).not.toContain('not yet available');
     process.env.SANDBOX_STATUS = 'Sandbox: open at /sandbox';
     expect((await get('/integrator')).text).toContain('Sandbox: open at /sandbox');
   });

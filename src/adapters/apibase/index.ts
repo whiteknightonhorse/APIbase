@@ -43,6 +43,7 @@ export class ApibaseAdapter extends BaseAdapter {
           max_price_usd: params.max_price_usd as number | undefined,
           limit: params.limit as number | undefined,
           include_unavailable: params.include_unavailable as boolean | undefined,
+          kind: params.kind,
         });
         break;
       default:

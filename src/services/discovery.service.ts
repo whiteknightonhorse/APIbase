@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { AppError, ErrorCode } from '../types/errors';
 import {
   provekIfDeclared,
   type ProvekPublic,
@@ -72,6 +73,8 @@ export interface DiscoverQueryInput {
   /** Default false — an unavailable tool cannot actually be called (tool-status.stage.ts
    *  rejects it with 503), so it is excluded from results unless explicitly asked for. */
   include_unavailable?: boolean;
+  /** 'merchant' = shops only (requires `intent`); 'tool' or unset = unchanged behaviour (T-0320). */
+  kind?: unknown;
 }
 
 export interface DiscoverMatch {
@@ -192,6 +195,7 @@ interface NormalizedQuery {
   max_price_usd?: number;
   limit: number;
   include_unavailable: boolean;
+  kind?: 'tool' | 'merchant';
 }
 
 function normalize(raw: DiscoverQueryInput): NormalizedQuery {
@@ -205,7 +209,20 @@ function normalize(raw: DiscoverQueryInput): NormalizedQuery {
     typeof raw.limit === 'number' && isFinite(raw.limit) ? Math.floor(raw.limit) : DEFAULT_LIMIT;
   const limit = Math.min(Math.max(rawLimit, 1), MAX_LIMIT);
   const include_unavailable = raw.include_unavailable === true;
-  return { intent, category, max_price_usd, limit, include_unavailable };
+  let kind: 'tool' | 'merchant' | undefined;
+  if (raw.kind !== undefined && raw.kind !== '') {
+    if (typeof raw.kind !== 'string' || (raw.kind !== 'tool' && raw.kind !== 'merchant')) {
+      throw new AppError(ErrorCode.BAD_REQUEST, 'kind must be "tool" or "merchant"');
+    }
+    kind = raw.kind;
+  }
+  if (kind === 'merchant' && !intent) {
+    throw new AppError(
+      ErrorCode.BAD_REQUEST,
+      'intent_required: kind=merchant needs an intent, e.g. ?intent=guide&kind=merchant',
+    );
+  }
+  return { intent, category, max_price_usd, limit, include_unavailable, kind };
 }
 
 // ---------------------------------------------------------------------------
@@ -555,6 +572,7 @@ export async function discover(
     }
   }
 
+  if (q.kind === 'merchant') candidates.length = 0;
   const totalMatches = candidates.length + merchants.length;
   const sliced = candidates.slice(0, q.limit - merchants.length);
 

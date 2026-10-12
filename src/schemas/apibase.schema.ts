@@ -27,6 +27,10 @@ const discoverTool = z
       .optional()
       .default(10)
       .describe('Max number of results (1-50). Default: 10'),
+    kind: z
+      .enum(['tool', 'merchant'])
+      .optional()
+      .describe('"merchant" returns shops only and requires intent. Default: tools and shops'),
     include_unavailable: z
       .boolean()
       .optional()

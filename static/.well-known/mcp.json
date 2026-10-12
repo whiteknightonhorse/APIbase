@@ -22,7 +22,7 @@
     ],
     "test_sku_usd": 0.01,
     "stream_close_grace_s": 900,
-    "sandbox_status": "Sandbox: not yet available — use the $0.01 test SKU on mainnet"
+    "sandbox_status": "Sandbox: https://sandbox.apibase.pro — the same image on Base Sepolia and Tempo testnet with its own database; register and run the connection check there first, then repeat on mainnet with the $0.01 test SKU."
   },
   "categories_count": 25,
   "price_range_usd": {

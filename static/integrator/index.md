@@ -110,7 +110,7 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 ## Questions
 
 - Does APIbase hold the money? No. The buyer pays your payout wallet directly.
-- What can I sell? Digital items in the allowed categories (/legal/aup). Physical goods are not available yet.
+- What can I sell? Digital items and physical goods in the allowed categories (/legal/aup). For physical goods the shipping address travels end-to-end encrypted (see /integrator/docs#pii); shipping options and delivery slots are part of the quote.
 - Which wallet do I need? One that receives USDC on Base or Tempo. APIbase issues no wallets: see /integrator/wallet.
 - Which countries are served? The list is in the AUP. Others get `country_not_supported` (403).
 - What if a payment is slow? The order stays `PAYING` (202 `payment_pending`) and a job reconciles it against the chain.
@@ -132,4 +132,4 @@ Do AI agents visit your site? Check on AIpush.app: https://aipush.app. It shows 
 
 ## For buyers
 
-Add a storefront URL `https://apibase.pro/mcp/m/<slug>` to your agent's MCP client, or find shops with `apibase.discover` (`kind: merchant`). Limits live in your wallet, the quote fixes the price, and nobody asks for your keys. Details: /integrator/buyers.
+Add a storefront URL `https://apibase.pro/mcp/m/<slug>` to your agent's MCP client, or find shops with `apibase.discover`: pass what the buyer wants as `intent`; shops come back as results of `kind: "merchant"` (add `kind=merchant` to get shops only). Limits live in your wallet, the quote fixes the price, and nobody asks for your keys. Details: /integrator/buyers.

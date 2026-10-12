@@ -41953,6 +41953,14 @@
                     "description": "Max number of results (1-50). Default: 10",
                     "default": 10
                   },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "tool",
+                      "merchant"
+                    ],
+                    "description": "\"merchant\" returns shops only and requires intent. Default: tools and shops"
+                  },
                   "include_unavailable": {
                     "type": "boolean",
                     "description": "Include tools currently marked unavailable (cannot be called right now). Default: false",
