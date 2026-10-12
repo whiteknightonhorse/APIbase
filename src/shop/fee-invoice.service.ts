@@ -262,7 +262,7 @@ const view = (r: Record<string, unknown>): FeeInvoiceView => ({
   due_at: iso(r.due_at),
   status: String(r.status),
   paid_tx_hash: (r.paid_tx_hash as string | null) ?? null,
-  pay_to: process.env['INTEGRATOR_FEE_WALLET'] ?? null,
+  pay_to: process.env['INTEGRATOR_FEE_WALLET_BASE'] ?? null,
   memo: String(r.invoice_id),
 });
 
@@ -281,7 +281,7 @@ export async function listFeeInvoices(
 
 /**
  * `POST /merchants/me/fee-invoices/:id/paid {tx_hash}`: the chain is READ (viem): the transaction is
- * confirmed and carries a USDC `Transfer` to `INTEGRATOR_FEE_WALLET` of at least the invoice amount.
+ * confirmed and carries a USDC `Transfer` to `INTEGRATOR_FEE_WALLET_BASE` of at least the invoice amount.
  * Accepted -> invoice `paid`, its ledger rows `paid`, restrictions re-derived (lifted when nothing
  * else is overdue). Anything else -> 422 with the reason and nothing changes.
  */
@@ -322,7 +322,7 @@ export async function markFeeInvoicePaid(
       documentation_url: DOCS,
     });
   }
-  const wallet = process.env['INTEGRATOR_FEE_WALLET'];
+  const wallet = process.env['INTEGRATOR_FEE_WALLET_BASE'];
   if (!wallet) {
     throw new QuoteError(
       503,

@@ -180,7 +180,7 @@ def template_values(template, merchant_id, m):
                       "ORDER BY created_at DESC LIMIT 1")
             if r:
                 vals["invoice_id"], vals["period"], vals["amount_usd"], vals["due_at"] = r[0]
-            vals["fee_wallet"] = os.environ.get("INTEGRATOR_FEE_WALLET") or "(see the fee invoices in your owner page)"
+            vals["fee_wallet"] = os.environ.get("INTEGRATOR_FEE_WALLET_BASE") or "(see the fee invoices in your owner page)"
         elif template == "catalog_rejected":
             r = _rows("SELECT category FROM shop_moderation_reviews WHERE "
                       f"merchant_id = {mid}::uuid AND category IS NOT NULL ORDER BY at DESC LIMIT 1")
