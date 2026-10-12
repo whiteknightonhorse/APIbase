@@ -10,7 +10,7 @@
   "tools_count": 1418,
   "shop_tools_count": 25,
   "providers_count": 403,
-  "merchants_count": 5,
+  "merchants_count": 1,
   "integrator": {
     "fee_pct": 0,
     "fee_enabled": false,
@@ -86,5 +86,5 @@
   "server_card": "https://apibase.pro/.well-known/mcp/server-card.json",
   "source": "https://github.com/whiteknightonhorse/APIbase",
   "status": "active",
-  "updated_at": "2026-10-11"
+  "updated_at": "2026-10-12"
 }
