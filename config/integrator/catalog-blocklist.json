@@ -1,4 +1,5 @@
 {
+  "_comment": "layer3_only: prohibited slugs that are semantic (intent or business model), not keyword-detectable; they are enforced by the LLM review layer or a human, so they carry no category_keywords by design.",
   "instruction_patterns": [
     {
       "id": "inj-ignore-previous",
@@ -32,29 +33,48 @@
       "methamphetamine",
       "lsd tabs",
       "mdma",
-      "fentanyl"
+      "fentanyl",
+      "cannabis",
+      "marijuana",
+      "weed",
+      "ketamine",
+      "psilocybin",
+      "xanax",
+      "oxycodone"
     ],
     "counterfeit": [
       "counterfeit",
       "replica rolex",
       "fake id",
-      "knockoff"
+      "knockoff",
+      "fake designer",
+      "fake rolex",
+      "replica handbag"
     ],
     "stolen-forged": [
       "stolen card",
       "forged passport",
       "fake passport",
-      "fake diploma"
+      "fake diploma",
+      "forged document",
+      "fake driver license",
+      "stolen credit card"
     ],
     "hazardous": [
       "explosive",
       "detonator",
-      "radioactive material"
+      "radioactive material",
+      "fireworks",
+      "flammable",
+      "pesticide"
     ],
     "pyramid-mlm": [
       "pyramid scheme",
       "get rich quick",
-      "multi-level marketing"
+      "multi-level marketing",
+      "ponzi scheme",
+      "network marketing",
+      "guaranteed income"
     ],
     "gambling": [
       "casino",
@@ -78,7 +98,9 @@
       "viagra",
       "telemedicine",
       "cures cancer",
-      "antibiotics"
+      "antibiotics",
+      "sildenafil",
+      "tadalafil"
     ],
     "weapons": [
       "firearm",
@@ -86,19 +108,34 @@
       "assault rifle",
       "ammunition",
       "silencer",
-      "switchblade"
+      "switchblade",
+      "gun",
+      "guns",
+      "pistol",
+      "firearms",
+      "rifle",
+      "shotgun",
+      "ammo",
+      "suppressor"
     ],
     "cannabis-cbd": [
       "cannabis",
       "marijuana",
       "cbd oil",
-      "thc gummies"
+      "thc gummies",
+      "hemp flower",
+      "cbd gummies"
     ],
     "adult": [
       "porn",
       "escort service",
       "adult content",
-      "sex toy"
+      "sex toy",
+      "xxx",
+      "erotic",
+      "onlyfans",
+      "nude",
+      "strip club"
     ],
     "financial-services": [
       "payday loan",
@@ -106,46 +143,92 @@
       "crypto exchange",
       "gift card",
       "buy now pay later",
-      "money transfer"
+      "money transfer",
+      "giftcard",
+      "prepaid card",
+      "cryptocurrency exchange",
+      "wire transfer",
+      "loan"
     ],
     "insurance": [
       "insurance policy",
-      "life insurance"
+      "life insurance",
+      "health insurance",
+      "car insurance",
+      "insurance quote",
+      "auto insurance"
     ],
     "dating": [
       "dating service",
-      "mail order bride"
+      "mail order bride",
+      "dating site",
+      "dating app",
+      "online dating",
+      "hookup"
     ],
     "airlines-cruises-timeshares": [
       "airline ticket",
       "cruise ticket",
-      "timeshare"
+      "timeshare",
+      "flight ticket",
+      "cruise package",
+      "vacation club"
     ],
     "charity-politics": [
       "crowdfunding",
       "political donation",
-      "charity donation"
+      "charity donation",
+      "donate now",
+      "fundraiser",
+      "campaign contribution"
     ],
     "precious-metals-jewelry": [
       "gold bullion",
       "silver bullion",
-      "diamond ring"
+      "diamond ring",
+      "gold coin",
+      "silver coin",
+      "platinum bar"
     ],
     "credit-repair-debt": [
       "credit repair",
-      "debt relief"
+      "debt relief",
+      "credit score fix",
+      "debt consolidation",
+      "debt settlement",
+      "bankruptcy service"
     ],
     "traffic-engagement": [
       "buy followers",
       "buy likes",
       "buy traffic",
-      "buy views"
+      "buy views",
+      "buy subscribers",
+      "buy comments"
     ],
     "remote-tech-support": [
-      "remote tech support"
+      "remote tech support",
+      "remote computer support",
+      "remote pc support",
+      "tech support number",
+      "remote desktop support",
+      "technical support helpline"
     ],
     "telemarketing": [
-      "telemarketing"
+      "telemarketing",
+      "cold calling",
+      "call center leads",
+      "robocall",
+      "telesales",
+      "call list"
     ]
-  }
+  },
+  "layer3_only": [
+    "illegal",
+    "hate-violence",
+    "marketplaces-aggregators",
+    "negative-option",
+    "resale-no-value",
+    "dropshipping-advice"
+  ]
 }

@@ -1,0 +1,26 @@
+{
+  "_comment": "Confusable characters folded to ASCII before keyword scanning. Keys are \\uXXXX escapes so this file stays ASCII.",
+  "map": {
+    "\\u0430": "a",
+    "\\u0435": "e",
+    "\\u043E": "o",
+    "\\u0440": "p",
+    "\\u0441": "c",
+    "\\u0443": "y",
+    "\\u0445": "x",
+    "\\u043A": "k",
+    "\\u043C": "m",
+    "\\u0442": "t",
+    "\\u043D": "h",
+    "\\u0432": "b",
+    "\\u0456": "i",
+    "\\u0458": "j",
+    "\\u03BF": "o",
+    "\\u03B1": "a",
+    "\\u03C1": "p",
+    "\\u03BD": "v",
+    "\\u03B9": "i",
+    "\\u03BA": "k",
+    "\\u03C4": "t"
+  }
+}
