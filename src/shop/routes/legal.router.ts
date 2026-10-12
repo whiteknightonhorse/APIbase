@@ -130,7 +130,7 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
           error_code: 'rate_limited',
           message: 'too many requests from this address',
           suggested_action: 'retry_after_delay',
-          documentation_url: '/docs/integrator#legal-documents',
+          documentation_url: '/integrator/docs#legal-documents',
         });
       },
     }),
@@ -147,7 +147,7 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
         error_code: 'legal_index_unavailable',
         message: 'legal index temporarily unavailable',
         suggested_action: 'retry_after_delay',
-        documentation_url: '/docs/integrator#legal-documents',
+        documentation_url: '/integrator/docs#legal-documents',
       });
     }
   };

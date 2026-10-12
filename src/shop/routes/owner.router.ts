@@ -11,7 +11,7 @@ import {
 } from '../owner.service';
 import { ownerHtml } from '../storefront/owner.view';
 
-const DOCS = '/docs/integrator#owner-view';
+const DOCS = '/integrator/docs#owner-view';
 
 const cookieOf = (req: Request, name: string): string | undefined => {
   for (const part of (req.get('cookie') ?? '').split(';')) {

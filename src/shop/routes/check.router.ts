@@ -38,7 +38,7 @@ export function createCheckRouter(opts: CheckRouterOptions = {}): Router {
           error_code: 'rate_limited',
           message: 'too many requests from this address',
           suggested_action: 'retry_after_delay',
-          documentation_url: '/docs/integrator',
+          documentation_url: '/integrator/docs',
         });
       },
     }),
@@ -66,7 +66,7 @@ export function createCheckRouter(opts: CheckRouterOptions = {}): Router {
           error_code: err.code,
           message: err.message,
           suggested_action: 'use_different_tool',
-          documentation_url: '/docs/integrator',
+          documentation_url: '/integrator/docs',
         });
         return;
       }
@@ -75,7 +75,7 @@ export function createCheckRouter(opts: CheckRouterOptions = {}): Router {
         error_code: 'check_unavailable',
         message: 'check temporarily unavailable',
         suggested_action: 'retry_after_delay',
-        documentation_url: '/docs/integrator',
+        documentation_url: '/integrator/docs',
       });
     }
   });

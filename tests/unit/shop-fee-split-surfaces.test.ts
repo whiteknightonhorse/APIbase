@@ -20,6 +20,7 @@ const SURFACES = [
   'static/integrator/why-base-tempo.md',
   'static/pricing.html',
   'docs/payments.md',
+  'static/integrator/docs.md',
   'docs/integrator.md',
 ];
 

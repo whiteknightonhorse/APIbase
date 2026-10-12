@@ -60,7 +60,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         error_code: 'rate_limited',
         message: 'too many requests from this address',
         suggested_action: 'retry_after_delay',
-        documentation_url: '/docs/integrator',
+        documentation_url: '/integrator/docs',
       });
     },
   });
@@ -116,6 +116,11 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       }),
     );
   });
+  router.get('/integrator/docs', limiter, (req, res) =>
+    send(req, res, 'docs', (md, path) =>
+      layout({ title: 'Integrator guide | APIbase', path, body: mdToHtml(md) }),
+    ),
+  );
   for (const g of GUIDES) {
     router.get(`/integrator/${g}`, limiter, (req, res) => send(req, res, g, mdPage));
   }
@@ -147,7 +152,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         error_code: 'rate_limited',
         message: 'too many requests from this address',
         suggested_action: 'retry_after_delay',
-        documentation_url: '/docs/integrator',
+        documentation_url: '/integrator/docs',
       });
     },
   });

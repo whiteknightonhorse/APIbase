@@ -71,7 +71,7 @@ export interface CheckDeps extends ShopDeps {
   selfTest?: typeof selfTestStorefront;
 }
 
-const DOCS = '/docs/integrator#connect-check';
+const DOCS = '/integrator/docs#connect-check';
 
 const step = (name: CheckStepName, status: CheckStep['status'], code?: string, detail?: string) =>
   ({ name, status, ...(code ? { code } : {}), ...(detail ? { detail } : {}) }) as CheckStep;

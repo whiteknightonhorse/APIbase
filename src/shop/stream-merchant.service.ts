@@ -22,7 +22,7 @@ import {
  * signs or sends anything: it queues work for the merchant and READS the chain to verify it.
  */
 
-const DOCS = '/docs/integrator#streaming-for-your-shop-run-the-settler-with-your-own-key';
+const DOCS = '/integrator/docs#streaming-for-your-shop-run-the-settler-with-your-own-key';
 const TX_RE = /^0x[0-9a-fA-F]{64}$/;
 const CHANNEL_RE = /^0x[0-9a-fA-F]{64}$/;
 const QUEUE_LIMIT = 200;

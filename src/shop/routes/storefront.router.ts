@@ -50,7 +50,7 @@ const errBody = (e: StorefrontError) => ({
   error_code: e.code,
   message: e.message,
   suggested_action: e.status === 400 ? 'fix_request' : 'use_different_tool',
-  documentation_url: '/docs/integrator',
+  documentation_url: '/integrator/docs',
 });
 
 /** §6.3 public storefront: /shops, /m/:slug…, and the REST twin under /api/v1/shop/shops. */
@@ -70,7 +70,7 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
           error_code: 'rate_limited',
           message: 'too many requests from this address',
           suggested_action: 'retry_after_delay',
-          documentation_url: '/docs/integrator',
+          documentation_url: '/integrator/docs',
         });
       },
     });
@@ -92,7 +92,7 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
           error_code: 'storefront_unavailable',
           message: 'storefront temporarily unavailable',
           suggested_action: 'retry_after_delay',
-          documentation_url: '/docs/integrator',
+          documentation_url: '/integrator/docs',
         });
       }
     };

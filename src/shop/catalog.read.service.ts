@@ -48,7 +48,7 @@ interface MerchantRow {
 
 const notFound = (what: string) =>
   new CatalogError(404, 'not_found', `${what} not found`, 'use_different_tool', {
-    documentation_url: '/docs/integrator#catalog',
+    documentation_url: '/integrator/docs#catalog',
   });
 
 async function activeMerchant(db: ShopTx, slug: unknown): Promise<MerchantRow> {

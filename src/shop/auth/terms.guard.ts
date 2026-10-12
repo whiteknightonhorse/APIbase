@@ -40,7 +40,7 @@ export const termsNotAccepted = (docs: LegalDoc[]) =>
     'terms_not_accepted',
     'accept the current merchant documents first',
     'fix_request',
-    '/docs/integrator#terms_not_accepted',
+    '/integrator/docs#registration--terms',
     { docs: docs.map(docView) },
   );
 

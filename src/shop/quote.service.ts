@@ -30,7 +30,7 @@ const MAX_TTL_S = 3600;
 const DEFAULT_MAX_ORDER_USD = 10000;
 const DEFAULT_NEW_CAP_USD = 200;
 const DEFAULT_HUMAN_CONFIRM_USD = 100;
-const DOCS = '/docs/integrator#quotes';
+const DOCS = '/integrator/docs#quotes';
 
 /** Platform switches (§7.1/§7.3), read per call so a flip needs no restart. */
 export function integratorConfig(env: NodeJS.ProcessEnv = process.env) {

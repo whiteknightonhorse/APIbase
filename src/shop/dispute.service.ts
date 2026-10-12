@@ -26,7 +26,7 @@ const DISPUTE_DUE_DAYS = 7;
 export const DISPUTE_NOTE_MAX = 1000;
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const DOCS = '/docs/integrator#disputes';
+const DOCS = '/integrator/docs#orders';
 const notFound = () => new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
 
 const emit = (db: ShopTx, event_type: string, payload: Record<string, unknown>) =>

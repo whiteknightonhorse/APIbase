@@ -6,7 +6,7 @@ import { QuoteError } from '../quote.errors';
 import { OUTBOX_TO_WEBHOOK } from './constants';
 import { defaultResolver, resolvePublicTarget, WebhookUrlError, type HostResolver } from './ssrf';
 
-const DOCS = '/docs/integrator#webhooks';
+const DOCS = '/integrator/docs#webhooks';
 const MAX_ENDPOINTS = 5;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 

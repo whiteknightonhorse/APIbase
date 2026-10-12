@@ -4,6 +4,7 @@
 
 - [Overview](https://apibase.pro/integrator): the offer, four ways to add a link, fee, security, FAQ (send Accept: text/markdown for Markdown)
 - [Agent guide](https://apibase.pro/integrator/agent-guide): step-by-step connection for a merchant's agent, with error codes
+- [Integrator guide](https://apibase.pro/integrator/docs): the full merchant reference (registration, catalog, quotes, orders, webhooks, subscriptions)
 - [For buyers](https://apibase.pro/integrator/buyers): limits, quotes, what is and is not guaranteed
 - [Why Base and Tempo](https://apibase.pro/integrator/why-base-tempo): the two payment rails
 - [Wallet help](https://apibase.pro/integrator/wallet): getting a wallet with USDC; APIbase issues none

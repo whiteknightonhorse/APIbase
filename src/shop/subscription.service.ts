@@ -22,7 +22,7 @@ import {
   tempoPullSetup,
 } from './subscription-core';
 
-const DOCS = '/docs/integrator#subscriptions';
+const DOCS = '/integrator/docs#subscriptions';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const HOUR_MS = 3_600_000;
 const STATUSES: readonly SubscriptionStatus[] = ['active', 'past_due', 'canceled', 'expired'];

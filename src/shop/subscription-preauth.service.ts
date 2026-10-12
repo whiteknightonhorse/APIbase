@@ -16,7 +16,7 @@ import {
 } from './subscription-core';
 import { assertPayer, loadRow } from './subscription.service';
 
-const DOCS = '/docs/integrator#base-pull-subscriptions';
+const DOCS = '/integrator/docs#base-pull-subscriptions';
 const HOUR_S = 3600;
 /** One call stores 1..12 periods (a year of a monthly plan). */
 export const PREAUTH_MAX_PERIODS = 12;

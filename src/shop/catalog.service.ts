@@ -17,7 +17,7 @@ export const MIN_PRICE_CENTS = 100;
 export const MAX_ITEMS_PER_CALL = 500;
 const DEFAULT_MAX_ORDER_USD = 10000;
 
-const DOC_URL = '/docs/integrator#catalog';
+const DOC_URL = '/integrator/docs#catalog';
 
 /** `title`/`description`: hidden characters out, HTML out, THEN the length cap (§8.3 (1)). */
 const clean = (max: number) =>

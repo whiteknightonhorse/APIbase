@@ -123,7 +123,7 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
     const no = await periodRefusal(deps.db, r.quote_id);
     if (no) {
       return refuse(no.code, no.error, no.message, {
-        documentation_url: '/docs/integrator#subscriptions',
+        documentation_url: '/integrator/docs#subscriptions',
       });
     }
   }

@@ -17,7 +17,7 @@ const MAX_REPORTED_REJECTS = 1000;
 const SHOPIFY_PAGE = 250;
 const SHOPIFY_MAX_PAGES = 20;
 const STALE_RUNNING_S = 900;
-const DOC_URL = '/docs/integrator#catalog';
+const DOC_URL = '/integrator/docs#catalog';
 
 export interface ImportReport {
   import_job_id: string;

@@ -12,7 +12,7 @@ import { lockOrder } from './repository';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TX_RE = /^0x[0-9a-fA-F]{64}$/;
-const DOCS = '/docs/integrator#refunds';
+const DOCS = '/integrator/docs#orders';
 /** USDC has 6 decimals on both rails. */
 const MICRO = 1_000_000n;
 

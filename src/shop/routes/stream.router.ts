@@ -39,7 +39,7 @@ import {
  */
 
 export const MAX_SECONDS_PER_REQUEST = 60;
-const DOCS = '/docs/integrator#stream';
+const DOCS = '/integrator/docs#stream';
 
 export interface StreamRouterOptions {
   deps?: Pick<ShopDeps, 'db' | 'transaction'>;

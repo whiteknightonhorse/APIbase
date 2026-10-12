@@ -40,7 +40,7 @@ export const REFUND_WINDOW_DAYS = 14;
 /**
  * Public placeholder key (nobody holds its private half). The `demo-tour` product needs a real pair
  * for 07 V3 M2-A: the operator replaces `pub` with the public half of a pair they generated
- * (docs/integrator.md#pii) before the dispatcher runs the seed.
+ * (/integrator/docs#pii) before the dispatcher runs the seed.
  */
 export const ENCRYPTION_KEY = {
   kid: 'demo-1',

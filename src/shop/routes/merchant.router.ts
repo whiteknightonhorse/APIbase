@@ -74,7 +74,7 @@ const limiter = (windowMs: number, limit: number, extra: Partial<Options> = {}) 
         error_code: 'rate_limited',
         message: 'too many requests from this address',
         suggested_action: 'retry_after_delay',
-        documentation_url: '/docs/integrator#registration--terms',
+        documentation_url: '/integrator/docs#registration--terms',
       });
     },
   });
@@ -110,7 +110,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
             error_code: 'validation_failed',
             message: 'wallet (EVM address) and purpose are required',
             suggested_action: 'fix_request',
-            documentation_url: '/docs/integrator#registration--terms',
+            documentation_url: '/integrator/docs#registration--terms',
           });
           return;
         }
@@ -281,7 +281,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
             error_code: 'validation_failed',
             message: err.message,
             suggested_action: 'fix_request',
-            documentation_url: '/docs/integrator#provek-declaration-optional',
+            documentation_url: '/integrator/docs#provek-declaration-optional',
           });
           return;
         }

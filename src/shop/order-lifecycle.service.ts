@@ -6,7 +6,7 @@ import { loadPiiSummaries } from './pii/pii.service';
 import { listOrders, lockOrder, type OrderListRow } from './repository';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const DOCS = '/docs/integrator#orders';
+const DOCS = '/integrator/docs#orders';
 /** Refund window when a SKU sets none (also the close_after of instant delivery). */
 export const DEFAULT_REFUND_WINDOW_DAYS = 14;
 /** UC-13: a buyer-requested refund is due from the merchant within 7 days. */

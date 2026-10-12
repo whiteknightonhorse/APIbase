@@ -11,7 +11,7 @@ import { viemRefundChain, type RefundChain } from './refund.service';
  * the bookkeeping and READS the chain to verify a payment; it never sends or signs anything.
  */
 
-const DOCS = '/docs/integrator#fee-invoices';
+const DOCS = '/integrator/docs#fee-invoices';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TX_RE = /^0x[0-9a-fA-F]{64}$/;
 const DAY_MS = 86_400_000;

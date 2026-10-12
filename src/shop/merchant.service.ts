@@ -193,7 +193,7 @@ async function checkIpRate(ctx: RegisterCtx): Promise<void> {
 }
 
 async function validate(input: RegisterInput): Promise<void> {
-  const bad = (m: string) => fail(422, 'validation_failed', m, 'fix_request', '/docs/integrator');
+  const bad = (m: string) => fail(422, 'validation_failed', m, 'fix_request', '/integrator/docs');
   if (!SLUG_RE.test(input.slug ?? '')) throw bad('slug must match [a-z0-9-]{3,40}');
   if (!ADDR_RE.test(input.wallet ?? '')) throw bad('wallet must be an EVM address');
   if (typeof input.name !== 'string' || input.name.length < 1 || input.name.length > 120)
@@ -288,7 +288,7 @@ export async function registerMerchant(
       throw fail(403, 'payout_wallet_sanctioned', SANCTIONED_MSG, 'contact_support', '/legal/aup');
     }
     if (taken.some((t) => t.slug === input.slug)) {
-      throw fail(409, 'slug_taken', 'slug already registered', 'fix_request', '/docs/integrator');
+      throw fail(409, 'slug_taken', 'slug already registered', 'fix_request', '/integrator/docs');
     }
     if (taken.length > 0) {
       throw fail(
@@ -296,7 +296,7 @@ export async function registerMerchant(
         'wallet_registered',
         'wallet already registered',
         'fix_request',
-        '/docs/integrator',
+        '/integrator/docs',
       );
     }
 
@@ -352,7 +352,7 @@ export async function registerMerchant(
         'validation_failed',
         'name contains instruction-like text',
         'fix_request',
-        '/docs/integrator',
+        '/integrator/docs',
       );
     }
 
@@ -431,7 +431,7 @@ export async function registerMerchant(
           'slug_taken',
           'slug or wallet already registered',
           'fix_request',
-          '/docs/integrator',
+          '/integrator/docs',
         );
       }
       throw err;

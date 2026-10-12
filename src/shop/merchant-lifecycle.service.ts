@@ -119,7 +119,7 @@ export async function acceptTerms(
       'validation_failed',
       'wallet must be an EVM address',
       'fix_request',
-      '/docs/integrator',
+      '/integrator/docs',
     );
   }
   const wallet = input.wallet.toLowerCase();
@@ -307,7 +307,7 @@ export function toApiError(err: unknown, request_id?: string): ApiErr {
     return base(err.status, code, err.message, {
       suggested_action:
         err.suggested_action ?? (err.status === 401 ? 'fix_request' : 'retry_after_delay'),
-      documentation_url: '/docs/integrator#registration--terms',
+      documentation_url: '/integrator/docs#registration--terms',
     });
   }
   logger.error({ err }, 'shop merchant call failed');

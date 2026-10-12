@@ -330,7 +330,7 @@ export function buildPaymentRequiredResponse(
     request_id: meta.requestId,
     error_code: 'payment_required',
     suggested_action: 'add_payment',
-    documentation_url: 'https://apibase.pro/docs/integrator#quotes',
+    documentation_url: 'https://apibase.pro/integrator/docs#quotes',
     price_usd: String(binding.amount_usd),
     min_balance_usd: String(binding.amount_usd),
     payment_address: binding.pay_to,

@@ -18,7 +18,7 @@ describe('policy-moderation page, merchant catalogs section', () => {
   it('links to the AUP categories, the AUP countries and the integrator moderation docs', () => {
     expect(html).toContain('href="/legal/aup#categories"');
     expect(html).toContain('href="/legal/aup"');
-    expect(html).toContain('href="/docs/integrator#moderation"');
+    expect(html).toContain('href="/integrator/docs#catalog"');
   });
 
   it('has no 4-digit count in the system header', () => {

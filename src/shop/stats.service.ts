@@ -5,7 +5,7 @@ import { loadFeeReceivables } from './fee-invoice.service';
 import { QuoteError } from './quote.errors';
 import { countActiveSubscriptions } from './subscription-core';
 
-const DOCS = '/docs/integrator#merchant-stats';
+const DOCS = '/integrator/docs#merchant-stats';
 const DAY_MS = 86_400_000;
 const MAX_SPAN_DAYS = 366;
 const DEFAULT_SPAN_DAYS = 30;
