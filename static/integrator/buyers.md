@@ -34,7 +34,7 @@ Integrator never asks for your private keys or seed phrase, in any tool, page or
 
 ## Streams: pay by the second
 
-A stream product is paid with a deposit into a payment channel that pays the seller's wallet: you deposit at least the minimum shown on the product, the agent signs small vouchers off-chain as the stream runs, and the seller settles in batches. The part of the deposit that was not consumed is returned to you. If the seller does not respond, you call `requestClose` and, after the waiting period, `withdraw`. Streams are paid over MPP only, never with `X-Payment`.
+A stream product is paid with a deposit into a payment channel that pays the seller's wallet: you deposit at least the minimum shown on the product, the agent signs small vouchers off-chain as the stream runs, and the seller settles in batches. The part of the deposit that was not consumed is returned to you. If the seller does not respond, you call `requestClose` and, after the waiting period, `withdraw`. After you request a close on-chain you can withdraw the unspent deposit yourself once the grace period of {{STREAM_CLOSE_GRACE_S}} seconds has passed. Streams are paid over MPP only, never with `X-Payment`.
 
 ## Subscriptions: pre-sign the next periods (Base)
 

@@ -25,6 +25,7 @@ const FACT_FILES = [
   'static/integrator/index.html',
   'static/integrator/index.md',
   'static/integrator/llms.txt',
+  'static/integrator/buyers.md',
 ];
 
 function factsCheck(dir: string) {
@@ -127,6 +128,24 @@ describe('T-INT-19', () => {
       expect(page).toContain('42');
       expect(page).not.toContain('{{MERCHANTS_COUNT}}');
       expect(renderTokens('{{MERCHANTS_COUNT}}', join(dir, 'missing.json'))).toBe('0');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('CN10 buyers renders the close grace period; a buyers file without the token fails the facts check', () => {
+    const d = JSON.parse(read(MCP));
+    expect(d.integrator.stream_close_grace_s).toBe(900);
+    expect(renderTokens(read('static/integrator/buyers.md'))).toContain('900 seconds');
+    expect(read('static/integrator/buyers.md')).not.toMatch(/\b900\b/);
+    const dir = copyTree();
+    try {
+      expect(factsCheck(dir).status).toBe(0);
+      const p = join(dir, 'static/integrator/buyers.md');
+      writeFileSync(p, readFileSync(p, 'utf8').replace('{{STREAM_CLOSE_GRACE_S}}', '900'));
+      const r = factsCheck(dir);
+      expect(r.status).not.toBe(0);
+      expect(r.stdout).toContain('STREAM_CLOSE_GRACE_S');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

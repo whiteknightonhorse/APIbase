@@ -1,6 +1,6 @@
-import { DEFAULT_SANDBOX_STATUS, INTEGRATOR_BASE_FEE_MODE } from './tokens';
+import { DEFAULT_SANDBOX_STATUS, INTEGRATOR_BASE_FEE_MODE, STREAM_CLOSE_GRACE_S } from './tokens';
 
-export { INTEGRATOR_BASE_FEE_MODE };
+export { INTEGRATOR_BASE_FEE_MODE, STREAM_CLOSE_GRACE_S };
 
 /**
  * The `integrator` block of static/.well-known/mcp.json (T-INT-19, F-3/§13.4), built by
@@ -24,6 +24,7 @@ export function buildIntegratorBlock(
     min_order_usd: num(env.INTEGRATOR_MIN_ORDER_USD, 1),
     rails,
     test_sku_usd: 0.01,
+    stream_close_grace_s: STREAM_CLOSE_GRACE_S,
     sandbox_status: env.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS,
   };
 }

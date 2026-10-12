@@ -3,7 +3,7 @@
 
 Source: the `integrator` block + `merchants_count` of static/.well-known/mcp.json (written by
 scripts/gen-discovery.ts from env / one SQL). Tokens: MERCHANTS_COUNT, INTEGRATOR_FEE_PCT,
-INTEGRATOR_MIN_ORDER, SANDBOX_STATUS.
+INTEGRATOR_MIN_ORDER, SANDBOX_STATUS, STREAM_CLOSE_GRACE_S (`integrator.stream_close_grace_s`).
 
   render  rewrite the Integrator sentence in the nginx-static surfaces (pricing.html, llms.txt)
   check   read-only; exit 1 on any disagreement (used by sync-counts.sh in both modes)
@@ -23,6 +23,7 @@ TOKEN_FILES = {
     ],
     "static/integrator/llms.txt": ["INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT"],
     "static/integrator/index.md": ["MERCHANTS_COUNT"],
+    "static/integrator/buyers.md": ["STREAM_CLOSE_GRACE_S"],
 }
 # Homepage surfaces are static files (no request-time tokens): the fee phrase and the merchants line
 # sit between comment markers and are rendered here from the same baseline. Zero merchants -> the
@@ -44,6 +45,7 @@ def facts():
         "fee": fee,
         "fee_min": "$%.2f" % ig["fee_min_usd"],
         "min_order": "$%.2f" % ig["min_order_usd"],
+        "grace_s": int(ig["stream_close_grace_s"]),
     }
 
 
@@ -129,6 +131,8 @@ def check():
             problems.append("%s: hardcoded 1.5%% fee" % path)
     for path in TOKEN_FILES:
         s = open(path).read()
+        if re.search(r"\b%d\b" % f["grace_s"], s):
+            problems.append("%s: hardcoded grace period %d (use the token)" % (path, f["grace_s"]))
         if f["fee"] in s.replace("{{INTEGRATOR_FEE_PCT}}", ""):
             problems.append("%s: hardcoded fee %r (use the token)" % (path, f["fee"]))
     if problems:
