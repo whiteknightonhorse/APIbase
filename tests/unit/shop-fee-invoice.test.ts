@@ -76,7 +76,6 @@ dbDescribe('fee invoices (INT-25)', () => {
       INTEGRATOR_BASE_ORDERS_ENABLED: 'true',
       MPP_ENABLED: 'true',
       INTEGRATOR_FEE_WALLET: FEE_WALLET,
-      INTEGRATOR_FEE_WALLET_BASE: FEE_WALLET,
       PUBLIC_BASE_URL: 'https://apibase.pro',
     });
   });

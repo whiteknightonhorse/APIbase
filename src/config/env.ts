@@ -321,12 +321,6 @@ export const appEnvSchema = z
     MPP_REALM: z.string().optional().default('apibase.pro'),
     MPP_TESTNET: z.string().optional().default('false'),
 
-    // Integrator fee addresses, one per rail: Tempo (MPP splits) and Base (x402 fee-split, invoices).
-    INTEGRATOR_FEE_ENABLED: z.string().optional().default('false'),
-    INTEGRATOR_BASE_ORDERS_ENABLED: z.string().optional().default('false'),
-    INTEGRATOR_FEE_WALLET: z.string().optional().default(''),
-    INTEGRATOR_FEE_WALLET_BASE: z.string().optional().default(''),
-
     // RateAPI (UC-197) — MCP-native US lending rates
     PROVIDER_KEY_RATEAPI: z.string().optional().default(''),
 
@@ -469,25 +463,6 @@ export const appEnvSchema = z
         message:
           'ENCRYPTION_KEY must be at least 32 characters in production (see docs/OPERATOR-ACTION-encryption-key.md)',
       });
-    }
-    // Fee on without the address of an enabled rail would bill 0 or refuse at payment time.
-    if (env.INTEGRATOR_FEE_ENABLED === 'true') {
-      const addr = /^0x[0-9a-fA-F]{40}$/;
-      const message =
-        'INTEGRATOR_FEE_ENABLED=true requires INTEGRATOR_FEE_WALLET (tempo) / INTEGRATOR_FEE_WALLET_BASE (base)';
-      if (env.MPP_ENABLED === 'true' && !addr.test(env.INTEGRATOR_FEE_WALLET)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['INTEGRATOR_FEE_WALLET'], message });
-      }
-      if (
-        env.INTEGRATOR_BASE_ORDERS_ENABLED === 'true' &&
-        !addr.test(env.INTEGRATOR_FEE_WALLET_BASE)
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['INTEGRATOR_FEE_WALLET_BASE'],
-          message,
-        });
-      }
     }
   });
 
