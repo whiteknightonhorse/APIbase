@@ -15,6 +15,7 @@ import {
   runDailySample as runShopPaymentSample,
 } from '../jobs/shop-payment-reconcile.job';
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
+import { run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
 import { runShopProvekRegistrySync } from '../jobs/shop-provek-registry-sync.job';
@@ -313,6 +314,21 @@ const shopCatalogImportTask = cron.schedule('* * * * *', () => {
       shopCatalogImportRunning = false;
     });
 });
+// Layer-1 re-moderation when the rule files change (T-0315): hourly, no-op unless the rules hash differs.
+let catalogRemoderateRunning = false;
+const catalogRemoderateTask = cron.schedule('17 * * * *', () => {
+  if (catalogRemoderateRunning) {
+    return;
+  }
+  catalogRemoderateRunning = true;
+  runCatalogRemoderate()
+    .catch((err) =>
+      logger.error({ err, job: 'catalog-remoderate' }, 'catalog remoderate job failed'),
+    )
+    .finally(() => {
+      catalogRemoderateRunning = false;
+    });
+});
 // Stream channel settlement (INT-40, F-9): $0.50 / hourly / payer-requested close, every minute.
 let shopStreamSettleRunning = false;
 const shopStreamSettleTask = cron.schedule('* * * * *', () => {
@@ -420,6 +436,7 @@ function shutdown(signal: string): void {
   shopProvekSyncTask.stop();
   shopStorefrontProbeTask.stop();
   shopCatalogImportTask.stop();
+  catalogRemoderateTask.stop();
   shopStreamSettleTask.stop();
   shopSubscriptionSweepTask.stop();
   shopSubscriptionPullTask.stop();

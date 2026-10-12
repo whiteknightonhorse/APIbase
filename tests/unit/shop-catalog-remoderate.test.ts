@@ -1,0 +1,145 @@
+/** T-0315 RM1-RM6: layer-1 re-moderation when the rule files change (TEST_DATABASE_URL, disposable). */
+import { computeRulesHash, run, type RulesHashStore } from '../../src/jobs/catalog-remoderate.job';
+import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
+import type { ShopTx } from '../../src/shop/db';
+import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
+
+jest.mock('../../src/config', () => ({ config: { ENCRYPTION_KEY: 'k'.repeat(40) } }));
+jest.mock('../../src/services/redis.service', () => ({ ensureRedisConnected: jest.fn() }));
+
+dbDescribe('catalog-remoderate job (T-0315)', () => {
+  const db = client();
+  let merchant: string;
+  let stored: string | null;
+  const store: RulesHashStore = {
+    get: async () => stored,
+    set: async (h) => {
+      stored = h;
+    },
+  };
+  let productQueries: number;
+  let failOnProductQuery = 0;
+  const deps = (): ShopDeps => {
+    const tx = (q: string, v: unknown[]) => {
+      if (/FROM shop_products/.test(q)) {
+        productQueries++;
+        if (failOnProductQuery && productQueries === failOnProductQuery) {
+          throw new Error('boom');
+        }
+      }
+      return v;
+    };
+    const wrap = (t: unknown): ShopTx =>
+      ({
+        $queryRawUnsafe: async (q: string, ...v: unknown[]) => {
+          tx(q, v);
+          return (t as any).$queryRawUnsafe(q, ...v);
+        },
+        $executeRawUnsafe: async (q: string, ...v: unknown[]) =>
+          (t as any).$executeRawUnsafe(q, ...v),
+      }) as ShopTx;
+    return {
+      db: wrap(db),
+      transaction: async (fn: (t: ShopTx) => Promise<unknown>) =>
+        db.$transaction((t) => fn(wrap(t))),
+    } as unknown as ShopDeps;
+  };
+
+  const mk = async (sku: string, title: string, status = 'ok', category = 'sporting-goods') => {
+    const r = await db.$queryRawUnsafe<Array<{ product_id: string }>>(
+      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, category, moderation_status, updated_at)
+       VALUES ($1::uuid, $2, $3, 5, $4, $5, now() - interval '1 day') RETURNING product_id`,
+      merchant,
+      sku,
+      title,
+      category,
+      status,
+    );
+    return r[0].product_id;
+  };
+  const row = async (id: string) =>
+    (
+      await db.$queryRawUnsafe<Array<{ moderation_status: string; fresh: boolean }>>(
+        `SELECT moderation_status, updated_at > now() - interval '1 hour' AS fresh FROM shop_products WHERE product_id = $1::uuid`,
+        id,
+      )
+    )[0];
+
+  beforeAll(async () => {
+    // client() above already pinned the env datasource to the test URL, which migrate()'s guard refuses.
+    delete process.env.DATABASE_URL;
+    migrate();
+    merchant = await mkMerchant(db);
+  });
+  beforeEach(async () => {
+    await db.$executeRawUnsafe(`DELETE FROM outbox WHERE event_type = 'shop.catalog.rejected'`);
+    await db.$executeRawUnsafe(`DELETE FROM shop_moderation_reviews`);
+    await db.$executeRawUnsafe(`DELETE FROM shop_products`);
+    stored = 'stale-hash';
+    productQueries = 0;
+    failOnProductQuery = 0;
+  });
+  afterAll(() => db.$disconnect());
+
+  it('RM1 hash equal -> no product queries', async () => {
+    await mk('a', 'Skates');
+    stored = computeRulesHash();
+    const res = await run(deps(), { store });
+    expect(res.skipped).toBe(true);
+    expect(productQueries).toBe(0);
+  });
+
+  it('RM2 changed rules: only the newly prohibited item is rejected', async () => {
+    const bad = await mk('bad', 'Premium cocaine kit');
+    const g1 = await mk('g1', 'Skates');
+    const g2 = await mk('g2', 'Helmet');
+    const res = await run(deps(), { store });
+    expect(res).toMatchObject({ skipped: false, scanned: 3, rejected: 1, flagged: 0 });
+    expect(await row(bad)).toEqual({ moderation_status: 'rejected', fresh: true });
+    expect(await row(g1)).toEqual({ moderation_status: 'ok', fresh: false });
+    expect(await row(g2)).toEqual({ moderation_status: 'ok', fresh: false });
+    const reviews = await db.$queryRawUnsafe<Array<Record<string, string>>>(
+      `SELECT scope, layer, verdict, product_id FROM shop_moderation_reviews`,
+    );
+    expect(reviews).toEqual([
+      { scope: 'product', layer: 'rules', verdict: 'reject', product_id: bad },
+    ]);
+    const ob = await db.$queryRawUnsafe<unknown[]>(
+      `SELECT 1 FROM outbox WHERE event_type = 'shop.catalog.rejected'`,
+    );
+    expect(ob).toHaveLength(1);
+    expect(stored).toBe(computeRulesHash());
+  });
+
+  it('RM3 flagged item with now-clean text stays flagged', async () => {
+    const f = await mk('f', 'Skates', 'flagged');
+    await run(deps(), { store });
+    expect((await row(f)).moderation_status).toBe('flagged');
+  });
+
+  it('RM4 second run changes nothing', async () => {
+    await mk('bad', 'Premium cocaine kit');
+    await run(deps(), { store });
+    const res = await run(deps(), { store });
+    expect(res.skipped).toBe(true);
+    const n = await db.$queryRawUnsafe<Array<{ c: bigint }>>(
+      `SELECT count(*) AS c FROM shop_moderation_reviews`,
+    );
+    expect(Number(n[0].c)).toBe(1);
+  });
+
+  it('RM5 rejected items are not scanned', async () => {
+    await mk('r', 'Skates', 'rejected');
+    const res = await run(deps(), { store });
+    expect(res.scanned).toBe(0);
+  });
+
+  it('RM6 failure on the 2nd batch -> hash not stored', async () => {
+    await mk('a', 'Skates');
+    await mk('b', 'Helmet');
+    await mk('c', 'Gloves');
+    failOnProductQuery = 2;
+    await expect(run(deps(), { store, batchSize: 1 })).rejects.toThrow('boom');
+    expect(stored).toBe('stale-hash');
+  });
+});

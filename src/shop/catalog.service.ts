@@ -285,7 +285,7 @@ function encKey(opts: CatalogOpts): string {
 const issueText = (e: z.ZodError) =>
   e.issues.map((i) => `${i.path.join('.') || 'item'}: ${i.message}`).join('; ');
 
-async function review(
+export async function review(
   tx: ShopTx,
   merchant_id: string,
   product_id: string | null,
