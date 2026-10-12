@@ -1,5 +1,6 @@
 import type { ShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
+import { moderateTexts } from '../moderation/product-rules';
 import { mcpUrl, PUBLIC_BASE } from '../storefront/storefront.service';
 
 /**
@@ -93,6 +94,17 @@ export function parseProvekPatch(raw: unknown): {
       throw new ProvekInputError(`claims_url is longer than ${URL_MAX} characters`);
     }
     out.claims_url = b.claims_url as string;
+  }
+  // Both reach a buyer's agent through the public declaration: same layer-1 text rules as a product.
+  let claimsHost = '';
+  if (out.claims_url) claimsHost = new URL(out.claims_url).hostname;
+  const scan = moderateTexts([out.insurance?.note ?? '', claimsHost]);
+  if (scan.verdict !== 'ok') {
+    throw new ProvekInputError(
+      scan.verdict === 'rejected'
+        ? 'insurance.note or claims_url contains a prohibited topic'
+        : 'insurance.note or claims_url contains instruction-like text',
+    );
   }
   return out;
 }

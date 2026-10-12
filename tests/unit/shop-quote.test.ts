@@ -127,8 +127,8 @@ dbDescribe('shop quotes', () => {
   ) {
     const sku = o.sku ?? `sku-${tag()}`;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
-       VALUES ($1::uuid, $2, 'Thing', $3::numeric, $4::int, $5, $6, 'instant')`,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
+       VALUES ('ok', $1::uuid, $2, 'Thing', $3::numeric, $4::int, $5, $6, 'instant')`,
       merchant_id,
       sku,
       o.price ?? 10,

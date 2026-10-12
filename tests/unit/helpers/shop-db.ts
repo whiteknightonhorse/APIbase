@@ -112,8 +112,8 @@ export async function mkProduct(
   opts: { sku?: string; available?: number | null; is_test?: boolean } = {},
 ): Promise<string> {
   const rows = await db.$queryRawUnsafe<Array<{ product_id: string }>>(
-    `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test)
-     VALUES ($1::uuid, $2, 'T', 5, $3::int, $4) RETURNING product_id`,
+    `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test)
+     VALUES ('ok', $1::uuid, $2, 'T', 5, $3::int, $4) RETURNING product_id`,
     merchant_id,
     opts.sku ?? `sku-${uniq()}`,
     opts.available === undefined ? 10 : opts.available,

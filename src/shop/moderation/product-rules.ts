@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { checkContent } from '../../services/content-filter';
-import { isCategoryAllowed } from './categories';
+import { ALLOWED_CATEGORIES, isCategoryAllowed } from './categories';
 
 interface BlocklistFile {
   instruction_patterns: Array<{ id: string; value: string }>;
@@ -196,4 +196,20 @@ export function moderateProduct(p: ProductForModeration): ProductVerdict {
     }
   }
   return { verdict: 'ok', evidence_hash: evidence(`${p.sku}\n${text}`) };
+}
+
+/**
+ * Layer-1 scan of free text that is not a product (merchant name, site host, Provek note): the same
+ * keyword, content-filter and instruction passes as `moderateProduct`, with the category check
+ * satisfied by a fixed allowed slug because there is no declared category to judge.
+ */
+export function moderateTexts(texts: string[]): ProductVerdict {
+  const list = texts.filter((t): t is string => typeof t === 'string' && t.length > 0);
+  return moderateProduct({
+    sku: '-',
+    title: list[0] ?? '',
+    description: '',
+    category: ALLOWED_CATEGORIES[0],
+    extra_texts: list.slice(1),
+  });
 }

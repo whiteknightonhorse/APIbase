@@ -136,8 +136,8 @@ dbDescribe('shop.order.pay payment-identifier', () => {
   async function product(merchant_id: string, price: number, test = false) {
     const sku = test ? '__apibase_test' : `sku-${tag()}`;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
-       VALUES ($1::uuid, $2, 'Thing', $3::numeric, NULL, $4, 'books', 'instant')`,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
+       VALUES ('ok', $1::uuid, $2, 'Thing', $3::numeric, NULL, $4, 'books', 'instant')`,
       merchant_id,
       sku,
       price,

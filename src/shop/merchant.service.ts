@@ -9,6 +9,7 @@ import { ShopAuthError } from './auth/errors';
 import { verifyWalletSignature, type NonceRedis } from './auth/nonce.service';
 import { verifyWalletSignature as checkWalletSignature } from './wallet-signature';
 import { isCategoryAllowed, nearestAllowed } from './moderation/categories';
+import { moderateTexts } from './moderation/product-rules';
 import { isRestrictedEntityCountry, isRestrictedIp } from './moderation/countries';
 import { isSanctioned } from './moderation/sanctions';
 import { isPlatformWallet, PAYOUT_WALLET_PLATFORM_MSG } from './platform-wallets';
@@ -327,12 +328,42 @@ export async function registerMerchant(
       );
     }
 
-    // 5. OFAC for the payout wallets
+    // 4b. the shop name and the site host reach buyers' agents: same layer-1 text rules as a product
+    let host = '';
+    try {
+      host = new URL(input.site_url).hostname;
+    } catch {
+      host = '';
+    }
+    const named = moderateTexts([input.name, host]);
+    if (named.verdict === 'rejected') {
+      await recordBlock(`merchant:${wallet}`);
+      throw fail(
+        403,
+        'category_prohibited',
+        'this category is not supported',
+        'fix_request',
+        '/legal/aup#categories',
+      );
+    }
+    if (named.verdict === 'flagged') {
+      throw fail(
+        422,
+        'validation_failed',
+        'name contains instruction-like text',
+        'fix_request',
+        '/docs/integrator',
+      );
+    }
+
+    // 5. OFAC for the payout wallets, the signing wallet and the recovery wallet
     const payouts = [
       input.payout_wallet_base ?? input.payout_wallet ?? wallet,
       input.payout_wallet_tempo ?? input.payout_wallet ?? wallet,
     ].map((a) => a.toLowerCase());
-    for (const p of payouts) {
+    const screened = [...payouts, wallet];
+    if (input.recovery_wallet) screened.push(input.recovery_wallet.toLowerCase());
+    for (const p of screened) {
       if (await isSanctioned(ctx.db, p)) {
         await recordSanctionedPayout(ctx, input, wallet);
         await recordBlock(`merchant:${wallet}`);

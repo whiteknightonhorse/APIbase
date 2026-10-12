@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { config } from '../config';
+import { checkBan, recordBlock } from '../services/moderation-ban.service';
 import { encryptSecret } from '../services/secret-crypto.service';
 import { stripHtml } from '../utils/strip-html';
 import { CatalogError } from './catalog.errors';
@@ -260,12 +261,13 @@ interface MerchantGate {
   merchant_id: string;
   status: string;
   status_reason: string | null;
+  wallet_address: string;
   limits: { max_order_usd?: number } | null;
 }
 
 async function gate(db: ShopTx, merchant_id: string, now?: () => number) {
   const rows = await db.$queryRawUnsafe<MerchantGate[]>(
-    `SELECT merchant_id, status, status_reason, limits FROM shop_merchants WHERE merchant_id = $1::uuid`,
+    `SELECT merchant_id, status, status_reason, wallet_address, limits FROM shop_merchants WHERE merchant_id = $1::uuid`,
     merchant_id,
   );
   if (!rows[0]) throw new ShopAuthError(401, 'unknown merchant');
@@ -302,6 +304,68 @@ async function review(
   );
 }
 
+/** Every seller-supplied string that `catalog.get`/`search` hands to a buyer's agent besides title/description. */
+function extraTexts(p: CatalogItem): string[] {
+  return [
+    ...(p.variants ?? []).map((v) => v.title),
+    ...(p.variants ?? []).flatMap((v) => Object.entries(v.attributes ?? {}).flat()),
+    ...p.shipping_options.map((o) => o.label),
+    ...p.delivery_slots.map((s) => s.label),
+    p.tax_note ?? '',
+    p.stream?.content_ref ?? '',
+  ].filter(Boolean);
+}
+
+/** The same fields as `extraTexts`, raw (before `clean()`), plus title/description: hidden-character check. */
+function rawHasHidden(raw: Record<string, unknown> | null): boolean {
+  const arr = (v: unknown): Array<Record<string, unknown>> =>
+    Array.isArray(v)
+      ? v.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
+      : [];
+  const strs: unknown[] = [raw?.title, raw?.description, raw?.tax_note];
+  const stream = raw?.stream as Record<string, unknown> | undefined;
+  if (stream && typeof stream === 'object') strs.push(stream.content_ref);
+  for (const v of arr(raw?.variants)) {
+    strs.push(v.title);
+    if (v.attributes && typeof v.attributes === 'object') {
+      strs.push(...Object.entries(v.attributes as Record<string, unknown>).flat());
+    }
+  }
+  for (const o of arr(raw?.shipping_options)) strs.push(o.label);
+  for (const s of arr(raw?.delivery_slots)) strs.push(s.label);
+  return strs.some((t) => typeof t === 'string' && hasHiddenChars(t));
+}
+
+/**
+ * Re-upsert after a layer-3/human product reject (T-0312): rules-clean text must not clear a reject
+ * that a non-rules layer issued after the last rules pass. Such an item goes back to review.
+ */
+async function reviewedRejectStillStands(tx: ShopTx, merchant_id: string, sku: string) {
+  const prev = await tx.$queryRawUnsafe<Array<{ product_id: string; moderation_status: string }>>(
+    `SELECT product_id, moderation_status FROM shop_products WHERE merchant_id = $1::uuid AND sku = $2`,
+    merchant_id,
+    sku,
+  );
+  const row = prev[0];
+  if (!row || (row.moderation_status !== 'rejected' && row.moderation_status !== 'flagged')) {
+    return false;
+  }
+  const last = await tx.$queryRawUnsafe<Array<{ verdict: string; at: Date }>>(
+    `SELECT verdict, at FROM shop_moderation_reviews
+      WHERE product_id = $1::uuid AND scope = 'product' AND layer IN ('llm', 'human')
+      ORDER BY at DESC LIMIT 1`,
+    row.product_id,
+  );
+  if (!last[0] || last[0].verdict !== 'reject') return false;
+  const rulesPass = await tx.$queryRawUnsafe<Array<{ at: Date }>>(
+    `SELECT at FROM shop_moderation_reviews
+      WHERE product_id = $1::uuid AND scope = 'product' AND layer = 'rules' AND verdict = 'pass'
+      ORDER BY at DESC LIMIT 1`,
+    row.product_id,
+  );
+  return !rulesPass[0] || last[0].at.getTime() > rulesPass[0].at.getTime();
+}
+
 /**
  * UC-11 / §6.2: idempotent by (merchant_id, sku). Order per item: zod (F-2) -> price ceiling ->
  * duplicate-in-batch -> `moderateProduct` (category, keywords/content-filter, injections) -> write.
@@ -319,6 +383,17 @@ export async function upsertCatalog(
     throw validation(`at most ${MAX_ITEMS_PER_CALL} items per call`);
   }
   const { merchant, banner } = await gate(d.db, merchant_id, d.now);
+  const identity = `merchant:${merchant.wallet_address.toLowerCase()}`;
+  const ban = await checkBan(identity);
+  if (ban.banned) {
+    throw new CatalogError(
+      403,
+      'moderation_banned',
+      'repeated rejected writes temporarily block catalog writes for this merchant',
+      'retry_after_delay',
+      { documentation_url: '/legal/aup', retry_after: ban.retryAfterSecs },
+    );
+  }
   const maxOrder = Number(merchant.limits?.max_order_usd ?? DEFAULT_MAX_ORDER_USD);
 
   const report: CatalogReport = { upserted: 0, flagged: [], rejected: [], errors: [], ...banner };
@@ -361,15 +436,13 @@ export async function upsertCatalog(
       }
       seen.add(p.sku);
 
-      const hidden =
-        (typeof raw?.title === 'string' && hasHiddenChars(raw.title)) ||
-        (typeof raw?.description === 'string' && hasHiddenChars(raw.description));
       const verdict = moderateProduct({
         sku: p.sku,
         title: p.title,
         description: p.description,
         category: p.category,
-        hidden_chars: hidden,
+        hidden_chars: rawHasHidden(raw),
+        extra_texts: extraTexts(p),
       });
 
       if (verdict.verdict === 'rejected') {
@@ -397,6 +470,11 @@ export async function upsertCatalog(
         });
         continue;
       }
+
+      // Rules say ok, but a layer-3/human reject of this item stands: back to review, not on the shelf.
+      const held =
+        verdict.verdict === 'ok' && (await reviewedRejectStillStands(tx, merchant_id, p.sku));
+      const status = verdict.verdict === 'flagged' || held ? 'flagged' : 'ok';
 
       const payload = p.fulfillment?.instant?.payload;
       const rows = await tx.$queryRawUnsafe<Array<{ product_id: string }>>(
@@ -438,7 +516,7 @@ export async function upsertCatalog(
         p.returns_accepted,
         p.category,
         p.images,
-        verdict.verdict === 'flagged' ? 'flagged' : 'ok',
+        status,
         p.stream ? JSON.stringify(p.stream) : null,
         p.subscription ? JSON.stringify(p.subscription) : null,
       );
@@ -471,12 +549,13 @@ export async function upsertCatalog(
         tx,
         merchant_id,
         product_id,
-        verdict.verdict === 'flagged' ? 'flag' : 'pass',
+        status === 'flagged' ? 'flag' : 'pass',
         p.category,
         verdict.evidence_hash,
       );
       if (verdict.verdict === 'flagged')
         report.flagged.push({ sku: p.sku, reason: verdict.reason });
+      else if (held) report.flagged.push({ sku: p.sku, reason: 'prior_reject_pending_review' });
       report.upserted++;
     }
     if (rejectedAny) {
@@ -492,6 +571,8 @@ export async function upsertCatalog(
           })),
         }),
       );
+      // One block per write call, however many items were rejected (F-13(2)).
+      await recordBlock(identity);
     }
   });
   return report;

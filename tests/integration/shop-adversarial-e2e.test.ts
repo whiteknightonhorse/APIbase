@@ -343,9 +343,9 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
   ) {
     const sku = o.test ? TEST_SKU : `sku-${tag()}`;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test, category,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test, category,
                                   fulfillment_mode, fulfillment_payload_encrypted)
-       VALUES ($1::uuid, $2, 'Thing', $3::numeric, $4::int, $5, 'books', $6, $7)`,
+       VALUES ('ok', $1::uuid, $2, 'Thing', $3::numeric, $4::int, $5, 'books', $6, $7)`,
       merchant_id,
       sku,
       price,

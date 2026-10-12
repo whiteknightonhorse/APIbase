@@ -148,8 +148,8 @@ dbDescribe('shop fee ledger, ledger cost, duplicate MPP refund', () => {
     );
     const sku = test ? '__apibase_test' : `sku-${tag()}`;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
-       VALUES ($1::uuid, $2, 'Thing', $3::numeric, NULL, $4, 'books', 'instant')`,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
+       VALUES ('ok', $1::uuid, $2, 'Thing', $3::numeric, NULL, $4, 'books', 'instant')`,
       m,
       sku,
       price,

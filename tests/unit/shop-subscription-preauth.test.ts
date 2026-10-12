@@ -194,9 +194,9 @@ dbDescribe('subscriptions: Base pull with pre-signed authorizations', () => {
     await activate(m);
     const sku = `sub-${tag()}`;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test, category,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test, category,
                                   fulfillment_mode, subscription)
-       VALUES ($1::uuid, $2, 'Plan', $3::numeric, NULL, false, 'books', 'instant', $4::jsonb)`,
+       VALUES ('ok', $1::uuid, $2, 'Plan', $3::numeric, NULL, false, 'books', 'instant', $4::jsonb)`,
       m,
       sku,
       o.price ?? 5,

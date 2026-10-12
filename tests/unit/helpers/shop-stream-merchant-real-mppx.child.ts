@@ -152,9 +152,9 @@ async function run(
   );
   setMerchant(merchantId);
   await prisma.$executeRawUnsafe(
-    `INSERT INTO shop_products (merchant_id, sku, title, price_usd, fulfillment_mode, stream,
-                                fulfillment_payload_encrypted, category)
-     VALUES ($1::uuid, 'demo-stream', 'Stream', $2::numeric, 'stream', $3::jsonb, $4, 'digital-goods')`,
+    `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, fulfillment_mode,
+                                stream, fulfillment_payload_encrypted, category)
+     VALUES ('ok', $1::uuid, 'demo-stream', 'Stream', $2::numeric, 'stream', $3::jsonb, $4, 'digital-goods')`,
     merchantId,
     RATE,
     JSON.stringify({

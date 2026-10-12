@@ -73,9 +73,9 @@ dbDescribe('order lifecycle, merchant order tools, SLA sweeper', () => {
   ) {
     const sku = `sku-${tag()}`;
     await x(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, category,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, category,
                                   fulfillment_mode, returns_accepted, refund_window_days)
-       VALUES ($1::uuid, $2, 'T', 5, 10, 'books', $5, $3, $4::int)`,
+       VALUES ('ok', $1::uuid, $2, 'T', 5, 10, 'books', $5, $3, $4::int)`,
       m,
       sku,
       o.returns ?? false,

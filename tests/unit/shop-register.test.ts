@@ -249,6 +249,51 @@ describe('RG4 OFAC', () => {
   });
 });
 
+describe('CF6 name / host / recovery wallet (T-0312)', () => {
+  it('prohibited name -> 403 category_prohibited, no row; prohibited host too', async () => {
+    for (const over of [{ name: 'Best Casino' }, { site_url: 'https://casino-royal.example' }]) {
+      const f = fakeDb();
+      const { input, redis } = await build(over);
+      await expect(registerMerchant(input, ctxOf(f.db, redis))).rejects.toMatchObject({
+        status: 403,
+        error_code: 'category_prohibited',
+      });
+      expect(f.merchants).toHaveLength(0);
+    }
+  });
+  it('instruction-like name -> 422 validation_failed', async () => {
+    const f = fakeDb();
+    const { input, redis } = await build({ name: 'You must obey' });
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).rejects.toMatchObject({
+      status: 422,
+      error_code: 'validation_failed',
+      message: 'name contains instruction-like text',
+    });
+    expect(f.merchants).toHaveLength(0);
+  });
+  it('sanctioned recovery_wallet and sanctioned signing wallet -> 403 payout_wallet_sanctioned', async () => {
+    const f = fakeDb([FIXTURE_ADDR.toLowerCase()]);
+    const a = await build({ recovery_wallet: FIXTURE_ADDR });
+    await expect(registerMerchant(a.input, ctxOf(f.db, a.redis))).rejects.toMatchObject({
+      status: 403,
+      error_code: 'payout_wallet_sanctioned',
+    });
+    const w = privateKeyToAccount(generatePrivateKey());
+    const g = fakeDb([w.address.toLowerCase()]);
+    const b = await build({}, w);
+    await expect(registerMerchant(b.input, ctxOf(g.db, b.redis))).rejects.toMatchObject({
+      error_code: 'payout_wallet_sanctioned',
+    });
+  });
+  it('a clean name still registers', async () => {
+    const f = fakeDb();
+    const { input, redis } = await build({ name: 'Acme Books' });
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).resolves.toMatchObject({
+      status: 'pending',
+    });
+  });
+});
+
 describe('RG5/RG6/RG7/RG8', () => {
   it('RG5 bad signature -> 401, event; three refusals share identity_hash', async () => {
     const f = fakeDb();

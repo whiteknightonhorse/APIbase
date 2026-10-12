@@ -497,9 +497,9 @@ dbDescribe('shop PII is never plaintext (INT-21, wave 2)', () => {
   async function product(merchant_id: string, requires: string[]) {
     const sku = `sku-${tag()}`;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, category, fulfillment_mode,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, category, fulfillment_mode,
                                   fulfillment_payload_encrypted, requires_pii)
-       VALUES ($1::uuid, $2, 'Tour', 1, 'books', 'instant', $3, $4::text[])`,
+       VALUES ('ok', $1::uuid, $2, 'Tour', 1, 'books', 'instant', $3, $4::text[])`,
       merchant_id,
       sku,
       encryptSecret('booked', KEY),

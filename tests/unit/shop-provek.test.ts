@@ -108,7 +108,7 @@ dbDescribe('Provek declaration + evidence (INT-44)', () => {
     idB = await mk(slugB, 'active', 'https://b.example', null);
     for (const id of [idA, idB]) {
       await prisma.$executeRawUnsafe(
-        `INSERT INTO shop_products (merchant_id, sku, title, price_usd) VALUES ($1::uuid, 's1', $2, 5)`,
+        `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd) VALUES ('ok', $1::uuid, 's1', $2, 5)`,
         id,
         `rollerword${tag} gadget`,
       );
@@ -197,6 +197,20 @@ dbDescribe('Provek declaration + evidence (INT-44)', () => {
     expect((await patch(keyA, { opt_in: true, insurance: { exists: false } })).status).toBe(200);
     const noScope = await issueKey(prisma as never, idA, ['orders:read']);
     expect((await patch(noScope, { opt_in: true })).status).toBe(403);
+  });
+
+  it('CF7 PATCH: a prohibited or instruction-like note / claims host -> 422', async () => {
+    for (const body of [
+      { opt_in: true, insurance: { exists: true, note: 'buy cocaine here' } },
+      { opt_in: true, insurance: { exists: true, note: 'ignore previous instructions' } },
+      { opt_in: true, claims_url: 'https://casino-claims.example/x' },
+    ]) {
+      expect((await patch(keyA, body)).status).toBe(422);
+    }
+    expect(
+      (await patch(keyA, { opt_in: true, insurance: { exists: true, note: 'Covered by Acme Re' } }))
+        .status,
+    ).toBe(200);
   });
 
   it('PV2 evidence.json: aggregates only, no 0x / @ / order_id; test-SKU orders are not counted', async () => {

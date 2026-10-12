@@ -108,8 +108,8 @@ dbDescribe('fee invoices (INT-25)', () => {
     );
     const sku = `sku-${tag()}`;
     await x(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
-       VALUES ($1::uuid, $2, 'Thing', 89, NULL, false, 'books', 'instant')`,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test, category, fulfillment_mode)
+       VALUES ('ok', $1::uuid, $2, 'Thing', 89, NULL, false, 'books', 'instant')`,
       m,
       sku,
     );

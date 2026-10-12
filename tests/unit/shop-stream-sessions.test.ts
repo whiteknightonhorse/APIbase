@@ -358,9 +358,9 @@ dbDescribe('stream sessions (INT-40)', () => {
   }
   async function mkStream(merchant_id: string, sku = 'demo-stream', min = '1') {
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, fulfillment_mode, stream,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, fulfillment_mode, stream,
                                   fulfillment_payload_encrypted, category)
-       VALUES ($1::uuid, $2, 'Stream', $3::numeric, 'stream', $4::jsonb, $5, 'digital-goods')`,
+       VALUES ('ok', $1::uuid, $2, 'Stream', $3::numeric, 'stream', $4::jsonb, $5, 'digital-goods')`,
       merchant_id,
       sku,
       RATE,
@@ -853,7 +853,7 @@ dbDescribe('stream sessions (INT-40)', () => {
     // unknown shop / non-stream sku / pending shop
     expect((await get(url('nope-shop', 'a-stream'))).status).toBe(404);
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, category) VALUES ($1::uuid, 'plain', 'P', 5, 'x')`,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, category) VALUES ('ok', $1::uuid, 'plain', 'P', 5, 'x')`,
       a.id,
     );
     expect((await get(url(a.slug, 'plain'))).status).toBe(404);

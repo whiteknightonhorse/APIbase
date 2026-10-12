@@ -212,10 +212,10 @@ dbDescribe('subscriptions: Tempo keychain, merchant-run renewer', () => {
     const sku = `sub-${tag()}`;
     const plain = `plain-${tag()}`;
     await prisma.$executeRawUnsafe(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, is_test, category,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, is_test, category,
                                   fulfillment_mode, subscription)
-       VALUES ($1::uuid, $2, 'Plan', $3::numeric, NULL, false, 'books', 'instant', $4::jsonb),
-              ($1::uuid, $5, 'Plain', 5, NULL, false, 'books', 'instant', NULL)`,
+       VALUES ('ok', $1::uuid, $2, 'Plan', $3::numeric, NULL, false, 'books', 'instant', $4::jsonb),
+              ('ok', $1::uuid, $5, 'Plain', 5, NULL, false, 'books', 'instant', NULL)`,
       m,
       sku,
       o.price ?? 5,

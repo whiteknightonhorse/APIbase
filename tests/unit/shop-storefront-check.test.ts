@@ -148,9 +148,9 @@ dbDescribe('storefront MCP, discovery, connection check (INT-16)', () => {
     over: { description?: string; price?: number; test?: boolean } = {},
   ) {
     await x(
-      `INSERT INTO shop_products (merchant_id, sku, title, description, price_usd, available, is_test,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, description, price_usd, available, is_test,
                                  category, fulfillment_mode)
-       VALUES ($1::uuid, $2, $3, $4, $5::numeric, NULL, $6, 'books', 'instant')`,
+       VALUES ('ok', $1::uuid, $2, $3, $4, $5::numeric, NULL, $6, 'books', 'instant')`,
       merchant_id,
       sku,
       title,

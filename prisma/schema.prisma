@@ -596,7 +596,7 @@ model ShopProduct {
   category                      String?
   shop_category                 String?
   images                        String[]
-  moderation_status             String                   @default("ok") // ok|flagged|rejected
+  moderation_status             String                   @default("flagged") // ok|flagged|rejected
   search                        Unsupported("tsvector")? // GENERATED ... STORED, GIN-indexed
   created_at                    DateTime                 @default(now()) @db.Timestamptz()
   updated_at                    DateTime                 @default(now()) @db.Timestamptz()

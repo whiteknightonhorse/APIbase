@@ -83,9 +83,9 @@ dbDescribe('physical orders', () => {
   async function product(m: string, o: { slots?: boolean; mode?: string; days?: number } = {}) {
     const sku = `sku-${tag()}`;
     await x(
-      `INSERT INTO shop_products (merchant_id, sku, title, price_usd, available, category,
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available, category,
           fulfillment_mode, shipping_options, delivery_slots, refund_window_days, returns_accepted)
-       VALUES ($1::uuid, $2, 'Lamp', 20, 50, 'home', $3, $4::jsonb, $5::jsonb, $6::int, true)`,
+       VALUES ('ok', $1::uuid, $2, 'Lamp', 20, 50, 'home', $3, $4::jsonb, $5::jsonb, $6::int, true)`,
       m,
       sku,
       o.mode ?? 'physical',
