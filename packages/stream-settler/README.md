@@ -52,3 +52,5 @@ WantedBy=multi-user.target
 ## License
 
 MIT
+
+A `close` item whose channel is already finalized on-chain is not sent again (it would only burn gas): the settler logs `already finalized on-chain; report the original tx with POST .../settled {tx_hash}` and counts it as failed. When `settled` answers an error, the first 300 characters of the response body (for example `settle_not_proven` with its `reject_reason`) are included in the log line.

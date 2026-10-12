@@ -23,6 +23,8 @@ export interface Account {
 /** The on-chain call of one queue item; the default implementation is mppx's. */
 export interface ChainOps {
   run(item: QueueItem, account: Account): Promise<string>;
+  /** true when the channel is already finalized on-chain (a close would only burn gas). */
+  isFinalized?(item: QueueItem): Promise<boolean>;
 }
 
 export type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
@@ -58,6 +60,13 @@ export async function runPass(o: PassOptions): Promise<PassResult> {
   let failed = 0;
   for (const item of queue) {
     try {
+      if (item.action === 'close' && o.chain.isFinalized && (await o.chain.isFinalized(item))) {
+        failed++;
+        o.log(
+          `close ${item.channel_id}: already finalized on-chain; report the original tx with POST .../settled {tx_hash}`,
+        );
+        continue;
+      }
       const tx_hash = await o.chain.run(item, o.account);
       o.log(`${item.action} ${item.channel_id}: tx ${tx_hash}`);
       const r = await o.fetch(
@@ -68,7 +77,10 @@ export async function runPass(o: PassOptions): Promise<PassResult> {
           body: JSON.stringify({ tx_hash }),
         },
       );
-      if (!r.ok) throw new Error(`settled answered HTTP ${r.status}`);
+      if (!r.ok) {
+        const body = (await r.text().catch(() => '')).slice(0, 300);
+        throw new Error(`settled answered HTTP ${r.status}: ${body}`);
+      }
       done++;
     } catch (err) {
       failed++;
@@ -87,16 +99,29 @@ const FEE_TOKEN: Record<number, string> = {
 
 /** The mppx implementation: `Session.Chain.settleOnChain` / `closeOnChain` with the merchant account. */
 export function mppxChainOps(rpcUrl?: string, feeToken?: string): ChainOps {
+  const makeClient = async (item: QueueItem) => {
+    const { createClient, http } = await import('viem');
+    const { tempo, tempoModerato } = await import('viem/chains');
+    const chain = item.chain_id === tempoModerato.id ? tempoModerato : tempo;
+    return createClient({
+      chain: { ...chain, feeToken: feeToken ?? FEE_TOKEN[chain.id] } as never,
+      transport: http(rpcUrl),
+    });
+  };
   return {
+    async isFinalized(item) {
+      if (!item.escrow_contract) return false;
+      const { Session } = await import('mppx/tempo');
+      const oc = await Session.Chain.getOnChainChannel(
+        (await makeClient(item)) as never,
+        item.escrow_contract as `0x${string}`,
+        item.channel_id as `0x${string}`,
+      );
+      return oc.finalized === true;
+    },
     async run(item, account) {
       const { Session } = await import('mppx/tempo');
-      const { createClient, http } = await import('viem');
-      const { tempo, tempoModerato } = await import('viem/chains');
-      const chain = item.chain_id === tempoModerato.id ? tempoModerato : tempo;
-      const client = createClient({
-        chain: { ...chain, feeToken: feeToken ?? FEE_TOKEN[chain.id] } as never,
-        transport: http(rpcUrl),
-      });
+      const client = await makeClient(item);
       if (!item.escrow_contract) throw new Error('queue item has no escrow_contract');
       const voucher = {
         channelId: item.channel_id as `0x${string}`,

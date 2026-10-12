@@ -110,19 +110,19 @@ Write path (merchant key `mk_live_…`, scope `catalog:write`, 60 writes/min per
 
 Item (zod schema `CatalogItemSchema`, `src/shop/catalog.service.ts`):
 
-| field                                                                                                                                                                                       | rule                                                                                   |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `sku`                                                                                                                                                                                       | `[A-Za-z0-9._:-]`, ≤64                                                                 |
-| `title`                                                                                                                                                                                     | ≤120 after HTML/control/zero-width stripping                                           |
-| `description`                                                                                                                                                                               | ≤2 000 after stripping                                                                 |
-| `price_usd`                                                                                                                                                                                 | decimal, ≤2 fractional digits, `$1.00` … `limits.max_order_usd`                        |
-| `is_test`                                                                                                                                                                                   | only for the test SKU (below)                                                          |
-| `stock`                                                                                                                                                                                     | integer ≥0; `null`/absent = not tracked                                                |
-| `fulfillment_mode`                                                                                                                                                                          | `instant` · `merchant` · `physical` · `stream`                                         |
-| `fulfillment.instant.payload`                                                                                                                                                               | required for `instant`; stored encrypted with the server key, never returned or logged |
-| `tax_included`, `tax_note`, `shipping_options[]`, `delivery_slots[]`, `requires_pii[]`, `refund_window_days`, `returns_accepted`, `currency_display`, `images[]` (https URLs), `variants[]` | as in the spec; no discounts or coupons                                                |
-| `subscription` | `{period_unit: day\|week\|month, period_count >= 1, max_periods? <= 120, trial: none}` for `instant`/`merchant` items; `price_usd` is the price of ONE period (>= $1.00). No stock count, variants, buyer data or test SKU. See [Subscriptions](#subscriptions) |
-| `category`                                                                                                                                                                                  | one of `config/integrator/prohibited-categories.json` → `allowed`                      |
+| field                                                                                                                                                                                       | rule                                                                                                                                                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sku`                                                                                                                                                                                       | `[A-Za-z0-9._:-]`, ≤64                                                                                                                                                                                                                                          |
+| `title`                                                                                                                                                                                     | ≤120 after HTML/control/zero-width stripping                                                                                                                                                                                                                    |
+| `description`                                                                                                                                                                               | ≤2 000 after stripping                                                                                                                                                                                                                                          |
+| `price_usd`                                                                                                                                                                                 | decimal, ≤2 fractional digits, `$1.00` … `limits.max_order_usd`                                                                                                                                                                                                 |
+| `is_test`                                                                                                                                                                                   | only for the test SKU (below)                                                                                                                                                                                                                                   |
+| `stock`                                                                                                                                                                                     | integer ≥0; `null`/absent = not tracked                                                                                                                                                                                                                         |
+| `fulfillment_mode`                                                                                                                                                                          | `instant` · `merchant` · `physical` · `stream`                                                                                                                                                                                                                  |
+| `fulfillment.instant.payload`                                                                                                                                                               | required for `instant`; stored encrypted with the server key, never returned or logged                                                                                                                                                                          |
+| `tax_included`, `tax_note`, `shipping_options[]`, `delivery_slots[]`, `requires_pii[]`, `refund_window_days`, `returns_accepted`, `currency_display`, `images[]` (https URLs), `variants[]` | as in the spec; no discounts or coupons                                                                                                                                                                                                                         |
+| `subscription`                                                                                                                                                                              | `{period_unit: day\|week\|month, period_count >= 1, max_periods? <= 120, trial: none}` for `instant`/`merchant` items; `price_usd` is the price of ONE period (>= $1.00). No stock count, variants, buyer data or test SKU. See [Subscriptions](#subscriptions) |
+| `category`                                                                                                                                                                                  | one of `config/integrator/prohibited-categories.json` → `allowed`                                                                                                                                                                                               |
 
 Response: `{ upserted, flagged[{sku,reason}], rejected[{sku,reason,category,status:422}], errors[{index,sku,status:422,message}] }`. Items are judged one by one: a bad item never blocks the rest of the batch. More than 500 items → `422` for the whole call.
 
@@ -265,6 +265,8 @@ A shop that sells streams (`fulfillment_mode: "stream"`) is paid over an on-chai
 4. When a buyer closes a channel, the reply is `202 {"status": "close_pending", "channel_id": ..., "note": ...}`: you settle within the grace period; the buyer may request a close and withdraw on-chain after `CLOSE_GRACE_PERIOD`.
 5. A `close_pending` channel, or one the buyer asked to close on-chain, that you have not settled for an hour raises the `stream.settle_due` event (webhook and events feed) and a notice by e-mail. Keep the CLI running.
 
+A close is proven by the ChannelClosed event of the reported transaction; getChannel() is zeroed after close.
+
 The platform fee of settled amounts is a receivable, as for any stream.
 
 ## Subscriptions (UC-9 / F-8) {#subscriptions}
@@ -299,16 +301,16 @@ A payer who paid period 1 on Base can sign the next periods ahead of time, so th
 
 Store them with `shop.subscription.preauthorize {subscription_id, authorizations[1..12]}` on `/mcp` or `POST /api/v1/shop/subscriptions/:id/preauthorize {authorizations}` (the payer only, another identity gets `404`; status `active` or `past_due`, paid on Base). Each item is `{period_no, authorization {from, to, value, validAfter, validBefore, nonce}, signature, fee_authorization? {authorization, signature}}` and is checked against the server's data:
 
-| Field | Must be |
-|-------|---------|
-| `period_no` | a future period (later than the last paid one) and not above `max_periods` |
-| `from` | the wallet that paid the subscription |
-| `to` | the shop payout wallet (the fee leg: the platform fee wallet) |
-| `value` | the plan price in micro-USDC; with the platform fee on and a fee leg: price minus fee, and the fee leg is exactly the fee |
-| `validAfter` | the unix start of the period (the end of the previous one) |
-| `validBefore` | between 1 h and 72 h after `validAfter` (the same on both legs) |
-| `nonce` | a fresh random 32 bytes, unique across all stored authorizations |
-| `signature` | a valid signature of `from` over the USDC domain (`USD Coin`, version `2`, Base) |
+| Field         | Must be                                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `period_no`   | a future period (later than the last paid one) and not above `max_periods`                                                |
+| `from`        | the wallet that paid the subscription                                                                                     |
+| `to`          | the shop payout wallet (the fee leg: the platform fee wallet)                                                             |
+| `value`       | the plan price in micro-USDC; with the platform fee on and a fee leg: price minus fee, and the fee leg is exactly the fee |
+| `validAfter`  | the unix start of the period (the end of the previous one)                                                                |
+| `validBefore` | between 1 h and 72 h after `validAfter` (the same on both legs)                                                           |
+| `nonce`       | a fresh random 32 bytes, unique across all stored authorizations                                                          |
+| `signature`   | a valid signature of `from` over the USDC domain (`USD Coin`, version `2`, Base)                                          |
 
 One bad item refuses the whole call with `422` and stores nothing; a period that already has a live authorization is `409 period_already_preauthorized`. With the fee on, the fee leg is optional: with it the fee is settled in the same transaction (`in_tx`), without it the whole price goes to the shop and the fee is invoiced to the shop (`receivable`). Stored signatures are encrypted at rest and never returned or logged. `shop.subscription.get` shows `pull_mode: base_preauth` and `preauthorized_periods[] {period_no, status, valid_after, valid_before, fee_leg, tx_hash?}`.
 
@@ -419,17 +421,17 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 
 **Buyer tools (§6.1)**
 
-| Tool                  | Wave 1 | Notes                                             |
-| --------------------- | ------ | ------------------------------------------------- |
-| `shop.catalog.search` | yes    |                                                   |
-| `shop.catalog.get`    | yes    |                                                   |
-| `shop.order.quote`    | yes    |                                                   |
-| `shop.order.pay`      | yes    | `pii` envelopes (INT-21), physical goods (INT-22) |
-| `shop.order.get`      | yes    |                                                   |
-| `shop.order.cancel`   | yes    |                                                   |
-| `shop.order.dispute`  | yes    | the payer only                                    |
-| `shop.subscription.get`    | yes    | T-INT-41, the payer only                      |
-| `shop.subscription.cancel` | yes    | T-INT-41, the payer only                      |
+| Tool                       | Wave 1 | Notes                                             |
+| -------------------------- | ------ | ------------------------------------------------- |
+| `shop.catalog.search`      | yes    |                                                   |
+| `shop.catalog.get`         | yes    |                                                   |
+| `shop.order.quote`         | yes    |                                                   |
+| `shop.order.pay`           | yes    | `pii` envelopes (INT-21), physical goods (INT-22) |
+| `shop.order.get`           | yes    |                                                   |
+| `shop.order.cancel`        | yes    |                                                   |
+| `shop.order.dispute`       | yes    | the payer only                                    |
+| `shop.subscription.get`    | yes    | T-INT-41, the payer only                          |
+| `shop.subscription.cancel` | yes    | T-INT-41, the payer only                          |
 
 **Merchant tools (§6.2)**
 
@@ -452,49 +454,49 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 
 **REST routes (§6.3, under `/api/v1/shop`)**
 
-| Route                                    | Wave 1 | Notes                |
-| ---------------------------------------- | ------ | -------------------- |
-| `GET /shops`                             | yes    |                      |
-| `GET /shops/:slug`                       | yes    |                      |
-| `GET /shops/:slug/products`              | yes    |                      |
-| `POST /quotes`                           | yes    |                      |
-| `GET /quotes/:id`                        | yes    |                      |
-| `POST /quotes/:id/pay`                   | yes    | x402 and MPP         |
-| `GET /quotes/:id/pay`                    | yes    | the challenge only   |
-| `GET /orders/:id`                        | yes    |                      |
-| `POST /orders/:id/cancel`                | yes    |                      |
-| `POST /orders/:id/disputes`              | yes    | the payer only       |
-| `GET /subscriptions/:id`                 | yes    | T-INT-41             |
-| `POST /subscriptions/:id/cancel`         | yes    | T-INT-41             |
-| `POST /subscriptions/:id/preauthorize`   | yes    | T-INT-47, the payer only |
-| `POST /subscriptions/:id/confirm-pull`   | yes    | T-INT-49, the payer only |
-| `GET /merchants/me/subscriptions`        | yes    | T-INT-41             |
-| `POST /merchants/me/subscriptions/:id/cancel` | yes | T-INT-41           |
-| `PUT /merchants/me/renewer-key`          | yes    | T-INT-49, address only |
-| `DELETE /merchants/me/renewer-key`       | yes    | T-INT-49             |
-| `GET /merchants/me/subscriptions/renew-queue` | yes | T-INT-49        |
-| `POST /merchants/me/subscriptions/:id/renewed` | yes | T-INT-49       |
-| `GET /auth/nonce`                        | yes    |                      |
-| `POST /merchants`                        | yes    |                      |
-| `POST /merchants/me/acceptances`         | yes    |                      |
-| `PUT /merchants/me/catalog`              | yes    |                      |
-| `DELETE /merchants/me/catalog`           | yes    | T-0294 `{skus[1..200]}`, `shop.merchant.catalog_delete`; an open quote on a sku → `409`, nothing deleted |
-| `POST /merchants/me/catalog/import`      | yes    | T-INT-32             |
-| `GET /merchants/me/catalog/import/:id`   | yes    | T-INT-32             |
-| `GET /merchants/me/orders`               | yes    |                      |
-| `GET /merchants/me/orders/:id`           | yes    | T-0294 one order card + `events[]`; another merchant's id → `404` |
-| `POST /merchants/me/orders/:id/confirm`  | yes    |                      |
-| `GET /merchants/me/orders/:id/pii`       | yes    | buyer-data envelopes |
-| `POST /merchants/me/orders/:id/document` | yes    |                      |
-| `POST /merchants/me/orders/:id/ship`     | yes    |                      |
-| `POST /merchants/me/refunds`             | yes    | `refunds:write`      |
-| `PUT /merchants/me/webhooks`             | yes    |                      |
-| `GET /merchants/me/stats`                | yes    | `stats:read`         |
-| `GET /merchants/me/events`               | yes    |                      |
-| `GET /merchants/me/check`                | yes    |                      |
-| `POST /merchants/me/deactivate`          | yes    |                      |
-| `POST /merchants/me/keys/rotate`         | yes    |                      |
-| `POST /merchants/me/keys/reissue`        | yes    |                      |
+| Route                                          | Wave 1 | Notes                                                                                                    |
+| ---------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------- |
+| `GET /shops`                                   | yes    |                                                                                                          |
+| `GET /shops/:slug`                             | yes    |                                                                                                          |
+| `GET /shops/:slug/products`                    | yes    |                                                                                                          |
+| `POST /quotes`                                 | yes    |                                                                                                          |
+| `GET /quotes/:id`                              | yes    |                                                                                                          |
+| `POST /quotes/:id/pay`                         | yes    | x402 and MPP                                                                                             |
+| `GET /quotes/:id/pay`                          | yes    | the challenge only                                                                                       |
+| `GET /orders/:id`                              | yes    |                                                                                                          |
+| `POST /orders/:id/cancel`                      | yes    |                                                                                                          |
+| `POST /orders/:id/disputes`                    | yes    | the payer only                                                                                           |
+| `GET /subscriptions/:id`                       | yes    | T-INT-41                                                                                                 |
+| `POST /subscriptions/:id/cancel`               | yes    | T-INT-41                                                                                                 |
+| `POST /subscriptions/:id/preauthorize`         | yes    | T-INT-47, the payer only                                                                                 |
+| `POST /subscriptions/:id/confirm-pull`         | yes    | T-INT-49, the payer only                                                                                 |
+| `GET /merchants/me/subscriptions`              | yes    | T-INT-41                                                                                                 |
+| `POST /merchants/me/subscriptions/:id/cancel`  | yes    | T-INT-41                                                                                                 |
+| `PUT /merchants/me/renewer-key`                | yes    | T-INT-49, address only                                                                                   |
+| `DELETE /merchants/me/renewer-key`             | yes    | T-INT-49                                                                                                 |
+| `GET /merchants/me/subscriptions/renew-queue`  | yes    | T-INT-49                                                                                                 |
+| `POST /merchants/me/subscriptions/:id/renewed` | yes    | T-INT-49                                                                                                 |
+| `GET /auth/nonce`                              | yes    |                                                                                                          |
+| `POST /merchants`                              | yes    |                                                                                                          |
+| `POST /merchants/me/acceptances`               | yes    |                                                                                                          |
+| `PUT /merchants/me/catalog`                    | yes    |                                                                                                          |
+| `DELETE /merchants/me/catalog`                 | yes    | T-0294 `{skus[1..200]}`, `shop.merchant.catalog_delete`; an open quote on a sku → `409`, nothing deleted |
+| `POST /merchants/me/catalog/import`            | yes    | T-INT-32                                                                                                 |
+| `GET /merchants/me/catalog/import/:id`         | yes    | T-INT-32                                                                                                 |
+| `GET /merchants/me/orders`                     | yes    |                                                                                                          |
+| `GET /merchants/me/orders/:id`                 | yes    | T-0294 one order card + `events[]`; another merchant's id → `404`                                        |
+| `POST /merchants/me/orders/:id/confirm`        | yes    |                                                                                                          |
+| `GET /merchants/me/orders/:id/pii`             | yes    | buyer-data envelopes                                                                                     |
+| `POST /merchants/me/orders/:id/document`       | yes    |                                                                                                          |
+| `POST /merchants/me/orders/:id/ship`           | yes    |                                                                                                          |
+| `POST /merchants/me/refunds`                   | yes    | `refunds:write`                                                                                          |
+| `PUT /merchants/me/webhooks`                   | yes    |                                                                                                          |
+| `GET /merchants/me/stats`                      | yes    | `stats:read`                                                                                             |
+| `GET /merchants/me/events`                     | yes    |                                                                                                          |
+| `GET /merchants/me/check`                      | yes    |                                                                                                          |
+| `POST /merchants/me/deactivate`                | yes    |                                                                                                          |
+| `POST /merchants/me/keys/rotate`               | yes    |                                                                                                          |
+| `POST /merchants/me/keys/reissue`              | yes    |                                                                                                          |
 
 **Public routes (outside `/api/v1/shop`)**: `GET /m/:slug`, `/m/:slug/p/:sku`, `/m/:slug/cart`, `/m/:slug/agent.json`, `/m/:slug/llms.txt`, `/shops`, `/integrator/check/:slug`, `/legal/index.json` — yes. `/api/v1/fleet/sea` (spec §13.3) — no, it is not part of the shop surface.
 

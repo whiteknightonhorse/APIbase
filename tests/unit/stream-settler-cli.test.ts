@@ -17,11 +17,13 @@ const calls = {
   settle: jest.fn(async (..._a: unknown[]) => `0x${'11'.repeat(32)}`),
   close: jest.fn(async (..._a: unknown[]) => `0x${'22'.repeat(32)}`),
 };
+const onChain = { finalized: false };
 jest.mock('mppx/tempo', () => ({
   Session: {
     Chain: {
       settleOnChain: (...a: unknown[]) => calls.settle(...a),
       closeOnChain: (...a: unknown[]) => calls.close(...a),
+      getOnChainChannel: async () => ({ finalized: onChain.finalized }),
     },
   },
 }));
@@ -128,5 +130,52 @@ describe('MS5: apibase-stream-settler', () => {
     expect(() => loadKey({ keyEnv: 'NOPE' }, {} as NodeJS.ProcessEnv)).toThrow(/settler key/);
     expect(() => loadKey({ keyEnv: 'K' }, { K: '0x12' } as NodeJS.ProcessEnv)).toThrow();
     expect(loadKey({ keyFile: '/x' }, {} as NodeJS.ProcessEnv, () => `${KEY}\n`)).toBe(KEY);
+  });
+
+  it('settled answering HTTP 400 -> failed, the error body is logged, the key is not', async () => {
+    const lines: string[] = [];
+    const log = redactingLog([KEY, MK], (l) => lines.push(l));
+    const fetchMock = async (url: string) =>
+      url.endsWith('/settle-queue')
+        ? new Response(JSON.stringify({ queue: [item(1, 'settle')] }))
+        : new Response('{"error_code":"settle_not_proven","reject_reason":"x"}', { status: 400 });
+    const r = await runPass({
+      api: 'https://apibase.test',
+      mk: MK,
+      account: privateKeyToAccount(KEY),
+      chain: mppxChainOps(),
+      fetch: fetchMock,
+      log,
+    });
+    expect(r).toEqual({ done: 0, failed: 1 });
+    const line = lines.find((l) => l.includes('HTTP 400')) ?? '';
+    expect(line).toContain('settle_not_proven');
+    expect(line).toContain('"reject_reason":"x"');
+    expect(line).not.toContain(KEY);
+  });
+
+  it('a close of a channel already finalized on-chain -> no chain call, failed, logged', async () => {
+    onChain.finalized = true;
+    calls.close.mockClear();
+    try {
+      const lines: string[] = [];
+      const fetchMock = async (url: string) =>
+        url.endsWith('/settle-queue')
+          ? new Response(JSON.stringify({ queue: [item(2, 'close')] }))
+          : new Response('{}');
+      const r = await runPass({
+        api: 'https://apibase.test',
+        mk: MK,
+        account: privateKeyToAccount(KEY),
+        chain: mppxChainOps(),
+        fetch: fetchMock,
+        log: (l) => lines.push(l),
+      });
+      expect(r).toEqual({ done: 0, failed: 1 });
+      expect(calls.close).not.toHaveBeenCalled();
+      expect(lines.join('\n')).toContain('already finalized');
+    } finally {
+      onChain.finalized = false;
+    }
   });
 });

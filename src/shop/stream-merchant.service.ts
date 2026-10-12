@@ -3,6 +3,7 @@ import { getMppConfig } from '../config/mpp.config';
 import type { ShopTx } from './db';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import { QuoteError } from './quote.errors';
+import { CHANNEL_CLOSED_ABI } from './stream-escrow.abi';
 import { createStreamClient, fromMicro, toMicro, type StreamMethod } from './stream-session';
 import {
   recordSettlement,
@@ -202,6 +203,29 @@ export interface SettleProof {
   /** `getChannel(channelId).settled` in micro-USD. */
   settled: bigint;
   finalized: boolean;
+  /** `ChannelClosed` of THIS channel from the escrow, in the reported receipt (getChannel() is zeroed after a close). */
+  closed: { settledToPayee: bigint; payee: string } | null;
+}
+
+/** The `ChannelClosed` log of `channelId` emitted by `escrow`, or null. Pure; logs are already decoded. */
+export function pickChannelClosed(
+  logs: ReadonlyArray<{
+    address: string;
+    eventName?: string;
+    args?: unknown;
+  }>,
+  escrow: string | null,
+  channelId: string,
+): { settledToPayee: bigint; payee: string } | null {
+  if (!escrow) return null;
+  for (const l of logs) {
+    if (l.eventName !== 'ChannelClosed') continue;
+    if (l.address.toLowerCase() !== escrow.toLowerCase()) continue;
+    const a = l.args as { channelId: string; payee: string; settledToPayee: bigint };
+    if (a.channelId.toLowerCase() !== channelId.toLowerCase()) continue;
+    return { settledToPayee: a.settledToPayee, payee: a.payee };
+  }
+  return null;
 }
 
 export interface SettleReader {
@@ -214,18 +238,37 @@ export interface SettleReader {
 export const mppxSettleReader: SettleReader = {
   async read(s, tx_hash) {
     const { getTransaction, getTransactionReceipt } = await import('viem/actions');
+    const { parseEventLogs } = await import('viem');
     const { Session } = await import('mppx/tempo');
     const client = await createStreamClient(getMppConfig());
     let from: string | null = null;
     let success = false;
+    let closed: SettleProof['closed'] = null;
     try {
       const tx = await getTransaction(client as never, { hash: tx_hash as `0x${string}` });
       from = tx.from;
       const rc = await getTransactionReceipt(client as never, { hash: tx_hash as `0x${string}` });
       success = rc.status === 'success';
+      closed = pickChannelClosed(
+        parseEventLogs({
+          abi: CHANNEL_CLOSED_ABI,
+          logs: rc.logs,
+          eventName: 'ChannelClosed',
+          strict: true,
+        }),
+        s.escrow_contract,
+        s.channel_id,
+      );
     } catch (err) {
       if (!/NotFound/i.test(err instanceof Error ? err.name : '')) throw err;
-      return { found: false, success: false, from: null, settled: 0n, finalized: false };
+      return {
+        found: false,
+        success: false,
+        from: null,
+        settled: 0n,
+        finalized: false,
+        closed: null,
+      };
     }
     const oc = await Session.Chain.getOnChainChannel(
       client as never,
@@ -238,6 +281,7 @@ export const mppxSettleReader: SettleReader = {
       from,
       settled: oc.settled,
       finalized: oc.finalized === true,
+      closed,
     };
   },
 };
@@ -257,7 +301,7 @@ export interface SettledResult {
 /**
  * The merchant reports the transaction it sent. Accepted only if the chain shows: the transaction
  * succeeded, its sender is the merchant payout wallet, and the escrow's `settled` moved up (for a
- * close: the channel is finalized and fully settled). Nothing the merchant says is taken on trust.
+ * close: the receipt carries ChannelClosed for this channel from the escrow, paid to the merchant). Nothing the merchant says is taken on trust.
  */
 export async function confirmMerchantSettled(
   d: SettledDeps,
@@ -332,11 +376,30 @@ export async function confirmMerchantSettled(
   }
   const highest = BigInt(s.highest_voucher?.cumulativeAmount ?? '0');
   const closing = s.status === 'close_pending';
-  if (closing && !(proof.finalized && proof.settled >= highest)) {
-    throw reject('channel_not_closed_on_chain');
+  const closedEv = proof.closed;
+  if (closing) {
+    if (!proof.finalized || !closedEv) throw reject('channel_not_closed_on_chain');
+    if (closedEv.payee.toLowerCase() !== s.payout_wallet_tempo.toLowerCase()) {
+      throw reject('close_paid_to_another_payee');
+    }
   }
   const recorded = toMicro(s.settled_usd);
-  const cumulative = proof.settled < highest ? proof.settled : highest;
+  let cumulative: bigint;
+  if (closing && closedEv) {
+    cumulative = closedEv.settledToPayee;
+    if (cumulative !== highest) {
+      logger.warn(
+        {
+          channel: s.channel_id,
+          closed_micro: cumulative.toString(),
+          highest_micro: highest.toString(),
+        },
+        'stream: close settled a different amount than the highest voucher',
+      );
+    }
+  } else {
+    cumulative = proof.settled < highest ? proof.settled : highest;
+  }
   if (!closing && cumulative <= recorded) throw reject('settled_not_advanced');
 
   const fee = await d.transaction(async (tx: ShopTx) => {

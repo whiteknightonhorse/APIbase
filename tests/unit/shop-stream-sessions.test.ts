@@ -26,7 +26,15 @@ import {
   streamMethodCacheSize,
   toMicro,
 } from '../../src/shop/stream-session';
-import { createClient } from 'viem';
+import {
+  createClient,
+  encodeAbiParameters,
+  encodeEventTopics,
+  parseEventLogs,
+  type Hex,
+} from 'viem';
+import { CHANNEL_CLOSED_ABI } from '../../src/shop/stream-escrow.abi';
+import { logger } from '../../src/config/logger';
 import { getMppConfig } from '../../src/config/mpp.config';
 import { mppxChain, runStreamSettle, streamFeeMicro } from '../../src/shop/stream.service';
 import { CatalogItemSchema, upsertCatalog } from '../../src/shop/catalog.service';
@@ -37,6 +45,7 @@ import { issueKey } from '../../src/shop/auth/merchant-key.service';
 import {
   confirmMerchantSettled,
   listSettleQueue,
+  pickChannelClosed,
   runMerchantSettleDue,
 } from '../../src/shop/stream-merchant.service';
 import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
@@ -217,6 +226,7 @@ const KEY = 'k'.repeat(40);
 const PILOT_KEY = generatePrivateKey();
 const pilot = privateKeyToAccount(PILOT_KEY);
 const OTHER_KEY = generatePrivateKey();
+const OTHER_ADDR = privateKeyToAccount(OTHER_KEY).address;
 const PAYER = privateKeyToAccount(generatePrivateKey()).address;
 const RATE = '0.0001';
 const SECONDS = 60;
@@ -1126,6 +1136,7 @@ dbDescribe('stream sessions (INT-40)', () => {
           finalized: boolean;
           success: boolean;
           found: boolean;
+          closed: { settledToPayee: bigint; payee: string } | null;
         }> = {},
       ) => ({
         read: jest.fn(async () => ({
@@ -1134,6 +1145,7 @@ dbDescribe('stream sessions (INT-40)', () => {
           from: MW.address,
           settled: 600_000n,
           finalized: false,
+          closed: null,
           ...o,
         })),
       });
@@ -1209,13 +1221,141 @@ dbDescribe('stream sessions (INT-40)', () => {
         await expect(run(proof({ finalized: false }), s.id, closing)).rejects.toMatchObject({
           status: 400,
         });
-        const done = await run(proof({ finalized: true }), s.id, closing);
-        expect(done).toMatchObject({ status: 'closed', verified: true });
-        const row = await rows(
-          `SELECT status, closed_at IS NOT NULL AS c FROM shop_stream_sessions WHERE channel_id = $1`,
+        await expect(run(proof({ finalized: true }), s.id, closing)).rejects.toMatchObject({
+          status: 400,
+        });
+        const done = await run(
+          proof({
+            finalized: true,
+            settled: 0n,
+            closed: { settledToPayee: 600_000n, payee: MW.address },
+          }),
+          s.id,
           closing,
         );
-        expect(row[0]).toEqual({ status: 'closed', c: true });
+        expect(done).toMatchObject({ status: 'closed', verified: true });
+        const row = await rows(
+          `SELECT status, closed_at IS NOT NULL AS c, settle_error_since IS NULL AS e FROM shop_stream_sessions WHERE channel_id = $1`,
+          closing,
+        );
+        expect(row[0]).toEqual({ status: 'closed', c: true, e: true });
+        const st = await rows(
+          `SELECT cumulative_amount::text AS cumulative FROM shop_stream_settlements WHERE lower(tx_hash) = $1`,
+          TX,
+        );
+        expect(st[0]).toEqual({ cumulative: '0.600000' });
+      });
+
+      const closingSession = async (highest = 600_000n) => {
+        const s = await merchantShop();
+        await mkStream(s.id);
+        const ch = await mkSession(s.id, 'demo-stream', {
+          highest,
+          mode: 'merchant',
+          status: 'close_pending',
+        });
+        const run = (r: any) =>
+          confirmMerchantSettled({ ...deps, reader: r } as never, s.id, ch, { tx_hash: TX });
+        return { ch, run };
+      };
+      const settlementRows = (tx: string) =>
+        rows(`SELECT 1 FROM shop_stream_settlements WHERE lower(tx_hash) = $1`, tx);
+
+      it('MS3c: a tx without ChannelClosed of this channel -> channel_not_closed_on_chain, no row', async () => {
+        const { run } = await closingSession();
+        await expect(
+          run(proof({ finalized: true, settled: 0n, closed: null })),
+        ).rejects.toMatchObject({
+          status: 400,
+          extra: { reject_reason: 'channel_not_closed_on_chain' },
+        });
+        expect(await settlementRows(TX)).toEqual([]);
+      });
+
+      it('MS3d: ChannelClosed paid to another payee -> close_paid_to_another_payee', async () => {
+        const { run } = await closingSession();
+        await expect(
+          run(
+            proof({
+              finalized: true,
+              settled: 0n,
+              closed: {
+                settledToPayee: 600_000n,
+                payee: privateKeyToAccount(OTHER_KEY).address,
+              },
+            }),
+          ),
+        ).rejects.toMatchObject({
+          status: 400,
+          extra: { reject_reason: 'close_paid_to_another_payee' },
+        });
+        expect(await settlementRows(TX)).toEqual([]);
+      });
+
+      it('MS3e: the chain amount wins over the highest voucher, with a warning', async () => {
+        const { run } = await closingSession(18_000n);
+        const warn = logger.warn as jest.Mock;
+        warn.mockClear();
+        try {
+          const done = await run(
+            proof({
+              finalized: true,
+              settled: 0n,
+              closed: { settledToPayee: 12_000n, payee: MW.address },
+            }),
+          );
+          expect(done).toMatchObject({ status: 'closed', settled_usd: '0.012000' });
+          expect(warn).toHaveBeenCalledWith(
+            expect.objectContaining({ closed_micro: '12000', highest_micro: '18000' }),
+            expect.stringContaining('close settled a different amount'),
+          );
+        } finally {
+          warn.mockClear();
+        }
+      });
+
+      it('MS3f: pickChannelClosed takes only the ChannelClosed of this escrow and channel', () => {
+        const escrow = '0x00000000000000000000000000000000000000e5';
+        const chId = `0x${'ab'.repeat(32)}` as Hex;
+        const mk = (
+          o: { address?: string; channelId?: Hex; event?: 'ChannelClosed' | 'Other' } = {},
+        ) => ({
+          address: (o.address ?? escrow) as Hex,
+          blockHash: null,
+          blockNumber: null,
+          logIndex: null,
+          transactionHash: null,
+          transactionIndex: null,
+          removed: false,
+          topics:
+            o.event === 'Other'
+              ? ([`0x${'11'.repeat(32)}`] as unknown as [Hex])
+              : encodeEventTopics({
+                  abi: CHANNEL_CLOSED_ABI,
+                  eventName: 'ChannelClosed',
+                  args: {
+                    channelId: o.channelId ?? chId,
+                    payer: OTHER_ADDR as Hex,
+                    payee: MW.address as Hex,
+                  },
+                }),
+          data: encodeAbiParameters([{ type: 'uint256' }, { type: 'uint256' }], [5n, 1n]),
+        });
+        const pick = (l: ReturnType<typeof mk>) =>
+          pickChannelClosed(
+            parseEventLogs({
+              abi: CHANNEL_CLOSED_ABI,
+              logs: [l] as never,
+              eventName: 'ChannelClosed',
+              strict: true,
+            }),
+            escrow,
+            chId,
+          );
+        expect(pick(mk())).toEqual({ settledToPayee: 5n, payee: MW.address });
+        expect(pick(mk({ address: OTHER_ADDR }))).toBeNull();
+        expect(pick(mk({ channelId: `0x${'cd'.repeat(32)}` }))).toBeNull();
+        expect(pick(mk({ event: 'Other' }))).toBeNull();
       });
 
       it('the merchant routes: settings, queue and settled over HTTP with the merchant key', async () => {
