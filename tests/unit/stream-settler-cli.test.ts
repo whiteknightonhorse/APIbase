@@ -10,12 +10,16 @@ import {
   parseArgs,
   redactingLog,
   runPass,
+  type PendingMap,
   type QueueItem,
 } from '../../packages/stream-settler/src/settler';
 
 const calls = {
   settle: jest.fn(async (..._a: unknown[]) => `0x${'11'.repeat(32)}`),
   close: jest.fn(async (..._a: unknown[]) => `0x${'22'.repeat(32)}`),
+  receipt: jest.fn(
+    async (..._a: unknown[]): Promise<{ status: string }> => ({ status: 'success' }),
+  ),
 };
 const onChain = { finalized: false };
 jest.mock('mppx/tempo', () => ({
@@ -26,6 +30,9 @@ jest.mock('mppx/tempo', () => ({
       getOnChainChannel: async () => ({ finalized: onChain.finalized }),
     },
   },
+}));
+jest.mock('viem/actions', () => ({
+  waitForTransactionReceipt: (...a: unknown[]) => calls.receipt(...a),
 }));
 jest.mock('viem', () => ({
   ...jest.requireActual('viem'),
@@ -177,5 +184,125 @@ describe('MS5: apibase-stream-settler', () => {
     } finally {
       onChain.finalized = false;
     }
+  });
+
+  describe('receipt wait, report retries, pending hash', () => {
+    const UNCONFIRMED =
+      '{"error_code":"settle_not_proven","reject_reason":"tx_not_found_or_unconfirmed"}';
+    const setup = (queue: QueueItem[], settled: () => Response) => {
+      const posts: Array<{ url: string; body: string }> = [];
+      const sleeps: number[] = [];
+      const lines: string[] = [];
+      const pending: PendingMap = new Map();
+      const fetchMock = async (url: string, init?: RequestInit) => {
+        if (url.endsWith('/settle-queue')) return new Response(JSON.stringify({ queue }));
+        posts.push({ url, body: String(init?.body) });
+        return settled();
+      };
+      const pass = (extra: Partial<Parameters<typeof runPass>[0]> = {}) =>
+        runPass({
+          api: 'https://apibase.test',
+          mk: MK,
+          account: privateKeyToAccount(KEY),
+          chain: mppxChainOps(),
+          fetch: fetchMock,
+          log: (l) => lines.push(l),
+          pending,
+          sleep: async (ms) => {
+            sleeps.push(ms);
+          },
+          ...extra,
+        });
+      return { posts, sleeps, lines, pending, pass };
+    };
+
+    beforeEach(() => {
+      calls.close.mockClear();
+      calls.settle.mockClear();
+      calls.receipt.mockReset();
+      calls.receipt.mockResolvedValue({ status: 'success' });
+    });
+
+    it('MS5e: unconfirmed twice, then 200 -> reported, backoff 2s, 4s', async () => {
+      let n = 0;
+      const t = setup([item(2, 'close')], () =>
+        ++n <= 2 ? new Response(UNCONFIRMED, { status: 400 }) : new Response('{}'),
+      );
+      expect(await t.pass()).toEqual({ done: 1, failed: 0 });
+      expect(t.posts).toHaveLength(3);
+      expect(calls.close).toHaveBeenCalledTimes(1);
+      expect(calls.receipt).toHaveBeenCalledTimes(1);
+      expect(t.sleeps).toEqual([2000, 4000]);
+    });
+
+    it('MS5f: never confirmed -> hash kept; next pass reports it without a new chain call', async () => {
+      let ok = false;
+      const t = setup([item(2, 'close')], () =>
+        ok ? new Response('{}') : new Response(UNCONFIRMED, { status: 400 }),
+      );
+      expect(await t.pass()).toEqual({ done: 0, failed: 1 });
+      expect(t.posts).toHaveLength(6);
+      expect(t.pending.get(item(2, 'close').channel_id)).toEqual({
+        tx_hash: `0x${'22'.repeat(32)}`,
+        action: 'close',
+      });
+      ok = true;
+      onChain.finalized = true;
+      try {
+        expect(await t.pass()).toEqual({ done: 1, failed: 0 });
+      } finally {
+        onChain.finalized = false;
+      }
+      expect(calls.close).toHaveBeenCalledTimes(1);
+      expect(t.posts[6].body).toContain(`0x${'22'.repeat(32)}`);
+      expect(t.pending.size).toBe(0);
+      expect(t.lines.join('\n')).toContain('reporting the earlier tx');
+    });
+
+    it('MS5g: a reverted receipt is not reported', async () => {
+      calls.receipt.mockResolvedValue({ status: 'reverted' });
+      const t = setup([item(1, 'settle')], () => new Response('{}'));
+      expect(await t.pass()).toEqual({ done: 0, failed: 1 });
+      expect(t.posts).toHaveLength(0);
+      expect(t.lines.join('\n')).toContain('reverted');
+      expect(t.pending.size).toBe(0);
+    });
+
+    it('MS5h: receipt timeout -> not reported, hash kept', async () => {
+      calls.receipt.mockRejectedValue(
+        Object.assign(new Error('t'), { name: 'WaitForTransactionReceiptTimeoutError' }),
+      );
+      const t = setup([item(1, 'settle')], () => new Response('{}'));
+      expect(await t.pass()).toEqual({ done: 0, failed: 1 });
+      expect(t.posts).toHaveLength(0);
+      expect(t.pending.get(item(1, 'settle').channel_id)?.tx_hash).toBe(`0x${'11'.repeat(32)}`);
+      expect(t.lines.join('\n')).toContain('not seen within');
+    });
+
+    it('MS5i: 503 once, then 200 -> reported after one backoff', async () => {
+      let n = 0;
+      const t = setup([item(1, 'settle')], () =>
+        ++n === 1
+          ? new Response('{"error_code":"chain_unavailable"}', { status: 503 })
+          : new Response('{}'),
+      );
+      expect(await t.pass()).toEqual({ done: 1, failed: 0 });
+      expect(t.sleeps).toEqual([2000]);
+    });
+
+    it('MS5j: a final rejection is not retried and drops the pending hash', async () => {
+      const t = setup(
+        [item(1, 'settle')],
+        () =>
+          new Response(
+            '{"error_code":"settle_not_proven","reject_reason":"tx_not_sent_from_payout_wallet"}',
+            { status: 400 },
+          ),
+      );
+      expect(await t.pass()).toEqual({ done: 0, failed: 1 });
+      expect(t.posts).toHaveLength(1);
+      expect(t.pending.size).toBe(0);
+      expect(t.lines.join('\n')).not.toContain(KEY);
+    });
   });
 });

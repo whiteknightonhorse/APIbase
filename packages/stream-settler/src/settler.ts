@@ -25,7 +25,16 @@ export interface ChainOps {
   run(item: QueueItem, account: Account): Promise<string>;
   /** true when the channel is already finalized on-chain (a close would only burn gas). */
   isFinalized?(item: QueueItem): Promise<boolean>;
+  /** Waits for the receipt of a sent transaction. */
+  waitReceipt(item: QueueItem, tx_hash: string): Promise<'success' | 'reverted' | 'timeout'>;
 }
+
+export const RECEIPT_TIMEOUT_MS = 60_000;
+export const REPORT_ATTEMPTS = 6;
+export const REPORT_BACKOFF_MS = 2_000;
+
+/** A transaction that was sent but not yet reported successfully; survives between passes. */
+export type PendingMap = Map<string, { tx_hash: string; action: 'settle' | 'close' }>;
 
 export type Fetch = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -36,6 +45,8 @@ export interface PassOptions {
   chain: ChainOps;
   fetch: Fetch;
   log: (line: string) => void;
+  pending?: PendingMap;
+  sleep?: (ms: number) => Promise<void>;
 }
 
 export interface PassResult {
@@ -56,37 +67,85 @@ export async function runPass(o: PassOptions): Promise<PassResult> {
   });
   if (!res.ok) throw new Error(`settle-queue answered HTTP ${res.status}`);
   const { queue } = (await res.json()) as { queue: QueueItem[] };
+  const pending: PendingMap = o.pending ?? new Map();
+  const sleep = o.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   let done = 0;
   let failed = 0;
   for (const item of queue) {
+    const id = item.channel_id;
+    const tag = `${item.action} ${id}`;
     try {
-      if (item.action === 'close' && o.chain.isFinalized && (await o.chain.isFinalized(item))) {
-        failed++;
-        o.log(
-          `close ${item.channel_id}: already finalized on-chain; report the original tx with POST .../settled {tx_hash}`,
-        );
-        continue;
+      let tx_hash: string;
+      const earlier = pending.get(id);
+      if (earlier) {
+        tx_hash = earlier.tx_hash;
+        o.log(`${tag}: reporting the earlier tx ${tx_hash}`);
+      } else {
+        if (item.action === 'close' && o.chain.isFinalized && (await o.chain.isFinalized(item))) {
+          failed++;
+          o.log(
+            `close ${id}: already finalized on-chain; report the original tx with POST .../settled {tx_hash}`,
+          );
+          continue;
+        }
+        tx_hash = await o.chain.run(item, o.account);
+        o.log(`${tag}: tx ${tx_hash}`);
+        pending.set(id, { tx_hash, action: item.action });
+        const status = await o.chain.waitReceipt(item, tx_hash);
+        if (status === 'reverted') {
+          o.log(`${tag}: tx ${tx_hash} reverted on-chain; it is sent again next pass`);
+          pending.delete(id);
+          failed++;
+          continue;
+        }
+        if (status === 'timeout') {
+          o.log(
+            `${tag}: receipt of ${tx_hash} not seen within 60 s; the report is retried next pass`,
+          );
+          failed++;
+          continue;
+        }
       }
-      const tx_hash = await o.chain.run(item, o.account);
-      o.log(`${item.action} ${item.channel_id}: tx ${tx_hash}`);
-      const r = await o.fetch(
-        `${base}/api/v1/shop/merchants/me/streams/${item.channel_id}/settled`,
-        {
+      let reported = false;
+      for (let k = 0; k < REPORT_ATTEMPTS; k++) {
+        const r = await o.fetch(`${base}/api/v1/shop/merchants/me/streams/${id}/settled`, {
           method: 'POST',
           headers: headers(o.mk),
           body: JSON.stringify({ tx_hash }),
-        },
-      );
-      if (!r.ok) {
-        const body = (await r.text().catch(() => '')).slice(0, 300);
-        throw new Error(`settled answered HTTP ${r.status}: ${body}`);
+        });
+        if (r.ok) {
+          done++;
+          pending.delete(id);
+          reported = true;
+          break;
+        }
+        const text = await r.text().catch(() => '');
+        let parsed: { reject_reason?: unknown; error_code?: unknown } = {};
+        try {
+          const j: unknown = JSON.parse(text);
+          if (j && typeof j === 'object') parsed = j as typeof parsed;
+        } catch {
+          parsed = {};
+        }
+        if (r.status === 503 || parsed.reject_reason === 'tx_not_found_or_unconfirmed') {
+          if (k < REPORT_ATTEMPTS - 1) await sleep(REPORT_BACKOFF_MS * 2 ** k);
+          continue;
+        }
+        pending.delete(id);
+        failed++;
+        reported = true;
+        o.log(`${tag} failed: settled answered HTTP ${r.status}: ${text.slice(0, 300)}`);
+        break;
       }
-      done++;
+      if (!reported) {
+        failed++;
+        o.log(
+          `${tag}: APIbase has not seen tx ${tx_hash} after ${REPORT_ATTEMPTS} attempts; retried next pass`,
+        );
+      }
     } catch (err) {
       failed++;
-      o.log(
-        `${item.action} ${item.channel_id} failed: ${err instanceof Error ? err.message : String(err)}`,
-      );
+      o.log(`${tag} failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
   return { done, failed };
@@ -118,6 +177,20 @@ export function mppxChainOps(rpcUrl?: string, feeToken?: string): ChainOps {
         item.channel_id as `0x${string}`,
       );
       return oc.finalized === true;
+    },
+    async waitReceipt(item, tx_hash) {
+      const { waitForTransactionReceipt } = await import('viem/actions');
+      try {
+        const rc = await waitForTransactionReceipt((await makeClient(item)) as never, {
+          hash: tx_hash as `0x${string}`,
+          timeout: RECEIPT_TIMEOUT_MS,
+          pollingInterval: 1_000,
+        });
+        return rc.status;
+      } catch (err) {
+        if (err instanceof Error && /Timeout/.test(err.name)) return 'timeout';
+        throw err;
+      }
     },
     async run(item, account) {
       const { Session } = await import('mppx/tempo');
