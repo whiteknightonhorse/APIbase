@@ -106,7 +106,7 @@ class RoutingSchema(unittest.TestCase):
         self.routing = {k: v for k, v in raw.items() if not k.startswith("_")}
 
     def test_ap1_26_kinds_and_schema(self):
-        self.assertEqual(len(self.routing), 26)
+        self.assertEqual(len(self.routing), 27)
         self.assertEqual(set(self.routing), set(OLD_KINDS) | set(NEW_KINDS) | set(WAVE3_KINDS) | set(JOB_KINDS))
         for kind, cfg in self.routing.items():
             self.assertIn(cfg["route_class"], ROUTE_CLASSES, kind)

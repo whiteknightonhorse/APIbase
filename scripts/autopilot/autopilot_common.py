@@ -652,7 +652,7 @@ def classify_severity(kind: str, tool_count: int | None = None, revenue_pct: flo
     if kind in ("PAYMENT_REQUIRED", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH"):
         return "SEV1"
     if kind in ("FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN", "MERCHANT_UNRESPONSIVE",
-                "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED"):
+                "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED", "JOB_STALE"):
         return "SEV2"
     if kind == "PROVIDER_DOWN":
         big = (tool_count is not None and tool_count >= 5) or (revenue_pct is not None and revenue_pct >= 1.0)
@@ -987,7 +987,7 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
                  f"WHERE incident_id = {sql_literal(out)}")
         except Exception as e:
             notice(f"WARN: failed to write operator file for {out}: {e}")
-    if route in HUMAN_ROUTE_CLASSES or severity == "SEV1":
+    if route in HUMAN_ROUTE_CLASSES or severity == "SEV1" or kind == "JOB_STALE":
         sent = tg_send(format_tg_message(incident))
         if not sent:
             notice(f"silent: TG send failed/unconfigured for new incident {out} ({kind}/{provider})")

@@ -2045,6 +2045,12 @@ def selftest():
         sigs, _ = collect_merchant_signals()
         assert open_merchant_incidents(sigs) == 0 and len(_t22_created) == 1, "I4"
         assert "JOB_STALE" in ap.FLEET_TASK_KINDS
+        # Telegram path: SEV2 (not the SEV3 default) and the job_stale line is rendered.
+        assert ap.classify_severity("JOB_STALE") == "SEV2", "severity"
+        _t22_msg = ap.format_tg_message({"incident_id": "00000000-0000-0000-0000-000000000001", "kind": "JOB_STALE",
+                                         "severity": "SEV2", "provider": "merchant:worker:shop-sla-sweeper",
+                                         "state": "OPEN", "evidence": {}, "what": "stale"})
+        assert ap.tg("job_stale", job="shop-sla-sweeper") in _t22_msg, "job_stale TG line"
     finally:
         ap.psql, ap.open_or_merge_incident = _t22_orig
     print("T-0322 I1-I4 (JOB_STALE): OK")
