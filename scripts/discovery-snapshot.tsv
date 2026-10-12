@@ -185,6 +185,8 @@ census.demographics	census
 census.economic	census
 census.housing	census
 census.population	census
+censusmapper.data	censusmapper
+censusmapper.list_datasets	censusmapper
 cernopendata.datasets	cernopendata
 cernopendata.detail	cernopendata
 cernopendata.glossary	cernopendata
@@ -400,6 +402,11 @@ eonet.categories	eonet
 eonet.event_detail	eonet
 eonet.events	eonet
 eonet.layers	eonet
+epa-aqs.annual_data	epa-aqs
+epa-aqs.daily_data	epa-aqs
+epa-aqs.list_counties	epa-aqs
+epa-aqs.list_parameters	epa-aqs
+epa-aqs.monitors	epa-aqs
 epa.toxic_releases	epa
 epa.water_systems	epa
 estat-japan-dashboard.get_data	estat-japan-dashboard
