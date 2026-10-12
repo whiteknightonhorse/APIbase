@@ -11,6 +11,7 @@ import { verifyWalletSignature as checkWalletSignature } from './wallet-signatur
 import { isCategoryAllowed, nearestAllowed } from './moderation/categories';
 import { isRestrictedEntityCountry, isRestrictedIp } from './moderation/countries';
 import { isSanctioned } from './moderation/sanctions';
+import { isPlatformWallet, PAYOUT_WALLET_PLATFORM_MSG } from './platform-wallets';
 
 export const REGISTRATIONS_PER_IP_PER_HOUR = 5;
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;
@@ -86,7 +87,7 @@ export interface RegisterCtx {
 /** Refusal with the F-15 shape: suggested_action + documentation_url + alternatives[]. */
 export class MerchantRegisterError extends Error {
   constructor(
-    readonly status: 403 | 409 | 422 | 429,
+    readonly status: 400 | 403 | 409 | 422 | 429,
     readonly error_code: string,
     message: string,
     readonly suggested_action: SuggestedAction,
@@ -108,6 +109,16 @@ const fail = (
   alts?: Alternative[],
   retry?: number,
 ) => new MerchantRegisterError(status, code, msg, action, doc, alts, retry);
+
+/** Registration and payout change refuse the platform's own addresses (custody by accident). */
+export const payoutWalletPlatform = () =>
+  fail(
+    400,
+    'payout_wallet_platform',
+    PAYOUT_WALLET_PLATFORM_MSG,
+    'fix_request',
+    '/integrator/wallet',
+  );
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 
@@ -255,6 +266,13 @@ export async function registerMerchant(
 
     // 2. shape + uniqueness + encryption key signature
     await validate(input);
+    if (
+      [input.wallet, input.payout_wallet, input.payout_wallet_base, input.payout_wallet_tempo].some(
+        (a) => isPlatformWallet(a),
+      )
+    ) {
+      throw payoutWalletPlatform();
+    }
     const taken = await ctx.db.$queryRawUnsafe<
       Array<{ slug: string; wallet_address: string; status_reason: string | null }>
     >(

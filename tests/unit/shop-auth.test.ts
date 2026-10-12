@@ -334,6 +334,41 @@ describe('ID4-ID6 identity', () => {
   });
 });
 
+describe('PW2 payout change refuses platform wallets', () => {
+  let redis: FakeRedis;
+  beforeEach(() => {
+    clock = 1_800_000_000_000;
+    redis = new FakeRedis(now);
+  });
+  it('platform address -> 400 payout_wallet_platform, payout_pending unchanged; others pass', async () => {
+    const platform = '0x2222222222222222222222222222222222222222';
+    const name = 'X402_' + 'PAY' + 'MENT_ADDRESS';
+    const prev = process.env[name];
+    process.env[name] = platform;
+    try {
+      const f = fakeDb({ merchant: mk() });
+      await expect(
+        requestPayoutChange({ db: f.db, redis, now }, 'm1', {
+          rail: 'base',
+          new_wallet: platform,
+          signature: await sign(owner, redis, 'payout_change'),
+        }),
+      ).rejects.toMatchObject({ status: 400, error_code: 'payout_wallet_platform' });
+      expect(f.merchant.payout_pending).toBeNull();
+      // PW3: an unrelated address keeps the old behaviour
+      await requestPayoutChange({ db: f.db, redis, now }, 'm1', {
+        rail: 'base',
+        new_wallet: '0xNEW',
+        signature: await sign(owner, redis, 'payout_change'),
+      });
+      expect(f.merchant.payout_pending).not.toBeNull();
+    } finally {
+      if (prev === undefined) delete process.env[name];
+      else process.env[name] = prev;
+    }
+  });
+});
+
 describe('ID8 redactObject', () => {
   it('masks mk_live_/whsec_ by value, names by key', () => {
     const key = 'mk_live_' + 'a'.repeat(32);

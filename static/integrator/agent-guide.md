@@ -21,7 +21,9 @@ Call `POST /api/v1/shop/merchants` (MCP tool `shop.merchant.register`) with the 
 
 The reply is `{merchant_id, slug, status: "pending", docs_to_accept: [{doc_id, version, sha256, url}]}`. Without a signature the call is 401.
 
-Errors: `country_not_supported` (403), `category_prohibited` (403, with `alternatives[]`), `slug_taken` and `wallet_registered` (409), `payout_wallet_sanctioned` (403).
+Errors: `country_not_supported` (403), `category_prohibited` (403, with `alternatives[]`), `slug_taken` and `wallet_registered` (409), `payout_wallet_sanctioned` (403), `payout_wallet_platform` (400).
+
+The payout wallet must be the merchant's own; platform addresses are refused with `payout_wallet_platform` (400).
 
 ## Step 3. accept_terms
 

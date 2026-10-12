@@ -438,3 +438,58 @@ describe('E3/E4/E6/E7 contract wallet registration', () => {
     expect(seen.every((a) => a === wallet.address.toLowerCase())).toBe(true);
   });
 });
+
+describe('PW1/PW3/PW4 platform wallets', () => {
+  const PLATFORM = '0x1111111111111111111111111111111111111111';
+  const NAMES = [
+    'X402_PAYMENT_ADDRESS',
+    'TEMPO_WALLET_ADDRESS',
+    'INTEGRATOR_FEE_WALLET',
+    'INTEGRATOR_FEE_WALLET_BASE',
+  ];
+  const saved: Record<string, string | undefined> = {};
+  beforeEach(() => {
+    for (const n of NAMES) {
+      saved[n] = process.env[n];
+      delete process.env[n];
+    }
+  });
+  afterEach(() => {
+    for (const n of NAMES) {
+      if (saved[n] === undefined) delete process.env[n];
+      else process.env[n] = saved[n];
+    }
+  });
+
+  it('PW1 payout_wallet_tempo = TEMPO_WALLET_ADDRESS -> 400, no row, one event', async () => {
+    process.env.TEMPO_WALLET_ADDRESS = PLATFORM;
+    const f = fakeDb();
+    const { input, redis } = await build({ payout_wallet_tempo: PLATFORM });
+    const err = await registerMerchant(input, ctxOf(f.db, redis)).catch((e) => e);
+    expect(err).toMatchObject({
+      status: 400,
+      error_code: 'payout_wallet_platform',
+      message: 'this address belongs to the platform; use your own wallet',
+      suggested_action: 'fix_request',
+      documentation_url: '/integrator/wallet',
+    });
+    expect(f.merchants).toHaveLength(0);
+    expect(f.events).toHaveLength(1);
+    expect(f.events[0].error_code).toBe('payout_wallet_platform');
+  });
+  it('PW3 unrelated address with platform env set -> registers', async () => {
+    process.env.TEMPO_WALLET_ADDRESS = PLATFORM;
+    const f = fakeDb();
+    const { input, redis } = await build();
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).resolves.toMatchObject({
+      status: 'pending',
+    });
+  });
+  it('PW4 env names unset -> guard is a no-op', async () => {
+    const f = fakeDb();
+    const { input, redis } = await build({ payout_wallet_tempo: PLATFORM });
+    await expect(registerMerchant(input, ctxOf(f.db, redis))).resolves.toMatchObject({
+      status: 'pending',
+    });
+  });
+});

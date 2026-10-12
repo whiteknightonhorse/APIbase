@@ -1,5 +1,10 @@
 import type { ShopTx } from '../db';
-import { verifyEncryptionKeySignature, type EncryptionKey } from '../merchant.service';
+import {
+  payoutWalletPlatform,
+  verifyEncryptionKeySignature,
+  type EncryptionKey,
+} from '../merchant.service';
+import { isPlatformWallet } from '../platform-wallets';
 import { flagUndeliverable } from '../pii/pii.service';
 import { QuoteError } from '../quote.errors';
 import { ShopAuthError } from './errors';
@@ -184,6 +189,7 @@ export async function requestPayoutChange(
   if (!m) throw new ShopAuthError(401, 'unknown merchant');
   await verifyOwner(d, m.wallet_address, a.signature, 'payout_change');
   const wallet = a.new_wallet.toLowerCase();
+  if (isPlatformWallet(wallet)) throw payoutWalletPlatform();
   if (await isSanctioned(d.db, wallet)) {
     throw new ShopAuthError(403, 'payout wallet blocked by sanctions screening');
   }

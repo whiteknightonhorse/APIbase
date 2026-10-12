@@ -83,7 +83,8 @@ current `{doc_id, version, sha256, url}` of all four documents.
 The reason is not disclosed. Policy: `/legal/refund-framework`.
 
 Other codes: `unauthorized` (401, bad/missing signature, nonce used or expired), `rate_limited` (429),
-`validation_failed` (422), `slug_taken`/`wallet_registered` (409), `payout_wallet_sanctioned` (403).
+`validation_failed` (422), `slug_taken`/`wallet_registered` (409), `payout_wallet_sanctioned` (403), `payout_wallet_platform` (400).
+The payout wallet must be the merchant's own; platform addresses are refused with `payout_wallet_platform` (400).
 Limits per IP: nonce 30/min, `POST /merchants` 5/hour, acceptances 10/min.
 
 ## Lost key
