@@ -28,6 +28,14 @@ describe('PG5 nginx locations', () => {
       expect([p, re.test(conf)]).toEqual([p, true]);
     }
   });
+  it('T-0295 /about is served from static/about.html like /partners (host `location /` already proxies it)', () => {
+    const conf = read('nginx/nginx.conf');
+    expect(container.has('/about')).toBe(true);
+    expect(host.has('/about')).toBe(false);
+    expect(conf).toMatch(
+      /location = \/about \{\s*root \/var\/www\/static;\s*try_files \/about\.html =404;\s*\}/,
+    );
+  });
   it('the mount-nginx parity script is green', () => {
     execFileSync('python3', ['scripts/check-mount-nginx-parity.py'], { cwd: ROOT });
   });
