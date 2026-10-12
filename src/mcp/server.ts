@@ -30,6 +30,8 @@ import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
 import { registerCatalogTools } from '../shop/tools/catalog.tools';
 import { registerOrderTools } from '../shop/tools/order.tools';
+import { geoOf } from '../shop/geo-headers';
+import type { RegisterCtx } from '../shop/merchant.service';
 import { registerMerchantTools } from '../shop/tools/merchant.tools';
 import { createMerchantMcpServer, loadStorefront } from '../shop/merchant-mcp-server';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
@@ -173,6 +175,11 @@ const SERVER_OPTIONS = {
     'Use prompts/list for workflow templates.',
 } as const;
 
+/** Caller address and edge geo for shop.merchant.register (UC-22). */
+function clientCtxOf(req: express.Request): Partial<RegisterCtx> {
+  return { ip: req.ip, user_agent: req.get('user-agent'), ...geoOf(req) };
+}
+
 /**
  * Create a fully configured McpServer instance with all tools and prompts registered.
  * Payment context ref is a mutable object updated per-request in the POST handler,
@@ -183,10 +190,11 @@ export function createMcpServer(
   requestId: string,
   paymentCtxRef: PaymentContext,
   sessionId?: string,
+  clientCtx?: Partial<RegisterCtx>,
 ): McpServer {
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
-  registerMerchantTools(mcpServer, apiKey, requestId);
+  registerMerchantTools(mcpServer, apiKey, requestId, undefined, clientCtx);
   registerCatalogTools(mcpServer, apiKey, requestId);
   registerOrderTools(mcpServer, apiKey, requestId, undefined, paymentCtxRef, sessionId);
   registerPrompts(mcpServer);
@@ -375,7 +383,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
       }
 
       await openStreamableSession(req, res, undefined, (apiKey, requestId, ctx, sid) =>
-        createMcpServer(apiKey, requestId, ctx, sid),
+        createMcpServer(apiKey, requestId, ctx, sid, clientCtxOf(req)),
       );
       return;
     } catch (error) {
@@ -588,7 +596,13 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
 
     // Create mutable payment context for SSE session
     const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
-    const mcpServer = createMcpServer(apiKey, requestId, paymentCtxRef, sessionId);
+    const mcpServer = createMcpServer(
+      apiKey,
+      requestId,
+      paymentCtxRef,
+      sessionId,
+      clientCtxOf(req),
+    );
 
     sessions.set(sessionId, transport);
     sessionPaymentCtx.set(sessionId, paymentCtxRef);

@@ -1,5 +1,6 @@
 import { Router, type Request, type Response } from 'express';
 import rateLimit, { type Options } from 'express-rate-limit';
+import { geoOf } from '../geo-headers';
 import { ShopAuthError } from '../auth/errors';
 import { reissueKeys, rotateKey } from '../auth/identity.service';
 import { requireMerchantKey } from '../auth/merchant-key.service';
@@ -90,7 +91,11 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     const { status, body } = toApiError(err, res.req.requestId);
     res.status(status).json(body);
   };
-  const ctxOf = (req: Request) => ({ ip: req.ip, user_agent: req.get('user-agent') });
+  const ctxOf = (req: Request) => ({
+    ip: req.ip,
+    user_agent: req.get('user-agent'),
+    ...geoOf(req),
+  });
 
   router.get(
     '/api/v1/shop/auth/nonce',

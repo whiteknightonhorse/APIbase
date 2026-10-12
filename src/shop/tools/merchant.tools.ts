@@ -1,5 +1,6 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
+import type { RegisterCtx } from '../merchant.service';
 import { ShopAuthError } from '../auth/errors';
 import { rotateKey } from '../auth/identity.service';
 import { authenticateMerchantKey, type AuthedMerchant } from '../auth/merchant-key.service';
@@ -103,6 +104,7 @@ export function registerMerchantTools(
   apiKey: string,
   requestId: string,
   deps: ShopDeps = defaultShopDeps(),
+  clientCtx: Partial<RegisterCtx> = {},
 ): void {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK generics recurse on complex Zod shapes
   const reg = server.registerTool as any;
@@ -144,7 +146,7 @@ export function registerMerchantTools(
         const r = await registerWithDocs(
           deps,
           { ...rest, signed: { message, signature } } as never,
-          { path: '/mcp shop.merchant.register' },
+          { path: '/mcp shop.merchant.register', ...clientCtx },
         );
         return ok(r);
       } catch (err) {

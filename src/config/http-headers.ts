@@ -49,3 +49,7 @@ export const X_APIBASE_SIGNATURE = 'X-APIbase-Signature';
 // T-INT-24: the owner page credential (base64 sign-in message + EIP-191 signature), GET /m/:slug/owner.
 export const X_OWNER_MESSAGE = 'x-owner-message';
 export const X_OWNER_SIGNATURE = 'x-owner-signature';
+
+// Edge geo (UC-22): set by the host proxy from geoip2, read only when INTEGRATOR_GEO_HEADERS=trusted.
+export const X_APIBASE_GEO_COUNTRY = 'x-apibase-geo-country';
+export const X_APIBASE_GEO_REGION = 'x-apibase-geo-region';

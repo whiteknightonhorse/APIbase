@@ -35,7 +35,7 @@ wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
 
    Send the merchant fields plus `message` and `signature`. The reply is
    `{merchant_id, slug, status: "pending", docs_to_accept: [{doc_id, version, sha256, url}]}`.
-   Without a signature the call is `401`.
+   Without a signature the call is `401`. The IP country is taken from the edge (trusted header), form/IP mismatch never blocks.
 
 3. **Accept the four documents** (`merchant-agreement`, `aup`, `dpa`, `refund-framework`) by signing,
    with a fresh `accept_terms` nonce, exactly this text (one line; hashes are the `sha256` values from
