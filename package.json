@@ -37,7 +37,7 @@
     "fast-json-stable-stringify": "^2.1.0",
     "ioredis": "^5.4.2",
     "mppx": "^0.5.5",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.6.0",
     "pg": "^8.20.0",
     "pino": "^9.6.0",
     "pino-http": "^10.4.0",
