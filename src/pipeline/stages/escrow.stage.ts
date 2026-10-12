@@ -245,15 +245,30 @@ export async function buildPaymentBinding(
 
   const { currentPayout } = await import('../../shop/auth/identity.service');
   const { integratorConfig } = await import('../../shop/quote.service');
+  const feeOn = integratorConfig().fee_enabled;
   const feeWallet = process.env['INTEGRATOR_FEE_WALLET'];
-  const feeLeg = q.fee_usd > 0 && integratorConfig().fee_enabled && feeWallet;
+  if (rail === 'tempo' && feeOn && q.fee_usd > 0 && !feeWallet) {
+    return quoteErr(
+      503,
+      'fee_wallet_unavailable',
+      'the fee wallet is not configured; repeat later',
+    );
+  }
+  const feeLegWallet =
+    feeOn && q.fee_usd > 0
+      ? rail === 'tempo'
+        ? feeWallet
+        : process.env['INTEGRATOR_FEE_WALLET_BASE']
+      : undefined;
   const binding: PaymentBinding = {
     amount_usd: q.total_usd,
     pay_to: currentPayout(q, rail, at),
     rail,
     resource: `quote:${q.quote_id}`,
-    splits: feeLeg ? [{ wallet: feeWallet, amount_usd: q.fee_usd }] : undefined,
-    fee_usd: feeLeg && !q.is_test ? q.fee_usd : 0,
+    // Tempo: the MPP split paid in the same transaction. Base: the leg the PAID transition sums
+    // into shop_fee_ledger as a receivable, addressed to the Base fee wallet.
+    splits: feeLegWallet ? [{ wallet: feeLegWallet, amount_usd: q.fee_usd }] : undefined,
+    fee_usd: feeOn && q.fee_usd > 0 && !q.is_test ? q.fee_usd : 0,
   };
   const feeToBase = process.env['INTEGRATOR_FEE_WALLET_BASE'];
   if (
