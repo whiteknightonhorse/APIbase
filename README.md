@@ -36,6 +36,18 @@ That's the Claude Desktop config. Cursor, Windsurf, OpenAI Agents SDK, LangChain
 
 ---
 
+## For Merchants — Integrator
+
+AI payment for merchants: a merchant gets its own MCP storefront, and a buyer's agent gets a quote and pays in USDC (x402 on Base, MPP on Tempo) straight to the merchant wallet. Non-custodial; fee 0% during the pilot.
+
+- **[Overview](https://apibase.pro/integrator)** — what it is and how to connect
+- **[Agent guide](https://apibase.pro/integrator/agent-guide)** — step-by-step connection for a merchant's agent
+- **[WooCommerce plugin](https://apibase.pro/integrator/platforms/woocommerce)** — catalog sync and paid-order webhook
+- **[Demo shop](https://apibase.pro/m/apibase-demo)** — a live storefront
+- **[Docs](docs/integrator.md)** — operator and developer reference
+
+---
+
 ## Integrations & Registries
 
 **[Full framework guides →](https://apibase.pro/frameworks)**
