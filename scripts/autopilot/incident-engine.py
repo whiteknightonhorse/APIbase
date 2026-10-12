@@ -329,6 +329,38 @@ def _provider_down_ready(incident_id, provider, created_at) -> bool:
     return True
 
 
+def _degraded_card_ready(incident_id, provider, kind, created_at) -> bool:
+    """T-0336: RATE_LIMITED / DEGRADED_QUALITY open at once (visibility) but only get a fleet card
+    when the condition is still present after RATE_LIMITED_MIN_AGE_SECONDS (154 cards were filed
+    for faults that self-healed, median 5.9 h). A provider that is HEALTHY again resolves the
+    incident here (note "self-recovered"), which also feeds the 24 h reopen window. Missing
+    provider_status or an unparseable created_at is NOINFO: stay OPEN, never file."""
+    pv, rc = ap.psql(
+        f"SELECT state, last_probe_result FROM provider_status WHERE provider = {ap.sql_literal(provider)}"
+    )
+    if rc != 0 or not pv:
+        return False
+    state, last_result = (pv.split(ap.SEP) + [None])[:2]
+    if state == "HEALTHY" and last_result == "OK":
+        ap.transition_state(incident_id, "RESOLVED")
+        ap.note_incident(incident_id, "incident-engine", "self-recovered",
+                         f"provider HEALTHY again before the {ap.RATE_LIMITED_MIN_AGE_SECONDS} s card age gate; "
+                         f"no card filed")
+        return False
+    ts = _parse_ts(created_at)
+    if ts is None:
+        return False
+    age = datetime.now(timezone.utc) - ts
+    if age < timedelta(seconds=ap.RATE_LIMITED_MIN_AGE_SECONDS):
+        ap.notice_dedup(
+            incident_id, "I1_AGE_GATE",
+            f"silent: {incident_id} ({provider}/{kind}) — only {age} old, a card needs "
+            f"{ap.RATE_LIMITED_MIN_AGE_SECONDS} s of persistence (T-0336), staying OPEN",
+        )
+        return False
+    return True
+
+
 def route_auto_incidents():
     """AP-6 (I1/I2/I3): turn OPEN incidents whose kind routes to AUTO/MIXED
     into real REMEDIATION_QUEUED fleet tasks, respecting the ≤3/day cap
@@ -365,6 +397,9 @@ def route_auto_incidents():
         if kind not in ap.FLEET_TASK_KINDS:
             continue  # HUMAN_* (or a future route class this function doesn't own)
         if kind == "PROVIDER_DOWN" and not _provider_down_ready(incident_id, provider, created_at):
+            continue
+        if (kind in ("RATE_LIMITED", "DEGRADED_QUALITY") and not provider.startswith(MERCHANT_PREFIX)
+                and not _degraded_card_ready(incident_id, provider, kind, created_at)):
             continue
         if not claim_task_slot(incident_id, provider, kind):
             if provider.startswith(MERCHANT_PREFIX):
@@ -2826,6 +2861,14 @@ def selftest_db():
         )
         assert ap.get_incident(id10_sev3)["severity"] == "SEV3"
         assert ap.get_incident(id10_sev2)["severity"] == "SEV2"
+        # T-0336: DEGRADED_QUALITY needs a still-present condition past the 2 h card age gate.
+        ap.psql(
+            "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+            "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+            "('ap6ordersev2', 'DEGRADED', now(), now(), 3600, 'FAIL_TRANSIENT', now())"
+        )
+        ap.psql(f"UPDATE incidents SET created_at = now() - interval '3 hours' "
+                f"WHERE incident_id = {ap.sql_literal(id10_sev2)}")
         route_auto_incidents()
         inc10_sev3 = ap.get_incident(id10_sev3)
         inc10_sev2 = ap.get_incident(id10_sev2)
@@ -3667,7 +3710,9 @@ def selftest_db():
         )
         inc16_id, created16 = ap.open_or_merge_incident(
             kind="PROVIDER_DOWN", provider="ap16floor",
-            evidence={"probe": "was down, now recovering"}, detected_by="probe",
+            # "manual": all its tools are unavailable, so a probe-detected row would hit the T-0335
+            # retired-provider guard; this world tests the floor guard, not retirement.
+            evidence={"probe": "was down, now recovering"}, detected_by="manual",
         )
         assert created16, "world 16 setup: expected a fresh PROVIDER_DOWN incident for ap16floor"
         sync_tool_status()

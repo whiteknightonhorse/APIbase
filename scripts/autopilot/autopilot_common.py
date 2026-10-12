@@ -454,6 +454,15 @@ WAITING_HUMAN_REMINDER_SECONDS = 72 * 3600  # J2/F2: "reminder every 72h"
 # never SEV3 -- so the only condition route_auto_incidents() must add here
 # is the age gate.
 PROVIDER_DOWN_MIN_AGE_SECONDS = 24 * 3600
+# T-0336: RATE_LIMITED / DEGRADED_QUALITY open at once but file a card only after this age.
+RATE_LIMITED_MIN_AGE_SECONDS = 7200
+# T-0336: one provider-level outage = one live incident (DEGRADED escalates to DOWN, never two rows).
+OUTAGE_KINDS = ("PROVIDER_DOWN", "DEGRADED_QUALITY")
+# T-0336: flap-prone provider-health kinds reopen their RESOLVED incident inside this window.
+REOPEN_KINDS = frozenset(["PROVIDER_DOWN", "DEGRADED_QUALITY", "RATE_LIMITED", "QUOTA_LOW", "QUOTA_EXHAUSTED"])
+REOPEN_WINDOW_HOURS = 24
+FLAP_REOPEN_LIMIT = 3  # this many reopens inside FLAP_WINDOW_DAYS -> FLAPPING + WAITING_HUMAN, no new card
+FLAP_WINDOW_DAYS = 7
 
 
 def dedup_key(kind: str, provider: str, tool_id: str | None = None, suffix: str | None = None) -> str:
@@ -904,6 +913,78 @@ def _redact_untrusted_evidence(value):
 # Core write path — shared by incident-engine.py's own detection loop and by
 # incident-cli.py's `open` command (I4: not two write paths, one).
 # ---------------------------------------------------------------------------
+def _merge_outage_sibling(kind, provider, tool_id, evidence, tool_count, revenue_pct, actor):
+    """T-0336: if the OTHER outage kind is live for this provider, update that row instead of
+    inserting a second one. DEGRADED -> DOWN escalates (kind, dedup_key and severity change, note
+    "escalated"); DOWN -> DEGRADED keeps DOWN (recurrence note only). Returns the incident_id or None."""
+    other = next(k for k in OUTAGE_KINDS if k != kind)
+    odk = dedup_key(other, provider, tool_id)
+    live, rc = psql(f"SELECT incident_id FROM incidents WHERE dedup_key = {sql_literal(odk)} "
+                    f"AND state <> 'RESOLVED'")
+    if rc != 0:
+        raise RuntimeError(f"_merge_outage_sibling: lookup failed for {odk}")
+    if not live:
+        return None
+    if kind == "PROVIDER_DOWN":
+        _, rc2 = psql(
+            f"UPDATE incidents SET kind = 'PROVIDER_DOWN', "
+            f"dedup_key = {sql_literal(dedup_key(kind, provider, tool_id))}, "
+            f"severity = {sql_literal(classify_severity(kind, tool_count, revenue_pct))}, updated_at = now() "
+            f"WHERE incident_id = {sql_literal(live)} AND state <> 'RESOLVED'"
+        )
+        if rc2 != 0:
+            raise RuntimeError(f"_merge_outage_sibling: escalate failed for {live}")
+        note_incident(live, actor, "escalated", "DEGRADED_QUALITY -> PROVIDER_DOWN (same outage, one incident)")
+    else:
+        note_incident(live, actor, "recurrence",
+                      json.dumps(_redact_untrusted_evidence(evidence), ensure_ascii=False)[:2000])
+    return live
+
+
+def _reopen_resolved(dk, kind, provider, actor):
+    """T-0336: a detection whose dedup_key matches an incident RESOLVED within REOPEN_WINDOW_HOURS
+    reopens it (state OPEN, resolved_at cleared, created_at restarted so the card age gates measure
+    this episode, fleet_task_id cleared, note "reopened") instead of inserting. No schema column
+    holds reopen_count: it is the number of "reopened" notes in attempts inside FLAP_WINDOW_DAYS.
+    When it reaches FLAP_REOPEN_LIMIT the incident gets a FLAPPING note and goes to WAITING_HUMAN
+    (no further card). Returns the incident_id or None."""
+    row, rc = psql(
+        f"SELECT incident_id, COALESCE(fleet_task_id, '') FROM incidents WHERE dedup_key = {sql_literal(dk)} "
+        f"AND state = 'RESOLVED' AND resolved_at > now() - interval '{REOPEN_WINDOW_HOURS} hours' "
+        f"ORDER BY resolved_at DESC LIMIT 1"
+    )
+    if rc != 0:
+        raise RuntimeError(f"_reopen_resolved: lookup failed for {dk}")
+    if not row:
+        return None
+    iid, old_task = (row.split(SEP) + [""])[:2]
+    out, rc2 = psql(
+        f"UPDATE incidents SET state = 'OPEN', resolved_at = NULL, fleet_task_id = NULL, "
+        f"next_recheck_at = NULL, created_at = now(), updated_at = now() "
+        f"WHERE incident_id = {sql_literal(iid)} AND state = 'RESOLVED' RETURNING incident_id"
+    )
+    if rc2 != 0:
+        raise RuntimeError(f"_reopen_resolved: update failed for {iid}")
+    if not out:
+        return None
+    note_incident(iid, actor, "reopened",
+                  f"same condition detected again within {REOPEN_WINDOW_HOURS} h of RESOLVED"
+                  + (f" (previous card {old_task})" if old_task else ""))
+    n, rc3 = psql(
+        f"SELECT count(*) FROM incidents, jsonb_array_elements(attempts) e "
+        f"WHERE incident_id = {sql_literal(iid)} AND e->>'action' = 'reopened' "
+        f"AND (e->>'ts')::timestamptz > now() - interval '{FLAP_WINDOW_DAYS} days'"
+    )
+    if rc3 == 0 and n.strip().isdigit() and int(n) >= FLAP_REOPEN_LIMIT:
+        note_incident(iid, actor, "FLAPPING",
+                      f"kind FLAPPING: reopened {n} times in {FLAP_WINDOW_DAYS} d, "
+                      f"no further fleet card, needs a human")
+        transition_state(iid, "WAITING_HUMAN")
+        tg_send(f"[apibase] FLAPPING INC-{short_id(iid)} {kind} ({provider}) - reopened {n} times in "
+                f"{FLAP_WINDOW_DAYS} days, no new card filed, needs a human decision")
+    return iid
+
+
 def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
                             tool_count=None, revenue_pct=None, what=None, system_did=None,
                             docs_url=None, actor="incident-engine", dedup_suffix=None):
@@ -938,6 +1019,15 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
         note_incident(existing, actor, "recurrence",
                        json.dumps(_redact_untrusted_evidence(evidence), ensure_ascii=False)[:2000])
         return existing, False
+
+    if kind in OUTAGE_KINDS and not dedup_suffix:
+        merged = _merge_outage_sibling(kind, provider, tool_id, evidence, tool_count, revenue_pct, actor)
+        if merged:
+            return merged, False
+    if kind in REOPEN_KINDS:
+        reopened = _reopen_resolved(dk, kind, provider, actor)
+        if reopened:
+            return reopened, False
 
     severity = classify_severity(kind, tool_count, revenue_pct)
     route = ROUTE_CLASS[kind]
