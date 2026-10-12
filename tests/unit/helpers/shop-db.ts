@@ -4,25 +4,52 @@ import { PrismaClient } from '@prisma/client';
 
 /**
  * Test-DB gate for the Integrator shop suites: set TEST_DATABASE_URL to a DISPOSABLE
- * Postgres (never prod). Without it the DB suites are skipped (CI has no Postgres).
+ * local Postgres (never the live DB). Without it the DB suites are skipped (CI has no Postgres).
  * `prisma migrate deploy` is run against it once per process (idempotent).
+ * This module must stay importable outside jest (tsx children), so the jest globals are optional.
  */
 export const TEST_DB_URL = process.env.TEST_DATABASE_URL;
-export const dbDescribe: jest.Describe = TEST_DB_URL ? describe : describe.skip;
+export const dbDescribe: jest.Describe =
+  typeof describe === 'function' ? (TEST_DB_URL ? describe : describe.skip) : (undefined as never);
+
+const REFUSAL =
+  'TEST_DATABASE_URL unset or not a disposable local Postgres - refusing (would fall back to DATABASE_URL = production)';
+
+/**
+ * Returns TEST_DATABASE_URL only when it is a local postgres URL different from DATABASE_URL, and
+ * pins process.env.DATABASE_URL to it so no Prisma instance can fall back to .env.
+ */
+export function requireTestDb(): string {
+  const url: unknown = process.env.TEST_DATABASE_URL;
+  if (typeof url !== 'string' || url === '') throw new Error(REFUSAL);
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error(REFUSAL);
+  }
+  if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:')
+    throw new Error(REFUSAL);
+  if (parsed.hostname !== '127.0.0.1' && parsed.hostname !== 'localhost') throw new Error(REFUSAL);
+  if (url === process.env.DATABASE_URL) throw new Error(REFUSAL);
+  process.env.DATABASE_URL = url;
+  return url;
+}
 
 let deployed = false;
 export function migrate(): void {
-  if (deployed || !TEST_DB_URL) return;
+  const url = requireTestDb();
+  if (deployed) return;
   execSync('npx prisma migrate deploy', {
     cwd: join(__dirname, '../../..'),
-    env: { ...process.env, DATABASE_URL: TEST_DB_URL },
+    env: { ...process.env, DATABASE_URL: url },
     stdio: 'pipe',
   });
   deployed = true;
 }
 
 export function client(): PrismaClient {
-  return new PrismaClient({ datasourceUrl: TEST_DB_URL });
+  return new PrismaClient({ datasourceUrl: requireTestDb() });
 }
 
 let n = 0;

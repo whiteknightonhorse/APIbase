@@ -9,7 +9,6 @@ import { randomBytes } from 'node:crypto';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
 import { encodeFunctionResult, type Hex } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 
@@ -30,6 +29,43 @@ const mem = new Map<string, string>();
 const rpcMethods: string[] = [];
 
 async function main(): Promise<Record<string, unknown>> {
+  // Guard first: nothing prisma/mppx is imported before a disposable datasource is confirmed.
+  const testDbUrl: string = require('./shop-db').requireTestDb();
+  const { PrismaClient } = await import('@prisma/client');
+  const prisma = new PrismaClient({ datasourceUrl: testDbUrl });
+  let merchantId: string | undefined;
+  let api: Server | undefined;
+  try {
+    return await run(
+      prisma,
+      (id) => (merchantId = id),
+      (s) => (api = s),
+    );
+  } finally {
+    if (merchantId) {
+      await prisma.$executeRawUnsafe(
+        `DELETE FROM shop_stream_sessions WHERE merchant_id = $1::uuid`,
+        merchantId,
+      );
+      await prisma.$executeRawUnsafe(
+        `DELETE FROM shop_products WHERE merchant_id = $1::uuid`,
+        merchantId,
+      );
+      await prisma.$executeRawUnsafe(
+        `DELETE FROM shop_merchants WHERE merchant_id = $1::uuid`,
+        merchantId,
+      );
+    }
+    api?.close();
+    await prisma.$disconnect();
+  }
+}
+
+async function run(
+  prisma: any,
+  setMerchant: (id: string) => void,
+  setApi: (s: Server) => void,
+): Promise<Record<string, unknown>> {
   const { Challenge, Credential } = await import('mppx');
   const { Session } = (await import('mppx/tempo')) as any;
   const escrowAbi = await loadEscrowAbi();
@@ -90,10 +126,10 @@ async function main(): Promise<Record<string, unknown>> {
   const { getStreamMethod } = require('../../../src/shop/stream-session');
   const { encryptSecret } = require('../../../src/services/secret-crypto.service');
 
-  const prisma = new PrismaClient({ datasourceUrl: process.env.TEST_DATABASE_URL });
   const deps = {
     db: prisma,
-    transaction: (fn: (tx: unknown) => Promise<unknown>) => prisma.$transaction((tx) => fn(tx)),
+    transaction: (fn: (tx: unknown) => Promise<unknown>) =>
+      prisma.$transaction((tx: unknown) => fn(tx)),
   };
   const app = express();
   app.use(express.json());
@@ -101,6 +137,7 @@ async function main(): Promise<Record<string, unknown>> {
   const api: Server = await new Promise((r) => {
     const s = app.listen(0, '127.0.0.1', () => r(s));
   });
+  setApi(api);
   const base = `http://127.0.0.1:${(api.address() as AddressInfo).port}`;
 
   const tag = Date.now().toString(36);
@@ -113,6 +150,7 @@ async function main(): Promise<Record<string, unknown>> {
     `0x${tag}`,
     MERCHANT.address,
   );
+  setMerchant(merchantId);
   await prisma.$executeRawUnsafe(
     `INSERT INTO shop_products (merchant_id, sku, title, price_usd, fulfillment_mode, stream,
                                 fulfillment_payload_encrypted, category)
@@ -207,8 +245,6 @@ async function main(): Promise<Record<string, unknown>> {
       channelId,
     )
   )[0];
-  await prisma.$disconnect();
-  api.close();
   return out;
 }
 
