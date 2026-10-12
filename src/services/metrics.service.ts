@@ -94,6 +94,15 @@ export const providerCallDurationSeconds = new client.Histogram({
   registers: [register],
 });
 
+// T-0339 (finding 048): a paid request reached LEDGER_WRITE with no escrow and no on-chain ledger
+// entry, so nothing recorded it. Expected to stay 0.
+export const ledgerPaidWithoutEscrowTotal = new client.Counter({
+  name: 'apibase_ledger_paid_without_escrow_total',
+  help: 'Paid tool calls that reached LEDGER_WRITE without an escrow or on-chain ledger entry',
+  labelNames: ['rail'] as const,
+  registers: [register],
+});
+
 export const providerErrorsTotal = new client.Counter({
   name: 'provider_errors_total',
   help: 'Total provider errors',

@@ -7,6 +7,8 @@ import {
   CACHE_HIT_COST_MULTIPLIER,
 } from '../../services/ledger.service';
 import { getX402Config } from '../../config/x402.config';
+import { logger } from '../../config/logger';
+import { ledgerPaidWithoutEscrowTotal } from '../../services/metrics.service';
 
 /**
  * LEDGER_WRITE stage (§12.43 stage 11, §12.151, §AP-9).
@@ -150,6 +152,17 @@ export const ledgerWriteStage: Stage = {
 
     // Paid tool without escrow — should not happen in normal flow
     // Log error but do not block response
+    const rail = ctx.x402Paid ? 'x402' : ctx.mppPaid ? 'mpp' : 'none';
+    logger.error(
+      {
+        request_id: ctx.requestId,
+        tool_id: ctx.toolId,
+        billing_status: ctx.billingStatus,
+        rail,
+      },
+      'Paid tool without escrow — no ledger entry written',
+    );
+    ledgerPaidWithoutEscrowTotal.inc({ rail });
     ctx.ledgerWritten = true;
     return ok(ctx);
   },

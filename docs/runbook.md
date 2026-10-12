@@ -159,6 +159,28 @@ $COMPOSE exec postgres psql -U apibase -d apibase -c "
   GROUP BY state;"
 ```
 
+### 2.5 execution_ledger immutability trigger (T-0339)
+
+Migration `0038_execution_ledger_immutable` adds trigger `execution_ledger_immutable` (BEFORE UPDATE OR
+DELETE, per row, function `execution_ledger_guard()`). The app role is a superuser, so GRANT/REVOKE
+cannot protect the ledger; the trigger is the only enforcement.
+
+- DELETE always fails with `execution_ledger is append-only`.
+- UPDATE fails if any of `execution_id, agent_id, tool_id, payer, cost_usd, created_at, latency_ms,
+  cache_status, idempotency_key, payload_url, x402_onchain_settled` changes. Status, billing and
+  settlement columns (full list in the migration header) may change, as reconciliation and escrow need.
+- Check it is present: `SELECT tgname FROM pg_trigger WHERE tgrelid='execution_ledger'::regclass AND NOT tgisinternal;`
+- Counter `apibase_ledger_paid_without_escrow_total` (labels `rail`) must stay 0; it counts paid calls
+  that reached LEDGER_WRITE with no escrow and no on-chain entry (also logged at error level).
+
+Escape hatch (superuser only, for a genuine correction): in one transaction run
+`ALTER TABLE execution_ledger DISABLE TRIGGER execution_ledger_immutable;`, the fix, then
+`ALTER TABLE execution_ledger ENABLE TRIGGER execution_ledger_immutable;`. Always record a ledger note
+(who, when, why, affected `execution_id`s) in the incident or task file.
+
+Applying the migration to production is an operator decision (§3 item 8); the deploy that runs
+`prisma migrate deploy` must be approved by the operator.
+
 ---
 
 ## 3. Monitoring

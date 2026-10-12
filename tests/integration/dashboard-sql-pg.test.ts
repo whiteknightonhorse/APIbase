@@ -54,8 +54,17 @@ dbDescribe('dashboard SQL on real Postgres', () => {
   });
 
   afterAll(async () => {
-    await prisma.$executeRawUnsafe(`DELETE FROM execution_ledger WHERE tool_id = $1`, toolId);
-    await prisma.$executeRawUnsafe(`DELETE FROM tools WHERE tool_id = $1`, toolId);
+    // T-0339: the ledger trigger forbids DELETE; the disposable test DB disables it for this cleanup only.
+    await prisma.$transaction([
+      prisma.$executeRawUnsafe(
+        `ALTER TABLE execution_ledger DISABLE TRIGGER execution_ledger_immutable`,
+      ),
+      prisma.$executeRawUnsafe(`DELETE FROM execution_ledger WHERE tool_id = $1`, toolId),
+      prisma.$executeRawUnsafe(
+        `ALTER TABLE execution_ledger ENABLE TRIGGER execution_ledger_immutable`,
+      ),
+      prisma.$executeRawUnsafe(`DELETE FROM tools WHERE tool_id = $1`, toolId),
+    ]);
     await prisma.$disconnect();
     const { shutdownPrisma } = await import('../../src/services/prisma.service');
     await shutdownPrisma();
