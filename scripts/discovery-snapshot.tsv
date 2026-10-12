@@ -270,6 +270,10 @@ cpsc.search	cpsc
 crossref-datacitations.article_datasets	crossref-datacitations
 crossref-datacitations.dataset_citations	crossref-datacitations
 crossref-datacitations.recent_citations	crossref-datacitations
+crossref.funder_search	crossref
+crossref.journal_lookup	crossref
+crossref.member_search	crossref
+crossref.works_search	crossref
 crypto.coin_detail	coingecko
 crypto.dex_pools	coingecko
 crypto.get_price	coingecko
