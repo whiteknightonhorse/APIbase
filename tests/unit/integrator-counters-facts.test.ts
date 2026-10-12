@@ -231,7 +231,9 @@ describe('T-INT-19', () => {
     const shop = (await shopToolDefinitions()).length;
     expect(d.shop_tools_count).toBe(shop);
     const catalog = read('scripts/discovery-snapshot.tsv').split('\n').filter(Boolean).length;
-    expect(d.tools_count).toBe(catalog + shop);
+    // T-0332: tools_count is the published catalog; shop.* are reported separately.
+    expect(d.tools_count).toBe(catalog);
+    expect(d.platform_tools_count).toBe(shop + 4);
   });
 
   it('CN9 image layout covers every static path the app resolves from dist', () => {

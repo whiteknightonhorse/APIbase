@@ -54,11 +54,9 @@ if [ "$CHECK" = "1" ]; then
   BASELINE="$(python3 -c "
 import json
 d = json.load(open('static/.well-known/mcp.json'))
-# T-INT-19: tools_count carries the shop.* tools once (no row in the tools table); the
-# DB-catalog baseline every other surface is compared with excludes them.
+# T-0332: tools_count is the DB-backed set MCP registers; shop.* tools are reported
+# separately as shop_tools_count, so no subtraction is needed.
 t = d.get('tools_count')
-if isinstance(t, int):
-    t -= int(d.get('shop_tools_count') or 0)
 p = d.get('providers_count', d.get('providers'))
 print('%s %s' % (t, p))
 " 2>/dev/null || true)"
@@ -583,7 +581,16 @@ STALE_INTEGRATOR=$(python3 scripts/integrator-facts.py check 2>&1 || true)
 # T-INT-27: homepage / ai.txt / index.md numbers vs the same baseline, both modes.
 STALE_HOME=$(python3 scripts/home-facts.py check 2>&1 || true)
 
+# T-0332: one tool-count formula (scripts/count-mcp-tools.ts). Prints all five numbers on every
+# run; exits 1 naming the surface (mcp.json / openapi.json / snapshot) that disagrees with it.
+STALE_MCP_COUNT=$(SYNC_COUNTS_SNAPSHOT="${SYNC_COUNTS_SNAPSHOT:-scripts/discovery-snapshot.tsv}" \
+  npx tsx scripts/count-mcp-tools.ts --check 2>&1) && MCP_COUNT_RC=0 || MCP_COUNT_RC=$?
+echo "$STALE_MCP_COUNT" | grep -v 'STALE_MCP_COUNT' || true
+STALE_MCP_COUNT=$(echo "$STALE_MCP_COUNT" | grep 'STALE_MCP_COUNT' || true)
+[ "$MCP_COUNT_RC" != "0" ] && [ -z "$STALE_MCP_COUNT" ] && STALE_MCP_COUNT="count-mcp-tools.ts --check failed to run (rc=$MCP_COUNT_RC)"
+
 FAIL=0
+[ -n "$STALE_MCP_COUNT" ] && { echo "sync-counts: STALE_MCP_COUNT:"; echo "$STALE_MCP_COUNT"; FAIL=1; }
 [ -n "$STALE_HOME" ] && { echo "sync-counts: STALE homepage facts:"; echo "$STALE_HOME"; FAIL=1; }
 [ -n "$STALE_INTEGRATOR" ] && { echo "sync-counts: STALE integrator facts:"; echo "$STALE_INTEGRATOR"; FAIL=1; }
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }

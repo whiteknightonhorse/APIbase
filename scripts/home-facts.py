@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """T-INT-27: homepage / ai.txt / index.md numbers come from one source (sync-counts).
 
-Source: static/.well-known/mcp.json (tools_count - shop_tools_count, providers_count,
+Source: static/.well-known/mcp.json (tools_count, providers_count,
 categories_count, price_range_usd), the same baseline sync-counts.sh uses. Tools and providers
 phrases are rewritten by sync-counts.sh's own sed pass; this script owns the rest of the shapes
 (categories, price range, "N separate provider integrations", JSON-LD low/high price).
@@ -23,7 +23,7 @@ def facts():
     d = json.load(open(MCP))
     pr = d["price_range_usd"]
     return {
-        "tools": int(d["tools_count"]) - int(d.get("shop_tools_count") or 0),
+        "tools": int(d["tools_count"]),
         "providers": int(d["providers_count"]),
         "categories": int(d["categories_count"]),
         "pmin": "%g" % pr["min"],

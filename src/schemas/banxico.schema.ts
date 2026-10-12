@@ -70,9 +70,9 @@ const cpiSchema = z
   );
 
 export const banxicoSchemas: Record<string, ZodSchema> = {
-  'banxico.fix_rate': fixRateSchema,
-  'banxico.fx_rates': fxRatesSchema,
-  'banxico.target_rate': targetRateSchema,
-  'banxico.tiie_rate': tiieRateSchema,
-  'banxico.cpi': cpiSchema,
+  'banxico.fx.fix_rate': fixRateSchema,
+  'banxico.fx.rates': fxRatesSchema,
+  'banxico.rates.target': targetRateSchema,
+  'banxico.rates.tiie': tiieRateSchema,
+  'banxico.inflation.cpi': cpiSchema,
 };

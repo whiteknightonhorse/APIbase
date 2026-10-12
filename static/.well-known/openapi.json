@@ -84774,7 +84774,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the official Banxico FIX USD/MXN exchange rate. Omit dates for the latest observation; supply both for a historical range."
               }
             }
           }
@@ -84848,7 +84859,14 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "locale": {
+                    "type": "string",
+                    "description": "Reserved for future locale support. Leave empty — response is always in English."
+                  }
+                },
+                "description": "Get current MXN exchange rates for USD, EUR, CAD, and GBP simultaneously."
               }
             }
           }
@@ -84922,7 +84940,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the Banxico overnight target interest rate (Tasa objetivo). Omit dates for the latest observation; supply both for a historical range."
               }
             }
           }
@@ -84996,7 +85025,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the TIIE 28-day interbank offered rate. Omit dates for the latest value; supply both for a historical range."
               }
             }
           }
@@ -85070,7 +85110,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "type": "object"
+                "type": "object",
+                "properties": {
+                  "start_date": {
+                    "type": "string",
+                    "description": "Start date for historical range in YYYY-MM-DD format (e.g. 2026-01-01). Omit for latest observation only."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "End date for historical range in YYYY-MM-DD format (e.g. 2026-06-30). Required when start_date is provided."
+                  }
+                },
+                "description": "Query the Mexico INPC (Índice Nacional de Precios al Consumidor) consumer price index. Omit dates for the latest monthly reading; supply both for a historical range."
               }
             }
           }

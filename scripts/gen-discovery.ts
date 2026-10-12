@@ -28,7 +28,9 @@ import { createHash } from 'crypto';
 import { spawnSync } from 'child_process';
 import { resolve } from 'path';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
+import { toolSchemas } from '../src/schemas/index';
 import { shopToolDefinitions } from '../src/shop/tool-definitions';
+import { computeMcpCounts } from './count-mcp-tools';
 import { buildIntegratorBlock as buildIntegratorFacts } from '../src/shop/integrator/facts';
 
 const prisma = new PrismaClient();
@@ -289,10 +291,16 @@ async function main(): Promise<void> {
   const PROV = new Set(providerOf.values()).size;
   const stats = buildCategoryStats(activeDefs, providerOf);
   const CATS = stats.length;
-  // T-INT-19 (Q-O18): shop.* tools are counted ONCE in mcp.json's tools_count (served by /mcp,
-  // no `tools` row, so the DB baseline TOOLS never includes them); merchants are a separate
-  // number and never part of any tool count.
+  // T-INT-19 (Q-O18): shop.* tools (served by /mcp, no `tools` row) are reported as
+  // shop_tools_count; merchants are a separate number and never part of any tool count.
   const SHOP_TOOLS = (await shopToolDefinitions()).length;
+  // T-0332: mcp.json counts come from the one formula in count-mcp-tools.ts, not from TOOLS.
+  const MCP_COUNTS = computeMcpCounts({
+    defs: TOOL_DEFINITIONS,
+    schemas: toolSchemas as Record<string, unknown>,
+    activeIds: new Set(providerOf.keys()),
+    shopCount: SHOP_TOOLS,
+  });
   const MERCHANTS = await loadMerchantsCount();
   const INTEGRATOR = buildIntegratorBlock();
 
@@ -316,14 +324,18 @@ async function main(): Promise<void> {
       },
       () => ({
         name: 'APIbase',
-        description: `Unified MCP gateway to ${TOOLS} API tools from ${PROV} providers. Pay-per-call via x402 USDC micropayments.`,
+        description: `Unified MCP gateway to ${MCP_COUNTS.published} API tools from ${PROV} providers. Pay-per-call via x402 USDC micropayments.`,
         protocol: 'MCP',
         protocolVersion: '2025-03-26',
         transport: 'streamable-http',
         url: 'https://apibase.pro/mcp',
         version: PACKAGE_VERSION,
         tools_endpoint: 'https://apibase.pro/api/v1/tools',
-        tools_count: TOOLS + SHOP_TOOLS,
+        // T-0332: tools_count = PUBLISHED (what REST, llms.txt and the dashboard list);
+        // platform_tools_count = apibase.discover + device.* + shop.* (the first 4 are inside
+        // PUBLISHED); tools/list returns tools_count + shop_tools_count.
+        tools_count: MCP_COUNTS.published,
+        platform_tools_count: MCP_COUNTS.platform,
         shop_tools_count: SHOP_TOOLS,
         providers_count: PROV,
         merchants_count: MERCHANTS,
