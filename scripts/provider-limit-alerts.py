@@ -82,6 +82,7 @@ import base64
 import calendar
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -1280,13 +1281,23 @@ def limit_marker(prov):
     return f"<!-- limit-alert:{prov} -->"
 
 
+class GhListError(Exception):
+    pass
+
+
 def _gh_json(*args):
+    """Parsed JSON list; raises GhListError on a failed gh call so callers never mistake
+    an outage for "no open issue" (that is how #362 duplicated #156)."""
     r = gh(*args)
+    if r.returncode != 0:
+        raise GhListError((r.stderr or "gh failed")[:120])
     try:
         v = json.loads(r.stdout or "[]")
-        return v if isinstance(v, list) else []
-    except Exception:
-        return []
+    except Exception as e:
+        raise GhListError(f"bad json: {e}")
+    if not isinstance(v, list):
+        raise GhListError("unexpected gh output")
+    return v
 
 
 def find_open_limit_issue(prov, disp):
@@ -1317,7 +1328,19 @@ def sync_limit_issues(alerts, now=None):
         if pct > 100 and ent.get("raw") == raw:
             print(f"skip (over 100% on unchanged raw numbers {raw}): {disp}")
             continue
-        found = find_open_limit_issue(prov, disp)
+        try:
+            found = find_open_limit_issue(prov, disp)
+            known = ent.get("issue")
+            if not found and known:
+                # search index can lag; confirm the remembered issue directly before creating
+                r = gh("issue", "view", str(known), "--repo", REPO, "--json", "state")
+                if r.returncode != 0:
+                    raise GhListError(f"issue view #{known} failed")
+                if json.loads(r.stdout or "{}").get("state") == "OPEN":
+                    found = known
+        except GhListError as e:
+            print(f"skip (gh lookup failed, not creating: {e}): {disp}")
+            continue
         raw_text = (f"Raw numbers: used={used}, free_limit={lim}, window={lt}. "
                     f"Unit source: src/config/provider-limits.json (free_limit/limit_type) vs "
                     f"execution_ledger rows with provider_called=true in the {lt} window.")
@@ -1348,7 +1371,8 @@ def sync_limit_issues(alerts, now=None):
                   f"Resets on the {lt} boundary.")
         r = gh("issue", "create", "--repo", REPO, "--title", title, "--body", body)
         if r.returncode == 0:
-            st[prov] = {"raw": raw, "last_action": now}
+            m = re.search(r"/issues/(\d+)", r.stdout or "")
+            st[prov] = {"raw": raw, "last_action": now, **({"issue": int(m.group(1))} if m else {})}
         print(f"created: {title} -> {r.stdout.strip().splitlines()[-1] if r.stdout else r.stderr[:80]}")
     if not DRY_RUN:
         _save_limit_state(st)
@@ -1386,7 +1410,9 @@ def main():
                         "monthly": int(m), "none": int(tot)}
 
     schema_ok, missing = ap.schema_present()
-    if not schema_ok:
+    if DRY_RUN:
+        schema_ok = False  # --dry-run: no provider_status / probe_log / reliability writes
+    elif not schema_ok:
         ap.notice(f"provider-limit-alerts: autopilot schema not deployed yet (missing {missing}) — "
                   f"skipping risk/probe_log/incident writes this run, GH-issue alerting unaffected")
 
