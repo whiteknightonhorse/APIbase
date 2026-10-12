@@ -92,8 +92,11 @@ export interface ToolCatalogEntry {
   id: string;
   name: string;
   description: string;
+  /** T-0331: the EXECUTION route (POST). The bare `/api/v1/tools/<id>` is the schema GET, see `schema_url`. */
   endpoint: string;
   method: string;
+  /** T-0331: GET route returning this tool's metadata/schema; never an execution route. */
+  schema_url: string;
   /** ZZ-03-01: single source of truth is TOOL_DEFINITIONS[].category (25 values). */
   category: string;
   /**
@@ -175,8 +178,9 @@ function toEntry(
     id: tool.tool_id,
     name: tool.name,
     description: TOOL_DESCRIPTIONS.get(tool.tool_id) ?? tool.name,
-    endpoint: `/api/v1/tools/${tool.tool_id}`,
+    endpoint: `/api/v1/tools/${tool.tool_id}/call`,
     method: 'POST',
+    schema_url: `/api/v1/tools/${tool.tool_id}`,
     category: tool.category,
     namespace: tool.namespace,
     provider: tool.provider,

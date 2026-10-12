@@ -131,7 +131,7 @@ describe('ZZ-03-01 regression: /api/v1/tools entry shape unchanged for pre-exist
       id: def.toolId,
       name: expect.any(String),
       description: expect.any(String),
-      endpoint: `/api/v1/tools/${def.toolId}`,
+      endpoint: `/api/v1/tools/${def.toolId}/call`,
       method: 'POST',
       provider: expect.any(String),
       pricing: { price_usd: expect.any(Number), cache_hit_price_usd: expect.any(Number) },

@@ -222,3 +222,19 @@ describe('ZZ-03-03: batching — one provider_status/incident lookup per catalog
     );
   });
 });
+
+describe('T-0331: endpoint is the execution route, schema_url the metadata route', () => {
+  it('every list entry: endpoint ends with /call, schema_url has no suffix, method POST', async () => {
+    findManyMock.mockResolvedValueOnce([rowFor('books.search'), rowFor('weather.get_current')]);
+    countMock.mockResolvedValueOnce(2);
+
+    const page = await getToolsPaginated(null, 10);
+
+    expect(page.data.length).toBeGreaterThan(0);
+    for (const e of page.data) {
+      expect(e.endpoint).toBe(`/api/v1/tools/${e.id}/call`);
+      expect(e.schema_url).toBe(`/api/v1/tools/${e.id}`);
+      expect(e.method).toBe('POST');
+    }
+  });
+});
