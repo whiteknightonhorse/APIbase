@@ -123,6 +123,84 @@ export async function listShops(
   };
 }
 
+const SITEMAP_SHARD_SIZE = 10_000;
+const SITEMAP_TTL_MS = 600_000;
+const sitemapCache = new Map<string, { at: number; body: unknown }>();
+
+/** Test seam: forget cached sitemap answers. */
+export function resetSitemapCache(): void {
+  sitemapCache.clear();
+}
+
+async function cachedSitemap<T>(key: string, load: () => Promise<T>): Promise<T> {
+  const hit = sitemapCache.get(key);
+  if (hit && Date.now() - hit.at < SITEMAP_TTL_MS) return hit.body as T;
+  const body = await load();
+  sitemapCache.set(key, { at: Date.now(), body });
+  return body;
+}
+
+const isoDay = (d: unknown): string => {
+  const t = d instanceof Date ? d : new Date(String(d ?? ''));
+  return Number.isNaN(t.getTime())
+    ? new Date().toISOString().slice(0, 10)
+    : t.toISOString().slice(0, 10);
+};
+
+async function sitemapStats(db: ShopTx): Promise<{ shards: number; lastmod: string }> {
+  const r = await db.$queryRawUnsafe<Array<{ n: number | bigint; last: Date | string | null }>>(
+    `SELECT count(*)::int AS n, max(updated_at) AS last FROM shop_merchants WHERE status = 'active'`,
+  );
+  const n = Number(r[0]?.n ?? 0);
+  return { shards: Math.ceil(n / SITEMAP_SHARD_SIZE), lastmod: isoDay(r[0]?.last) };
+}
+
+/** INT-15 §14: sitemap index over shards of 10 000 active shop pages. */
+export async function shopSitemapIndex(db: ShopTx): Promise<string> {
+  return cachedSitemap('index', async () => {
+    const { shards, lastmod } = await sitemapStats(db);
+    const items = Array.from(
+      { length: shards },
+      (_, i) =>
+        `  <sitemap>\n    <loc>${PUBLIC_BASE}/sitemap-shops-${i + 1}.xml</loc>\n    <lastmod>${lastmod}</lastmod>\n  </sitemap>\n`,
+    ).join('');
+    return (
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      items +
+      '</sitemapindex>\n'
+    );
+  });
+}
+
+/** One shard (1-based) of `/m/<slug>` URLs; null when the shard does not exist. */
+export async function shopSitemapShard(db: ShopTx, n: number): Promise<string | null> {
+  if (!Number.isInteger(n) || n < 1) return null;
+  return cachedSitemap(`shard:${n}`, async () => {
+    const { shards, lastmod } = await sitemapStats(db);
+    if (n > shards) return null;
+    const rows = await db.$queryRawUnsafe<Array<{ slug: string }>>(
+      `SELECT slug FROM shop_merchants WHERE status = 'active'
+        ORDER BY slug LIMIT $1::int OFFSET $2::int`,
+      SITEMAP_SHARD_SIZE,
+      (n - 1) * SITEMAP_SHARD_SIZE,
+    );
+    const urls = rows
+      .filter((r) => SLUG_RE.test(r.slug))
+      .map(
+        (r) =>
+          `  <url>\n    <loc>${PUBLIC_BASE}/m/${r.slug}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.5</priority>\n  </url>\n`,
+      )
+      .join('');
+    return (
+      '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      urls +
+      '</urlset>\n'
+    );
+  });
+}
+
 /** §6.1 products[]: no test SKU, no flagged/rejected; always scoped to ONE merchant_id (§9.1). */
 export async function listProducts(
   db: ShopTx,

@@ -42,6 +42,7 @@ ROUTE_CALL_RE = re.compile(
     r"\.(?:get|post|put|patch|delete)\(\s*['\"](/[^'\"]*)['\"]"
 )
 LOCATION_RE = re.compile(r'location\s+(=\s*)?(\S+)\s*\{([^{}]*)\}', re.S)
+REGEX_LOCATION_RE = re.compile(r'location\s+~\*?\s+(\S+)\s*\{([^{}]*)\}', re.S)
 ALIAS_RE = re.compile(r'alias\s+(\S+);')
 
 
@@ -62,6 +63,16 @@ def extract_nginx_backend_locations(path):
             continue  # static-file / return-only blocks don't reach the app
         locations.append((loc_path, bool(exact_marker.strip())))
     return locations
+
+
+def extract_nginx_regex_locations(path):
+    """Regex `location ~ ...` blocks that proxy to the backend (compiled patterns)."""
+    text = open(path, encoding='utf-8').read()
+    return [
+        re.compile(pattern)
+        for pattern, body in REGEX_LOCATION_RE.findall(text)
+        if 'proxy_pass' in body
+    ]
 
 
 def extract_static_aliases(path):
@@ -88,7 +99,10 @@ def extract_static_aliases(path):
     return aliases
 
 
-def is_covered(route_path, nginx_locations):
+def is_covered(route_path, nginx_locations, regex_locations=()):
+    sample = re.sub(r':\w+', '1', route_path)  # Express param -> a sample value
+    if any(rx.search(sample) for rx in regex_locations):
+        return True
     for loc_path, is_exact in nginx_locations:
         if is_exact:
             if route_path == loc_path:
@@ -102,6 +116,7 @@ def is_covered(route_path, nginx_locations):
 
 def main():
     nginx_locations = extract_nginx_backend_locations(NGINX_CONF)
+    regex_locations = extract_nginx_regex_locations(NGINX_CONF)
 
     declared = []
     for router_file in router_files() + [MCP_SERVER_FILE]:
@@ -115,7 +130,7 @@ def main():
             for p in INTERNAL_ONLY_PREFIXES
         ):
             continue
-        if not is_covered(route_path, nginx_locations):
+        if not is_covered(route_path, nginx_locations, regex_locations):
             missing.append((router_file, route_path))
 
     missing_alias_targets = [

@@ -12,6 +12,8 @@ import {
   listShops,
   loadShop,
   priceCart,
+  shopSitemapIndex,
+  shopSitemapShard,
   StorefrontError,
 } from '../storefront/storefront.service';
 import {
@@ -102,6 +104,40 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
     if (wantsMarkdown(req)) res.type('text/markdown; charset=utf-8').send(md());
     else res.type('html').send(html());
   };
+
+  // ---- INT-15 §14 sitemap: index + shards of active shops, served from the DB (cached 600 s) ----
+  const sendXml = (res: Response, xml: string) => {
+    res.set('Cache-Control', 'public, max-age=600').type('application/xml').send(xml);
+  };
+  router.get(
+    '/sitemap-shops-index.xml',
+    limiter(),
+    guard(async (_req, res) => {
+      sendXml(res, await shopSitemapIndex(db()));
+    }),
+  );
+  router.get(
+    '/sitemap-shops-:n.xml',
+    limiter(),
+    guard(async (req, res) => {
+      const raw = req.params.n;
+      const xml =
+        typeof raw === 'string' && /^[0-9]{1,9}$/.test(raw)
+          ? await shopSitemapShard(db(), Number(raw))
+          : null;
+      if (xml === null) {
+        res.status(404).json({
+          error: 'not_found',
+          error_code: 'not_found',
+          message: 'sitemap shard not found',
+          suggested_action: 'use_different_tool',
+          documentation_url: '/integrator/docs',
+        });
+        return;
+      }
+      sendXml(res, xml);
+    }),
+  );
 
   // ---- JSON: /api/v1/shop/shops[/:slug[/products]] and /shops/:slug[/products] ----
   const jsonIndex = guard(async (req, res) => {

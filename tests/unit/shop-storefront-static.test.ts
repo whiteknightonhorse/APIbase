@@ -1,7 +1,6 @@
-/** T-INT-15 PG5 (nginx parity), PG6 (shop sitemap shards), PG11 (/catalog links /shops). No DB. */
+/** T-INT-15 PG5 (nginx parity), PG11 (/catalog links /shops). No DB. */
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const ROOT = join(__dirname, '../..');
@@ -38,30 +37,6 @@ describe('PG5 nginx locations', () => {
   });
   it('the mount-nginx parity script is green', () => {
     execFileSync('python3', ['scripts/check-mount-nginx-parity.py'], { cwd: ROOT });
-  });
-});
-
-describe('PG6 shop sitemap shards', () => {
-  it('10 001 shops -> shard 1 (10 000) + shard 2 (1), index lists both, no /p/ or /cart', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'shopmap-'));
-    const slugs = join(dir, 'slugs.txt');
-    writeFileSync(slugs, Array.from({ length: 10001 }, (_, i) => `shop-${i}\n`).join(''));
-    execFileSync('bash', ['scripts/gen-sitemap.sh', '--shops'], {
-      cwd: ROOT,
-      env: { ...process.env, ROOT, SITEMAP_DIR: dir, SHOP_SLUGS_FILE: slugs },
-    });
-    const count = (f: string) => (readFileSync(join(dir, f), 'utf8').match(/<loc>/g) ?? []).length;
-    expect(count('sitemap-shops-1.xml')).toBe(10000);
-    expect(count('sitemap-shops-2.xml')).toBe(1);
-    expect(readdirSync(dir).filter((f) => f.startsWith('sitemap-shops-')).length).toBe(3);
-    const index = readFileSync(join(dir, 'sitemap-shops-index.xml'), 'utf8');
-    expect(index).toContain('https://apibase.pro/sitemap-shops-1.xml');
-    expect(index).toContain('https://apibase.pro/sitemap-shops-2.xml');
-    const all =
-      readFileSync(join(dir, 'sitemap-shops-1.xml'), 'utf8') +
-      readFileSync(join(dir, 'sitemap-shops-2.xml'), 'utf8');
-    expect(all).toContain('<loc>https://apibase.pro/m/shop-10000</loc>');
-    expect(all).not.toMatch(/\/p\/|\/cart/);
   });
 });
 
