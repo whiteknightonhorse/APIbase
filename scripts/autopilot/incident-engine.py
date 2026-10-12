@@ -1337,6 +1337,32 @@ def _src_storefront_down():
             for mid, slug, n in rows]
 
 
+JOB_STALE_FACTOR = 3  # T-0322: a job is stale after this many expected intervals without finishing
+
+
+def _src_job_stale():
+    """worker_job_runs rows whose job has not finished within 3 x expect_every_s. A job that never
+    finished counts only when it was started (runs_total = 0, last_started_at set) and that start is
+    itself older than the threshold; a never-started job is not stale (it may not be due yet).
+    last_ok = false on a fresh row is NOT stale: job errors are logged elsewhere."""
+    late = f"now() - ({JOB_STALE_FACTOR} * expect_every_s) * interval '1 second'"
+    rows = _rows(
+        "SELECT job, expect_every_s::text, COALESCE(last_finished_at::text, ''), COALESCE(last_ok::text, ''), "
+        "regexp_replace(COALESCE(last_error, ''), '[\\r\\n]+', ' ', 'g') FROM worker_job_runs WHERE "
+        f"(last_finished_at IS NOT NULL AND last_finished_at < {late}) OR "
+        f"(last_finished_at IS NULL AND runs_total = 0 AND last_started_at IS NOT NULL AND last_started_at < {late})")
+    sigs = []
+    for job, every, finished, ok, err in rows:
+        job = _clean(job)
+        sigs.append(_sig(
+            "JOB_STALE", f"worker:{job}",
+            f"worker job {job} has not finished in {JOB_STALE_FACTOR}x its expected interval of {every}s",
+            {"job": job, "expect_every_s": int(every), "last_finished_at": finished or None,
+             "last_ok": {"true": True, "false": False}.get(ok), "last_error": _clean(err, " ", 200) or None},
+            template=None))
+    return sigs
+
+
 def _src_webhook_failed():
     sigs = {}
     rows = _rows(
@@ -1487,6 +1513,7 @@ def _src_moderation():
 _MERCHANT_SOURCES = [
     (("CONNECT_FAILED",), ("shop_connect_events",), _src_connect_failed),
     (("STOREFRONT_DOWN",), ("shop_connect_events", "shop_merchants"), _src_storefront_down),
+    (("JOB_STALE",), ("worker_job_runs",), _src_job_stale),
     (("WEBHOOK_FAILED",), ("shop_webhook_endpoints", "shop_webhook_deliveries"), _src_webhook_failed),
     (("MERCHANT_UNRESPONSIVE",), ("shop_orders",), _src_merchant_unresponsive),
     (("REFUND_OVERDUE",), ("shop_refunds", "shop_orders"), _src_refund_overdue),
@@ -1974,6 +2001,53 @@ def selftest():
         ap.psql, ap.open_or_merge_incident = _orig_psql, _orig_open_or_merge
         ap.PROVIDER_LIMITS_PATH, ap._provider_limits_cache = _orig_limits_path, _orig_limits_cache
         os.unlink(_detect_limits_path)
+
+    # T-0322 I1..I4: JOB_STALE from worker_job_runs. The fake DB layer answers the table-exists probe
+    # and returns the rows the (real) SQL predicate would select; the predicate text is asserted.
+    _t22_rows, _t22_open, _t22_sql, _t22_created = [], set(), [], []
+
+    def _t22_db(query):
+        if "to_regclass" in query:
+            return "t", 0
+        if "FROM worker_job_runs" in query:
+            _t22_sql.append(query)
+            return "\n".join(ap.SEP.join(r) for r in _t22_rows), 0
+        if "SELECT dedup_key FROM incidents" in query:
+            return "\n".join(sorted(_t22_open)), 0
+        raise AssertionError(f"unexpected query in T-0322 selftest: {query}")
+
+    def _t22_open_or_merge(**kwargs):
+        dk = ap.dedup_key(kwargs["kind"], kwargs["provider"], None, kwargs.get("dedup_suffix"))
+        created = dk not in _t22_open
+        _t22_open.add(dk)
+        if created:
+            _t22_created.append((kwargs["kind"], kwargs["provider"], kwargs["evidence"]))
+        return f"00000000-0000-0000-0000-{len(_t22_open):012d}", created
+
+    _t22_orig = ap.psql, ap.open_or_merge_incident
+    try:
+        ap.psql, ap.open_or_merge_incident = _t22_db, _t22_open_or_merge
+        # I2 / I3: nothing selected (fresh row, also a fresh row with last_ok=false) -> no incident.
+        sigs, evaluated = collect_merchant_signals()
+        assert [x for x in sigs if x["kind"] == "JOB_STALE"] == [] and "JOB_STALE" in evaluated, "I2"
+        pred = _t22_sql[-1].split("WHERE", 1)[1]
+        assert "last_ok" not in pred, "I3: last_ok must not be in the stale predicate"
+        assert "3 * expect_every_s" in pred and "runs_total = 0" in pred, "predicate"
+        assert "last_started_at IS NOT NULL" in pred, "a never-started job must not be stale"
+        assert open_merchant_incidents(sigs) == 0 and not _t22_created, "I2/I3: no incident opened"
+        # I1: finished 20 min ago with expect_every_s=300 -> JOB_STALE for worker:<job>.
+        _t22_rows.append(["shop-sla-sweeper", "300", "2026-10-12 10:00:00+00", "true", ""])
+        sigs, _ = collect_merchant_signals()
+        assert open_merchant_incidents(sigs) == 1, "I1"
+        assert _t22_created[0][:2] == ("JOB_STALE", "merchant:worker:shop-sla-sweeper"), _t22_created
+        assert _t22_created[0][2]["last_finished_at"] == "2026-10-12 10:00:00+00", _t22_created
+        # I4: the next tick must not duplicate the open incident.
+        sigs, _ = collect_merchant_signals()
+        assert open_merchant_incidents(sigs) == 0 and len(_t22_created) == 1, "I4"
+        assert "JOB_STALE" in ap.FLEET_TASK_KINDS
+    finally:
+        ap.psql, ap.open_or_merge_incident = _t22_orig
+    print("T-0322 I1-I4 (JOB_STALE): OK")
 
     print("incident-engine --selftest: OK")
 

@@ -1,0 +1,12 @@
+-- T-0322: JOB_STALE incident kind (a worker job that has not finished within 3x its expected interval,
+-- read from worker_job_runs by incident-engine.py). incidents_kind_check: the 26 kinds of 0027 + 1.
+ALTER TABLE "incidents" DROP CONSTRAINT "incidents_kind_check";
+ALTER TABLE "incidents" ADD CONSTRAINT "incidents_kind_check" CHECK ("kind" IN (
+    'AUTH_FAILED', 'CREDENTIAL_EXPIRED', 'PROVIDER_DOWN', 'DEGRADED_QUALITY',
+    'RATE_LIMITED', 'QUOTA_LOW', 'QUOTA_EXHAUSTED', 'PAYMENT_REQUIRED',
+    'API_CHANGED', 'ENDPOINT_CHANGED', 'EMAIL_NOTICE', 'UNKNOWN',
+    'CONNECT_FAILED', 'WEBHOOK_FAILED', 'MERCHANT_UNRESPONSIVE', 'REFUND_OVERDUE',
+    'DISPUTE_UNANSWERED', 'CATALOG_REJECTED', 'MODERATION_FLAG', 'PAYOUT_WALLET_SANCTIONED',
+    'PAYER_SANCTIONED', 'PAYMENT_MISMATCH', 'FEE_INVOICE_OVERDUE', 'STOREFRONT_DOWN',
+    'STREAM_SETTLE_OVERDUE', 'SUBSCRIPTION_PULL_FAILED', 'JOB_STALE'
+));

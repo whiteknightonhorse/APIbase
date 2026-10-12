@@ -43,6 +43,8 @@ NEW_KINDS = ["CONNECT_FAILED", "WEBHOOK_FAILED", "MERCHANT_UNRESPONSIVE", "REFUN
              "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN"]
 # T-INT-40 (A3-0, migration 0027): the two wave-3 kinds, both AUTO_NO_MODEL (a merchant mail + an event).
 WAVE3_KINDS = ["STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED"]
+# T-0322 (migration 0036): a fleet-task kind read from worker_job_runs.
+JOB_KINDS = ["JOB_STALE"]
 HUMAN_ONLY_FOUR = ["PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE"]
 ROUTE_CLASSES = {"AUTO", "AUTO_NO_MODEL", "MIXED", "HUMAN_KEY", "HUMAN_ONLY", "HUMAN_GENERIC"}
 
@@ -105,7 +107,7 @@ class RoutingSchema(unittest.TestCase):
 
     def test_ap1_26_kinds_and_schema(self):
         self.assertEqual(len(self.routing), 26)
-        self.assertEqual(set(self.routing), set(OLD_KINDS) | set(NEW_KINDS) | set(WAVE3_KINDS))
+        self.assertEqual(set(self.routing), set(OLD_KINDS) | set(NEW_KINDS) | set(WAVE3_KINDS) | set(JOB_KINDS))
         for kind, cfg in self.routing.items():
             self.assertIn(cfg["route_class"], ROUTE_CLASSES, kind)
             self.assertIsInstance(cfg["fleet_task"], bool, kind)

@@ -29,5 +29,6 @@
   "mpp_page_row": "[apibase] 💸 MPP: ТРЕБУЕТСЯ ВОЗВРАТ (внешний плательщик) — вызов провайдера упал после оплаты.\nинструмент: {tool}\nсумма: ${amount} USDC\nсеть: {network}\nвернуть на: {payer}\nисходный tx: {tx}\ncall id (request_id): {request_id}\nпричина: {reason}\noutbox id: {row_id} @ {created_at}{note}\nПосле отправки закройте: mpp-refund-resolve.py {row_id} --sent \"<tx hash вашего возврата>\"",
   "mpp_page_unknown_note": "\n⚠️ адрес плательщика не определён — найдите tx в сети вручную по request_id/времени перед возвратом.",
   "mpp_page_wallet": "[apibase] 💸 MPP: внешний кошелёк {payer} за 24 ч накопил возвратов на ${total} USDC ({n} строк) — порог ${limit}. Нужно разобраться вручную.",
-  "mpp_page_rate": "[apibase] 🚨 MPP: {n} внешних строк возвратов за последний час (порог {limit}) — кто-то реальный бьётся о сломанный инструмент. Топ инструментов: {tools}"
+  "mpp_page_rate": "[apibase] 🚨 MPP: {n} внешних строк возвратов за последний час (порог {limit}) — кто-то реальный бьётся о сломанный инструмент. Топ инструментов: {tools}",
+  "job_stale": "Джоба worker'а {job} не завершалась дольше трёх ожидаемых интервалов — проверьте контейнер worker (docker ps, docker logs)."
 }
