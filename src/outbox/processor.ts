@@ -67,6 +67,8 @@ export const HANDLED_EVENT_TYPES = [
 export interface OutboxEvent {
   id: bigint;
   created_at: Date;
+  /** Exact timestamptz text (microseconds); a JS Date truncates to ms and misses raw-inserted rows. */
+  created_at_txt: string;
   event_type: string;
   payload: unknown;
 }
@@ -91,7 +93,7 @@ export interface ProcessorDeps {
   log: Pick<typeof logger, 'info' | 'warn' | 'error'>;
 }
 
-export const SELECT_SQL = `SELECT id, created_at, event_type, payload
+export const SELECT_SQL = `SELECT id, created_at, created_at::text AS created_at_txt, event_type, payload
        FROM outbox
        WHERE processed = false AND event_type = ANY($2)
        ORDER BY created_at ASC
@@ -190,9 +192,9 @@ export async function processBatch(events: OutboxEvent[], deps: ProcessorDeps): 
     }
 
     await deps.executeRaw(
-      `UPDATE outbox SET processed = true WHERE id = $1 AND created_at = $2`,
+      `UPDATE outbox SET processed = true WHERE id = $1 AND created_at = $2::timestamptz`,
       event.id,
-      event.created_at,
+      event.created_at_txt,
     );
     handled++;
   }

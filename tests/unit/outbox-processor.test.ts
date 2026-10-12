@@ -9,7 +9,13 @@ import {
 } from '../../src/outbox/processor';
 
 function ev(event_type: string, payload: unknown = {}, id = 1n): OutboxEvent {
-  return { id, created_at: new Date('2026-10-05T00:00:00Z'), event_type, payload };
+  return {
+    id,
+    created_at: new Date('2026-10-05T00:00:00Z'),
+    created_at_txt: '2026-10-05 00:00:00.123456+00',
+    event_type,
+    payload,
+  };
 }
 
 function makeDeps() {
@@ -41,7 +47,8 @@ describe('outbox processor (T-0259)', () => {
     const [sql, id, createdAt] = deps.executeRaw.mock.calls[0];
     expect(sql).toMatch(/UPDATE outbox SET processed = true/);
     expect(id).toBe(e.id);
-    expect(createdAt).toBe(e.created_at);
+    expect(sql).toMatch(/created_at = \$2::timestamptz/);
+    expect(createdAt).toBe(e.created_at_txt);
   });
 
   it('O2: both the select SQL and the lag SQL filter by event_type; owned list has no money types', () => {
