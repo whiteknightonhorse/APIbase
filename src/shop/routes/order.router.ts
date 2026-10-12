@@ -13,10 +13,15 @@ import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.s
 import { cancelSubscription, getSubscription } from '../subscription.service';
 import { confirmPull } from '../subscription-keychain.service';
 import { preauthorizeSubscription } from '../subscription-preauth.service';
+import { limiter, PROBE_LIMIT_PER_MIN } from './address-limiter';
 
 /** §6.3 buyer routes (quotes, cancel), mounted at /api/v1/shop/*. Same services as the /mcp tools. */
 export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
   const router = Router();
+  // CodeQL js/missing-rate-limiting (CODEQL-OPEN-ALERTS-1006 rule 2): every route resolves the buyer
+  // (DB/auth lookup), so each carries this per-address limiter literally in its own handler chain.
+  // Only failed responses count; legitimate traffic is not throttled.
+  const probeLimiter = limiter(60_000, PROBE_LIMIT_PER_MIN, { skipSuccessfulRequests: true });
   const bearer = (req: Request) => /^Bearer (\S+)$/.exec(req.headers.authorization ?? '')?.[1];
   const buyerOf = (req: Request) => resolveBuyer({ apiKey: bearer(req), ip: req.ip });
   const send = (res: Response, err: unknown) => {
@@ -24,7 +29,7 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
     res.status(status).json(body);
   };
 
-  router.post('/api/v1/shop/quotes', async (req: Request, res: Response) => {
+  router.post('/api/v1/shop/quotes', probeLimiter, async (req: Request, res: Response) => {
     let held: { agent: string; key: string; exec: string } | undefined;
     try {
       const buyer = await buyerOf(req);
@@ -83,7 +88,7 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
     }
   });
 
-  router.get('/api/v1/shop/quotes/:id', async (req: Request, res: Response) => {
+  router.get('/api/v1/shop/quotes/:id', probeLimiter, async (req: Request, res: Response) => {
     try {
       res.json(await getQuote(deps, String(req.params.id), await buyerOf(req)));
     } catch (err) {
@@ -129,10 +134,10 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
       send(res, err);
     }
   };
-  router.post('/api/v1/shop/quotes/:id/pay', payRoute);
-  router.get('/api/v1/shop/quotes/:id/pay', payRoute);
+  router.post('/api/v1/shop/quotes/:id/pay', probeLimiter, payRoute);
+  router.get('/api/v1/shop/quotes/:id/pay', probeLimiter, payRoute);
 
-  router.get('/api/v1/shop/orders/:id', async (req: Request, res: Response) => {
+  router.get('/api/v1/shop/orders/:id', probeLimiter, async (req: Request, res: Response) => {
     try {
       const buyer = await buyerOf(req);
       res.json(await getOrderView(deps.db, String(req.params.id), buyer.identity));
@@ -141,44 +146,57 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
     }
   });
 
-  router.post('/api/v1/shop/orders/:id/cancel', async (req: Request, res: Response) => {
-    try {
-      res.json(
-        await cancelOrder(deps, await buyerOf(req), String(req.params.id), req.body?.reason),
-      );
-    } catch (err) {
-      send(res, err);
-    }
-  });
+  router.post(
+    '/api/v1/shop/orders/:id/cancel',
+    probeLimiter,
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await cancelOrder(deps, await buyerOf(req), String(req.params.id), req.body?.reason),
+        );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
 
   // §6.3: only the payer; another identity's order is 404.
-  router.post('/api/v1/shop/orders/:id/disputes', async (req: Request, res: Response) => {
-    try {
-      const body = (req.body ?? {}) as Record<string, unknown>;
-      res.status(201).json(
-        await openDispute(deps, await buyerOf(req), {
-          order_id: String(req.params.id),
-          reason_code: body.reason_code,
-          note: body.note,
-        }),
-      );
-    } catch (err) {
-      send(res, err);
-    }
-  });
+  router.post(
+    '/api/v1/shop/orders/:id/disputes',
+    probeLimiter,
+    async (req: Request, res: Response) => {
+      try {
+        const body = (req.body ?? {}) as Record<string, unknown>;
+        res.status(201).json(
+          await openDispute(deps, await buyerOf(req), {
+            order_id: String(req.params.id),
+            reason_code: body.reason_code,
+            note: body.note,
+          }),
+        );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
 
   // T-INT-41 (UC-9): the payer's subscription; renewal is the agent paying the `renew` quote.
-  router.get('/api/v1/shop/subscriptions/:id', async (req: Request, res: Response) => {
-    try {
-      res.json(await getSubscription(deps, await buyerOf(req), String(req.params.id)));
-    } catch (err) {
-      send(res, err);
-    }
-  });
+  router.get(
+    '/api/v1/shop/subscriptions/:id',
+    probeLimiter,
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await getSubscription(deps, await buyerOf(req), String(req.params.id)));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
 
   // T-INT-47 (UC-9 on Base): the payer stores 1..12 pre-signed authorizations for future periods.
   router.post(
     '/api/v1/shop/subscriptions/:id/preauthorize',
+    probeLimiter,
     async (req: Request, res: Response) => {
       try {
         res
@@ -200,6 +218,7 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
   // T-INT-49 (UC-9 on Tempo): the payer says it authorized the merchant's renewal key.
   router.post(
     '/api/v1/shop/subscriptions/:id/confirm-pull',
+    probeLimiter,
     async (req: Request, res: Response) => {
       try {
         res.json(
@@ -216,20 +235,24 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
     },
   );
 
-  router.post('/api/v1/shop/subscriptions/:id/cancel', async (req: Request, res: Response) => {
-    try {
-      res.json(
-        await cancelSubscription(
-          deps,
-          await buyerOf(req),
-          String(req.params.id),
-          (req.body as Record<string, unknown> | undefined)?.reason,
-        ),
-      );
-    } catch (err) {
-      send(res, err);
-    }
-  });
+  router.post(
+    '/api/v1/shop/subscriptions/:id/cancel',
+    probeLimiter,
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await cancelSubscription(
+            deps,
+            await buyerOf(req),
+            String(req.params.id),
+            (req.body as Record<string, unknown> | undefined)?.reason,
+          ),
+        );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
 
   return router;
 }

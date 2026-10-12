@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from 'express';
-import rateLimit, { type Options } from 'express-rate-limit';
 import { geoOf } from '../geo-headers';
+import { limiter, PROBE_LIMIT_PER_MIN } from './address-limiter';
 import { ShopAuthError } from '../auth/errors';
 import { reissueKeys, rotateKey } from '../auth/identity.service';
 import { requireMerchantKey } from '../auth/merchant-key.service';
@@ -58,26 +58,7 @@ const PURPOSES: readonly SignPurpose[] = [
   'owner',
 ];
 
-export const PROBE_LIMIT_PER_MIN = 100;
-
-const limiter = (windowMs: number, limit: number, extra: Partial<Options> = {}) =>
-  rateLimit({
-    windowMs,
-    limit,
-    ...extra,
-    standardHeaders: true,
-    legacyHeaders: false,
-    validate: false,
-    handler: (_req, res) => {
-      res.status(429).json({
-        error: 'rate_limited',
-        error_code: 'rate_limited',
-        message: 'too many requests from this address',
-        suggested_action: 'retry_after_delay',
-        documentation_url: '/integrator/docs#registration--terms',
-      });
-    },
-  });
+export { PROBE_LIMIT_PER_MIN };
 
 /** §6.3 merchant routes, mounted at /api/v1/shop/... (same services and codes as the /mcp tools). */
 export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router {
