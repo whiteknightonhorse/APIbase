@@ -49,6 +49,15 @@ export function migrate(): void {
 }
 
 export function client(): PrismaClient {
+  if (!process.env.TEST_DATABASE_URL) {
+    // dbDescribe.skip still runs describe bodies, which call client(): hand out a handle that
+    // refuses on first use instead of a PrismaClient that would fall back to the env datasource.
+    return new Proxy({} as PrismaClient, {
+      get: () => {
+        throw new Error(REFUSAL);
+      },
+    });
+  }
   return new PrismaClient({ datasourceUrl: requireTestDb() });
 }
 
