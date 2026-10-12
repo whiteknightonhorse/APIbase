@@ -1,7 +1,5 @@
-<!-- version: 1.1; effective_from: 2026-10-06; status: draft accepted by operator without legal review -->
-# Acceptable Use Policy v1.0
-
-> Draft text. Not a legal opinion.
+<!-- version: 1.2; effective_from: 2026-10-12; status: accepted by operator without legal review -->
+# Acceptable Use Policy v1.2
 
 ## 1. Allowed categories
 

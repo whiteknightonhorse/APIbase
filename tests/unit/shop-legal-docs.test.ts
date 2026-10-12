@@ -91,7 +91,7 @@ describe('T-INT-05 legal documents', () => {
         .toString()
         .split(' ')[0];
       expect(e.sha256).toBe(sum);
-      expect(e.version).toBe('1.1');
+      expect(e.version).toBe('1.2');
       expect(e.url).toBe(`/legal/${e.doc_id}`);
       expect(Object.keys(e).sort()).toEqual([
         'doc_id',
@@ -103,25 +103,25 @@ describe('T-INT-05 legal documents', () => {
     }
   });
 
-  it('LG2 text change without a version change fails sync; 1.2 appends and index shows 1.2', async () => {
+  it('LG2 text change without a version change fails sync; 1.3 appends and index shows 1.3', async () => {
     const dir = tmpLegalDir();
     const db = fakeDb();
     await syncLegalDocs(db, dir);
     const aup = join(dir, 'aup.md');
     writeFileSync(aup, read(aup) + 'x');
     await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalDocChangedError);
-    writeFileSync(aup, read(aup).replace('version: 1.1;', 'version: 1.2;'));
+    writeFileSync(aup, read(aup).replace('version: 1.2;', 'version: 1.3;'));
     await syncLegalDocs(db, dir);
     expect(
       db.rows
         .filter((r) => r.doc_id === 'aup')
         .map((r) => r.version)
         .sort(),
-    ).toEqual(['1.1', '1.2']);
+    ).toEqual(['1.2', '1.3']);
     const s = await serve({ db, dir, now: () => Date.parse('2030-01-01') });
     const idx = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Row[];
     await s.close();
-    expect(idx.find((e) => e.doc_id === 'aup')!.version).toBe('1.2');
+    expect(idx.find((e) => e.doc_id === 'aup')!.version).toBe('1.3');
   });
 
   it('LG3 DRAFT banner + noindex until legal-published.json exists; .md never has the banner', async () => {
@@ -156,6 +156,8 @@ describe('T-INT-05 legal documents', () => {
     /(de facto )?standard for (agent )?payments/i,
     /x402 is the (de facto )?standard/i,
     /to be checked by (a )?lawyer/i,
+    /not a legal opinion/i,
+    /\bdraft\b/i,
   ];
   const surfaces = [
     ...LEGAL_DOC_IDS.map((id) => join(ROOT, 'static/legal', `${id}.md`)),
@@ -182,8 +184,14 @@ describe('T-INT-05 legal documents', () => {
     for (const id of LEGAL_DOC_IDS) {
       const t = read(join(ROOT, 'static/legal', `${id}.md`));
       expect(t.split('\n')[0]).toMatch(
-        /^<!-- version: 1\.1; effective_from: \d{4}-\d{2}-\d{2}; status: draft accepted by operator without legal review -->$/,
+        /^<!-- version: 1\.2; effective_from: 2026-10-12; status: accepted by operator without legal review -->$/,
       );
+    }
+    for (const id of LEGAL_DOC_IDS) {
+      const lines = read(join(ROOT, 'static/legal', `${id}.md`)).split('\n');
+      const hv = /^<!-- version: (\S+?);/.exec(lines[0])!;
+      const h1 = /^# .+ v(\S+)$/.exec(lines[1]);
+      expect({ id, h1: h1 && h1[1] }).toEqual({ id, h1: hv[1] });
     }
     expect(read(join(ROOT, 'static/legal/merchant-agreement.md'))).toContain(
       '{{INTEGRATOR_FEE_PCT}}',

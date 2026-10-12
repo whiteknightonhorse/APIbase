@@ -42,7 +42,7 @@ wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
    `docs_to_accept`):
 
    ```
-   I accept APIbase documents: merchant-agreement v1.0 sha256:<h1>; aup v1.0 sha256:<h2>; dpa v1.0 sha256:<h3>; refund-framework v1.0 sha256:<h4>. Wallet: <wallet>. Nonce: <nonce>. Time: <ISO-8601 time>
+   I accept APIbase documents: merchant-agreement v<version> sha256:<h1>; aup v<version> sha256:<h2>; dpa v<version> sha256:<h3>; refund-framework v<version> sha256:<h4>. Wallet: <wallet>. Nonce: <nonce>. Time: <ISO-8601 time>
    ```
 
    Send `{wallet, doc_hashes: [{doc_id, version, sha256}], message, signature}`. All four documents are
@@ -390,7 +390,7 @@ An invoice unpaid 30 days after `due_at` switches the Base rail off for your sho
 
 ## Legal documents
 
-Draft texts, accepted by the operator without legal review; not a legal opinion.
+Texts accepted by the operator without legal review; the version and hash a merchant accepted are in `shop_acceptances`.
 
 - **Where.** `static/legal/{merchant-agreement,aup,dpa,refund-framework}.md` — English text first, Russian section below, both canonical in one file. The first line is `<!-- version: X; effective_from: YYYY-MM-DD; status: … -->`. The fee appears only as the token `{{INTEGRATOR_FEE_PCT}}` (substituted when the HTML page is rendered; `.md` keeps the token). The country list in `aup.md` is generated from `config/integrator/countries-restricted.json` by `scripts/shop/gen-aup-countries.ts`, never by hand.
 - **Hash.** `sha256` is computed over the exact bytes of the `.md` file. `scripts/shop/sync-legal-docs.ts` (run at app start, and as `--check` in `npm run build`) upserts `shop_legal_docs(doc_id, version, sha256, url, effective_from, body_md)`. Changing text without changing `version` fails startup; a new `version` adds a row and old rows stay.
