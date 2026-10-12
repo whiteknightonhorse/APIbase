@@ -38,9 +38,25 @@ fi
 
 # Secret scan — block commits with API keys, private keys, .env
 STAGED=$(git diff --cached --name-only --diff-filter=ACM)
-if echo "$STAGED" | grep -qE '^\.env$|^\.env\.|\.env\.enc'; then
+# T-0279 (disputes/0272-demo-seed-fix.ruling-4.md): the tracked template .env.example is the ONE
+# dotenv-named path allowed through, and only while every secret-like key keeps a CHANGE_ME
+# placeholder and no URL carries real credentials. Every other .env* name stays blocked.
+if echo "$STAGED" | grep -E '^\.env$|^\.env\.|\.env\.enc' | grep -qvxF '.env.example'; then
   echo "BLOCKED: .env file staged for commit" >&2
   exit 1
+fi
+if echo "$STAGED" | grep -qxF '.env.example'; then
+  if git show :.env.example | grep -v '^[[:space:]]*#' \
+       | grep -iE '^[A-Z0-9_]*(SECRET|KEY|TOKEN|PASSWORD|PRIVATE|CREDENTIAL)[A-Z0-9_]*=' \
+       | grep -qvE '=(CHANGE_ME[A-Za-z0-9_]*)?[[:space:]]*$'; then
+    echo "BLOCKED: .env.example has a secret-like key without a CHANGE_ME placeholder" >&2
+    exit 1
+  fi
+  if git show :.env.example | grep -E '://[^/:@[:space:]]+:[^@[:space:]]+@' \
+       | grep -qvE '://[^/:@[:space:]]+:CHANGE_ME@'; then
+    echo "BLOCKED: .env.example has a URL with embedded non-placeholder credentials" >&2
+    exit 1
+  fi
 fi
 
 STAGED_CONTENT=$(git diff --cached --diff-filter=ACM -p)
