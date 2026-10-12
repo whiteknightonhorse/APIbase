@@ -84,6 +84,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
@@ -669,7 +670,9 @@ def check_billing_cap_risk(now=None):
         return
 
     schema_ok, missing = ap.schema_present()
-    if not schema_ok:
+    if DRY_RUN:
+        schema_ok = False  # --dry-run: no DB writes, no GitHub writes, no state file writes
+    elif not schema_ok:
         ap.notice(f"provider-limit-alerts: autopilot schema not deployed yet (missing {missing}) — "
                   f"skipping billing-cap risk writes this run")
         return
@@ -1240,6 +1243,117 @@ def _mark_reliability_score_ran_today():
         pass  # non-fatal — worst case this recomputes again next run, never a correctness bug
 
 
+DRY_RUN = "--dry-run" in sys.argv
+COMMENT_MIN_INTERVAL_S = 24 * 3600
+
+
+def _limit_state_path():
+    return os.environ.get(
+        "LIMIT_ALERT_STATE",
+        f"{os.environ.get('AUTOPILOT_TASKLOOP_ROOT', '/home/apibase/taskloop')}/state/limit-alerts-state.json",
+    )
+
+
+def _load_limit_state():
+    try:
+        st = json.load(open(_limit_state_path()))
+        return st if isinstance(st, dict) else {}
+    except Exception:
+        return {}
+
+
+def _save_limit_state(st):
+    path = _limit_state_path()
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(st, f, indent=1, sort_keys=True)
+    os.replace(tmp, path)
+
+
+def limit_moot(prov):
+    """T-0337: a provider with 0 tools in status <> 'unavailable' has no live quota to protect."""
+    return ap.provider_is_retired(prov)
+
+
+def limit_marker(prov):
+    return f"<!-- limit-alert:{prov} -->"
+
+
+def _gh_json(*args):
+    r = gh(*args)
+    try:
+        v = json.loads(r.stdout or "[]")
+        return v if isinstance(v, list) else []
+    except Exception:
+        return []
+
+
+def find_open_limit_issue(prov, disp):
+    """Open issue for this provider: by body marker first, then by the legacy title shape
+    ("Limit <pct>%: <display> (") for issues opened before the marker existed."""
+    mk = limit_marker(prov)
+    for i in _gh_json("issue", "list", "--repo", REPO, "--state", "open", "--search",
+                      f'"limit-alert:{prov}" in:body', "--limit", "100", "--json", "number,body"):
+        if mk in (i.get("body") or ""):
+            return i["number"]
+    for i in _gh_json("issue", "list", "--repo", REPO, "--state", "open", "--search",
+                      "Limit in:title", "--limit", "100", "--json", "number,title"):
+        t = i.get("title") or ""
+        if t.startswith("Limit ") and f"{disp} (" in t:
+            return i["number"]
+    return None
+
+
+def sync_limit_issues(alerts, now=None):
+    """One open issue per provider, found by body marker. Existing issue -> at most one comment
+    per 24 h, never a second issue. used% > 100 (raw counters disagree with the configured
+    limit) alerts once per distinct raw values, tracked in the state file."""
+    now = time.time() if now is None else now
+    st = _load_limit_state()
+    for prov, disp, used, lim, lt, pct in alerts:
+        raw = f"{used}/{lim}/{lt}"
+        ent = st.get(prov) or {}
+        if pct > 100 and ent.get("raw") == raw:
+            print(f"skip (over 100% on unchanged raw numbers {raw}): {disp}")
+            continue
+        found = find_open_limit_issue(prov, disp)
+        raw_text = (f"Raw numbers: used={used}, free_limit={lim}, window={lt}. "
+                    f"Unit source: src/config/provider-limits.json (free_limit/limit_type) vs "
+                    f"execution_ledger rows with provider_called=true in the {lt} window.")
+        if found:
+            if now - float(ent.get("last_action", 0)) < COMMENT_MIN_INTERVAL_S:
+                print(f"skip (commented <24h ago, #{found}): {disp} {pct}%")
+                continue
+            if DRY_RUN:
+                print(f"would comment on #{found}: {disp} {pct}% ({used}/{lim} {lt})")
+                continue
+            r = gh("issue", "comment", str(found), "--repo", REPO,
+                   "--body", f"Update: **{pct}%** ({used} / {lim} calls, {lt} window).\n\n{raw_text}")
+            if r.returncode == 0:
+                st[prov] = {"raw": raw, "last_action": now, "issue": found}
+            print(f"commented on #{found}: {disp} {pct}%")
+            continue
+        title = f"Limit {pct}%: {disp} ({used}/{lim} {lt})"
+        if DRY_RUN:
+            print(f"would create: {title}")
+            continue
+        body = (f"{limit_marker(prov)}\n"
+                f"Provider **{disp}** (`{prov}`) free upstream quota is at **{pct}%** "
+                f"({used} / {lim} calls, {lt} window).\n\n{raw_text}\n\n"
+                + ("Usage is above 100% of the configured limit: the configured limit or the unit is "
+                   "probably wrong. This alerts once per distinct raw numbers.\n\n" if pct > 100 else "")
+                + "At 100% the upstream starts rejecting / charging. Options: add a paid plan + funds, "
+                  "rotate to a backup provider, or throttle. Auto-detected by provider-limit-alerts (hourly). "
+                  f"Resets on the {lt} boundary.")
+        r = gh("issue", "create", "--repo", REPO, "--title", title, "--body", body)
+        if r.returncode == 0:
+            st[prov] = {"raw": raw, "last_action": now}
+        print(f"created: {title} -> {r.stdout.strip().splitlines()[-1] if r.stdout else r.stderr[:80]}")
+    if not DRY_RUN:
+        _save_limit_state(st)
+
+
 def main():
     cfg = json.load(open(f"{ROOT}/src/config/provider-limits.json"))
 
@@ -1300,7 +1414,10 @@ def main():
         used = row[WINDOW[lt]] if row else 0  # genuinely 0 real calls -- real data, not NOINFO
         pct_used = used / lim * 100
         if pct_used >= THRESHOLD:
-            alerts.append((prov, c.get("display_name", prov), used, lim, lt, round(pct_used)))
+            if limit_moot(prov):
+                print(f"{prov}: limit moot: all tools unavailable")
+            else:
+                alerts.append((prov, c.get("display_name", prov), used, lim, lt, round(pct_used)))
 
         remaining_count, _pct_exact, pct_remaining, burn_per_hour, eta_hours, risk = (
             compute_risk_for_usage(lim, used, row["burn3h"] if row else 0)
@@ -1323,32 +1440,8 @@ def main():
             else:
                 advance_quota_incidents_if_recovered(prov, risk)
 
-    # Upsert one GitHub issue per breaching provider (idempotent by title prefix) — unchanged
-    # AP-4-era behavior, now correctly skipped (not silently "no alerts") when usage is None.
-    def open_issues():
-        r = gh("issue", "list", "--repo", REPO, "--state", "open", "--search", "Limit in:title",
-               "--limit", "100", "--json", "number,title")
-        try:
-            return json.loads(r.stdout or "[]")
-        except Exception:
-            return []
-
     if usage is not None:
-        existing = {i["title"]: i["number"] for i in open_issues()}
-        for prov, disp, used, lim, lt, pct in alerts:
-            title = f"Limit {pct}%: {disp} ({used}/{lim} {lt})"
-            prefix = "Limit "  # match any prior pct for this provider
-            body = (f"Provider **{disp}** (`{prov}`) free upstream quota is at **{pct}%** "
-                    f"({used} / {lim} calls, {lt} window).\n\n"
-                    f"At 100% the upstream starts rejecting / charging. Options: add a paid plan + funds, "
-                    f"rotate to a backup provider, or throttle. Auto-detected by provider-limit-alerts (hourly). "
-                    f"Resets on the {lt} boundary.")
-            found = next((num for t, num in existing.items() if t.startswith(prefix) and f"{disp} (" in t), None)
-            if found:
-                print(f"skip (already open #{found}): {disp} {pct}%")
-                continue
-            r = gh("issue", "create", "--repo", REPO, "--title", title, "--body", body)
-            print(f"created: {title} -> {r.stdout.strip().splitlines()[-1] if r.stdout else r.stderr[:80]}")
+        sync_limit_issues(alerts)
 
     print(f"limit-alerts: checked {finite_providers} finite-limit providers, "
           f"{len(alerts) if usage is not None else 0} at >={int(THRESHOLD)}% used "
@@ -1381,6 +1474,8 @@ def main():
     # tier is gone (skipped by the free_limit<=0 guard above) but who carry a
     # real dollar cap or an auto-recharge policy. Independent of schema_ok's
     # earlier value up top — each function re-checks it / degrades on its own.
+    if DRY_RUN:
+        return 0
     check_billing_cap_risk()
     check_auto_recharge_spend()
     check_uncapped_billing_recovery()
