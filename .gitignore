@@ -110,3 +110,6 @@ __pycache__/
 # T-INT-01 (spec section 15): operator-private Integrator config/state never reaches the public repo
 config/integrator/*.private.json
 scripts/integrator/state/
+
+# Audit script output (T-0299)
+/reports/

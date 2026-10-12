@@ -6,6 +6,9 @@
 set -uo pipefail
 cd /home/apibase/apibase
 
+# T-0299: this script must leave the deploy tree clean (reports/ excluded: log output)
+TREE_BEFORE=$(git status --porcelain -- . ':!reports')
+
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 LOG="reports/security-audit-${TIMESTAMP}.log"
 mkdir -p reports
@@ -314,6 +317,13 @@ ISSUE_EOF
   echo "Flywheel rules created for CRITICAL/HIGH findings"
 else
   echo -e "\nNo issues found — no GitHub Issue needed"
+fi
+
+TREE_AFTER=$(git status --porcelain -- . ':!reports')
+if [ "$TREE_BEFORE" != "$TREE_AFTER" ]; then
+  echo "AUDIT BUG: script dirtied the deploy tree:"
+  echo "$TREE_AFTER"
+  exit 2
 fi
 
 echo -e "\n=== AUDIT COMPLETE ==="

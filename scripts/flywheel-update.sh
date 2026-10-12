@@ -8,8 +8,12 @@
 #
 # What it does:
 #   1. Creates feedback memory file (Claude reads in future sessions)
-#   2. Appends rule to CLAUDE.md flywheel section
+#   2. Adds it to the MEMORY.md index
 #   3. Logs the action
+#
+# Writes the memory dir only. It never touches the deploy tree's CLAUDE.md
+# (operator-edited and tracked in git; T-0299). MEMORY_DIR and LOG are
+# overridable via env.
 
 set -uo pipefail
 
@@ -25,9 +29,8 @@ fi
 
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 DATE=$(date +%Y-%m-%d)
-MEMORY_DIR="/home/apibase/.claude/projects/-home-apibase-apibase/memory"
-CLAUDE_MD="/home/apibase/apibase/CLAUDE.md"
-LOG="/home/apibase/apibase/reports/flywheel.log"
+MEMORY_DIR="${MEMORY_DIR:-/home/apibase/.claude/projects/-home-apibase-apibase/memory}"
+LOG="${LOG:-/home/apibase/apibase/reports/flywheel.log}"
 
 mkdir -p "$(dirname "$LOG")"
 
@@ -51,29 +54,7 @@ MEMEOF
 
 echo "[${TIMESTAMP}] Memory created: $(basename "$MEMORY_FILE")" >> "$LOG"
 
-# --- 2. Append to CLAUDE.md flywheel section ---
-# Check if flywheel section exists
-if ! grep -q "## Flywheel Rules" "$CLAUDE_MD" 2>/dev/null; then
-  # Create the section before the last section
-  cat >> "$CLAUDE_MD" << 'SECTION'
-
----
-
-## Flywheel Rules (auto-generated — every error becomes a rule)
-
-_This section is automatically updated by `scripts/flywheel-update.sh`. Each entry represents an error that was found, fixed, and turned into a permanent rule to prevent recurrence._
-
-SECTION
-fi
-
-# Append the rule
-cat >> "$CLAUDE_MD" << RULEEOF
-- **[${DATE}] [${CATEGORY}]** ${RULE} _(Triggered by: ${ERROR_DESC})_
-RULEEOF
-
-echo "[${TIMESTAMP}] CLAUDE.md updated with flywheel rule" >> "$LOG"
-
-# --- 3. Update MEMORY.md index if not already tracked ---
+# --- 2. Update MEMORY.md index if not already tracked ---
 MEMORY_INDEX="${MEMORY_DIR}/MEMORY.md"
 SHORT_NAME="Flywheel: ${CATEGORY} — $(echo "$ERROR_DESC" | cut -c1-60)"
 FILENAME="$(basename "$MEMORY_FILE")"
@@ -88,5 +69,4 @@ fi
 echo "[${TIMESTAMP}] Flywheel complete: ${CATEGORY} — ${ERROR_DESC}" >> "$LOG"
 echo "Flywheel rule created:"
 echo "  Memory: ${MEMORY_FILE}"
-echo "  CLAUDE.md: appended"
 echo "  Category: ${CATEGORY}"
