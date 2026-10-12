@@ -645,8 +645,9 @@ def advance_waiting_human():
                     # verbatim into the follow-up task body. Capturing the
                     # slot first makes this branch run at most once per
                     # incident.
-                    if provider.startswith(MERCHANT_PREFIX) and kind in ap._MONEY_KINDS:
-                        # C0.6: a merchant money/compliance answer is a human decision — recorded
+                    if provider.startswith(MERCHANT_PREFIX) and (
+                            kind in ap._MONEY_KINDS or kind in _HUMAN_VERDICT_KINDS):
+                        # C0.6 / T-0313: a merchant money/compliance answer or a MODERATION_FLAG verdict is a human decision — recorded
                         # and closed, never turned into a fleet task.
                         ap.note_incident(incident_id, "operator", "human-done", result[:2000])
                         ap.transition_state(incident_id, "RESOLVED")
@@ -1245,6 +1246,9 @@ def write_heartbeat():
 # merchant:* ceiling and the fleet pause.
 # ---------------------------------------------------------------------------
 MERCHANT_PREFIX = "merchant:"
+# T-0313: kinds whose operator answer is a catalog verdict applied by scripts/shop/moderation-human.ts;
+# recorded and closed like the money kinds, never turned into a fleet task.
+_HUMAN_VERDICT_KINDS = frozenset({"MODERATION_FLAG"})
 _UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 CONNECT_FAIL_THRESHOLD = 3          # F-15: >=3 refusals ...
 CONNECT_FAIL_WINDOW_MIN = 10        # ... within 10 min, one identity

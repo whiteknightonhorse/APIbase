@@ -3,9 +3,11 @@
  * disposable). No model is called anywhere: the verdict arrives as a POST body.
  */
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
+import { run as runHuman } from '../../scripts/shop/moderation-human';
 import { parseVerdict } from '../../src/shop/moderation/llm-review.service';
 import { createModerationInternalRouter } from '../../src/shop/routes/moderation-internal.router';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
@@ -196,5 +198,159 @@ dbDescribe('shop llm review routes', () => {
     s.close();
     expect(res.status).toBe(503);
     expect(await status(m)).toBe('active');
+  });
+
+  // T-0313 ---------------------------------------------------------------------------------
+  const setStatus = (p: string, st: string) =>
+    prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET moderation_status = $2 WHERE product_id = $1::uuid`,
+      p,
+      st,
+    );
+  const product = async (p: string) =>
+    (
+      await prisma.$queryRawUnsafe<Array<{ moderation_status: string; u: string }>>(
+        `SELECT moderation_status, updated_at::text AS u FROM shop_products WHERE product_id = $1::uuid`,
+        p,
+      )
+    )[0];
+  const pendingProducts = async (m: string) =>
+    (
+      (await (await call('/pending')).json()) as {
+        merchants: Array<{
+          merchant_id: string;
+          products: Array<{ product_id: string; moderation_status: string }>;
+        }>;
+      }
+    ).merchants.find((x) => x.merchant_id === m)?.products;
+  const human = (args: string[]) =>
+    runHuman(args, {
+      $queryRawUnsafe: (q: string, ...v: unknown[]) => prisma.$queryRawUnsafe(q, ...v),
+      $executeRawUnsafe: (q: string, ...v: unknown[]) => prisma.$executeRawUnsafe(q, ...v),
+      $transaction: (fn: any) => prisma.$transaction((tx) => fn(tx)),
+    } as never);
+
+  it('LR7 llm product ok releases flagged -> ok and leaves updated_at alone', async () => {
+    const m = await mkMerchant(prisma);
+    const p = await mkProduct(prisma, m);
+    await setStatus(p, 'flagged');
+    const before = await product(p);
+    expect((await call('/result', { merchant_id: m, product_id: p, verdict: 'ok' })).status).toBe(
+      200,
+    );
+    expect(await product(p)).toEqual({ moderation_status: 'ok', u: before.u });
+  });
+
+  it('LR8 llm product ok never lifts rejected; merchant-scope ok touches no product', async () => {
+    const m = await mkMerchant(prisma);
+    const p = await mkProduct(prisma, m);
+    const f = await mkProduct(prisma, m);
+    await setStatus(p, 'rejected');
+    await setStatus(f, 'flagged');
+    await call('/result', { merchant_id: m, product_id: p, verdict: 'ok' });
+    expect((await product(p)).moderation_status).toBe('rejected');
+    await call('/result', { merchant_id: m, verdict: 'ok' });
+    expect((await product(f)).moderation_status).toBe('flagged');
+  });
+
+  it('LR9 pending: unreviewed products first, with moderation_status', async () => {
+    const m = await mkMerchant(prisma);
+    const ids: string[] = [];
+    for (let i = 0; i < 15; i++) ids.push(await mkProduct(prisma, m));
+    // the 10 newest-by-updated_at get a product review; the 5 oldest stay unreviewed
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET updated_at = now() - (n * interval '1 minute')
+         FROM (SELECT product_id, row_number() OVER (ORDER BY sku) AS n FROM shop_products WHERE merchant_id = $1::uuid) o
+        WHERE shop_products.product_id = o.product_id`,
+      m,
+    );
+    const ranked = await prisma.$queryRawUnsafe<Array<{ product_id: string }>>(
+      `SELECT product_id FROM shop_products WHERE merchant_id = $1::uuid ORDER BY updated_at DESC`,
+      m,
+    );
+    const reviewed = ranked.slice(0, 10).map((r) => r.product_id);
+    const unreviewed = ranked.slice(10).map((r) => r.product_id);
+    for (const p of reviewed)
+      await call('/result', { merchant_id: m, product_id: p, verdict: 'ok' });
+    // a merchant-scope llm review inside 24 h: only the per-product rule can keep it in the queue
+    await call('/result', { merchant_id: m, verdict: 'ok' });
+    const got = await pendingProducts(m);
+    expect(got).toBeDefined();
+    expect(got!.length).toBe(10);
+    expect(
+      got!
+        .slice(0, 5)
+        .map((x) => x.product_id)
+        .sort(),
+    ).toEqual([...unreviewed].sort());
+    expect(got![0].moderation_status).toBe('ok');
+  });
+
+  it('LR9 a human merchant-ok newer than the catalog takes the merchant off the queue', async () => {
+    const m = await mkMerchant(prisma);
+    await mkProduct(prisma, m);
+    expect(await pendingIds()).toContain(m);
+    await human(['--merchant', m, '--verdict', 'ok', '--note', 'checked by hand', '--apply']);
+    expect(await pendingIds()).not.toContain(m);
+    await mkProduct(prisma, m); // catalog changed after the human decision
+    expect(await pendingIds()).toContain(m);
+  });
+
+  it('LR10 human reject merchant -> suspended with a layer=human row', async () => {
+    const m = await mkMerchant(prisma);
+    const out = await human([
+      '--merchant',
+      m,
+      '--verdict',
+      'reject:weapons',
+      '--note',
+      'sells guns',
+      '--apply',
+    ]);
+    expect(out.dry_run).toBe(false);
+    expect(await status(m)).toBe('suspended');
+    const [{ status_reason }] = await prisma.$queryRawUnsafe<Array<{ status_reason: string }>>(
+      `SELECT status_reason FROM shop_merchants WHERE merchant_id = $1::uuid`,
+      m,
+    );
+    expect(status_reason).toBe('catalog_rejected_human');
+    const rows = await reviews(m);
+    expect(rows.map((x) => [x.scope, x.layer, x.verdict, x.category])).toEqual([
+      ['merchant', 'human', 'reject', 'weapons'],
+    ]);
+    expect(rows[0].evidence_hash).toBe(createHash('sha256').update('sells guns').digest('hex'));
+  });
+
+  it('LR10 human product ok lifts rejected -> ok; human reject product -> rejected', async () => {
+    const m = await mkMerchant(prisma);
+    const p = await mkProduct(prisma, m);
+    await setStatus(p, 'rejected');
+    await human(['--merchant', m, '--product', p, '--verdict', 'ok', '--note', 'n', '--apply']);
+    expect((await product(p)).moderation_status).toBe('ok');
+    await human([
+      '--merchant',
+      m,
+      '--product',
+      p,
+      '--verdict',
+      'reject:weapons',
+      '--note',
+      'n',
+      '--apply',
+    ]);
+    expect((await product(p)).moderation_status).toBe('rejected');
+  });
+
+  it('LR10 without --apply nothing is written', async () => {
+    const m = await mkMerchant(prisma);
+    const p = await mkProduct(prisma, m);
+    await setStatus(p, 'flagged');
+    const out = await human(['--merchant', m, '--product', p, '--verdict', 'ok', '--note', 'n']);
+    expect(out.dry_run).toBe(true);
+    expect(await reviews(m)).toEqual([]);
+    expect((await product(p)).moderation_status).toBe('flagged');
+    await expect(
+      human(['--merchant', m, '--verdict', 'flag:gambling', '--note', 'n']),
+    ).rejects.toThrow();
   });
 });
