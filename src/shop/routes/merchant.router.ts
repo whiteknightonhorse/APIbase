@@ -10,12 +10,13 @@ import {
   type SignPurpose,
 } from '../auth/nonce.service';
 import { currentDocs, termsStatus } from '../auth/terms.guard';
-import { upsertCatalog } from '../catalog.service';
+import { deleteCatalog, upsertCatalog } from '../catalog.service';
 import { createImport, getImport } from '../catalog-import/import.service';
 import {
   addMerchantDocument,
   confirmMerchantOrder,
   shipMerchantOrder,
+  getMerchantOrder,
   listMerchantOrders,
 } from '../order-lifecycle.service';
 import { runCheck } from '../check.service';
@@ -246,6 +247,20 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     },
   );
 
+  // T-0294: same service as the shop.merchant.catalog_delete tool (an open quote on any sku -> 409).
+  router.delete(
+    '/api/v1/shop/merchants/me/catalog',
+    probeLimiter,
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await deleteCatalog(deps, req.merchant?.merchant_id ?? '', req.body?.skus));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
   // A3-9: the optional Provek declaration; the merchant comes from the key, never from the body.
   router.patch(
     '/api/v1/shop/merchants/me/provek',
@@ -350,6 +365,20 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
       try {
         const q = req.query as Record<string, unknown>;
         res.json(await listMerchantOrders(deps, req.merchant?.merchant_id ?? '', q));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-0294: one order card + events; no fulfillment content, no PII envelopes (those are /pii only).
+  router.get(
+    '/api/v1/shop/merchants/me/orders/:id',
+    probeLimiter,
+    requireMerchantKey(['orders:read'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await getMerchantOrder(deps, req.merchant?.merchant_id ?? '', req.params.id));
       } catch (err) {
         send(res, err);
       }

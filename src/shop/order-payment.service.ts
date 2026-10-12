@@ -169,6 +169,13 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
       o.quote_id,
     );
     await convertReservation(tx, { merchant_id: o.merchant_id }, o.quote_id);
+    const quoted = await tx.$queryRawUnsafe<Array<{ items: unknown }>>(
+      `SELECT items FROM shop_quotes WHERE quote_id = $1::uuid`,
+      o.quote_id,
+    );
+    const items = (
+      Array.isArray(quoted[0]?.items) ? (quoted[0].items as Array<Record<string, unknown>>) : []
+    ).map((i) => ({ sku: i.sku, quantity: i.quantity ?? i.qty }));
     await tx.$executeRawUnsafe(
       `INSERT INTO outbox (event_type, payload) VALUES ('shop.order.paid', $1::jsonb)`,
       JSON.stringify({
@@ -178,6 +185,7 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
         total_usd: o.total_usd,
         tx_hash: p.tx_hash,
         request_id: p.request_id ?? null,
+        items,
         ...(sub ? { subscription_id: sub.subscription_id, period_no: sub.period_no } : {}),
       }),
     );

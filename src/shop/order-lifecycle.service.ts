@@ -3,7 +3,7 @@ import type { ShopTx } from './db';
 import { ALL_STATES, transition, type State } from './order-state';
 import { QuoteError } from './quote.errors';
 import { loadPiiSummaries } from './pii/pii.service';
-import { listOrders, lockOrder } from './repository';
+import { listOrders, lockOrder, type OrderListRow } from './repository';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DOCS = '/docs/integrator#orders';
@@ -208,20 +208,49 @@ export async function listMerchantOrders(
     page.map((r) => r.order_id),
   );
   return {
-    orders: page.map((r) => ({
-      order_id: r.order_id,
-      state: r.state,
-      total_usd: r.total_usd,
-      fee_usd: r.fee_usd,
-      created_at: r.created_at,
-      confirm_due_at: r.confirm_due_at,
-      ...(r.ship_due_at ? { ship_due_at: r.ship_due_at } : {}),
-      ...(r.delivery_eta ? { delivery_eta: r.delivery_eta } : {}),
-      ...(pii.has(r.order_id) ? { pii: pii.get(r.order_id) } : {}),
-    })),
+    orders: page.map((r) => orderCard(r, pii.get(r.order_id))),
     next_cursor:
       rows.length > limit && last ? encodeCursor({ t: last.cursor_ts, id: last.order_id }) : null,
   };
+}
+
+function orderCard(r: OrderListRow, pii: unknown): Record<string, unknown> {
+  return {
+    order_id: r.order_id,
+    state: r.state,
+    total_usd: r.total_usd,
+    fee_usd: r.fee_usd,
+    created_at: r.created_at,
+    confirm_due_at: r.confirm_due_at,
+    ...(r.ship_due_at ? { ship_due_at: r.ship_due_at } : {}),
+    ...(r.delivery_eta ? { delivery_eta: r.delivery_eta } : {}),
+    ...(pii ? { pii } : {}),
+  };
+}
+
+/** `GET /merchants/me/orders/:id`: one card of the list plus its event trail; another tenant's id is a 404. */
+export async function getMerchantOrder(
+  d: ShopDeps,
+  merchant_id: string,
+  order_id: unknown,
+): Promise<Record<string, unknown>> {
+  const id = ownOrderId(order_id);
+  const rows = await d.db.$queryRawUnsafe<OrderListRow[]>(
+    `SELECT order_id, quote_id, merchant_id, state, total_usd::text AS total_usd,
+            fee_usd::text AS fee_usd, created_at, confirm_due_at, ship_due_at, delivery_eta,
+            to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS cursor_ts
+       FROM shop_orders WHERE merchant_id = $1::uuid AND order_id = $2::uuid`,
+    merchant_id,
+    id,
+  );
+  if (!rows[0]) throw notFound();
+  const pii = await loadPiiSummaries(d.db, [id]);
+  const events = await d.db.$queryRawUnsafe<unknown[]>(
+    `SELECT seq, from_state, to_state, actor, reason, at
+       FROM shop_order_events WHERE order_id = $1::uuid ORDER BY seq`,
+    id,
+  );
+  return { ...orderCard(rows[0], pii.get(id)), events };
 }
 
 function ownOrderId(order_id: unknown): string {

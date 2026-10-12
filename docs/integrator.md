@@ -338,7 +338,7 @@ const ok = timingSafeEqual(
 
 Any `2xx` within 10 s is delivery. Anything else (other status, timeout, connection error) is retried after 1 min, 5 min, 30 min, 2 h, 12 h, 24 h — seven attempts in all, then the delivery is `failed`. After 10 failures in a row an endpoint is only tried on that schedule (new events wait one minute before their first attempt) until one delivery succeeds. Status code and the first 1 KB of the answer are kept per attempt.
 
-**Instant fulfillment.** Answer `200` to `order.paid` with `{"fulfillment": "<text, up to 16 KB>"}` and the order goes `PAID → CONFIRMED → FULFILLED` at once (answering with the goods counts as the confirmation). Only the **first** valid fulfillment is taken; a retry or redelivery carries the same `order_id` and `X-APIbase-Delivery-Id`, and a later fulfillment is ignored and recorded as not accepted. **Deduplicate by `order_id`** on your side and make the handler idempotent.
+**Instant fulfillment.** Answer `200` to `order.paid` with `{"fulfillment": "<text, up to 16 KB>"}` and the order goes `PAID → CONFIRMED → FULFILLED` at once (answering with the goods counts as the confirmation). Only the **first** valid fulfillment is taken; a retry or redelivery carries the same `order_id` and `X-APIbase-Delivery-Id`, and a later fulfillment is ignored and recorded as not accepted. Instead of text, `fulfillment` may be `{"type": "url", "urls": ["https://…"]}`: 1..20 absolute `https` URLs, each up to 2 KB, no other keys; it is stored (encrypted) as that JSON string. Anything else is not a fulfillment. The `order.paid` `data` also carries `items[{sku, quantity}]` from the quote. **Deduplicate by `order_id`** on your side and make the handler idempotent.
 
 **Pull instead of push.** `GET /merchants/me/events?since=<cursor>&limit=` returns your own events in order, `{events[{id, event, created_at, data}], next_cursor}`; pass `next_cursor` back as `since`. The same list also carries `order.confirm_overdue`, `order.ship_overdue` and `refund.overdue` notices, which are not pushed.
 
@@ -477,9 +477,11 @@ Checked against the code of wave 1: every tool of spec §6.1/§6.2 and every rou
 | `POST /merchants`                        | yes    |                      |
 | `POST /merchants/me/acceptances`         | yes    |                      |
 | `PUT /merchants/me/catalog`              | yes    |                      |
+| `DELETE /merchants/me/catalog`           | yes    | T-0294 `{skus[1..200]}`, `shop.merchant.catalog_delete`; an open quote on a sku → `409`, nothing deleted |
 | `POST /merchants/me/catalog/import`      | yes    | T-INT-32             |
 | `GET /merchants/me/catalog/import/:id`   | yes    | T-INT-32             |
 | `GET /merchants/me/orders`               | yes    |                      |
+| `GET /merchants/me/orders/:id`           | yes    | T-0294 one order card + `events[]`; another merchant's id → `404` |
 | `POST /merchants/me/orders/:id/confirm`  | yes    |                      |
 | `GET /merchants/me/orders/:id/pii`       | yes    | buyer-data envelopes |
 | `POST /merchants/me/orders/:id/document` | yes    |                      |

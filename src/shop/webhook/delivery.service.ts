@@ -217,7 +217,32 @@ async function deliverOne(d: DeliveryDeps, r: DueRow, nowMs: number): Promise<vo
   });
 }
 
-/** `{fulfillment: string}`, 1..16 KB, nothing else required; null = no valid fulfillment in the answer. */
+const MAX_URL_FULFILLMENTS = 20;
+const MAX_FULFILLMENT_URL_BYTES = 2048;
+
+/** `{type:'url', urls}`: 1..20 absolute https URLs, exactly those two keys; else null. */
+function urlFulfillment(f: unknown): string | null {
+  if (typeof f !== 'object' || f === null || Array.isArray(f)) return null;
+  const o = f as Record<string, unknown>;
+  const keys = Object.keys(o);
+  if (keys.length !== 2 || o.type !== 'url' || !Array.isArray(o.urls)) return null;
+  const urls: unknown[] = o.urls;
+  if (urls.length === 0 || urls.length > MAX_URL_FULFILLMENTS) return null;
+  for (const u of urls) {
+    if (typeof u !== 'string' || Buffer.byteLength(u) > MAX_FULFILLMENT_URL_BYTES) return null;
+    try {
+      if (new URL(u).protocol !== 'https:') return null;
+    } catch {
+      return null;
+    }
+  }
+  return JSON.stringify({ type: 'url', urls });
+}
+
+/**
+ * `{fulfillment: string}` (1..16 KB) or `{fulfillment: {type:'url', urls:[...]}}` (normalised to its
+ * JSON string); null = no valid fulfillment in the answer.
+ */
 export function parseFulfillment(body: Buffer): string | null {
   if (body.length === 0 || body.length > MAX_FULFILLMENT_BYTES + 1024) return null;
   let j: unknown;
@@ -227,9 +252,10 @@ export function parseFulfillment(body: Buffer): string | null {
     return null;
   }
   const f = (j as { fulfillment?: unknown } | null)?.fulfillment;
-  if (typeof f !== 'string' || f.length === 0) return null;
-  if (Buffer.byteLength(f) > MAX_FULFILLMENT_BYTES) return null;
-  return f;
+  const text = typeof f === 'string' ? f : urlFulfillment(f);
+  if (text === null || text.length === 0) return null;
+  if (Buffer.byteLength(text) > MAX_FULFILLMENT_BYTES) return null;
+  return text;
 }
 
 /**
