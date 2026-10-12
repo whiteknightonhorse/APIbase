@@ -21,3 +21,9 @@ docstrings, JSON keys and `_comment` fields, notice()/notices.log lines, inciden
 New Telegram text goes into tg-strings.ru.json (loaded at import, fail-closed), never inline.
 The gate tests/unit/english-only.test.ts enforces exactly these three rules; widening the
 allowlist needs a new ruling in ~/taskloop/disputes.
+
+# CodeQL rules (CODEQL-OPEN-ALERTS-1006 ruling-1, 2026-10-06): close alerts by code, never by dismiss
+1. Any function that inspects a request-derived value (.length, .slice, .startsWith, regex) first checks `typeof x === 'string'` and declares the parameter `unknown`; Express query/body/header values can be arrays or objects (CodeQL js/type-confusion-through-parameter-tampering).
+2. Every Express route whose handler reaches a DB/fs/auth call lists an express-rate-limit middleware literally in that route's handler array before the auth guard; a limiter inside a guard function or behind router.use is not counted and does not protect the pre-auth lookup (CodeQL js/missing-rate-limiting).
+3. Never strip multi-character markers (`<!--`, `<script`, `../`) with a single String.replace; scan with indexOf in a loop until nothing changes, and still HTML-escape the result (CodeQL js/incomplete-multi-character-sanitization).
+Reference implementations: src/services/api-key.service.ts isValidApiKeyFormat (1), src/shop/routes/merchant.router.ts probeLimiter (2), src/shop/routes/legal.router.ts stripHtmlComments (3). `gh api "repos/whiteknightonhorse/APIbase/code-scanning/alerts?state=open"` must stay empty for these three rule ids.
