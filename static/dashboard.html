@@ -207,7 +207,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
      if that request fails — never silently blank. -->
 <div class="sev-banner unknown" id="sev-banner">Loading…</div>
 <div class="system-monitor" id="system-monitor">
-<span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">DOWN:</span><span class="val" id="t-down">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">MEM:</span><span class="val">OK</span>  <span class="label">NET:</span><span class="val">ONLINE</span>
+<span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">DOWN:</span><span class="val" id="t-down">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">UNKNOWN:</span><span class="val" id="t-unknown">--</span>
 </div>
 <div class="payment-status" id="payment-status"></div>
 
@@ -615,6 +615,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     if (status === 'green') cls = 'dot-g'; else if (status === 'orange') cls = 'dot-o';
     else if (status === 'yellow') cls = 'dot-y'; else if (status === 'red') cls = 'dot-r';
     else if (status === 'paid') cls = 'dot-p';
+    else if (status === 'n/a') cls = 'dot-u';
     return '<span class="status-dot ' + cls + '"></span>';
   }
   function latencyClass(ms) { if (ms === null || ms === undefined) return ''; if (ms < 500) return 'lat-green'; if (ms <= 2000) return 'lat-orange'; return 'lat-red'; }
@@ -809,13 +810,15 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
     var el = document.getElementById('payment-status');
     if (!data.payment_system) { el.style.display = 'none'; return; }
     var ps = data.payment_system, html = '<span class="label">Payment:</span>';
-    html += '<span class="mode">' + statusDot('green') + 'Mode A Active</span><span class="separator">|</span>';
+    var lsA = ps.local_settle_health;
+    html += '<span class="mode">' + statusDot(lsA ? lsA.status : 'unknown') + 'Mode A ' + (lsA ? 'Active' : 'unknown') + '</span><span class="separator">|</span>';
     var mb = ps.mode_b;
     if (mb.status === 'unknown') { html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>'; }
     else { html += '<span class="mode">' + statusDot(mb.status) + 'x402 (Mode B)'; if (mb.latency_ms !== null) html += ' ' + mb.latency_ms + 'ms'; if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')'; html += '</span>'; }
     if (mb.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
     html += '<span class="separator">|</span>';
-    html += '<span class="mode">' + statusDot('green') + 'MPP (Mode C) — Tempo/USDC</span>';
+    // No MPP health field exists in the payload: render unknown, never a literal green.
+    html += '<span class="mode">' + statusDot(ps.mpp_health ? ps.mpp_health.status : 'unknown') + 'MPP (Mode C) — Tempo/USDC' + (ps.mpp_health ? '' : ' (unknown)') + '</span>';
     // T-0177 (2026-09-23): surface local-facilitator settle health and
     // operator gas wallet balance here — this page is read directly by a
     // human, unlike the Prometheus alerts covering the same two conditions
@@ -886,9 +889,10 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
 
     var html = '<div class="health-summary">';
     html += '<span class="h-green">HEALTHY:' + hGreen + '</span>  ';
+    html += '<span class="h-grey">UNKNOWN:' + hUnknown + '</span>  ';
+    document.getElementById('t-unknown').textContent = hUnknown;
     if (hOrange > 0) html += '<span class="h-orange">WARN:' + hOrange + '</span>  ';
     if (hRed > 0) html += '<span class="h-red">CRIT:' + hRed + '</span>  ';
-    if (hUnknown > 0) html += '<span class="h-grey">PENDING:' + hUnknown + '</span>  ';
     html += '<span class="h-grey">TRACKED:' + data.totals.providers_tracked + '</span>';
     html += '</div>';
 
@@ -917,11 +921,12 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #333}
       totalMatched++;
       visibleCount++;
       var borderCls = latencyBorderClass(p.health.latency_ms);
-      html += '<tr class="' + borderCls + '">';
+      var rowNoinfo = p.health.status === 'unknown' ? ' noinfo' : '';
+      html += '<tr class="' + borderCls + rowNoinfo + '">';
       html += '<td>' + escHtml(p.display_name) + '</td>';
       html += '<td style="color:#2a942a;font-size:0.72rem">' + escHtml(cat) + '</td>';
       html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span style="color:#333">pending</span>' : 'OK')) + '</td>';
-      html += '<td>' + statusDot(p.limits.status);
+      html += '<td>' + statusDot(p.limits.status === 'n/a' ? 'unknown' : p.limits.status);
       if (p.balance && p.balance.balance_usd !== null) {
         var balColor = p.balance.balance_usd > 10 ? '#00ff41' : p.balance.balance_usd > 0 ? '#ffaa00' : '#ff4444';
         html += '<span style="color:' + balColor + ';font-weight:bold">$' + p.balance.balance_usd.toFixed(2) + '</span>';

@@ -162,6 +162,8 @@ describe('getDashboardData — AP-9 provider_status/incidents JOIN', () => {
         provider_risk: 'ATTENTION',
         reliability_score: 40,
         last_probe_at: new Date(),
+        reliability_calculated_at: new Date(),
+        probe_interval_s: 3600,
         open_incidents: 1n,
       },
     ]);

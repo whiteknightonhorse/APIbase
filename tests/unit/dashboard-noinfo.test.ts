@@ -1,6 +1,14 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+jest.mock('../../src/services/prisma.service', () => ({ getPrisma: jest.fn() }));
+jest.mock('../../src/services/redis.service', () => ({
+  ensureRedisConnected: jest.fn().mockRejectedValue(new Error('no redis in this test')),
+}));
+
+import { getDashboardData } from '../../src/services/dashboard.service';
+import { getPrisma } from '../../src/services/prisma.service';
+
 /**
  * AP-10 (819-autopilot-dashboard-ui.md, item 5 + acceptance checklist item 3):
  * mutation control for the NOINFO-shaped columns AP-9 added to
@@ -198,6 +206,101 @@ describe('AP-10: static/dashboard.html NOINFO formatters (real source, not a rei
       expect(text).toMatch(/last ran/i);
       expect(text).toMatch(/2h/);
       expect(text).not.toMatch(/never run/i);
+    });
+  });
+});
+
+describe('T-0330: unmeasured is not healthy', () => {
+  const NOW = Date.now();
+  const baseRow = {
+    tool_count: 1n,
+    calls_24h: 0n,
+    calls_today: 0n,
+    calls_this_month: 0n,
+    calls_total: 0n,
+    paid_calls_24h: 0n,
+    revenue_24h: null,
+    avg_latency_ms: null,
+    provider_state: 'HEALTHY',
+    provider_risk: 'NORMAL',
+    open_incidents: 0n,
+  };
+  async function run(rows: Array<Record<string, unknown>>) {
+    (getPrisma as jest.Mock).mockReturnValue({
+      $queryRawUnsafe: jest.fn().mockResolvedValue(rows),
+    });
+    return getDashboardData();
+  }
+  const calc = new Date(NOW - 3600_000);
+
+  it('state HEALTHY + Redis health unknown + never probed -> reliability_score null, health unknown', async () => {
+    const d = await run([
+      {
+        ...baseRow,
+        provider: 'fixtureprov',
+        reliability_score: 100,
+        reliability_calculated_at: null,
+        probe_interval_s: 3600,
+        last_probe_at: null,
+      },
+    ]);
+    const p = d.providers[0];
+    expect(p.state).toBe('HEALTHY');
+    expect(p.health.status).toBe('unknown');
+    expect(p.reliability_score).toBeNull();
+  });
+
+  it('score is kept only with calc + fresh probe (<= 2x interval); stale probe -> null', async () => {
+    const fresh = await run([
+      {
+        ...baseRow,
+        provider: 'fixtureprov',
+        reliability_score: 90,
+        reliability_calculated_at: calc,
+        probe_interval_s: 3600,
+        last_probe_at: new Date(NOW - 7000_000),
+      },
+    ]);
+    expect(fresh.providers[0].reliability_score).toBe(90);
+    const stale = await run([
+      {
+        ...baseRow,
+        provider: 'fixtureprov',
+        reliability_score: 90,
+        reliability_calculated_at: calc,
+        probe_interval_s: 3600,
+        last_probe_at: new Date(NOW - 7300_000),
+      },
+    ]);
+    expect(stale.providers[0].reliability_score).toBeNull();
+  });
+
+  it('unlimited provider limits are n/a, never green', async () => {
+    const d = await run([
+      {
+        ...baseRow,
+        provider: 'polymarket',
+        reliability_score: null,
+        reliability_calculated_at: null,
+        probe_interval_s: 3600,
+        last_probe_at: null,
+      },
+    ]);
+    expect(d.providers[0].limits.type).toBe('unlimited');
+    expect(d.providers[0].limits.status).toBe('n/a');
+  });
+
+  describe('static/dashboard.html literals', () => {
+    it("has no hard-coded statusDot('green')", () => {
+      expect(html).not.toContain("statusDot('green')");
+    });
+    it('has no MEM:OK / NET:ONLINE literals', () => {
+      expect(html).not.toMatch(/MEM:<\/span><span class="val">OK/);
+      expect(html).not.toMatch(/NET:<\/span><span class="val">ONLINE/);
+    });
+    it('HEALTHY counter counts only green and UNKNOWN is shown next to it', () => {
+      expect(html).toMatch(/if \(hs === 'green'\) hGreen\+\+;/);
+      expect(html).toContain("UNKNOWN:' + hUnknown");
     });
   });
 });

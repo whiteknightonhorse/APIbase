@@ -31,7 +31,7 @@ interface ProviderLimits {
   used: number;
   remaining: number;
   pct_remaining: number;
-  status: 'green' | 'orange' | 'yellow' | 'red' | 'paid';
+  status: 'green' | 'orange' | 'yellow' | 'red' | 'paid' | 'n/a'; // 'n/a' = unlimited, nothing to measure
 }
 
 interface ProviderBalance {
@@ -59,7 +59,11 @@ interface ProviderDashboardEntry {
   // UNKNOWN/NOINFO value, which IS one of the enum's own members.
   state: string | null; // UNKNOWN|HEALTHY|DEGRADED|DOWN
   risk: string | null; // NOINFO|NORMAL|ATTENTION|WARNING|CRITICAL|EXHAUSTED
-  reliability_score: number | null; // 0-100, §20 — null until AP-9's daily calc has run once
+  // 0-100, §20. T-0330: null unless the score is trustworthy — the daily calc has
+  // run (reliability_calculated_at set), the provider was probed (last_probe_at set)
+  // and that probe is within 2x probe_interval_s. A stored score next to a missing
+  // or stale probe is NOT reported (it used to surface as 100 for unprobed rows).
+  reliability_score: number | null;
   probe_age_s: number | null; // seconds since last_probe_at; null = never probed
   open_incidents: number; // non-RESOLVED incidents for this provider right now
 }
@@ -164,6 +168,8 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     provider_state: string | null;
     provider_risk: string | null;
     reliability_score: number | null;
+    reliability_calculated_at: Date | null;
+    probe_interval_s: number | null;
     last_probe_at: Date | null;
     open_incidents: bigint;
   }> = await prisma.$queryRawUnsafe(`
@@ -188,6 +194,8 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       ps.state AS provider_state,
       ps.risk AS provider_risk,
       ps.reliability_score AS reliability_score,
+      ps.reliability_calculated_at AS reliability_calculated_at,
+      ps.probe_interval_s AS probe_interval_s,
       ps.last_probe_at AS last_probe_at,
       COALESCE(inc.open_incidents, 0) AS open_incidents
     FROM tools t
@@ -210,7 +218,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     -- excluded (conservative): no code path writes it on an unavailable row
     -- today, so there is no live case to prove it should bypass this filter.
     WHERE (t.status != 'unavailable' OR t.status_source = 'autopilot')
-    GROUP BY t.provider, ps.state, ps.risk, ps.reliability_score, ps.last_probe_at, inc.open_incidents
+    GROUP BY t.provider, ps.state, ps.risk, ps.reliability_score, ps.reliability_calculated_at, ps.probe_interval_s, ps.last_probe_at, inc.open_incidents
     ORDER BY t.provider
   `);
 
@@ -293,6 +301,9 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       });
     }
 
+    // T-0330: unlimited providers have nothing to measure — never green.
+    if (limits.type === 'unlimited') limits = { ...limits, status: 'n/a' };
+
     // Fetch real balance for paid providers (cached in Redis 5min)
     let balance: ProviderBalance | null = null;
     if (cfg?.paid_balance) {
@@ -321,7 +332,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       tool_count: toolCount,
       state: row.provider_state,
       risk: row.provider_risk,
-      reliability_score: row.reliability_score,
+      reliability_score: effectiveReliability(row, probeAgeS),
       probe_age_s: probeAgeS,
       open_incidents: Number(row.open_incidents),
     });
@@ -426,6 +437,22 @@ export async function getDashboardData(): Promise<DashboardResponse> {
   return response;
 }
 
+// T-0330: a stored reliability_score is reported only when both the daily calc and
+// a probe exist and the probe is fresh (<= 2x probe_interval_s). Otherwise null.
+function effectiveReliability(
+  row: {
+    reliability_score: number | null;
+    reliability_calculated_at: Date | null;
+    probe_interval_s: number | null;
+  },
+  probeAgeS: number | null,
+): number | null {
+  if (row.reliability_score === null || row.reliability_score === undefined) return null;
+  if (!row.reliability_calculated_at || probeAgeS === null) return null;
+  if (!row.probe_interval_s || probeAgeS > 2 * row.probe_interval_s) return null;
+  return row.reliability_score;
+}
+
 function buildDefaultLimits(
   providerName: string,
   counts: { today: number; month: number; total: number },
@@ -438,7 +465,7 @@ function buildDefaultLimits(
       used: counts.total,
       remaining: 0,
       pct_remaining: 100,
-      status: 'green',
+      status: 'n/a',
     };
   }
 
