@@ -17,6 +17,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
+import { loadYamlTools, planSeedRows, seedOnly } from './seed-plan';
 
 const prisma = new PrismaClient();
 
@@ -232,7 +233,35 @@ async function seedPartitions(): Promise<void> {
 // Main
 // ---------------------------------------------------------------------------
 
+/**
+ * T-0333: `--only id1,id2 [--dry-run]` seeds exactly the named tools (create-only, existing
+ * rows untouched), skipping the test agent and partitions. --dry-run prints rows, writes nothing.
+ */
+async function mainOnly(ids: string[], dryRun: boolean): Promise<void> {
+  const rows = planSeedRows(loadYamlTools(), TOOL_CATEGORIES, ids);
+  for (const r of rows) {
+    // eslint-disable-next-line no-console
+    console.log(`${r.tool_id}\tprice_usd=${r.price_usd}\tstatus=${r.status}`);
+  }
+  const res = await seedOnly(prisma as never, rows, dryRun);
+  // eslint-disable-next-line no-console
+  console.log(
+    `[seed] --only ${dryRun ? '(dry-run, 0 writes) ' : ''}would create/created ${res.created.length}, skipped existing ${res.skipped.length}`,
+  );
+}
+
 async function main(): Promise<void> {
+  const argv = process.argv.slice(2);
+  const onlyIdx = argv.indexOf('--only');
+  if (onlyIdx !== -1) {
+    const ids = (argv[onlyIdx + 1] ?? '')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (ids.length === 0) throw new Error('seed: --only requires a comma-separated tool_id list');
+    return mainOnly(ids, argv.includes('--dry-run'));
+  }
+  if (argv.includes('--dry-run')) throw new Error('seed: --dry-run is only valid with --only');
   // eslint-disable-next-line no-console
   console.log('[seed] Starting...');
 
