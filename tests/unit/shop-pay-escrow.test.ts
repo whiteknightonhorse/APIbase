@@ -60,6 +60,7 @@ const E = process['env'];
 const PLATFORM = '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480';
 const PAYOUT = '0x00000000000000000000000000000000000b0b0b';
 const FEE_WALLET = '0x00000000000000000000000000000000000fee00';
+const FEE_WALLET_BASE = '0x00000000000000000000000000000000000fee0b';
 const TEMPO = '0x9E29FF84B0f3EDa9756262d2F950C435495BA8cC';
 const NETWORK = 'eip155:8453';
 
@@ -90,6 +91,7 @@ dbDescribe('shop.order.pay ESCROW binding', () => {
       MPP_ENABLED: 'true',
       INTEGRATOR_TEST_SKU_DAILY_CAP: '3',
       INTEGRATOR_FEE_WALLET: FEE_WALLET,
+      INTEGRATOR_FEE_WALLET_BASE: FEE_WALLET_BASE,
       PUBLIC_BASE_URL: 'https://apibase.pro',
     });
     mockVerify.mockReset().mockImplementation(async (p: any) => ({
@@ -324,7 +326,7 @@ dbDescribe('shop.order.pay ESCROW binding', () => {
     }
     const bad = await count(
       `SELECT count(*) AS c FROM shop_payments WHERE lower(pay_to) = ANY($1::text[])`,
-      [PLATFORM, TEMPO, FEE_WALLET].map((x) => x.toLowerCase()),
+      [PLATFORM, TEMPO, FEE_WALLET, FEE_WALLET_BASE].map((x) => x.toLowerCase()),
     );
     expect(bad).toBe(0);
   });
@@ -368,7 +370,9 @@ dbDescribe('shop.order.pay ESCROW binding', () => {
       body: { quote_id: f.quote.quote_id },
     } as PipelineContext;
     const on = await deps.transaction((tx) => buildPaymentBinding(ctx, tx));
-    expect(on.ok && on.value.binding.splits).toEqual([{ wallet: FEE_WALLET, amount_usd: 1.34 }]);
+    expect(on.ok && on.value.binding.splits).toEqual([
+      { wallet: FEE_WALLET_BASE, amount_usd: 1.34 },
+    ]);
     expect(on.ok && on.value.binding.resource).toBe(`quote:${f.quote.quote_id}`);
     E.INTEGRATOR_FEE_ENABLED = 'false';
     const off = await deps.transaction((tx) => buildPaymentBinding(ctx, tx));
