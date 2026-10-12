@@ -129,27 +129,56 @@ if [ -n "$X402_LINE" ] && [ -n "$MCP_LINE" ]; then
   fi
 fi
 
-# Live test
-MCP_SID=$(curl -s -X POST https://apibase.pro/mcp \
-  -H "Authorization: Bearer ak_live_9b9978edba8a8c59f478837d0a660c9d" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json, text/event-stream" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"sec-cron","version":"1.0"}}}' \
-  -D /dev/stderr 2>&1 | grep -i "mcp-session-id" | awk '{print $2}' | tr -d '\r')
-if [ -n "$MCP_SID" ]; then
-  MCP_CALL=$(curl -s -X POST https://apibase.pro/mcp \
-    -H "Authorization: Bearer ak_live_9b9978edba8a8c59f478837d0a660c9d" \
+# T-0300: live probes hold no money. A funded key is debited via the balance rail and
+# gets data, which is payment and not bypass, so only anonymous and zero-balance callers are tested.
+# classify_mcp_reply: PASS when the reply carries the payment gate, CRITICAL otherwise.
+classify_mcp_reply() {
+  if printf '%s' "$1" | grep -q "payment_required"; then
+    echo "PASS"
+  else
+    echo "CRITICAL"
+  fi
+}
+
+# mcp_payment_probe <label> [key]: initialize, then call a paid tool, classify the reply.
+mcp_payment_probe() {
+  local label="$1" key="${2:-}" hdrs sid reply
+  local auth=()
+  [ -n "$key" ] && auth=(-H "Authorization: Bearer $key")
+  hdrs=$(mktemp)
+  curl -s -o /dev/null -X POST https://apibase.pro/mcp --max-time 15 "${auth[@]}" \
     -H "Content-Type: application/json" \
     -H "Accept: application/json, text/event-stream" \
-    -H "Mcp-Session-Id: $MCP_SID" \
-    -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"crypto.trending.get","arguments":{}}}')
-  if echo "$MCP_CALL" | grep -q "payment_required"; then
-    echo "PASS: MCP payment enforced"
-  else
-    add_finding "CRITICAL" "MCP Payment Bypass" "Paid tool returned data without payment via MCP"
+    -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-03-26","capabilities":{},"clientInfo":{"name":"sec-cron","version":"1.0"}}}' \
+    -D "$hdrs"
+  sid=$(grep -i "mcp-session-id" "$hdrs" | awk '{print $2}' | tr -d '\r')
+  rm -f "$hdrs"
+  if [ -z "$sid" ]; then
+    echo "WARN: Could not create MCP session for $label probe"
+    return
   fi
+  reply=$(curl -s -X POST https://apibase.pro/mcp --max-time 15 "${auth[@]}" \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json, text/event-stream" \
+    -H "Mcp-Session-Id: $sid" \
+    -d '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"crypto.trending.get","arguments":{}}}')
+  if [ "$(classify_mcp_reply "$reply")" = "PASS" ]; then
+    echo "PASS: MCP payment enforced ($label)"
+  else
+    echo "Reply (first 300 bytes): $(printf '%s' "$reply" | head -c 300)"
+    add_finding "CRITICAL" "MCP Payment Bypass ($label)" "Paid tool returned data without payment via MCP ($label caller)"
+  fi
+}
+
+# P1 anonymous
+mcp_payment_probe "anonymous"
+
+# P2 zero-balance key, provisioned by the operator in the deploy tree env file
+AUDIT_ZERO_BALANCE_KEY=$(grep -E '^AUDIT_ZERO_BALANCE_KEY=' /home/apibase/apibase/.env 2>/dev/null | head -1 | cut -d= -f2- | tr -d "\"' \r")
+if [ -z "$AUDIT_ZERO_BALANCE_KEY" ]; then
+  echo "SKIP: AUDIT_ZERO_BALANCE_KEY unset"
 else
-  echo "WARN: Could not create MCP session for test"
+  mcp_payment_probe "zero balance" "$AUDIT_ZERO_BALANCE_KEY"
 fi
 
 # ========================================

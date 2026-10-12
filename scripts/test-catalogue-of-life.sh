@@ -35,12 +35,17 @@ for TOOL in col.search col.detail col.suggest col.children; do
   [ "$HTTP" = "200" ] && ok "$TOOL detail (HTTP $HTTP)" || fail "$TOOL detail" "HTTP $HTTP"
 done
 
-# 5. Live call returns 402 payment required (correct pipeline behavior)
+# 5. Live call with a zero-balance key returns 402 payment required (key from the env file)
+AUDIT_ZERO_BALANCE_KEY="${AUDIT_ZERO_BALANCE_KEY:-$(grep -E '^AUDIT_ZERO_BALANCE_KEY=' /home/apibase/apibase/.env 2>/dev/null | head -1 | cut -d= -f2- | tr -d "\"' \r")}"
+if [ -z "$AUDIT_ZERO_BALANCE_KEY" ]; then
+  echo "  SKIP col.search pipeline: AUDIT_ZERO_BALANCE_KEY unset"
+else
 HTTP=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/api/v1/tools/col.search/call" \
-  -H "Authorization: Bearer ak_live_9b9978edba8a8c59f478837d0a660c9d" \
+  -H "Authorization: Bearer $AUDIT_ZERO_BALANCE_KEY" \
   -H "Content-Type: application/json" \
   -d '{"query": "Panthera leo"}')
 [ "$HTTP" = "402" ] && ok "col.search pipeline (402 payment gate)" || fail "col.search pipeline" "HTTP $HTTP (expected 402)"
+fi
 
 # 6. COL upstream API reachable
 HTTP=$(curl -s -o /dev/null -w "%{http_code}" "https://api.catalogueoflife.org/dataset/3/nameusage/search?q=Homo+sapiens&limit=1")
