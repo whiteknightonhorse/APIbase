@@ -163,6 +163,10 @@ export interface PipelineContext {
 
   // ESCROW_FINALIZE stage
   billingStatus?: string;
+  /** T-0338: PROVIDER_CALL failed because the upstream rejected the caller's input (422/400). */
+  providerInputRejected?: boolean;
+  /** T-0338: why billingStatus is NOT_CHARGED. */
+  notChargedReason?: string;
   finalCost?: number;
 
   // LEDGER_WRITE stage

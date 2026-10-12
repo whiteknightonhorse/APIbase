@@ -82,6 +82,8 @@ export interface X402Entry extends LedgerEntryBase {
    *  facilitator path. billing_status stays 'PAID' either way (§8.9); this
    *  is the field a report joins on to tell "PAID" from "actually collected". */
   settleSucceeded?: boolean;
+  /** T-0338: payer not charged (e.g. 'provider_input_rejected'): row is NOT_CHARGED, cost 0. */
+  notChargedReason?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -240,15 +242,16 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
   const db = getPrisma();
   const isCacheHit = entry.cacheHit === true;
   const blocked = entry.moderation;
+  const notCharged = entry.notChargedReason;
 
   await db.executionLedger.create({
     data: {
       execution_id: entry.executionId,
       agent_id: entry.agentId,
       tool_id: entry.toolId,
-      status: blocked ? 'blocked' : 'success',
-      billing_status: 'PAID',
-      cost_usd: entry.cost,
+      status: notCharged ?? (blocked ? 'blocked' : 'success'),
+      billing_status: notCharged ? 'NOT_CHARGED' : 'PAID',
+      cost_usd: notCharged ? 0 : entry.cost,
       payer: entry.payer,
       // Cache-hit path: provider was NOT called, served from cache.
       // Cache-miss path: provider was called, filled cache for future hits.
@@ -261,7 +264,7 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       moderation_category: blocked?.category ?? null,
       moderation_appeal_id: blocked?.appealId ?? null,
       upstream_cost_usd: isCacheHit || blocked ? null : (entry.upstreamCostUsd ?? null),
-      x402_onchain_settled: entry.settleSucceeded ?? null,
+      x402_onchain_settled: notCharged ? false : (entry.settleSucceeded ?? null),
     },
   });
 

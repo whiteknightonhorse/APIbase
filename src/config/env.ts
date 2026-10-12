@@ -323,6 +323,10 @@ export const appEnvSchema = z
 
     // Integrator fee addresses, one per rail: Tempo (MPP splits) and Base (x402 fee-split, invoices).
     INTEGRATOR_FEE_ENABLED: z.string().optional().default('false'),
+
+    // T-0338: an x402 call whose upstream rejected the INPUT (422/400) is released, not settled,
+    // and its ledger row is NOT_CHARGED. 'true' enables; default off until the dispatcher flips it.
+    BILLING_NO_CHARGE_ON_INPUT_REJECTED: z.string().optional().default('false'),
     INTEGRATOR_BASE_ORDERS_ENABLED: z.string().optional().default('false'),
     INTEGRATOR_FEE_WALLET: z.string().optional().default(''),
     INTEGRATOR_FEE_WALLET_BASE: z.string().optional().default(''),

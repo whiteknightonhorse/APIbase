@@ -10,6 +10,7 @@ import { parsePaymentPayload } from '@x402/core/schemas';
 import { getX402Config } from '../../config/x402.config';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { getToolPriceUsd } from './tool-status.stage';
+import { precheckToolCall } from '../precheck';
 
 /**
  * AUTH stage (§12.43 stage 1, §12.60).
@@ -344,7 +345,15 @@ export const authStage: Stage = {
 
       if (!hasAnyCredentialHeader && ctx.toolId) {
         const priceUsd = getToolPriceUsd(ctx.toolId);
-        if (priceUsd !== undefined && priceUsd > 0) {
+        const paid = priceUsd !== undefined && priceUsd > 0;
+        // T-0338: never mint a 402 for a call that cannot be served (unknown tool, unavailable
+        // tool, body failing the tool's zod schema) -- the payer would pay for nothing. An
+        // unknown tool has no price, so it gets its 404 here instead of the generic 401.
+        const unservable = await precheckToolCall(ctx.toolId, ctx.body);
+        if (unservable && (paid || unservable.code === 404)) {
+          return err<PipelineError>(unservable);
+        }
+        if (paid) {
           return err<PipelineError>({
             code: 402,
             error: 'payment_required',

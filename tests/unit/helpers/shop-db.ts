@@ -19,6 +19,9 @@ const REFUSAL =
  * Returns TEST_DATABASE_URL only when it is a local postgres URL different from DATABASE_URL, and
  * pins process.env.DATABASE_URL to it so no Prisma instance can fall back to .env.
  */
+/** URL this module already pinned into DATABASE_URL (a second call must not mistake it for the live DB). */
+let pinnedUrl: string | undefined;
+
 export function requireTestDb(): string {
   const url: unknown = process.env.TEST_DATABASE_URL;
   if (typeof url !== 'string' || url === '') throw new Error(REFUSAL);
@@ -31,8 +34,8 @@ export function requireTestDb(): string {
   if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:')
     throw new Error(REFUSAL);
   if (parsed.hostname !== '127.0.0.1' && parsed.hostname !== 'localhost') throw new Error(REFUSAL);
-  if (url === process.env.DATABASE_URL) throw new Error(REFUSAL);
-  process.env.DATABASE_URL = url;
+  if (url === process.env.DATABASE_URL && pinnedUrl !== url) throw new Error(REFUSAL);
+  process.env.DATABASE_URL = pinnedUrl = url;
   return url;
 }
 

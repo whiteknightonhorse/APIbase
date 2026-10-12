@@ -216,6 +216,52 @@ export function __getMarginMultiplierForTest(): number {
   return MARGIN_MULTIPLIER;
 }
 
+/**
+ * Unknown tool -> 404, `unavailable` tool -> 503 provider_unavailable (with alternatives).
+ * Shared by the TOOL_STATUS stage and the pre-payment check (pipeline/precheck.ts, T-0338)
+ * so both build the identical body. Returns null when the tool exists and is not unavailable.
+ */
+export async function checkToolAvailability(toolId: string): Promise<PipelineError | null> {
+  // Lazy fallback: if cache not yet initialized, load synchronously
+  if (toolCache.size === 0) {
+    await loadToolCache();
+  }
+
+  const tool = toolCache.get(toolId);
+
+  if (!tool) {
+    return {
+      code: 404,
+      error: 'not_found',
+      message: `Tool not found: ${toolId}`,
+    };
+  }
+
+  // T-0207 (ZZ-03-07, R2.4): "attempted" counts every call that reached a real tool_id in a
+  // declared capability group, regardless of what happens next — this is the denominator
+  // R-3's fallback-demand threshold divides lost-with-alternative by.
+  const capability = getCapabilityForTool(tool.tool_id);
+  if (capability) {
+    apibaseCallAttemptedTotal.inc({ capability });
+  }
+
+  if (tool.status === 'unavailable') {
+    const alternatives = await getAlternativesForTool(tool.tool_id);
+    if (capability && alternatives.length > 0) {
+      apibaseCallLostWithAlternativeTotal.inc({ capability, tool_id: tool.tool_id });
+    }
+    return {
+      code: 503,
+      error: 'provider_unavailable',
+      message: `Tool ${toolId} is currently unavailable`,
+      retryAfter: 30,
+      ...(alternatives.length > 0 ? { extra: { alternatives } } : {}),
+    };
+  }
+
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Pipeline stage
 // ---------------------------------------------------------------------------
@@ -228,42 +274,15 @@ export const toolStatusStage: Stage = {
       return err<PipelineError>({ code: 400, error: 'bad_request', message: 'Missing tool_id' });
     }
 
-    // Lazy fallback: if cache not yet initialized, load synchronously
-    if (toolCache.size === 0) {
-      await loadToolCache();
-    }
-
+    const statusError = await checkToolAvailability(ctx.toolId);
+    if (statusError) return err<PipelineError>(statusError);
     const tool = toolCache.get(ctx.toolId);
-
-    if (!tool) {
+    if (!tool)
       return err<PipelineError>({
         code: 404,
         error: 'not_found',
         message: `Tool not found: ${ctx.toolId}`,
       });
-    }
-
-    // T-0207 (ZZ-03-07, R2.4): "attempted" counts every call that reached a real tool_id in a
-    // declared capability group, regardless of what happens next — this is the denominator
-    // R-3's fallback-demand threshold divides lost-with-alternative by.
-    const capability = getCapabilityForTool(tool.tool_id);
-    if (capability) {
-      apibaseCallAttemptedTotal.inc({ capability });
-    }
-
-    if (tool.status === 'unavailable') {
-      const alternatives = await getAlternativesForTool(tool.tool_id);
-      if (capability && alternatives.length > 0) {
-        apibaseCallLostWithAlternativeTotal.inc({ capability, tool_id: tool.tool_id });
-      }
-      return err<PipelineError>({
-        code: 503,
-        error: 'provider_unavailable',
-        message: `Tool ${ctx.toolId} is currently unavailable`,
-        retryAfter: 30,
-        ...(alternatives.length > 0 ? { extra: { alternatives } } : {}),
-      });
-    }
 
     if (failsMarginGate(tool)) {
       logger.error(

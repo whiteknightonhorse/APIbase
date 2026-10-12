@@ -105,6 +105,11 @@ export async function recordMppRefundIfOwed(
   }
 }
 
+/** T-0338: flag read per call so tests and the dispatcher can flip it without a restart. */
+export function noChargeOnInputRejected(): boolean {
+  return process.env.BILLING_NO_CHARGE_ON_INPUT_REJECTED === 'true';
+}
+
 /**
  * ESCROW_FINALIZE stage (§12.43 stage 10, §12.151).
  * Finalize escrow: charge on success, refund on failure.
@@ -123,6 +128,21 @@ export const escrowFinalizeStage: Stage = {
     // a request that otherwise stopped at MODERATION).
     const hasResponseToServe =
       (ctx.providerCalled && ctx.providerResponse) || ctx.cacheHit || ctx.moderationBlocked;
+
+    // T-0338: an x402 payer whose input the upstream rejected (422/400) is not charged: release
+    // (no settle call, the signed authorization is never submitted) and record NOT_CHARGED.
+    // MPP is already settled at the middleware, so it falls through to the refund-owed row below.
+    if (
+      ctx.x402Paid &&
+      ctx.providerInputRejected &&
+      !hasResponseToServe &&
+      noChargeOnInputRejected()
+    ) {
+      ctx.billingStatus = 'NOT_CHARGED';
+      ctx.finalCost = 0;
+      ctx.notChargedReason = 'provider_input_rejected';
+      return ok(ctx);
+    }
 
     // x402 on-chain payment — settle with facilitator (§8.9).
     // Cache-hit path added 2026-04-22: anonymous x402 agents with balance=0 need

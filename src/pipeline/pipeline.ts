@@ -21,7 +21,11 @@ import { rateLimitStage } from './stages/rate-limit.stage';
 import { escrowStage } from './stages/escrow.stage';
 import { moderationStage } from './stages/moderation.stage';
 import { providerCallStage } from './stages/provider-call.stage';
-import { escrowFinalizeStage, recordMppRefundIfOwed } from './stages/escrow-finalize.stage';
+import {
+  escrowFinalizeStage,
+  noChargeOnInputRejected,
+  recordMppRefundIfOwed,
+} from './stages/escrow-finalize.stage';
 import { ledgerWriteStage } from './stages/ledger-write.stage';
 import { cacheSetStage } from './stages/cache-set.stage';
 import { responseStage } from './stages/response.stage';
@@ -134,6 +138,29 @@ export async function runPipeline(
             logger.error(
               { request_id: ctx.requestId, err: settleErr },
               'Settle-on-block: unexpected error finalizing/recording a moderation-blocked charge',
+            );
+          }
+        }
+
+        // T-0338: an x402 payer whose input the upstream rejected is released, not settled --
+        // run the finalize + ledger pair so a NOT_CHARGED row exists. ESCROW_FINALIZE itself is
+        // gated by BILLING_NO_CHARGE_ON_INPUT_REJECTED; with the flag off nothing runs here.
+        if (
+          stage.name === 'PROVIDER_CALL' &&
+          ctx.x402Paid &&
+          ctx.providerInputRejected &&
+          noChargeOnInputRejected()
+        ) {
+          try {
+            const finalizeResult = await escrowFinalizeStage.execute(ctx);
+            if (finalizeResult.ok) {
+              ctx = finalizeResult.value;
+              await ledgerWriteStage.execute(ctx);
+            }
+          } catch (releaseErr) {
+            logger.error(
+              { request_id: ctx.requestId, err: releaseErr },
+              'T-0338: releasing an input-rejected x402 call failed -- no NOT_CHARGED row written',
             );
           }
         }

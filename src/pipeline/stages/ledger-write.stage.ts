@@ -33,7 +33,10 @@ export const ledgerWriteStage: Stage = {
     // Covers both cache-miss (provider called, payment settled) AND cache-hit
     // (payment settled by ESCROW_FINALIZE, no provider call). cache_status
     // reflects the actual path so the quality-index and cost analytics stay correct.
-    if ((ctx.x402Paid || ctx.mppPaid) && ctx.billingStatus === 'PAID') {
+    if (
+      (ctx.x402Paid || ctx.mppPaid) &&
+      (ctx.billingStatus === 'PAID' || ctx.billingStatus === 'NOT_CHARGED')
+    ) {
       if (ctx.agentId && ctx.toolId && ctx.executionId) {
         await writeX402Entry({
           executionId: ctx.executionId,
@@ -49,6 +52,7 @@ export const ledgerWriteStage: Stage = {
           // T-0177: only x402 has a facilitator settle outcome to report;
           // MPP settles differently (at verification, no facilitator here).
           settleSucceeded: ctx.x402Paid ? ctx.x402SettleSucceeded : undefined,
+          notChargedReason: ctx.billingStatus === 'NOT_CHARGED' ? ctx.notChargedReason : undefined,
           moderation: ctx.moderationBlocked
             ? {
                 ruleId: ctx.moderationRuleId ?? 'unknown',

@@ -96,6 +96,7 @@ export const providerCallStage: Stage = {
       const providerError = error as ProviderError;
       ctx.providerCalled = true;
       ctx.providerDurationMs = providerError.durationMs ?? 0;
+      ctx.providerInputRejected = providerError.code === ProviderErrorCode.INPUT_REJECTED;
 
       logger.warn(
         {
