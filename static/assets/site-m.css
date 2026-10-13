@@ -166,7 +166,7 @@ details p{margin:0 0 var(--s4)}
 .site-footer .sf-tag{margin:0;font-size:15px;line-height:1.5;color:var(--ink-2);max-width:250px}
 .site-footer nav{display:flex;flex-direction:column}
 .site-footer .sf-h{font-family:var(--mono);font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding-bottom:6px}
-.site-footer .sf-h a{color:inherit;text-decoration:none}
+.site-footer nav .sf-h a{display:inline;min-height:0;padding:0;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit;text-decoration:none}
 .site-footer nav a{display:flex;align-items:center;min-height:44px;font-size:15px;color:var(--ink-2);text-decoration:none}
 .site-footer a:hover{color:var(--ink)}
 .site-footer .sf-agents{display:flex;flex-wrap:wrap;align-items:center;gap:4px 22px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
