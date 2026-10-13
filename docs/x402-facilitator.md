@@ -118,6 +118,7 @@ Per 100K settles/month: **~$50 in gas total** vs. unbounded SaaS pricing tiers.
 | `x402_local_settle_total` | Counter | `result` ∈ {success, error, fallback} | Throughput + outcome distribution |
 | `x402_local_settle_duration_seconds` | Histogram | `result` | Settle latency by outcome |
 | `x402_operator_eth_balance` | Gauge | — | Operator wallet ETH (top-up alert at 0.005) |
+| `x402_operator_eth_balance` alerts | Telegram | - | `scripts/x402-operator-gas-alerts.py` (hourly cron): ORANGE below warn (default 3 x floor), paged every 24 h; RED below the 0.005 floor, paged every 4 h |
 | `x402_operator_lock_wait_seconds` | Histogram | — | Lock contention — early warning before request timeouts |
 
 Alerts in `prometheus/rules/alerts.yml`:
