@@ -161,7 +161,7 @@ function page(docId: string, body: string, draft: boolean): string {
 export function staticPageEntries(staticDir: string): Array<Record<string, unknown>> {
   return ['terms', 'privacy'].flatMap((id) => {
     const file = resolve(staticDir, `${id}.html`);
-    if (!existsSync(file)) return [];
+    if (!existsSync(file)) throw new Error(`static page missing from image: ${file}`);
     return [
       {
         doc_id: id,

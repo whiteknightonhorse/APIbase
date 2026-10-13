@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
-import { createLegalRouter } from '../../src/shop/routes/legal.router';
+import { createLegalRouter, staticPageEntries } from '../../src/shop/routes/legal.router';
 import { LEGAL_DOC_IDS, LEGAL_DIR } from '../../src/shop/legal/legal-docs';
 
 jest.mock('../../src/config', () => ({ config: {} }));
@@ -77,5 +77,19 @@ describe('T-0343 /legal page chrome', () => {
       expect(e).toMatchObject({ url: `/${id}`, registry: false });
       expect(e.sha256).toBe(sha(join(ROOT, `static/${id}.html`)));
     }
+  });
+});
+
+describe('T-0343 image contents', () => {
+  it('Dockerfile copies terms.html and privacy.html in both stages', () => {
+    const df = readFileSync(join(ROOT, 'docker/Dockerfile'), 'utf8');
+    const n = df
+      .split('\n')
+      .filter((l) => /^COPY static\/terms\.html static\/privacy\.html /.test(l));
+    expect(n).toHaveLength(2);
+  });
+
+  it('missing static page is a hard error, not a silent omission', () => {
+    expect(() => staticPageEntries('/nonexistent-dir')).toThrow(/missing from image/);
   });
 });

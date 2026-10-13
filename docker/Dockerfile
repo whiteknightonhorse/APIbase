@@ -21,6 +21,7 @@ COPY tsconfig.json ./
 COPY src/ ./src/
 # T-INT-05: `npm run build` also parses/hashes the legal documents
 COPY static/legal/ ./static/legal/
+COPY static/terms.html static/privacy.html ./static/
 COPY static/integrator/ ./static/integrator/
 COPY scripts/shop/ ./scripts/shop/
 RUN npm run build
@@ -65,6 +66,7 @@ COPY prisma/migrations ./prisma/migrations
 COPY scripts/ ./scripts/
 COPY config/ ./config/
 COPY static/legal/ ./static/legal/
+COPY static/terms.html static/privacy.html ./static/
 COPY static/integrator/ ./static/integrator/
 # T-INT-19: sync-counts baseline read by src/shop/integrator/tokens.ts (merchants_count)
 COPY static/.well-known/mcp.json ./static/.well-known/mcp.json
