@@ -192,6 +192,15 @@ esac
 
 git checkout --detach "$NEW_SHA"
 
+# T-0362: pre-flight nginx -t on the new tree. Nothing is pulled or restarted yet, so aborting
+# here touches no container; the tree goes back to the last good SHA (same reasoning as rollback).
+if ! bash "$APP_DIR/scripts/check-nginx-conf.sh"; then
+  echo "[deploy] ABORT: nginx -t failed for sha-${NEW_SHA}"
+  deploy_alert "[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED: nginx -t failed on nginx/nginx.conf" "nginx -t"
+  git checkout --detach "$(cat "$LAST_GOOD_FILE")" 2>/dev/null || true
+  exit 1
+fi
+
 # ---------------------------------------------------------------------------
 # Pull new images from GHCR
 # ---------------------------------------------------------------------------

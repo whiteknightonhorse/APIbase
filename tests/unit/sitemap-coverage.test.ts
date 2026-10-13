@@ -66,6 +66,11 @@ describe('nginx slash-canon whitelist covers the sitemap (T-0342)', () => {
     expect(canon.length).toBeGreaterThan(10);
   });
 
+  it('contains no brace quantifier (nginx stops an unquoted location regex at the first "{", T-0362)', () => {
+    expect(m).not.toBeNull();
+    expect(m![1]).not.toMatch(/[{}]/);
+  });
+
   it('matches the slash form of every canonical sitemap page', () => {
     const missing = canon.filter((p) => !re.test(p + '/'));
     expect(missing).toEqual([]);
