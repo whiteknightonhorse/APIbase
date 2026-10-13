@@ -63,9 +63,8 @@ backups/
 # Internal files (not for public repo)
 CLAUDE.md
 plan.md
+# F-20 allow-list: only user-usecases/ may be tracked here (see tests/unit/private-files-not-tracked.test.ts); the directory stays ignored because the deploy tree doubles as a workspace full of generated UC drafts — curated additions use `git add -f`. T-0323/T-0359.
 .claude/skills/*
-# F-20 allow-list, mirrors taskloop PUBLIC_SKILL_ALLOWLIST
-!.claude/skills/user-usecases/
 
 TASK-FOR-AIPUSH-CLAUDE.md
 static/video/*.mov

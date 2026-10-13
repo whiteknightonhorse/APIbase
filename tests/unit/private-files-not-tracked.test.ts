@@ -29,6 +29,25 @@ describe('private files stay out of git', () => {
     expect(files.filter((f) => !f.startsWith('.claude/skills/user-usecases/'))).toEqual([]);
   });
 
+  it('generated usecase drafts are ignored', () => {
+    for (const f of [
+      '.claude/skills/user-usecases/usecases/UC-000-draft-fixture.md',
+      '.claude/skills/user-usecases/SKILL.md.new',
+    ]) {
+      // exit 1 (not ignored) makes execFileSync throw
+      execFileSync('git', ['check-ignore', '-q', '--', f], { cwd: root });
+    }
+  });
+
+  it('allow-listed content stays tracked despite the ignore', () => {
+    const ls = (p: string) =>
+      execFileSync('git', ['ls-files', '--', p], { cwd: root, encoding: 'utf8' })
+        .split('\n')
+        .filter(Boolean);
+    expect(ls('.claude/skills/user-usecases/SKILL.md').length).toBeGreaterThan(0);
+    expect(ls('.claude/skills/user-usecases/usecases').length).toBeGreaterThanOrEqual(80);
+  });
+
   it('control: a `.private.` file made visible to git (git add -N) IS caught', () => {
     const dir = mkdtempSync(join(tmpdir(), 'priv-'));
     try {
