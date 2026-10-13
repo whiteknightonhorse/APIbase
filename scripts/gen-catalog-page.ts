@@ -19,6 +19,11 @@
 // generator (not just eyeball its last output) through check-no-clipped-overflow.py on every
 // commit -- see .github/workflows/security.yml's static-no-clipped-overflow job.
 import { writeFileSync, readFileSync } from 'fs';
+import { resolve } from 'path';
+
+// T-0367: the site header is config/site-nav.{html,css}, shared with every static page (scripts/site-nav.py).
+const NAV_HTML = `<!--site-nav-->\n${readFileSync(resolve(__dirname, '../config/site-nav.html'), 'utf8').trim()}\n<!--/site-nav-->`;
+const NAV_CSS = `/*site-nav*/\n${readFileSync(resolve(__dirname, '../config/site-nav.css'), 'utf8').trim()}\n/*/site-nav*/`;
 
 function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -67,12 +72,7 @@ body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',mono
 .dot-green{background:#27c93f;border-color:#1aab29}
 .titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
 .container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-nav{display:flex;flex-wrap:wrap;gap:0.3rem;margin-bottom:1rem;padding:0.5rem 0;border-bottom:1px solid #1a3a1a}
-nav::before{content:'[';color:#555}nav::after{content:']';color:#555}
-nav .brand{color:#00ff41;font-weight:700;font-size:1rem;text-decoration:none;text-shadow:0 0 8px rgba(0,255,65,0.4);padding:0.55rem 0.35rem 0.55rem 0;display:inline-block}
-nav a{color:#00cc33;text-decoration:none;font-size:1rem;padding:0.55rem 0.35rem;display:inline-block}
-nav a::before{content:' | ';color:#340}nav .brand::before{content:''}
-nav a:hover{color:#00ff41;text-shadow:0 0 6px rgba(0,255,65,0.5)}
+${NAV_CSS}
 h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
 h1::before{content:'> ';color:#00aa30}
 h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
@@ -96,7 +96,7 @@ td:last-child,th:last-child{text-align:right}
 *::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
 *::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
 *{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
-@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}nav::before,nav::after{display:none}.footer{font-size:0.65rem}}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}.footer{font-size:0.65rem}}
 </style>
 </head>
 <body>
@@ -108,19 +108,7 @@ td:last-child,th:last-child{text-align:right}
 
 <div class="container" id="main-content">
 
-<nav>
-<a class="brand" href="/">APIbase.pro</a>
-<a href="/pricing">Pricing</a>
-<a href="/catalog">Catalog</a>
-<a href="/connect">Connect</a>
-<a href="/dashboard">Dashboard</a>
-<a href="/contact">Contact</a>
-<a href="/privacy">Privacy</a>
-<a href="/terms">Terms</a>
-<a href="/policy/moderation">Moderation</a>
-<a href="/frameworks">Frameworks</a>
-<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
-</nav>
+${NAV_HTML}
 
 <h1>Catalog</h1>
 <p class="updated">Generated straight from the production database — never hand-edited, never rounded.</p>

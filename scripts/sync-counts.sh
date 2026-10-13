@@ -634,6 +634,14 @@ if [ "$CHECK" = "1" ]; then
   case "$PAGE_META_FAIL" in *"failures = 0"*) PAGE_META_FAIL="" ;; "") PAGE_META_FAIL="check-page-meta.sh produced no summary (missing or crashed)" ;; esac
 fi
 [ -n "$PAGE_META_FAIL" ] && { echo "sync-counts: PAGE_META — page meta / footer gate failed:"; echo "$PAGE_META_FAIL"; FAIL=1; }
+# T-0367: one site header on every static page (scripts/site-nav.py; --no-fetch = static/ only).
+SITE_NAV_FAIL=""
+if [ "$CHECK" = "1" ]; then
+  if [ "$NO_FETCH" = "1" ]; then SITE_NAV_FAIL=$(ROOT="$ROOT" python3 -I scripts/site-nav.py check --no-fetch) || true
+  else SITE_NAV_FAIL=$(ROOT="$ROOT" python3 -I scripts/site-nav.py check) || true; fi
+  case "$SITE_NAV_FAIL" in *"failures = 0"*) SITE_NAV_FAIL="" ;; "") SITE_NAV_FAIL="site-nav.py produced no summary (missing or crashed)" ;; esac
+fi
+[ -n "$SITE_NAV_FAIL" ] && { echo "sync-counts: SITE_NAV — site header gate failed:"; echo "$SITE_NAV_FAIL"; FAIL=1; }
 [ -n "$SITEMAP_COVERAGE" ] && { echo "sync-counts: SITEMAP_COVERAGE — sitemap.xml coverage regression:"; printf '%s' "$SITEMAP_COVERAGE"; FAIL=1; }
 [ -n "$ROBOTS_SITEMAP_404" ] && { echo "sync-counts: $ROBOTS_SITEMAP_404"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }

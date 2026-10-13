@@ -248,8 +248,14 @@ describe('T-INT-05 legal documents', () => {
       );
       // The hourly counts cron rewrites the tool/provider totals in these pages: not a legal change.
       // T-0344 adds og:image, twitter:card and the shared footer: head/footer meta, not legal text.
+      // T-0367 moves the header (markup + css) into the shared site-nav block: header, not legal text.
       const counts = (h: string) =>
         h
+          .replace(/<nav>[\s\S]*?<\/nav>\n/g, '')
+          .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->\n/g, '')
+          .replace(/\/\*site-nav\*\/[\s\S]*?\/\*\/site-nav\*\/\n/g, '')
+          .replace(/^nav[^\n]*\n/gm, '')
+          .replace(/nav::before,nav::after\{display:none\}/g, '')
           .replace(/<meta property="og:image" content="[^"]*">\n/g, '')
           .replace(/<meta name="twitter:card" content="[^"]*">\n/g, '')
           .replace(/\n<footer class="footer">.*<\/footer>/g, '')
