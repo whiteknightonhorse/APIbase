@@ -94,9 +94,10 @@ const PAGES = [
   ...PLATFORMS.map((p) => `/integrator/platforms/${p}`),
 ];
 
-/** T-0344: the canonical link and JSON-LD breadcrumb are the only allowed head extras. */
+/** T-0344: the canonical link and JSON-LD breadcrumb are the only allowed head extras; T-0375 adds the GA4 block. */
 const stripMeta = (html: string) =>
   html
+    .replace(/<!--ga4-->[\s\S]*?<!--\/ga4-->/g, '')
     .replace(/<link rel="canonical"[^>]*>/g, '')
     .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '');
 
@@ -165,7 +166,8 @@ describe('integrator pages', () => {
   });
 
   it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 40 lines', async () => {
-    const { text } = await get('/integrator/connect');
+    const { text: raw } = await get('/integrator/connect');
+    const text = stripMeta(raw);
     expect(text).toContain('<input type="checkbox"');
     expect(text).toContain('personal_sign');
     expect(text).toContain('/api/v1/shop/merchants');

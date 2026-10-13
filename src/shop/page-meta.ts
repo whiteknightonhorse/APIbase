@@ -25,6 +25,12 @@ export const SITE_NAV_CSS =
   readFileSync(resolve(__dirname, '../../config/site-nav.css'), 'utf-8').trim() +
   '\n/*/site-nav*/';
 
+/** GA4 snippet for human-facing HTML pages only (T-0375); static pages hold the same bytes between the same markers. */
+export const GA4 =
+  '<!--ga4-->\n' +
+  readFileSync(resolve(__dirname, '../../config/ga4.html'), 'utf-8').trim() +
+  '\n<!--/ga4-->';
+
 const DEFAULT_DESCRIPTION =
   'Sell to AI agents: a buyer agent orders and pays in USDC over x402 or MPP, straight to the merchant wallet.';
 

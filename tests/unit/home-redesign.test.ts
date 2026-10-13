@@ -59,7 +59,8 @@ describe('HP2 block order', () => {
     );
   });
   it('no external resources', () => {
-    expect(externalResources(html())).toEqual([]);
+    // T-0375: the GA4 loader is the one allowed external script.
+    expect(externalResources(html().replace(/<!--ga4-->[\s\S]*?<!--\/ga4-->/, ''))).toEqual([]);
   });
   it('mutation: an external <script src> is detected', () => {
     const bad = html().replace(

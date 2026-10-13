@@ -249,8 +249,10 @@ describe('T-INT-05 legal documents', () => {
       // The hourly counts cron rewrites the tool/provider totals in these pages: not a legal change.
       // T-0344 adds og:image, twitter:card and the shared footer: head/footer meta, not legal text.
       // T-0367 moves the header (markup + css) into the shared site-nav block: header, not legal text.
+      // T-0375 adds one Analytics paragraph to privacy: disclosure of the GA4 snippet, not a rewrite.
       const counts = (h: string) =>
         h
+          .replace(/<h2>3a\. Analytics<\/h2>\n<p>[^\n]*<\/p>\n\n/g, '')
           .replace(/<nav>[\s\S]*?<\/nav>\n/g, '')
           .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->\n/g, '')
           .replace(/\/\*site-nav\*\/[\s\S]*?\/\*\/site-nav\*\/\n/g, '')
