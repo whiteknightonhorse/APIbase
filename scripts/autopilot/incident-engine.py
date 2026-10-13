@@ -31,6 +31,9 @@ Each tick, in order:
      ">24h" age gate before it may spend a slot. AUTO_NO_MODEL
      (RATE_LIMITED) gets an engine self-action (I1: "engine itself") straight
      to VERIFYING, no fleet task, no model, no cap spent.
+     JOB_STALE waits JOB_STALE_MIN_AGE_SECONDS before it may file a card, and
+     resolve_merchant_incidents() also closes REMEDIATION_QUEUED AUTO kinds
+     whose source condition is gone, retiring the card (T-0370).
   4. bridge_key_incidents() (AP-6) — WAITING_HUMAN AUTH_FAILED/
      CREDENTIAL_EXPIRED incidents get bridged into the existing
      connected_db.py key-request letter (I1's HUMAN_KEY row), once per
@@ -361,6 +364,25 @@ def _degraded_card_ready(incident_id, provider, kind, created_at) -> bool:
     return True
 
 
+def _job_stale_card_ready(incident_id, provider, kind, created_at) -> bool:
+    """T-0370: a JOB_STALE incident opens at once (visibility) but only gets a fleet card after
+    JOB_STALE_MIN_AGE_SECONDS of persistence. No provider_status lookup (merchant:worker:* has
+    none); self-recovery is resolve_merchant_incidents' job and runs earlier in the same tick.
+    An unparseable created_at is NOINFO: stay OPEN, never file."""
+    ts = _parse_ts(created_at)
+    if ts is None:
+        return False
+    age = datetime.now(timezone.utc) - ts
+    if age < timedelta(seconds=ap.JOB_STALE_MIN_AGE_SECONDS):
+        ap.notice_dedup(
+            incident_id, "I1_AGE_GATE",
+            f"silent: {incident_id} ({provider}/{kind}) — only {age} old, a card needs "
+            f"{ap.JOB_STALE_MIN_AGE_SECONDS} s of persistence (T-0370), staying OPEN",
+        )
+        return False
+    return True
+
+
 def route_auto_incidents():
     """AP-6 (I1/I2/I3): turn OPEN incidents whose kind routes to AUTO/MIXED
     into real REMEDIATION_QUEUED fleet tasks, respecting the ≤3/day cap
@@ -400,6 +422,8 @@ def route_auto_incidents():
             continue
         if (kind in ("RATE_LIMITED", "DEGRADED_QUALITY") and not provider.startswith(MERCHANT_PREFIX)
                 and not _degraded_card_ready(incident_id, provider, kind, created_at)):
+            continue
+        if kind == "JOB_STALE" and not _job_stale_card_ready(incident_id, provider, kind, created_at):
             continue
         if not claim_task_slot(incident_id, provider, kind):
             if provider.startswith(MERCHANT_PREFIX):
@@ -1768,10 +1792,11 @@ def resolve_merchant_incidents(signals, evaluated):
     can open a new one (edge trigger). Event-like AUTO kinds close in act (nothing to verify)."""
     active = {s["dedup_key"] for s in signals}
     rows = _rows(
-        f"SELECT incident_id, kind, dedup_key, state, {UTC_TS_EXPR('created_at')} FROM incidents "
-        f"WHERE provider LIKE '{MERCHANT_PREFIX}%' AND state IN ('OPEN', 'VERIFYING', 'WAITING_HUMAN')")
+        f"SELECT incident_id, kind, dedup_key, state, {UTC_TS_EXPR('created_at')}, fleet_task_id FROM incidents "
+        f"WHERE provider LIKE '{MERCHANT_PREFIX}%' "
+        f"AND state IN ('OPEN', 'VERIFYING', 'WAITING_HUMAN', 'REMEDIATION_QUEUED')")
     n = 0
-    for incident_id, kind, dk, state, created_at in rows:
+    for incident_id, kind, dk, state, created_at, fleet_task_id in rows:
         route = ap.ROUTE_CLASS.get(kind)
         if kind not in evaluated or kind in _EVENT_LIKE:
             continue
@@ -1782,6 +1807,25 @@ def resolve_merchant_incidents(signals, evaluated):
         if kind == "CONNECT_FAILED":
             ts = _parse_ts(created_at)
             aged = ts is not None and datetime.now(timezone.utc) - ts >= timedelta(minutes=CONNECT_EDGE_MIN)
+        if state == "REMEDIATION_QUEUED":
+            # T-0370: the source condition is gone; retire the card unless a running attempt owns it.
+            if route != "AUTO" or not gone:
+                continue
+            loc = ap.fleet_task_location(fleet_task_id)
+            if loc in ("queue", "stuck", "parked"):
+                if ap.fleet_task_retire(fleet_task_id, incident_id) is None:
+                    continue  # card changed under us; retry next tick
+                card_note = f"fleet card {fleet_task_id} retired from {loc}/"
+            elif loc == "active":
+                card_note = f"fleet card {fleet_task_id} left in active/ to the running attempt"
+            else:
+                card_note = f"fleet card {fleet_task_id} not found, dispatcher retires it"
+            ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
+            ap.note_incident(incident_id, "incident-engine", "verified",
+                             f"source condition no longer holds; {card_note}")
+            ap.notice(f"incident-engine: {incident_id} ({kind}) resolved from REMEDIATION_QUEUED; {card_note}")
+            n += 1
+            continue
         if gone or aged:
             ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
             ap.note_incident(incident_id, "incident-engine", "verified",
@@ -2269,6 +2313,129 @@ def selftest():
     finally:
         ap.psql, ap.open_or_merge_incident = _t22_orig
     print("T-0322 I1-I4 (JOB_STALE): OK")
+
+    # T-0370 R1-R4 / G1-G2: JOB_STALE self-close from REMEDIATION_QUEUED + card age gate.
+    import shutil as _shutil_t70
+    import tempfile as _tempfile_t70
+    import fnmatch as _fnmatch_t70
+
+    _t70_root = _tempfile_t70.mkdtemp(prefix="t0370-")
+    for _d in ("queue", "active", "done", "stuck", "state"):
+        os.makedirs(os.path.join(_t70_root, _d), exist_ok=True)
+    _t70_card = "9999-test.md"
+    _t70_iid = "00000000-0000-0000-0000-000000000370"
+    _t70_prov = "merchant:worker:shop-stream-settle"
+    _t70_dk = ap.dedup_key("JOB_STALE", _t70_prov, None, None)
+    _t70_state = {"row_state": "REMEDIATION_QUEUED", "age_min": 5}
+    _t70_calls = {"transition": [], "note": [], "dedup": [], "claim": []}
+
+    def _t70_fmt(minutes):
+        return (datetime.now(timezone.utc) - timedelta(minutes=minutes)).strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+    def _t70_db(query):
+        if "FROM incidents" in query and "provider LIKE" in query:
+            if f"'{_t70_state['row_state']}'" not in query:
+                return "", 0  # the real WHERE would not select this row
+            card = "" if _t70_state["row_state"] == "OPEN" else _t70_card
+            return ap.SEP.join([_t70_iid, "JOB_STALE", _t70_dk, _t70_state["row_state"],
+                                _t70_fmt(_t70_state["age_min"]), card]), 0
+        if "FROM incidents WHERE state = 'OPEN' AND fleet_task_id IS NULL" in query:
+            return ap.SEP.join([_t70_iid, _t70_prov, "JOB_STALE", "SEV2", "{}", "[]",
+                                _t70_fmt(_t70_state["age_min"])]), 0
+        raise AssertionError(f"unexpected query in T-0370 selftest: {query}")
+
+    def _t70_put(where, body="card body\n"):
+        with open(os.path.join(_t70_root, where, _t70_card), "w", encoding="utf-8") as f:
+            f.write(body)
+
+    def _t70_reset():
+        for _d in ("queue", "active", "done", "stuck"):
+            for _fn in os.listdir(os.path.join(_t70_root, _d)):
+                os.unlink(os.path.join(_t70_root, _d, _fn))
+        for _v in _t70_calls.values():
+            _v.clear()
+
+    def _t70_claim(*a):
+        _t70_calls["claim"].append(a)
+        return True
+
+    _t70_names = ("psql", "transition_state", "note_incident", "notice", "notice_dedup",
+                  "TASKLOOP_ROOT", "TASKLOOP_QUEUE_DIR", "TASK_SEQ_FILE")
+    _t70_orig = [getattr(ap, n) for n in _t70_names]
+    _t70_orig_claim = claim_task_slot
+    try:
+        ap.psql = _t70_db
+        ap.transition_state = lambda iid, st, **kw: _t70_calls["transition"].append((iid, st))
+        ap.note_incident = lambda iid, who, action, result: _t70_calls["note"].append((action, result))
+        ap.notice = lambda *a, **k: None
+        ap.notice_dedup = lambda iid, key, msg, *a, **k: _t70_calls["dedup"].append(key)
+        ap.TASKLOOP_ROOT = _t70_root
+        ap.TASKLOOP_QUEUE_DIR = os.path.join(_t70_root, "queue")
+        ap.TASK_SEQ_FILE = os.path.join(_t70_root, "state", "autopilot-task-seq")
+        globals()["claim_task_slot"] = _t70_claim
+
+        # R1: condition gone, card in queue/ -> RESOLVED, card retired to done/ with the trailer.
+        _t70_reset()
+        _t70_put("queue")
+        resolve_merchant_incidents([], {"JOB_STALE"})
+        assert _t70_calls["transition"] == [(_t70_iid, "RESOLVED")], f"R1 transition: {_t70_calls}"
+        assert not os.path.exists(os.path.join(_t70_root, "queue", _t70_card)), "R1: card still in queue/"
+        _t70_done = os.path.join(_t70_root, "done", _t70_card)
+        assert os.path.isfile(_t70_done), "R1: card not in done/"
+        assert open(_t70_done, encoding="utf-8").read().rstrip().endswith(
+            f"AUTO-CLOSED-BY: incident-engine {_t70_iid}"), "R1: trailer missing"
+        assert _t70_calls["note"] and _t70_calls["note"][0][0] == "verified", f"R1 note: {_t70_calls['note']}"
+
+        # R2: the same dedup_key is still active -> untouched.
+        _t70_reset()
+        _t70_put("queue")
+        resolve_merchant_incidents([{"dedup_key": _t70_dk, "kind": "JOB_STALE"}], {"JOB_STALE"})
+        assert not _t70_calls["transition"], f"R2: must not resolve: {_t70_calls['transition']}"
+        assert os.path.isfile(os.path.join(_t70_root, "queue", _t70_card)), "R2: card must stay in queue/"
+
+        # R3: card in active/ -> RESOLVED, the file is not touched.
+        _t70_reset()
+        _t70_put("active", "running attempt\n")
+        resolve_merchant_incidents([], {"JOB_STALE"})
+        assert _t70_calls["transition"] == [(_t70_iid, "RESOLVED")], f"R3 transition: {_t70_calls}"
+        assert open(os.path.join(_t70_root, "active", _t70_card), encoding="utf-8").read() == "running attempt\n", \
+            "R3: active card modified"
+        assert not os.path.exists(os.path.join(_t70_root, "done", _t70_card)), "R3: active card moved"
+        assert "active" in _t70_calls["note"][0][1], f"R3 note text: {_t70_calls['note']}"
+
+        # R4: OPEN row, no card, condition gone -> RESOLVED (existing path unchanged).
+        _t70_reset()
+        _t70_state["row_state"] = "OPEN"
+        resolve_merchant_incidents([], {"JOB_STALE"})
+        assert _t70_calls["transition"] == [(_t70_iid, "RESOLVED")], f"R4 transition: {_t70_calls}"
+        assert _t70_calls["note"][0] == ("verified", "source condition no longer holds"), _t70_calls["note"]
+
+        # G1: the age gate itself.
+        _t70_reset()
+        assert _job_stale_card_ready(_t70_iid, _t70_prov, "JOB_STALE", _t70_fmt(5)) is False, "G1: 5 min must be False"
+        assert _t70_calls["dedup"] == ["I1_AGE_GATE"], f"G1 dedup: {_t70_calls['dedup']}"
+        assert _job_stale_card_ready(_t70_iid, _t70_prov, "JOB_STALE", _t70_fmt(31)) is True, "G1: 31 min must be True"
+        assert _t70_calls["dedup"] == ["I1_AGE_GATE"], "G1: no second dedup call for the ready case"
+
+        # G2: route_auto_incidents() honours the gate.
+        _t70_reset()
+        _t70_state["age_min"] = 5
+        route_auto_incidents()
+        assert os.listdir(os.path.join(_t70_root, "queue")) == [], "G2: card written for a 5 min old incident"
+        assert not _t70_calls["claim"], "G2: claim_task_slot called for a 5 min old incident"
+        _t70_reset()
+        _t70_state["age_min"] = 31
+        route_auto_incidents()
+        _t70_files = os.listdir(os.path.join(_t70_root, "queue"))
+        assert len(_t70_files) == 1 and _fnmatch_t70.fnmatch(
+            _t70_files[0], "9*-autopilot-remediation-JOB_STALE-*.md"), f"G2 files: {_t70_files}"
+        assert _t70_calls["transition"] == [(_t70_iid, "REMEDIATION_QUEUED")], f"G2 transition: {_t70_calls}"
+    finally:
+        for _n, _v in zip(_t70_names, _t70_orig):
+            setattr(ap, _n, _v)
+        globals()["claim_task_slot"] = _t70_orig_claim
+        _shutil_t70.rmtree(_t70_root, ignore_errors=True)
+    print("T-0370 R1-R4 G1-G2 (JOB_STALE self-close + age gate): OK")
 
     print("incident-engine --selftest: OK")
 

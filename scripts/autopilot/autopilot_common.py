@@ -456,6 +456,8 @@ WAITING_HUMAN_REMINDER_SECONDS = 72 * 3600  # J2/F2: "reminder every 72h"
 PROVIDER_DOWN_MIN_AGE_SECONDS = 24 * 3600
 # T-0336: RATE_LIMITED / DEGRADED_QUALITY open at once but file a card only after this age.
 RATE_LIMITED_MIN_AGE_SECONDS = 7200
+# T-0370: three engine ticks of persistence before a JOB_STALE incident may spend a fleet-task slot; a stopped/recreated worker self-heals inside this window
+JOB_STALE_MIN_AGE_SECONDS = 1800
 # T-0336: one provider-level outage = one live incident (DEGRADED escalates to DOWN, never two rows).
 OUTAGE_KINDS = ("PROVIDER_DOWN", "DEGRADED_QUALITY")
 # T-0336: flap-prone provider-health kinds reopen their RESOLVED incident inside this window.
