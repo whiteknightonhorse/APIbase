@@ -58,6 +58,8 @@ TITLE_PREFIX = "Margin gate blocking: "
 STALE_PREFIX = "Cost model stale: "
 MISSING_PREFIX = "Cost model missing: "
 FLOOR_PREFIX = "Price below floor: "
+COVERAGE_TITLE = "Margin gate coverage below threshold"
+COVERAGE_MIN_PCT = 90.0
 
 
 with open(f"{ROOT}/src/config/margin.json") as f:
@@ -340,12 +342,57 @@ def check_price_below_floor():
     print(f"margin-gate-alerts: {len(violations)} tool(s) below floor, {created} new issue(s) filed")
 
 
+# ---------------------------------------------------------------------------
+# Check 5 (T-0352): how much of the paid catalog the gate can actually see
+# ---------------------------------------------------------------------------
+def coverage_stats(rows):
+    """rows: [(price_usd, upstream_cost_usd_or_empty)] for every tool. Returns
+    (with_cost, paid_tools, pct). A tool is paid iff price_usd > 0; it is covered iff
+    upstream_cost_usd is set (an explicit "0" counts). Pure, so --selftest needs no DB."""
+    paid = [(p, c) for p, c in rows if float(p) > 0]
+    with_cost = sum(1 for _, c in paid if c not in ("", None))
+    pct = 100.0 * with_cost / len(paid) if paid else 100.0
+    return with_cost, len(paid), pct
+
+
+def coverage_line(with_cost, paid, pct):
+    return f"coverage: {with_cost}/{paid} ({pct:.1f}%)"
+
+
+def check_coverage():
+    """Returns True when coverage >= COVERAGE_MIN_PCT. Below it, the '0 below floor' lines
+    above only describe the covered fraction, so this is a visible red (exit 1)."""
+    rows_raw = psql("SELECT price_usd, coalesce(upstream_cost_usd::text, '') FROM tools")
+    rows = []
+    for line in rows_raw.splitlines() if rows_raw else []:
+        # psql() strips the output, which can drop the trailing tab of an empty-cost last row
+        price, _, cost = line.partition("\t")
+        rows.append((price, cost))
+    with_cost, paid, pct = coverage_stats(rows)
+    print(f"margin-gate-alerts: {coverage_line(with_cost, paid, pct)}")
+    if pct >= COVERAGE_MIN_PCT:
+        return True
+    print(f"margin-gate-alerts: FAIL coverage {pct:.1f}% < {COVERAGE_MIN_PCT:.0f}% -- the margin gate "
+          f"does not see {paid - with_cost} paid tool(s)")
+    if COVERAGE_TITLE not in open_issues_with_prefix(COVERAGE_TITLE):
+        body = (
+            f"{coverage_line(with_cost, paid, pct)} -- below the {COVERAGE_MIN_PCT:.0f}% minimum. "
+            f"`upstream_cost_usd` is unset on {paid - with_cost} paid tool(s), so 'margin gate: 0 below "
+            f"floor' is true only for the covered fraction. Run `python3 scripts/backfill-upstream-cost.py` "
+            f"(dry run) for the zero-cost backfill and the list of paid providers needing a sourced "
+            f"cost model. Auto-detected by margin-gate-alerts (hourly)."
+        )
+        r = gh("issue", "create", "--repo", REPO, "--title", COVERAGE_TITLE, "--body", body)
+        print(f"{'created' if r.returncode == 0 else 'FAILED'}: {COVERAGE_TITLE}")
+    return False
+
+
 def main():
     check_margin_violations()
     check_stale_cost_models()
     check_missing_cost_models()
     check_price_below_floor()
-    return 0
+    return 0 if check_coverage() else 1
 
 
 # ---------------------------------------------------------------------------
@@ -391,6 +438,12 @@ def selftest():
     assert floor_violations == [("scrape.screenshot", "zyte", "0.005", "0.024")], (
         f"expected only scrape.screenshot to violate its floor, got {floor_violations}"
     )
+
+    # --- coverage_stats ---
+    assert coverage_stats([("0.01", "0"), ("0.01", ""), ("0", ""), ("0.02", "0.005")]) == (2, 3, 100.0 * 2 / 3), \
+        "explicit 0 counts as covered; free (price 0) tools are not in the denominator"
+    assert coverage_stats([])[2] == 100.0
+    assert coverage_line(2, 3, 100.0 * 2 / 3) == "coverage: 2/3 (66.7%)"
 
     print("margin-gate-alerts --selftest: OK")
 
