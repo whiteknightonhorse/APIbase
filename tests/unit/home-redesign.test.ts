@@ -60,7 +60,14 @@ describe('HP2 block order', () => {
   });
   it('no external resources', () => {
     // T-0375: the GA4 loader is the one allowed external script.
-    expect(externalResources(html().replace(/<!--ga4-->[\s\S]*?<!--\/ga4-->/, ''))).toEqual([]);
+    // T-0383: the shared same-origin design-M stylesheet (versioned, inside the site-nav block) is the one allowed link.
+    expect(
+      externalResources(
+        html()
+          .replace(/<!--ga4-->[\s\S]*?<!--\/ga4-->/, '')
+          .replace(/<link rel="stylesheet" href="\/assets\/site-m\.css\?v=[0-9a-f]{8}">/, ''),
+      ),
+    ).toEqual([]);
   });
   it('mutation: an external <script src> is detected', () => {
     const bad = html().replace(
@@ -97,8 +104,9 @@ describe('HP4 FAQ in the DOM', () => {
   it('burger nav is a <details> with the same links', () => {
     const burger = /<details class="nav-burger">([\s\S]*?)<\/details>/.exec(html())![1];
     expect(burger).toContain('href="/integrator"');
+    // T-0383: one row from 1100 px, the Menu panel below it.
     expect(read('static/index.html')).toMatch(
-      /@media\(max-width:768px\)\{[^}]*nav\.nav-full\{display:none\}[^}]*\.nav-burger\{display:block\}/,
+      /@media\(min-width:1100px\)\{[^}]*\.nav-full\{display:flex\}[^}]*\.nav-burger\{display:none\}/,
     );
   });
 });

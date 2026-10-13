@@ -1,0 +1,30 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/frameworks",
+"/integrator",
+"/integrator/agent-guide",
+"/integrator/buyers",
+"/integrator/docs",
+"/integrator/llms.txt",
+"/legal",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/shops",
+"/terms",
+"https://apibase.pro/integrator/why-base-tempo",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"fee-on-each-rail",
+"why-base-and-tempo"
+],
+"scripts": 3
+}

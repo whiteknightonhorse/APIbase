@@ -1,0 +1,41 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/integrator",
+"/legal",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"https://apibase.pro/frameworks",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://mcp.base.org",
+"https://smithery.ai/servers/apibase-pro/api-hub",
+"https://sunpeak.ai",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"base-mcp",
+"claude",
+"copilot",
+"crewai",
+"cursor",
+"google-adk",
+"langchain",
+"main-content",
+"multi-server",
+"openai",
+"rest",
+"sunpeak",
+"windsurf"
+],
+"scripts": 1
+}

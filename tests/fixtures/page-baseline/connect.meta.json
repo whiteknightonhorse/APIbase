@@ -1,0 +1,27 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/integrator",
+"/legal",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"https://apibase.pro/connect",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://wallet.tempo.xyz",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"main-content"
+],
+"scripts": 1
+}

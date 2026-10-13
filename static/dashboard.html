@@ -16,218 +16,166 @@
 <link rel="canonical" href="https://apibase.pro/dashboard">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
-.window{max-width:960px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:visible;position:relative}
-.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
-.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
-@keyframes scanline{0%{top:-60px}100%{top:100%}}
-.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
-.dots{display:flex;gap:7px;flex-shrink:0}
-.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
-.dot-red{background:#ff5f56;border-color:#e0443e}
-.dot-yellow{background:#ffbd2e;border-color:#dea123}
-.dot-green{background:#27c93f;border-color:#1aab29}
-.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+
 .cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
 .container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-h1{color:#00ff41;font-size:1.3rem;margin-bottom:1.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
-h1::before{content:'> ';color:#00aa30}
-a{color:#00ccff;text-decoration:none}a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
-.system-monitor{margin-bottom:1.2rem;font-size:0.82rem;color:#00ff41;letter-spacing:0.5px}
-.system-monitor::before{content:'>';color:#00aa30;margin-right:6px;animation:blink 1s step-end infinite}
-.system-monitor .label{color:#2a942a;font-weight:400}
-.system-monitor .val{color:#00ff41;font-weight:700}
-.payment-status{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;padding:0.8rem 1rem;background:#080808;border:1px solid #1a3a1a;border-radius:4px;font-size:0.82rem;color:#a0d8a0;align-items:center}
-.payment-status .label{color:#00ff41;font-weight:700;margin-right:0.3rem}
+h1{color:#4fd283;font-size:1.3rem;margin-bottom:1.5rem;line-height:1.5}
+
+a{color:#eef1ed;text-decoration:none}a:hover{color:#4fd283}
+.system-monitor{margin-bottom:1.2rem;font-size:0.82rem;color:#4fd283;letter-spacing:0.5px}
+.system-monitor::before{content:'>';color:#9ca59e;margin-right:6px;animation:blink 1s step-end infinite}
+.system-monitor .label{color:#9ca59e;font-weight:400}
+.system-monitor .val{color:#4fd283;font-weight:700}
+.payment-status{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;padding:0.8rem 1rem;background:#151816;border:1px solid #272c29;border-radius:4px;font-size:0.82rem;color:#b7beb8;align-items:center}
+.payment-status .label{color:#4fd283;font-weight:700;margin-right:0.3rem}
 .payment-status .mode{display:flex;align-items:center;gap:0.4rem}
-.payment-status .separator{color:#333}
-.payment-status .testnet-warn{color:#ff5f56;font-weight:700}
+.payment-status .separator{color:#9ca59e}
+.payment-status .testnet-warn{color:#ff7262;font-weight:700}
 
 /* Category filter */
 .search-bar{margin-bottom:0.8rem;position:relative}
-.search-input{width:100%;background:#0a0a0a;border:1px solid #1a3a1a;color:#00ff41;font-family:inherit;font-size:1rem;padding:0.75rem 2rem 0.75rem 1.6rem;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
-.search-input:focus{border-color:#00aa30;box-shadow:0 0 12px rgba(0,255,65,0.2)}
+.search-input{width:100%;background:#0e100f;border:1px solid #272c29;color:#4fd283;font-family:inherit;font-size:1rem;padding:0.75rem 2rem 0.75rem 1.6rem;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.search-input:focus{border-color:#4fd283;}
 .search-input::placeholder{color:#1a4a1a}
 .search-icon{position:absolute;left:0.5rem;top:0;bottom:0;display:flex;align-items:center;color:#1a5a1a;font-size:0.85rem;pointer-events:none}
 .search-info{font-size:0.7rem;margin-top:0.3rem;min-height:1.1em}
-.search-info .found{color:#00aa30}
+.search-info .found{color:#9ca59e}
 .search-info .not-found{color:#ff4444}
 .search-info .hint{color:#1a4a1a}
 .cat-filter-toggle{cursor:pointer;user-select:none}
-.cat-filter-toggle:hover{color:#00ff41}
+.cat-filter-toggle:hover{color:#4fd283}
 .cat-tags.collapsed{display:none}
-tr:hover td{background:rgba(0,255,65,0.07)}
-.empty-state{text-align:center;padding:2rem;color:#1a5a1a;font-size:0.82rem;border:1px dashed #1a3a1a;margin:1rem 0}
+tr:hover td{background:rgba(79,210,131,0.07)}
+.empty-state{text-align:center;padding:2rem;color:#1a5a1a;font-size:0.82rem;border:1px dashed #272c29;margin:1rem 0}
 .health-summary{margin-bottom:0.5rem;font-size:0.75rem}
-.health-summary .h-green{color:#00ff41}
+.health-summary .h-green{color:#4fd283}
 .health-summary .h-orange{color:#ffaa00}
 .health-summary .h-red{color:#ff4444}
-.health-summary .h-grey{color:#555}
-.latency-legend{font-size:0.65rem;color:#2a942a;margin-bottom:0.5rem}
+.health-summary .h-grey{color:#9ca59e}
+.latency-legend{font-size:0.65rem;color:#9ca59e;margin-bottom:0.5rem}
 .cat-filter{margin-bottom:1.2rem;padding:0.6rem 0}
-.cat-filter-label{color:#2a942a;font-size:0.72rem;margin-bottom:0.5rem;display:block}
+.cat-filter-label{color:#9ca59e;font-size:0.72rem;margin-bottom:0.5rem;display:block}
 .cat-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
 .cat-tag{
-  background:#0a1a0a;border:1px solid #1a3a1a;border-radius:3px;
-  padding:0.25rem 0.6rem;font-size:0.72rem;color:#2a942a;
+  background:#151816;border:1px solid #272c29;border-radius:3px;
+  padding:0.25rem 0.6rem;font-size:0.72rem;color:#9ca59e;
   cursor:pointer;font-family:inherit;transition:all 0.15s;
-  white-space:nowrap;
-}
-.cat-tag:hover{color:#00ff41;border-color:#00aa30;text-shadow:0 0 4px rgba(0,255,65,0.3)}
+  white-space:nowrap}
+.cat-tag:hover{color:#4fd283;border-color:#4fd283}
 .cat-tag.active{
-  color:#00ff41;border-color:#00ff41;background:#0a2a0a;
-  text-shadow:0 0 6px rgba(0,255,65,0.4);font-weight:700;
-}
-.cat-tag .cat-count{color:#006620;margin-left:3px;font-weight:400}
-.cat-tag.active .cat-count{color:#00aa30}
+  color:#4fd283;border-color:#4fd283;background:#0a2a0a;font-weight:700}
+.cat-tag .cat-count{color:#9ca59e;margin-left:3px;font-weight:400}
+.cat-tag.active .cat-count{color:#9ca59e}
 
-.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;font-size:0.78rem;color:#2a942a;font-family:inherit}
-.refresh-bar .progress{color:#00aa30;letter-spacing:0}
+.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;font-size:0.78rem;color:#9ca59e;font-family:inherit}
+.refresh-bar .progress{color:#9ca59e;letter-spacing:0}
 .table-wrap{overflow-x:auto}
 *::-webkit-scrollbar{width:8px;height:8px}
-*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
-*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
-*::-webkit-scrollbar-thumb:hover{background:#00ff41}
-*::-webkit-scrollbar-corner{background:#0c0c0c}
-*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
-table{width:100%;border-collapse:collapse;font-size:0.82rem;background:#080808}
-th,td{border:1px solid #1a3a1a;padding:0.5rem 0.7rem;text-align:left;white-space:nowrap}
-th{color:#00ff41;background:#0a1a0a;text-shadow:0 0 4px rgba(0,255,65,0.2);position:sticky;top:0}
-td{color:#88bb88}
-tr.lat-border-green td:first-child{border-left:2px solid #27c93f}
+*::-webkit-scrollbar-track{background:#0e100f;border:1px solid #272c29}
+*::-webkit-scrollbar-thumb{background:#1b1f1c;border-radius:4px;border:1px solid #0e100f}
+*::-webkit-scrollbar-thumb:hover{background:#4fd283}
+*::-webkit-scrollbar-corner{background:#0e100f}
+*{scrollbar-width:thin;scrollbar-color:#3e4541 #0e100f}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;background:#151816}
+th, td{border:1px solid #272c29;padding:0.5rem 0.7rem;text-align:left;white-space:nowrap}
+th{color:#4fd283;background:#151816;position:sticky;top:0}
+td{color:#b7beb8}
+tr.lat-border-green td:first-child{border-left:2px solid #4fd283}
 tr.lat-border-orange td:first-child{border-left:2px solid #ffaa00}
 tr.lat-border-red td:first-child{border-left:2px solid #ff4444}
-tr.lat-border-unknown td:first-child{border-left:2px solid #333}
+tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
 .status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
-.dot-g{background:#27c93f;box-shadow:0 0 6px rgba(39,201,63,0.6)}
-.dot-o{background:#ff9f43;box-shadow:0 0 6px rgba(255,159,67,0.6)}
-.dot-y{background:#ffbd2e;box-shadow:0 0 6px rgba(255,189,46,0.6)}
-.dot-r{background:#ff5f56;box-shadow:0 0 6px rgba(255,95,86,0.6)}
-.dot-u{background:#555;box-shadow:0 0 4px rgba(85,85,85,0.4)}
-.dot-p{background:#4a9eff;box-shadow:0 0 6px rgba(74,158,255,0.5)}
-.lat-green{color:#27c93f}.lat-orange{color:#ff9f43}.lat-red{color:#ff5f56}
-.loading{text-align:center;padding:3rem;color:#2a942a;font-size:0.9rem}
-.loading::after{content:'';display:inline-block;width:8px;height:1.1em;background:#00ff41;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:4px}
+.dot-g{background:#4fd283;}
+.dot-o{background:#ff9f43;}
+.dot-y{background:#ffbd2e;}
+.dot-r{background:#ff5f56;}
+.dot-u{background:#555;}
+.dot-p{background:#4a9eff;}
+.lat-green{color:#9ca59e}.lat-orange{color:#ff9f43}.lat-red{color:#ff7262}
+.loading{text-align:center;padding:3rem;color:#9ca59e;font-size:0.9rem}
+.loading::after{content:'';display:inline-block;width:8px;height:1.1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:4px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.error-msg{text-align:center;padding:2rem;color:#ff5f56;font-size:0.85rem}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.error-msg{text-align:center;padding:2rem;color:#ff7262;font-size:0.85rem}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
 .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#00aa30}
-#boot-screen{padding:2rem;font-size:0.82rem;color:#00ff41;min-height:200px;position:relative;z-index:1}
-#boot-screen .line{opacity:0;margin-bottom:2px}
-#boot-screen .line.visible{opacity:1}
-#boot-screen .ok{color:#27c93f}
-#boot-screen .sys{color:#ffbd2e}
+.footer .online{color:#9ca59e}
 
 /* AP-10: autopilot dashboard extensions (L2 screens 1 "Operator" + 2 "Fleet/Queue" +
    3 "Technical Control" columns) — same terminal-HUD system, no new visual language. */
 .sev-banner{display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;padding:0.7rem 1rem;border-radius:4px;margin-bottom:1.2rem;font-size:0.85rem;font-weight:700;letter-spacing:0.3px}
-.sev-banner.ok{background:#0a1a0a;border:1px solid #1a5a1a;color:#00ff41}
-.sev-banner.sev2{background:#1a1200;border:1px solid #4a3a00;color:#ffbd2e}
+.sev-banner.ok{background:#151816;border:1px solid #3e4541;color:#4fd283}
+.sev-banner.sev2{background:#1a1200;border:1px solid #4a3a00;color:#f0a640}
 .sev-banner.sev1{background:#2a0a0a;border:1px solid #5a1a1a;color:#ff7a70}
 /* ruling-1 (T-819): "failed to load" is NOT the "ok" (green) case — that
    would render silence as health. Neutral gray, distinct from both ok/sev1/sev2. */
-.sev-banner.unknown{background:#141414;border:1px solid #333;color:#888}
-.sev-banner .tick-note{font-weight:400;font-size:0.72rem;color:#2a942a;margin-left:auto}
+.sev-banner.unknown{background:#141414;border:1px solid #272c29;color:#9ca59e}
+.sev-banner .tick-note{font-weight:400;font-size:0.72rem;color:#9ca59e;margin-left:auto}
 
 .incident-section{margin-bottom:1.2rem}
-.incident-section h2{font-size:0.82rem;color:#00ff41;margin-bottom:0.5rem;letter-spacing:0.3px;display:flex;align-items:center;gap:0.4rem;font-weight:700}
+.incident-section h2{font-size:0.82rem;color:#4fd283;margin-bottom:0.5rem;letter-spacing:0.3px;display:flex;align-items:center;gap:0.4rem;font-weight:700}
 .incident-list{display:flex;flex-direction:column;gap:0.5rem}
-.incident-card{display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.8rem;background:#080808;border-radius:4px;border-left:3px solid #333;font-size:0.78rem;text-decoration:none}
+.incident-card{display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.8rem;background:#151816;border-radius:4px;border-left:3px solid #272c29;font-size:0.78rem;text-decoration:none}
 .incident-card.st-waiting_human{border-left-color:#ffbd2e}
 .incident-card.st-remediation_queued{border-left-color:#4a9eff}
 .incident-card.st-verifying{border-left-color:#3adfc4}
 .incident-card .icon{flex-shrink:0;margin-top:2px}
 .incident-card .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:0.15rem}
 .incident-card .title{color:#cdeecd;font-weight:700}
-.incident-card .meta{color:#2a942a;font-size:0.72rem}
+.incident-card .meta{color:#9ca59e;font-size:0.72rem}
 .incident-empty{color:#1a5a1a;font-size:0.76rem;padding:0.4rem 0}
 /* ruling-1 (T-819): "failed to load" (don't know) must not share a class
    with "no incidents" (know, and the answer is zero) — twin-worlds. */
-.incident-noinfo{color:#555;font-style:italic;font-size:0.76rem;padding:0.4rem 0}
+.incident-noinfo{color:#9ca59e;font-style:italic;font-size:0.76rem;padding:0.4rem 0}
 
 .state-badge{display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.68rem;font-weight:700;letter-spacing:0.2px;white-space:nowrap}
 .state-badge.st-open{background:#2a0a0a;color:#ff7a70}
 .state-badge.st-remediation_queued{background:#0a1a2a;color:#4a9eff}
-.state-badge.st-waiting_human{background:#2a2000;color:#ffbd2e}
+.state-badge.st-waiting_human{background:#2a2000;color:#f0a640}
 .state-badge.st-verifying{background:#0a2a26;color:#3adfc4}
 .state-badge.st-stuck{background:#2a0000;color:#ff4444}
-.state-badge.st-resolved{background:#0a1a0a;color:#3a7a3a}
+.state-badge.st-resolved{background:#151816;color:#3a7a3a}
 
 .fleet-toggle{cursor:pointer;user-select:none;display:block;margin-bottom:0.5rem}
-.fleet-toggle:hover{color:#00ff41}
+.fleet-toggle:hover{color:#4fd283}
 .fleet-panel.collapsed{display:none}
-.fleet-legend{font-size:0.68rem;color:#2a942a;margin-bottom:0.6rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center}
+.fleet-legend{font-size:0.68rem;color:#9ca59e;margin-bottom:0.6rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center}
 .state-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.6rem}
-.state-tag{background:#0a1a0a;border:1px solid #1a3a1a;border-radius:3px;padding:0.25rem 0.6rem;font-size:0.72rem;color:#2a942a;cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap}
-.state-tag:hover{color:#00ff41;border-color:#00aa30}
-.state-tag.active{color:#00ff41;border-color:#00ff41;background:#0a2a0a;font-weight:700}
-.state-tag .cat-count{color:#006620;margin-left:3px;font-weight:400}
-.state-tag.active .cat-count{color:#00aa30}
+.state-tag{background:#151816;border:1px solid #272c29;border-radius:3px;padding:0.25rem 0.6rem;font-size:0.72rem;color:#9ca59e;cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap}
+.state-tag:hover{color:#4fd283;border-color:#4fd283}
+.state-tag.active{color:#4fd283;border-color:#4fd283;background:#0a2a0a;font-weight:700}
+.state-tag .cat-count{color:#9ca59e;margin-left:3px;font-weight:400}
+.state-tag.active .cat-count{color:#9ca59e}
 
-.noinfo{color:#555;font-style:italic}
-@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}.titlebar{padding:8px 10px}h1{font-size:1.05rem}h1::before{content:''}table{font-size:0.72rem}th,td{padding:0.35rem}.col-latency{display:none}.col-extra{display:none}.system-monitor{font-size:0.72rem}.footer{font-size:0.65rem}.cat-tag{font-size:0.65rem;padding:0.2rem 0.4rem}.sev-banner{font-size:0.75rem}}
+.noinfo{color:#9ca59e;font-style:italic}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}table{font-size:0.72rem}th, td{padding:0.35rem}.col-latency{display:none}.col-extra{display:none}.system-monitor{font-size:0.72rem}.footer{font-size:0.65rem}.cat-tag{font-size:0.65rem;padding:0.2rem 0.4rem}.sev-banner{font-size:0.75rem}}
 /*site-nav*/
-nav{
-  display:flex;
-  flex-wrap:wrap;
-  gap:0.3rem;
-  margin-bottom:1rem;
-  padding:0.5rem 0;
-  border-bottom:1px solid #1a3a1a;
-}
-nav::before{content:'[';color:#555}
-nav::after{content:']';color:#555}
-nav .brand{
-  color:#00ff41;
-  font-weight:700;
-  font-size:1rem;
-  text-decoration:none;
-  text-shadow:0 0 8px rgba(0,255,65,0.4);
-  padding:0.55rem 0.35rem 0.55rem 0;
-  display:inline-block;
-}
-nav a{
-  color:#00cc33;
-  text-decoration:none;
-  font-size:1rem;
-  padding:0.55rem 0.35rem;
-  display:inline-block;
-}
-nav a::before{content:' | ';color:#333}
-nav .brand::before{content:''}
-nav a:hover{
-  color:#00ff41;
-  text-shadow:0 0 6px rgba(0,255,65,0.5);
-}
-.nav-burger{display:none;border:1px solid #1a3a1a;border-radius:4px;margin:0 0 1rem;padding:0 0.8rem}
-.nav-burger summary{color:#00ff41}
-.burger-links a{display:block;color:#00cc33;text-decoration:none;padding:0.7rem 0;min-height:44px}
-@media(max-width:768px){
-  nav.nav-full{display:none}
-  .nav-burger{display:block}
-}
-@media(max-width:600px){nav::before,nav::after{display:none}}
+.site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
+.site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-header a{text-decoration:none}
+.site-header .brand{display:flex;align-items:center;gap:9px;min-height:44px;color:#eef1ed;font-weight:700;font-size:18px;letter-spacing:-.02em;flex:none}
+.site-header .brand::before{content:'';width:10px;height:10px;border-radius:3px;background:#4fd283}
+.site-header .nav-full{display:none;align-items:center;gap:2px}
+.site-header .nav-full a{color:#b7beb8;font-size:14.5px;white-space:nowrap;padding:12px 5px;transition:color 120ms cubic-bezier(.2,.7,.2,1)}
+.site-header .nav-full a:hover{color:#eef1ed}
+.site-header nav a[aria-current="page"]{color:#eef1ed;box-shadow:inset 0 -2px 0 #4fd283}
+.site-header .nav-burger summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:1px solid #3e4541;border-radius:8px;color:#eef1ed;font-size:15px}
+.site-header .nav-burger summary::-webkit-details-marker{display:none}
+.site-header .nav-burger summary::before{content:'';width:18px;height:2px;background:#eef1ed;box-shadow:0 -6px 0 #eef1ed,0 6px 0 #eef1ed}
+.site-header .nav-burger[open] summary::before{content:'\00d7';width:auto;height:auto;background:none;box-shadow:none;font-size:26px;line-height:1}
+.site-header .burger-links{position:absolute;left:0;right:0;top:60px;background:#0e100f;border-bottom:1px solid #272c29;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:12px 20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;max-height:calc(100vh - 60px);overflow:auto}
+.site-header .burger-links a{display:flex;align-items:center;min-height:48px;padding:0 12px;border-radius:6px;color:#b7beb8;font-size:16px}
+.site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
+@media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
 /*/site-nav*/
 </style>
 </head>
 <body>
-<div class="window">
-<div class="titlebar">
-<div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
-<span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/dashboard | live <span class="cursor-blink"></span></span>
-</div>
-<div id="boot-screen" style="display:none">
-<div class="line sys">APIBASE OS v1.0.0 — INITIALIZING...</div>
-<div class="line"><span class="ok">[OK]</span> Loading provider registry...</div>
-<div class="line"><span class="ok">[OK]</span> Connecting to payment layer (x402/Base + MPP/Tempo)...</div>
-<div class="line"><span class="ok">[OK]</span> Fetching real-time status data...</div>
-<div class="line sys">SYSTEM READY. Launching dashboard...</div>
-</div>
-<div class="container" id="main-content">
 <!--site-nav-->
-<nav class="nav-full" aria-label="Main">
+<link rel="stylesheet" href="/assets/site-m.css?v=2b9c8ce6">
+<header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
+<nav class="nav-full" aria-label="Main">
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
 <a href="/connect">Connect</a>
@@ -244,7 +192,7 @@ nav a:hover{
 </nav>
 <details class="nav-burger">
 <summary>Menu</summary>
-<div class="burger-links">
+<nav class="burger-links" aria-label="Main menu">
 <a href="/">APIbase.pro</a>
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
@@ -259,9 +207,14 @@ nav a:hover{
 <a href="/partners">Partners</a>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 <a href="https://x.com/apibase_pro">X</a>
-</div>
+</nav>
 </details>
+</div></header>
+<script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
+<div class="page-shell">
+<div class="container" id="main-content">
+
 <h1>Provider Status Dashboard</h1>
 <!-- AP-10 / L2 screen 1 "Operator": top-row SEV1/SEV2 banner (green "autopilot: OK"
      line when there are none AND the incident-engine has ticked recently — T-04,
@@ -279,7 +232,7 @@ nav a:hover{
      (amber+person vs blue/teal+gear) per the project ruling: these two must
      never be visually confusable. -->
 <div class="incident-section">
-<h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#ffbd2e"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>Needs you</h2>
+<h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#f0a640"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>Needs you</h2>
 <div class="incident-list" id="waiting-human-list"><div class="incident-empty">Loading…</div></div>
 </div>
 
@@ -321,7 +274,7 @@ nav a:hover{
 <div class="footer-row"><span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span></div>
 <div class="footer-row"><span id="gen-time">Generated: --</span><span id="uptime-counter">Uptime: 0m 0s</span><span>BUILD: v1.0.0</span></div>
 </div>
-<footer class="footer"><div class="footer-row"><span><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/contact">Contact</a> · <a href="/legal">Legal</a> · <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a></span></div></footer>
+
 </div>
 </div>
 
@@ -655,14 +608,6 @@ nav a:hover{
   }
 
   // --- Boot sequence ---
-  var bootScreen = document.getElementById('boot-screen');
-  var mainContent = document.getElementById('main-content');
-  if (!sessionStorage.getItem('apibase_booted')) {
-    mainContent.style.opacity = '0'; bootScreen.style.display = 'block';
-    var lines = bootScreen.querySelectorAll('.line'); var delay = 0;
-    for (var i = 0; i < lines.length; i++) { (function(line, d) { setTimeout(function() { line.classList.add('visible'); }, d); })(lines[i], delay); delay += 400; }
-    setTimeout(function() { bootScreen.style.display = 'none'; mainContent.style.transition = 'opacity 0.5s'; mainContent.style.opacity = '1'; sessionStorage.setItem('apibase_booted', '1'); }, delay + 600);
-  } else { bootScreen.style.display = 'none'; mainContent.style.opacity = '1'; }
 
   // --- Uptime counter ---
   setInterval(function() { var e = Math.floor((Date.now() - pageLoadTime) / 1000); var el = document.getElementById('uptime-counter'); if (el) el.textContent = 'Uptime: ' + Math.floor(e/60) + 'm ' + (e%60) + 's'; }, 1000);
@@ -791,7 +736,7 @@ nav a:hover{
     for (var i = 0; i < list.length; i++) {
       var inc = list[i];
       html += '<a class="incident-card st-waiting_human" href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">';
-      html += '<span class="icon" style="color:#ffbd2e">' + ICON_PERSON + '</span>';
+      html += '<span class="icon" style="color:#f0a640">' + ICON_PERSON + '</span>';
       html += '<span class="body"><span class="title">' + escHtml(inc.provider) + ' &mdash; ' + escHtml(inc.kind) + '</span>';
       html += '<span class="meta">' + escHtml(inc.severity) + ' &middot; age ' + fmtAge(inc.created_at) + ' &middot; file: ' + (inc.operator_file ? escHtml(inc.operator_file) : '<span class="noinfo">NOINFO</span>') + '</span></span></a>';
     }
@@ -968,7 +913,7 @@ nav a:hover{
     html += '<span class="h-grey">TRACKED:' + data.totals.providers_tracked + '</span>';
     html += '</div>';
 
-    html += '<div class="latency-legend">STATUS: <span style="color:#27c93f">●</span> healthy  <span style="color:#ff9f43">●</span> slow  <span style="color:#ff5f56">●</span> down  <span style="color:#555">●</span> pending</div>';
+    html += '<div class="latency-legend">STATUS: <span style="color:#9ca59e">●</span> healthy  <span style="color:#ff9f43">●</span> slow  <span style="color:#ff7262">●</span> down  <span style="color:#9ca59e">●</span> pending</div>';
 
     html += '<div class="table-wrap"><table><thead><tr>';
     html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th>Tools</th>';
@@ -996,15 +941,15 @@ nav a:hover{
       var rowNoinfo = p.health.status === 'unknown' ? ' noinfo' : '';
       html += '<tr class="' + borderCls + rowNoinfo + '">';
       html += '<td>' + escHtml(p.display_name) + '</td>';
-      html += '<td style="color:#2a942a;font-size:0.72rem">' + escHtml(cat) + '</td>';
-      html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span style="color:#333">pending</span>' : 'OK')) + '</td>';
+      html += '<td style="color:#9ca59e;font-size:0.72rem">' + escHtml(cat) + '</td>';
+      html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span style="color:#9ca59e">pending</span>' : 'OK')) + '</td>';
       html += '<td>' + statusDot(p.limits.status === 'n/a' ? 'unknown' : p.limits.status);
       if (p.balance && p.balance.balance_usd !== null) {
         var balColor = p.balance.balance_usd > 10 ? '#00ff41' : p.balance.balance_usd > 0 ? '#ffaa00' : '#ff4444';
         html += '<span style="color:' + balColor + ';font-weight:bold">$' + p.balance.balance_usd.toFixed(2) + '</span>';
       } else if (p.limits.type === 'unlimited') html += 'Unlimited';
       else if (p.limits.status === 'paid') html += 'Paid';
-      else if (p.limits.type === 'rate_limited' && p.limits.free_limit === 0) html += '<span style="color:#888">Rate Limited</span>';
+      else if (p.limits.type === 'rate_limited' && p.limits.free_limit === 0) html += '<span style="color:#9ca59e">Rate Limited</span>';
       else if (p.limits.used > p.limits.free_limit && p.limits.free_limit > 0) html += '<span style="color:#ff4444;font-weight:bold">OVER ' + formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + '</span>';
       else html += formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + ' (' + p.limits.pct_remaining + '%) <span style="opacity:0.4;font-size:0.8em">/' + (p.limits.type === 'monthly' ? 'mo' : p.limits.type === 'daily' ? 'day' : p.limits.type === 'credits' ? 'cr' : '') + '</span>';
       html += '</td>';
@@ -1137,5 +1082,16 @@ nav a:hover{
   });
 })();
 </script>
+<footer class="site-footer"><div class="sf-in">
+<div class="sf-cols">
+<div><a class="sf-brand" href="/">APIbase.pro</a><p class="sf-tag">Unified API gateway for AI agents, and for the shops they buy from.</p></div>
+<nav aria-label="For agents"><div class="sf-h">For agents</div><a href="/catalog">Catalog</a><a href="/pricing">Pricing</a><a href="/connect">Connect</a><a href="/frameworks">Frameworks</a><a href="/dashboard">Dashboard</a></nav>
+<nav aria-label="For merchants"><div class="sf-h">For merchants</div><a href="/integrator">Integrator</a><a href="/shops">Shops</a><a href="/m/apibase-demo">Demo store</a><a href="/integrator/docs">Docs</a></nav>
+<nav aria-label="Company"><div class="sf-h">Company</div><a href="/about">About</a><a href="/why">Why APIbase</a><a href="/partners">Partners</a><a href="/contact">Contact</a><a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a><a href="https://x.com/apibase_pro">X</a></nav>
+<nav aria-label="Legal"><div class="sf-h"><a href="/legal">Legal</a></div><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/policy/moderation">Moderation</a><a href="/legal/aup">Acceptable use</a><a href="/legal/dpa">DPA</a><a href="/legal/merchant-agreement">Merchant agreement</a><a href="/legal/refund-framework">Refund framework</a></nav>
+</div>
+<div class="sf-agents"><span class="sf-h">For AI agents</span><a href="/index.md">/index.md</a><a href="/llms.txt">/llms.txt</a><a href="/ai.txt">/ai.txt</a><a href="https://apibase.pro/mcp">https://apibase.pro/mcp</a></div>
+<div class="sf-note"><span>&copy; 2026 APIbase</span><span>USDC via x402 on Base and MPP on Tempo</span></div>
+</div></footer>
 </body>
 </html>

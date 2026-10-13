@@ -17,6 +17,7 @@ const run = (root: string, cmd: 'check' | 'apply') =>
   );
 const fragment = readFileSync(join(ROOT, 'config/site-nav.html'), 'utf-8');
 const css = readFileSync(join(ROOT, 'config/site-nav.css'), 'utf-8');
+const site_m_css = readFileSync(join(ROOT, 'static/assets/site-m.css'), 'utf-8');
 
 describe('T-0367 site header gate', () => {
   it('a: the repo passes with at least 18 pages', () => {
@@ -41,14 +42,18 @@ describe('T-0367 site header gate', () => {
         writeFileSync(file, after);
       };
       edit('static/dashboard.html', (s) => s.replace('<a href="/integrator">Integrator</a>\n', ''));
-      edit('static/why.html', (s) => s.replace('768px', '767px'));
+      edit('static/why.html', (s) => s.replace('1100px', '1099px'));
       edit('static/about.html', (s) => s.replace(/<meta name="viewport"[^>]*>\n?/, ''));
+
+      // T-0383: the stylesheet version in the header fragment follows the file; a stale one is caught.
+      writeFileSync(join(tmp, 'static/assets/site-m.css'), `${site_m_css}\n/* edit */\n`);
 
       const bad = run(tmp, 'check');
       expect(bad.status).toBe(1);
       expect(bad.stdout).toContain('static/dashboard.html: site nav differs');
       expect(bad.stdout).toContain('static/why.html: site nav css differs');
       expect(bad.stdout).toContain('static/about.html: no viewport');
+      expect(bad.stdout).toContain('config/site-nav.html: site-m.css version is stale');
 
       const fixed = run(tmp, 'apply');
       expect(fixed.status).toBe(0);
@@ -108,6 +113,8 @@ describe('T-0367 site header gate', () => {
       mkdirSync(join(tmp, 'config'));
       cpSync(join(ROOT, 'config/site-nav.html'), join(tmp, 'config/site-nav.html'));
       cpSync(join(ROOT, 'config/site-nav.css'), join(tmp, 'config/site-nav.css'));
+      mkdirSync(join(tmp, 'static/assets'));
+      cpSync(join(ROOT, 'static/assets/site-m.css'), join(tmp, 'static/assets/site-m.css'));
 
       const good = await serve(true);
       try {
@@ -133,16 +140,26 @@ describe('T-0367 site header gate', () => {
     }
   });
 
-  it('e: nav-full and burger carry the same 14 links, css keeps the burger rules', () => {
+  it('e: brand + nav-full and the Menu panel carry the same 14 links, one row from 1100 px', () => {
     const hrefs = (s: string) => [...s.matchAll(/href="([^"]*)"/g)].map((m) => m[1]);
+    const brand = /<a class="brand" href="([^"]*)">APIbase\.pro<\/a>/.exec(fragment)![1];
     const full = /<nav class="nav-full"[^>]*>([\s\S]*?)<\/nav>/.exec(fragment)![1];
-    const burger = /<div class="burger-links">([\s\S]*?)<\/div>/.exec(fragment)![1];
-    expect(hrefs(full)).toHaveLength(14);
-    expect(hrefs(full)[0]).toBe('/');
-    expect(hrefs(burger)).toEqual(hrefs(full));
+    const burger = /<nav class="burger-links"[^>]*>([\s\S]*?)<\/nav>/.exec(fragment)![1];
+    expect([brand, ...hrefs(full)]).toHaveLength(14);
+    expect(brand).toBe('/');
+    expect(hrefs(burger)).toEqual([brand, ...hrefs(full)]);
     expect(css).toMatch(
-      /@media\(max-width:768px\)\{[^}]*nav\.nav-full\{display:none\}[^}]*\.nav-burger\{display:block\}/,
+      /@media\(min-width:1100px\)\{[^}]*\.nav-full\{display:flex\}[^}]*\.nav-burger\{display:none\}/,
     );
-    expect(/\.burger-links a\{[^}]*\}/.exec(css)![0]).toContain('min-height:44px');
+    expect(/\.burger-links a\{[^}]*\}/.exec(css)![0]).toContain('min-height:48px');
+  });
+
+  it('g: design M header: no brackets, pipes or glow; Menu is keyboard operable with aria-expanded', () => {
+    expect(css).not.toMatch(/content:\s*'[\[\]|]/);
+    expect(css).not.toMatch(/text-shadow|glow|#00ff41/);
+    expect(fragment).toContain('<summary>Menu</summary>');
+    expect(fragment).toContain('aria-expanded');
+    expect(fragment).toContain('Escape');
+    expect(fragment).toMatch(/<link rel="stylesheet" href="\/assets\/site-m\.css\?v=[0-9a-f]{8}">/);
   });
 });

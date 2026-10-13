@@ -134,14 +134,9 @@ export function firstParagraph(bodyHtml: string): string {
     .slice(0, 300);
 }
 
-const STYLE =
-  'body{background:#0b0e11;color:#d7dde4;font:15px/1.6 ui-monospace,Menlo,Consolas,monospace;margin:0}' +
-  'main{max-width:820px;margin:0 auto;padding:24px 16px}a{color:#4cc2ff}' +
-  'h1,h2,h3{color:#fff}blockquote{border-left:3px solid #444;margin:0;padding-left:12px;color:#9aa5b1}' +
-  'footer{max-width:820px;margin:0 auto;padding:16px;border-top:1px solid #333;color:#9aa5b1}' +
-  'code{background:#1a2027;padding:1px 4px}hr{border:0;border-top:1px solid #333;margin:28px 0}';
+const STYLE = 'main{max-width:820px;margin:0 auto;padding:32px 20px 0}';
 const DRAFT_STYLE =
-  '.draft-banner{background:#7a1f1f;color:#fff;padding:12px 16px;font-weight:bold;text-align:center}';
+  '.draft-banner{background:#7a1f1f;color:#eef1ed;padding:12px 16px;font-weight:bold;text-align:center}';
 
 function page(docId: string, body: string, draft: boolean): string {
   const title = fitTitle(`${DOC_TITLES[docId] ?? docId} — APIbase legal`);

@@ -1,0 +1,29 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/integrator",
+"/legal",
+"/legal/aup",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"https://apibase.pro/policy/moderation",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"boot-screen",
+"main-content",
+"merchant-catalogs"
+],
+"scripts": 1
+}

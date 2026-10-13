@@ -23,6 +23,7 @@ import { resolve } from 'path';
 
 // T-0367: the site header is config/site-nav.{html,css}, shared with every static page (scripts/site-nav.py).
 const NAV_HTML = `<!--site-nav-->\n${readFileSync(resolve(__dirname, '../config/site-nav.html'), 'utf8').trim()}\n<!--/site-nav-->`;
+const SITE_FOOTER = readFileSync(resolve(__dirname, '../config/page-footer.html'), 'utf8').trim();
 const NAV_CSS = `/*site-nav*/\n${readFileSync(resolve(__dirname, '../config/site-nav.css'), 'utf8').trim()}\n/*/site-nav*/`;
 
 function escapeHtml(s: string): string {
@@ -61,54 +62,40 @@ export function renderPage(
 <meta property="og:url" content="https://apibase.pro/catalog">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
-.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
-.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
-.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
-.dots{display:flex;gap:7px;flex-shrink:0}
-.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
-.dot-red{background:#ff5f56;border-color:#e0443e}
-.dot-yellow{background:#ffbd2e;border-color:#dea123}
-.dot-green{background:#27c93f;border-color:#1aab29}
-.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+
 .container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
 ${NAV_CSS}
-h1{color:#00ff41;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
-h1::before{content:'> ';color:#00aa30}
-h2{color:#00ff41;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
-h2::before{content:'## ';color:#006620}
-p{margin-bottom:0.8rem;font-size:1rem;color:#a0d8a0}
-strong{color:#33ff66}
-.updated{color:#2a942a;font-size:0.82rem;margin-bottom:1.8rem}
-a{color:#00ccff;text-decoration:none}
-a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
+h1{color:#4fd283;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5}
+
+h2{color:#4fd283;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #4fd283}
+
+p{margin-bottom:0.8rem;font-size:1rem;color:#b7beb8}
+strong{color:#4fd283}
+.updated{color:#9ca59e;font-size:0.82rem;margin-bottom:1.8rem}
+a{color:#eef1ed;text-decoration:none}
+a:hover{color:#4fd283}
 table{width:100%;border-collapse:collapse;margin:0.8rem 0 1.4rem;font-size:0.83rem}
-th,td{text-align:left;padding:0.4rem 0.7rem;border-bottom:1px solid #1a3a1a}
-th{color:#00ff41;font-weight:700;border-bottom:1px solid #00aa30;position:sticky;top:0;background:#0c0c0c}
-td{color:#a0d8a0}
-td:last-child,th:last-child{text-align:right}
-.scroll{max-height:60vh;overflow-y:auto;overflow-x:auto;border:1px solid #1a3a1a;border-radius:6px}
-.note{color:#5a9a5a;font-size:0.82rem;font-style:italic}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+th, td{text-align:left;padding:0.4rem 0.7rem;border-bottom:1px solid #272c29}
+th{color:#4fd283;font-weight:700;border-bottom:1px solid #4fd283;position:sticky;top:0;background:#0e100f}
+td{color:#b7beb8}
+td:last-child, th:last-child{text-align:right}
+.scroll{max-height:60vh;overflow-y:auto;overflow-x:auto;border:1px solid #272c29;border-radius:6px}
+.note{color:#9ca59e;font-size:0.82rem;font-style:italic}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
 .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#00aa30}
+.footer .online{color:#9ca59e}
 *::-webkit-scrollbar{width:8px;height:8px}
-*::-webkit-scrollbar-track{background:#0c0c0c;border:1px solid #1a3a1a}
-*::-webkit-scrollbar-thumb{background:#1a5a1a;border-radius:4px;border:1px solid #0c0c0c}
-*{scrollbar-width:thin;scrollbar-color:#1a5a1a #0c0c0c}
-@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}h1::before{content:''}.footer{font-size:0.65rem}}
+*::-webkit-scrollbar-track{background:#0e100f;border:1px solid #272c29}
+*::-webkit-scrollbar-thumb{background:#1b1f1c;border-radius:4px;border:1px solid #0e100f}
+*{scrollbar-width:thin;scrollbar-color:#3e4541 #0e100f}
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}.footer{font-size:0.65rem}}
 </style>
 </head>
 <body>
-<div class="window">
-<div class="titlebar">
-<div class="dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
-<span class="titlebar-text">apibase@prod ~ /srv/apibase/catalog</span>
-</div>
-
-<div class="container" id="main-content">
-
 ${NAV_HTML}
+<div class="page-shell">
+<div class="container" id="main-content">
 
 <h1>Catalog</h1>
 <p class="updated">Generated straight from the production database — never hand-edited, never rounded.</p>
@@ -137,10 +124,10 @@ ${tableRows}
 <span>BUILD: v1.0.0</span>
 </div>
 </div>
-<footer class="footer"><div class="footer-row"><span><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/contact">Contact</a> · <a href="/legal">Legal</a> · <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a></span></div></footer>
 
 </div>
 </div>
+${SITE_FOOTER}
 </body>
 </html>
 `;

@@ -2,10 +2,10 @@
 """T-0367: one site header. config/site-nav.html and config/site-nav.css are the single source; every
 static page carries them between <!--site-nav--> ... <!--/site-nav--> and /*site-nav*/ ... /*/site-nav*/.
   check [--no-fetch]  verify static/**/*.html (and $SITE_NAV_PATHS fetched from $SITE_NAV_BASE)
-  apply               rewrite the text between the marker pairs of every static page that has them
+  apply               refresh the site-m.css version, then rewrite the text between the marker pairs of every static page
 Fetch mode checks pages as a browser (Accept: text/html) because some routes content-negotiate.
 Run as: python3 -I scripts/site-nav.py <check|apply>. ROOT defaults to the repo this script lives in."""
-import glob, os, re, subprocess, sys, time
+import glob, hashlib, os, re, subprocess, sys, time
 
 ROOT = os.environ.get("ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = os.environ.get("SITE_NAV_BASE", "http://127.0.0.1:8880")
@@ -20,7 +20,29 @@ def read(p):
         return f.read()
 
 
-FRAG = read(os.path.join(ROOT, "config/site-nav.html")).strip()
+NAV_HTML = os.path.join(ROOT, "config/site-nav.html")
+SITE_M = os.path.join(ROOT, "static/assets/site-m.css")
+V_RE = re.compile(r"/assets/site-m\.css\?v=([0-9a-f]{8})")
+
+
+def site_m_version():
+    with open(SITE_M, "rb") as f:
+        return hashlib.sha256(f.read()).hexdigest()[:8]
+
+
+def refresh_version():
+    """T-0383: the header fragment links static/assets/site-m.css?v=<sha256[:8] of the file>."""
+    global FRAG
+    s = read(NAV_HTML)
+    t = V_RE.sub("/assets/site-m.css?v=" + site_m_version(), s, count=1)
+    if t != s:
+        with open(NAV_HTML, "w", encoding="utf-8") as fh:
+            fh.write(t)
+        print("changed config/site-nav.html (site-m.css version)")
+    FRAG = t.strip()
+
+
+FRAG = read(NAV_HTML).strip()
 CSS = read(os.path.join(ROOT, "config/site-nav.css")).strip()
 
 
@@ -59,6 +81,9 @@ def check_page(label, s):
 
 def check(no_fetch):
     out, n = [], 0
+    m = V_RE.search(FRAG)
+    if not m or m.group(1) != site_m_version():
+        out.append("SITE_NAV_FAIL config/site-nav.html: site-m.css version is stale, run site-nav.py apply")
     for f in pages():
         n += 1
         out += check_page(os.path.relpath(f, ROOT), read(f))
@@ -84,7 +109,21 @@ def check(no_fetch):
     return 1 if out else 0
 
 
+def sync_theme():
+    """T-INT-34 TD1: static/integrator/_theme.css is the homepage <style> text byte for byte (it carries the css block)."""
+    home, theme = os.path.join(ROOT, "static/index.html"), os.path.join(ROOT, "static/integrator/_theme.css")
+    if not (os.path.isfile(home) and os.path.isfile(theme)):
+        return
+    h = read(home)
+    css = h[h.index("<style>") + 7:h.index("</style>")].strip() + "\n"
+    if read(theme) != css:
+        with open(theme, "w", encoding="utf-8") as fh:
+            fh.write(css)
+        print("changed static/integrator/_theme.css")
+
+
 def apply():
+    refresh_version()
     for f in pages():
         s = read(f)
         if len(blocks(s, H_OPEN, H_CLOSE)) != 1 or len(blocks(s, C_OPEN, C_CLOSE)) != 1:
@@ -96,6 +135,7 @@ def apply():
             with open(f, "w", encoding="utf-8") as fh:
                 fh.write(t)
             print("changed %s" % os.path.relpath(f, ROOT))
+    sync_theme()
     return 0
 
 

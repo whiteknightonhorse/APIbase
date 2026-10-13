@@ -1,0 +1,37 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/integrator",
+"/legal",
+"/legal/aup",
+"/legal/dpa",
+"/legal/merchant-agreement",
+"/legal/prohibited-categories.json",
+"/legal/refund-framework",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"https://apibase.pro/api/v1/tools",
+"https://apibase.pro/terms",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://openweathermap.org",
+"https://x.com/apibase_pro",
+"mailto:support@apibase.pro"
+],
+"ids": [
+"boot-screen",
+"integrator",
+"main-content",
+"prohibited-uses"
+],
+"scripts": 1
+}

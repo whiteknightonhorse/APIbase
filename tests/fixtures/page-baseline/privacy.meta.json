@@ -1,0 +1,31 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/integrator",
+"/legal",
+"/legal/dpa",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"https://apibase.pro/privacy",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro",
+"mailto:support@apibase.pro"
+],
+"ids": [
+"boot-screen",
+"integrator",
+"main-content",
+"uptime-counter"
+],
+"scripts": 1
+}

@@ -1,0 +1,39 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/frameworks",
+"/integrator",
+"/integrator/agent-guide",
+"/integrator/buyers",
+"/integrator/docs",
+"/integrator/llms.txt",
+"/legal",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/shops",
+"/terms",
+"https://apibase.pro/integrator/buyers",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"find-a-shop",
+"for-buyers-paying-ai-enabled-shops",
+"if-a-payment-is-slow",
+"set-limits-in-your-wallet",
+"streams-pay-by-the-second",
+"subscriptions-let-the-shop-renew-with-its-own-key-tempo",
+"subscriptions-pre-sign-the-next-periods-base",
+"the-price-is-fixed-by-the-quote",
+"what-stays-outside-our-guarantees",
+"what-we-never-ask-for",
+"what-you-can-verify"
+],
+"scripts": 3
+}

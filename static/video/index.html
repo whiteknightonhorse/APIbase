@@ -15,81 +15,61 @@
 <meta property="og:url" content="https://apibase.pro/video/">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;color:#00ff41;font-family:'JetBrains Mono','Courier New',monospace;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+body{background:#0e100f;color:#4fd283;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;display:flex;flex-direction:column;align-items:center;min-height:100vh}
 .header{padding:24px;text-align:center;max-width:900px;width:100%}
-h1{font-size:20px;color:#00ff41;margin-bottom:8px;font-weight:normal}
-.subtitle{font-size:14px;color:#888;margin-bottom:16px}
+h1{font-size:20px;color:#4fd283;margin-bottom:8px;font-weight:normal}
+.subtitle{font-size:14px;color:#9ca59e;margin-bottom:16px}
 .slideshow{position:relative;width:100%;max-width:900px;padding:0 16px;margin-bottom:8px;min-height:563px}
 .slideshow img{width:100%;border-radius:8px;border:1px solid #222;position:absolute;top:0;left:16px;right:16px;opacity:0;transition:opacity 0.6s ease}
 .slideshow img:first-child{position:relative;left:0}
 .slideshow img.active{opacity:1;z-index:1}
 .controls{display:flex;justify-content:center;gap:12px;margin-top:12px;align-items:center}
-.controls button{background:#111;color:#00ff41;border:1px solid #333;padding:8px 20px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;transition:all 0.2s}
-.controls button:hover{background:#1a1a1a;border-color:#00ff41}
-.controls button.active{background:#00ff41;color:#0a0a0a}
-.counter{color:#666;font-size:13px;min-width:70px;text-align:center}
+.controls button{background:#151816;color:#4fd283;border:1px solid #272c29;padding:8px 20px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;transition:all 0.2s}
+.controls button:hover{background:#151816;border-color:#4fd283}
+.controls button.active{background:#4fd283;color:#04170c}
+.counter{color:#9ca59e;font-size:13px;min-width:70px;text-align:center}
+
 .dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
-.dot{width:8px;height:8px;border-radius:50%;background:#333;cursor:pointer;transition:background 0.3s}
-.dot.active{background:#00ff41}
-.caption{text-align:center;color:#888;font-size:13px;margin-top:10px;min-height:20px;padding:0 16px}
+.dot{width:8px;height:8px;border-radius:50%;background:#3e4541;cursor:pointer;transition:background 0.3s}
+.dot.active{background:#4fd283}
+.caption{text-align:center;color:#9ca59e;font-size:13px;margin-top:10px;min-height:20px;padding:0 16px}
 .progress-wrap{width:100%;max-width:900px;padding:0 16px;margin-top:6px}
-.progress{height:5px;background:#111;border-radius:3px;overflow:hidden}
-.progress-bar{height:100%;background:#00ff41;border-radius:3px;transition:width 0.05s linear;width:0}
-.recorded{font-size:11px;color:#555}
+.progress{height:5px;background:#151816;border-radius:3px;overflow:hidden}
+.progress-bar{height:100%;background:#4fd283;border-radius:3px;transition:width 0.05s linear;width:0}
+.recorded{font-size:11px;color:#9ca59e}
 .video-link{text-align:center;margin-top:14px}
-.video-link a{color:#555;font-size:12px}
+.video-link a{color:#9ca59e;font-size:12px}
 .links{margin-top:20px;padding:20px;text-align:center;font-size:13px}
-a{color:#00ff41;text-decoration:none}
+a{color:#4fd283;text-decoration:none}
 a:hover{text-decoration:underline}
-.sep{color:#333;margin:0 12px}
+.sep{color:#9ca59e;margin:0 12px}
 /*site-nav*/
-nav{
-  display:flex;
-  flex-wrap:wrap;
-  gap:0.3rem;
-  margin-bottom:1rem;
-  padding:0.5rem 0;
-  border-bottom:1px solid #1a3a1a;
-}
-nav::before{content:'[';color:#555}
-nav::after{content:']';color:#555}
-nav .brand{
-  color:#00ff41;
-  font-weight:700;
-  font-size:1rem;
-  text-decoration:none;
-  text-shadow:0 0 8px rgba(0,255,65,0.4);
-  padding:0.55rem 0.35rem 0.55rem 0;
-  display:inline-block;
-}
-nav a{
-  color:#00cc33;
-  text-decoration:none;
-  font-size:1rem;
-  padding:0.55rem 0.35rem;
-  display:inline-block;
-}
-nav a::before{content:' | ';color:#333}
-nav .brand::before{content:''}
-nav a:hover{
-  color:#00ff41;
-  text-shadow:0 0 6px rgba(0,255,65,0.5);
-}
-.nav-burger{display:none;border:1px solid #1a3a1a;border-radius:4px;margin:0 0 1rem;padding:0 0.8rem}
-.nav-burger summary{color:#00ff41}
-.burger-links a{display:block;color:#00cc33;text-decoration:none;padding:0.7rem 0;min-height:44px}
-@media(max-width:768px){
-  nav.nav-full{display:none}
-  .nav-burger{display:block}
-}
-@media(max-width:600px){nav::before,nav::after{display:none}}
+.site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
+.site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-header a{text-decoration:none}
+.site-header .brand{display:flex;align-items:center;gap:9px;min-height:44px;color:#eef1ed;font-weight:700;font-size:18px;letter-spacing:-.02em;flex:none}
+.site-header .brand::before{content:'';width:10px;height:10px;border-radius:3px;background:#4fd283}
+.site-header .nav-full{display:none;align-items:center;gap:2px}
+.site-header .nav-full a{color:#b7beb8;font-size:14.5px;white-space:nowrap;padding:12px 5px;transition:color 120ms cubic-bezier(.2,.7,.2,1)}
+.site-header .nav-full a:hover{color:#eef1ed}
+.site-header nav a[aria-current="page"]{color:#eef1ed;box-shadow:inset 0 -2px 0 #4fd283}
+.site-header .nav-burger summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:1px solid #3e4541;border-radius:8px;color:#eef1ed;font-size:15px}
+.site-header .nav-burger summary::-webkit-details-marker{display:none}
+.site-header .nav-burger summary::before{content:'';width:18px;height:2px;background:#eef1ed;box-shadow:0 -6px 0 #eef1ed,0 6px 0 #eef1ed}
+.site-header .nav-burger[open] summary::before{content:'\00d7';width:auto;height:auto;background:none;box-shadow:none;font-size:26px;line-height:1}
+.site-header .burger-links{position:absolute;left:0;right:0;top:60px;background:#0e100f;border-bottom:1px solid #272c29;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:12px 20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;max-height:calc(100vh - 60px);overflow:auto}
+.site-header .burger-links a{display:flex;align-items:center;min-height:48px;padding:0 12px;border-radius:6px;color:#b7beb8;font-size:16px}
+.site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
+@media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
 /*/site-nav*/
 </style>
 </head>
 <body>
 <!--site-nav-->
-<nav class="nav-full" aria-label="Main">
+<link rel="stylesheet" href="/assets/site-m.css?v=2b9c8ce6">
+<header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
+<nav class="nav-full" aria-label="Main">
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
 <a href="/connect">Connect</a>
@@ -106,7 +86,7 @@ nav a:hover{
 </nav>
 <details class="nav-burger">
 <summary>Menu</summary>
-<div class="burger-links">
+<nav class="burger-links" aria-label="Main menu">
 <a href="/">APIbase.pro</a>
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
@@ -121,8 +101,10 @@ nav a:hover{
 <a href="/partners">Partners</a>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 <a href="https://x.com/apibase_pro">X</a>
-</div>
+</nav>
 </details>
+</div></header>
+<script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
 <div class="header">
 <h1>> APIbase.pro — Product Slideshow</h1>
@@ -179,6 +161,17 @@ document.addEventListener('keydown',(e)=>{if(e.key==='ArrowRight'){next();if(pla
 const ss=document.getElementById('slideshow');ss.addEventListener('touchstart',(e)=>{touchStartX=e.changedTouches[0].screenX});ss.addEventListener('touchend',(e)=>{const d=e.changedTouches[0].screenX-touchStartX;if(Math.abs(d)>50){d>0?prev():next();if(playing)elapsed=0}});
 caption.textContent=images[0].dataset.caption||'';startAuto();
 </script>
-<footer class="footer"><div class="footer-row"><span><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/contact">Contact</a> · <a href="/legal">Legal</a> · <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a></span></div></footer>
+
+<footer class="site-footer"><div class="sf-in">
+<div class="sf-cols">
+<div><a class="sf-brand" href="/">APIbase.pro</a><p class="sf-tag">Unified API gateway for AI agents, and for the shops they buy from.</p></div>
+<nav aria-label="For agents"><div class="sf-h">For agents</div><a href="/catalog">Catalog</a><a href="/pricing">Pricing</a><a href="/connect">Connect</a><a href="/frameworks">Frameworks</a><a href="/dashboard">Dashboard</a></nav>
+<nav aria-label="For merchants"><div class="sf-h">For merchants</div><a href="/integrator">Integrator</a><a href="/shops">Shops</a><a href="/m/apibase-demo">Demo store</a><a href="/integrator/docs">Docs</a></nav>
+<nav aria-label="Company"><div class="sf-h">Company</div><a href="/about">About</a><a href="/why">Why APIbase</a><a href="/partners">Partners</a><a href="/contact">Contact</a><a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a><a href="https://x.com/apibase_pro">X</a></nav>
+<nav aria-label="Legal"><div class="sf-h"><a href="/legal">Legal</a></div><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/policy/moderation">Moderation</a><a href="/legal/aup">Acceptable use</a><a href="/legal/dpa">DPA</a><a href="/legal/merchant-agreement">Merchant agreement</a><a href="/legal/refund-framework">Refund framework</a></nav>
+</div>
+<div class="sf-agents"><span class="sf-h">For AI agents</span><a href="/index.md">/index.md</a><a href="/llms.txt">/llms.txt</a><a href="/ai.txt">/ai.txt</a><a href="https://apibase.pro/mcp">https://apibase.pro/mcp</a></div>
+<div class="sf-note"><span>&copy; 2026 APIbase</span><span>USDC via x402 on Base and MPP on Tempo</span></div>
+</div></footer>
 </body>
 </html>

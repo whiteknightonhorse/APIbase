@@ -4,6 +4,7 @@
 # the rendered pages from the local nginx (PAGE_META_BASE, Host apibase.pro). /integrator* pages also
 # need a BreadcrumbList. Prints one line per failure and a summary; exit 1 on any failure.
 #   --no-fetch   crawl static/ only (CI has no server)
+#   --apply      rewrite the <footer> block of every static page from config/page-footer.html (T-0383)
 # Fetches retry on 5xx/no response (PAGE_META_RETRIES x PAGE_META_RETRY_SLEEP s) so a deploy restart is not a failure.
 # /guides/ is not in the default PAGE_META_PATHS: content-machine renders it in a separate repo (content-hub);
 # add it back once the follow-up card makes those generators emit the meta block and footer.
@@ -11,8 +12,9 @@
 set -uo pipefail
 ROOT="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 NO_FETCH=0
-for a in "$@"; do [ "$a" = "--no-fetch" ] && NO_FETCH=1; done
-export ROOT NO_FETCH
+APPLY=0
+for a in "$@"; do [ "$a" = "--no-fetch" ] && NO_FETCH=1; [ "$a" = "--apply" ] && APPLY=1; done
+export ROOT NO_FETCH APPLY
 export PAGE_META_BASE="${PAGE_META_BASE:-http://127.0.0.1:8880}"
 export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal/aup /integrator /integrator/buyers}"
 exec python3 -I - <<'PY'
@@ -57,8 +59,15 @@ def skip(f):
     return os.path.basename(f).startswith("_") or "/video/templates/" in f or \
         os.path.dirname(f).endswith("static/integrator")
 
+FOOTER_RE = re.compile(r'<footer class="(?:footer|site-footer)">.*?</footer>', re.S)
 for f in sorted(glob.glob(os.path.join(root, "static/**/*.html"), recursive=True)):
     if skip(f): continue
+    if os.environ["APPLY"] == "1":
+        src = open(f, encoding="utf-8").read()
+        new = FOOTER_RE.sub(lambda m: fragment, src, count=1)
+        if new != src:
+            open(f, "w", encoding="utf-8").write(new)
+            print("changed " + os.path.relpath(f, root))
     check(os.path.relpath(f, root), open(f, encoding="utf-8").read(), None)
 
 if os.environ["NO_FETCH"] != "1":

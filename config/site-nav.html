@@ -1,5 +1,7 @@
-<nav class="nav-full" aria-label="Main">
+<link rel="stylesheet" href="/assets/site-m.css?v=2b9c8ce6">
+<header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
+<nav class="nav-full" aria-label="Main">
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
 <a href="/connect">Connect</a>
@@ -16,7 +18,7 @@
 </nav>
 <details class="nav-burger">
 <summary>Menu</summary>
-<div class="burger-links">
+<nav class="burger-links" aria-label="Main menu">
 <a href="/">APIbase.pro</a>
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
@@ -31,5 +33,7 @@
 <a href="/partners">Partners</a>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 <a href="https://x.com/apibase_pro">X</a>
-</div>
+</nav>
 </details>
+</div></header>
+<script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>

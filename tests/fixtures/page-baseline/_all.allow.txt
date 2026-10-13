@@ -1,0 +1,2 @@
+# T-0383: the old per-page footer line is replaced by the canonical footer of config/page-footer.html (same links, separators dropped).
+Terms · Privacy · Contact · Legal · GitHub

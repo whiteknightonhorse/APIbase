@@ -1,0 +1,29 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/frameworks",
+"/integrator",
+"/integrator/agent-guide",
+"/integrator/buyers",
+"/integrator/docs",
+"/integrator/llms.txt",
+"/legal",
+"/m/apibase-demo",
+"/m/opus-test-shop",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/shops",
+"/terms",
+"https://apibase.pro/shops",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro"
+],
+"ids": [],
+"scripts": 2
+}

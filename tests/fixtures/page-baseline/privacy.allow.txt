@@ -1,0 +1,9 @@
+# T-0383: terminal decoration removed by the design-M migration (fake titlebar, boot sequence).
+apibase@prod:~$ cat /srv/apibase/privacy.html | render
+# boot sequence (id boot-screen)
+APIBASE OS v1.0.0 — INITIALIZING...
+[OK] Kernel: apibase-kernel 1.0.0
+[OK] Compliance module: privacy-policy v2.1
+[OK] Loading policy document...
+SYSTEM READY. apibase@prod:~$
+id: boot-screen

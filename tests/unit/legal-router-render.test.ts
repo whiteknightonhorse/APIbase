@@ -35,7 +35,7 @@ describe('T-0343 /legal page chrome', () => {
       expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
       expect(html).toContain(SITE_NAV);
       for (const href of ['/terms', '/privacy', '/contact', '/legal']) {
-        expect(html).toContain(`<footer class="footer">`);
+        expect(html).toContain(`<footer class="site-footer">`);
         expect(html).toContain(`<a href="${href}">`);
       }
     }

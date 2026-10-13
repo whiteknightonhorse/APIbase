@@ -1,0 +1,2 @@
+# T-0383: terminal decoration removed by the design-M migration (fake titlebar).
+apibase@prod:~$ cat /srv/apibase/integrator/buyers | render

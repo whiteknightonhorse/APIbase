@@ -90,27 +90,33 @@ const ldTargets = (h: string) =>
     (m) => JSON.stringify(JSON.parse(m[1])).match(/"target":"[^"]+"/g) ?? [],
   );
 
-describe('T-INT-35 storefront terminal theme', () => {
-  it('SV1: every HTML page wears the terminal shell and no foreign style or font', () => {
+describe('T-INT-35 storefront theme (design M since T-0383)', () => {
+  it('SV1: every HTML page wears the design-M shell and no foreign style or font', () => {
+    const shared = /<link rel="stylesheet" href="\/assets\/site-m\.css\?v=[0-9a-f]{8}">/;
     for (const h of Object.values(htmls())) {
       for (const n of [
-        '<div class="window">',
-        '<div class="titlebar">',
+        '<div class="page-shell">',
         '<!--site-nav-->',
         '<nav class="nav-sub"',
-        "font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace",
+        "font-family:Seravek,'Gill Sans Nova'",
         '<div class="footer">',
+        '<footer class="site-footer">',
         'Sell to AI agents',
       ])
         expect(h).toContain(n);
+      expect(h).toMatch(shared);
       for (const n of [
+        '<div class="window">',
+        'titlebar',
+        'text-shadow',
+        'JetBrains',
         'ui-monospace',
         '#4cc2ff',
         '#0b0e11',
         'fonts.googleapis',
-        '<link rel="stylesheet"',
       ])
         expect(h).not.toContain(n);
+      expect(h.replace(shared, '')).not.toContain('<link rel="stylesheet"');
     }
   });
 
@@ -118,7 +124,10 @@ describe('T-INT-35 storefront terminal theme', () => {
     // the two /shops listing outputs name no single shop, so they carry no URL at all
     for (const [i, o] of allOutputs().entries()) {
       if (i !== 0 && i !== 4) expect(o).toContain(MCP);
-      expect(o).not.toMatch(/https:\/\/apibase\.pro\/mcp(?![/\w])/);
+      // T-0383: the canonical footer lists the platform endpoint https://apibase.pro/mcp for every page.
+      expect(o.replace(/<footer class="site-footer">[\s\S]*?<\/footer>/, '')).not.toMatch(
+        /https:\/\/apibase\.pro\/mcp(?![/\w])/,
+      );
     }
     expect(agentJson(shop(), products).mcp_url).toBe(MCP);
     const h = htmls();
@@ -163,12 +172,12 @@ describe('T-INT-35 storefront terminal theme', () => {
     expect(shopHtml(shop({ policy: {} }), products)).not.toContain('CONFIRM SLA');
   });
 
-  it('SV6: seller data is escaped; titlebar shows the real path', () => {
+  it('SV6: seller data is escaped; no terminal titlebar', () => {
     for (const h of Object.values(htmls())) {
       expect(h).toContain('&lt;b&gt;Shop&lt;/b&gt;');
       expect(h).not.toContain('<b>Shop</b>');
     }
-    expect(shopHtml(shop(), products)).toContain('cat /srv/apibase/m/fx-shop | render');
+    expect(shopHtml(shop(), products)).not.toContain('cat /srv/apibase/m/fx-shop | render');
   });
 
   it('SV7: noindex on product and cart only; cart text', () => {

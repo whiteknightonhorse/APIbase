@@ -1,0 +1,32 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/integrator",
+"/legal",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"https://apibase.pro/api/v1/tools",
+"https://apibase.pro/contact",
+"https://apibase.pro/health/ready",
+"https://apibase.pro/llms.txt",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"boot-screen",
+"gen-time",
+"main-content",
+"uptime-counter"
+],
+"scripts": 1
+}

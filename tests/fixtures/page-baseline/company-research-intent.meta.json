@@ -1,0 +1,29 @@
+{
+"links": [
+"/",
+"/api/v1/tools",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/integrator",
+"/legal",
+"/llms.txt",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"/why",
+"https://apibase.pro/company-research-intent",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"main-content"
+],
+"scripts": 0
+}

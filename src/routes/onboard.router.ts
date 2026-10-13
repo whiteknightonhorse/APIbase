@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { logger } from '../config/logger';
 import { checkIpRateLimit, createSubmission } from '../services/onboard.service';
 import { X_REQUEST_ID } from '../config/http-headers';
-import { metaTags, SITE_NAV, SITE_NAV_CSS } from '../shop/page-meta';
+import { metaTags, SITE_FOOTER, SITE_NAV, SITE_NAV_CSS } from '../shop/page-meta';
 
 // ---------------------------------------------------------------------------
 // Zod schema (§6.12)
@@ -39,25 +39,24 @@ ${metaTags({
   path: '/onboard',
 })}
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#e0e0e0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
-.card{max-width:520px;width:100%;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:2rem}
-h1{font-size:1.5rem;margin-bottom:.25rem;color:#fff}
-p.sub{color:#888;margin-bottom:1.5rem;font-size:.9rem}
-label{display:block;font-size:.85rem;color:#aaa;margin-bottom:.25rem;margin-top:1rem}
-input,select,textarea{width:100%;padding:.6rem .75rem;background:#111;border:1px solid #333;border-radius:6px;color:#e0e0e0;font-size:.9rem}
-input:focus,select:focus,textarea:focus{outline:none;border-color:#3b82f6}
+*{box-sizing:border-box}
+.card{max-width:520px;width:calc(100% - 32px);margin:32px auto;background:#151816;border:1px solid #272c29;border-radius:12px;padding:2rem}
+h1{font-size:1.5rem;margin-bottom:.25rem}
+p.sub{color:#9ca59e;margin-bottom:1.5rem;font-size:.9rem}
+label{display:block;font-size:.85rem;color:#b7beb8;margin-bottom:.25rem;margin-top:1rem}
+input,select,textarea{width:100%;min-height:44px;padding:.6rem .75rem;background:#0e100f;border:1px solid #3e4541;border-radius:8px;color:#eef1ed;font:inherit;font-size:.9rem}
+input:focus,select:focus,textarea:focus{outline:2px solid #4fd283;outline-offset:1px;border-color:#4fd283}
 textarea{resize:vertical;min-height:80px}
 .hp{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden}
-button{margin-top:1.5rem;width:100%;padding:.75rem;background:#3b82f6;color:#fff;border:none;border-radius:6px;font-size:1rem;cursor:pointer}
-button:hover{background:#2563eb}
-.req{color:#ef4444}
-small{color:#666;font-size:.75rem}
+button{margin-top:1.5rem;width:100%;min-height:48px;padding:.75rem;background:#4fd283;color:#04170c;border:none;border-radius:8px;font:inherit;font-size:1rem;font-weight:650;cursor:pointer}
+button:hover{background:#68dc98}
+.req{color:#ff7262}
+small{color:#9ca59e;font-size:.75rem}
 ${SITE_NAV_CSS}
 </style>
 </head>
 <body>
-<div style="max-width:520px;width:100%">${SITE_NAV}</div>
+${SITE_NAV}
 <div class="card">
 <h1>Onboard Your API</h1>
 <p class="sub">Submit your API for integration into APIbase.pro</p>
@@ -96,6 +95,7 @@ ${SITE_NAV_CSS}
 <small style="display:block;margin-top:.75rem;text-align:center">We review submissions within 24-48 hours.</small>
 </form>
 </div>
+${SITE_FOOTER}
 </body>
 </html>`;
 

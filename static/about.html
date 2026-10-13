@@ -16,111 +16,67 @@
 <meta property="og:url" content="https://apibase.pro/about">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace;background:#1a1a2e;color:#b0ffb0;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
-.window{max-width:880px;width:100%;background:#0c0c0c;border-radius:10px 10px 8px 8px;border:1px solid #444;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 80px rgba(0,255,65,0.04),inset 0 0 80px rgba(0,255,65,0.01);overflow:hidden;position:relative}
-.window::after{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,0.06) 0px,rgba(0,0,0,0.06) 1px,transparent 1px,transparent 3px);pointer-events:none;z-index:2}
-.window::before{content:'';position:absolute;top:-100%;left:0;right:0;height:60px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,65,0.03) 50%,transparent 100%);pointer-events:none;z-index:3;animation:scanline 8s linear infinite}
-@keyframes scanline{0%{top:-60px}100%{top:100%}}
-.titlebar{background:linear-gradient(180deg,#3d3d3d 0%,#2a2a2a 100%);padding:10px 14px;display:flex;align-items:center;border-bottom:1px solid #1a1a1a;position:relative;z-index:4}
-.dots{display:flex;gap:7px;flex-shrink:0}
-.dot{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,0.2)}
-.dot-red{background:#ff5f56;border-color:#e0443e}
-.dot-yellow{background:#ffbd2e;border-color:#dea123}
-.dot-green{background:#27c93f;border-color:#1aab29}
-.titlebar-text{flex:1;text-align:center;color:#999;font-size:0.78rem;font-family:inherit;letter-spacing:0.5px}
+body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+
 .cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
 .container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-.sys-monitor{margin-bottom:1.5rem;font-size:0.82rem;color:#00ff41;letter-spacing:0.5px;padding:0.3rem 0}
-.sys-monitor .prompt{color:#00aa30;animation:blink 1s step-end infinite}
-.sys-monitor .label{color:#2a942a}
-.sys-monitor strong{color:#00ff41}
-.sys-cursor{display:inline-block;width:7px;height:1em;background:#00ff41;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:3px}
-.terminal{background:#080808;border:1px solid #1a3a1a;border-radius:4px;padding:1.5rem;margin-bottom:2rem;overflow-x:auto;font-size:0.85rem;line-height:1.6;box-shadow:inset 0 0 30px rgba(0,255,65,0.02)}
-.terminal .prompt{color:#00ff41;font-weight:700}
-.terminal .output{color:#00ff41}
-.cursor{display:inline-block;width:8px;height:1.1em;background:#00ff41;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
+.sys-monitor{margin-bottom:1.5rem;font-size:0.82rem;color:#4fd283;letter-spacing:0.5px;padding:0.3rem 0}
+.sys-monitor .prompt{color:#9ca59e;animation:blink 1s step-end infinite}
+.sys-monitor .label{color:#9ca59e}
+.sys-monitor strong{color:#4fd283}
+.sys-cursor{display:inline-block;width:7px;height:1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:3px}
+.terminal{background:#151816;border:1px solid #272c29;border-radius:4px;padding:1.5rem;margin-bottom:2rem;overflow-x:auto;font-size:0.85rem;line-height:1.6;}
+.terminal .prompt{color:#4fd283;font-weight:700}
+.terminal .output{color:#4fd283}
+.cursor{display:inline-block;width:8px;height:1.1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-h1{color:#00ff41;font-size:1.3rem;margin-bottom:2rem;line-height:1.5;text-shadow:0 0 10px #00ff41,0 0 20px #00ff41,0 0 40px rgba(0,255,65,0.3)}
-h1::before{content:'> ';color:#00aa30}
-h2{color:#00ff41;font-size:1.05rem;margin:2.5rem 0 1rem;padding-left:1rem;border-left:2px solid #00aa30;text-shadow:0 0 6px rgba(0,255,65,0.2)}
-h2::before{content:'## ';color:#006620}
-p{margin-bottom:1rem;font-size:1rem;color:#a0d8a0}
-strong{color:#33ff66}
+h1{color:#4fd283;font-size:1.3rem;margin-bottom:2rem;line-height:1.5}
+
+h2{color:#4fd283;font-size:1.05rem;margin:2.5rem 0 1rem;padding-left:1rem;border-left:2px solid #4fd283}
+
+p{margin-bottom:1rem;font-size:1rem;color:#b7beb8}
+strong{color:#4fd283}
 ul{padding-left:1.5rem;margin-bottom:1rem}
-li{margin-bottom:0.4rem;font-size:1rem;color:#a0d8a0}
-li::marker{color:#00aa30}
-a{color:#00ccff;text-decoration:none}
-a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
-code{background:#0a1a0a;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85rem;color:#00ff41;border:1px solid #1a3a1a;text-shadow:0 0 4px rgba(0,255,65,0.3)}
+li{margin-bottom:0.4rem;font-size:1rem;color:#b7beb8}
+li::marker{color:#9ca59e}
+a{color:#eef1ed;text-decoration:none}
+a:hover{color:#4fd283}
+code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85rem;color:#4fd283;border:1px solid #272c29}
 .terminal-steps{list-style:none;padding-left:0;margin:1rem 0;font-size:0.85rem}
-.terminal-steps li{padding:0.3rem 0;color:#a0d8a0;margin-bottom:0}
-.terminal-steps .step-num{color:#00aa30;font-weight:700}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #1a3a1a;color:#2a942a;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
+.terminal-steps li{padding:0.3rem 0;color:#b7beb8;margin-bottom:0}
+.terminal-steps .step-num{color:#9ca59e;font-weight:700}
+.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
 .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#00aa30}
-#boot-screen{padding:2rem;font-size:0.82rem;color:#00ff41;min-height:200px;position:relative;z-index:1}
-#boot-screen .line{opacity:0;margin-bottom:2px}
-#boot-screen .line.visible{opacity:1}
-#boot-screen .ok{color:#27c93f}
-#boot-screen .sys{color:#ffbd2e}
-@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}.titlebar{padding:8px 10px}h1{font-size:1.05rem}h1::before{content:''}.sys-monitor{font-size:0.72rem}.footer{font-size:0.65rem}}
+.footer .online{color:#9ca59e}
+
+@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}.sys-monitor{font-size:0.72rem}.footer{font-size:0.65rem}}
 /*site-nav*/
-nav{
-  display:flex;
-  flex-wrap:wrap;
-  gap:0.3rem;
-  margin-bottom:1rem;
-  padding:0.5rem 0;
-  border-bottom:1px solid #1a3a1a;
-}
-nav::before{content:'[';color:#555}
-nav::after{content:']';color:#555}
-nav .brand{
-  color:#00ff41;
-  font-weight:700;
-  font-size:1rem;
-  text-decoration:none;
-  text-shadow:0 0 8px rgba(0,255,65,0.4);
-  padding:0.55rem 0.35rem 0.55rem 0;
-  display:inline-block;
-}
-nav a{
-  color:#00cc33;
-  text-decoration:none;
-  font-size:1rem;
-  padding:0.55rem 0.35rem;
-  display:inline-block;
-}
-nav a::before{content:' | ';color:#333}
-nav .brand::before{content:''}
-nav a:hover{
-  color:#00ff41;
-  text-shadow:0 0 6px rgba(0,255,65,0.5);
-}
-.nav-burger{display:none;border:1px solid #1a3a1a;border-radius:4px;margin:0 0 1rem;padding:0 0.8rem}
-.nav-burger summary{color:#00ff41}
-.burger-links a{display:block;color:#00cc33;text-decoration:none;padding:0.7rem 0;min-height:44px}
-@media(max-width:768px){
-  nav.nav-full{display:none}
-  .nav-burger{display:block}
-}
-@media(max-width:600px){nav::before,nav::after{display:none}}
+.site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
+.site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-header a{text-decoration:none}
+.site-header .brand{display:flex;align-items:center;gap:9px;min-height:44px;color:#eef1ed;font-weight:700;font-size:18px;letter-spacing:-.02em;flex:none}
+.site-header .brand::before{content:'';width:10px;height:10px;border-radius:3px;background:#4fd283}
+.site-header .nav-full{display:none;align-items:center;gap:2px}
+.site-header .nav-full a{color:#b7beb8;font-size:14.5px;white-space:nowrap;padding:12px 5px;transition:color 120ms cubic-bezier(.2,.7,.2,1)}
+.site-header .nav-full a:hover{color:#eef1ed}
+.site-header nav a[aria-current="page"]{color:#eef1ed;box-shadow:inset 0 -2px 0 #4fd283}
+.site-header .nav-burger summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:1px solid #3e4541;border-radius:8px;color:#eef1ed;font-size:15px}
+.site-header .nav-burger summary::-webkit-details-marker{display:none}
+.site-header .nav-burger summary::before{content:'';width:18px;height:2px;background:#eef1ed;box-shadow:0 -6px 0 #eef1ed,0 6px 0 #eef1ed}
+.site-header .nav-burger[open] summary::before{content:'\00d7';width:auto;height:auto;background:none;box-shadow:none;font-size:26px;line-height:1}
+.site-header .burger-links{position:absolute;left:0;right:0;top:60px;background:#0e100f;border-bottom:1px solid #272c29;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:12px 20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;max-height:calc(100vh - 60px);overflow:auto}
+.site-header .burger-links a{display:flex;align-items:center;min-height:48px;padding:0 12px;border-radius:6px;color:#b7beb8;font-size:16px}
+.site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
+@media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
 /*/site-nav*/
 </style>
 </head>
 <body>
-<div class="window">
-
-<div class="titlebar">
-<div class="dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
-<span class="titlebar-text">apibase@prod:~$ cat /srv/apibase/about.html | render</span>
-</div>
-
-<div class="container" id="main-content">
-
 <!--site-nav-->
-<nav class="nav-full" aria-label="Main">
+<link rel="stylesheet" href="/assets/site-m.css?v=2b9c8ce6">
+<header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
+<nav class="nav-full" aria-label="Main">
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
 <a href="/connect">Connect</a>
@@ -137,7 +93,7 @@ nav a:hover{
 </nav>
 <details class="nav-burger">
 <summary>Menu</summary>
-<div class="burger-links">
+<nav class="burger-links" aria-label="Main menu">
 <a href="/">APIbase.pro</a>
 <a href="/pricing">Pricing</a>
 <a href="/catalog">Catalog</a>
@@ -152,9 +108,16 @@ nav a:hover{
 <a href="/partners">Partners</a>
 <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
 <a href="https://x.com/apibase_pro">X</a>
-</div>
+</nav>
 </details>
+</div></header>
+<script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
+<div class="page-shell">
+
+<div class="container" id="main-content">
+
+
 
 <h1>About</h1>
 
@@ -169,9 +132,20 @@ nav a:hover{
 <span><span class="online">STATUS: ONLINE</span>  |  USER: apibase</span>
 </div>
 </div>
-<footer class="footer"><div class="footer-row"><span><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/contact">Contact</a> · <a href="/legal">Legal</a> · <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a></span></div></footer>
+
 
 </div>
 </div>
+<footer class="site-footer"><div class="sf-in">
+<div class="sf-cols">
+<div><a class="sf-brand" href="/">APIbase.pro</a><p class="sf-tag">Unified API gateway for AI agents, and for the shops they buy from.</p></div>
+<nav aria-label="For agents"><div class="sf-h">For agents</div><a href="/catalog">Catalog</a><a href="/pricing">Pricing</a><a href="/connect">Connect</a><a href="/frameworks">Frameworks</a><a href="/dashboard">Dashboard</a></nav>
+<nav aria-label="For merchants"><div class="sf-h">For merchants</div><a href="/integrator">Integrator</a><a href="/shops">Shops</a><a href="/m/apibase-demo">Demo store</a><a href="/integrator/docs">Docs</a></nav>
+<nav aria-label="Company"><div class="sf-h">Company</div><a href="/about">About</a><a href="/why">Why APIbase</a><a href="/partners">Partners</a><a href="/contact">Contact</a><a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a><a href="https://x.com/apibase_pro">X</a></nav>
+<nav aria-label="Legal"><div class="sf-h"><a href="/legal">Legal</a></div><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/policy/moderation">Moderation</a><a href="/legal/aup">Acceptable use</a><a href="/legal/dpa">DPA</a><a href="/legal/merchant-agreement">Merchant agreement</a><a href="/legal/refund-framework">Refund framework</a></nav>
+</div>
+<div class="sf-agents"><span class="sf-h">For AI agents</span><a href="/index.md">/index.md</a><a href="/llms.txt">/llms.txt</a><a href="/ai.txt">/ai.txt</a><a href="https://apibase.pro/mcp">https://apibase.pro/mcp</a></div>
+<div class="sf-note"><span>&copy; 2026 APIbase</span><span>USDC via x402 on Base and MPP on Tempo</span></div>
+</div></footer>
 </body>
 </html>

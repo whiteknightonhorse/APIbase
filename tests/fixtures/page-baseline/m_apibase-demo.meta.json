@@ -1,0 +1,41 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/frameworks",
+"/integrator",
+"/integrator/agent-guide",
+"/integrator/buyers",
+"/integrator/check/apibase-demo",
+"/integrator/docs",
+"/integrator/llms.txt",
+"/integrator?utm_source=demo_store&amp;utm_medium=banner",
+"/legal",
+"/m/apibase-demo/agent.json",
+"/m/apibase-demo/llms.txt",
+"/m/apibase-demo/p/demo-bundle",
+"/m/apibase-demo/p/demo-daily",
+"/m/apibase-demo/p/demo-guide",
+"/m/apibase-demo/p/demo-tour",
+"/m/apibase-demo/p/v12-import-ok",
+"/m/apibase-demo/provek.json",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/shops",
+"/terms",
+"https://apibase.pro",
+"https://apibase.pro/m/apibase-demo",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://provek.dev/data/registry.json",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"for-agents"
+],
+"scripts": 5
+}

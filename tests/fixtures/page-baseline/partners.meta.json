@@ -1,0 +1,33 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/favicon.png",
+"/favicon.svg",
+"/frameworks",
+"/icon.png",
+"/integrator",
+"/legal",
+"/llms.txt",
+"/logo.png",
+"/logo.svg",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/terms",
+"/why",
+"https://apibase.pro",
+"https://apibase.pro/partners",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://openweathermap.org",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"main-content"
+],
+"scripts": 0
+}

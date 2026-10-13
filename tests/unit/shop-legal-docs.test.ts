@@ -250,21 +250,31 @@ describe('T-INT-05 legal documents', () => {
       // T-0344 adds og:image, twitter:card and the shared footer: head/footer meta, not legal text.
       // T-0367 moves the header (markup + css) into the shared site-nav block: header, not legal text.
       // T-0375 adds one Analytics paragraph to privacy: disclosure of the GA4 snippet, not a rewrite.
+      // T-0383 (design M) drops the terminal chrome (titlebar, boot sequence), swaps the header/footer and
+      // restyles the page: the legal TEXT is compared, so head, styles, scripts, nav, footer and chrome are out.
       const counts = (h: string) =>
         h
           .replace(/<h2>3a\. Analytics<\/h2>\n<p>[^\n]*<\/p>\n\n/g, '')
-          .replace(/<nav>[\s\S]*?<\/nav>\n/g, '')
-          .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->\n/g, '')
-          .replace(/\/\*site-nav\*\/[\s\S]*?\/\*\/site-nav\*\/\n/g, '')
-          .replace(/^nav[^\n]*\n/gm, '')
-          .replace(/nav::before,nav::after\{display:none\}/g, '')
-          .replace(/<meta property="og:image" content="[^"]*">\n/g, '')
-          .replace(/<meta name="twitter:card" content="[^"]*">\n/g, '')
-          .replace(/\n<footer class="footer">.*<\/footer>/g, '')
-          .replace(/(<span class="label">PRV:<\/span><strong>)\d+/g, '$1N')
-          .replace(/(<span class="label">TOOLS:<\/span><strong>)\d+/g, '$1N')
+          .replace(/<head>[\s\S]*?<\/head>/, '')
+          .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '')
+          .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->/g, '')
+          .replace(
+            /<div class="titlebar">\s*<div class="dots">[\s\S]*?<\/div>\s*<span class="titlebar-text">[\s\S]*?<\/span>\s*<\/div>/,
+            '',
+          )
+          .replace(
+            /<div id="boot-screen"[^>]*>(?:\s*<div class="line[^"]*">[\s\S]*?<\/div>)+\s*<\/div>/,
+            '',
+          )
+          .replace(/<nav>[\s\S]*?<\/nav>/g, '')
+          .replace(/<footer class="(?:footer|site-footer)">[\s\S]*?<\/footer>/g, '')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .replace(/(PRV:\s*)\d+/g, '$1N')
+          .replace(/(TOOLS:\s*)\d+/g, '$1N')
           .replace(/\d+ tools from \d+ providers/g, 'N tools from N providers')
-          .replace(/<span>\d+ tools {2}\| {2}\d+ providers/g, '<span>N tools  |  N providers');
+          .replace(/\d+ tools \| \d+ providers/g, 'N tools | N providers')
+          .trim();
       expect(counts(stripped)).toBe(
         counts(read(join(ROOT, `tests/unit/fixtures/${n}.before-int05.html`))),
       );

@@ -1,0 +1,33 @@
+{
+"links": [
+"/",
+"/catalog",
+"/connect",
+"/contact",
+"/dashboard",
+"/frameworks",
+"/integrator",
+"/integrator/agent-guide",
+"/integrator/buyers",
+"/integrator/docs",
+"/integrator/llms.txt",
+"/legal",
+"/partners",
+"/policy/moderation",
+"/pricing",
+"/privacy",
+"/shops",
+"/terms",
+"https://apibase.pro/integrator/platforms/woocommerce",
+"https://github.com/whiteknightonhorse/APIbase",
+"https://x.com/apibase_pro"
+],
+"ids": [
+"install",
+"no-plugin",
+"settings",
+"what-the-plugin-does",
+"woocommerce-add-ai-payment"
+],
+"scripts": 3
+}
