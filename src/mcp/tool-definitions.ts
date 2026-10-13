@@ -2967,7 +2967,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Real-time stock price quote — current price, change, percent change, day high/low, open, previous close. Supports US stocks, ETFs, and major global exchanges (Finnhub)',
     category: 'finance',
     relatedTools: [
-      { toolId: 'finnhub.company', reason: 'Company profile and fundamentals' },
+      { toolId: 'finnhub.company_profile', reason: 'Company profile and fundamentals' },
       { toolId: 'finance.exchange_rates', reason: 'Convert price to different currency' },
       { toolId: 'serper.news_search', reason: 'Latest news about this stock' },
     ],
@@ -10958,7 +10958,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Returns full tombstone, tombstone text, creator biographies, medium/technique, measurements, provenance creditline, ' +
       'copyright status, gallery location, loan status, image URLs in web/print/full resolutions, ' +
       'and the CMA collection page URL. ' +
-      'Use after clevelandart.artwork_detail to get the complete record for a specific work.',
+      'Use after clevelandart.artwork_search to get the complete record for a specific work.',
     category: 'media',
     annotations: READ_ONLY,
   },

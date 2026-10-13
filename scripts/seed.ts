@@ -17,7 +17,13 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse } from 'yaml';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
-import { loadYamlTools, planSeedRows, seedOnly } from './seed-plan';
+import {
+  loadYamlTools,
+  planSeedRows,
+  providersWithCostModel,
+  reviveFields,
+  seedOnly,
+} from './seed-plan';
 
 const prisma = new PrismaClient();
 
@@ -95,6 +101,13 @@ async function seedTools(): Promise<number> {
   const raw = readFileSync(configPath, 'utf-8');
   const config = parse(raw) as ToolProviderConfig;
 
+  const existing = new Map(
+    (await prisma.tool.findMany({ select: { tool_id: true, status: true, price_usd: true } })).map(
+      (r) => [r.tool_id, r],
+    ),
+  );
+  const costModel = providersWithCostModel(config.tools);
+
   let count = 0;
   for (const tool of config.tools) {
     // ZZ-03-01: category has no NULL fallback (migration 0017 made it NOT NULL) — a
@@ -147,6 +160,7 @@ async function seedTools(): Promise<number> {
         namespace,
         capability: tool.capability ?? null,
         scope: tool.scope ?? null,
+        ...reviveFields(existing.get(tool.tool_id), tool, costModel),
       },
     });
     count++;

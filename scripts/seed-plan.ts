@@ -63,6 +63,40 @@ export function newToolStatus(
     : 'unavailable';
 }
 
+export interface ExistingToolRow {
+  tool_id: string;
+  status: string;
+  price_usd: unknown;
+}
+
+/**
+ * Fields that revive an unpriced placeholder row once the YAML prices it. Price 0 + unavailable
+ * is exactly the placeholder shape planSeedRows writes for unpriced tools; any row a human or the
+ * autopilot set unavailable carries a real price and is never touched. 'seed' satisfies the
+ * migration-0014 trigger (status_source + status_reason required) and, unlike 'manual', stays
+ * eligible for the autopilot reconciler (scripts/autopilot/incident-engine.py status_source LAW).
+ */
+export function reviveFields(
+  existing: ExistingToolRow | undefined,
+  tool: YamlTool,
+  costModel: ReadonlySet<string>,
+): { status: 'healthy'; status_source: 'seed'; status_reason: string } | Record<string, never> {
+  if (
+    existing &&
+    existing.status === 'unavailable' &&
+    Number(String(existing.price_usd)) === 0 &&
+    newToolStatus(tool, costModel) === 'healthy'
+  ) {
+    return {
+      status: 'healthy',
+      status_source: 'seed',
+      status_reason:
+        'seed: priced in config/tool_provider_config.yaml (was unpriced placeholder at $0)',
+    };
+  }
+  return {};
+}
+
 export function planSeedRows(
   tools: readonly YamlTool[],
   categories: ReadonlyMap<string, string>,

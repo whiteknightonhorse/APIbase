@@ -4,6 +4,7 @@ import {
   loadYamlTools,
   newToolStatus,
   planSeedRows,
+  reviveFields,
   seedOnly,
   type YamlTool,
 } from '../../scripts/seed-plan';
@@ -81,9 +82,7 @@ describe('seed --only --dry-run on the drift ids (real config)', () => {
       if (Number(r.price_usd) === 0) expect(r.status).toBe('unavailable');
     }
     expect(rows.find((r) => r.tool_id === 'epa-aqs.monitors')?.status).toBe('healthy');
-    expect(rows.find((r) => r.tool_id === 'clevelandart.artwork_search')?.status).toBe(
-      'unavailable',
-    );
+    expect(rows.find((r) => r.tool_id === 'clevelandart.artwork_search')?.status).toBe('healthy');
   });
 
   it('dry-run makes 0 writes; real run creates only missing rows', async () => {
@@ -97,5 +96,52 @@ describe('seed --only --dry-run on the drift ids (real config)', () => {
     const real = await seedOnly(db, rows, false);
     expect(create).toHaveBeenCalledTimes(rows.length - 1);
     expect(real.skipped).toEqual(['epa-aqs.monitors']);
+  });
+});
+
+describe('reviveFields', () => {
+  const tool: YamlTool = {
+    tool_id: 'a.one',
+    name: 'A1',
+    provider: 'a',
+    price_usd: '0.001',
+    cache_ttl: 60,
+    upstream_cost_usd: '0',
+  };
+  const costModel = new Set(['a']);
+  const row = (status: string, price: unknown) => ({ tool_id: 'a.one', status, price_usd: price });
+
+  it('A: unavailable placeholder at $0 with a priced YAML tool is revived by seed', () => {
+    const r = reviveFields(row('unavailable', '0'), tool, costModel);
+    expect(r).toMatchObject({ status: 'healthy', status_source: 'seed' });
+    expect(Object.keys(r).sort()).toEqual(['status', 'status_reason', 'status_source']);
+  });
+  it('B: a hand-set unavailable row with a real price is untouched', () => {
+    expect(reviveFields(row('unavailable', '0.001'), tool, costModel)).toEqual({});
+  });
+  it('C: a healthy row is untouched', () => {
+    expect(reviveFields(row('healthy', '0'), tool, costModel)).toEqual({});
+  });
+  it('D: no provider cost model means no revive', () => {
+    expect(reviveFields(row('unavailable', '0'), tool, new Set())).toEqual({});
+  });
+  it('E: missing row means no revive', () => {
+    expect(reviveFields(undefined, tool, costModel)).toEqual({});
+  });
+  it('F: real data plans the four clevelandart tools as healthy at 0.001', () => {
+    const ids = [
+      'clevelandart.artwork_search',
+      'clevelandart.artwork_detail',
+      'clevelandart.creator_search',
+      'clevelandart.exhibition_search',
+    ];
+    const cats = new Map(TOOL_DEFINITIONS.map((d) => [d.toolId, d.category] as [string, string]));
+    const rows = planSeedRows(loadYamlTools(), cats, ids);
+    expect(rows).toHaveLength(4);
+    for (const r of rows) {
+      expect(r.status).toBe('healthy');
+      expect(r.price_usd).toBe('0.001');
+      expect(r.upstream_cost_usd).toBe('0');
+    }
   });
 });
