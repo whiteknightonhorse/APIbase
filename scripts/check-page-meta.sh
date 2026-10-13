@@ -65,7 +65,7 @@ if os.environ["NO_FETCH"] != "1":
     for p in os.environ["PAGE_META_PATHS"].split():
         # A deploy restarts the upstream while CI runs this gate: wait for it (up to ~2 min) before failing.
         for attempt in range(int(os.environ.get("PAGE_META_RETRIES", "12"))):
-            r = subprocess.run(["curl", "-s", "-m", "15", "-H", "Host: apibase.pro", "-w", "\n%{http_code}", base + p],
+            r = subprocess.run(["curl", "-s", "-m", "15", "-H", "Host: apibase.pro", "-H", "Accept: text/html", "-A", "apibase-site-nav-gate/1 (+https://apibase.pro)", "-w", "\n%{http_code}", base + p],
                                capture_output=True, text=True)
             body, _, code = r.stdout.rpartition("\n")
             if code.isdigit() and int(code) < 500 and code != "000": break

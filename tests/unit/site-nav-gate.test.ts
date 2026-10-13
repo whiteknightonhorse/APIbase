@@ -1,4 +1,5 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { createServer } from 'node:http';
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -65,6 +66,71 @@ describe('T-0367 site header gate', () => {
     const page = renderPage([{ provider: 'x', tools: 1 }]);
     expect(page).toContain(`<!--site-nav-->\n${fragment.trim()}\n<!--/site-nav-->`);
     expect(page).toContain(`/*site-nav*/\n${css.trim()}\n/*/site-nav*/`);
+  });
+
+  it('f: fetch mode asks for text/html', async () => {
+    const page =
+      `<html><head><meta name="viewport" content="width=device-width"><style>\n/*site-nav*/\n${css.trim()}\n/*/site-nav*/\n</style></head>` +
+      `<body>\n<!--site-nav-->\n${fragment.trim()}\n<!--/site-nav-->\n</body></html>`;
+    const serve = async (negotiate: boolean) => {
+      const accepts: string[] = [];
+      const server = createServer((req, res) => {
+        accepts.push(String(req.headers.accept));
+        if (negotiate && req.url === '/x' && String(req.headers.accept).includes('text/html')) {
+          res.setHeader('content-type', 'text/html');
+          res.end(page);
+        } else {
+          res.setHeader('content-type', 'application/json');
+          res.end('{"endpoint":"x"}');
+        }
+      });
+      await new Promise<void>((r) => server.listen(0, '127.0.0.1', () => r()));
+      return { server, accepts, port: (server.address() as { port: number }).port };
+    };
+    const fetchCheck = (root: string, port: number) =>
+      new Promise<{ status: number | null; stdout: string }>((resolve) => {
+        const child = spawn('python3', ['-I', join(ROOT, 'scripts/site-nav.py'), 'check'], {
+          env: {
+            ...process.env,
+            ROOT: root,
+            SITE_NAV_BASE: `http://127.0.0.1:${port}`,
+            SITE_NAV_PATHS: '/x',
+            SITE_NAV_RETRIES: '1',
+          },
+        });
+        let stdout = '';
+        child.stdout.on('data', (d) => (stdout += d));
+        child.on('close', (status) => resolve({ status, stdout }));
+      });
+    const tmp = mkdtempSync(join(tmpdir(), 'site-nav-'));
+    try {
+      mkdirSync(join(tmp, 'static'));
+      mkdirSync(join(tmp, 'config'));
+      cpSync(join(ROOT, 'config/site-nav.html'), join(tmp, 'config/site-nav.html'));
+      cpSync(join(ROOT, 'config/site-nav.css'), join(tmp, 'config/site-nav.css'));
+
+      const good = await serve(true);
+      try {
+        const r = await fetchCheck(tmp, good.port);
+        expect(r.status).toBe(0);
+        expect(r.stdout).toContain('pages checked = 1, failures = 0');
+        expect(good.accepts.length).toBeGreaterThan(0);
+        for (const a of good.accepts) expect(a).toMatch(/text\/html/);
+      } finally {
+        good.server.close();
+      }
+
+      const bad = await serve(false);
+      try {
+        const r = await fetchCheck(tmp, bad.port);
+        expect(r.status).toBe(1);
+        expect(r.stdout).toContain('/x: no markers');
+      } finally {
+        bad.server.close();
+      }
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   });
 
   it('e: nav-full and burger carry the same 14 links, css keeps the burger rules', () => {

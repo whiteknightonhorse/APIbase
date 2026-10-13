@@ -3,6 +3,7 @@
 static page carries them between <!--site-nav--> ... <!--/site-nav--> and /*site-nav*/ ... /*/site-nav*/.
   check [--no-fetch]  verify static/**/*.html (and $SITE_NAV_PATHS fetched from $SITE_NAV_BASE)
   apply               rewrite the text between the marker pairs of every static page that has them
+Fetch mode checks pages as a browser (Accept: text/html) because some routes content-negotiate.
 Run as: python3 -I scripts/site-nav.py <check|apply>. ROOT defaults to the repo this script lives in."""
 import glob, os, re, subprocess, sys, time
 
@@ -67,7 +68,7 @@ def check(no_fetch):
             code, body = "", ""
             # A deploy restarts the upstream while CI runs this gate: wait for it before failing.
             for _ in range(int(os.environ.get("SITE_NAV_RETRIES", "12"))):
-                r = subprocess.run(["curl", "-s", "-m", "15", "-H", "Host: apibase.pro", "-w", "\n%{http_code}", BASE + p],
+                r = subprocess.run(["curl", "-s", "-m", "15", "-H", "Host: apibase.pro", "-H", "Accept: text/html", "-A", "apibase-site-nav-gate/1 (+https://apibase.pro)", "-w", "\n%{http_code}", BASE + p],
                                    capture_output=True, text=True)
                 body, _, code = r.stdout.rpartition("\n")
                 if code.isdigit() and int(code) < 500 and code != "000":
