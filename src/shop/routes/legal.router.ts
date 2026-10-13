@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import { getShopEnv } from '../../config/env';
 import { fitDescription, fitTitle, metaTags, SITE_FOOTER } from '../page-meta';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
@@ -34,8 +35,9 @@ const esc = (s: string) =>
 
 /** Fee text for the `{{INTEGRATOR_FEE_PCT}}` token: 0% in the pilot (switch off), else from BPS. */
 function feeText(): string {
-  const bps = Number(process.env.INTEGRATOR_FEE_BPS);
-  if (process.env.INTEGRATOR_FEE_ENABLED === 'true' && Number.isFinite(bps) && bps > 0) {
+  const e = getShopEnv();
+  const bps = e.INTEGRATOR_FEE_BPS;
+  if (e.INTEGRATOR_FEE_ENABLED === 'true' && bps > 0) {
     return `${bps / 100}%`;
   }
   return '0% during the pilot';

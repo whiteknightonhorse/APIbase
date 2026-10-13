@@ -13,10 +13,38 @@ import { z } from 'zod';
  */
 
 // ---------------------------------------------------------------------------
+// Shop / integrator vars. Read per call (a flip needs no restart), so they live in their own
+// shape: appEnvSchema validates them at startup, getShopEnv() re-parses them on demand.
+// Numbers are lenient on purpose: empty or malformed falls back to the default, as before.
+// ---------------------------------------------------------------------------
+const numOr = (d: number) =>
+  z.preprocess(
+    (v) => (v === '' || v === undefined ? undefined : v),
+    z.coerce.number().finite().default(d).catch(d),
+  );
+
+export const shopEnvShape = {
+  PUBLIC_BASE_URL: z.string().optional().default('https://apibase.pro'),
+  SANDBOX_STATUS: z.string().optional().default(''),
+  INTEGRATOR_FEE_ENABLED: z.string().optional().default('false'),
+  INTEGRATOR_FEE_BPS: numOr(150),
+  INTEGRATOR_MIN_ORDER_USD: numOr(1),
+};
+
+export const shopEnvSchema = z.object(shopEnvShape);
+export type ShopEnv = z.infer<typeof shopEnvSchema>;
+
+/** Fresh, validated view of the shop vars; never throws (unlike the startup config). */
+export function getShopEnv(source: NodeJS.ProcessEnv = process.env): ShopEnv {
+  return shopEnvSchema.parse(source);
+}
+
+// ---------------------------------------------------------------------------
 // App-level env vars (validated at startup)
 // ---------------------------------------------------------------------------
 export const appEnvSchema = z
   .object({
+    ...shopEnvShape,
     // Core
     NODE_ENV: z.enum(['production', 'development', 'test']).default('production'),
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),
@@ -60,7 +88,7 @@ export const appEnvSchema = z
     X402_OPERATOR_MIN_ETH_BALANCE: z.coerce.number().default(0.005),
 
     // Provider API keys (§5.3)
-    PROVIDER_KEY_OPENWEATHER: z.string().min(1),
+    PROVIDER_KEY_OPENWEATHER: z.string().optional().default(''),
     PROVIDER_KEY_COINGECKO: z.string().optional().default(''),
     PROVIDER_KEY_POLYMARKET: z.string().optional().default(''),
     PROVIDER_KEY_AVIASALES: z.string().optional().default(''),
@@ -322,7 +350,7 @@ export const appEnvSchema = z
     MPP_TESTNET: z.string().optional().default('false'),
 
     // Integrator fee addresses, one per rail: Tempo (MPP splits) and Base (x402 fee-split, invoices).
-    INTEGRATOR_FEE_ENABLED: z.string().optional().default('false'),
+    // INTEGRATOR_FEE_ENABLED / _BPS / _MIN_ORDER_USD: see shopEnvShape above.
 
     // T-0338: an x402 call whose upstream rejected the INPUT (422/400) is released, not settled,
     // and its ledger row is NOT_CHARGED. 'true' enables; default off until the dispatcher flips it.

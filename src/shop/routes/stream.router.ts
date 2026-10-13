@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { PAYMENT_SIGNATURE, X_PAYMENT } from '../../config/http-headers';
+import { getShopEnv } from '../../config/env';
 import { logger } from '../../config/logger';
 import { defaultShopDeps, type ShopDeps } from '../merchant-lifecycle.service';
 import {
@@ -47,7 +48,8 @@ export interface StreamRouterOptions {
   limit?: number;
 }
 
-const publicBase = () => (process.env.PUBLIC_BASE_URL || 'https://apibase.pro').replace(/\/+$/, '');
+const publicBase = () =>
+  (getShopEnv().PUBLIC_BASE_URL || 'https://apibase.pro').replace(/\/+$/, '');
 const streamUrl = (slug: string, sku: string) =>
   `${publicBase()}/api/v1/shop/m/${slug}/stream/${sku}`;
 

@@ -1,3 +1,4 @@
+import { getShopEnv } from '../config/env';
 import { CatalogError } from './catalog.errors';
 import { merchantUnavailable, reasonBlocks } from './auth/terms.guard';
 import type { ShopTx } from './db';
@@ -273,7 +274,7 @@ export async function getProduct(
             rate_per_s_usd: r.stream.rate_per_s_usd,
             min_deposit_usd: r.stream.min_deposit_usd,
             unit: r.stream.unit,
-            url: `${(process.env.PUBLIC_BASE_URL || 'https://apibase.pro').replace(/\/+$/, '')}/api/v1/shop/m/${input.merchant}/stream/${r.sku}`,
+            url: `${(getShopEnv().PUBLIC_BASE_URL || 'https://apibase.pro').replace(/\/+$/, '')}/api/v1/shop/m/${input.merchant}/stream/${r.sku}`,
           },
         }
       : {}),

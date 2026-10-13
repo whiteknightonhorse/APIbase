@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { getShopEnv } from '../../config/env';
 import { isLegalPublished, LEGAL_PUBLISHED_FILE } from '../legal/legal-docs';
 
 export const MCP_BASELINE = resolve(__dirname, '../../../static/.well-known/mcp.json');
@@ -41,8 +42,9 @@ function legalStatus(file: string): string {
 }
 
 function feeState(): { on: boolean; pct: number } {
-  const bps = Number(process.env.INTEGRATOR_FEE_BPS ?? 150);
-  const on = process.env.INTEGRATOR_FEE_ENABLED === 'true' && Number.isFinite(bps) && bps > 0;
+  const e = getShopEnv();
+  const bps = e.INTEGRATOR_FEE_BPS;
+  const on = e.INTEGRATOR_FEE_ENABLED === 'true' && bps > 0;
   return { on, pct: bps / 100 };
 }
 
@@ -52,7 +54,8 @@ export function renderTokens(
   legalFile: string = LEGAL_PUBLISHED_FILE,
 ): string {
   const { on, pct } = feeState();
-  const min = Number(process.env.INTEGRATOR_MIN_ORDER_USD ?? 1);
+  const e = getShopEnv();
+  const min = e.INTEGRATOR_MIN_ORDER_USD;
   const merchants = baselineMerchants(baselinePath);
   let s = tpl;
   if (!on) s = s.replace(/\{\{INTEGRATOR_FEE_PCT\}\} fee/g, '0% fee during the pilot');
@@ -66,5 +69,5 @@ export function renderTokens(
     .replace(/\{\{STREAM_CLOSE_GRACE_S\}\}/g, () => String(STREAM_CLOSE_GRACE_S))
     .replace(/\{\{MERCHANTS_COUNT\}\}/g, () => merchants)
     .replace(/\{\{LEGAL_STATUS\}\}/g, () => legalStatus(legalFile))
-    .replace(/\{\{SANDBOX_STATUS\}\}/g, () => process.env.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS);
+    .replace(/\{\{SANDBOX_STATUS\}\}/g, () => e.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS);
 }
