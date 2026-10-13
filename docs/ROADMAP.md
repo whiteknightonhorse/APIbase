@@ -49,7 +49,7 @@ Last reviewed: 2026-10-13
 - [PLANNED] Q15 — UX-1: `alternatives[]` surfaced in every 503/502/504 error body and MCP `isError` content
 - [PLANNED] Q16 — P-3: capability registry as data (`config/capabilities.yaml`, ≤10 entries in the first version)
 - [PLANNED] Q17 — PAY-1: `fresh: true` reserved field — freshness as a declared, priced contract, not in the cache key
-- [SHIPPED 2026-09-22 a11ca5f8] Q18 — D-3: `/why` page + 4 intent-answer pages + `docs/discoverability-log.md` measurement, with a built-in T+30/T+60 stop rule
+- [SHIPPED 2026-09-22 a11ca5f8] Q18 — D-3: `/why` page + 3 intent-answer pages (the other §2.10 queries are covered by `/why`, per a11ca5f8) + `docs/discoverability-log.md` measurement, with a built-in T+30/T+60 stop rule
 - [PLANNED] Q19 — POS-3: this roadmap (`docs/ROADMAP.md`), machine-checkable format
 - [PLANNED] Q20 — MKT-1: single set of allowed claims for content skills (devto/reddit/farcaster/awesome-lists)
 - [SHIPPED 2026-09-22 85833ed8] Q21 — DOC-1: `docs/OPERATOR-ACTION-registry-listings.md`, single index of account-bound registry actions
