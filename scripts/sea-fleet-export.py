@@ -85,12 +85,12 @@ def activity_level(age_s):
     return 0
 
 
-_LOG_LINE = re.compile(r"^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})Z\] (ONBOARD_OK\b|ONBOARD candidate: (\S+))")
+_LOG_LINE = re.compile(r"^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})Z\] (?:\S+ )?(ONBOARDED\b|ONBOARD_OK\b|ONBOARD candidate: (\S+))")
 
 
 def orchestra_progress_ts(log_dir, now):
     """Epoch of the latest real progress in the orchestra daily logs (today + yesterday): an
-    ONBOARD_OK line, or an ONBOARD candidate line whose name was not seen earlier in those logs.
+    ONBOARDED line (supervisor success marker "<mark> ONBOARDED <name> (total N)"), an ONBOARD_OK line, or an ONBOARD candidate line whose name was not seen earlier in those logs.
     A loop re-attempting the same names makes no progress. None if there is none."""
     seen, best = set(), None
     days = [datetime.fromtimestamp(now - d * 86400, timezone.utc).strftime("%Y-%m-%d") for d in (1, 0)]

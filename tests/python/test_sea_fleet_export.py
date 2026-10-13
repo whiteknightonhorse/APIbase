@@ -177,6 +177,11 @@ class ScoutProgress(Base):
         self.assertEqual(s["state"], "stalled")
         self.assertEqual(s["reason"], "no progress 2 h")
 
+    def test_working_on_onboarded_line_for_redispatched_name(self):
+        self.write_log([f"[{stamp(9000)}] ONBOARD candidate: foo", f"[{stamp(7500)}] ONBOARD candidate: foo",
+                        f"[{stamp(300)}] \u2705 ONBOARDED foo (total 1)"])
+        self.assertEqual(self.scout()["state"], "working")
+
     def test_stalled_when_no_log(self):
         self.assertEqual(self.scout()["state"], "stalled")
 
