@@ -105,7 +105,8 @@ describe('integrator pages', () => {
   it('IP1: 12 sections in the §13.1 order', async () => {
     const { text } = await get('/integrator');
     const ids = [...text.matchAll(/<section id="([^"]+)"/g)].map((m) => m[1]);
-    expect(ids).toEqual(SECTION_IDS);
+    // T-0376: the human landing sits on top; the 12 original sections follow inside #developers.
+    expect(ids).toEqual(['developers', ...SECTION_IDS]);
   });
 
   it('IP2: EN canon, fee on and off', async () => {
@@ -147,10 +148,10 @@ describe('integrator pages', () => {
     }
   });
 
-  it('IP4: Accept text/markdown gives 12 headings; llms.txt has 5 guide links', async () => {
+  it('IP4: Accept text/markdown gives 13 headings; llms.txt has 5 guide links', async () => {
     const r = await get('/integrator', true);
     expect(r.type).toContain('text/markdown');
-    expect(r.text.match(/^## /gm)).toHaveLength(12);
+    expect(r.text.match(/^## /gm)).toHaveLength(13); // 12 original + "For people" (T-0376)
     const llms = (await get('/integrator/llms.txt')).text;
     for (const l of ['agent-guide', 'buyers', 'why-base-tempo', 'wallet', 'platforms/shopify']) {
       expect(llms).toContain(`https://apibase.pro/integrator/${l}`);

@@ -133,3 +133,7 @@ Do AI agents visit your site? Check on AIpush.app: https://aipush.app. It shows 
 ## For buyers
 
 Add a storefront URL `https://apibase.pro/mcp/m/<slug>` to your agent's MCP client, or find shops with `apibase.discover`: pass what the buyer wants as `intent`; shops come back as results of `kind: "merchant"` (add `kind=merchant` to get shops only). Limits live in your wallet, the quote fixes the price, and nobody asks for your keys. Details: /integrator/buyers.
+
+## For people
+
+Let AI agents buy from your store. AI assistants already visit your shop: add one link and they can place and pay orders, with USDC going straight to your wallet. Connect your store at /integrator/connect or try the demo store at /m/apibase-demo. 0% fee during pilot, minimum order $1, works with Shopify, WooCommerce, Wix, Tilda and custom HTML sites.

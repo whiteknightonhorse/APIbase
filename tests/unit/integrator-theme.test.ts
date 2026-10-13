@@ -47,7 +47,9 @@ describe('integrator terminal theme', () => {
     );
     const page = (rd(resolve(DIR, '_page.css')).match(HEX) ?? []).map((h) => h.toLowerCase());
     expect(page.length).toBeGreaterThan(0);
-    expect(page.filter((h) => !theme.has(h))).toEqual([]);
+    // T-0376: the human-first landing (.lp) has its own neutral palette from the design reference.
+    const landing = new Set(['#0b0b0b', '#111', '#222', '#f2f2f2', '#9a9a9a']);
+    expect(page.filter((h) => !theme.has(h) && !landing.has(h))).toEqual([]);
   });
 
   it('TD3: every page wears the terminal shell and no foreign style or font', async () => {
