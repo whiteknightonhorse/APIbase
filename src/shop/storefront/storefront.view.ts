@@ -159,6 +159,31 @@ export function shopMarkdown(s: PublicShop, products: PublicProduct[]): string {
   ].join('\n');
 }
 
+type TileKind = 'bundle' | 'guide' | 'subscription' | 'tour' | 'generic';
+const TILE_KINDS: Array<[TileKind, RegExp]> = [
+  ['subscription', /subscri|member|monthly|annual|plan\b|pass\b/i],
+  ['tour', /tour|trip|travel|ticket|excursion|walk/i],
+  ['guide', /guide|ebook|e-book|book|course|manual|handbook|report|template/i],
+  ['bundle', /bundle|pack|kit|set\b|collection/i],
+];
+const tileKind = (title: string): TileKind =>
+  TILE_KINDS.find(([, re]) => re.test(title))?.[0] ?? 'generic';
+const TILE_SHAPES: Record<TileKind, string> = {
+  bundle:
+    '<rect x="78" y="34" width="84" height="84" rx="6"/><path d="M66 44v84a6 6 0 0 0 6 6h72"/><path d="M90 56h60M90 72h60M90 88h36"/>',
+  guide:
+    '<path d="M120 46v70M120 46c-14-8-34-8-48-2v70c14-6 34-6 48 2 14-8 34-8 48-2V44c-14-6-34-6-48 2z"/>',
+  subscription:
+    '<path d="M80 70a40 40 0 0 1 70-22M160 80a40 40 0 0 1-70 22"/><path d="M150 36v14h-14M90 114v-14h14"/>',
+  tour: '<path d="M120 36c-18 0-30 13-30 29 0 22 30 52 30 52s30-30 30-52c0-16-12-29-30-29z"/><circle cx="120" cy="65" r="10"/>',
+  generic: '<path d="M120 36l42 22v44l-42 22-42-22V58z"/><path d="M78 58l42 22 42-22M120 80v44"/>',
+};
+/** Inline line icon for a product tile (no external image, CSP-safe), M palette. */
+const tileIcon = (title: string) =>
+  `<svg class="pimg" viewBox="0 0 240 150" aria-hidden="true" focusable="false"><rect class="pi-bg" width="240" height="150"/>` +
+  `<g class="pi-line">${TILE_SHAPES[tileKind(title)]}</g>` +
+  `<g class="pi-ok"><circle cx="168" cy="112" r="9"/><path d="M164 112l3 3 5-6"/></g></svg>`;
+
 export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
   const slug = esc(s.slug);
   const sla = s.policy.confirm_sla_h;
@@ -177,7 +202,7 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
       const href = `/m/${slug}/p/${encodeURIComponent(p.sku)}`;
       const ask = `Buy ${p.title} from apibase.pro/m/${s.slug}`;
       return (
-        `<div class="card pcard"><div class="pimg" aria-hidden="true"></div><a class="ptitle" href="${href}">${esc(p.title)}</a>` +
+        `<div class="card pcard">${tileIcon(p.title)}<a class="ptitle" href="${href}">${esc(p.title)}</a>` +
         `<div class="row"><span class="price">$${esc(p.price_usd)}</span><span class="stock m-badge">${esc(p.availability)}</span></div>` +
         `<details class="buy"><summary class="btn">Buy with your AI agent</summary>` +
         `<p>Tell your AI assistant:</p><pre>${esc(ask)}</pre>` +
