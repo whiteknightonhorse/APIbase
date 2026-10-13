@@ -7,3 +7,15 @@ APIBASE OS v1.0.0 — INITIALIZING...
 [OK] Loading contact module...
 SYSTEM READY. apibase@prod:~$
 id: boot-screen
+# T-0390: terminal decoration removed by the design-M forms migration (prompt line, bracket tags, fake tty footer, build tag, uptime ticker).
+$ echo $SUPPORT_EMAIL
+[DOC]
+[API]
+[GIT]
+[SYS]
+STATUS: ONLINE | PID: 1337 | TTY: pts/0 | USER: apibase
+Generated: --
+Uptime: 0m 0s
+BUILD: v1.0.0
+id: gen-time
+id: uptime-counter

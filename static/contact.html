@@ -15,41 +15,6 @@
 <meta property="og:description" content="Contact the APIbase.pro team for API issues, provider inquiries, or billing questions.">
 <meta property="og:url" content="https://apibase.pro/contact">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
-
-.cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
-.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-.sys-monitor{margin-bottom:1.5rem;font-size:0.82rem;color:#4fd283;letter-spacing:0.5px;padding:0.3rem 0}
-.sys-monitor .prompt{color:#9ca59e;animation:blink 1s step-end infinite}
-.sys-monitor .label{color:#9ca59e}
-.sys-monitor strong{color:#4fd283}
-.sys-cursor{display:inline-block;width:7px;height:1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:3px}
-.terminal{background:#151816;border:1px solid #272c29;border-radius:4px;padding:1.5rem;margin-bottom:2rem;overflow-x:auto;font-size:0.85rem;line-height:1.6;}
-.terminal .prompt{color:#4fd283;font-weight:700}
-.terminal .output{color:#4fd283}
-.cursor{display:inline-block;width:8px;height:1.1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-h1{color:#4fd283;font-size:1.3rem;margin-bottom:2rem;line-height:1.5}
-
-h2{color:#4fd283;font-size:1.05rem;margin:2.5rem 0 1rem;padding-left:1rem;border-left:2px solid #4fd283}
-
-p{margin-bottom:1rem;font-size:1rem;color:#b7beb8}
-strong{color:#4fd283}
-ul{padding-left:1.5rem;margin-bottom:1rem}
-li{margin-bottom:0.4rem;font-size:1rem;color:#b7beb8}
-li::marker{color:#9ca59e}
-a{color:#eef1ed;text-decoration:none}
-a:hover{color:#4fd283}
-code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85rem;color:#4fd283;border:1px solid #272c29}
-.terminal-steps{list-style:none;padding-left:0;margin:1rem 0;font-size:0.85rem}
-.terminal-steps li{padding:0.3rem 0;color:#b7beb8;margin-bottom:0}
-.terminal-steps .step-num{color:#9ca59e;font-weight:700}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
-.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#9ca59e}
-
-@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}.sys-monitor{font-size:0.72rem}.footer{font-size:0.65rem}}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -73,7 +38,7 @@ code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85r
 </head>
 <body>
 <!--site-nav-->
-<link rel="stylesheet" href="/assets/site-m.css?v=fb6a3d38">
+<link rel="stylesheet" href="/assets/site-m.css?v=edd2f4ae">
 <header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
 <nav class="nav-full" aria-label="Main">
@@ -113,22 +78,31 @@ code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85r
 </div></header>
 <script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
-<div class="page-shell">
+<div class="page-shell fm">
 
 <div class="container" id="main-content">
-
-
 
 <div class="sys-monitor">
 <span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>404</strong>  <span class="label">TOOLS:</span><strong>1398</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (90% of tools &lt;= $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
 </div>
 
-<h1>Contact</h1>
-
-<div class="terminal">
-<span class="prompt">$</span> echo $SUPPORT_EMAIL<br>
-<span class="output">support@apibase.pro</span><span class="cursor"></span>
+<div class="fm-grid">
+<div class="fm-main">
+<h2 id="send-a-message">Send a message</h2>
+<div class="fm-box" id="contact-sent" role="status" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4fd283" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8 12.5l3 3 5-6"></path></svg><div><strong>Your email app should open</strong><span>The message is addressed to support@apibase.pro. If nothing opened, write to us at that address.</span></div></div>
+<form id="contact-form" method="post" action="mailto:support@apibase.pro" enctype="text/plain" novalidate>
+<div class="fm-f"><label for="c-name">Your name</label><input id="c-name" name="name" type="text" autocomplete="name" maxlength="120" required><p class="fm-err" id="c-name-err" role="alert" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.01"></path></svg><span></span></p></div>
+<div class="fm-f"><label for="c-email">Email</label><input id="c-email" name="email" type="email" autocomplete="email" maxlength="256" placeholder="name@company.com" required><p class="fm-err" id="c-email-err" role="alert" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.01"></path></svg><span></span></p></div>
+<div class="fm-f wide"><label for="c-message">Message</label><textarea id="c-message" name="message" rows="5" maxlength="1500" required></textarea><p class="fm-err" id="c-message-err" role="alert" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.01"></path></svg><span></span></p></div>
+<div class="fm-box bad fm-note" id="contact-errors" role="note" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff7262" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg><div><strong>Check the highlighted fields</strong><span id="contact-errors-n"></span></div></div>
+<div class="fm-actions"><button class="fm-btn p" type="submit">Send message</button><span class="fm-hint">All fields required. Sending opens your email app.</span></div>
+</form>
 </div>
+
+<div class="fm-side">
+<h1>Contact</h1>
+<p class="fm-lead">Questions about the gateway, Integrator or partnerships.</p>
+<p class="fm-mail"><a href="mailto:support@apibase.pro">support@apibase.pro</a></p>
 
 <h2>Get in touch</h2>
 <p>Email us at <strong>support@apibase.pro</strong> for:</p>
@@ -144,38 +118,53 @@ code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85r
 <p>We aim to respond within 24 hours on business days.</p>
 
 <h2>Other resources</h2>
-<ul class="terminal-steps">
-<li><span class="step-num">[DOC]</span> Documentation: <a href="https://apibase.pro/llms.txt">apibase.pro/llms.txt</a></li>
-<li><span class="step-num">[API]</span> Tool catalog: <a href="https://apibase.pro/api/v1/tools">apibase.pro/api/v1/tools</a></li>
-<li><span class="step-num">[GIT]</span> GitHub: <a href="https://github.com/whiteknightonhorse/APIbase">github.com/whiteknightonhorse/APIbase</a></li>
-<li><span class="step-num">[SYS]</span> System health: <a href="https://apibase.pro/health/ready">apibase.pro/health/ready</a></li>
+<ul class="fm-links">
+<li><span class="fm-row"><span>Documentation:</span> <a href="https://apibase.pro/llms.txt">apibase.pro/llms.txt</a></span></li>
+<li><span class="fm-row"><span>Tool catalog:</span> <a href="https://apibase.pro/api/v1/tools">apibase.pro/api/v1/tools</a></span></li>
+<li><span class="fm-row"><span>GitHub:</span> <a href="https://github.com/whiteknightonhorse/APIbase">github.com/whiteknightonhorse/APIbase</a></span></li>
+<li><span class="fm-row"><span>System health:</span> <a href="https://apibase.pro/health/ready">apibase.pro/health/ready</a></span></li>
 </ul>
-
-<div class="footer">
-<div class="footer-row">
-<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
-</div>
-<div class="footer-row">
-<span id="gen-time">Generated: --</span>
-<span id="uptime-counter">Uptime: 0m 0s</span>
-<span>BUILD: v1.0.0</span>
+<p><a class="m-link" href="/onboard">API provider? Onboard your API</a></p>
 </div>
 </div>
-
 
 </div>
 </div>
 
 <script>
 (function(){
-  var pageLoadTime = Date.now();
-  var genEl = document.getElementById('gen-time');
-  if (genEl) genEl.textContent = 'Generated: ' + new Date().toLocaleTimeString();
-  setInterval(function() {
-    var elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
-    var el = document.getElementById('uptime-counter');
-    if (el) el.textContent = 'Uptime: ' + Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's';
-  }, 1000);
+  var f=document.getElementById('contact-form');
+  if(!f)return;
+  var spec={
+    name:function(v){return v.trim().length<2?'Enter your name':''},
+    email:function(v){v=v.trim();return !v?'Enter your email':!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)?'Enter a full email, like name@company.com':''},
+    message:function(v){return v.trim().length<10?'Write at least 10 characters':''}
+  };
+  var ids={name:'c-name',email:'c-email',message:'c-message'};
+  function show(k,msg){
+    var i=document.getElementById(ids[k]),e=document.getElementById(ids[k]+'-err');
+    i.setAttribute('aria-invalid',msg?'true':'false');
+    i.setAttribute('aria-describedby',ids[k]+'-err');
+    e.hidden=!msg;e.lastChild.textContent=msg;
+  }
+  Object.keys(ids).forEach(function(k){
+    document.getElementById(ids[k]).addEventListener('blur',function(){show(k,spec[k](this.value))});
+  });
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var n=0,v={};
+    Object.keys(ids).forEach(function(k){
+      v[k]=document.getElementById(ids[k]).value;
+      var m=spec[k](v[k]);if(m)n++;show(k,m);
+    });
+    var box=document.getElementById('contact-errors');
+    box.hidden=!n;
+    document.getElementById('contact-errors-n').textContent=n===1?'1 field needs attention before you can send.':n+' fields need attention before you can send.';
+    if(n)return;
+    var body=v.message.trim()+'\n\n'+v.name.trim()+' <'+v.email.trim()+'>';
+    window.location.href='mailto:support@apibase.pro?subject='+encodeURIComponent('Message from '+v.name.trim())+'&body='+encodeURIComponent(body);
+    document.getElementById('contact-sent').hidden=false;
+  });
 })();
 </script>
 <footer class="site-footer"><div class="sf-in">
