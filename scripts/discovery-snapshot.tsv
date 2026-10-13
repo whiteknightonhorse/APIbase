@@ -583,13 +583,6 @@ hdx.dataset_detail	hdx	0.002
 hdx.dataset_search	hdx	0.002
 hdx.location_list	hdx	0.001
 hdx.organization_list	hdx	0.001
-health.drug_events	health	0.003
-health.drug_labels	health	0.003
-health.food_details	health	0.003
-health.food_recalls	health	0.002
-health.food_search	health	0.002
-health.supplement_details	health	0.003
-health.supplement_search	health	0.002
 hf.datasets	hf	0.001
 hf.model_details	hf	0.001
 hf.models	hf	0.001
