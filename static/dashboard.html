@@ -15,140 +15,147 @@
 <link rel="shortcut icon" href="/favicon.png">
 <link rel="canonical" href="https://apibase.pro/dashboard">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
-
-.cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
-.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-h1{color:#4fd283;font-size:1.3rem;margin-bottom:1.5rem;line-height:1.5}
-
-a{color:#eef1ed;text-decoration:none}a:hover{color:#4fd283}
-.system-monitor{margin-bottom:1.2rem;font-size:0.82rem;color:#4fd283;letter-spacing:0.5px}
-.system-monitor::before{content:'>';color:#9ca59e;margin-right:6px;animation:blink 1s step-end infinite}
-.system-monitor .label{color:#9ca59e;font-weight:400}
-.system-monitor .val{color:#4fd283;font-weight:700}
-.payment-status{display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.5rem;padding:0.8rem 1rem;background:#151816;border:1px solid #272c29;border-radius:4px;font-size:0.82rem;color:#b7beb8;align-items:center}
-.payment-status .label{color:#4fd283;font-weight:700;margin-right:0.3rem}
-.payment-status .mode{display:flex;align-items:center;gap:0.4rem}
-.payment-status .separator{color:#9ca59e}
-.payment-status .testnet-warn{color:#ff7262;font-weight:700}
-
-/* Category filter */
-.search-bar{margin-bottom:0.8rem;position:relative}
-.search-input{width:100%;background:#0e100f;border:1px solid #272c29;color:#4fd283;font-family:inherit;font-size:1rem;padding:0.75rem 2rem 0.75rem 1.6rem;border-radius:4px;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
-.search-input:focus{border-color:#4fd283;}
-.search-input::placeholder{color:#1a4a1a}
-.search-icon{position:absolute;left:0.5rem;top:0;bottom:0;display:flex;align-items:center;color:#1a5a1a;font-size:0.85rem;pointer-events:none}
-.search-info{font-size:0.7rem;margin-top:0.3rem;min-height:1.1em}
-.search-info .found{color:#9ca59e}
-.search-info .not-found{color:#ff4444}
-.search-info .hint{color:#1a4a1a}
-.cat-filter-toggle{cursor:pointer;user-select:none}
-.cat-filter-toggle:hover{color:#4fd283}
-.cat-tags.collapsed{display:none}
-tr:hover td{background:rgba(79,210,131,0.07)}
-.empty-state{text-align:center;padding:2rem;color:#1a5a1a;font-size:0.82rem;border:1px dashed #272c29;margin:1rem 0}
-.health-summary{margin-bottom:0.5rem;font-size:0.75rem}
-.health-summary .h-green{color:#4fd283}
-.health-summary .h-orange{color:#ffaa00}
-.health-summary .h-red{color:#ff4444}
-.health-summary .h-grey{color:#9ca59e}
-.latency-legend{font-size:0.65rem;color:#9ca59e;margin-bottom:0.5rem}
-.cat-filter{margin-bottom:1.2rem;padding:0.6rem 0}
-.cat-filter-label{color:#9ca59e;font-size:0.72rem;margin-bottom:0.5rem;display:block}
-.cat-tags{display:flex;flex-wrap:wrap;gap:0.4rem}
-.cat-tag{
-  background:#151816;border:1px solid #272c29;border-radius:3px;
-  padding:0.25rem 0.6rem;font-size:0.72rem;color:#9ca59e;
-  cursor:pointer;font-family:inherit;transition:all 0.15s;
-  white-space:nowrap}
-.cat-tag:hover{color:#4fd283;border-color:#4fd283}
-.cat-tag.active{
-  color:#4fd283;border-color:#4fd283;background:#0a2a0a;font-weight:700}
-.cat-tag .cat-count{color:#9ca59e;margin-left:3px;font-weight:400}
-.cat-tag.active .cat-count{color:#9ca59e}
-
-.refresh-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;font-size:0.78rem;color:#9ca59e;font-family:inherit}
-.refresh-bar .progress{color:#9ca59e;letter-spacing:0}
-.table-wrap{overflow-x:auto}
-*::-webkit-scrollbar{width:8px;height:8px}
-*::-webkit-scrollbar-track{background:#0e100f;border:1px solid #272c29}
-*::-webkit-scrollbar-thumb{background:#1b1f1c;border-radius:4px;border:1px solid #0e100f}
-*::-webkit-scrollbar-thumb:hover{background:#4fd283}
-*::-webkit-scrollbar-corner{background:#0e100f}
-*{scrollbar-width:thin;scrollbar-color:#3e4541 #0e100f}
-table{width:100%;border-collapse:collapse;font-size:0.82rem;background:#151816}
-th, td{border:1px solid #272c29;padding:0.5rem 0.7rem;text-align:left;white-space:nowrap}
-th{color:#4fd283;background:#151816;position:sticky;top:0}
-td{color:#b7beb8}
-tr.lat-border-green td:first-child{border-left:2px solid #4fd283}
-tr.lat-border-orange td:first-child{border-left:2px solid #ffaa00}
-tr.lat-border-red td:first-child{border-left:2px solid #ff4444}
-tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
-.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
-.dot-g{background:#4fd283;}
-.dot-o{background:#ff9f43;}
-.dot-y{background:#ffbd2e;}
-.dot-r{background:#ff5f56;}
-.dot-u{background:#555;}
-.dot-p{background:#4a9eff;}
-.lat-green{color:#9ca59e}.lat-orange{color:#ff9f43}.lat-red{color:#ff7262}
-.loading{text-align:center;padding:3rem;color:#9ca59e;font-size:0.9rem}
-.loading::after{content:'';display:inline-block;width:8px;height:1.1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:4px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-.error-msg{text-align:center;padding:2rem;color:#ff7262;font-size:0.85rem}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
-.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#9ca59e}
-
-/* AP-10: autopilot dashboard extensions (L2 screens 1 "Operator" + 2 "Fleet/Queue" +
-   3 "Technical Control" columns) — same terminal-HUD system, no new visual language. */
-.sev-banner{display:flex;align-items:center;flex-wrap:wrap;gap:0.5rem;padding:0.7rem 1rem;border-radius:4px;margin-bottom:1.2rem;font-size:0.85rem;font-weight:700;letter-spacing:0.3px}
-.sev-banner.ok{background:#151816;border:1px solid #3e4541;color:#4fd283}
-.sev-banner.sev2{background:#1a1200;border:1px solid #4a3a00;color:#f0a640}
-.sev-banner.sev1{background:#2a0a0a;border:1px solid #5a1a1a;color:#ff7a70}
-/* ruling-1 (T-819): "failed to load" is NOT the "ok" (green) case — that
-   would render silence as health. Neutral gray, distinct from both ok/sev1/sev2. */
-.sev-banner.unknown{background:#141414;border:1px solid #272c29;color:#9ca59e}
-.sev-banner .tick-note{font-weight:400;font-size:0.72rem;color:#9ca59e;margin-left:auto}
-
-.incident-section{margin-bottom:1.2rem}
-.incident-section h2{font-size:0.82rem;color:#4fd283;margin-bottom:0.5rem;letter-spacing:0.3px;display:flex;align-items:center;gap:0.4rem;font-weight:700}
-.incident-list{display:flex;flex-direction:column;gap:0.5rem}
-.incident-card{display:flex;align-items:flex-start;gap:0.6rem;padding:0.6rem 0.8rem;background:#151816;border-radius:4px;border-left:3px solid #272c29;font-size:0.78rem;text-decoration:none}
-.incident-card.st-waiting_human{border-left-color:#ffbd2e}
-.incident-card.st-remediation_queued{border-left-color:#4a9eff}
-.incident-card.st-verifying{border-left-color:#3adfc4}
-.incident-card .icon{flex-shrink:0;margin-top:2px}
-.incident-card .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:0.15rem}
-.incident-card .title{color:#cdeecd;font-weight:700}
-.incident-card .meta{color:#9ca59e;font-size:0.72rem}
-.incident-empty{color:#1a5a1a;font-size:0.76rem;padding:0.4rem 0}
-/* ruling-1 (T-819): "failed to load" (don't know) must not share a class
-   with "no incidents" (know, and the answer is zero) — twin-worlds. */
-.incident-noinfo{color:#9ca59e;font-style:italic;font-size:0.76rem;padding:0.4rem 0}
-
-.state-badge{display:inline-block;padding:0.1rem 0.4rem;border-radius:3px;font-size:0.68rem;font-weight:700;letter-spacing:0.2px;white-space:nowrap}
-.state-badge.st-open{background:#2a0a0a;color:#ff7a70}
-.state-badge.st-remediation_queued{background:#0a1a2a;color:#4a9eff}
-.state-badge.st-waiting_human{background:#2a2000;color:#f0a640}
-.state-badge.st-verifying{background:#0a2a26;color:#3adfc4}
-.state-badge.st-stuck{background:#2a0000;color:#ff4444}
-.state-badge.st-resolved{background:#151816;color:#3a7a3a}
-
-.fleet-toggle{cursor:pointer;user-select:none;display:block;margin-bottom:0.5rem}
-.fleet-toggle:hover{color:#4fd283}
-.fleet-panel.collapsed{display:none}
-.fleet-legend{font-size:0.68rem;color:#9ca59e;margin-bottom:0.6rem;display:flex;flex-wrap:wrap;gap:0.6rem;align-items:center}
-.state-tags{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:0.6rem}
-.state-tag{background:#151816;border:1px solid #272c29;border-radius:3px;padding:0.25rem 0.6rem;font-size:0.72rem;color:#9ca59e;cursor:pointer;font-family:inherit;transition:all 0.15s;white-space:nowrap}
-.state-tag:hover{color:#4fd283;border-color:#4fd283}
-.state-tag.active{color:#4fd283;border-color:#4fd283;background:#0a2a0a;font-weight:700}
-.state-tag .cat-count{color:#9ca59e;margin-left:3px;font-weight:400}
-.state-tag.active .cat-count{color:#9ca59e}
-
-.noinfo{color:#9ca59e;font-style:italic}
-@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}table{font-size:0.72rem}th, td{padding:0.35rem}.col-latency{display:none}.col-extra{display:none}.system-monitor{font-size:0.72rem}.footer{font-size:0.65rem}.cat-tag{font-size:0.65rem;padding:0.2rem 0.4rem}.sev-banner{font-size:0.75rem}}
+/* T-0388: dashboard in design M. Tokens come from /assets/site-m.css (:root vars). */
+.d-wrap{max-width:1240px}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.d-head{margin-bottom:var(--s5)}
+.d-head h1{font-size:clamp(30px,4.5vw,44px);margin:0 0 var(--s2)}
+.d-head p{margin:0;color:var(--ink-3);font-size:var(--fs-small)}
+.sev-banner{display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2);padding:var(--s3) var(--s4);border-radius:var(--r-card);margin-bottom:var(--s4);font-size:var(--fs-small);font-weight:650;border:1px solid var(--line);background:var(--surf);color:var(--ink);overflow-wrap:anywhere}
+.sev-banner.ok{border-color:var(--accent)}
+.sev-banner.sev2{border-color:var(--warn);color:var(--warn)}
+.sev-banner.sev1{border-color:var(--bad);color:var(--bad)}
+.sev-banner.unknown{border-color:var(--line-2);color:var(--ink-3)}
+.sev-banner .tick-note{font-weight:400;font-size:13px;color:var(--ink-3)}
+.system-monitor{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);margin-bottom:var(--s4);padding:var(--s3) var(--s4);background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);font-size:var(--fs-small);color:var(--ink-3)}
+.system-monitor .label{color:var(--ink-3);font-weight:400}
+.system-monitor .val{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums;margin-right:var(--s2)}
+.payment-status{margin-bottom:var(--s5)}
+.pay-h{font-size:var(--fs-h3);margin:0 0 var(--s3)}
+.pay-h .label{color:var(--ink)}
+.pay-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--s3)}
+.pay-card{background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);padding:var(--s4);min-width:0;overflow-wrap:anywhere}
+.pay-head{display:flex;flex-direction:column;margin-bottom:var(--s2)}
+.pay-title{color:var(--ink);font-weight:700}
+.pay-sub{color:var(--ink-3);font-size:13px}
+.pay-line{color:var(--ink);font-size:var(--fs-small);margin-bottom:var(--s2)}
+.pay-card dl{margin:0;display:grid;gap:2px}
+.pay-card dl>div{display:flex;justify-content:space-between;gap:var(--s3);font-size:13px;border-top:1px solid var(--line);padding:4px 0}
+.pay-card dt{color:var(--ink-3)}.pay-card dd{margin:0;color:var(--ink-2);text-align:right;min-width:0}
+.mono-wrap{font-family:var(--mono);font-size:12px;overflow-wrap:anywhere}
+.testnet-warn{display:inline-block;color:var(--bad);font-weight:700;border:1px solid var(--bad);border-radius:var(--r-chip);padding:0 var(--s2);font-size:13px;margin-bottom:var(--s2)}
+.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;flex:none}
+.dot-g{background:var(--accent)}.dot-o{background:var(--warn)}.dot-y{background:#ffd166}.dot-r{background:var(--bad)}.dot-u{background:var(--unknown)}.dot-p{background:var(--info)}
+.incident-section{margin-bottom:var(--s5)}
+.incident-section h2{font-size:var(--fs-h3);margin:0 0 var(--s2);display:flex;align-items:center;gap:var(--s2)}
+.incident-section h2 svg{flex:none}
+.h-person{color:var(--warn)}.h-gear{color:var(--info)}
+.incident-list{display:flex;flex-direction:column;gap:var(--s2)}
+.incident-card{display:flex;align-items:flex-start;gap:var(--s3);padding:var(--s3) var(--s4);background:var(--surf);border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:var(--r-ctl);font-size:var(--fs-small);text-decoration:none;min-height:44px}
+.incident-card:hover{background:var(--surf-2);color:var(--ink)}
+.incident-card.st-waiting_human{border-left-color:var(--warn)}.incident-card.st-waiting_human .icon{color:var(--warn)}
+.incident-card.st-remediation_queued{border-left-color:var(--info)}.incident-card.st-remediation_queued .icon{color:var(--info)}
+.incident-card.st-verifying{border-left-color:#3adfc4}.incident-card.st-verifying .icon{color:#3adfc4}
+.incident-card .icon{flex:none;margin-top:3px}
+.incident-card .body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.incident-card .title{color:var(--ink);font-weight:700;overflow-wrap:anywhere}
+.incident-card .meta{color:var(--ink-3);font-size:13px;overflow-wrap:anywhere}
+.incident-empty{color:var(--ink-3);font-size:var(--fs-small);padding:var(--s3) var(--s4);border:1px dashed var(--line-2);border-radius:var(--r-ctl)}
+.incident-noinfo,.noinfo{color:var(--ink-3);font-style:italic}
+.incident-noinfo{font-size:var(--fs-small);padding:var(--s2) 0}
+.state-badge{display:inline-block;padding:1px var(--s2);border-radius:var(--r-chip);font-size:12px;font-weight:700;white-space:nowrap;border:1px solid currentColor;background:transparent}
+.state-badge.st-open{color:var(--bad)}.state-badge.st-remediation_queued{color:var(--info)}.state-badge.st-waiting_human{color:var(--warn)}
+.state-badge.st-verifying{color:#3adfc4}.state-badge.st-stuck{color:#ff9a8e;border-style:dashed}.state-badge.st-resolved{color:var(--ink-3)}
+.sev-tag{font-weight:700;font-size:13px}.sev-sev1{color:var(--bad)}.sev-sev2{color:var(--warn)}
+.d-toggle{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);width:100%;min-height:48px;padding:0 var(--s4);background:var(--surf);border:1px solid var(--line);border-radius:var(--r-ctl);color:var(--ink);font:inherit;font-size:var(--fs-small);font-weight:650;cursor:pointer;text-align:left}
+.d-toggle:hover{border-color:var(--ink-3)}
+.d-toggle .d-chev{flex:none;transition:transform var(--t-fast) var(--ease)}
+.d-toggle[aria-expanded="true"] .d-chev{transform:rotate(180deg)}
+.d-toggle .d-count{color:var(--ink-3);font-weight:400;margin-left:var(--s2)}
+.fleet-panel,.cat-tags{margin-top:var(--s3)}
+.fleet-panel.collapsed,.cat-tags.collapsed{display:none}
+.state-tags,.cat-tags{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.state-tags{margin-bottom:var(--s3)}
+.state-tag,.cat-tag{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 var(--s3);background:var(--surf);border:1px solid var(--line);border-radius:var(--r-chip);color:var(--ink-2);font:inherit;font-size:14px;cursor:pointer;max-width:100%;overflow-wrap:anywhere;text-align:left}
+.state-tag:hover,.cat-tag:hover{border-color:var(--ink-3);color:var(--ink)}
+.state-tag.active,.cat-tag.active{border-color:var(--accent);color:var(--ink);background:var(--surf-2);font-weight:700}
+.cat-count{color:var(--ink-3);font-weight:400}
+.state-dot{width:8px;height:8px;border-radius:50%;background:var(--unknown);flex:none}
+.state-dot.st-open{background:var(--bad)}.state-dot.st-remediation_queued{background:var(--info)}.state-dot.st-waiting_human{background:var(--warn)}.state-dot.st-verifying{background:#3adfc4}.state-dot.st-stuck{background:#ff9a8e}.state-dot.st-resolved{background:var(--ink-3)}
+.fleet-legend{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;font-size:13px;color:var(--ink-3);margin-bottom:var(--s3)}
+.search-bar{margin-bottom:var(--s3);position:relative}
+.search-input{width:100%;min-height:48px;background:var(--surf);border:1px solid var(--line-2);color:var(--ink);font:inherit;font-size:16px;padding:0 var(--s4) 0 44px;border-radius:var(--r-ctl)}
+.search-input:focus-visible{border-color:var(--accent);outline:2px solid var(--accent);outline-offset:2px}
+.search-icon{position:absolute;left:14px;top:0;height:48px;display:flex;align-items:center;color:var(--ink-3);pointer-events:none}
+.search-info{font-size:13px;margin-top:var(--s2);min-height:1.2em;color:var(--ink-3)}
+.search-info .found{color:var(--ink-2)}.search-info .not-found{color:var(--bad)}
+.cat-filter{margin-bottom:var(--s4)}
+.refresh-bar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:var(--s2) var(--s4);margin-bottom:var(--s3);font-size:13px;color:var(--ink-3)}
+.refresh-bar .progress{display:inline-flex;align-items:center;gap:var(--s3);font-variant-numeric:tabular-nums}
+.d-meter{display:inline-block;width:120px;max-width:40vw;height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.d-meter span{display:block;height:100%;width:100%;background:var(--accent);transition:width 1s linear}
+.health-summary{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);margin-bottom:var(--s2);font-size:var(--fs-small);font-weight:650}
+.h-green{color:var(--accent)}.h-orange{color:var(--warn)}.h-red{color:var(--bad)}.h-grey{color:var(--ink-3)}
+.latency-legend{font-size:13px;color:var(--ink-3);margin-bottom:var(--s3)}
+.loading{text-align:center;padding:var(--s5);color:var(--ink-3);font-size:var(--fs-small)}
+.d-skel{padding:var(--s2) 0}
+.d-skel .sk{height:44px;margin-bottom:var(--s2);border-radius:var(--r-ctl);background:linear-gradient(90deg,var(--surf) 25%,var(--surf-2) 50%,var(--surf) 75%);background-size:200% 100%;animation:d-shimmer 1.4s linear infinite}
+@keyframes d-shimmer{to{background-position:-200% 0}}
+.error-msg{padding:var(--s4);color:var(--bad);font-size:var(--fs-small);border:1px solid var(--bad);border-radius:var(--r-card);background:var(--surf)}
+.table-wrap{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:var(--r-card);background:var(--surf);margin:0 0 var(--s4)}
+.d-table{width:100%;margin:0;border-collapse:collapse;font-size:14px}
+.d-table th{position:sticky;top:0;white-space:nowrap;padding:var(--s3) 10px;background:var(--surf-2);color:var(--ink);font-size:13px}
+.d-table td{padding:var(--s2) 10px;vertical-align:middle;border-bottom:1px solid var(--line);color:var(--ink-2)}
+.d-table .c-name{color:var(--ink);font-weight:650;overflow-wrap:anywhere;min-width:130px}
+.d-table .c-cat{color:var(--ink-3)}
+.d-table .c-limits{min-width:150px}
+.d-table tr:hover td{background:var(--surf-2)}
+.d-providers tr[class*="lat-border"] td:first-child{border-left:3px solid var(--line-2)}
+.d-providers tr.lat-border-green td:first-child{border-left-color:var(--accent)}
+.d-providers tr.lat-border-orange td:first-child{border-left-color:var(--warn)}
+.d-providers tr.lat-border-red td:first-child{border-left-color:var(--bad)}
+.d-providers tr.noinfo td{font-style:normal}
+.has-inc{color:var(--bad);font-weight:700}
+.muted,.unit{color:var(--ink-3)}.unit{font-size:.85em}
+.bal-ok{color:var(--accent);font-weight:700}.bal-low{color:var(--warn);font-weight:700}.bal-zero{color:var(--bad);font-weight:700}.over{color:var(--bad);font-weight:700}
+.lim-bar{display:block;width:100%;max-width:140px;height:4px;margin-top:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.lim-fill{display:block;height:100%;background:var(--accent)}.lim-orange{background:var(--warn)}.lim-red{background:var(--bad)}.lim-yellow{background:#ffd166}
+.d-expand{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:0 var(--s3);background:transparent;border:1px solid var(--line-2);border-radius:var(--r-chip);color:var(--ink);font:inherit;font-size:13px;cursor:pointer}
+.d-expand:hover{border-color:var(--ink-3)}
+.d-expand svg{transition:transform var(--t-fast) var(--ease)}.d-expand[aria-expanded="true"] svg{transform:rotate(180deg)}
+.d-detail[hidden]{display:none}
+.d-detail td{background:var(--bg)}
+.d-detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--s2) var(--s4);margin:0}
+.d-detail-grid>div{display:flex;flex-direction:column;min-width:0}
+.d-detail-grid dt{color:var(--ink-3);font-size:12px}.d-detail-grid dd{margin:0;color:var(--ink);overflow-wrap:anywhere}
+.empty-state{text-align:center;padding:var(--s5);color:var(--ink-3)}
+.m-link-sm{display:inline-flex;align-items:center;min-height:44px;color:var(--ink)}
+.footer{margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--line);color:var(--ink-3);font-size:13px;display:flex;flex-direction:column;gap:var(--s1)}
+.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:var(--s2) var(--s4)}
+.footer .online{color:var(--accent)}
+@media(max-width:639px){
+  .d-table,.d-table thead,.d-table tbody,.d-table tr,.d-table td{display:block;width:100%}
+  .d-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .table-wrap{border:0;background:transparent;overflow-x:visible}
+  .d-table tr{background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);padding:var(--s2) var(--s3);margin-bottom:var(--s3)}
+  .d-table tbody.d-row tr.d-detail{margin-top:calc(-1 * var(--s3));border-top:0;border-radius:0 0 var(--r-card) var(--r-card)}
+  .d-table td{display:block;position:relative;padding:6px 0 6px 112px;border:0;text-align:left;overflow-wrap:anywhere;min-width:0;min-height:32px}
+  .d-table td::before{content:attr(data-label);position:absolute;left:0;top:6px;width:104px;color:var(--ink-3);font-size:12px}
+  .d-table td>*{min-width:0}
+  .d-table .c-name{min-width:0;font-size:16px}
+  .d-table .c-limits{min-width:0}
+  .d-table td.c-detail{padding-left:0}
+  .d-table td.c-detail::before{content:none}
+  .d-table td[colspan]{padding-left:0}
+  .d-table td[colspan]::before{content:none}
+  .d-providers tr[class*="lat-border"] td:first-child{border-left:0}
+  .d-providers tr.lat-border-green{border-left:3px solid var(--accent)}.d-providers tr.lat-border-orange{border-left:3px solid var(--warn)}.d-providers tr.lat-border-red{border-left:3px solid var(--bad)}
+  .d-detail-grid{grid-template-columns:1fr}
+  .system-monitor{gap:var(--s1) var(--s4)}
+  .pay-grid{grid-template-columns:1fr}
+  .footer-row{flex-direction:column}
+  .d-meter{width:90px}
+}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -215,15 +222,17 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
 <div class="page-shell">
 <div class="container" id="main-content">
 
+<div class="d-head">
 <h1>Provider Status Dashboard</h1>
+</div>
 <!-- AP-10 / L2 screen 1 "Operator": top-row SEV1/SEV2 banner (green "autopilot: OK"
      line when there are none AND the incident-engine has ticked recently — T-04,
      2026-09-04: "no incidents" and "never measured" must never render the same
      green line). Filled by renderBanner() from GET /api/v1/incidents; "no data"
      if that request fails — never silently blank. -->
-<div class="sev-banner unknown" id="sev-banner">Loading…</div>
-<div class="system-monitor" id="system-monitor">
-<span class="label">SYSTEM</span>  <span class="label">PRV:</span><span class="val" id="t-providers">--</span>  <span class="label">TOOLS:</span><span class="val" id="t-tools">--</span>  <span class="label">DOWN:</span><span class="val" id="t-down">--</span>  <span class="label">OPS/24H:</span><span class="val" id="t-calls">--</span>  <span class="label">UNKNOWN:</span><span class="val" id="t-unknown">--</span>
+<div class="sev-banner unknown" id="sev-banner" role="status">Loading…</div>
+<div class="system-monitor" id="system-monitor" role="status" aria-label="System monitor">
+<span><span class="label">SYSTEM</span></span> <span><span class="label">PRV:</span> <span class="val" id="t-providers">--</span></span> <span><span class="label">TOOLS:</span> <span class="val" id="t-tools">--</span></span> <span><span class="label">DOWN:</span> <span class="val" id="t-down">--</span></span> <span><span class="label">OPS/24H:</span> <span class="val" id="t-calls">--</span></span> <span><span class="label">UNKNOWN:</span> <span class="val" id="t-unknown">--</span></span>
 </div>
 <div class="payment-status" id="payment-status"></div>
 
@@ -232,46 +241,45 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
      (amber+person vs blue/teal+gear) per the project ruling: these two must
      never be visually confusable. -->
 <div class="incident-section">
-<h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#f0a640"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>Needs you</h2>
+<h2><svg class="h-person" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="7" r="4" fill="currentColor"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="currentColor" stroke-width="2" fill="none"/></svg>Needs you</h2>
 <div class="incident-list" id="waiting-human-list"><div class="incident-empty">Loading…</div></div>
 </div>
 
 <div class="incident-section">
-<h2><svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="color:#4a9eff"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Self-healing</h2>
+<h2><svg class="h-gear" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Self-healing</h2>
 <div class="incident-list" id="remediation-list"><div class="incident-empty">Loading…</div></div>
 </div>
 
-<!-- AP-10 / L2 screen 2 "Fleet/Queue": dense table of ALL incidents + legend +
-     state filter tags, projected from the same GET /api/v1/incidents already
-     fetched for the sections above (item 3 default: section within /dashboard,
-     not a separate route — see KNOWLEDGE entry for the open question left to
-     Fable's review). Collapsed by default, same disclosure pattern as the
-     category filter above. -->
+<!-- AP-10 / L2 screen 2 "Fleet/Queue": table of ALL incidents + legend + state
+     filter chips, projected from the same GET /api/v1/incidents fetched for the
+     sections above. Collapsed by default, same disclosure pattern as the
+     category filter below. -->
 <div class="incident-section">
-<span class="cat-filter-label fleet-toggle" id="fleet-toggle">FLEET / QUEUE — incidents <span id="fleet-count-label">[--]</span> ▶</span>
+<button type="button" class="d-toggle" id="fleet-toggle" aria-expanded="false" aria-controls="fleet-panel"><span>FLEET / QUEUE — incidents <span class="d-count" id="fleet-count-label">--</span></span><svg class="d-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div class="fleet-panel collapsed" id="fleet-panel"><div id="fleet-queue-content"><div class="incident-empty">Loading…</div></div></div>
 </div>
 
 <!-- Search bar -->
 <div class="search-bar">
-<span class="search-icon">$</span>
-<input type="text" class="search-input" id="search-input" placeholder="grep provider or category... (e.g. cloudflare, finance, domain)" autocomplete="off" spellcheck="false">
-<div class="search-info" id="search-info"><span class="hint">Search by provider name, category, or tool prefix</span></div>
+<label class="sr-only" for="search-input">Search providers</label>
+<span class="search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="M20 20l-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+<input type="search" class="search-input" id="search-input" placeholder="Provider or category (e.g. cloudflare, finance, domain)" autocomplete="off" spellcheck="false">
+<div class="search-info" id="search-info" aria-live="polite"><span class="hint">Search by provider name, category, or tool prefix</span></div>
 </div>
 
 <!-- Category filter (collapsible) -->
 <div class="cat-filter">
-<span class="cat-filter-label cat-filter-toggle" id="cat-toggle">FILTER  /categories <span id="cat-count-label">[--]</span> ▶</span>
+<button type="button" class="d-toggle" id="cat-toggle" aria-expanded="false" aria-controls="cat-tags"><span>FILTER /categories <span class="d-count" id="cat-count-label">--</span></span><svg class="d-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <div class="cat-tags collapsed" id="cat-tags"></div>
 </div>
 
 <div class="refresh-bar">
 <span>Auto-refresh every 60s</span>
-<span class="progress" id="timer">REFRESH  [██████████████████████████████] 60s</span>
+<span class="progress"><span id="timer">REFRESH 60s</span><span class="d-meter" aria-hidden="true"><span id="timer-bar"></span></span></span>
 </div>
-<div id="dashboard-content"><div class="loading">Loading dashboard data</div></div>
+<div id="dashboard-content"><div id="boot-screen" class="d-skel" aria-busy="true" aria-live="polite"><div class="loading">Loading dashboard data</div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div><div class="sk"></div></div></div>
 <div class="footer">
-<div class="footer-row"><span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span></div>
+<div class="footer-row"><span><span class="online">STATUS: ONLINE</span></span></div>
 <div class="footer-row"><span id="gen-time">Generated: --</span><span id="uptime-counter">Uptime: 0m 0s</span><span>BUILD: v1.0.0</span></div>
 </div>
 
@@ -603,6 +611,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     'ORCID': 'Education',
   };
 
+
   function getCategory(displayName) {
     return PROVIDER_CATEGORIES[displayName] || 'Other';
   }
@@ -613,19 +622,19 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
   setInterval(function() { var e = Math.floor((Date.now() - pageLoadTime) / 1000); var el = document.getElementById('uptime-counter'); if (el) el.textContent = 'Uptime: ' + Math.floor(e/60) + 'm ' + (e%60) + 's'; }, 1000);
 
   function updateProgressBar(sec) {
-    var total = 30, filled = Math.round((sec / 60) * total), empty = total - filled, bar = '';
-    for (var i = 0; i < filled; i++) bar += '\u2588';
-    for (var i = 0; i < empty; i++) bar += '\u2591';
-    timerEl.textContent = 'REFRESH  [' + bar + '] ' + sec + 's';
+    timerEl.textContent = 'REFRESH ' + sec + 's';
+    var bar = document.getElementById('timer-bar');
+    if (bar) bar.style.width = Math.max(0, Math.min(100, Math.round((sec / 60) * 100))) + '%';
   }
 
+  var DOT_LABEL = { g: 'healthy', o: 'slow', y: 'warning', r: 'down', u: 'unknown', p: 'paid' };
   function statusDot(status) {
     var cls = 'dot-u';
     if (status === 'green') cls = 'dot-g'; else if (status === 'orange') cls = 'dot-o';
     else if (status === 'yellow') cls = 'dot-y'; else if (status === 'red') cls = 'dot-r';
     else if (status === 'paid') cls = 'dot-p';
     else if (status === 'n/a') cls = 'dot-u';
-    return '<span class="status-dot ' + cls + '"></span>';
+    return '<span class="status-dot ' + cls + '" role="img" aria-label="' + DOT_LABEL[cls.slice(4)] + '"></span>';
   }
   function latencyClass(ms) { if (ms === null || ms === undefined) return ''; if (ms < 500) return 'lat-green'; if (ms <= 2000) return 'lat-orange'; return 'lat-red'; }
   function latencyBorderClass(ms) { if (ms === null || ms === undefined) return 'lat-border-unknown'; if (ms < 500) return 'lat-border-green'; if (ms <= 2000) return 'lat-border-orange'; return 'lat-border-red'; }
@@ -726,6 +735,9 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     }
   }
 
+  function escAttr(s) { return escHtml(String(s)).replace(/"/g, '&quot;'); }
+  function fmtDate(iso) { if (!iso) return '--'; var d = new Date(iso); return isNaN(d.getTime()) ? '--' : d.toISOString().replace('T', ' ').slice(0, 16) + ' UTC'; }
+
   function renderWaitingHuman(incidents) {
     var wrap = document.getElementById('waiting-human-list');
     if (!wrap) return;
@@ -736,7 +748,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     for (var i = 0; i < list.length; i++) {
       var inc = list[i];
       html += '<a class="incident-card st-waiting_human" href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">';
-      html += '<span class="icon" style="color:#f0a640">' + ICON_PERSON + '</span>';
+      html += '<span class="icon">' + ICON_PERSON + '</span>';
       html += '<span class="body"><span class="title">' + escHtml(inc.provider) + ' &mdash; ' + escHtml(inc.kind) + '</span>';
       html += '<span class="meta">' + escHtml(inc.severity) + ' &middot; age ' + fmtAge(inc.created_at) + ' &middot; file: ' + (inc.operator_file ? escHtml(inc.operator_file) : '<span class="noinfo">NOINFO</span>') + '</span></span></a>';
     }
@@ -753,15 +765,12 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     for (var i = 0; i < list.length; i++) {
       var inc = list[i];
       var cls = stateClass(inc.state);
-      var color = inc.state === 'VERIFYING' ? '#3adfc4' : '#4a9eff';
       html += '<a class="incident-card ' + cls + '" href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">';
-      html += '<span class="icon" style="color:' + color + '">' + ICON_GEAR + '</span>';
+      html += '<span class="icon">' + ICON_GEAR + '</span>';
       html += '<span class="body"><span class="title">' + escHtml(inc.provider) + ' &mdash; ' + escHtml(inc.kind) + '</span>';
       // T-09 ruling-1 (§1): this is attempts.length -- the length of the
-      // JOURNAL of notes appended to this incident (note_incident() calls:
-      // resolve-request, fleet-done, verified, waiting-human-reminder,
-      // etc), NOT a count of retry attempts. An operator reading "attempts:
-      // 24" reasonably assumes 24 retries; renamed to what it actually is.
+      // JOURNAL of notes appended to this incident (note_incident() calls),
+      // NOT a count of retry attempts; hence "notes", not "attempts".
       html += '<span class="meta"><span class="state-badge ' + cls + '">' + escHtml(inc.state) + '</span> &middot; INC-' + escHtml(shortId(inc.incident_id)) + ' &middot; task: ' + (inc.fleet_task_id ? escHtml(inc.fleet_task_id) : '<span class="noinfo">NOINFO</span>') + ' &middot; notes: ' + (Array.isArray(inc.attempts) ? inc.attempts.length : 0) + '</span></span></a>';
     }
     wrap.innerHTML = html;
@@ -773,37 +782,36 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     var wrap = document.getElementById('fleet-queue-content');
     var countLabel = document.getElementById('fleet-count-label');
     if (!wrap) return;
-    if (incidents === null) { wrap.innerHTML = '<div class="incident-noinfo">Failed to load — status unknown</div>'; if (countLabel) countLabel.textContent = '[--]'; return; }
+    if (incidents === null) { wrap.innerHTML = '<div class="incident-noinfo">Failed to load — status unknown</div>'; if (countLabel) countLabel.textContent = '--'; return; }
     // LIST_LIMIT on GET /api/v1/incidents is 100 (src/services/incidents.service.ts);
-    // API has no separate total-count field, so hitting exactly 100 is the only
-    // signal a longer list was truncated. Label says so instead of implying "all".
-    if (countLabel) countLabel.textContent = '[' + incidents.length + (incidents.length >= 100 ? '+' : '') + ']';
+    // the API has no separate total-count field, so exactly 100 is the only
+    // signal a longer list was truncated. The label says so instead of implying "all".
+    if (countLabel) countLabel.textContent = incidents.length + (incidents.length >= 100 ? '+' : '');
 
     var counts = {};
     for (var i = 0; i < incidents.length; i++) { counts[incidents[i].state] = (counts[incidents[i].state] || 0) + 1; }
-    var tagHtml = '<span class="state-tag' + (fleetStateFilter === 'ALL' ? ' active' : '') + '" data-state="ALL">ALL <span class="cat-count">' + incidents.length + '</span></span>';
+    var tagHtml = '<button type="button" class="state-tag' + (fleetStateFilter === 'ALL' ? ' active' : '') + '" aria-pressed="' + (fleetStateFilter === 'ALL') + '" data-state="ALL">ALL <span class="cat-count">' + incidents.length + '</span></button>';
     for (var j = 0; j < FLEET_STATES.length; j++) {
       var s = FLEET_STATES[j];
-      tagHtml += '<span class="state-tag' + (fleetStateFilter === s ? ' active' : '') + '" data-state="' + s + '">' + s + ' <span class="cat-count">' + (counts[s] || 0) + '</span></span>';
+      tagHtml += '<button type="button" class="state-tag' + (fleetStateFilter === s ? ' active' : '') + '" aria-pressed="' + (fleetStateFilter === s) + '" data-state="' + s + '"><span class="state-dot ' + stateClass(s) + '"></span>' + s + ' <span class="cat-count">' + (counts[s] || 0) + '</span></button>';
     }
-    var legendHtml = '<div class="fleet-legend">Legend: ';
+    var legendHtml = '<div class="fleet-legend"><span class="fleet-legend-label">Legend:</span> ';
     for (var k = 0; k < FLEET_STATES.length; k++) { legendHtml += '<span class="state-badge ' + stateClass(FLEET_STATES[k]) + '">' + FLEET_STATES[k] + '</span>'; }
     legendHtml += '</div>';
 
-    // (open_incidents doesn't apply per-incident — sort SEV1 first, then most
-    // recently created, same ordering the public /api/v1/incidents already
-    // returns; filtering here is purely client-side over that same response.)
+    // Filtering is purely client-side over the same response the public
+    // /api/v1/incidents returns (SEV1 first, then most recently created).
     var rows = fleetStateFilter === 'ALL' ? incidents : incidents.filter(function(i) { return i.state === fleetStateFilter; });
-    var tableHtml = '<div class="table-wrap"><table><thead><tr><th>Provider</th><th>Kind</th><th>Sev</th><th>State</th><th>Age</th><th>Fleet task</th><th>Detail</th></tr></thead><tbody>';
+    var tableHtml = '<div class="table-wrap"><table class="d-table d-fleet"><thead><tr><th scope="col">Provider</th><th scope="col">Kind</th><th scope="col">Sev</th><th scope="col">State</th><th scope="col">Age</th><th scope="col">Fleet task</th><th scope="col">Detail</th></tr></thead><tbody>';
     if (rows.length === 0) {
-      tableHtml += '<tr><td colspan="7" class="empty-state">No incidents in state ' + escHtml(fleetStateFilter) + '</td></tr>';
+      tableHtml += '<tr class="d-empty-row"><td colspan="7" class="empty-state">No incidents in state ' + escHtml(fleetStateFilter) + '</td></tr>';
     } else {
       for (var m = 0; m < rows.length; m++) {
         var inc = rows[m];
-        tableHtml += '<tr><td>' + escHtml(inc.provider) + '</td><td>' + escHtml(inc.kind) + '</td><td>' + escHtml(inc.severity) + '</td>';
-        tableHtml += '<td><span class="state-badge ' + stateClass(inc.state) + '">' + escHtml(inc.state) + '</span></td>';
-        tableHtml += '<td>' + fmtAge(inc.created_at) + '</td><td>' + (inc.fleet_task_id ? escHtml(inc.fleet_task_id) : '<span class="noinfo">NOINFO</span>') + '</td>';
-        tableHtml += '<td><a href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">open →</a></td></tr>';
+        tableHtml += '<tr><td data-label="Provider" class="c-name">' + escHtml(inc.provider) + '</td><td data-label="Kind">' + escHtml(inc.kind) + '</td><td data-label="Sev"><span class="sev-tag sev-' + escAttr(String(inc.severity).toLowerCase()) + '">' + escHtml(inc.severity) + '</span></td>';
+        tableHtml += '<td data-label="State"><span class="state-badge ' + stateClass(inc.state) + '">' + escHtml(inc.state) + '</span></td>';
+        tableHtml += '<td data-label="Age">' + fmtAge(inc.created_at) + '</td><td data-label="Fleet task" class="c-wrap">' + (inc.fleet_task_id ? escHtml(inc.fleet_task_id) : '<span class="noinfo">NOINFO</span>') + '</td>';
+        tableHtml += '<td data-label="Detail"><a class="m-link-sm" href="/autopilot/incident?id=' + encodeURIComponent(inc.incident_id) + '">open →</a></td></tr>';
       }
     }
     tableHtml += '</tbody></table></div>';
@@ -815,43 +823,55 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     }
   }
 
+  function dlRow(k, v) { return '<div><dt>' + k + '</dt><dd>' + v + '</dd></div>'; }
+  function payCard(title, sub, dot, headline, rows, extra) {
+    return '<div class="pay-card"><div class="pay-head"><span class="pay-title">' + title + '</span>' + (sub ? '<span class="pay-sub">' + sub + '</span>' : '') + '</div>' +
+      '<div class="pay-line">' + dot + headline + '</div>' + (extra || '') + '<dl>' + rows + '</dl></div>';
+  }
   function renderPaymentStatus(data) {
     var el = document.getElementById('payment-status');
     if (!data.payment_system) { el.style.display = 'none'; return; }
-    var ps = data.payment_system, html = '<span class="label">Payment:</span>';
-    var ma = ps.mode_a; // ps.mode_a.status drives the dot
-    html += '<span class="mode">' + statusDot(ps.mode_a.status) + 'Mode A (prepaid) ' + (ps.mode_a.status === 'unknown' ? 'unknown' : ma.paid + 'OK/' + ma.refunded + 'REF/' + ma.stuck + 'STUCK (' + ma.window_minutes + 'm)') + '</span><span class="separator">|</span>';
-    var mb = ps.mode_b;
-    if (mb.status === 'unknown') { html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>'; }
-    else { html += '<span class="mode">' + statusDot(mb.status) + 'x402 (Mode B)'; if (mb.latency_ms !== null) html += ' ' + mb.latency_ms + 'ms'; if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')'; html += '</span>'; }
-    if (mb.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
-    html += '<span class="separator">|</span>';
-    var mh = ps.mpp_health;
-    if (!mh) { html += '<span class="mode">' + statusDot('unknown') + 'MPP (Mode C) unknown</span>'; }
+    el.style.display = '';
+    var ps = data.payment_system, html = '<h2 class="pay-h"><span class="label">Payment:</span></h2><div class="pay-grid">';
+    var ma = ps.mode_a;
+    var maRows = ma.status === 'unknown' ? '' : dlRow('Paid', ma.paid) + dlRow('Refunded', ma.refunded) + dlRow('Stuck', ma.stuck) + dlRow('Window', ma.window_minutes + 'm');
+    maRows += dlRow('Last check', fmtDate(ma.last_check));
+    html += payCard('Mode A', ma.description ? escHtml(ma.description) : 'prepaid', statusDot(ma.status),
+      'Mode A (prepaid) ' + (ma.status === 'unknown' ? 'unknown' : ma.paid + 'OK/' + ma.refunded + 'REF/' + ma.stuck + 'STUCK (' + ma.window_minutes + 'm)'), maRows);
+    var mb = ps.mode_b, mbHead, mbRows = '';
+    if (mb.status === 'unknown') { mbHead = 'x402 (Mode B) Checking...'; }
     else {
-      html += '<span class="mode">' + statusDot(mh.status) + 'MPP (Mode C)';
-      if (mh.latency_ms !== null) html += ' ' + mh.latency_ms + 'ms';
-      if (mh.network) html += ' — ' + mh.network;
-      if (mh.status === 'n/a') html += ' disabled';
-      html += '</span>';
-      if (mh.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
+      mbHead = 'x402 (Mode B)'; if (mb.latency_ms !== null) mbHead += ' ' + mb.latency_ms + 'ms'; if (mb.network) mbHead += ' — ' + escHtml(mb.network) + ' (' + escHtml(networkLabel(mb.network)) + ')';
+      mbRows = dlRow('Latency', mb.latency_ms !== null ? mb.latency_ms + 'ms' : '--') + dlRow('Facilitator', escHtml(mb.facilitator || '--')) + dlRow('Network', escHtml(mb.network || '--')) + dlRow('Testnet', mb.testnet === true ? 'yes' : 'no');
     }
-    // T-0177 (2026-09-23): surface local-facilitator settle health and
-    // operator gas wallet balance here — this page is read directly by a
-    // human, unlike the Prometheus alerts covering the same two conditions
-    // (#28/#29 in prometheus/rules/alerts.yml), which route through
-    // Alertmanager -> Telegram and go unseen while Telegram is paused.
+    mbRows += dlRow('Last check', fmtDate(mb.last_check));
+    html += payCard('Mode B', 'x402', statusDot(mb.status === 'unknown' ? 'unknown' : mb.status), mbHead, mbRows, mb.testnet === true ? '<span class="testnet-warn">TESTNET</span>' : '');
+    var mh = ps.mpp_health;
+    if (!mh) { html += payCard('Mode C', 'MPP', statusDot('unknown'), 'MPP (Mode C) unknown', ''); }
+    else {
+      var mhHead = 'MPP (Mode C)';
+      if (mh.latency_ms !== null) mhHead += ' ' + mh.latency_ms + 'ms';
+      if (mh.network) mhHead += ' — ' + escHtml(mh.network);
+      if (mh.status === 'n/a') mhHead += ' disabled';
+      var mhRows = dlRow('Latency', mh.latency_ms !== null ? mh.latency_ms + 'ms' : '--') + dlRow('RPC', escHtml(mh.rpc_url || '--')) + dlRow('Network', escHtml(mh.network || '--')) + dlRow('Testnet', mh.testnet === true ? 'yes' : 'no') + dlRow('Last check', fmtDate(mh.last_check));
+      html += payCard('Mode C', 'MPP', statusDot(mh.status), mhHead, mhRows, mh.testnet === true ? '<span class="testnet-warn">TESTNET</span>' : '');
+    }
+    // T-0177 (2026-09-23): local-facilitator settle health and operator gas
+    // wallet balance are surfaced here because this page is read directly by a
+    // human, unlike the Prometheus alerts for the same conditions, which route
+    // through Alertmanager -> Telegram and go unseen while Telegram is paused.
     var lsh = ps.local_settle_health;
     if (lsh) {
-      html += '<span class="separator">|</span>';
-      html += '<span class="mode">' + statusDot(lsh.status) + 'x402 local settle ' + lsh.successes + 'OK/' + lsh.failures + 'FAIL (' + lsh.window_minutes + 'm)</span>';
+      html += payCard('x402 local settle', 'settlement health', statusDot(lsh.status), 'x402 local settle ' + lsh.successes + 'OK/' + lsh.failures + 'FAIL (' + lsh.window_minutes + 'm)',
+        dlRow('Successes', lsh.successes) + dlRow('Failures', lsh.failures) + dlRow('Window', lsh.window_minutes + 'm'));
     }
     var ow = ps.operator_wallet;
     if (ow) {
-      html += '<span class="separator">|</span>';
-      html += '<span class="mode">' + statusDot(ow.tier) + 'operator gas ' + ow.balance_eth.toFixed(4) + ' ETH (min ' + ow.min_balance_eth + ', warn ' + ow.warn_balance_eth + ')</span>';
+      html += payCard('Operator gas wallet', '<span class="mono-wrap">' + escHtml(ow.address || '--') + '</span>', statusDot(ow.tier),
+        'operator gas ' + ow.balance_eth.toFixed(4) + ' ETH (min ' + ow.min_balance_eth + ', warn ' + ow.warn_balance_eth + ')',
+        dlRow('Tier', escHtml(ow.tier)) + dlRow('Min balance', ow.min_balance_eth + ' ETH') + dlRow('Warn balance', ow.warn_balance_eth + ' ETH') + dlRow('Below threshold', ow.below_threshold ? 'yes' : 'no') + dlRow('Last check', fmtDate(ow.last_check)));
     }
-    el.innerHTML = html;
+    el.innerHTML = html + '</div>';
   }
 
   // --- Category filter rendering ---
@@ -865,15 +885,14 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     var sorted = Object.keys(cats).sort();
     var totalProviders = data.providers.length;
 
-    var html = '<span class="cat-tag' + (currentFilter === 'ALL' ? ' active' : '') + '" data-cat="ALL">[ALL] <span class="cat-count">' + totalProviders + '</span></span>';
+    var html = '<button type="button" class="cat-tag' + (currentFilter === 'ALL' ? ' active' : '') + '" aria-pressed="' + (currentFilter === 'ALL') + '" data-cat="ALL">ALL <span class="cat-count">' + totalProviders + '</span></button>';
     for (var j = 0; j < sorted.length; j++) {
       var c = sorted[j];
-      html += '<span class="cat-tag' + (currentFilter === c ? ' active' : '') + '" data-cat="' + escHtml(c) + '">' + escHtml(c) + ' <span class="cat-count">' + cats[c] + '</span></span>';
+      html += '<button type="button" class="cat-tag' + (currentFilter === c ? ' active' : '') + '" aria-pressed="' + (currentFilter === c) + '" data-cat="' + escAttr(c) + '">' + escHtml(c) + ' <span class="cat-count">' + cats[c] + '</span></button>';
     }
     document.getElementById('cat-tags').innerHTML = html;
-    document.getElementById('cat-count-label').textContent = '[' + sorted.length + ']';
+    document.getElementById('cat-count-label').textContent = sorted.length;
 
-    // Attach click handlers
     var tags = document.querySelectorAll('.cat-tag');
     for (var k = 0; k < tags.length; k++) {
       tags[k].addEventListener('click', function() {
@@ -882,6 +901,35 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
         renderTable(lastData);
       });
     }
+  }
+
+  function limitsCell(p) {
+    var h = statusDot(p.limits.status === 'n/a' ? 'unknown' : p.limits.status);
+    if (p.balance && p.balance.balance_usd !== null) {
+      var balCls = p.balance.balance_usd > 10 ? 'bal-ok' : p.balance.balance_usd > 0 ? 'bal-low' : 'bal-zero';
+      h += '<span class="' + balCls + '">$' + p.balance.balance_usd.toFixed(2) + '</span>';
+    } else if (p.limits.type === 'unlimited') h += 'Unlimited';
+    else if (p.limits.status === 'paid') h += 'Paid';
+    else if (p.limits.type === 'rate_limited' && p.limits.free_limit === 0) h += '<span class="muted">Rate Limited</span>';
+    else if (p.limits.used > p.limits.free_limit && p.limits.free_limit > 0) h += '<span class="over">OVER ' + formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + '</span>';
+    else {
+      h += formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + ' (' + p.limits.pct_remaining + '%) <span class="unit">/' + (p.limits.type === 'monthly' ? 'mo' : p.limits.type === 'daily' ? 'day' : p.limits.type === 'credits' ? 'cr' : '') + '</span>';
+      if (p.limits.free_limit > 0) h += '<span class="lim-bar" aria-hidden="true"><span class="lim-fill lim-' + escAttr(p.limits.status) + '" style="width:' + Math.max(0, Math.min(100, Number(p.limits.pct_remaining) || 0)) + '%"></span></span>';
+    }
+    return h;
+  }
+
+  function detailPanel(p, cat) {
+    var u = p.usage || {};
+    var h = '<dl class="d-detail-grid">';
+    h += dlRow('Provider id', escHtml(p.provider)) + dlRow('Category', escHtml(cat));
+    h += dlRow('Last health check', fmtDate(p.health.last_check));
+    h += dlRow('Avg latency', p.avg_latency_ms !== null && p.avg_latency_ms !== undefined ? p.avg_latency_ms + 'ms' : '--');
+    h += dlRow('Calls today', formatNum(u.calls_today)) + dlRow('Calls this month', formatNum(u.calls_this_month)) + dlRow('Calls total', formatNum(u.calls_total));
+    h += dlRow('Limit type', escHtml(p.limits.type || '--')) + dlRow('Remaining', formatNum(p.limits.remaining));
+    h += dlRow('Open incidents', formatNum(p.open_incidents || 0));
+    h += '</dl>';
+    return h;
   }
 
   function renderTable(data) {
@@ -913,12 +961,12 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     html += '<span class="h-grey">TRACKED:' + data.totals.providers_tracked + '</span>';
     html += '</div>';
 
-    html += '<div class="latency-legend">STATUS: <span style="color:#9ca59e">●</span> healthy  <span style="color:#ff9f43">●</span> slow  <span style="color:#ff7262">●</span> down  <span style="color:#9ca59e">●</span> pending</div>';
+    html += '<div class="latency-legend">STATUS: <span class="status-dot dot-g"></span> healthy  <span class="status-dot dot-o"></span> slow  <span class="status-dot dot-r"></span> down  <span class="status-dot dot-u"></span> pending</div>';
 
-    html += '<div class="table-wrap"><table><thead><tr>';
-    html += '<th>Provider</th><th>Cat</th><th>Status</th><th>Limits</th><th>Calls 24h</th><th>Tools</th>';
-    html += '<th class="col-extra">State</th><th class="col-extra">Risk</th><th class="col-extra">Reliability</th><th class="col-extra">Probe age</th>';
-    html += '</tr></thead><tbody>';
+    html += '<div class="table-wrap"><table class="d-table d-providers"><thead><tr>';
+    html += '<th scope="col">Provider</th><th scope="col">Cat</th><th scope="col">Status</th><th scope="col">Limits</th><th scope="col">Calls 24h</th><th scope="col">Tools</th>';
+    html += '<th scope="col" class="col-extra">State</th><th scope="col" class="col-extra">Risk</th><th scope="col" class="col-extra">Reliability</th><th scope="col" class="col-extra">Probe age</th><th scope="col" class="col-extra">Incidents</th><th scope="col">Detail</th>';
+    html += '</tr></thead>';
 
     // AP-10 / L2 screen 3: sort (open_incidents desc, reliability asc) BEFORE
     // search/category filtering — filters narrow the already-prioritized order,
@@ -926,7 +974,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     var sortedProviders = sortProviders(data.providers);
     var searchTerm = (document.getElementById('search-input').value || '').toLowerCase().trim();
     var visibleCount = 0;
-    var totalMatched = 0;
+    var body = '';
     for (var i = 0; i < sortedProviders.length; i++) {
       var p = sortedProviders[i];
       var cat = getCategory(p.display_name);
@@ -935,47 +983,49 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
         var haystack = (p.display_name + ' ' + p.provider + ' ' + cat).toLowerCase();
         if (haystack.indexOf(searchTerm) === -1) continue;
       }
-      totalMatched++;
       visibleCount++;
       var borderCls = latencyBorderClass(p.health.latency_ms);
       var rowNoinfo = p.health.status === 'unknown' ? ' noinfo' : '';
-      html += '<tr class="' + borderCls + rowNoinfo + '">';
-      html += '<td>' + escHtml(p.display_name) + '</td>';
-      html += '<td style="color:#9ca59e;font-size:0.72rem">' + escHtml(cat) + '</td>';
-      html += '<td>' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span style="color:#9ca59e">pending</span>' : 'OK')) + '</td>';
-      html += '<td>' + statusDot(p.limits.status === 'n/a' ? 'unknown' : p.limits.status);
-      if (p.balance && p.balance.balance_usd !== null) {
-        var balColor = p.balance.balance_usd > 10 ? '#00ff41' : p.balance.balance_usd > 0 ? '#ffaa00' : '#ff4444';
-        html += '<span style="color:' + balColor + ';font-weight:bold">$' + p.balance.balance_usd.toFixed(2) + '</span>';
-      } else if (p.limits.type === 'unlimited') html += 'Unlimited';
-      else if (p.limits.status === 'paid') html += 'Paid';
-      else if (p.limits.type === 'rate_limited' && p.limits.free_limit === 0) html += '<span style="color:#9ca59e">Rate Limited</span>';
-      else if (p.limits.used > p.limits.free_limit && p.limits.free_limit > 0) html += '<span style="color:#ff4444;font-weight:bold">OVER ' + formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + '</span>';
-      else html += formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + ' (' + p.limits.pct_remaining + '%) <span style="opacity:0.4;font-size:0.8em">/' + (p.limits.type === 'monthly' ? 'mo' : p.limits.type === 'daily' ? 'day' : p.limits.type === 'credits' ? 'cr' : '') + '</span>';
-      html += '</td>';
-      html += '<td>' + formatNum(p.calls_24h);
-      if (p.usage && p.usage.calls_total > 0) html += ' <span style="opacity:0.5;font-size:0.85em">/ ' + formatNum(p.usage.calls_total) + ' total</span>';
-      html += '</td>';
-      html += '<td>' + p.tool_count + '</td>';
+      var rid = 'prov-detail-' + visibleCount;
+      body += '<tbody class="d-row"><tr class="' + borderCls + rowNoinfo + '">';
+      body += '<td data-label="Provider" class="c-name">' + escHtml(p.display_name) + '</td>';
+      body += '<td data-label="Cat" class="c-cat">' + escHtml(cat) + '</td>';
+      body += '<td data-label="Status">' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span class="muted">pending</span>' : 'OK')) + '</td>';
+      body += '<td data-label="Limits" class="c-limits">' + limitsCell(p) + '</td>';
+      body += '<td data-label="Calls 24h">' + formatNum(p.calls_24h);
+      if (p.usage && p.usage.calls_total > 0) body += ' <span class="unit">/ ' + formatNum(p.usage.calls_total) + ' total</span>';
+      body += '</td>';
+      body += '<td data-label="Tools">' + p.tool_count + '</td>';
       // AP-9's own contract: `null` here means "no provider_status row yet"
       // (never probed) — rendered as an explicit NOINFO, never coerced to 0/
       // empty. `state`/`risk` CAN legitimately be the string 'UNKNOWN'/'NOINFO'
       // themselves (real enum members) — those render as plain text, not
       // wrapped in the .noinfo (dim/italic) treatment, since they ARE a real
       // measured fact, unlike an actually-absent row.
-      html += '<td class="col-extra">' + tdNoinfo(p.state === null || p.state === undefined, fmtState(p.state)) + '</td>';
-      html += '<td class="col-extra">' + tdNoinfo(p.risk === null || p.risk === undefined, fmtRisk(p.risk)) + '</td>';
-      html += '<td class="col-extra">' + tdNoinfo(p.reliability_score === null || p.reliability_score === undefined, fmtReliability(p.reliability_score)) + '</td>';
-      html += '<td class="col-extra">' + tdNoinfo(p.probe_age_s === null || p.probe_age_s === undefined, fmtProbeAge(p.probe_age_s)) + '</td>';
-      html += '</tr>';
+      body += '<td data-label="State" class="col-extra">' + tdNoinfo(p.state === null || p.state === undefined, fmtState(p.state)) + '</td>';
+      body += '<td data-label="Risk" class="col-extra">' + tdNoinfo(p.risk === null || p.risk === undefined, fmtRisk(p.risk)) + '</td>';
+      body += '<td data-label="Reliability" class="col-extra">' + tdNoinfo(p.reliability_score === null || p.reliability_score === undefined, fmtReliability(p.reliability_score)) + '</td>';
+      body += '<td data-label="Probe age" class="col-extra">' + tdNoinfo(p.probe_age_s === null || p.probe_age_s === undefined, fmtProbeAge(p.probe_age_s)) + '</td>';
+      body += '<td data-label="Incidents" class="col-extra' + (p.open_incidents > 0 ? ' has-inc' : '') + '">' + formatNum(p.open_incidents || 0) + '</td>';
+      body += '<td data-label="Detail" class="c-detail"><button type="button" class="d-expand" aria-expanded="false" aria-controls="' + rid + '" aria-label="Details for ' + escAttr(p.display_name) + '">Detail<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></td>';
+      body += '</tr><tr class="d-detail" id="' + rid + '" hidden><td colspan="12">' + detailPanel(p, cat) + '</td></tr></tbody>';
     }
 
     if (visibleCount === 0) {
-      html += '<tr><td colspan="10" class="empty-state">$ grep "' + escHtml(searchTerm || currentFilter) + '" /providers<br>0 results. No match found.</td></tr>';
+      body = '<tbody><tr class="d-empty-row"><td colspan="12" class="empty-state">0 results for "' + escHtml(searchTerm || currentFilter) + '". No match found.</td></tr></tbody>';
     }
 
-    html += '</tbody></table></div>';
+    html += body + '</table></div>';
     content.innerHTML = html;
+
+    var btns = content.querySelectorAll('.d-expand');
+    for (var b = 0; b < btns.length; b++) {
+      btns[b].addEventListener('click', function() {
+        var open = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', open ? 'false' : 'true');
+        document.getElementById(this.getAttribute('aria-controls')).hidden = open;
+      });
+    }
 
     // Update search info
     var infoEl = document.getElementById('search-info');
@@ -995,19 +1045,18 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     xhr.open('GET', '/api/v1/dashboard', true);
     xhr.timeout = 15000;
     xhr.onload = function() {
-      if (xhr.status === 200) { try { var data = JSON.parse(xhr.responseText); renderTable(data); } catch(e) { content.innerHTML = '<div class="error-msg">Failed to parse dashboard data</div>'; } }
-      else { content.innerHTML = '<div class="error-msg">Dashboard unavailable (HTTP ' + xhr.status + ')</div>'; }
+      if (xhr.status === 200) { try { var data = JSON.parse(xhr.responseText); renderTable(data); } catch(e) { content.innerHTML = '<div class="error-msg" role="alert">Failed to parse dashboard data</div>'; } }
+      else { content.innerHTML = '<div class="error-msg" role="alert">Dashboard unavailable (HTTP ' + xhr.status + ')</div>'; }
       countdown = 60;
     };
-    xhr.onerror = function() { content.innerHTML = '<div class="error-msg">Network error — retrying in 60s</div>'; countdown = 60; };
-    xhr.ontimeout = function() { content.innerHTML = '<div class="error-msg">Request timeout — retrying in 60s</div>'; countdown = 60; };
+    xhr.onerror = function() { content.innerHTML = '<div class="error-msg" role="alert">Network error — retrying in 60s</div>'; countdown = 60; };
+    xhr.ontimeout = function() { content.innerHTML = '<div class="error-msg" role="alert">Request timeout — retrying in 60s</div>'; countdown = 60; };
     xhr.send();
   }
 
-  // AP-10 / L2 screens 1+2: same GET /api/v1/incidents feeds the SEV banner,
+  // AP-10 / L2 screens 1+2: the same GET /api/v1/incidents feeds the SEV banner,
   // "Needs you", "Self-healing" and the Fleet/Queue table — one fetch, four
-  // renderers, same 60s cadence as fetchDashboard() (item 1: don't invent a
-  // second refresh mechanism).
+  // renderers, same 60s cadence as fetchDashboard().
   function fetchIncidents() {
     var xhr = new XMLHttpRequest();
     xhr.open('GET', '/api/v1/incidents', true);
@@ -1041,7 +1090,7 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
   fetchIncidents();
   intervalId = setInterval(tick, 1000);
 
-  // Search input — live filter on keyup
+  // Search input — live filter on input
   var searchInput = document.getElementById('search-input');
   var searchDebounce = null;
   searchInput.addEventListener('input', function() {
@@ -1054,32 +1103,16 @@ tr.lat-border-unknown td:first-child{border-left:2px solid #272c29}
     if (e.key === 'Escape') { searchInput.value = ''; if (lastData) renderTable(lastData); }
   });
 
-  // Category filter toggle (collapsed by default)
-  document.getElementById('cat-toggle').addEventListener('click', function() {
-    var tags = document.getElementById('cat-tags');
-    var label = this;
-    if (tags.classList.contains('collapsed')) {
-      tags.classList.remove('collapsed');
-      label.innerHTML = label.innerHTML.replace('▶', '▼');
-    } else {
-      tags.classList.add('collapsed');
-      label.innerHTML = label.innerHTML.replace('▼', '▶');
-    }
-  });
-
-  // Fleet/Queue disclosure toggle (AP-10 item 3 default: section within
-  // /dashboard, collapsed by default — same pattern as the category filter).
-  document.getElementById('fleet-toggle').addEventListener('click', function() {
-    var panel = document.getElementById('fleet-panel');
-    var label = this;
-    if (panel.classList.contains('collapsed')) {
-      panel.classList.remove('collapsed');
-      label.innerHTML = label.innerHTML.replace('▶', '▼');
-    } else {
-      panel.classList.add('collapsed');
-      label.innerHTML = label.innerHTML.replace('▼', '▶');
-    }
-  });
+  // Disclosure toggles (collapsed by default): category filter and Fleet/Queue panel.
+  function wireToggle(btnId, panelId) {
+    document.getElementById(btnId).addEventListener('click', function() {
+      var panel = document.getElementById(panelId);
+      var open = panel.classList.toggle('collapsed') === false;
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+  wireToggle('cat-toggle', 'cat-tags');
+  wireToggle('fleet-toggle', 'fleet-panel');
 })();
 </script>
 <footer class="site-footer"><div class="sf-in">
