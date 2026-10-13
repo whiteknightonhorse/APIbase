@@ -433,7 +433,7 @@ details p{margin:0 0 var(--s4)}
 .ig .ig-pager{display:flex;gap:var(--s4);margin:var(--s4) 0 0}
 .ig .ig-pager a{display:inline-flex;align-items:center;min-height:44px}
 /* what the buyer's agent sees (illustrative product card) */
-.ig .ig-example{display:flex;flex-wrap:wrap;gap:var(--s5) var(--s6);align-items:center}
+.ig .ig-example{display:flex;flex-wrap:wrap;gap:var(--s5) var(--s6);align-items:flex-start}
 .ig .ig-pcard{flex:1 1 320px;max-width:420px;min-width:0;background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden}
 .ig .ig-pshop{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:var(--fs-caption);color:var(--ink-3)}
 .ig .ig-pimg{display:block;width:100%;height:auto}

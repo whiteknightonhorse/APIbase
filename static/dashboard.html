@@ -97,6 +97,8 @@
 .health-summary{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);margin-bottom:var(--s2);font-size:var(--fs-small);font-weight:650}
 .h-green{color:var(--accent)}.h-orange{color:var(--warn)}.h-red{color:var(--bad)}.h-grey{color:var(--ink-3)}
 .latency-legend{font-size:13px;color:var(--ink-3);margin-bottom:var(--s3)}
+.latency-legend .legend-item{display:inline-flex;align-items:center;gap:4px;margin-left:16px}
+.latency-legend .legend-item .status-dot{margin-right:0}
 .loading{text-align:center;padding:var(--s5);color:var(--ink-3);font-size:var(--fs-small)}
 .d-skel{padding:var(--s2) 0}
 .d-skel .sk{height:44px;margin-bottom:var(--s2);border-radius:var(--r-ctl);background:linear-gradient(90deg,var(--surf) 25%,var(--surf-2) 50%,var(--surf) 75%);background-size:200% 100%;animation:d-shimmer 1.4s linear infinite}
@@ -179,7 +181,7 @@
 </head>
 <body>
 <!--site-nav-->
-<link rel="stylesheet" href="/assets/site-m.css?v=91b5eb97">
+<link rel="stylesheet" href="/assets/site-m.css?v=a02e598e">
 <header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
 <nav class="nav-full" aria-label="Main">
@@ -961,7 +963,7 @@
     html += '<span class="h-grey">TRACKED:' + data.totals.providers_tracked + '</span>';
     html += '</div>';
 
-    html += '<div class="latency-legend">STATUS: <span class="status-dot dot-g"></span> healthy  <span class="status-dot dot-o"></span> slow  <span class="status-dot dot-r"></span> down  <span class="status-dot dot-u"></span> pending</div>';
+    html += '<div class="latency-legend">STATUS: <span class="legend-item"><span class="status-dot dot-g"></span>healthy</span><span class="legend-item"><span class="status-dot dot-o"></span>slow</span><span class="legend-item"><span class="status-dot dot-r"></span>down</span><span class="legend-item"><span class="status-dot dot-u"></span>pending</span></div>';
 
     html += '<div class="table-wrap"><table class="d-table d-providers"><thead><tr>';
     html += '<th scope="col">Provider</th><th scope="col">Cat</th><th scope="col">Status</th><th scope="col">Limits</th><th scope="col">Calls 24h</th><th scope="col">Tools</th>';
