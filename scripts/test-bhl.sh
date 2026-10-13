@@ -3,7 +3,8 @@
 set -euo pipefail
 
 BASE="https://apibase.pro"
-BHL_KEY="${PROVIDER_KEY_BHL:-27e46cb3-7e91-4168-b468-9392420c126c}"
+: "${PROVIDER_KEY_BHL:?set PROVIDER_KEY_BHL}"
+BHL_KEY="$PROVIDER_KEY_BHL"
 
 pass=0; fail=0
 

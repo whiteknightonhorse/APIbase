@@ -3,7 +3,8 @@
 set -e
 BASE="https://apibase.pro"
 BEA_API="https://apps.bea.gov/api/data"
-BEA_KEY="${PROVIDER_KEY_BEA:-05560643-8D30-406D-A16C-54429016CB65}"
+: "${PROVIDER_KEY_BEA:?set PROVIDER_KEY_BEA}"
+BEA_KEY="$PROVIDER_KEY_BEA"
 
 echo "=== BEA (Bureau of Economic Analysis) Smoke Test ==="
 

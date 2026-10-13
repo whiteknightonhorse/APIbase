@@ -32,7 +32,8 @@ for TOOL in fbi.national_offenses fbi.state_offenses fbi.national_annual fbi.sta
 done
 
 # 4. Live API call (direct, bypasses payment for smoke test)
-API_KEY="${PROVIDER_KEY_API_DATA_GOV:-bfy7qDqWehRKLv0Ya7WEr7kdtgeTuCOm5znfSvFx}"
+: "${PROVIDER_KEY_API_DATA_GOV:?set PROVIDER_KEY_API_DATA_GOV}"
+API_KEY="$PROVIDER_KEY_API_DATA_GOV"
 RESP=$(curl -s "https://api.usa.gov/crime/fbi/cde/summarized/national/violent-crime?from=01-2022&to=12-2022&api_key=${API_KEY}")
 KEYS=$(echo "$RESP" | python3 -c "import sys,json; d=json.load(sys.stdin); print(list(d.keys()))" 2>/dev/null || echo "error")
 [[ "$KEYS" == *"offenses"* ]] && pass "Live API: FBI CDE returns offense data" || fail "FBI CDE API failed: ${RESP:0:100}"

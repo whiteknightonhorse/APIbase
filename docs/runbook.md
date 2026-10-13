@@ -685,3 +685,7 @@ either a targeted unit/selftest or design-only):
 | WAITING_HUMAN never clears after a key rotation | HUMAN_KEY has no automated re-close path by design (F2) — needs `incident-cli.py resolve-request` (or a human/agent transition) once the key is confirmed fixed |
 | `/api/v1/dashboard` tool_count disagrees with the catalog | Check `t.status != 'unavailable'` FILTER on `tool_count` is still separate from the row-level WHERE (T-8181 ruling-3 — a regression here silently re-breaks the counter) |
 | Fleet task never files despite an OPEN incident | Daily cap (`≤3/day`, `~/taskloop/state/autopilot-router-daily.count`) already spent, or `PROVIDER_DOWN`'s age gate not yet crossed |
+
+### 10.7 Provider keys in scripts/ (T-0353)
+
+`scripts/test-*.sh` must never carry a key default. Read provider keys with `: "${PROVIDER_KEY_X:?set PROVIDER_KEY_X}"` (fail loud, no fallback). The gate `tests/unit/no-key-literals-in-scripts.test.ts` fails on fallback or assigned literals of 16+ characters in tracked `scripts/` files; the documented `ak_live_0000...`, `ak_live_PLACEHOLDER` and `ak_live_test_...` placeholders are exempt. The values formerly committed in the FBI, BEA and BHL scripts: rotation pending operator; history purge is an operator decision.
