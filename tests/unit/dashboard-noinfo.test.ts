@@ -296,6 +296,7 @@ describe('T-0330: unmeasured is not healthy', () => {
   describe('static/dashboard.html literals', () => {
     it("has no hard-coded statusDot('green')", () => {
       expect(html).not.toContain("statusDot('green')");
+      expect(html).not.toMatch(/local_settle_health[^;]*Mode A/);
     });
     it('has no MEM:OK / NET:ONLINE literals', () => {
       expect(html).not.toMatch(/MEM:<\/span><span class="val">OK/);

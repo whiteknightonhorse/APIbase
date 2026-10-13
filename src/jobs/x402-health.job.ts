@@ -6,6 +6,7 @@ import { getX402Config } from '../config/x402.config';
 import { buildCdpAuthHeadersFn } from '../services/cdp-jwt.service';
 import { getOperatorWallet, weiToEth } from '../payments/operator-signer';
 import { x402OperatorEthBalance } from '../services/metrics.service';
+import { getMppConfig } from '../config/mpp.config';
 import { getPrisma } from '../services/prisma.service';
 
 /**
@@ -36,6 +37,35 @@ interface X402HealthResult {
 }
 
 export async function run(redis: Redis): Promise<void> {
+  const chainId = await runFacilitatorProbe(redis);
+
+  // CDP facilitator probe (independent, non-blocking)
+  await runCdpHealthCheck(redis, chainId).catch((err) => {
+    logger.warn({ err }, 'CDP health check threw — ignored');
+  });
+
+  // Operator wallet ETH balance probe (only when self-hosted facilitator is active).
+  await runOperatorBalanceProbe(redis).catch((err) => {
+    logger.warn({ err }, 'x402 operator balance probe threw — ignored');
+  });
+
+  // T-0177 (2026-09-23): recent x402 on-chain settle outcome, Telegram-independent.
+  await runLocalSettleHealthCheck(redis).catch((err) => {
+    logger.warn({ err }, 'x402 local settle health check threw — ignored');
+  });
+
+  // T-0372: Mode A (PG escrow) measured from ledger rows.
+  await runModeAHealthCheck(redis).catch((err) => {
+    logger.warn({ err }, 'Mode A health check threw — ignored');
+  });
+
+  // T-0372: MPP rail RPC probe.
+  await runMppHealthCheck(redis).catch((err) => {
+    logger.warn({ err }, 'MPP health check threw — ignored');
+  });
+}
+
+async function runFacilitatorProbe(redis: Redis): Promise<string> {
   const facilitatorUrl = config.X402_FACILITATOR_URL;
   const networkEnv = config.X402_NETWORK;
 
@@ -64,7 +94,7 @@ export async function run(redis: Redis): Promise<void> {
       { job: 'x402-health', ...result },
       'x402 health: TESTNET config detected in production',
     );
-    return;
+    return chainId;
   }
 
   // Probe facilitator /supported endpoint
@@ -97,7 +127,7 @@ export async function run(redis: Redis): Promise<void> {
         { job: 'x402-health', http_status: response.status, latency_ms: latencyMs },
         'x402 health: facilitator returned non-2xx',
       );
-      return;
+      return chainId;
     }
 
     // Parse supported chains/assets
@@ -153,21 +183,7 @@ export async function run(redis: Redis): Promise<void> {
     await writeRedis(redis, result);
     logger.warn({ job: 'x402-health', err, latency_ms: latencyMs }, 'x402 health check failed');
   }
-
-  // CDP facilitator probe (independent, non-blocking)
-  await runCdpHealthCheck(redis, chainId).catch((err) => {
-    logger.warn({ err }, 'CDP health check threw — ignored');
-  });
-
-  // Operator wallet ETH balance probe (only when self-hosted facilitator is active).
-  await runOperatorBalanceProbe(redis).catch((err) => {
-    logger.warn({ err }, 'x402 operator balance probe threw — ignored');
-  });
-
-  // T-0177 (2026-09-23): recent x402 on-chain settle outcome, Telegram-independent.
-  await runLocalSettleHealthCheck(redis).catch((err) => {
-    logger.warn({ err }, 'x402 local settle health check threw — ignored');
-  });
+  return chainId;
 }
 
 /**
@@ -183,6 +199,8 @@ export async function run(redis: Redis): Promise<void> {
 const LOCAL_SETTLE_WINDOW_MINUTES = 30;
 
 async function runLocalSettleHealthCheck(redis: Redis): Promise<void> {
+  // NOT_CHARGED rows never attempted a settle (T-0338); 0371 writes NULL for new rows,
+  // this guard covers rows written before it.
   const rows = await getPrisma().$queryRawUnsafe<Array<{ successes: bigint; failures: bigint }>>(`
     SELECT
       COUNT(*) FILTER (WHERE x402_onchain_settled = true) AS successes,
@@ -190,6 +208,7 @@ async function runLocalSettleHealthCheck(redis: Redis): Promise<void> {
     FROM execution_ledger
     WHERE created_at >= NOW() - INTERVAL '${LOCAL_SETTLE_WINDOW_MINUTES} minutes'
       AND x402_onchain_settled IS NOT NULL
+      AND billing_status = 'PAID'
   `);
   const successes = Number(rows[0]?.successes ?? 0);
   const failures = Number(rows[0]?.failures ?? 0);
@@ -212,6 +231,155 @@ async function runLocalSettleHealthCheck(redis: Redis): Promise<void> {
     { job: 'x402-health', successes, failures, status },
     'x402 local settle health check completed',
   );
+}
+
+export type RailStatus = 'green' | 'orange' | 'red' | 'n/a';
+
+/**
+ * Mode A status from pre-funded escrow rows in the window (T-0372).
+ * A RESERVED row older than 3 minutes means finalize AND the reconciliation
+ * reaper (refunds stalled RESERVED after 60-120 s) both failed.
+ */
+export function modeAStatus(paid: number, refunded: number, stuck: number): RailStatus {
+  if (stuck > 0) return 'red';
+  if (paid > 0) return 'green';
+  if (refunded > 0) return 'orange';
+  return 'n/a';
+}
+
+async function runModeAHealthCheck(redis: Redis): Promise<void> {
+  // Escrow rows are the ones with no payer and no on-chain settle flag
+  // (escrow.service.ts writes no payer; x402 and MPP paths always set it).
+  const rows = await getPrisma().$queryRawUnsafe<
+    Array<{ paid: bigint; refunded: bigint; stuck: bigint }>
+  >(`
+    SELECT
+      COUNT(*) FILTER (WHERE billing_status = 'PAID') AS paid,
+      COUNT(*) FILTER (WHERE billing_status = 'REFUNDED') AS refunded,
+      COUNT(*) FILTER (WHERE billing_status = 'RESERVED'
+                       AND created_at < NOW() - INTERVAL '3 minutes') AS stuck
+    FROM execution_ledger
+    WHERE created_at >= NOW() - INTERVAL '${LOCAL_SETTLE_WINDOW_MINUTES} minutes'
+      AND payer IS NULL AND x402_onchain_settled IS NULL
+      AND billing_status IN ('PAID','REFUNDED','RESERVED')
+  `);
+  const paid = Number(rows[0]?.paid ?? 0);
+  const refunded = Number(rows[0]?.refunded ?? 0);
+  const stuck = Number(rows[0]?.stuck ?? 0);
+  const status = modeAStatus(paid, refunded, stuck);
+
+  try {
+    await redis.hmset('payment:mode_a', {
+      paid: String(paid),
+      refunded: String(refunded),
+      stuck: String(stuck),
+      window_minutes: String(LOCAL_SETTLE_WINDOW_MINUTES),
+      status,
+      last_check: new Date().toISOString(),
+    });
+    await redis.expire('payment:mode_a', REDIS_TTL);
+  } catch (err) {
+    logger.warn({ err }, 'Failed to write Mode A health to Redis');
+  }
+
+  logger.info(
+    { job: 'x402-health', paid, refunded, stuck, status },
+    'Mode A health check completed',
+  );
+}
+
+export interface MppStatusInput {
+  testnet: boolean;
+  isProduction: boolean;
+  fetchFailed: boolean;
+  httpOk: boolean;
+  chainId: number | null;
+  expectedChainId: number;
+  latencyMs: number;
+}
+
+export function mppStatus(input: MppStatusInput): HealthStatus {
+  if (input.testnet && input.isProduction) return 'red';
+  if (input.fetchFailed || !input.httpOk) return 'red';
+  if (input.chainId !== input.expectedChainId) return 'orange';
+  if (input.latencyMs > 2000) return 'orange';
+  return 'green';
+}
+
+async function runMppHealthCheck(redis: Redis): Promise<void> {
+  const cfg = getMppConfig();
+  const now = new Date().toISOString();
+
+  if (!cfg.enabled) {
+    try {
+      await redis.hmset('mpp:health', { status: 'n/a', reason: 'disabled', last_check: now });
+      await redis.expire('mpp:health', REDIS_TTL);
+    } catch (err) {
+      logger.warn({ err }, 'Failed to write MPP health to Redis');
+    }
+    return;
+  }
+
+  const start = performance.now();
+  let fetchFailed = false;
+  let httpOk = false;
+  let chainId: number | null = null;
+
+  try {
+    const response = await fetch(cfg.rpcUrl, {
+      method: 'POST',
+      signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT_MS),
+      headers: {
+        'User-Agent': 'APIbase-mpp-HealthCheck/1.0',
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] }),
+    });
+    httpOk = response.ok;
+    if (httpOk) {
+      try {
+        const body = (await response.json()) as { result?: unknown };
+        if (typeof body?.result === 'string') {
+          const n = Number(body.result);
+          chainId = Number.isFinite(n) ? n : null;
+        }
+      } catch {
+        // unparseable body: chainId stays null, status orange
+      }
+    }
+  } catch (err) {
+    fetchFailed = true;
+    logger.warn({ job: 'x402-health', err }, 'MPP health check: RPC call failed');
+  }
+  const latencyMs = Math.round(performance.now() - start);
+
+  const status = mppStatus({
+    testnet: cfg.testnet,
+    isProduction: process.env.NODE_ENV === 'production',
+    fetchFailed,
+    httpOk,
+    chainId,
+    expectedChainId: cfg.chainId,
+    latencyMs,
+  });
+
+  try {
+    await redis.hmset('mpp:health', {
+      status,
+      latency_ms: String(latencyMs),
+      rpc_url: cfg.rpcUrl,
+      network: 'eip155:' + cfg.chainId,
+      network_supported: String(chainId === cfg.chainId),
+      testnet: String(cfg.testnet),
+      last_check: now,
+    });
+    await redis.expire('mpp:health', REDIS_TTL);
+  } catch (err) {
+    logger.warn({ err }, 'Failed to write MPP health to Redis');
+  }
+
+  logger.info({ job: 'x402-health', status, latency_ms: latencyMs }, 'MPP health check completed');
 }
 
 /**
@@ -248,6 +416,13 @@ async function runOperatorBalanceProbe(redis: Redis): Promise<void> {
       address: wallet.address,
       balance_eth: String(balanceEth),
       min_balance_eth: String(x402Cfg.operatorMinEthBalance),
+      warn_balance_eth: String(3 * x402Cfg.operatorMinEthBalance),
+      tier:
+        balanceEth < x402Cfg.operatorMinEthBalance
+          ? 'red'
+          : balanceEth < 3 * x402Cfg.operatorMinEthBalance
+            ? 'orange'
+            : 'green',
       below_threshold: String(balanceEth < x402Cfg.operatorMinEthBalance),
       last_check: new Date().toISOString(),
     });

@@ -72,6 +72,8 @@ interface OperatorWalletStatus {
   address: string;
   balance_eth: number;
   min_balance_eth: number;
+  warn_balance_eth: number;
+  tier: 'green' | 'orange' | 'red';
   below_threshold: boolean;
   last_check: string;
 }
@@ -91,7 +93,23 @@ interface LocalSettleHealth {
 }
 
 interface PaymentSystemStatus {
-  mode_a: { status: 'green'; description: string };
+  mode_a: {
+    status: 'green' | 'orange' | 'red' | 'n/a' | 'unknown';
+    paid: number | null;
+    refunded: number | null;
+    stuck: number | null;
+    window_minutes: number | null;
+    last_check: string | null;
+    description: 'Pre-funded balance (PG escrow)';
+  };
+  mpp_health: {
+    status: 'green' | 'orange' | 'red' | 'n/a' | 'unknown';
+    latency_ms: number | null;
+    rpc_url: string;
+    network: string;
+    testnet: boolean;
+    last_check: string | null;
+  } | null;
   mode_b: {
     status: 'green' | 'orange' | 'red' | 'unknown';
     latency_ms: number | null;
@@ -340,7 +358,16 @@ export async function getDashboardData(): Promise<DashboardResponse> {
 
   // Read x402 health from Redis (written by x402-health.job.ts hourly)
   let paymentSystem: PaymentSystemStatus = {
-    mode_a: { status: 'green', description: 'Pre-funded balance (PG)' },
+    mode_a: {
+      status: 'unknown',
+      paid: null,
+      refunded: null,
+      stuck: null,
+      window_minutes: null,
+      last_check: null,
+      description: 'Pre-funded balance (PG escrow)',
+    },
+    mpp_health: null,
     mode_b: {
       status: 'unknown',
       latency_ms: null,
@@ -369,17 +396,62 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       // non-fatal
     }
 
+    // T-0372: Mode A (PG escrow) measured by x402-health.job.ts runModeAHealthCheck.
+    try {
+      const a = await redis.hgetall('payment:mode_a');
+      if (a && a.last_check) {
+        paymentSystem.mode_a = {
+          status: a.status as PaymentSystemStatus['mode_a']['status'],
+          paid: parseInt(a.paid || '0', 10),
+          refunded: parseInt(a.refunded || '0', 10),
+          stuck: parseInt(a.stuck || '0', 10),
+          window_minutes: parseInt(a.window_minutes || '0', 10),
+          last_check: a.last_check,
+          description: 'Pre-funded balance (PG escrow)',
+        };
+      }
+    } catch {
+      // non-fatal
+    }
+
+    // T-0372: MPP rail RPC probe, written by runMppHealthCheck.
+    try {
+      const m = await redis.hgetall('mpp:health');
+      if (m && m.last_check) {
+        paymentSystem.mpp_health = {
+          status: m.status as NonNullable<PaymentSystemStatus['mpp_health']>['status'],
+          latency_ms: m.latency_ms ? parseInt(m.latency_ms, 10) : null,
+          rpc_url: m.rpc_url || '',
+          network: m.network || '',
+          testnet: m.testnet === 'true',
+          last_check: m.last_check,
+        };
+      }
+    } catch {
+      // non-fatal
+    }
+
     // T-0177: operator gas wallet balance, written by
     // x402-health.job.ts's hourly runOperatorBalanceProbe (already existed —
     // just wasn't surfaced anywhere Telegram-independent before this).
     try {
       const operatorData = await redis.hgetall('x402:operator');
       if (operatorData && operatorData.address) {
+        const below = operatorData.below_threshold === 'true';
+        const minEth = parseFloat(operatorData.min_balance_eth || '0');
+        const tierRaw = operatorData.tier;
         paymentSystem.operator_wallet = {
           address: operatorData.address,
           balance_eth: parseFloat(operatorData.balance_eth || '0'),
-          min_balance_eth: parseFloat(operatorData.min_balance_eth || '0'),
-          below_threshold: operatorData.below_threshold === 'true',
+          min_balance_eth: minEth,
+          warn_balance_eth: parseFloat(operatorData.warn_balance_eth || String(3 * minEth)),
+          tier:
+            tierRaw === 'green' || tierRaw === 'orange' || tierRaw === 'red'
+              ? tierRaw
+              : below
+                ? 'red'
+                : 'green',
+          below_threshold: below,
           last_check: operatorData.last_check || '',
         };
       }

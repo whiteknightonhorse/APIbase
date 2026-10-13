@@ -874,15 +874,23 @@ nav a:hover{
     var el = document.getElementById('payment-status');
     if (!data.payment_system) { el.style.display = 'none'; return; }
     var ps = data.payment_system, html = '<span class="label">Payment:</span>';
-    var lsA = ps.local_settle_health;
-    html += '<span class="mode">' + statusDot(lsA ? lsA.status : 'unknown') + 'Mode A ' + (lsA ? 'Active' : 'unknown') + '</span><span class="separator">|</span>';
+    var ma = ps.mode_a; // ps.mode_a.status drives the dot
+    html += '<span class="mode">' + statusDot(ps.mode_a.status) + 'Mode A (prepaid) ' + (ps.mode_a.status === 'unknown' ? 'unknown' : ma.paid + 'OK/' + ma.refunded + 'REF/' + ma.stuck + 'STUCK (' + ma.window_minutes + 'm)') + '</span><span class="separator">|</span>';
     var mb = ps.mode_b;
     if (mb.status === 'unknown') { html += '<span class="mode">' + statusDot('unknown') + 'x402 (Mode B) Checking...</span>'; }
     else { html += '<span class="mode">' + statusDot(mb.status) + 'x402 (Mode B)'; if (mb.latency_ms !== null) html += ' ' + mb.latency_ms + 'ms'; if (mb.network) html += ' — ' + mb.network + ' (' + networkLabel(mb.network) + ')'; html += '</span>'; }
     if (mb.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
     html += '<span class="separator">|</span>';
-    // No MPP health field exists in the payload: render unknown, never a literal green.
-    html += '<span class="mode">' + statusDot(ps.mpp_health ? ps.mpp_health.status : 'unknown') + 'MPP (Mode C) — Tempo/USDC' + (ps.mpp_health ? '' : ' (unknown)') + '</span>';
+    var mh = ps.mpp_health;
+    if (!mh) { html += '<span class="mode">' + statusDot('unknown') + 'MPP (Mode C) unknown</span>'; }
+    else {
+      html += '<span class="mode">' + statusDot(mh.status) + 'MPP (Mode C)';
+      if (mh.latency_ms !== null) html += ' ' + mh.latency_ms + 'ms';
+      if (mh.network) html += ' — ' + mh.network;
+      if (mh.status === 'n/a') html += ' disabled';
+      html += '</span>';
+      if (mh.testnet === true) html += ' <span class="testnet-warn">TESTNET</span>';
+    }
     // T-0177 (2026-09-23): surface local-facilitator settle health and
     // operator gas wallet balance here — this page is read directly by a
     // human, unlike the Prometheus alerts covering the same two conditions
@@ -894,9 +902,9 @@ nav a:hover{
       html += '<span class="mode">' + statusDot(lsh.status) + 'x402 local settle ' + lsh.successes + 'OK/' + lsh.failures + 'FAIL (' + lsh.window_minutes + 'm)</span>';
     }
     var ow = ps.operator_wallet;
-    if (ow && ow.below_threshold) {
+    if (ow) {
       html += '<span class="separator">|</span>';
-      html += '<span class="mode">' + statusDot('red') + 'operator wallet ' + ow.balance_eth.toExponential(2) + ' ETH &lt; ' + ow.min_balance_eth + ' min</span>';
+      html += '<span class="mode">' + statusDot(ow.tier) + 'operator gas ' + ow.balance_eth.toFixed(4) + ' ETH (min ' + ow.min_balance_eth + ', warn ' + ow.warn_balance_eth + ')</span>';
     }
     el.innerHTML = html;
   }

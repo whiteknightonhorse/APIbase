@@ -54,6 +54,25 @@ describe('getDashboardData — x402 local settle health / operator wallet (T-017
         balance_eth: '4.8e-7',
         min_balance_eth: '0.005',
         below_threshold: 'true',
+        warn_balance_eth: '0.015',
+        tier: 'red',
+        last_check: '2026-09-23T17:20:00.000Z',
+      },
+      'payment:mode_a': {
+        paid: '7',
+        refunded: '1',
+        stuck: '2',
+        window_minutes: '30',
+        status: 'red',
+        last_check: '2026-09-23T17:20:00.000Z',
+      },
+      'mpp:health': {
+        status: 'green',
+        latency_ms: '120',
+        rpc_url: 'https://rpc.tempo.xyz',
+        network: 'eip155:4217',
+        network_supported: 'true',
+        testnet: 'false',
         last_check: '2026-09-23T17:20:00.000Z',
       },
     });
@@ -70,7 +89,37 @@ describe('getDashboardData — x402 local settle health / operator wallet (T-017
       expect.objectContaining({
         address: '0x54F0358fB619B254d4B1F6dE635180623eb47932',
         below_threshold: true,
+        tier: 'red',
+        warn_balance_eth: 0.015,
       }),
+    );
+    expect(data.payment_system.mode_a).toEqual(
+      expect.objectContaining({
+        status: 'red',
+        paid: 7,
+        refunded: 1,
+        stuck: 2,
+        window_minutes: 30,
+      }),
+    );
+    expect(data.payment_system.mpp_health).toEqual(
+      expect.objectContaining({ status: 'green', latency_ms: 120, network: 'eip155:4217' }),
+    );
+  });
+
+  it('derives operator tier from below_threshold when the hash predates T-0372', async () => {
+    hgetallFor({
+      'x402:operator': {
+        address: '0xabc',
+        balance_eth: '1',
+        min_balance_eth: '0.005',
+        below_threshold: 'false',
+        last_check: '2026-09-23T17:20:00.000Z',
+      },
+    });
+    const data = await getDashboardData();
+    expect(data.payment_system.operator_wallet).toEqual(
+      expect.objectContaining({ tier: 'green', warn_balance_eth: 0.015 }),
     );
   });
 
@@ -81,6 +130,8 @@ describe('getDashboardData — x402 local settle health / operator wallet (T-017
 
     expect(data.payment_system.local_settle_health).toBeNull();
     expect(data.payment_system.operator_wallet).toBeNull();
+    expect(data.payment_system.mode_a.status).toBe('unknown');
+    expect(data.payment_system.mpp_health).toBeNull();
   });
 
   it('still makes exactly one PG query for the whole request (no per-request settle-health query)', async () => {
