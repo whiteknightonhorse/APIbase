@@ -27,11 +27,15 @@ describe('T-0343 /legal page chrome', () => {
       const html = await (await fetch(`${s.base}/legal/${id}`)).text();
       expect(html).toContain(`<link rel="canonical" href="https://apibase.pro/legal/${id}">`);
       expect(html).toMatch(/<meta name="description" content="[^"]+">/);
-      expect(html).toContain(`<title>${id} — APIbase legal</title>`);
+      expect(html).toMatch(/<title>[A-Z][A-Za-z ]+ — APIbase legal<\/title>/);
+      expect(html).not.toContain(`<title>${id} —`);
+      expect(html).toContain('<meta property="og:title"');
+      expect(html).toContain('<meta property="og:image" content="https://apibase.pro/og-image.png');
+      expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
       expect(html).toContain('<nav><a class="brand" href="/">APIbase.pro</a>');
       expect(html).toContain('<a href="/integrator">Integrator</a>');
-      for (const href of ['/terms', '/privacy', '/contact']) {
-        expect(html).toContain(`<footer>`);
+      for (const href of ['/terms', '/privacy', '/contact', '/legal']) {
+        expect(html).toContain(`<footer class="footer">`);
         expect(html).toContain(`<a href="${href}">`);
       }
     }

@@ -52,7 +52,7 @@ export function ownerHtml(v: OwnerView): string {
     `<table><thead><tr><th>Order</th><th>State</th><th>Rail</th><th>Total USD</th><th>Fee USD</th><th>Created</th><th>Tx</th></tr></thead>` +
     `<tbody>${rows}</tbody></table>`;
   return layout({
-    title: `${esc(m.name)} owner view — APIbase`,
+    title: `${m.name} owner view — APIbase`,
     head: '<meta name="robots" content="noindex, nofollow">',
     path: `/m/${m.slug}/owner`,
     body,

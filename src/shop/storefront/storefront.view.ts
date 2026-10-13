@@ -53,10 +53,11 @@ const page = (
   title: string,
   path: string,
   body: string,
-  o: { noindex?: boolean; ld?: unknown[]; head?: string } = {},
+  o: { noindex?: boolean; ld?: unknown[]; head?: string; description?: string } = {},
 ) =>
   layout({
-    title: `${esc(title)} — APIbase`,
+    title: `${title} — APIbase`,
+    description: o.description,
     head: (o.noindex ? NOINDEX : '') + (o.head ?? '') + ldScripts(o.ld ?? []),
     path,
     body,
@@ -89,7 +90,10 @@ export function shopsHtml(r: ShopsResult): string {
     `<div class="sys-monitor"><span class="prompt">></span> <span class="label">SHOPS:</span><strong>${r.total}</strong>  <span class="label">PAGE:</span><strong>${r.page}/${pages}</strong></div>` +
     `<h1>Shops</h1><div class="table-wrap"><table><tr><th>Shop</th><th>Category</th></tr>${rows}</table></div>` +
     `<p>${nav}</p>`;
-  return page('Shops', '/shops', body);
+  return page('Shops', '/shops', body, {
+    description:
+      'Shops connected to APIbase: each has its own storefront where a buyer AI agent orders and pays in USDC.',
+  });
 }
 
 export function shopsMarkdown(r: ShopsResult): string {
@@ -224,7 +228,11 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
   const head = s.provek
     ? `<link rel="alternate" type="application/json" href="/m/${esc(s.slug)}/provek.json">`
     : '';
-  return page(s.name, `/m/${s.slug}`, body, { ld, head });
+  return page(s.name, `/m/${s.slug}`, body, {
+    ld,
+    head,
+    description: `${s.name}: ${s.category} shop. Point your AI agent at its storefront, get a fixed-price quote and pay in USDC.`,
+  });
 }
 
 // ---- /m/<slug>/p/<sku> ----

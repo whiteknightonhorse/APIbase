@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { breadcrumbLd, escAttr, fitTitle, metaTags, SITE_FOOTER } from '../page-meta';
 
 export const INTEGRATOR_DIR = resolve(__dirname, '../../../static/integrator');
 
@@ -17,23 +18,34 @@ const read = (name: string): string => {
 
 /** One shell for every integrator page: the homepage terminal theme plus a small page stylesheet. */
 export function layout(o: {
+  /** Raw (unescaped) page title; escaped and fitted to 20-65 characters here. */
   title: string;
+  /** Raw meta description; fitted to 70-160 characters here. */
+  description?: string;
   head?: string;
   path: string;
   body: string;
   footer?: string;
 }): string {
   const css = `${read('_theme.css').trim()}\n${read('_page.css').trim()}`;
+  const title = fitTitle(o.title);
+  const crumbs: Array<[string, string]> = [
+    ['Home', '/'],
+    ['Integrator', '/integrator'],
+  ];
+  if (o.path.startsWith('/integrator/')) crumbs.push([title, o.path]);
+  const ld = o.path.startsWith('/integrator') ? breadcrumbLd(crumbs) : '';
   const values: Record<string, string> = {
-    TITLE: o.title,
-    HEAD: o.head ?? '',
+    TITLE: escAttr(title),
+    HEAD: metaTags({ title, description: o.description, path: o.path }) + ld + (o.head ?? ''),
+    SITE_FOOTER,
     CSS: css,
     PATH: o.path,
     BODY: o.body,
     FOOTER: o.footer ?? DEFAULT_FOOTER,
   };
   return read('_layout.html').replace(
-    /\{\{(TITLE|HEAD|CSS|PATH|BODY|FOOTER)\}\}/g,
+    /\{\{(TITLE|HEAD|CSS|PATH|BODY|FOOTER|SITE_FOOTER)\}\}/g,
     (_m, k: string) => values[k],
   );
 }

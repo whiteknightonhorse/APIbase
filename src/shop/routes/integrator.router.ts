@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import express, { Router, type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { ALLOWED_CATEGORIES } from '../moderation/categories';
-import { mdToHtml, titleOf } from '../integrator/md';
+import { leadOf, mdToHtml, titleOf } from '../integrator/md';
 import { renderTokens } from '../integrator/tokens';
 import { INTEGRATOR_DIR, layout } from '../integrator/layout';
 import { logger } from '../../config/logger';
@@ -26,12 +26,12 @@ export interface IntegratorRouterOptions {
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-const INDEX_HEAD =
-  '<meta name="description" content="Sell to AI agents: one link on your site, USDC settles to your wallet.">';
+const INDEX_DESCRIPTION =
+  'Sell to AI agents: one link on your site, a buyer agent places and pays the order, USDC settles to your wallet.';
 const CONNECT_HEAD = '<meta name="robots" content="noindex, follow">';
 
 const mdPage = (md: string, path: string): string =>
-  layout({ title: `${esc(titleOf(md))} — APIbase`, path, body: mdToHtml(md) });
+  layout({ title: `${titleOf(md)} — APIbase`, description: leadOf(md), path, body: mdToHtml(md) });
 
 /** F-18 / UC-20 / §13.1: the public integrator pages, HTML or Markdown from the same text. */
 export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Router {
@@ -90,7 +90,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
     send(req, res, 'index', (body, path) =>
       layout({
         title: 'Integrator — AI payment for your shop | APIbase',
-        head: INDEX_HEAD,
+        description: INDEX_DESCRIPTION,
         path,
         body,
       }),
@@ -110,6 +110,8 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
     res.type('html').send(
       layout({
         title: 'Connect AI payment | APIbase Integrator',
+        description:
+          'Connect your shop to APIbase: register the storefront and let buyer AI agents order and pay in USDC.',
         head: CONNECT_HEAD,
         path: '/integrator/connect',
         body,
@@ -118,7 +120,12 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
   });
   router.get('/integrator/docs', limiter, (req, res) =>
     send(req, res, 'docs', (md, path) =>
-      layout({ title: 'Integrator guide | APIbase', path, body: mdToHtml(md) }),
+      layout({
+        title: 'Integrator guide | APIbase',
+        description: leadOf(md),
+        path,
+        body: mdToHtml(md),
+      }),
     ),
   );
   for (const g of GUIDES) {

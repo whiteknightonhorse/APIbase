@@ -94,6 +94,12 @@ const PAGES = [
   ...PLATFORMS.map((p) => `/integrator/platforms/${p}`),
 ];
 
+/** T-0344: the canonical link and JSON-LD breadcrumb are the only allowed head extras. */
+const stripMeta = (html: string) =>
+  html
+    .replace(/<link rel="canonical"[^>]*>/g, '')
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '');
+
 describe('integrator pages', () => {
   it('IP1: 12 sections in the §13.1 order', async () => {
     const { text } = await get('/integrator');
@@ -177,8 +183,9 @@ describe('integrator pages', () => {
     const { text } = await get('/integrator');
     expect(Buffer.byteLength(text)).toBeLessThanOrEqual(35 * 1024);
     expect(text).toContain('name="viewport"');
-    expect(text).not.toMatch(/<(?:script|link|img|iframe)[^>]+(?:src|href)="https?:/i);
-    expect(text).not.toMatch(/<script/i);
+    const page = stripMeta(text);
+    expect(page).not.toMatch(/<(?:script|link|img|iframe)[^>]+(?:src|href)="https?:/i);
+    expect(page).not.toMatch(/<script/i);
   });
 
   it('IP8: agent-guide has all 14 §6.4 anchors and the wallet precondition first', async () => {
@@ -210,7 +217,7 @@ describe('integrator pages', () => {
       for (const md of [false, true]) {
         const r = await get(`/integrator/platforms/${p}`, md);
         expect(r.status).toBe(200);
-        expect(r.text).not.toMatch(/<script/i);
+        expect(stripMeta(r.text)).not.toMatch(/<script/i);
       }
     }
     expect((await get('/integrator/platforms/nope')).status).toBe(404);

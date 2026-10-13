@@ -626,6 +626,14 @@ ROBOTS_SITEMAP_404=""
 if [ "$CHECK" = "1" ] && [ "$NO_FETCH" != "1" ]; then
   ROBOTS_SITEMAP_404=$(ROOT="$ROOT" bash scripts/check-robots-sitemaps.sh) || true
 fi
+# T-0344: page meta + shared footer on every HTML page (scripts/check-page-meta.sh; --no-fetch = static/ only).
+PAGE_META_FAIL=""
+if [ "$CHECK" = "1" ]; then
+  if [ "$NO_FETCH" = "1" ]; then PAGE_META_FAIL=$(ROOT="$ROOT" bash scripts/check-page-meta.sh --no-fetch) || true
+  else PAGE_META_FAIL=$(ROOT="$ROOT" bash scripts/check-page-meta.sh) || true; fi
+  case "$PAGE_META_FAIL" in *"failures = 0"*) PAGE_META_FAIL="" ;; "") PAGE_META_FAIL="check-page-meta.sh produced no summary (missing or crashed)" ;; esac
+fi
+[ -n "$PAGE_META_FAIL" ] && { echo "sync-counts: PAGE_META — page meta / footer gate failed:"; echo "$PAGE_META_FAIL"; FAIL=1; }
 [ -n "$SITEMAP_COVERAGE" ] && { echo "sync-counts: SITEMAP_COVERAGE — sitemap.xml coverage regression:"; printf '%s' "$SITEMAP_COVERAGE"; FAIL=1; }
 [ -n "$ROBOTS_SITEMAP_404" ] && { echo "sync-counts: $ROBOTS_SITEMAP_404"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }

@@ -234,8 +234,12 @@ describe('T-INT-05 legal documents', () => {
         '',
       );
       // The hourly counts cron rewrites the tool/provider totals in these pages: not a legal change.
+      // T-0344 adds og:image, twitter:card and the shared footer: head/footer meta, not legal text.
       const counts = (h: string) =>
         h
+          .replace(/<meta property="og:image" content="[^"]*">\n/g, '')
+          .replace(/<meta name="twitter:card" content="[^"]*">\n/g, '')
+          .replace(/\n<footer class="footer">.*<\/footer>/g, '')
           .replace(/(<span class="label">PRV:<\/span><strong>)\d+/g, '$1N')
           .replace(/(<span class="label">TOOLS:<\/span><strong>)\d+/g, '$1N')
           .replace(/\d+ tools from \d+ providers/g, 'N tools from N providers')

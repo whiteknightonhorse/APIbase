@@ -74,4 +74,18 @@ export function mdToHtml(md: string): string {
   return out.join('\n');
 }
 
+/** First prose paragraph of a Markdown guide as plain text (meta description source). */
+export const leadOf = (md: string): string => {
+  for (const block of md.split(/\r?\n\s*\r?\n/)) {
+    const t = block.trim();
+    if (t && !/^(#|```|[-*] |\d+\. |\||<)/.test(t)) {
+      return t
+        .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+        .replace(/[`*_]/g, '')
+        .replace(/\s+/g, ' ');
+    }
+  }
+  return '';
+};
+
 export const titleOf = (md: string): string => /^# (.+)$/m.exec(md)?.[1] ?? 'APIbase Integrator';

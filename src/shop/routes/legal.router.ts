@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import { fitDescription, fitTitle, metaTags, SITE_FOOTER } from '../page-meta';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
 import {
@@ -18,7 +19,6 @@ export const DRAFT_BANNER =
   '<div class="draft-banner">DRAFT — not yet published; do not rely on this text</div>';
 
 const STATIC_DIR = resolve(LEGAL_DIR, '..');
-const SITE_ORIGIN = 'https://apibase.pro';
 
 export interface LegalRouterOptions {
   db?: ShopTx;
@@ -102,8 +102,13 @@ const NAV =
   '<nav><a class="brand" href="/">APIbase.pro</a><a href="/catalog">Catalog</a><a href="/shops">Shops</a>' +
   '<a href="/integrator">Integrator</a><a href="/integrator/agent-guide">Agent guide</a>' +
   '<a href="/integrator/buyers">Buyers</a><a href="/pricing">Pricing</a></nav>';
-const FOOTER =
-  '<footer><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/contact">Contact</a></footer>';
+
+const DOC_TITLES: Record<string, string> = {
+  'merchant-agreement': 'Merchant Agreement',
+  aup: 'Acceptable Use Policy',
+  dpa: 'Data Processing Addendum',
+  'refund-framework': 'Refund Framework',
+};
 
 /** First paragraph of the rendered body as plain text, for the meta description. */
 export function firstParagraph(bodyHtml: string): string {
@@ -136,19 +141,18 @@ const DRAFT_STYLE =
   '.draft-banner{background:#7a1f1f;color:#fff;padding:12px 16px;font-weight:bold;text-align:center}';
 
 function page(docId: string, body: string, draft: boolean): string {
-  const title = `${docId} — APIbase legal`;
-  const desc = firstParagraph(body);
+  const title = fitTitle(`${DOC_TITLES[docId] ?? docId} — APIbase legal`);
+  const desc = fitDescription(firstParagraph(body));
   return (
     '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
-    `<link rel="canonical" href="${SITE_ORIGIN}/legal/${esc(docId)}">` +
-    (desc ? `<meta name="description" content="${esc(desc)}">` : '') +
+    metaTags({ title, description: desc, path: `/legal/${docId}` }) +
     (draft ? '<meta name="robots" content="noindex">' : '') +
     `<title>${esc(title)}</title><style>${STYLE}${draft ? DRAFT_STYLE : ''}</style></head><body>` +
     (draft ? DRAFT_BANNER : '') +
     NAV +
     `<main>${body}</main>` +
-    FOOTER +
+    SITE_FOOTER +
     '</body></html>\n'
   );
 }
