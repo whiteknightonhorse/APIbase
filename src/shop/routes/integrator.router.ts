@@ -99,6 +99,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         description: INDEX_DESCRIPTION,
         path,
         body,
+        scope: 'ig',
       }),
     ),
   );
@@ -121,6 +122,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         head: CONNECT_HEAD,
         path: '/integrator/connect',
         body,
+        scope: 'ig',
       }),
     );
   });

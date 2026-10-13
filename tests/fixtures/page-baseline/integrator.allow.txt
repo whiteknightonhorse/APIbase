@@ -1,2 +1,22 @@
 # T-0383: terminal decoration removed by the design-M migration (fake titlebar).
 apibase@prod:~$ cat /srv/apibase/integrator | render
+# T-0391: fake terminal prompt and bracketed step numbers replaced by an ordered list.
+$ trace --order-flow
+[1]
+[2]
+[3]
+[4]
+[5]
+# T-0391: bracketed wizard counters and status tags replaced by "n/5" and a dot plus the word.
+[1/5]
+[2/5]
+[3/5]
+[4/5]
+[5/5]
+[ OK ]
+[ WAIT ]
+# T-0391 (operator review 2026-10-13): the placeholder example card is replaced by a finished product card.
+[PRODUCT IMAGE]
+Digital guide
+[PRICE] USDC
+illustration, not a real shop

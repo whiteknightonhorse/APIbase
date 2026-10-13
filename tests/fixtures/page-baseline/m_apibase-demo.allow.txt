@@ -1,2 +1,5 @@
 # T-0383: terminal decoration removed by the design-M migration (fake titlebar).
 apibase@prod:~$ cat /srv/apibase/m/apibase-demo | render
+# T-0391: bracketed status words replaced by M status dots and badges (the words stay).
+[ WARN ]
+[ in_stock ]

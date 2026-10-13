@@ -64,6 +64,7 @@ const page = (
     path,
     body,
     footer: FOOTER,
+    scope: 'ig',
   });
 
 const codeBlock = (url: string) => `<div class="code-wrap"><pre>${esc(url)}</pre></div>`;
@@ -85,13 +86,15 @@ export function shopsHtml(r: ShopsResult): string {
   const rows = r.shops
     .map(
       (s) =>
-        `<tr><td><a href="/m/${esc(s.slug)}">${esc(s.name)}</a></td><td>${esc(s.category)}</td></tr>`,
+        `<tr><td data-label="Shop"><a href="/m/${esc(s.slug)}">${esc(s.name)}</a></td><td data-label="Category">${esc(s.category)}</td></tr>`,
     )
     .join('');
   const body =
     `<div class="sys-monitor"><span class="prompt">></span> <span class="label">SHOPS:</span><strong>${r.total}</strong>  <span class="label">PAGE:</span><strong>${r.page}/${pages}</strong></div>` +
-    `<h1>Shops</h1><div class="table-wrap"><table><tr><th>Shop</th><th>Category</th></tr>${rows}</table></div>` +
-    `<p>${nav}</p>`;
+    `<h1>Shops</h1><p class="ig-lead">Stores where a shopper's AI agent can place and pay an order in USDC.</p>` +
+    `<div class="btn-row"><a class="btn p" href="/integrator/connect">Connect my store</a><a class="btn" href="/integrator">How Integrator works</a></div>` +
+    `<div class="m-table-wrap"><table class="m-table m-table--cards"><thead><tr><th>Shop</th><th>Category</th></tr></thead><tbody>${rows}</tbody></table></div>` +
+    `<p class="ig-pager">${nav}</p>`;
   return page('Shops', '/shops', body, {
     description:
       'Shops connected to APIbase: each has its own storefront where a buyer AI agent orders and pays in USDC.',
@@ -174,8 +177,8 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
       const href = `/m/${slug}/p/${encodeURIComponent(p.sku)}`;
       const ask = `Buy ${p.title} from apibase.pro/m/${s.slug}`;
       return (
-        `<div class="card pcard"><div class="pimg" aria-hidden="true"></div><a href="${href}">${esc(p.title)}</a>` +
-        `<div class="row"><span class="price">$${esc(p.price_usd)}</span><span class="stock">[ ${esc(p.availability)} ]</span></div>` +
+        `<div class="card pcard"><div class="pimg" aria-hidden="true"></div><a class="ptitle" href="${href}">${esc(p.title)}</a>` +
+        `<div class="row"><span class="price">$${esc(p.price_usd)}</span><span class="stock m-badge">${esc(p.availability)}</span></div>` +
         `<details class="buy"><summary class="btn">Buy with your AI agent</summary>` +
         `<p>Tell your AI assistant:</p><pre>${esc(ask)}</pre>` +
         `<button type="button" data-copy="${esc(ask)}" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText(this.dataset.copy);this.textContent='Copied'">Copy</button></details></div>`
@@ -184,8 +187,8 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
     .join('');
   const banner = demo
     ? `<div class="demo-banner"><p>This is a demo store. Ask your AI agent to buy something here — or see how it works for your shop.</p>` +
-      `<a class="btn p" href="/integrator?utm_source=demo_store&amp;utm_medium=banner" onclick="window.apibaseTrack&amp;&amp;apibaseTrack('cta_connect_click',{position:'demo_banner'})">Get this for my store</a>` +
-      `<a class="btn" href="/integrator#how-it-works">How an agent orders</a></div>` +
+      `<div class="btn-row"><a class="btn p" href="/integrator?utm_source=demo_store&amp;utm_medium=banner" onclick="window.apibaseTrack&amp;&amp;apibaseTrack('cta_connect_click',{position:'demo_banner'})">Get this for my store</a>` +
+      `<a class="btn" href="/integrator#how-it-works">How an agent orders</a></div></div>` +
       `<script>window.apibaseTrack&&apibaseTrack('demo_store_view',{slug:${JSON.stringify(s.slug)}})</script>`
     : '';
   const policyRows = kv(s.policy)
@@ -229,8 +232,8 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
     banner +
     `<h1>${esc(s.name)}</h1><p class="sub">${esc(s.category)} · <a href="${esc(s.site_url)}" rel="nofollow noopener">${esc(s.site_url)}</a></p>` +
     (s.domain_verified
-      ? '<p class="ok">[ OK ] domain_verified</p>'
-      : '<p class="warn"><strong>[ WARN ]</strong> unverified_domain — the merchant has not yet proven control of this site.</p>') +
+      ? '<p class="ok m-dot m-dot--ok">domain_verified</p>'
+      : '<p class="warn"><strong>WARN</strong> unverified_domain — the merchant has not yet proven control of this site.</p>') +
     `<h2>Products</h2><div class="grid pgrid">${cards}</div>` +
     operator +
     forAgents;

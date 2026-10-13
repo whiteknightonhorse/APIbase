@@ -98,6 +98,14 @@ def allow(name):
     return sorted(seqs, key=len, reverse=True), hs, ds
 
 
+ISO_TS = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?Z")
+
+
+def norm_ts(tokens):
+    """T-0391: dynamic ISO timestamps (catalog refresh time) compare as one placeholder token."""
+    return [ISO_TS.sub("<ISO-TIMESTAMP>", t) for t in tokens]
+
+
 def remove_seqs(tokens, seqs):
     out, i, n = [], 0, len(tokens)
     while i < n:
@@ -124,8 +132,8 @@ def missing_runs(base, got):
 def compare(name, body):
     fails = []
     seqs, ah, ad = allow(name)
-    base = remove_seqs(read(os.path.join(FIX, name + ".txt")).split(), seqs)
-    for run in missing_runs(base, visible_tokens(body)):
+    base = norm_ts(remove_seqs(read(os.path.join(FIX, name + ".txt")).split(), seqs))
+    for run in missing_runs(base, norm_ts(visible_tokens(body))):
         fails.append("missing text " + " ".join(run[:14]) + (" ..." if len(run) > 14 else ""))
     meta = json.load(open(os.path.join(FIX, name + ".meta.json"), encoding="utf-8"))
     have_h, have_i = hrefs(body), ids(body)

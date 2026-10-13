@@ -67,18 +67,19 @@
 <div class="sys-monitor"><span class="prompt">></span> <span class="label">MODE:</span><strong>integrator</strong>  <span class="label">FEE:</span><strong>{{INTEGRATOR_FEE_PCT}}</strong>  <span class="label">MIN:</span><strong>{{INTEGRATOR_MIN_ORDER}}</strong>  <span class="label">RAILS:</span><strong>x402+MPP</strong></div>
 <h2>AI payment for your shop</h2>
 <p lang="en">Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. {{INTEGRATOR_FEE_PCT}} fee.</p>
-<p><a class="btn p" href="/integrator/connect">Connect AI payment</a><a class="btn" href="/m/apibase-demo">View the demo shop</a></p>
+<p class="btn-row"><a class="btn p" href="/integrator/connect">Connect AI payment</a><a class="btn" href="/m/apibase-demo">View the demo shop</a></p>
 <p class="muted">Merchants connected so far: {{MERCHANTS_COUNT}}.</p>
 </section>
 
 <section id="how-it-works">
 <h2>How it works</h2>
-<div class="terminal"><span class="prompt">$</span> trace --order-flow<br>
-[1] merchant site → link /m/&lt;slug&gt;<br>
-[2] buyer's AI agent → storefront (MCP, only your tools)<br>
-[3] quote → fixed price, single-use nonce<br>
-[4] pay → USDC over x402 (Base) or MPP (Tempo)<br>
-[5] settle → your wallet — APIbase never holds the money</div>
+<ol class="ig-flow">
+<li>merchant site → link /m/&lt;slug&gt;</li>
+<li>buyer's AI agent → storefront (MCP, only your tools)</li>
+<li>quote → fixed price, single-use nonce</li>
+<li>pay → USDC over x402 (Base) or MPP (Tempo)</li>
+<li>settle → your wallet — APIbase never holds the money</li>
+</ol>
 <p>The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. See <a href="/integrator/why-base-tempo">why Base and Tempo</a>.</p>
 <h3 id="subscriptions">Subscriptions</h3>
 <p>A subscription is renewed by the buyer's agent with an explicit payment; funds are not debited automatically unless the payer pre-signs the next periods on Base (see <a href="/integrator/docs#base-pull-subscriptions">Base pull subscriptions</a>). Each period is an ordinary order: the agent asks for the renewal quote inside a 72-hour window around the end of the paid period and pays it on Base or Tempo. If the period ends unpaid, the subscription is past due, you get <code>subscription.past_due</code> after 24 hours and it is canceled after 72 hours. Grant access from the <code>subscription.*</code> webhooks or by reading the subscription. Details: <a href="/integrator/docs#subscriptions">/integrator/docs#subscriptions</a>.</p>
@@ -86,16 +87,27 @@
 
 <section id="demo-shop">
 <h2>What your buyer's agent sees</h2>
-<div class="grid">
-<div class="highlights mock">
-<div class="muted">your-shop.example</div>
-<div class="box muted">[PRODUCT IMAGE]</div>
-<strong>Digital guide</strong>
-<p>[PRICE] USDC</p>
-<a class="mock-btn" href="/m/apibase-demo">Buy with your AI agent</a>
-<div class="muted">illustration, not a real shop</div>
+<div class="ig-example">
+<article class="ig-pcard">
+<div class="ig-pshop">your-shop.example</div>
+<svg class="ig-pimg" viewBox="0 0 240 150" role="img" aria-label="Illustration of a digital product bundle: a stack of documents">
+<rect x="0" y="0" width="240" height="150" fill="#1b1f1c"/>
+<g fill="none" stroke="#b7beb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+<rect x="78" y="34" width="84" height="84" rx="6"/>
+<path d="M66 44v84a6 6 0 0 0 6 6h72"/>
+<path d="M90 56h60M90 72h60M90 88h36"/>
+</g>
+<circle cx="150" cy="104" r="9" fill="none" stroke="#4fd283" stroke-width="2"/>
+<path d="M146 104l3 3 5-6" fill="none" stroke="#4fd283" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+<div class="ig-pbody">
+<strong>APIbase agent commerce bundle</strong>
+<p class="ig-pprice">5.00 USDC</p>
+<a class="m-btn m-btn--primary" href="/m/apibase-demo">Buy with your AI agent</a>
+<p class="ig-pcap">Illustration — try the real flow in the demo shop</p>
 </div>
-<div>
+</article>
+<div class="ig-example-text">
 <p>The button is a plain link (variant A below). Try the real flow in the <a href="/m/apibase-demo">demo shop</a>.</p>
 </div>
 </div>
@@ -145,11 +157,11 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 <section id="check">
 <h2>Sandbox and the connection check</h2>
 <ul class="step-wizard">
-<li><span class="step-num">[1/5]</span> <span class="step-ready">storefront_initialize</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
-<li><span class="step-num">[2/5]</span> <span class="step-ready">tools_list_6</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
-<li><span class="step-num">[3/5]</span> <span class="step-ready">quote_test_sku</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
-<li><span class="step-num">[4/5]</span> <span class="step-ready">webhook_ping</span> <span class="step-dots">……</span> <span class="step-tag tag-ready">[ OK ]</span></li>
-<li><span class="step-num">[5/5]</span> <span class="step-ready">payment_verified</span> <span class="step-dots">……</span> <span class="step-tag tag-pending">[ WAIT ]</span></li>
+<li><span class="step-num">1/5</span> <span class="step-ready">storefront_initialize</span> <span class="step-dots">……</span> <span class="step-tag tag-ready m-dot m-dot--ok">OK</span></li>
+<li><span class="step-num">2/5</span> <span class="step-ready">tools_list_6</span> <span class="step-dots">……</span> <span class="step-tag tag-ready m-dot m-dot--ok">OK</span></li>
+<li><span class="step-num">3/5</span> <span class="step-ready">quote_test_sku</span> <span class="step-dots">……</span> <span class="step-tag tag-ready m-dot m-dot--ok">OK</span></li>
+<li><span class="step-num">4/5</span> <span class="step-ready">webhook_ping</span> <span class="step-dots">……</span> <span class="step-tag tag-ready m-dot m-dot--ok">OK</span></li>
+<li><span class="step-num">5/5</span> <span class="step-ready">payment_verified</span> <span class="step-dots">……</span> <span class="step-tag tag-pending m-dot m-dot--warn">WAIT</span></li>
 </ul>
 <p class="muted">example output · connected = steps 1–4 pass · payment_verified = your own agent paid a test order</p>
 <p>{{SANDBOX_STATUS}}</p>

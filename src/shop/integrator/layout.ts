@@ -36,6 +36,8 @@ export function layout(o: {
   footer?: string;
   /** Guide pages (T-0386): adds the design-M article styles (static/integrator/_docs.css). */
   docs?: boolean;
+  /** T-0391: design-M scope class for pages built on the `.ig` rules of site-m.css. */
+  scope?: string;
 }): string {
   const css = [read('_theme.css'), read('_page.css'), ...(o.docs ? [read('_docs.css')] : [])]
     .map((c) => c.trim())
@@ -57,7 +59,7 @@ export function layout(o: {
     PATH: o.path,
     BODY: o.body,
     FOOTER: o.footer ?? DEFAULT_FOOTER,
-    SHELL: o.docs ? ' dx-shell' : '',
+    SHELL: o.docs ? ' dx-shell' : o.scope ? ` ${o.scope}` : '',
   };
   return read('_layout.html').replace(
     /\{\{(TITLE|HEAD|CSS|PATH|BODY|FOOTER|SHELL|SITE_FOOTER|SITE_NAV|GA4)\}\}/g,
