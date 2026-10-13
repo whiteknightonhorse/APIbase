@@ -94,8 +94,8 @@ dbDescribe('T-0338 no charge on provider_input_rejected', () => {
     return ctx;
   }
   const ledgerRows = (id: string) =>
-    prisma.$queryRawUnsafe<Array<Record<string, string>>>(
-      `SELECT billing_status, status, cost_usd::text AS cost_usd, payer FROM execution_ledger WHERE execution_id = $1::uuid`,
+    prisma.$queryRawUnsafe<Array<Record<string, string | null>>>(
+      `SELECT billing_status, status, cost_usd::text AS cost_usd, payer, x402_onchain_settled FROM execution_ledger WHERE execution_id = $1::uuid`,
       id,
     );
 
@@ -112,6 +112,7 @@ dbDescribe('T-0338 no charge on provider_input_rejected', () => {
         status: 'provider_input_rejected',
         cost_usd: '0.00000000',
         payer: '0xPAYER',
+        x402_onchain_settled: null,
       },
     ]);
   });

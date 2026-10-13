@@ -264,7 +264,8 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       moderation_category: blocked?.category ?? null,
       moderation_appeal_id: blocked?.appealId ?? null,
       upstream_cost_usd: isCacheHit || blocked ? null : (entry.upstreamCostUsd ?? null),
-      x402_onchain_settled: notCharged ? false : (entry.settleSucceeded ?? null),
+      // NOT_CHARGED: no settle attempted -> NULL (not applicable), see prisma/schema.prisma x402_onchain_settled contract and ruling q-16
+      x402_onchain_settled: notCharged ? null : (entry.settleSucceeded ?? null),
     },
   });
 
