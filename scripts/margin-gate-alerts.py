@@ -53,7 +53,8 @@ from datetime import datetime, timezone
 
 import yaml
 
-ROOT = "/home/apibase/apibase"
+DEPLOY_ROOT = "/home/apibase/apibase"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = "whiteknightonhorse/APIbase"
 TITLE_PREFIX = "Margin gate blocking: "
 STALE_PREFIX = "Cost model stale: "
@@ -61,7 +62,7 @@ MISSING_PREFIX = "Cost model missing: "
 FLOOR_PREFIX = "Price below floor: "
 COVERAGE_TITLE = "Margin gate coverage below threshold"
 COVERAGE_MIN_PCT = 90.0
-TG_ENV_PATH = f"{ROOT}/scripts/night-orchestra/state/tg.env"
+TG_ENV_PATH = f"{DEPLOY_ROOT}/scripts/night-orchestra/state/tg.env"
 
 
 with open(f"{ROOT}/src/config/margin.json") as f:
