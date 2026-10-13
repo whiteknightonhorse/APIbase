@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """backfill-upstream-cost.py -- T-0352: record upstream_cost_usd "0" explicitly for free providers.
 
-A provider counts as FREE only on positive evidence from night-orchestra's connected.json
-(status "connected", or key_required false) AND no sign of money in src/config/provider-limits.json
-(no billing / paid_balance / balance_api / pricing_check block). Every other tool row that still
-has no upstream_cost_usd is listed as UNKNOWN for the operator -- never guessed.
+A provider counts as FREE only on POSITIVE evidence of no-auth / free access:
+  * connected.json says key_required false, OR provider-limits.json has limit_type "unlimited"
+    with a limit_proof that states no API key / no auth / no registration is needed;
+  * AND provider-limits.json carries no sign of money: no pricing_url / pricing_check / pricing_note /
+    billing / paid_balance / balance_api block, and no credits / trial limit_type.
+"status: connected" is NOT evidence of anything. Every other tool row that still has no
+upstream_cost_usd is listed as UNKNOWN for the operator -- never guessed.
 
 Only cost fields are touched; price_usd is never edited. Dry run by default.
 Usage: python3 scripts/backfill-upstream-cost.py [--apply]
@@ -19,19 +22,20 @@ ROOT = Path(__file__).resolve().parents[1]
 YAML_PATH = ROOT / "config" / "tool_provider_config.yaml"
 LIMITS_PATH = ROOT / "src" / "config" / "provider-limits.json"
 CONNECTED_PATH = ROOT / "scripts" / "night-orchestra" / "state" / "connected.json"
-MONEY_KEYS = ("billing", "paid_balance", "balance_api", "pricing_check")
+MONEY_KEYS = ("billing", "paid_balance", "balance_api", "pricing_check", "pricing_note", "pricing_url")
+NO_AUTH_RE = re.compile(r"\bno\s+(api\s+)?(key|auth|authentication|registration|signup|sign-up)\b|without\s+(an\s+)?(api\s+)?key", re.I)
 
 BLOCK_RE = re.compile(r"(?P<block>  - tool_id: [^\n]+\n(?:    [^\n]+\n)*)")
 
 
 def free_providers(connected, limits):
     out = set()
-    for name, meta in connected.items():
-        if meta.get("status") != "connected" and meta.get("key_required") is not False:
+    for name, lim in limits.items():
+        if any(k in lim for k in MONEY_KEYS) or lim.get("limit_type") in ("credits", "trial"):
             continue
-        if any(k in limits.get(name, {}) for k in MONEY_KEYS):
-            continue
-        out.add(name)
+        no_auth_proof = lim.get("limit_type") == "unlimited" and NO_AUTH_RE.search(lim.get("limit_proof") or "")
+        if no_auth_proof or connected.get(name, {}).get("key_required") is False:
+            out.add(name)
     return out
 
 
@@ -71,7 +75,7 @@ def main():
     free = free_providers(json.loads(CONNECTED_PATH.read_text()), json.loads(LIMITS_PATH.read_text()))
     text = YAML_PATH.read_text()
     new_text, zeroed, unknown = plan(text, free)
-    print(f"free providers (evidence: connected.json, no billing block): {len(free)}")
+    print(f"free providers (positive no-auth evidence, no pricing/billing marker): {len(free)}")
     print(f"tools that would get upstream_cost_usd 0: {len(zeroed)}")
     n_unknown = sum(len(v) for v in unknown.values())
     print(f"paid tools still without a cost model: {n_unknown} across {len(unknown)} provider(s)")

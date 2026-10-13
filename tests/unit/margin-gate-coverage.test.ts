@@ -33,11 +33,22 @@ describe('T-0352 margin-gate coverage', () => {
         freeco: { status: 'connected' },
         paidco: { status: 'connected' },
         keyed: { status: 'blocked' },
+        connectedonly: { status: 'connected' },
       }),
     );
     writeFileSync(
       join(root, 'src/config/provider-limits.json'),
-      JSON.stringify({ paidco: { billing: { cap: 1 } } }),
+      JSON.stringify({
+        freeco: {
+          limit_type: 'unlimited',
+          limit_proof: 'Public API, no authentication or API key required',
+        },
+        paidco: {
+          limit_type: 'unlimited',
+          limit_proof: 'No API key required for the free tier',
+          pricing_url: 'https://example.invalid/pricing',
+        },
+      }),
     );
     const yamlText = [
       'tools:',
@@ -60,6 +71,12 @@ describe('T-0352 margin-gate coverage', () => {
       '    upstream_cost_usd: "0.001"',
       '    cache_ttl: 5',
       '',
+      '  - tool_id: d.one',
+      '    name: D',
+      '    provider: connectedonly',
+      '    price_usd: "0.004"',
+      '    cache_ttl: 5',
+      '',
     ].join('\n');
     const y = join(root, 'config/tool_provider_config.yaml');
     writeFileSync(y, yamlText);
@@ -68,6 +85,7 @@ describe('T-0352 margin-gate coverage', () => {
     const dry = spawnSync('python3', [script]).stdout.toString();
     expect(dry).toContain('would get upstream_cost_usd 0: 1');
     expect(dry).toContain('UNKNOWN paidco: 1 tool(s)');
+    expect(dry).toContain('UNKNOWN connectedonly: 1 tool(s)');
     expect(readFileSync(y, 'utf8')).toBe(yamlText);
 
     spawnSync('python3', [script, '--apply']);
