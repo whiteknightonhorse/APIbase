@@ -5,11 +5,7 @@ body{
   background:#0e100f;
   color:#b7beb8;
   line-height:1.7;
-  padding:1.5rem;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:flex-start}
+  }
 
 /* CRT scanline overlay */
 
@@ -206,7 +202,6 @@ details p{color:#b7beb8;margin:0.3rem 0 1rem}
 }
 
 @media(max-width:600px){
-  body{padding:0.5rem}
   .container{padding:1rem}
   
   h1{font-size:1.05rem}

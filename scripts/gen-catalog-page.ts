@@ -62,7 +62,7 @@ export function renderPage(
 <meta property="og:url" content="https://apibase.pro/catalog">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7;padding:1.5rem;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
 
 .container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
 ${NAV_CSS}
@@ -89,7 +89,7 @@ td:last-child, th:last-child{text-align:right}
 *::-webkit-scrollbar-track{background:#0e100f;border:1px solid #272c29}
 *::-webkit-scrollbar-thumb{background:#1b1f1c;border-radius:4px;border:1px solid #0e100f}
 *{scrollbar-width:thin;scrollbar-color:#3e4541 #0e100f}
-@media(max-width:600px){body{padding:0.5rem}.container{padding:1rem}h1{font-size:1.05rem}.footer{font-size:0.65rem}}
+@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}.footer{font-size:0.65rem}}
 </style>
 </head>
 <body>
