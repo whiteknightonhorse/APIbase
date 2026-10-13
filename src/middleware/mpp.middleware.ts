@@ -197,7 +197,7 @@ async function ensureMppx(): Promise<void> {
   };
 
   mppxInstance = Mppx.create({
-    methods: [tempo.charge(params), tempo.session(params)],
+    methods: [tempo.charge(params), tempo.sessionLegacy(params)],
     secretKey: cfg.secretKey,
     realm: cfg.realm,
   });

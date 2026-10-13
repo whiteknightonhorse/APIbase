@@ -165,11 +165,13 @@ function mockSessionHandler(params: any, opts: { amount: string }) {
 jest.mock('mppx/server', () => ({
   Store: { redis: () => ({ update: async () => undefined }) },
   tempo: Object.assign(jest.fn(), {
-    session: (params: unknown) => {
-      mockWorld.sessionCalls.push(params);
-      return { params };
-    },
-    settle: (...a: unknown[]) => mockWorld.settle(...a),
+    sessionLegacy: Object.assign(
+      (params: unknown) => {
+        mockWorld.sessionCalls.push(params);
+        return { params };
+      },
+      { settle: (...a: unknown[]) => mockWorld.settle(...a) },
+    ),
   }),
   Mppx: {
     create: ({ methods }: { methods: Array<{ params: unknown }> }) => ({
@@ -177,24 +179,26 @@ jest.mock('mppx/server', () => ({
     }),
   },
 }));
-jest.mock('mppx/tempo', () => ({
-  Session: {
-    ChannelStore: {
-      fromStore: () => ({
-        getChannel: async (id: string) => mockWorld.channels.get(id.toLowerCase()) ?? null,
-        updateChannel: async (id: string, fn: (c: unknown) => unknown) => {
-          const next = fn(mockWorld.channels.get(id.toLowerCase()) ?? null);
-          if (next) mockWorld.channels.set(id.toLowerCase(), next);
-          else mockWorld.channels.delete(id.toLowerCase());
-          return next;
-        },
-      }),
+jest.mock('../../src/shop/mppx-legacy', () => ({
+  legacyChannelStore: async () => ({
+    getChannel: async (id: string) => mockWorld.channels.get(id.toLowerCase()) ?? null,
+    updateChannel: async (id: string, fn: (c: unknown) => unknown) => {
+      const next = fn(mockWorld.channels.get(id.toLowerCase()) ?? null);
+      if (next) mockWorld.channels.set(id.toLowerCase(), next);
+      else mockWorld.channels.delete(id.toLowerCase());
+      return next;
     },
-    Chain: {
-      getOnChainChannel: async (_c: unknown, _e: unknown, id: string) => ({
-        closeRequestedAt: mockWorld.chain.get(id.toLowerCase())?.closeRequestedAt ?? 0n,
-        finalized: mockWorld.chain.get(id.toLowerCase())?.finalized ?? false,
-      }),
+  }),
+}));
+jest.mock('mppx/tempo', () => ({
+  SessionLegacy: {
+    Session: {
+      Chain: {
+        getOnChainChannel: async (_c: unknown, _e: unknown, id: string) => ({
+          closeRequestedAt: mockWorld.chain.get(id.toLowerCase())?.closeRequestedAt ?? 0n,
+          finalized: mockWorld.chain.get(id.toLowerCase())?.finalized ?? false,
+        }),
+      },
     },
   },
 }));

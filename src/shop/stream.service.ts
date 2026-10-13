@@ -453,15 +453,15 @@ export interface StreamChain {
     m: StreamMethod,
     s: StreamSessionRow,
   ): Promise<{ closeRequestedAt: bigint; finalized: boolean }>;
-  /** `tempo.settle(store, channelId, { account })` of the highest voucher; returns the tx hash. */
+  /** `tempo.sessionLegacy.settle(store, channelId, { account })` of the highest voucher; returns the tx hash. */
   settle(m: StreamMethod, s: StreamSessionRow): Promise<string>;
 }
 
 export const mppxChain: StreamChain = {
   async readChannel(m, s) {
-    const { Session } = await import('mppx/tempo');
+    const { SessionLegacy } = await import('mppx/tempo');
     const client = await createStreamClient(getMppConfig());
-    const onChain = await Session.Chain.getOnChainChannel(
+    const onChain = await SessionLegacy.Session.Chain.getOnChainChannel(
       client as never,
       (s.escrow_contract ?? undefined) as `0x${string}`,
       s.channel_id as `0x${string}`,
@@ -471,7 +471,7 @@ export const mppxChain: StreamChain = {
   async settle(m, s) {
     const { tempo } = await import('mppx/server');
     const client = await createStreamClient(getMppConfig());
-    return tempo.settle(m.channels, client as never, s.channel_id as `0x${string}`, {
+    return tempo.sessionLegacy.settle(m.channels, client as never, s.channel_id as `0x${string}`, {
       account: m.account as never,
       ...(s.escrow_contract ? { escrowContract: s.escrow_contract as `0x${string}` } : {}),
     });

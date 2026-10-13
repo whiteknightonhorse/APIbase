@@ -156,6 +156,12 @@ const FEE_TOKEN: Record<number, string> = {
   42431: '0x20c0000000000000000000000000000000000000',
 };
 
+/** mppx >= 0.7 keeps the contract-backed session under `SessionLegacy`; older versions had it as `Session` (T-0393). */
+async function legacySession(): Promise<{ Chain: any }> {
+  const mod = (await import('mppx/tempo')) as any;
+  return (mod.SessionLegacy?.Session ?? mod.Session) as { Chain: any };
+}
+
 /** The mppx implementation: `Session.Chain.settleOnChain` / `closeOnChain` with the merchant account. */
 export function mppxChainOps(rpcUrl?: string, feeToken?: string): ChainOps {
   const makeClient = async (item: QueueItem) => {
@@ -170,7 +176,7 @@ export function mppxChainOps(rpcUrl?: string, feeToken?: string): ChainOps {
   return {
     async isFinalized(item) {
       if (!item.escrow_contract) return false;
-      const { Session } = await import('mppx/tempo');
+      const Session = await legacySession();
       const oc = await Session.Chain.getOnChainChannel(
         (await makeClient(item)) as never,
         item.escrow_contract as `0x${string}`,
@@ -193,7 +199,7 @@ export function mppxChainOps(rpcUrl?: string, feeToken?: string): ChainOps {
       }
     },
     async run(item, account) {
-      const { Session } = await import('mppx/tempo');
+      const Session = await legacySession();
       const client = await makeClient(item);
       if (!item.escrow_contract) throw new Error('queue item has no escrow_contract');
       const voucher = {

@@ -47,7 +47,7 @@ jest.mock('../../src/config/mpp.config', () => ({
     privateKey: '0x00',
     usdcAddress: '0x1',
     walletAddress: '0x2',
-    secretKey: 's',
+    secretKey: 's'.repeat(32),
     realm: 'r',
     rpcUrl: 'http://rpc',
   }),
@@ -121,7 +121,7 @@ jest.mock('mppx/server', () => ({
       },
     }),
   },
-  tempo: { charge: () => ({}), session: () => ({}) },
+  tempo: { charge: () => ({}), sessionLegacy: () => ({}) },
 }));
 jest.mock('viem/accounts', () => ({ privateKeyToAccount: () => ({}) }));
 jest.mock('mppx', () => ({ Receipt: { fromResponse: () => ({ reference: TX_HASH }) } }));
@@ -527,7 +527,7 @@ const mppx = Mppx.create({
     recipient,
     store: Store.memory(),
   })],
-  secretKey: 's',
+  secretKey: 's'.repeat(32),
   realm: 'r',
 });
 const req = () => new Request('https://x/api/v1/shop/quotes/' + id + '/pay', { method: 'POST' });

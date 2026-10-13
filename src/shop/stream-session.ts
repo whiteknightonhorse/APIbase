@@ -92,30 +92,42 @@ export async function captureDeferredClose<T>(
 const ESCROW_CLOSE_ABI = (parse: typeof import('viem').parseAbi) =>
   parse(['function close(bytes32 channelId, uint128 cumulativeAmount, bytes signature)']);
 
-/** Records the escrow `close(channelId, cumulativeAmount, signature)` call in `tx.data`, if it is one. */
+/**
+ * Records the escrow `close(channelId, cumulativeAmount, signature)` call of a transaction, if it is
+ * one. mppx 0.5 put the calldata in `tx.data`; mppx >= 0.7 sends a Tempo transaction whose calldata
+ * is in `tx.calls[].data` (T-0393), so both shapes are scanned.
+ */
 async function noteDeferredTx(tx: unknown): Promise<void> {
   const store = deferredCapture.getStore();
-  const data = (tx as { data?: unknown } | null)?.data;
-  if (!store || typeof data !== 'string') return;
-  try {
-    const { decodeFunctionData, parseAbi } = await import('viem');
-    const decoded = decodeFunctionData({
-      abi: ESCROW_CLOSE_ABI(parseAbi),
-      data: data as `0x${string}`,
-    });
-    if (decoded.functionName !== 'close') return;
-    const [channelId, cumulativeAmount, signature] = decoded.args as readonly [
-      string,
-      bigint,
-      string,
-    ];
-    store.close = {
-      channel_id: channelId.toLowerCase(),
-      cumulative_amount: cumulativeAmount,
-      signature,
-    };
-  } catch {
-    // not decodable: the route falls back to the generic 402
+  if (!store || typeof tx !== 'object' || tx === null) return;
+  const t = tx as { data?: unknown; calls?: unknown };
+  const candidates: unknown[] = [t.data];
+  if (Array.isArray(t.calls)) {
+    for (const c of t.calls) candidates.push((c as { data?: unknown } | null)?.data);
+  }
+  for (const data of candidates) {
+    if (typeof data !== 'string') continue;
+    try {
+      const { decodeFunctionData, parseAbi } = await import('viem');
+      const decoded = decodeFunctionData({
+        abi: ESCROW_CLOSE_ABI(parseAbi),
+        data: data as `0x${string}`,
+      });
+      if (decoded.functionName !== 'close') continue;
+      const [channelId, cumulativeAmount, signature] = decoded.args as readonly [
+        string,
+        bigint,
+        string,
+      ];
+      store.close = {
+        channel_id: channelId.toLowerCase(),
+        cumulative_amount: cumulativeAmount,
+        signature,
+      };
+      return;
+    } catch {
+      // not decodable: try the next call; the route falls back to the generic 402
+    }
   }
 }
 
@@ -291,9 +303,9 @@ export async function getStreamMethod(
   }
 
   const { Mppx, tempo } = await import('mppx/server');
-  const { Session } = await import('mppx/tempo');
+  const { legacyChannelStore } = await import('./mppx-legacy');
   const store = await streamStore();
-  const method = tempo.session({
+  const method = tempo.sessionLegacy({
     account: account as never,
     recipient: recipient as `0x${string}`,
     currency: cfg.usdcAddress as `0x${string}`,
@@ -312,7 +324,7 @@ export async function getStreamMethod(
     mppx,
     account,
     recipient,
-    channels: Session.ChannelStore.fromStore(store as never),
+    channels: await legacyChannelStore(store),
     chainId: cfg.chainId,
     rpcUrl: cfg.rpcUrl,
   };

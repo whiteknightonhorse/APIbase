@@ -104,11 +104,13 @@ export const viemKeychainReader: KeychainReader = {
       account: payer as `0x${string}`,
       accessKey: key_id as `0x${string}`,
     });
-    const remaining = await Actions.accessKey.getRemainingLimit(client as never, {
+    const limit = await Actions.accessKey.getRemainingLimit(client as never, {
       account: payer as `0x${string}`,
       accessKey: key_id as `0x${string}`,
       token: token as `0x${string}`,
     });
+    // viem >= 2.51 returns { remaining, periodEnd }; 2.47 returned the bare bigint (T-0393).
+    const remaining = typeof limit === 'bigint' ? limit : limit.remaining;
     const found = meta.expiry > 0n && meta.address.toLowerCase() === key_id.toLowerCase();
     return { found, revoked: meta.isRevoked, expiry: meta.expiry, remaining };
   },

@@ -23,11 +23,13 @@ const calls = {
 };
 const onChain = { finalized: false };
 jest.mock('mppx/tempo', () => ({
-  Session: {
-    Chain: {
-      settleOnChain: (...a: unknown[]) => calls.settle(...a),
-      closeOnChain: (...a: unknown[]) => calls.close(...a),
-      getOnChainChannel: async () => ({ finalized: onChain.finalized }),
+  SessionLegacy: {
+    Session: {
+      Chain: {
+        settleOnChain: (...a: unknown[]) => calls.settle(...a),
+        closeOnChain: (...a: unknown[]) => calls.close(...a),
+        getOnChainChannel: async () => ({ finalized: onChain.finalized }),
+      },
     },
   },
 }));

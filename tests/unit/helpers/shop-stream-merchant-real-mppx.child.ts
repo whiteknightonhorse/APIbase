@@ -15,7 +15,7 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 process.env.ENCRYPTION_KEY = 'k'.repeat(40);
 process.env.MPP_ENABLED = 'true';
 process.env.MPP_TESTNET = 'true';
-process.env.MPP_SECRET_KEY = 'real-factory-hmac';
+process.env.MPP_SECRET_KEY = 'real-factory-hmac-secret-of-32-bytes-or-more';
 process.env.TEMPO_WALLET_ADDRESS = '0x0000000000000000000000000000000000000002';
 process.env.TEMPO_PRIVATE_KEY = `0x${'11'.repeat(32)}`;
 process.env.REDIS_URL = process.env.TEST_REDIS_URL ?? 'redis://127.0.0.1:55447';
@@ -67,7 +67,8 @@ async function run(
   setApi: (s: Server) => void,
 ): Promise<Record<string, unknown>> {
   const { Challenge, Credential } = await import('mppx');
-  const { Session } = (await import('mppx/tempo')) as any;
+  const { SessionLegacy } = (await import('mppx/tempo')) as any;
+  const Session = SessionLegacy.Session;
   const escrowAbi = await loadEscrowAbi();
 
   // fake chain RPC: the testnet RPC URL is answered in-process by overriding global fetch
@@ -252,7 +253,7 @@ async function run(
 async function loadEscrowAbi(): Promise<unknown> {
   const file = require('node:path').resolve(
     __dirname,
-    '../../../node_modules/mppx/dist/tempo/session/escrow.abi.js',
+    '../../../node_modules/mppx/dist/tempo/legacy/session/escrow.abi.js',
   );
   return (await import(file)).escrowAbi;
 }

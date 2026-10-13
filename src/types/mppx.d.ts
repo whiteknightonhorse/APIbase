@@ -26,6 +26,16 @@ declare module 'mppx/server' {
     (options: TempoMethodParams): unknown;
     charge(options: TempoMethodParams): unknown;
     session(options: TempoMethodParams): unknown;
+    /** Contract-backed session (what `session` was before mppx 0.7; T-0393). */
+    sessionLegacy: {
+      (options: TempoMethodParams): unknown;
+      settle(
+        store: unknown,
+        client: unknown,
+        channelId: `0x${string}`,
+        options?: { account?: unknown; escrowContract?: `0x${string}` },
+      ): Promise<`0x${string}`>;
+    };
     /** One-shot settle of the highest voucher in the channel store (T-INT-40). */
     settle(
       store: unknown,
@@ -75,8 +85,8 @@ declare module 'mppx/server' {
 }
 
 declare module 'mppx/tempo' {
-  export const Session: {
-    ChannelStore: { fromStore(store: unknown): unknown };
+  export const SessionLegacy: { Session: LegacySession };
+  interface LegacySession {
     Chain: {
       getOnChainChannel(
         client: unknown,
@@ -89,5 +99,5 @@ declare module 'mppx/tempo' {
         finalized: boolean;
       }>;
     };
-  };
+  }
 }

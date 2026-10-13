@@ -239,7 +239,7 @@ export const mppxSettleReader: SettleReader = {
   async read(s, tx_hash) {
     const { getTransaction, getTransactionReceipt } = await import('viem/actions');
     const { parseEventLogs } = await import('viem');
-    const { Session } = await import('mppx/tempo');
+    const { SessionLegacy } = await import('mppx/tempo');
     const client = await createStreamClient(getMppConfig());
     let from: string | null = null;
     let success = false;
@@ -270,7 +270,7 @@ export const mppxSettleReader: SettleReader = {
         closed: null,
       };
     }
-    const oc = await Session.Chain.getOnChainChannel(
+    const oc = await SessionLegacy.Session.Chain.getOnChainChannel(
       client as never,
       (s.escrow_contract ?? undefined) as `0x${string}`,
       s.channel_id as `0x${string}`,
