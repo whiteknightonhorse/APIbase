@@ -10,7 +10,7 @@ import { X_REQUEST_ID, X_API_KEY } from '../config/http-headers';
  *
  * POST /api/v1/tools/call_batch
  *
- * Accepts array of tool calls, fans out to full 13-stage pipeline per call.
+ * Accepts array of tool calls, fans out to full 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline per call.
  * Agent authenticates via Bearer token — forwarded to each sub-call's AUTH stage.
  * Each sub-call creates its own escrow and ledger row.
  *

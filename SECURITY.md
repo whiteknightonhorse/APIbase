@@ -46,7 +46,7 @@ APIbase implements a 5-layer defense model:
 
 ## Automated Security Testing
 
-- **Daily automated tests** via [mcp-protocol-tester](https://github.com/whiteknightonhorse/mcp-protocol-tester) — 15 phases including security audit, payment security, SSRF/XSS/injection tests
+- **Daily automated tests** via [mcp-protocol-tester](https://github.com/whiteknightonhorse/mcp-protocol-tester) — 27 phases (P0-P26) — count from the mcp-protocol-tester repo; includes security audit, payment security, SSRF/XSS/injection tests
 - **CI/CD checks** on every push — lint, type check, build verification
 - **Third-party security harness** — [agent-security-harness](https://github.com/msaleme/red-team-blue-team-agent-fabric) score: 18/25 (72%), zero real vulnerabilities
 

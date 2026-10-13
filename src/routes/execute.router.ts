@@ -18,7 +18,7 @@ import {
 } from '../config/http-headers';
 
 /**
- * REST tool execution endpoint (thin wrapper around 13-stage pipeline).
+ * REST tool execution endpoint (thin wrapper around 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline).
  *
  * POST /api/v1/tools/:toolId/call
  *

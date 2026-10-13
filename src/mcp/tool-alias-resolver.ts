@@ -5,7 +5,7 @@
  * Split out of tool-adapter.ts on purpose: this module only depends on
  * TOOL_DEFINITIONS (pure data) and the logger, not on the pipeline/adapter
  * stack — so it can be imported (by server.ts, or by a test) without pulling
- * in the whole 13-stage pipeline.
+ * in the whole 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline.
  */
 
 import { logger } from '../config/logger';

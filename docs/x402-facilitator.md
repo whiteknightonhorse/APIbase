@@ -28,7 +28,7 @@ For a payment-dependent service running 24/7, this is single-vendor risk on the 
 Agent
   │ X-Payment header (EIP-3009 signature)
   ▼
-APIbase API ──► 13-stage pipeline ──► escrow-finalize.stage.ts
+APIbase API ──► 14-stage pipeline (STAGE_NAMES, src/pipeline/types.ts) ──► escrow-finalize.stage.ts
                                               │
                                               ▼
                             ┌──────────────────────────────┐

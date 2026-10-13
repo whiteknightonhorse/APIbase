@@ -6,7 +6,7 @@
  *   - SSE (deprecated, backward compat, protocol 2024-11-05) — /sse + /messages
  *
  * One McpServer + Transport per session. All tool calls route through the
- * full 13-stage pipeline.
+ * full 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline.
  *
  * Session management:
  *   - Max 10,000 concurrent sessions

@@ -9,7 +9,7 @@ import { X_REQUEST_ID, X_IDEMPOTENCY_KEY } from '../config/http-headers';
 /**
  * Batch execution service (F1: Batch API).
  *
- * Fans out multiple tool calls, each running the full 13-stage pipeline
+ * Fans out multiple tool calls, each running the full 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline
  * independently (own auth, escrow, ledger row). Capped concurrency
  * via chunked Promise.allSettled.
  *

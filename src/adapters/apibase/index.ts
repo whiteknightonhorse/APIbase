@@ -12,7 +12,7 @@ import { logger } from '../../config/logger';
  * discovery contract (zz-03 Q1 ruling-1), not another platform-introspection tool alongside
  * `platform.tool_quality`/`platform.tool_rankings`.
  *
- * Runs through the same 13-stage pipeline as every other tool (registered generically by
+ * Runs through the same 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline as every other tool (registered generically by
  * src/mcp/tool-adapter.ts from TOOL_DEFINITIONS) — this is what makes each call produce exactly
  * one `execution_ledger` row at `price_usd: 0` (acceptance criterion e), instead of a
  * pipeline-bypassing special case.

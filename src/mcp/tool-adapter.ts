@@ -2,7 +2,7 @@
  * MCP tool adapter (§12.42, §6.14).
  *
  * Maps all platform tools to MCP server tool registrations.
- * Each tool call routes through the full 13-stage pipeline.
+ * Each tool call routes through the full 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline.
  *
  * mcpName = 3-level dot-notation for MCP clients (Smithery quality score).
  * toolId  = 2-level internal pipeline ID (DB, adapters, schemas).
@@ -65,7 +65,7 @@ export interface PaymentContext {
 /**
  * Register all platform tools on an McpServer instance.
  *
- * Each tool callback creates a PipelineContext and runs the 13-stage pipeline.
+ * Each tool callback creates a PipelineContext and runs the 14-stage (STAGE_NAMES, src/pipeline/types.ts) pipeline.
  * The API key is injected into synthetic headers so the AUTH stage validates it.
  *
  * MCP clients see mcpName (3-level), pipeline uses toolId (2-level).

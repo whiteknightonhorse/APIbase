@@ -19,7 +19,7 @@
   },
   "service": {
     "order_url": "https://apibase.pro/connect",
-    "offering": "MCP access to 1300+ API tools, pay-per-call in USDC (x402 on Base, MPP on Tempo). No subscription.",
+    "offering": "MCP access to 1300+ API tools, pay-per-call in USDC (x402 on Base, MPP on Tempo). No buyer subscription; merchant subscriptions are supported.",
     "pricing_url": "https://apibase.pro/pricing"
   }
 }
