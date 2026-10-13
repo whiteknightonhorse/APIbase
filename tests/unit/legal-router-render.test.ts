@@ -5,6 +5,7 @@ import type { AddressInfo } from 'node:net';
 import express from 'express';
 import { createLegalRouter, staticPageEntries } from '../../src/shop/routes/legal.router';
 import { LEGAL_DOC_IDS, LEGAL_DIR } from '../../src/shop/legal/legal-docs';
+import { SITE_NAV } from '../../src/shop/page-meta';
 
 jest.mock('../../src/config', () => ({ config: {} }));
 
@@ -32,8 +33,7 @@ describe('T-0343 /legal page chrome', () => {
       expect(html).toContain('<meta property="og:title"');
       expect(html).toContain('<meta property="og:image" content="https://apibase.pro/og-image.png');
       expect(html).toContain('<meta name="twitter:card" content="summary_large_image">');
-      expect(html).toContain('<nav><a class="brand" href="/">APIbase.pro</a>');
-      expect(html).toContain('<a href="/integrator">Integrator</a>');
+      expect(html).toContain(SITE_NAV);
       for (const href of ['/terms', '/privacy', '/contact', '/legal']) {
         expect(html).toContain(`<footer class="footer">`);
         expect(html).toContain(`<a href="${href}">`);
@@ -42,13 +42,10 @@ describe('T-0343 /legal page chrome', () => {
     await s.close();
   });
 
-  it('nav matches the /integrator layout nav', () => {
-    const layout = readFileSync(join(ROOT, 'static/integrator/_layout.html'), 'utf-8');
-    const nav = /<nav>.*<\/nav>/.exec(layout)![0];
+  it('legal.router.ts carries no header markup or css of its own', () => {
     const src = readFileSync(join(ROOT, 'src/shop/routes/legal.router.ts'), 'utf-8');
-    for (const href of [...nav.matchAll(/href="([^"]+)"/g)].map((m) => m[1])) {
-      expect(src).toContain(`href="${href}"`);
-    }
+    expect(src).not.toContain('<nav');
+    expect(src).not.toContain('nav{');
   });
 
   it('the .md body (hashed) is served byte-identical to the file', async () => {

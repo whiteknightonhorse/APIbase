@@ -8,7 +8,7 @@ import glob, os, re, subprocess, sys, time
 
 ROOT = os.environ.get("ROOT") or os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = os.environ.get("SITE_NAV_BASE", "http://127.0.0.1:8880")
-PATHS = os.environ.get("SITE_NAV_PATHS", "").split()
+PATHS = os.environ.get("SITE_NAV_PATHS", "/integrator /integrator/buyers /integrator/platforms/shopify /integrator/why-base-tempo /shops /m/apibase-demo /legal/aup /legal/refund-framework /onboard").split()
 
 H_OPEN, H_CLOSE = "<!--site-nav-->", "<!--/site-nav-->"
 C_OPEN, C_CLOSE = "/*site-nav*/", "/*/site-nav*/"

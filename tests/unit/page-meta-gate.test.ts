@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fitDescription, fitTitle, SITE_FOOTER } from '../../src/shop/page-meta';
+import { fitDescription, fitTitle, SITE_FOOTER, SITE_NAV } from '../../src/shop/page-meta';
 import { layout } from '../../src/shop/integrator/layout';
 
 const ROOT = join(__dirname, '../..');
@@ -59,6 +59,7 @@ describe('T-0344 page meta gate', () => {
     expect(html).toContain('<link rel="canonical" href="https://apibase.pro/integrator/x">');
     expect(html).toContain('&lt;b&gt;');
     expect(html).toContain(SITE_FOOTER);
+    expect(html.split(SITE_NAV)).toHaveLength(2);
     expect(html).toContain('BreadcrumbList');
     expect(layout({ title: 'Shops page title here', path: '/shops', body: '' })).not.toContain(
       'BreadcrumbList',

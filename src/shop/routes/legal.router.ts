@@ -4,7 +4,14 @@ import { resolve } from 'node:path';
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { getShopEnv } from '../../config/env';
-import { fitDescription, fitTitle, metaTags, SITE_FOOTER } from '../page-meta';
+import {
+  fitDescription,
+  fitTitle,
+  metaTags,
+  SITE_FOOTER,
+  SITE_NAV,
+  SITE_NAV_CSS,
+} from '../page-meta';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
 import {
@@ -100,12 +107,6 @@ export function renderMarkdown(md: string): string {
   return out.join('\n');
 }
 
-/** Same nav bar as the /integrator pages (static/integrator/_layout.html). */
-const NAV =
-  '<nav><a class="brand" href="/">APIbase.pro</a><a href="/catalog">Catalog</a><a href="/shops">Shops</a>' +
-  '<a href="/integrator">Integrator</a><a href="/integrator/agent-guide">Agent guide</a>' +
-  '<a href="/integrator/buyers">Buyers</a><a href="/pricing">Pricing</a></nav>';
-
 const DOC_TITLES: Record<string, string> = {
   'merchant-agreement': 'Merchant Agreement',
   aup: 'Acceptable Use Policy',
@@ -137,7 +138,6 @@ const STYLE =
   'body{background:#0b0e11;color:#d7dde4;font:15px/1.6 ui-monospace,Menlo,Consolas,monospace;margin:0}' +
   'main{max-width:820px;margin:0 auto;padding:24px 16px}a{color:#4cc2ff}' +
   'h1,h2,h3{color:#fff}blockquote{border-left:3px solid #444;margin:0;padding-left:12px;color:#9aa5b1}' +
-  'nav{display:flex;flex-wrap:wrap;gap:14px;padding:12px 16px;border-bottom:1px solid #333}nav .brand{font-weight:bold}' +
   'footer{max-width:820px;margin:0 auto;padding:16px;border-top:1px solid #333;color:#9aa5b1}' +
   'code{background:#1a2027;padding:1px 4px}hr{border:0;border-top:1px solid #333;margin:28px 0}';
 const DRAFT_STYLE =
@@ -151,9 +151,9 @@ function page(docId: string, body: string, draft: boolean): string {
     '<meta name="viewport" content="width=device-width, initial-scale=1">' +
     metaTags({ title, description: desc, path: `/legal/${docId}` }) +
     (draft ? '<meta name="robots" content="noindex">' : '') +
-    `<title>${esc(title)}</title><style>${STYLE}${draft ? DRAFT_STYLE : ''}</style></head><body>` +
+    `<title>${esc(title)}</title><style>${STYLE}${draft ? DRAFT_STYLE : ''}\n${SITE_NAV_CSS}</style></head><body>` +
     (draft ? DRAFT_BANNER : '') +
-    NAV +
+    SITE_NAV +
     `<main>${body}</main>` +
     SITE_FOOTER +
     '</body></html>\n'

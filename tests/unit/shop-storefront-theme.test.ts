@@ -96,7 +96,8 @@ describe('T-INT-35 storefront terminal theme', () => {
       for (const n of [
         '<div class="window">',
         '<div class="titlebar">',
-        '<nav><a class="brand"',
+        '<!--site-nav-->',
+        '<nav class="nav-sub"',
         "font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace",
         '<div class="footer">',
         'Sell to AI agents',

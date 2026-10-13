@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { breadcrumbLd, escAttr, fitTitle, metaTags, SITE_FOOTER } from '../page-meta';
+import { breadcrumbLd, escAttr, fitTitle, metaTags, SITE_FOOTER, SITE_NAV } from '../page-meta';
 
 export const INTEGRATOR_DIR = resolve(__dirname, '../../../static/integrator');
 
@@ -39,13 +39,14 @@ export function layout(o: {
     TITLE: escAttr(title),
     HEAD: metaTags({ title, description: o.description, path: o.path }) + ld + (o.head ?? ''),
     SITE_FOOTER,
+    SITE_NAV,
     CSS: css,
     PATH: o.path,
     BODY: o.body,
     FOOTER: o.footer ?? DEFAULT_FOOTER,
   };
   return read('_layout.html').replace(
-    /\{\{(TITLE|HEAD|CSS|PATH|BODY|FOOTER|SITE_FOOTER)\}\}/g,
+    /\{\{(TITLE|HEAD|CSS|PATH|BODY|FOOTER|SITE_FOOTER|SITE_NAV)\}\}/g,
     (_m, k: string) => values[k],
   );
 }

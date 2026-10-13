@@ -56,7 +56,8 @@ describe('integrator terminal theme', () => {
       for (const needle of [
         '<div class="window">',
         '<div class="titlebar">',
-        '<nav><a class="brand"',
+        '<!--site-nav-->',
+        '<nav class="nav-sub"',
         "font-family:'JetBrains Mono','Fira Code','Cascadia Code','Courier New',monospace",
         '<div class="footer">',
       ]) {

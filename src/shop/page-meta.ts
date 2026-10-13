@@ -15,6 +15,16 @@ export const SITE_FOOTER = readFileSync(
   'utf-8',
 ).trim();
 
+/** The one site header (T-0367/T-0368); static pages hold the same bytes between the same markers. */
+export const SITE_NAV =
+  '<!--site-nav-->\n' +
+  readFileSync(resolve(__dirname, '../../config/site-nav.html'), 'utf-8').trim() +
+  '\n<!--/site-nav-->';
+export const SITE_NAV_CSS =
+  '/*site-nav*/\n' +
+  readFileSync(resolve(__dirname, '../../config/site-nav.css'), 'utf-8').trim() +
+  '\n/*/site-nav*/';
+
 const DEFAULT_DESCRIPTION =
   'Sell to AI agents: a buyer agent orders and pays in USDC over x402 or MPP, straight to the merchant wallet.';
 

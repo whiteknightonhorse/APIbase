@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { logger } from '../config/logger';
 import { checkIpRateLimit, createSubmission } from '../services/onboard.service';
 import { X_REQUEST_ID } from '../config/http-headers';
+import { metaTags, SITE_NAV, SITE_NAV_CSS } from '../shop/page-meta';
 
 // ---------------------------------------------------------------------------
 // Zod schema (§6.12)
@@ -31,9 +32,15 @@ const HTML_FORM = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>APIbase.pro — Onboard Your API</title>
+${metaTags({
+  title: 'APIbase.pro — Onboard Your API',
+  description:
+    'Submit your API for integration into APIbase.pro so AI agents can discover and call it per request.',
+  path: '/onboard',
+})}
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#e0e0e0;display:flex;justify-content:center;padding:2rem}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#e0e0e0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
 .card{max-width:520px;width:100%;background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:2rem}
 h1{font-size:1.5rem;margin-bottom:.25rem;color:#fff}
 p.sub{color:#888;margin-bottom:1.5rem;font-size:.9rem}
@@ -46,9 +53,11 @@ button{margin-top:1.5rem;width:100%;padding:.75rem;background:#3b82f6;color:#fff
 button:hover{background:#2563eb}
 .req{color:#ef4444}
 small{color:#666;font-size:.75rem}
+${SITE_NAV_CSS}
 </style>
 </head>
 <body>
+<div style="max-width:520px;width:100%">${SITE_NAV}</div>
 <div class="card">
 <h1>Onboard Your API</h1>
 <p class="sub">Submit your API for integration into APIbase.pro</p>
