@@ -15,45 +15,6 @@
 <meta property="og:description" content="MCP address, API key, or a bare wallet with zero registration — three real ways in.">
 <meta property="og:url" content="https://apibase.pro/connect">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
-
-.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-h1{color:#4fd283;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5}
-
-h2{color:#4fd283;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #4fd283}
-
-h3{color:#4fd283;font-size:0.92rem;margin:1.1rem 0 0.5rem}
-p{margin-bottom:0.8rem;font-size:1rem;color:#b7beb8}
-strong{color:#4fd283}
-.updated{color:#9ca59e;font-size:0.82rem;margin-bottom:1.8rem}
-ul{padding-left:1.5rem;margin-bottom:1rem}
-li{margin-bottom:0.4rem;font-size:1rem;color:#b7beb8}
-li::marker{color:#9ca59e}
-a{color:#eef1ed;text-decoration:none}
-a:hover{color:#4fd283}
-pre{background:#151816;border:1px solid #272c29;border-radius:6px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;margin:0.6rem 0 1rem;color:#b7beb8;line-height:1.5}
-code{background:#151816;border:1px solid #272c29;border-radius:3px;padding:0.05rem 0.35rem;color:#4fd283;font-size:0.85em}
-pre code{background:none;border:none;padding:0;color:inherit}
-.badge{display:inline-block;background:#1b1f1c;color:#4fd283;font-size:0.68rem;padding:0.15rem 0.5rem;border-radius:10px;margin-left:0.5rem;border:1px solid #3e4541;vertical-align:middle}
-.path{border:1px solid #272c29;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0 1.6rem;background:rgba(79,210,131,0.02)}
-.note{color:#9ca59e;font-size:0.82rem;font-style:italic}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
-.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#9ca59e}
-.code-wrap{position:relative}
-.code-wrap pre{padding-right:4.6rem}
-.copy-btn{position:absolute;top:0.6rem;right:0.6rem;background:#1b1f1c;color:#4fd283;border:1px solid #3e4541;border-radius:4px;padding:0.35rem 0.7rem;font:inherit;font-size:0.72rem;cursor:pointer;line-height:1;z-index:5;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}
-.copy-btn:hover{background:#1b1f1c;color:#4fd283}
-.copy-btn:focus-visible{outline:2px solid #4fd283;outline-offset:2px}
-.copy-btn.copied{background:#4fd283;color:#04170c;border-color:#4fd283}
-.badge-go{background:#4fd283;color:#04170c;border-color:#4fd283}
-*::-webkit-scrollbar{width:8px;height:8px}
-*::-webkit-scrollbar-track{background:#0e100f;border:1px solid #272c29}
-*::-webkit-scrollbar-thumb{background:#1b1f1c;border-radius:4px;border:1px solid #0e100f}
-*::-webkit-scrollbar-thumb:hover{background:#4fd283}
-*{scrollbar-width:thin;scrollbar-color:#3e4541 #0e100f}
-@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}.footer{font-size:0.65rem}}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -77,7 +38,7 @@ pre code{background:none;border:none;padding:0;color:inherit}
 </head>
 <body>
 <!--site-nav-->
-<link rel="stylesheet" href="/assets/site-m.css?v=891ef740">
+<link rel="stylesheet" href="/assets/site-m.css?v=fb00289a">
 <header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
 <nav class="nav-full" aria-label="Main">
@@ -117,13 +78,16 @@ pre code{background:none;border:none;padding:0;color:inherit}
 </div></header>
 <script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
-<div class="page-shell">
+<div class="page-shell mk">
 <div class="container" id="main-content">
 
 
 
+<header class="mk-hero">
+<span class="m-caption">Get connected</span>
 <h1>Connect in 60 seconds</h1>
-<p class="updated">Three real ways in. Pick the one that matches how your agent already talks to the world.</p>
+<p class="mk-lead">Three real ways in. Pick the one that matches how your agent already talks to the world.</p>
+</header>
 
 <div class="path">
 <h2 style="margin-top:0">Path 1 &mdash; MCP address <span class="badge">no form, ever</span> <span class="badge badge-go">recommended</span></h2>
@@ -174,15 +138,7 @@ const res = await pay("https://apibase.pro/api/v1/tools/crypto.get_price/call", 
 </ul>
 <p>Full pricing: <a href="/pricing">/pricing</a>. Full catalog: <a href="/catalog">/catalog</a>.</p>
 
-<div class="footer">
-<div class="footer-row">
-<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
-</div>
-<div class="footer-row">
-<span>1398 tools  |  404 providers  |  x402 USDC on Base + MPP USDC on Tempo</span>
-<span>BUILD: v1.0.0</span>
-</div>
-</div>
+<p class="mk-foot">1398 tools  |  404 providers  |  x402 USDC on Base + MPP USDC on Tempo</p>
 
 
 </div>

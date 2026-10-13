@@ -15,41 +15,6 @@
 <meta property="og:description" content="About APIbase.pro and how AI is used in its content.">
 <meta property="og:url" content="https://apibase.pro/about">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
-
-.cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
-.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-.sys-monitor{margin-bottom:1.5rem;font-size:0.82rem;color:#4fd283;letter-spacing:0.5px;padding:0.3rem 0}
-.sys-monitor .prompt{color:#9ca59e;animation:blink 1s step-end infinite}
-.sys-monitor .label{color:#9ca59e}
-.sys-monitor strong{color:#4fd283}
-.sys-cursor{display:inline-block;width:7px;height:1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:3px}
-.terminal{background:#151816;border:1px solid #272c29;border-radius:4px;padding:1.5rem;margin-bottom:2rem;overflow-x:auto;font-size:0.85rem;line-height:1.6;}
-.terminal .prompt{color:#4fd283;font-weight:700}
-.terminal .output{color:#4fd283}
-.cursor{display:inline-block;width:8px;height:1.1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-h1{color:#4fd283;font-size:1.3rem;margin-bottom:2rem;line-height:1.5}
-
-h2{color:#4fd283;font-size:1.05rem;margin:2.5rem 0 1rem;padding-left:1rem;border-left:2px solid #4fd283}
-
-p{margin-bottom:1rem;font-size:1rem;color:#b7beb8}
-strong{color:#4fd283}
-ul{padding-left:1.5rem;margin-bottom:1rem}
-li{margin-bottom:0.4rem;font-size:1rem;color:#b7beb8}
-li::marker{color:#9ca59e}
-a{color:#eef1ed;text-decoration:none}
-a:hover{color:#4fd283}
-code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85rem;color:#4fd283;border:1px solid #272c29}
-.terminal-steps{list-style:none;padding-left:0;margin:1rem 0;font-size:0.85rem}
-.terminal-steps li{padding:0.3rem 0;color:#b7beb8;margin-bottom:0}
-.terminal-steps .step-num{color:#9ca59e;font-weight:700}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
-.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#9ca59e}
-
-@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}.sys-monitor{font-size:0.72rem}.footer{font-size:0.65rem}}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -73,7 +38,7 @@ code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85r
 </head>
 <body>
 <!--site-nav-->
-<link rel="stylesheet" href="/assets/site-m.css?v=891ef740">
+<link rel="stylesheet" href="/assets/site-m.css?v=fb00289a">
 <header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
 <nav class="nav-full" aria-label="Main">
@@ -113,13 +78,16 @@ code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85r
 </div></header>
 <script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
-<div class="page-shell">
+<div class="page-shell mk">
 
 <div class="container" id="main-content">
 
 
 
+<header class="mk-hero">
+<span class="m-caption">About</span>
 <h1>About</h1>
+</header>
 
 <p>APIbase.pro is an MCP gateway: one endpoint that gives AI agents access to a catalog of third-party API tools, with pay-per-call pricing. The Integrator lets online stores accept payments from AI agents.</p>
 <p>Questions, corrections and takedown requests: <a href="/contact">contact page</a>.</p>
@@ -127,11 +95,6 @@ code{background:#151816;padding:0.15rem 0.4rem;border-radius:3px;font-size:0.85r
 <h2 id="ai-disclosure">AI-assisted content</h2>
 <p>Some pages on this site, in particular the guides, are written and reviewed with the help of AI. Facts about APIbase itself (fees, minimum order, payment rails, prices) are not written by the AI: they are inserted from the live product data and checked automatically before a page is published. No page claims to have been reviewed by a human editor. Editorial responsibility for all content rests with APIbase.</p>
 
-<div class="footer">
-<div class="footer-row">
-<span><span class="online">STATUS: ONLINE</span>  |  USER: apibase</span>
-</div>
-</div>
 
 
 </div>
