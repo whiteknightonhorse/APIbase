@@ -44,6 +44,8 @@ export function renderPage(
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Catalog — APIbase.pro</title>
+<meta property="og:image" content="https://apibase.pro/og-image.png?v=20260928">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="description" content="Every live provider behind APIbase's MCP gateway — ${totalTools} tools across ${totalProviders} providers, generated straight from the production database.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
@@ -147,6 +149,7 @@ ${tableRows}
 <span>BUILD: v1.0.0</span>
 </div>
 </div>
+<footer class="footer"><div class="footer-row"><span><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/contact">Contact</a> · <a href="/legal">Legal</a> · <a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a></span></div></footer>
 
 </div>
 </div>
