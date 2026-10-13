@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { X_ROBOTS_TAG } from '../../config/http-headers';
+import { logger } from '../../config/logger';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
 import { runCheck } from '../check.service';
@@ -89,6 +90,10 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
           res.status(e.status).json(errBody(e));
           return;
         }
+        logger.error(
+          { path: req.path, err: e instanceof Error ? e.message : String(e) },
+          'storefront_unavailable',
+        );
         res.status(503).json({
           error: 'unavailable',
           error_code: 'storefront_unavailable',

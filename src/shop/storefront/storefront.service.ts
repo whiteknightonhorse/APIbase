@@ -149,7 +149,7 @@ const isoDay = (d: unknown): string => {
 
 async function sitemapStats(db: ShopTx): Promise<{ shards: number; lastmod: string }> {
   const r = await db.$queryRawUnsafe<Array<{ n: number | bigint; last: Date | string | null }>>(
-    `SELECT count(*)::int AS n, max(updated_at) AS last FROM shop_merchants WHERE status = 'active'`,
+    `SELECT count(*)::int AS n, max(created_at) AS last FROM shop_merchants WHERE status = 'active'`,
   );
   const n = Number(r[0]?.n ?? 0);
   return { shards: Math.ceil(n / SITEMAP_SHARD_SIZE), lastmod: isoDay(r[0]?.last) };

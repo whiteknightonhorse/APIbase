@@ -4,6 +4,7 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createStorefrontRouter } from '../../src/shop/routes/storefront.router';
 import { resetSitemapCache } from '../../src/shop/storefront/storefront.service';
+import { logger } from '../../src/config/logger';
 
 jest.mock('../../src/config/index', () => ({
   config: { ENCRYPTION_KEY: 'k'.repeat(40), X402_NETWORK: 'base' },
@@ -15,7 +16,7 @@ jest.mock('../../src/config/logger', () => ({
 interface Row {
   slug: string;
   status: string;
-  updated_at: Date;
+  created_at: Date;
 }
 
 /** Interprets only the two sitemap queries; honours the status filter exactly when the SQL has it. */
@@ -25,7 +26,7 @@ function fakeDb(rows: Row[]) {
       const pool = /status = 'active'/.test(sql) ? rows.filter((r) => r.status === 'active') : rows;
       if (/count\(\*\)/.test(sql)) {
         const last = pool.reduce<Date | null>(
-          (m, r) => (m === null || r.updated_at > m ? r.updated_at : m),
+          (m, r) => (m === null || r.created_at > m ? r.created_at : m),
           null,
         );
         return [{ n: pool.length, last }];
@@ -42,7 +43,7 @@ function fakeDb(rows: Row[]) {
 const mk = (slug: string, status = 'active'): Row => ({
   slug,
   status,
-  updated_at: new Date('2026-10-01T12:00:00Z'),
+  created_at: new Date('2026-10-01T12:00:00Z'),
 });
 
 describe('shop sitemap (T-0319)', () => {
@@ -118,5 +119,26 @@ describe('shop sitemap (T-0319)', () => {
       expect(r.headers.get('content-type')).toMatch(/^application\/xml/);
       expect(r.headers.get('cache-control')).toBe('public, max-age=600');
     }
+  });
+
+  it('S6 unexpected DB error -> 503 storefront_unavailable and the cause is logged', async () => {
+    resetSitemapCache();
+    (logger.error as jest.Mock).mockClear();
+    const db = {
+      $queryRawUnsafe: jest.fn(async () => {
+        throw new Error('column "x" does not exist');
+      }),
+    };
+    const app = express();
+    app.use(createStorefrontRouter({ db: db as never, limit: 1000 }));
+    await new Promise<void>((r) => {
+      server = app.listen(0, '127.0.0.1', () => r());
+    });
+    base = `http://127.0.0.1:${(server!.address() as AddressInfo).port}`;
+    const r = await fetch(`${base}/sitemap-shops-index.xml`);
+    expect(r.status).toBe(503);
+    expect((await r.json()).error_code).toBe('storefront_unavailable');
+    expect(logger.error).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify((logger.error as jest.Mock).mock.calls[0])).toContain('does not exist');
   });
 });
