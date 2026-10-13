@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import express, { Router, type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { ALLOWED_CATEGORIES } from '../moderation/categories';
-import { leadOf, mdToHtml, titleOf } from '../integrator/md';
+import { docToHtml, leadOf, titleOf } from '../integrator/md';
 import { renderTokens } from '../integrator/tokens';
 import { INTEGRATOR_DIR, layout } from '../integrator/layout';
 import { logger } from '../../config/logger';
@@ -31,7 +31,13 @@ const INDEX_DESCRIPTION =
 const CONNECT_HEAD = '<meta name="robots" content="noindex, follow">';
 
 const mdPage = (md: string, path: string): string =>
-  layout({ title: `${titleOf(md)} — APIbase`, description: leadOf(md), path, body: mdToHtml(md) });
+  layout({
+    title: `${titleOf(md)} — APIbase`,
+    description: leadOf(md),
+    path,
+    body: docToHtml(md),
+    docs: true,
+  });
 
 /** F-18 / UC-20 / §13.1: the public integrator pages, HTML or Markdown from the same text. */
 export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Router {
@@ -124,7 +130,8 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         title: 'Integrator guide | APIbase',
         description: leadOf(md),
         path,
-        body: mdToHtml(md),
+        body: docToHtml(md),
+        docs: true,
       }),
     ),
   );

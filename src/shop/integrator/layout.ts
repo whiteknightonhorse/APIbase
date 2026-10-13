@@ -34,8 +34,12 @@ export function layout(o: {
   path: string;
   body: string;
   footer?: string;
+  /** Guide pages (T-0386): adds the design-M article styles (static/integrator/_docs.css). */
+  docs?: boolean;
 }): string {
-  const css = `${read('_theme.css').trim()}\n${read('_page.css').trim()}`;
+  const css = [read('_theme.css'), read('_page.css'), ...(o.docs ? [read('_docs.css')] : [])]
+    .map((c) => c.trim())
+    .join('\n');
   const title = fitTitle(o.title);
   const crumbs: Array<[string, string]> = [
     ['Home', '/'],
@@ -53,9 +57,10 @@ export function layout(o: {
     PATH: o.path,
     BODY: o.body,
     FOOTER: o.footer ?? DEFAULT_FOOTER,
+    SHELL: o.docs ? ' dx-shell' : '',
   };
   return read('_layout.html').replace(
-    /\{\{(TITLE|HEAD|CSS|PATH|BODY|FOOTER|SITE_FOOTER|SITE_NAV|GA4)\}\}/g,
+    /\{\{(TITLE|HEAD|CSS|PATH|BODY|FOOTER|SHELL|SITE_FOOTER|SITE_NAV|GA4)\}\}/g,
     (_m, k: string) => values[k],
   );
 }
