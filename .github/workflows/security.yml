@@ -9,7 +9,7 @@ on:
     # promote_staging.sh would see "MISSING" forever and never promote anything.
     branches: [main, ci-staging]
   pull_request:
-    branches: [main]
+    branches: [main, ci-staging]
   schedule:
     - cron: '0 4 * * 1' # Weekly Monday 04:00 UTC
 
