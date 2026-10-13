@@ -95,3 +95,22 @@ describe('integrator guide pages, design M', () => {
     expect(tbl).toContain('<td data-label="a"><code>x|y</code></td>');
   });
 });
+
+describe('T-0386 attempt 2: steps with continuations', () => {
+  it('DM-steps: docs registration procedure is one ol numbered 1-5 with code blocks inside steps', async () => {
+    const t = await get('/integrator/docs');
+    const sec = t.slice(t.indexOf('id="registration--terms"'), t.indexOf('id="errors"'));
+    expect((sec.match(/<ol class="dx-steps">/g) ?? []).length).toBe(1);
+    expect((sec.match(/<li>/g) ?? []).length).toBe(5);
+    expect(sec).toContain('<div class="dx-code">');
+    expect(sec).not.toMatch(/<p>```|<p><code>```/);
+    expect(sec).not.toMatch(/<\/li>\s*<p>|<ol[^>]*>\s*<p>/);
+  });
+
+  it('DM-steps-unit: indented continuation and fence stay inside the step', () => {
+    const h = docToHtml('# T\n\n1. one\n\n   more\n\n   ```\n   code\n   ```\n\n2. two\n\nafter\n');
+    expect((h.match(/<ol/g) ?? []).length).toBe(1);
+    expect(h).toContain('<pre>code</pre>');
+    expect(h).toMatch(/<p>more<\/p>[\s\S]*dx-code[\s\S]*<\/li>\s*<li>[\s\S]*<\/ol>\s*<p>after/);
+  });
+});

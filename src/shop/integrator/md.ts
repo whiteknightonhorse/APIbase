@@ -86,8 +86,9 @@ function parse(md: string): Doc {
     out.push(`${anchors}<p>${html}</p>`);
     anchors = '';
   };
+  let fenceIndent = 0;
   const close = () => {
-    if (list) out.push(`</${list}>`);
+    if (list) out.push(list === 'ol' ? '</div></li></ol>' : `</${list}>`);
     list = null;
   };
   const flushTable = () => {
@@ -107,8 +108,12 @@ function parse(md: string): Doc {
     table = [];
   };
 
-  for (const line of md.split(/\r?\n/)) {
-    if (line.startsWith('```')) {
+  for (const raw of md.split(/\r?\n/)) {
+    // Indented lines under a numbered step belong to that step (continuation text, fences).
+    const lead = raw.length - raw.trimStart().length;
+    const inStep = list === 'ol' && !fence && lead >= 2 && raw.trim() !== '';
+    const line = inStep ? raw.slice(Math.min(lead, 3)) : raw;
+    if (fence ? raw.trimStart().startsWith('```') : line.startsWith('```')) {
       if (fence) {
         out.push(
           `<div class="dx-code"><div class="dx-code-bar"><span>${esc(lang || 'text')}</span><button type="button" class="dx-copy" onclick="${COPY_JS}">${COPY_ICON}<span>Copy</span></button></div><pre>${esc(fence.join('\n'))}</pre></div>`,
@@ -116,17 +121,19 @@ function parse(md: string): Doc {
         fence = null;
       } else {
         flush();
-        close();
+        if (!inStep) close();
         flushTable();
         fence = [];
+        fenceIndent = inStep ? Math.min(lead, 3) : 0;
         lang = line.slice(3).trim();
       }
       continue;
     }
     if (fence) {
-      fence.push(line);
+      fence.push(raw.slice(Math.min(fenceIndent, raw.length - raw.trimStart().length)));
       continue;
     }
+    if (list === 'ol' && raw.trim() && !inStep && !/^\d+\. /.test(raw)) close();
     if (line.startsWith('|')) {
       flush();
       close();
@@ -167,6 +174,7 @@ function parse(md: string): Doc {
     } else if (li) {
       flush();
       const kind = li[1] ? 'ol' : 'ul';
+      if (list === 'ol' && kind === 'ol') out.push('</div></li>');
       if (list !== kind) {
         close();
         out.push(kind === 'ol' ? '<ol class="dx-steps">' : '<ul>');
@@ -174,12 +182,12 @@ function parse(md: string): Doc {
       }
       out.push(
         kind === 'ol'
-          ? `<li><span class="dx-step-body">${inline(li[2])}</span></li>`
+          ? `<li><div class="dx-step-body">${inline(li[2])}`
           : `<li>${inline(li[2])}</li>`,
       );
     } else if (!line.trim()) {
       flush();
-      close();
+      if (list !== 'ol') close();
     } else para.push(line.trim());
   }
   flush();
