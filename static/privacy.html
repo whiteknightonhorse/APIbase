@@ -15,34 +15,6 @@
 <meta property="og:description" content="Privacy policy for APIbase.pro — data collection, usage, retention, and security practices.">
 <meta property="og:url" content="https://apibase.pro/privacy">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
-
-.cursor-blink{display:inline-block;width:8px;height:1.1em;background:#999;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
-.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-.sys-monitor{margin-bottom:1.5rem;font-size:0.82rem;color:#4fd283;letter-spacing:0.5px;padding:0.3rem 0}
-.sys-monitor .prompt{color:#9ca59e;animation:blink 1s step-end infinite}
-.sys-monitor .label{color:#9ca59e}
-.sys-monitor strong{color:#4fd283}
-.sys-cursor{display:inline-block;width:7px;height:1em;background:#4fd283;vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:3px}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-h1{color:#4fd283;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5}
-
-h2{color:#4fd283;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #4fd283}
-
-p{margin-bottom:0.8rem;font-size:1rem;color:#b7beb8}
-strong{color:#4fd283}
-.updated{color:#9ca59e;font-size:0.82rem;margin-bottom:1.8rem}
-ul{padding-left:1.5rem;margin-bottom:1rem}
-li{margin-bottom:0.4rem;font-size:1rem;color:#b7beb8}
-li::marker{color:#9ca59e}
-a{color:#eef1ed;text-decoration:none}
-a:hover{color:#4fd283}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
-.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#9ca59e}
-
-@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}.sys-monitor{font-size:0.72rem}.footer{font-size:0.65rem}}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -62,11 +34,14 @@ a:hover{color:#4fd283}
 .site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
 @media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
 /*/site-nav*/
+/* T-60 gate reads inline CSS only: every pre/table scrolls inside its own box (site-m.css styles the rest) */
+pre{overflow-x:auto}
+.table-wrap,.m-table-wrap{overflow-x:auto}
 </style>
 </head>
 <body>
 <!--site-nav-->
-<link rel="stylesheet" href="/assets/site-m.css?v=1a29ffae">
+<link rel="stylesheet" href="/assets/site-m.css?v=fb6a3d38">
 <header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
 <nav class="nav-full" aria-label="Main">
@@ -107,22 +82,23 @@ a:hover{color:#4fd283}
 <script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
 <div class="page-shell">
-
-<div class="container" id="main-content">
-
-
-
+<div class="container lg" id="main-content">
+<!--lg-chrome--><nav class="lg-crumb" aria-label="Breadcrumb"><ol class="m-breadcrumb"><li><a href="/">Home</a></li><li>Legal</li><li aria-current="page">Privacy Policy</li></ol></nav><!--/lg-chrome-->
 <div class="sys-monitor">
 <span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>404</strong>  <span class="label">TOOLS:</span><strong>1398</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (90% of tools &lt;= $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
 </div>
 
 <h1>Privacy Policy</h1>
-<p class="updated">Last updated: October 13, 2026</p>
+<p class="updated"><span class="lg-badge">Last updated: October 13, 2026</span></p>
 
-<h2>1. Service Description</h2>
+<div class="lg-layout">
+<!--lg-chrome--><aside class="lg-side"><nav class="lg-toc" aria-label="On this page"><span class="lg-toc-h">On this page</span><a href="#1-service-description">1. Service Description</a><a href="#2-data-we-collect">2. Data We Collect</a><a href="#3-data-we-do-not-collect">3. Data We Do NOT Collect</a><a href="#3a-analytics">3a. Analytics</a><a href="#4-how-we-use-data">4. How We Use Data</a><a href="#5-data-sharing">5. Data Sharing</a><a href="#6-data-retention">6. Data Retention</a><a href="#7-security">7. Security</a><a href="#8-third-party-services">8. Third-Party Services</a><a href="#9-changes">9. Changes</a><a href="#10-contact">10. Contact</a><a href="#integrator">11. Integrator: merchant orders</a></nav></aside><!--/lg-chrome-->
+<div class="lg-doc">
+<!--lg-chrome--><details class="lg-toc-narrow"><summary>On this page</summary><nav class="lg-toc" aria-label="On this page"><a href="#1-service-description">1. Service Description</a><a href="#2-data-we-collect">2. Data We Collect</a><a href="#3-data-we-do-not-collect">3. Data We Do NOT Collect</a><a href="#3a-analytics">3a. Analytics</a><a href="#4-how-we-use-data">4. How We Use Data</a><a href="#5-data-sharing">5. Data Sharing</a><a href="#6-data-retention">6. Data Retention</a><a href="#7-security">7. Security</a><a href="#8-third-party-services">8. Third-Party Services</a><a href="#9-changes">9. Changes</a><a href="#10-contact">10. Contact</a><a href="#integrator">11. Integrator: merchant orders</a></nav></details><!--/lg-chrome-->
+<h2 id="1-service-description">1. Service Description</h2>
 <p>APIbase.pro ("Service") is an API hub for AI agents. The Service provides programmatic access to third-party APIs via MCP (Model Context Protocol) and REST endpoints, paid via x402 (USDC on Base), MPP (USDC on Tempo), or a prepaid balance.</p>
 
-<h2>2. Data We Collect</h2>
+<h2 id="2-data-we-collect">2. Data We Collect</h2>
 <ul>
 <li><strong>Agent credentials:</strong> API keys (stored as SHA-256 hashes, never in plaintext), agent identifiers.</li>
 <li><strong>Request logs:</strong> Request IDs, tool IDs, timestamps, response status codes. Used for billing, debugging, and abuse prevention.</li>
@@ -130,7 +106,7 @@ a:hover{color:#4fd283}
 <li><strong>Usage metrics:</strong> Aggregated, anonymized request counts and latency data for system monitoring.</li>
 </ul>
 
-<h2>3. Data We Do NOT Collect</h2>
+<h2 id="3-data-we-do-not-collect">3. Data We Do NOT Collect</h2>
 <ul>
 <li>Account data for platform tool calls: there are no human accounts, so no personal names, email addresses, or phone numbers are collected for them. Merchant orders are different: the delivery address, passport data where a product requires it, and payer contact are processed as described in <a href="#integrator">section 11</a> and the <a href="/legal/dpa">DPA</a>.</li>
 <li>Full request/response payloads from provider API calls.</li>
@@ -138,10 +114,10 @@ a:hover{color:#4fd283}
 <li>Cookies, browser fingerprints, or tracking pixels.</li>
 </ul>
 
-<h2>3a. Analytics</h2>
+<h2 id="3a-analytics">3a. Analytics</h2>
 <p>We use Google Analytics 4 on our human-facing web pages to measure visits and ad campaign performance; it sets first-party cookies. API, MCP and agent endpoints are not tracked.</p>
 
-<h2>4. How We Use Data</h2>
+<h2 id="4-how-we-use-data">4. How We Use Data</h2>
 <ul>
 <li>Authenticate and authorize API requests.</li>
 <li>Process x402 and MPP micropayments, debit prepaid balances, and maintain the financial ledger.</li>
@@ -149,26 +125,26 @@ a:hover{color:#4fd283}
 <li>Monitor system health and performance.</li>
 </ul>
 
-<h2>5. Data Sharing</h2>
+<h2 id="5-data-sharing">5. Data Sharing</h2>
 <p>We forward request parameters to third-party API providers (e.g., Foursquare, Amadeus) solely to fulfill tool invocations. Our sub-processors are Hetzner (hosting) and Resend (transactional e-mail), as named in the <a href="/legal/dpa">DPA</a>. We do not sell, rent, or share data with advertisers or data brokers.</p>
 
-<h2>6. Data Retention</h2>
+<h2 id="6-data-retention">6. Data Retention</h2>
 <ul>
 <li>Financial ledger: retained indefinitely (append-only, compliance requirement).</li>
 <li>Request logs: 15 days.</li>
 <li>Redis cache: ephemeral, TTL-based (5 seconds to 5 minutes depending on tool).</li>
 </ul>
 
-<h2>7. Security</h2>
+<h2 id="7-security">7. Security</h2>
 <p>API keys are hashed with SHA-256 before storage. All connections use TLS 1.2+. Containers run as non-root with read-only filesystems and dropped capabilities. PostgreSQL is the sole source of truth for financial data.</p>
 
-<h2>8. Third-Party Services</h2>
+<h2 id="8-third-party-services">8. Third-Party Services</h2>
 <p>The Service integrates with third-party API providers. Each provider has its own privacy policy. By using a tool powered by a third-party provider, the agent's request parameters are forwarded to that provider.</p>
 
-<h2>9. Changes</h2>
+<h2 id="9-changes">9. Changes</h2>
 <p>We may update this policy. Changes will be reflected in the "Last updated" date above.</p>
 
-<h2>10. Contact</h2>
+<h2 id="10-contact">10. Contact</h2>
 <p>For privacy-related inquiries: <a href="mailto:support@apibase.pro">support@apibase.pro</a></p>
 
 <!-- integrator-legal:start -->
@@ -183,30 +159,12 @@ a:hover{color:#4fd283}
 </ul>
 <!-- integrator-legal:end -->
 
-<div class="footer">
-<div class="footer-row">
-<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
-</div>
-<div class="footer-row">
-<span id="uptime-counter">Uptime: 0m 0s</span>
-<span>BUILD: v1.0.0</span>
-</div>
-</div>
-
 
 </div>
 </div>
+</div>
+</div>
 
-<script>
-(function(){
-  var pageLoadTime = Date.now();
-  setInterval(function() {
-    var elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
-    var el = document.getElementById('uptime-counter');
-    if (el) el.textContent = 'Uptime: ' + Math.floor(elapsed/60) + 'm ' + (elapsed%60) + 's';
-  }, 1000);
-})();
-</script>
 <footer class="site-footer"><div class="sf-in">
 <div class="sf-cols">
 <div><a class="sf-brand" href="/">APIbase.pro</a><p class="sf-tag">Unified API gateway for AI agents, and for the shops they buy from.</p></div>

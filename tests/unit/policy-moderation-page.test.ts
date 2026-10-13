@@ -6,7 +6,7 @@ const html = readFileSync(join(__dirname, '../../static/policy-moderation.html')
 function newSection(): string {
   const start = html.indexOf('id="merchant-catalogs"');
   expect(start).toBeGreaterThan(-1);
-  const end = html.indexOf('<h2>', start);
+  const end = html.indexOf('<h2', start);
   return html.slice(start, end).replace(/<[^>]*>/g, '');
 }
 

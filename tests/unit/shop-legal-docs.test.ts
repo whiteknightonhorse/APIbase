@@ -254,10 +254,12 @@ describe('T-INT-05 legal documents', () => {
       // restyles the page: the legal TEXT is compared, so head, styles, scripts, nav, footer and chrome are out.
       const counts = (h: string) =>
         h
-          .replace(/<h2>3a\. Analytics<\/h2>\n<p>[^\n]*<\/p>\n\n/g, '')
+          .replace(/<h2[^>]*>3a\. Analytics<\/h2>\n<p>[^\n]*<\/p>\n\n/g, '')
           .replace(/<head>[\s\S]*?<\/head>/, '')
           .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '')
           .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->/g, '')
+          // T-0387: breadcrumb and contents are chrome; terminal status lines are decoration.
+          .replace(/<!--lg-chrome-->[\s\S]*?<!--\/lg-chrome-->/g, '')
           .replace(
             /<div class="titlebar">\s*<div class="dots">[\s\S]*?<\/div>\s*<span class="titlebar-text">[\s\S]*?<\/span>\s*<\/div>/,
             '',
@@ -269,6 +271,9 @@ describe('T-INT-05 legal documents', () => {
           .replace(/<nav>[\s\S]*?<\/nav>/g, '')
           .replace(/<footer class="(?:footer|site-footer)">[\s\S]*?<\/footer>/g, '')
           .replace(/<[^>]+>/g, ' ')
+          .replace(/STATUS: ONLINE\s*\|\s*PID: 1337\s*\|\s*TTY: pts\/0\s*\|\s*USER: apibase/g, '')
+          .replace(/Uptime: \d+m \d+s/g, '')
+          .replace(/BUILD: v1\.0\.0/g, '')
           .replace(/\s+/g, ' ')
           .replace(/(PRV:\s*)\d+/g, '$1N')
           .replace(/(TOOLS:\s*)\d+/g, '$1N')

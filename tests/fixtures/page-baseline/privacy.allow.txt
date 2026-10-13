@@ -7,3 +7,8 @@ APIBASE OS v1.0.0 — INITIALIZING...
 [OK] Loading policy document...
 SYSTEM READY. apibase@prod:~$
 id: boot-screen
+# T-0387: terminal status line, fake uptime counter and build tag removed by the design-M migration.
+STATUS: ONLINE | PID: 1337 | TTY: pts/0 | USER: apibase
+Uptime: 0m 0s
+BUILD: v1.0.0
+id: uptime-counter

@@ -12,6 +12,7 @@ import {
   SITE_NAV,
   SITE_NAV_CSS,
 } from '../page-meta';
+import { legalDocumentHtml } from '../legal/legal-layout';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
 import {
@@ -134,12 +135,18 @@ export function firstParagraph(bodyHtml: string): string {
     .slice(0, 300);
 }
 
-const STYLE = 'main{max-width:820px;margin:0 auto;padding:32px 20px 0}';
+const STYLE = 'pre{overflow-x:auto}.table-wrap,.m-table-wrap{overflow-x:auto}';
 const DRAFT_STYLE =
   '.draft-banner{background:#7a1f1f;color:#eef1ed;padding:12px 16px;font-weight:bold;text-align:center}';
 
-function page(docId: string, body: string, draft: boolean): string {
-  const title = fitTitle(`${DOC_TITLES[docId] ?? docId} — APIbase legal`);
+function page(
+  docId: string,
+  body: string,
+  draft: boolean,
+  meta: { version: string; effective: string },
+): string {
+  const docTitle = DOC_TITLES[docId] ?? docId;
+  const title = fitTitle(`${docTitle} — APIbase legal`);
   const desc = fitDescription(firstParagraph(body));
   return (
     '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">' +
@@ -149,7 +156,7 @@ function page(docId: string, body: string, draft: boolean): string {
     `<title>${esc(title)}</title><style>${STYLE}${draft ? DRAFT_STYLE : ''}\n${SITE_NAV_CSS}</style></head><body>` +
     (draft ? DRAFT_BANNER : '') +
     SITE_NAV +
-    `<main>${body}</main>` +
+    legalDocumentHtml(docTitle, body, meta) +
     SITE_FOOTER +
     '</body></html>\n'
   );
@@ -268,7 +275,12 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
       /\{\{INTEGRATOR_FEE_PCT\}\}/g,
       esc(feeText()),
     );
-    res.type('html').send(page(id, body, !isPublished()));
+    res.type('html').send(
+      page(id, body, !isPublished(), {
+        version: file.version,
+        effective: file.effective_from.slice(0, 10),
+      }),
+    );
   });
 
   return router;
