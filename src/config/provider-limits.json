@@ -76,7 +76,12 @@
     "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 2000.",
     "limit_proof": "Self-Service free tier: 2,000 Flight Search calls/month, varies by endpoint",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-10-12",
+      "task": "T-0356",
+      "reason": "operator decision 2026-10-12: provider dead/unpaid, retired from catalog"
+    }
   },
   "foursquare": {
     "display_name": "Foursquare",
@@ -779,7 +784,12 @@
     "docs_url": "https://docs.api.jikan.moe/#section/Information/Rate-Limiting",
     "limit_proof": "Rate limit: 3 req/sec, 60 req/min. No daily or monthly cap documented.",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-10-12",
+      "task": "T-0356",
+      "reason": "operator decision 2026-10-12: provider dead/unpaid, retired from catalog"
+    }
   },
   "openlibrary": {
     "display_name": "Open Library",
@@ -1084,7 +1094,12 @@
     "docs_url": "https://ssl-checker.io/",
     "limit_proof": "Free, no auth, no documented rate limits",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-10-12",
+      "task": "T-0356",
+      "reason": "operator decision 2026-10-12: provider dead/unpaid, retired from catalog"
+    }
   },
   "exchangerate": {
     "display_name": "ExchangeRate-API",
@@ -1739,7 +1754,12 @@
     "docs_url": "https://threatintelligenceplatform.com/threat-intelligence-api-docs",
     "limit_proof": "One-time trial: 100 free credits. Pay-per-credit top-up, no subscription. WhoisXML Group product",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-10-12",
+      "task": "T-0356",
+      "reason": "operator decision 2026-10-12: provider dead/unpaid, retired from catalog"
+    }
   },
   "listennotes": {
     "display_name": "Listen Notes",
