@@ -4,6 +4,7 @@
 # the rendered pages from the local nginx (PAGE_META_BASE, Host apibase.pro). /integrator* pages also
 # need a BreadcrumbList. Prints one line per failure and a summary; exit 1 on any failure.
 #   --no-fetch   crawl static/ only (CI has no server)
+# Fetches retry on 5xx/no response (PAGE_META_RETRIES x PAGE_META_RETRY_SLEEP s) so a deploy restart is not a failure.
 # /guides/ is not in the default PAGE_META_PATHS: content-machine renders it in a separate repo (content-hub);
 # add it back once the follow-up card makes those generators emit the meta block and footer.
 # Needs no database of its own, but /m/apibase-demo is served from one, so a 5xx there is a failure.
@@ -15,7 +16,7 @@ export ROOT NO_FETCH
 export PAGE_META_BASE="${PAGE_META_BASE:-http://127.0.0.1:8880}"
 export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal/aup /integrator /integrator/buyers}"
 exec python3 -I - <<'PY'
-import glob, html, os, re, subprocess, sys
+import glob, html, os, re, subprocess, sys, time
 
 root, base = os.environ["ROOT"], os.environ["PAGE_META_BASE"]
 fragment = open(os.path.join(root, "config/page-footer.html"), encoding="utf-8").read().strip()
@@ -62,9 +63,13 @@ for f in sorted(glob.glob(os.path.join(root, "static/**/*.html"), recursive=True
 
 if os.environ["NO_FETCH"] != "1":
     for p in os.environ["PAGE_META_PATHS"].split():
-        r = subprocess.run(["curl", "-s", "-m", "15", "-H", "Host: apibase.pro", "-w", "\n%{http_code}", base + p],
-                           capture_output=True, text=True)
-        body, _, code = r.stdout.rpartition("\n")
+        # A deploy restarts the upstream while CI runs this gate: wait for it (up to ~2 min) before failing.
+        for attempt in range(int(os.environ.get("PAGE_META_RETRIES", "12"))):
+            r = subprocess.run(["curl", "-s", "-m", "15", "-H", "Host: apibase.pro", "-w", "\n%{http_code}", base + p],
+                               capture_output=True, text=True)
+            body, _, code = r.stdout.rpartition("\n")
+            if code.isdigit() and int(code) < 500 and code != "000": break
+            time.sleep(int(os.environ.get("PAGE_META_RETRY_SLEEP", "10")))
         if code != "200":
             fails.append("%s: HTTP %s" % (p, code or "no response"))
             checked += 1
