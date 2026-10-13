@@ -68,7 +68,9 @@ describe('T-0367 site header gate', () => {
   });
 
   it('d: the catalog producer carries the fragment and the css block', () => {
-    const page = renderPage([{ provider: 'x', tools: 1 }]);
+    const page = renderPage([
+      { provider: 'x', tools: 1, minPrice: 0.001, maxPrice: 0.001, category: 'other' },
+    ]);
     expect(page).toContain(`<!--site-nav-->\n${fragment.trim()}\n<!--/site-nav-->`);
     expect(page).toContain(`/*site-nav*/\n${css.trim()}\n/*/site-nav*/`);
   });

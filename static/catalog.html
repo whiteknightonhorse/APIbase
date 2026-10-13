@@ -15,10 +15,6 @@
 <meta property="og:description" content="1398 tools across 404 providers, live — the full list, generated from the production database.">
 <meta property="og:url" content="https://apibase.pro/catalog">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
-
-.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -38,30 +34,53 @@ body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sa
 .site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
 @media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
 /*/site-nav*/
-h1{color:#4fd283;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5}
-
-h2{color:#4fd283;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #4fd283}
-
-p{margin-bottom:0.8rem;font-size:1rem;color:#b7beb8}
-strong{color:#4fd283}
-.updated{color:#9ca59e;font-size:0.82rem;margin-bottom:1.8rem}
-a{color:#eef1ed;text-decoration:none}
-a:hover{color:#4fd283}
-table{width:100%;border-collapse:collapse;margin:0.8rem 0 1.4rem;font-size:0.83rem}
-th, td{text-align:left;padding:0.4rem 0.7rem;border-bottom:1px solid #272c29}
-th{color:#4fd283;font-weight:700;border-bottom:1px solid #4fd283;position:sticky;top:0;background:#0e100f}
-td{color:#b7beb8}
-td:last-child, th:last-child{text-align:right}
-.scroll{max-height:60vh;overflow-y:auto;overflow-x:auto;border:1px solid #272c29;border-radius:6px}
-.note{color:#9ca59e;font-size:0.82rem;font-style:italic}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
-.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#9ca59e}
-*::-webkit-scrollbar{width:8px;height:8px}
-*::-webkit-scrollbar-track{background:#0e100f;border:1px solid #272c29}
-*::-webkit-scrollbar-thumb{background:#1b1f1c;border-radius:4px;border:1px solid #0e100f}
-*{scrollbar-width:thin;scrollbar-color:#3e4541 #0e100f}
-@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}.footer{font-size:0.65rem}}
+/* T-75 gate reads inline CSS only: every pre/table scrolls inside its own box (site-m.css styles the rest) */
+pre{overflow-x:auto}
+.table-wrap,.m-table-wrap,.scroll{overflow-x:auto}
+.cat-hero{display:flex;flex-wrap:wrap;gap:var(--s5) var(--s7);align-items:flex-start;margin-bottom:var(--s6)}
+.cat-hero-main{flex:999 1 520px;min-width:0}
+.cat-hero-main .updated{font-size:var(--fs-lead);color:var(--ink-2);max-width:620px}
+.cat-ctas{display:flex;flex-wrap:wrap;gap:var(--s3)}
+.cat-stats{flex:1 1 320px;min-width:0;max-width:440px;background:var(--surf);border:1px solid var(--line);border-radius:var(--r-panel);padding:var(--s5);display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.cat-stats div{display:flex;flex-direction:column;gap:6px}
+.cat-stats .m-stat{font-size:44px}
+.cat-stats span:last-child{color:var(--ink-2);font-size:var(--fs-small)}
+.cat-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:var(--s4) 0}
+.cat-controls[hidden],.cat-chips[hidden],.cat-card[hidden],.cat-empty[hidden]{display:none}
+.cat-field{display:flex;flex-direction:column;gap:4px}
+.cat-field span.m-label{font-size:13px;color:var(--ink-2)}
+.cat-field.q{flex:3 1 280px;min-width:0}
+.cat-field.s{flex:1 1 180px}
+.cat-field .box{position:relative;display:block}
+.cat-field .box svg{position:absolute;left:12px;top:14px;color:var(--ink-2)}
+.cat-field .box .m-input{padding-left:42px}
+.cat-chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 var(--s4)}
+.cat-chips button{min-height:44px;padding:0 14px;border-radius:var(--r-chip);border:1px solid var(--line-2);background:transparent;color:var(--ink);font:inherit;font-size:15px;cursor:pointer;transition:background var(--t-mid) var(--ease)}
+.cat-chips button:hover{background:var(--surf-2)}
+.cat-chips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent);font-weight:650}
+#cat-count{font-size:var(--fs-small);color:var(--ink-2);margin:0 0 var(--s4)}
+.cat-empty{border:1px solid var(--line);border-radius:var(--r-card);padding:var(--s5);display:flex;flex-direction:column;gap:10px;align-items:flex-start;margin-bottom:var(--s4)}
+.cat-empty strong{font-size:18px;overflow-wrap:anywhere}
+.cat-empty p{margin:0}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px;margin:0 0 var(--s5)}
+.cat-card{background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cat-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.cat-top h3{margin:0;font-size:17px;font-weight:600;overflow-wrap:anywhere}
+.cat-top .m-badge{white-space:nowrap;flex:none}
+.cat-cat{font-size:14px;color:var(--ink-2)}
+.cat-foot{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:15px;color:var(--ink-2)}
+.cat-foot b{color:var(--ink);font-variant-numeric:tabular-nums}
+.cat-price{font-family:var(--mono);font-size:13.5px;color:var(--ink)}
+.note{color:var(--ink-3);font-size:var(--fs-small)}
+.cat-shops{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px;margin:var(--s4) 0}
+.cat-shops a{background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);padding:18px;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink)}
+.cat-shops a:hover{border-color:var(--ink-3);color:var(--ink)}
+.cat-shops a.add{border-style:dashed;border-color:var(--line-2)}
+.cat-shops a.add:hover{border-color:var(--accent)}
+.cat-shops strong{font-size:17px}
+.cat-shops span{font-size:15px;color:var(--ink-2)}
+.cat-foot-line{margin-top:var(--s7);padding-top:var(--s4);border-top:1px solid var(--line);color:var(--ink-3);font-size:var(--fs-small)}
+@media(max-width:600px){.cat-stats .m-stat{font-size:36px}}
 </style>
 </head>
 <body>
@@ -109,437 +128,2091 @@ td:last-child, th:last-child{text-align:right}
 <div class="page-shell">
 <div class="container" id="main-content">
 
+<section class="cat-hero">
+<div class="cat-hero-main">
 <h1>Catalog</h1>
 <p class="updated">Generated straight from the production database — never hand-edited, never rounded.</p>
+<div class="cat-ctas"><a class="m-btn m-btn--primary" href="/connect">Connect your agent <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+</div>
+<aside class="cat-stats" aria-label="Catalog totals">
+<div><span class="m-stat">1398</span><span>tools</span></div>
+<div><span class="m-stat">404</span><span>providers</span></div>
+</aside>
+</section>
 
 <h2>Every live provider</h2>
 <p><strong>1398 tools</strong> across <strong>404 providers</strong>, sorted by tool count. This is not a marketing figure &mdash; it is what <a href="/api/v1/tools">/api/v1/tools</a> and the MCP <code>tools/list</code> served as of 2026-10-13 UTC, regenerated when provider availability changes and daily at 05:00 UTC.</p>
-<div class="scroll">
-<table>
-<thead><tr><th>Provider</th><th>Tools</th></tr></thead>
-<tbody>
-<tr><td>polymarket</td><td>11</td></tr>
-<tr><td>aipush</td><td>9</td></tr>
-<tr><td>coingecko</td><td>9</td></tr>
-<tr><td>clinicaltrials</td><td>7</td></tr>
-<tr><td>education</td><td>7</td></tr>
-<tr><td>geo</td><td>7</td></tr>
-<tr><td>music</td><td>7</td></tr>
-<tr><td>telnyx</td><td>7</td></tr>
-<tr><td>ticketmaster</td><td>7</td></tr>
-<tr><td>tmdb</td><td>7</td></tr>
-<tr><td>aviasales</td><td>6</td></tr>
-<tr><td>bcb</td><td>6</td></tr>
-<tr><td>brasilapi</td><td>6</td></tr>
-<tr><td>cloudflare</td><td>6</td></tr>
-<tr><td>finance</td><td>6</td></tr>
-<tr><td>hyperliquid</td><td>6</td></tr>
-<tr><td>jobs</td><td>6</td></tr>
-<tr><td>pubchem</td><td>6</td></tr>
-<tr><td>usgs-hans-volcano</td><td>6</td></tr>
-<tr><td>abs</td><td>5</td></tr>
-<tr><td>africa</td><td>5</td></tr>
-<tr><td>banxico</td><td>5</td></tr>
-<tr><td>bea</td><td>5</td></tr>
-<tr><td>climate</td><td>5</td></tr>
-<tr><td>edgar</td><td>5</td></tr>
-<tr><td>epa-aqs</td><td>5</td></tr>
-<tr><td>eurostat2</td><td>5</td></tr>
-<tr><td>faostat</td><td>5</td></tr>
-<tr><td>hackernews</td><td>5</td></tr>
-<tr><td>hf_inference</td><td>5</td></tr>
-<tr><td>hnalgolia</td><td>5</td></tr>
-<tr><td>ibge</td><td>5</td></tr>
-<tr><td>igdb</td><td>5</td></tr>
-<tr><td>indec-georef</td><td>5</td></tr>
-<tr><td>irail</td><td>5</td></tr>
-<tr><td>jma-bosai</td><td>5</td></tr>
-<tr><td>lmpr</td><td>5</td></tr>
-<tr><td>malaysiagov</td><td>5</td></tr>
-<tr><td>meteostat</td><td>5</td></tr>
-<tr><td>namesilo</td><td>5</td></tr>
-<tr><td>nasa</td><td>5</td></tr>
-<tr><td>oecd-stats</td><td>5</td></tr>
-<tr><td>ons-uk-stats</td><td>5</td></tr>
-<tr><td>rawg</td><td>5</td></tr>
-<tr><td>spoonacular</td><td>5</td></tr>
-<tr><td>statcan</td><td>5</td></tr>
-<tr><td>telegram</td><td>5</td></tr>
-<tr><td>tvmaze</td><td>5</td></tr>
-<tr><td>unsdg</td><td>5</td></tr>
-<tr><td>wikipedia</td><td>5</td></tr>
-<tr><td>adbkidb</td><td>4</td></tr>
-<tr><td>airnow</td><td>4</td></tr>
-<tr><td>apisports</td><td>4</td></tr>
-<tr><td>asterdex</td><td>4</td></tr>
-<tr><td>au-data-gov</td><td>4</td></tr>
-<tr><td>aviationweather</td><td>4</td></tr>
-<tr><td>bank-of-england</td><td>4</td></tr>
-<tr><td>bankofcanada</td><td>4</td></tr>
-<tr><td>bgs-ogcapi</td><td>4</td></tr>
-<tr><td>bhl</td><td>4</td></tr>
-<tr><td>bible</td><td>4</td></tr>
-<tr><td>biomodels</td><td>4</td></tr>
-<tr><td>bls-macro</td><td>4</td></tr>
-<tr><td>brightsky</td><td>4</td></tr>
-<tr><td>browserbase</td><td>4</td></tr>
-<tr><td>brreg</td><td>4</td></tr>
-<tr><td>bts-transport</td><td>4</td></tr>
-<tr><td>canopy</td><td>4</td></tr>
-<tr><td>carbon-intensity-uk</td><td>4</td></tr>
-<tr><td>cbs</td><td>4</td></tr>
-<tr><td>cdc-chronic</td><td>4</td></tr>
-<tr><td>celestrak</td><td>4</td></tr>
-<tr><td>census</td><td>4</td></tr>
-<tr><td>cernopendata</td><td>4</td></tr>
-<tr><td>chembl</td><td>4</td></tr>
-<tr><td>cms</td><td>4</td></tr>
-<tr><td>col</td><td>4</td></tr>
-<tr><td>comtrade</td><td>4</td></tr>
-<tr><td>coops</td><td>4</td></tr>
-<tr><td>cordis</td><td>4</td></tr>
-<tr><td>cpsc</td><td>4</td></tr>
-<tr><td>crossref</td><td>4</td></tr>
-<tr><td>data-europa</td><td>4</td></tr>
-<tr><td>datacite</td><td>4</td></tr>
-<tr><td>datagovsg</td><td>4</td></tr>
-<tr><td>dbnomics</td><td>4</td></tr>
-<tr><td>delphi</td><td>4</td></tr>
-<tr><td>diffbot</td><td>4</td></tr>
-<tr><td>disease</td><td>4</td></tr>
-<tr><td>doaj</td><td>4</td></tr>
-<tr><td>dpla</td><td>4</td></tr>
-<tr><td>drought-monitor</td><td>4</td></tr>
-<tr><td>ea-hydrology</td><td>4</td></tr>
-<tr><td>ebi-metagenomics</td><td>4</td></tr>
-<tr><td>ecb-rates</td><td>4</td></tr>
-<tr><td>echo</td><td>4</td></tr>
-<tr><td>eia</td><td>4</td></tr>
-<tr><td>eonet</td><td>4</td></tr>
-<tr><td>eu_parliament</td><td>4</td></tr>
-<tr><td>eurlex</td><td>4</td></tr>
-<tr><td>europepmc</td><td>4</td></tr>
-<tr><td>eurostat</td><td>4</td></tr>
-<tr><td>f1</td><td>4</td></tr>
-<tr><td>fbi</td><td>4</td></tr>
-<tr><td>fcc</td><td>4</td></tr>
-<tr><td>fdic</td><td>4</td></tr>
-<tr><td>fec</td><td>4</td></tr>
-<tr><td>federalregister</td><td>4</td></tr>
-<tr><td>finnhub</td><td>4</td></tr>
-<tr><td>frankfurter</td><td>4</td></tr>
-<tr><td>gbif</td><td>4</td></tr>
-<tr><td>geonames</td><td>4</td></tr>
-<tr><td>geonet-nz</td><td>4</td></tr>
-<tr><td>gfw</td><td>4</td></tr>
-<tr><td>gutendex</td><td>4</td></tr>
-<tr><td>hdx</td><td>4</td></tr>
-<tr><td>hdx-hapi</td><td>4</td></tr>
-<tr><td>imf</td><td>4</td></tr>
-<tr><td>inaturalist</td><td>4</td></tr>
-<tr><td>ine</td><td>4</td></tr>
-<tr><td>ine-spain</td><td>4</td></tr>
-<tr><td>insee</td><td>4</td></tr>
-<tr><td>ipqs</td><td>4</td></tr>
-<tr><td>irena</td><td>4</td></tr>
-<tr><td>jpl</td><td>4</td></tr>
-<tr><td>launch-library-2</td><td>4</td></tr>
-<tr><td>macrostrat</td><td>4</td></tr>
-<tr><td>malaria-atlas</td><td>4</td></tr>
-<tr><td>marine</td><td>4</td></tr>
-<tr><td>mbta-transit</td><td>4</td></tr>
-<tr><td>medlineplus</td><td>4</td></tr>
-<tr><td>met-museum</td><td>4</td></tr>
-<tr><td>met-norway</td><td>4</td></tr>
-<tr><td>mfapi</td><td>4</td></tr>
-<tr><td>msc-geomet</td><td>4</td></tr>
-<tr><td>mychem</td><td>4</td></tr>
-<tr><td>mygene</td><td>4</td></tr>
-<tr><td>myvariant</td><td>4</td></tr>
-<tr><td>nasa-cmr</td><td>4</td></tr>
-<tr><td>nasaexoplanet</td><td>4</td></tr>
-<tr><td>nasantrs</td><td>4</td></tr>
-<tr><td>nbi</td><td>4</td></tr>
-<tr><td>nhtsa-safety</td><td>4</td></tr>
-<tr><td>nihreporter</td><td>4</td></tr>
-<tr><td>nlm-icd11</td><td>4</td></tr>
-<tr><td>norgesbank</td><td>4</td></tr>
-<tr><td>npm</td><td>4</td></tr>
-<tr><td>nps</td><td>4</td></tr>
-<tr><td>nrc</td><td>4</td></tr>
-<tr><td>nrel</td><td>4</td></tr>
-<tr><td>obis</td><td>4</td></tr>
-<tr><td>ofac</td><td>4</td></tr>
-<tr><td>open-canada</td><td>4</td></tr>
-<tr><td>openaire</td><td>4</td></tr>
-<tr><td>opencontext</td><td>4</td></tr>
-<tr><td>opendota</td><td>4</td></tr>
-<tr><td>openfda_devices</td><td>4</td></tr>
-<tr><td>openlibrary</td><td>4</td></tr>
-<tr><td>openmeteoaq</td><td>4</td></tr>
-<tr><td>opensensemap</td><td>4</td></tr>
-<tr><td>opensky</td><td>4</td></tr>
-<tr><td>openstates</td><td>4</td></tr>
-<tr><td>opentdb</td><td>4</td></tr>
-<tr><td>opentopodata</td><td>4</td></tr>
-<tr><td>opentopography</td><td>4</td></tr>
-<tr><td>orphadata</td><td>4</td></tr>
-<tr><td>overpass</td><td>4</td></tr>
-<tr><td>pharmgkb</td><td>4</td></tr>
-<tr><td>podcastindex</td><td>4</td></tr>
-<tr><td>pokeapi</td><td>4</td></tr>
-<tr><td>rateapi</td><td>4</td></tr>
-<tr><td>rcsb</td><td>4</td></tr>
-<tr><td>ror</td><td>4</td></tr>
-<tr><td>rxnorm</td><td>4</td></tr>
-<tr><td>sabre</td><td>4</td></tr>
-<tr><td>samuni</td><td>4</td></tr>
-<tr><td>sdwis</td><td>4</td></tr>
-<tr><td>serper</td><td>4</td></tr>
-<tr><td>smhi</td><td>4</td></tr>
-<tr><td>ssbnorway</td><td>4</td></tr>
-<tr><td>statbel</td><td>4</td></tr>
-<tr><td>statfin</td><td>4</td></tr>
-<tr><td>statistics-denmark</td><td>4</td></tr>
-<tr><td>statistik-austria</td><td>4</td></tr>
-<tr><td>sunrisesunset</td><td>4</td></tr>
-<tr><td>swissfso</td><td>4</td></tr>
-<tr><td>swissnbm</td><td>4</td></tr>
-<tr><td>swpc</td><td>4</td></tr>
-<tr><td>tfl</td><td>4</td></tr>
-<tr><td>thesportsdb</td><td>4</td></tr>
-<tr><td>transport-rest</td><td>4</td></tr>
-<tr><td>treasurydirect</td><td>4</td></tr>
-<tr><td>treasuryfiscal</td><td>4</td></tr>
-<tr><td>twitterapi</td><td>4</td></tr>
-<tr><td>ukleg</td><td>4</td></tr>
-<tr><td>unhabitat</td><td>4</td></tr>
-<tr><td>unhcr</td><td>4</td></tr>
-<tr><td>uniprot</td><td>4</td></tr>
-<tr><td>usdamars</td><td>4</td></tr>
-<tr><td>usgs-nwis</td><td>4</td></tr>
-<tr><td>vam</td><td>4</td></tr>
-<tr><td>weatherapi</td><td>4</td></tr>
-<tr><td>who-gho</td><td>4</td></tr>
-<tr><td>whoisxml</td><td>4</td></tr>
-<tr><td>wikimedia-analytics</td><td>4</td></tr>
-<tr><td>wikimedia-commons</td><td>4</td></tr>
-<tr><td>wikimedia-rest</td><td>4</td></tr>
-<tr><td>worms</td><td>4</td></tr>
-<tr><td>wto</td><td>4</td></tr>
-<tr><td>zenodo</td><td>4</td></tr>
-<tr><td>17track</td><td>3</td></tr>
-<tr><td>abr</td><td>3</td></tr>
-<tr><td>account</td><td>3</td></tr>
-<tr><td>adsbdb</td><td>3</td></tr>
-<tr><td>adzuna</td><td>3</td></tr>
-<tr><td>archiveorg</td><td>3</td></tr>
-<tr><td>artic</td><td>3</td></tr>
-<tr><td>assemblyai</td><td>3</td></tr>
-<tr><td>avwx</td><td>3</td></tr>
-<tr><td>awc</td><td>3</td></tr>
-<tr><td>balldontlie</td><td>3</td></tr>
-<tr><td>bis-stats</td><td>3</td></tr>
-<tr><td>bluesky</td><td>3</td></tr>
-<tr><td>bundesbank-timeseries</td><td>3</td></tr>
-<tr><td>cactus</td><td>3</td></tr>
-<tr><td>cfpb-complaints</td><td>3</td></tr>
-<tr><td>checkwx</td><td>3</td></tr>
-<tr><td>chesscom</td><td>3</td></tr>
-<tr><td>congress</td><td>3</td></tr>
-<tr><td>convertapi</td><td>3</td></tr>
-<tr><td>copernicus-sentinel</td><td>3</td></tr>
-<tr><td>courtlistener</td><td>3</td></tr>
-<tr><td>crossref-datacitations</td><td>3</td></tr>
-<tr><td>currents</td><td>3</td></tr>
-<tr><td>czso</td><td>3</td></tr>
-<tr><td>data-usa</td><td>3</td></tr>
-<tr><td>denmark-energidataservice</td><td>3</td></tr>
-<tr><td>depsdev</td><td>3</td></tr>
-<tr><td>device</td><td>3</td></tr>
-<tr><td>dogceo</td><td>3</td></tr>
-<tr><td>ecdc-surveillance</td><td>3</td></tr>
-<tr><td>enviroatlas</td><td>3</td></tr>
-<tr><td>estat-japan-dashboard</td><td>3</td></tr>
-<tr><td>estonia-statistics</td><td>3</td></tr>
-<tr><td>exa</td><td>3</td></tr>
-<tr><td>fbiwanted</td><td>3</td></tr>
-<tr><td>fda_openfda</td><td>3</td></tr>
-<tr><td>fedregister</td><td>3</td></tr>
-<tr><td>fema</td><td>3</td></tr>
-<tr><td>figi</td><td>3</td></tr>
-<tr><td>figshare</td><td>3</td></tr>
-<tr><td>freetogame</td><td>3</td></tr>
-<tr><td>gdacs</td><td>3</td></tr>
-<tr><td>geoboundaries</td><td>3</td></tr>
-<tr><td>geodiva</td><td>3</td></tr>
-<tr><td>github-api</td><td>3</td></tr>
-<tr><td>gleif</td><td>3</td></tr>
-<tr><td>global-health-covid</td><td>3</td></tr>
-<tr><td>govuk</td><td>3</td></tr>
-<tr><td>gus-poland</td><td>3</td></tr>
-<tr><td>hathitrust-digital</td><td>3</td></tr>
-<tr><td>hf</td><td>3</td></tr>
-<tr><td>hungary-ksh</td><td>3</td></tr>
-<tr><td>iceland-statistics</td><td>3</td></tr>
-<tr><td>ilostat</td><td>3</td></tr>
-<tr><td>ine-chile</td><td>3</td></tr>
-<tr><td>irctc</td><td>3</td></tr>
-<tr><td>istat</td><td>3</td></tr>
-<tr><td>itistaxonomy</td><td>3</td></tr>
-<tr><td>langbly</td><td>3</td></tr>
-<tr><td>latvia-statistics</td><td>3</td></tr>
-<tr><td>lichess</td><td>3</td></tr>
-<tr><td>listennotes</td><td>3</td></tr>
-<tr><td>loc</td><td>3</td></tr>
-<tr><td>materials-project</td><td>3</td></tr>
-<tr><td>ncbi-eutils</td><td>3</td></tr>
-<tr><td>netherlands-pdok-kadaster</td><td>3</td></tr>
-<tr><td>newsdata</td><td>3</td></tr>
-<tr><td>noaa</td><td>3</td></tr>
-<tr><td>noaa-fisheries-stats</td><td>3</td></tr>
-<tr><td>nominatim-osm</td><td>3</td></tr>
-<tr><td>norway-kartverket-stedsnavn</td><td>3</td></tr>
-<tr><td>nvd</td><td>3</td></tr>
-<tr><td>oecd-data</td><td>3</td></tr>
-<tr><td>openalex</td><td>3</td></tr>
-<tr><td>openbrewery</td><td>3</td></tr>
-<tr><td>openchargemap</td><td>3</td></tr>
-<tr><td>orcid</td><td>3</td></tr>
-<tr><td>osv</td><td>3</td></tr>
-<tr><td>p2pquake</td><td>3</td></tr>
-<tr><td>pexels</td><td>3</td></tr>
-<tr><td>platform</td><td>3</td></tr>
-<tr><td>postcode-japan</td><td>3</td></tr>
-<tr><td>postcodes-io</td><td>3</td></tr>
-<tr><td>scb</td><td>3</td></tr>
-<tr><td>sec-edgar</td><td>3</td></tr>
-<tr><td>semanticscholar</td><td>3</td></tr>
-<tr><td>sepa-scotland</td><td>3</td></tr>
-<tr><td>shipengine</td><td>3</td></tr>
-<tr><td>slovakia-statistics</td><td>3</td></tr>
-<tr><td>socrata</td><td>3</td></tr>
-<tr><td>spending</td><td>3</td></tr>
-<tr><td>tatoeba</td><td>3</td></tr>
-<tr><td>timeapi</td><td>3</td></tr>
-<tr><td>uk-ea-flood-monitoring</td><td>3</td></tr>
-<tr><td>uk-landregistry-pricepaid</td><td>3</td></tr>
-<tr><td>ukfsa</td><td>3</td></tr>
-<tr><td>ukpolice</td><td>3</td></tr>
-<tr><td>unesco-data</td><td>3</td></tr>
-<tr><td>usajobs</td><td>3</td></tr>
-<tr><td>usgs-earthquake</td><td>3</td></tr>
-<tr><td>usno</td><td>3</td></tr>
-<tr><td>usrealestate</td><td>3</td></tr>
-<tr><td>vatcomply</td><td>3</td></tr>
-<tr><td>wger</td><td>3</td></tr>
-<tr><td>who</td><td>3</td></tr>
-<tr><td>wmo-weather</td><td>3</td></tr>
-<tr><td>world-bank-cckp</td><td>3</td></tr>
-<tr><td>audd</td><td>2</td></tr>
-<tr><td>cdc</td><td>2</td></tr>
-<tr><td>censusmapper</td><td>2</td></tr>
-<tr><td>cocktaildb</td><td>2</td></tr>
-<tr><td>companieshouse</td><td>2</td></tr>
-<tr><td>cve-mitre</td><td>2</td></tr>
-<tr><td>dblp</td><td>2</td></tr>
-<tr><td>dictionary</td><td>2</td></tr>
-<tr><td>duckduckgo</td><td>2</td></tr>
-<tr><td>emsc</td><td>2</td></tr>
-<tr><td>ensembl</td><td>2</td></tr>
-<tr><td>epa</td><td>2</td></tr>
-<tr><td>europeana</td><td>2</td></tr>
-<tr><td>exchangerate</td><td>2</td></tr>
-<tr><td>fatsecret</td><td>2</td></tr>
-<tr><td>gebco</td><td>2</td></tr>
-<tr><td>geocodio</td><td>2</td></tr>
-<tr><td>ibanapi</td><td>2</td></tr>
-<tr><td>imgflip</td><td>2</td></tr>
-<tr><td>indec-argentina</td><td>2</td></tr>
-<tr><td>ine-portugal</td><td>2</td></tr>
-<tr><td>ipapi</td><td>2</td></tr>
-<tr><td>iqair</td><td>2</td></tr>
-<tr><td>iss</td><td>2</td></tr>
-<tr><td>judge0</td><td>2</td></tr>
-<tr><td>librivox</td><td>2</td></tr>
-<tr><td>marketcheck</td><td>2</td></tr>
-<tr><td>mastodon</td><td>2</td></tr>
-<tr><td>nagerdate</td><td>2</td></tr>
-<tr><td>ncei</td><td>2</td></tr>
-<tr><td>nhtsa</td><td>2</td></tr>
-<tr><td>noaa-tides</td><td>2</td></tr>
-<tr><td>nsf-awards</td><td>2</td></tr>
-<tr><td>nws</td><td>2</td></tr>
-<tr><td>openbeautyfacts</td><td>2</td></tr>
-<tr><td>openfoodfacts</td><td>2</td></tr>
-<tr><td>openweathermap</td><td>2</td></tr>
-<tr><td>paleoclimate</td><td>2</td></tr>
-<tr><td>plos-search</td><td>2</td></tr>
-<tr><td>pypi</td><td>2</td></tr>
-<tr><td>qrserver</td><td>2</td></tr>
-<tr><td>reed</td><td>2</td></tr>
-<tr><td>regulations</td><td>2</td></tr>
-<tr><td>resend</td><td>2</td></tr>
-<tr><td>restcountries</td><td>2</td></tr>
-<tr><td>rijksmuseum</td><td>2</td></tr>
-<tr><td>sam</td><td>2</td></tr>
-<tr><td>shortio</td><td>2</td></tr>
-<tr><td>solar</td><td>2</td></tr>
-<tr><td>spider</td><td>2</td></tr>
-<tr><td>standard-ebooks</td><td>2</td></tr>
-<tr><td>tavily</td><td>2</td></tr>
-<tr><td>theirstack</td><td>2</td></tr>
-<tr><td>twilio</td><td>2</td></tr>
-<tr><td>ukhsa-dashboard</td><td>2</td></tr>
-<tr><td>upcitemdb</td><td>2</td></tr>
-<tr><td>usgs-nationalmap</td><td>2</td></tr>
-<tr><td>usgs-water</td><td>2</td></tr>
-<tr><td>whoisjson</td><td>2</td></tr>
-<tr><td>wikidata</td><td>2</td></tr>
-<tr><td>wits-trade</td><td>2</td></tr>
-<tr><td>apibase</td><td>1</td></tr>
-<tr><td>apiflash</td><td>1</td></tr>
-<tr><td>arbeitnow</td><td>1</td></tr>
-<tr><td>autodev</td><td>1</td></tr>
-<tr><td>calendarific</td><td>1</td></tr>
-<tr><td>chart</td><td>1</td></tr>
-<tr><td>currentuvindex</td><td>1</td></tr>
-<tr><td>dhl</td><td>1</td></tr>
-<tr><td>email_verify</td><td>1</td></tr>
-<tr><td>firms</td><td>1</td></tr>
-<tr><td>hunter</td><td>1</td></tr>
-<tr><td>jooble</td><td>1</td></tr>
-<tr><td>ocrspace</td><td>1</td></tr>
-<tr><td>randomuser</td><td>1</td></tr>
-<tr><td>razorpayifsc</td><td>1</td></tr>
-<tr><td>remotive</td><td>1</td></tr>
-<tr><td>soil</td><td>1</td></tr>
-<tr><td>stability</td><td>1</td></tr>
-<tr><td>unpaywall</td><td>1</td></tr>
-<tr><td>usgs-epqs</td><td>1</td></tr>
-<tr><td>usgs-mrds</td><td>1</td></tr>
-<tr><td>walkscore</td><td>1</td></tr>
-<tr><td>worldbank</td><td>1</td></tr>
-<tr><td>zerobounce</td><td>1</td></tr>
-<tr><td>zippopotamus</td><td>1</td></tr>
-</tbody>
-</table>
+
+<div class="cat-controls" id="cat-controls" hidden>
+<label class="cat-field q"><span class="m-label">Search tools and providers</span><span class="box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"></circle><path d="M20 20l-4.2-4.2"></path></svg><input class="m-input" id="cat-q" type="search" placeholder="e.g. flight search" autocomplete="off"></span></label>
+<label class="cat-field s"><span class="m-label">Sort</span><select class="m-select" id="cat-sort"><option value="tools" selected>Most tools</option><option value="name">Name</option><option value="price">Lowest price</option></select></label>
+</div>
+<div class="cat-chips" id="cat-chips" role="group" aria-label="Category">
+<button type="button" data-cat="" aria-pressed="true">All</button>
+<button type="button" data-cat="world" aria-pressed="false">World</button>
+<button type="button" data-cat="finance" aria-pressed="false">Finance</button>
+<button type="button" data-cat="health" aria-pressed="false">Health</button>
+<button type="button" data-cat="education" aria-pressed="false">Education</button>
+<button type="button" data-cat="developer" aria-pressed="false">Developer</button>
+<button type="button" data-cat="weather" aria-pressed="false">Weather</button>
+<button type="button" data-cat="entertainment" aria-pressed="false">Entertainment</button>
+<button type="button" data-cat="location" aria-pressed="false">Location</button>
+<button type="button" data-cat="legal" aria-pressed="false">Legal</button>
+<button type="button" data-cat="space" aria-pressed="false">Space</button>
+<button type="button" data-cat="media" aria-pressed="false">Media</button>
+<button type="button" data-cat="jobs" aria-pressed="false">Jobs</button>
+<button type="button" data-cat="travel" aria-pressed="false">Travel</button>
+<button type="button" data-cat="business" aria-pressed="false">Business</button>
+<button type="button" data-cat="messaging" aria-pressed="false">Messaging</button>
+<button type="button" data-cat="search" aria-pressed="false">Search</button>
+<button type="button" data-cat="crypto" aria-pressed="false">Crypto</button>
+<button type="button" data-cat="infrastructure" aria-pressed="false">Infrastructure</button>
+<button type="button" data-cat="news" aria-pressed="false">News</button>
+<button type="button" data-cat="logistics" aria-pressed="false">Logistics</button>
+<button type="button" data-cat="social" aria-pressed="false">Social</button>
+<button type="button" data-cat="marketing" aria-pressed="false">Marketing</button>
+<button type="button" data-cat="device" aria-pressed="false">Device</button>
+<button type="button" data-cat="music" aria-pressed="false">Music</button>
+<button type="button" data-cat="podcasts" aria-pressed="false">Podcasts</button>
+</div>
+<p id="cat-count" aria-live="polite">404 providers</p>
+<div class="cat-empty" id="cat-empty" hidden>
+<strong>No providers match <span id="cat-empty-q"></span></strong>
+<p>Check the spelling or browse by category.</p>
+<button type="button" class="m-btn" id="cat-clear">Clear search</button>
+</div>
+<div class="cat-grid" id="cat-grid">
+<article class="cat-card" data-name="polymarket" data-label="Crypto" data-cat="crypto" data-tools="11" data-min="0.0005">
+<div class="cat-top"><h3>polymarket</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Crypto</span>
+<div class="cat-foot"><span><b>11</b> tools</span><span class="cat-price">$0.0005 up to $0.001</span></div>
+</article>
+<article class="cat-card" data-name="aipush" data-label="Marketing" data-cat="marketing" data-tools="9" data-min="0">
+<div class="cat-top"><h3>aipush</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Marketing</span>
+<div class="cat-foot"><span><b>9</b> tools</span><span class="cat-price">$0.00 up to $29.99</span></div>
+</article>
+<article class="cat-card" data-name="coingecko" data-label="Crypto" data-cat="crypto" data-tools="9" data-min="0.001">
+<div class="cat-top"><h3>coingecko</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Crypto</span>
+<div class="cat-foot"><span><b>9</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="clinicaltrials" data-label="Health" data-cat="health" data-tools="7" data-min="0.001">
+<div class="cat-top"><h3>clinicaltrials</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>7</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="education" data-label="Education" data-cat="education" data-tools="7" data-min="0.002">
+<div class="cat-top"><h3>education</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>7</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="geo" data-label="Location" data-cat="location" data-tools="7" data-min="0.002">
+<div class="cat-top"><h3>geo</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>7</b> tools</span><span class="cat-price">$0.002 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="music" data-label="Entertainment" data-cat="entertainment" data-tools="7" data-min="0.002">
+<div class="cat-top"><h3>music</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>7</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="telnyx" data-label="Messaging" data-cat="messaging" data-tools="7" data-min="0.001">
+<div class="cat-top"><h3>telnyx</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Messaging</span>
+<div class="cat-foot"><span><b>7</b> tools</span><span class="cat-price">$0.001 up to $0.25</span></div>
+</article>
+<article class="cat-card" data-name="ticketmaster" data-label="Entertainment" data-cat="entertainment" data-tools="7" data-min="0.001">
+<div class="cat-top"><h3>ticketmaster</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>7</b> tools</span><span class="cat-price">$0.001 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="tmdb" data-label="Entertainment" data-cat="entertainment" data-tools="7" data-min="0.002">
+<div class="cat-top"><h3>tmdb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>7</b> tools</span><span class="cat-price">$0.002 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="aviasales" data-label="Travel" data-cat="travel" data-tools="6" data-min="0.001">
+<div class="cat-top"><h3>aviasales</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.001 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="bcb" data-label="Finance" data-cat="finance" data-tools="6" data-min="0.001">
+<div class="cat-top"><h3>bcb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="brasilapi" data-label="Finance" data-cat="finance" data-tools="6" data-min="0.001">
+<div class="cat-top"><h3>brasilapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="cloudflare" data-label="Infrastructure" data-cat="infrastructure" data-tools="6" data-min="0.001">
+<div class="cat-top"><h3>cloudflare</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Infrastructure</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.001 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="finance" data-label="Finance" data-cat="finance" data-tools="6" data-min="0.001">
+<div class="cat-top"><h3>finance</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.001 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="hyperliquid" data-label="Crypto" data-cat="crypto" data-tools="6" data-min="0.002">
+<div class="cat-top"><h3>hyperliquid</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Crypto</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.002 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="jobs" data-label="Jobs" data-cat="jobs" data-tools="6" data-min="0.003">
+<div class="cat-top"><h3>jobs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.003</span></div>
+</article>
+<article class="cat-card" data-name="pubchem" data-label="Health" data-cat="health" data-tools="6" data-min="0.001">
+<div class="cat-top"><h3>pubchem</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="usgs-hans-volcano" data-label="World" data-cat="world" data-tools="6" data-min="0.001">
+<div class="cat-top"><h3>usgs-hans-volcano</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>6</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="abs" data-label="Finance" data-cat="finance" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>abs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="africa" data-label="World" data-cat="world" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>africa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="banxico" data-label="Finance" data-cat="finance" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>banxico</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="bea" data-label="Finance" data-cat="finance" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>bea</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="climate" data-label="Weather" data-cat="weather" data-tools="5" data-min="0.003">
+<div class="cat-top"><h3>climate</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.003</span></div>
+</article>
+<article class="cat-card" data-name="edgar" data-label="Finance" data-cat="finance" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>edgar</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="epa-aqs" data-label="World" data-cat="world" data-tools="5" data-min="0.002">
+<div class="cat-top"><h3>epa-aqs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="eurostat2" data-label="World" data-cat="world" data-tools="5" data-min="0.002">
+<div class="cat-top"><h3>eurostat2</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="faostat" data-label="World" data-cat="world" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>faostat</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="hackernews" data-label="News" data-cat="news" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>hackernews</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">News</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="hf_inference" data-label="Developer" data-cat="developer" data-tools="5" data-min="0.002">
+<div class="cat-top"><h3>hf_inference</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="hnalgolia" data-label="News" data-cat="news" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>hnalgolia</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">News</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ibge" data-label="World" data-cat="world" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>ibge</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="igdb" data-label="Entertainment" data-cat="entertainment" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>igdb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="indec-georef" data-label="Location" data-cat="location" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>indec-georef</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="irail" data-label="Travel" data-cat="travel" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>irail</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="jma-bosai" data-label="Weather" data-cat="weather" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>jma-bosai</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="lmpr" data-label="World" data-cat="world" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>lmpr</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="malaysiagov" data-label="World" data-cat="world" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>malaysiagov</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="meteostat" data-label="Weather" data-cat="weather" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>meteostat</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="namesilo" data-label="Infrastructure" data-cat="infrastructure" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>namesilo</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Infrastructure</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $21.00</span></div>
+</article>
+<article class="cat-card" data-name="nasa" data-label="Space" data-cat="space" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>nasa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="oecd-stats" data-label="Finance" data-cat="finance" data-tools="5" data-min="0.002">
+<div class="cat-top"><h3>oecd-stats</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="ons-uk-stats" data-label="Finance" data-cat="finance" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>ons-uk-stats</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="rawg" data-label="Entertainment" data-cat="entertainment" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>rawg</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="spoonacular" data-label="Health" data-cat="health" data-tools="5" data-min="0.002">
+<div class="cat-top"><h3>spoonacular</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.002 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="statcan" data-label="World" data-cat="world" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>statcan</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="telegram" data-label="Messaging" data-cat="messaging" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>telegram</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Messaging</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="tvmaze" data-label="Entertainment" data-cat="entertainment" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>tvmaze</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="unsdg" data-label="World" data-cat="world" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>unsdg</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="wikipedia" data-label="Education" data-cat="education" data-tools="5" data-min="0.001">
+<div class="cat-top"><h3>wikipedia</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>5</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="adbkidb" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>adbkidb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="airnow" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>airnow</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="apisports" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>apisports</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="asterdex" data-label="Crypto" data-cat="crypto" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>asterdex</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Crypto</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="au-data-gov" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>au-data-gov</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="aviationweather" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>aviationweather</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="bank-of-england" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>bank-of-england</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="bankofcanada" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>bankofcanada</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="bgs-ogcapi" data-label="World" data-cat="world" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>bgs-ogcapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="bhl" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>bhl</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="bible" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>bible</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="biomodels" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>biomodels</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="bls-macro" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>bls-macro</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="brightsky" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>brightsky</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="browserbase" data-label="Infrastructure" data-cat="infrastructure" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>browserbase</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Infrastructure</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.01</span></div>
+</article>
+<article class="cat-card" data-name="brreg" data-label="Business" data-cat="business" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>brreg</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Business</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="bts-transport" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>bts-transport</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="canopy" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.012">
+<div class="cat-top"><h3>canopy</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.012</span></div>
+</article>
+<article class="cat-card" data-name="carbon-intensity-uk" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>carbon-intensity-uk</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="cbs" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>cbs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="cdc-chronic" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>cdc-chronic</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="celestrak" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>celestrak</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="census" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>census</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="cernopendata" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>cernopendata</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="chembl" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>chembl</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="cms" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>cms</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="col" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>col</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="comtrade" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>comtrade</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="coops" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>coops</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="cordis" data-label="Education" data-cat="education" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>cordis</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="cpsc" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>cpsc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="crossref" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>crossref</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="data-europa" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>data-europa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="datacite" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>datacite</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="datagovsg" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>datagovsg</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="dbnomics" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>dbnomics</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="delphi" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>delphi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="diffbot" data-label="Marketing" data-cat="marketing" data-tools="4" data-min="0.003">
+<div class="cat-top"><h3>diffbot</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Marketing</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.003 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="disease" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>disease</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="doaj" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>doaj</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="dpla" data-label="Media" data-cat="media" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>dpla</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="drought-monitor" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>drought-monitor</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ea-hydrology" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ea-hydrology</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ebi-metagenomics" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ebi-metagenomics</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ecb-rates" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ecb-rates</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="echo" data-label="World" data-cat="world" data-tools="4" data-min="0.003">
+<div class="cat-top"><h3>echo</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.003</span></div>
+</article>
+<article class="cat-card" data-name="eia" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>eia</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="eonet" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>eonet</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="eu_parliament" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>eu_parliament</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="eurlex" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>eurlex</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="europepmc" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>europepmc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="eurostat" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>eurostat</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="f1" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>f1</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="fbi" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>fbi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="fcc" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>fcc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="fdic" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>fdic</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="fec" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>fec</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="federalregister" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>federalregister</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="finnhub" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>finnhub</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="frankfurter" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>frankfurter</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="gbif" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>gbif</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="geonames" data-label="Location" data-cat="location" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>geonames</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="geonet-nz" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>geonet-nz</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="gfw" data-label="World" data-cat="world" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>gfw</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="gutendex" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>gutendex</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="hdx" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>hdx</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="hdx-hapi" data-label="World" data-cat="world" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>hdx-hapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="imf" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>imf</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="inaturalist" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>inaturalist</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ine" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ine</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ine-spain" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ine-spain</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="insee" data-label="Business" data-cat="business" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>insee</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Business</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ipqs" data-label="Developer" data-cat="developer" data-tools="4" data-min="0.003">
+<div class="cat-top"><h3>ipqs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.003</span></div>
+</article>
+<article class="cat-card" data-name="irena" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>irena</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="jpl" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>jpl</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="launch-library-2" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>launch-library-2</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="macrostrat" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>macrostrat</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="malaria-atlas" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>malaria-atlas</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="marine" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>marine</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="mbta-transit" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>mbta-transit</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="medlineplus" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>medlineplus</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="met-museum" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>met-museum</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="met-norway" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>met-norway</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="mfapi" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>mfapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="msc-geomet" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>msc-geomet</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="mychem" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>mychem</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="mygene" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>mygene</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="myvariant" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>myvariant</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="nasa-cmr" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nasa-cmr</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="nasaexoplanet" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nasaexoplanet</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="nasantrs" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nasantrs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nbi" data-label="Infrastructure" data-cat="infrastructure" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nbi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Infrastructure</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="nhtsa-safety" data-label="Developer" data-cat="developer" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nhtsa-safety</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nihreporter" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nihreporter</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nlm-icd11" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nlm-icd11</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="norgesbank" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>norgesbank</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="npm" data-label="Developer" data-cat="developer" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>npm</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nps" data-label="Travel" data-cat="travel" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nps</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nrc" data-label="World" data-cat="world" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>nrc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="nrel" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>nrel</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="obis" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>obis</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ofac" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ofac</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="open-canada" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>open-canada</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="openaire" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>openaire</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="opencontext" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>opencontext</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="opendota" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>opendota</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="openfda_devices" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>openfda_devices</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="openlibrary" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>openlibrary</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="openmeteoaq" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>openmeteoaq</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="opensensemap" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>opensensemap</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="opensky" data-label="Travel" data-cat="travel" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>opensky</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="openstates" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>openstates</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="opentdb" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>opentdb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="opentopodata" data-label="Location" data-cat="location" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>opentopodata</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="opentopography" data-label="World" data-cat="world" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>opentopography</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="orphadata" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>orphadata</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="overpass" data-label="Location" data-cat="location" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>overpass</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="pharmgkb" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>pharmgkb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="podcastindex" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>podcastindex</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="pokeapi" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>pokeapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="rateapi" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>rateapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="rcsb" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>rcsb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ror" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ror</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="rxnorm" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>rxnorm</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="sabre" data-label="Travel" data-cat="travel" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>sabre</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002 up to $0.01</span></div>
+</article>
+<article class="cat-card" data-name="samuni" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>samuni</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="sdwis" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>sdwis</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="serper" data-label="Search" data-cat="search" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>serper</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Search</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="smhi" data-label="Weather" data-cat="weather" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>smhi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ssbnorway" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ssbnorway</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="statbel" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>statbel</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="statfin" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>statfin</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="statistics-denmark" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>statistics-denmark</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="statistik-austria" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>statistik-austria</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="sunrisesunset" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>sunrisesunset</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="swissfso" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>swissfso</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="swissnbm" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>swissnbm</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="swpc" data-label="Space" data-cat="space" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>swpc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="tfl" data-label="Travel" data-cat="travel" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>tfl</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="thesportsdb" data-label="Entertainment" data-cat="entertainment" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>thesportsdb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="transport-rest" data-label="Travel" data-cat="travel" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>transport-rest</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="treasurydirect" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>treasurydirect</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="treasuryfiscal" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>treasuryfiscal</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="twitterapi" data-label="Social" data-cat="social" data-tools="4" data-min="0.002">
+<div class="cat-top"><h3>twitterapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Social</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="ukleg" data-label="Legal" data-cat="legal" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>ukleg</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="unhabitat" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>unhabitat</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="unhcr" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>unhcr</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="uniprot" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>uniprot</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="usdamars" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>usdamars</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="usgs-nwis" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>usgs-nwis</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="vam" data-label="Media" data-cat="media" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>vam</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="weatherapi" data-label="Developer" data-cat="developer" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>weatherapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="who-gho" data-label="Health" data-cat="health" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>who-gho</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="whoisxml" data-label="Developer" data-cat="developer" data-tools="4" data-min="0.003">
+<div class="cat-top"><h3>whoisxml</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.003 up to $0.008</span></div>
+</article>
+<article class="cat-card" data-name="wikimedia-analytics" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>wikimedia-analytics</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="wikimedia-commons" data-label="Media" data-cat="media" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>wikimedia-commons</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="wikimedia-rest" data-label="World" data-cat="world" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>wikimedia-rest</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="worms" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>worms</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="wto" data-label="Finance" data-cat="finance" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>wto</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="zenodo" data-label="Education" data-cat="education" data-tools="4" data-min="0.001">
+<div class="cat-top"><h3>zenodo</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>4</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="17track" data-label="Logistics" data-cat="logistics" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>17track</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Logistics</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.025</span></div>
+</article>
+<article class="cat-card" data-name="abr" data-label="Business" data-cat="business" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>abr</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Business</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="account" data-label="Developer" data-cat="developer" data-tools="3" data-min="0">
+<div class="cat-top"><h3>account</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">Free</span></div>
+</article>
+<article class="cat-card" data-name="adsbdb" data-label="Travel" data-cat="travel" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>adsbdb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="adzuna" data-label="Jobs" data-cat="jobs" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>adzuna</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="archiveorg" data-label="Media" data-cat="media" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>archiveorg</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="artic" data-label="Media" data-cat="media" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>artic</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="assemblyai" data-label="Media" data-cat="media" data-tools="3" data-min="0.003">
+<div class="cat-top"><h3>assemblyai</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.003 up to $0.01</span></div>
+</article>
+<article class="cat-card" data-name="avwx" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>avwx</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="awc" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>awc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="balldontlie" data-label="Entertainment" data-cat="entertainment" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>balldontlie</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="bis-stats" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>bis-stats</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="bluesky" data-label="Social" data-cat="social" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>bluesky</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Social</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="bundesbank-timeseries" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>bundesbank-timeseries</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="cactus" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>cactus</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="cfpb-complaints" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>cfpb-complaints</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="checkwx" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>checkwx</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="chesscom" data-label="Entertainment" data-cat="entertainment" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>chesscom</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="congress" data-label="Legal" data-cat="legal" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>congress</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="convertapi" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.005">
+<div class="cat-top"><h3>convertapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.005</span></div>
+</article>
+<article class="cat-card" data-name="copernicus-sentinel" data-label="Space" data-cat="space" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>copernicus-sentinel</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="courtlistener" data-label="Legal" data-cat="legal" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>courtlistener</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="crossref-datacitations" data-label="Education" data-cat="education" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>crossref-datacitations</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="currents" data-label="News" data-cat="news" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>currents</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">News</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="czso" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>czso</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="data-usa" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>data-usa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="denmark-energidataservice" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>denmark-energidataservice</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="depsdev" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>depsdev</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="device" data-label="Device" data-cat="device" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>device</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Device</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="dogceo" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>dogceo</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ecdc-surveillance" data-label="Health" data-cat="health" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>ecdc-surveillance</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="enviroatlas" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>enviroatlas</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="estat-japan-dashboard" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>estat-japan-dashboard</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="estonia-statistics" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>estonia-statistics</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="exa" data-label="Search" data-cat="search" data-tools="3" data-min="0.003">
+<div class="cat-top"><h3>exa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Search</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.003 up to $0.012</span></div>
+</article>
+<article class="cat-card" data-name="fbiwanted" data-label="Legal" data-cat="legal" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>fbiwanted</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="fda_openfda" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>fda_openfda</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="fedregister" data-label="Legal" data-cat="legal" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>fedregister</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="fema" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>fema</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="figi" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>figi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="figshare" data-label="Education" data-cat="education" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>figshare</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="freetogame" data-label="Entertainment" data-cat="entertainment" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>freetogame</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="gdacs" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>gdacs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="geoboundaries" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>geoboundaries</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="geodiva" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>geodiva</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="github-api" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>github-api</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="gleif" data-label="Business" data-cat="business" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>gleif</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Business</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="global-health-covid" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>global-health-covid</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="govuk" data-label="Legal" data-cat="legal" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>govuk</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="gus-poland" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>gus-poland</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="hathitrust-digital" data-label="Media" data-cat="media" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>hathitrust-digital</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="hf" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>hf</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="hungary-ksh" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>hungary-ksh</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="iceland-statistics" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>iceland-statistics</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="ilostat" data-label="Jobs" data-cat="jobs" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>ilostat</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ine-chile" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>ine-chile</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="irctc" data-label="Travel" data-cat="travel" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>irctc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Travel</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="istat" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>istat</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="itistaxonomy" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>itistaxonomy</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="langbly" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>langbly</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="latvia-statistics" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>latvia-statistics</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="lichess" data-label="Entertainment" data-cat="entertainment" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>lichess</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="listennotes" data-label="Podcasts" data-cat="podcasts" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>listennotes</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Podcasts</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="loc" data-label="Media" data-cat="media" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>loc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="materials-project" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>materials-project</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ncbi-eutils" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>ncbi-eutils</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="netherlands-pdok-kadaster" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>netherlands-pdok-kadaster</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="newsdata" data-label="News" data-cat="news" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>newsdata</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">News</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="noaa" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>noaa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="noaa-fisheries-stats" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>noaa-fisheries-stats</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="nominatim-osm" data-label="Location" data-cat="location" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>nominatim-osm</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="norway-kartverket-stedsnavn" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>norway-kartverket-stedsnavn</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="nvd" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>nvd</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="oecd-data" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>oecd-data</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="openalex" data-label="Education" data-cat="education" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>openalex</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="openbrewery" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>openbrewery</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="openchargemap" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>openchargemap</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="orcid" data-label="Education" data-cat="education" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>orcid</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="osv" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>osv</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="p2pquake" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>p2pquake</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="pexels" data-label="Media" data-cat="media" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>pexels</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="platform" data-label="Developer" data-cat="developer" data-tools="3" data-min="0">
+<div class="cat-top"><h3>platform</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">Free</span></div>
+</article>
+<article class="cat-card" data-name="postcode-japan" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>postcode-japan</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="postcodes-io" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>postcodes-io</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="scb" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>scb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="sec-edgar" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>sec-edgar</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="semanticscholar" data-label="Education" data-cat="education" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>semanticscholar</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="sepa-scotland" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>sepa-scotland</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="shipengine" data-label="Logistics" data-cat="logistics" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>shipengine</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Logistics</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="slovakia-statistics" data-label="Finance" data-cat="finance" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>slovakia-statistics</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="socrata" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>socrata</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="spending" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>spending</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="tatoeba" data-label="Education" data-cat="education" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>tatoeba</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="timeapi" data-label="Developer" data-cat="developer" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>timeapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="uk-ea-flood-monitoring" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.002">
+<div class="cat-top"><h3>uk-ea-flood-monitoring</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="uk-landregistry-pricepaid" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>uk-landregistry-pricepaid</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="ukfsa" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>ukfsa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ukpolice" data-label="Legal" data-cat="legal" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>ukpolice</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="unesco-data" data-label="Education" data-cat="education" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>unesco-data</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="usajobs" data-label="Jobs" data-cat="jobs" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>usajobs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="usgs-earthquake" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>usgs-earthquake</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="usno" data-label="Space" data-cat="space" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>usno</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="usrealestate" data-label="Location" data-cat="location" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>usrealestate</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="vatcomply" data-label="World" data-cat="world" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>vatcomply</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="wger" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>wger</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="who" data-label="Health" data-cat="health" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>who</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="wmo-weather" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>wmo-weather</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="world-bank-cckp" data-label="Weather" data-cat="weather" data-tools="3" data-min="0.001">
+<div class="cat-top"><h3>world-bank-cckp</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>3</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="audd" data-label="Music" data-cat="music" data-tools="2" data-min="0.003">
+<div class="cat-top"><h3>audd</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Music</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.003 up to $0.007</span></div>
+</article>
+<article class="cat-card" data-name="cdc" data-label="Health" data-cat="health" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>cdc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="censusmapper" data-label="World" data-cat="world" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>censusmapper</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="cocktaildb" data-label="Entertainment" data-cat="entertainment" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>cocktaildb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="companieshouse" data-label="Business" data-cat="business" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>companieshouse</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Business</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="cve-mitre" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>cve-mitre</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="dblp" data-label="Education" data-cat="education" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>dblp</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="dictionary" data-label="Education" data-cat="education" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>dictionary</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="duckduckgo" data-label="Search" data-cat="search" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>duckduckgo</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Search</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="emsc" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>emsc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ensembl" data-label="Health" data-cat="health" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>ensembl</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="epa" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>epa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="europeana" data-label="Media" data-cat="media" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>europeana</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="exchangerate" data-label="Finance" data-cat="finance" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>exchangerate</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="fatsecret" data-label="Health" data-cat="health" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>fatsecret</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="gebco" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>gebco</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="geocodio" data-label="Location" data-cat="location" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>geocodio</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="ibanapi" data-label="Finance" data-cat="finance" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>ibanapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="imgflip" data-label="Media" data-cat="media" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>imgflip</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="indec-argentina" data-label="Finance" data-cat="finance" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>indec-argentina</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ine-portugal" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>ine-portugal</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="ipapi" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>ipapi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="iqair" data-label="Weather" data-cat="weather" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>iqair</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="iss" data-label="Space" data-cat="space" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>iss</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="judge0" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>judge0</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="librivox" data-label="Education" data-cat="education" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>librivox</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="marketcheck" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.0104">
+<div class="cat-top"><h3>marketcheck</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.0104</span></div>
+</article>
+<article class="cat-card" data-name="mastodon" data-label="Social" data-cat="social" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>mastodon</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Social</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nagerdate" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>nagerdate</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ncei" data-label="Weather" data-cat="weather" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>ncei</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="nhtsa" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>nhtsa</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="noaa-tides" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>noaa-tides</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nsf-awards" data-label="Education" data-cat="education" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>nsf-awards</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="nws" data-label="Weather" data-cat="weather" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>nws</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="openbeautyfacts" data-label="Health" data-cat="health" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>openbeautyfacts</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="openfoodfacts" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>openfoodfacts</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="openweathermap" data-label="Weather" data-cat="weather" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>openweathermap</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="paleoclimate" data-label="Weather" data-cat="weather" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>paleoclimate</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="plos-search" data-label="Education" data-cat="education" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>plos-search</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="pypi" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>pypi</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="qrserver" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>qrserver</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="reed" data-label="Jobs" data-cat="jobs" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>reed</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="regulations" data-label="Legal" data-cat="legal" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>regulations</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Legal</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="resend" data-label="Messaging" data-cat="messaging" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>resend</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Messaging</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.003</span></div>
+</article>
+<article class="cat-card" data-name="restcountries" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>restcountries</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="rijksmuseum" data-label="Entertainment" data-cat="entertainment" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>rijksmuseum</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Entertainment</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="sam" data-label="Business" data-cat="business" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>sam</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Business</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="shortio" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>shortio</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="solar" data-label="Space" data-cat="space" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>solar</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="spider" data-label="Search" data-cat="search" data-tools="2" data-min="0.003">
+<div class="cat-top"><h3>spider</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Search</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.003 up to $0.005</span></div>
+</article>
+<article class="cat-card" data-name="standard-ebooks" data-label="Education" data-cat="education" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>standard-ebooks</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="tavily" data-label="Search" data-cat="search" data-tools="2" data-min="0.01">
+<div class="cat-top"><h3>tavily</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Search</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.01</span></div>
+</article>
+<article class="cat-card" data-name="theirstack" data-label="Jobs" data-cat="jobs" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>theirstack</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="twilio" data-label="Messaging" data-cat="messaging" data-tools="2" data-min="0.005">
+<div class="cat-top"><h3>twilio</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Messaging</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.005 up to $0.015</span></div>
+</article>
+<article class="cat-card" data-name="ukhsa-dashboard" data-label="Health" data-cat="health" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>ukhsa-dashboard</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Health</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="upcitemdb" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>upcitemdb</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="usgs-nationalmap" data-label="Location" data-cat="location" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>usgs-nationalmap</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001 up to $0.002</span></div>
+</article>
+<article class="cat-card" data-name="usgs-water" data-label="World" data-cat="world" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>usgs-water</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="whoisjson" data-label="Developer" data-cat="developer" data-tools="2" data-min="0.003">
+<div class="cat-top"><h3>whoisjson</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.003</span></div>
+</article>
+<article class="cat-card" data-name="wikidata" data-label="Education" data-cat="education" data-tools="2" data-min="0.001">
+<div class="cat-top"><h3>wikidata</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="wits-trade" data-label="Finance" data-cat="finance" data-tools="2" data-min="0.002">
+<div class="cat-top"><h3>wits-trade</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>2</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="apibase" data-label="Developer" data-cat="developer" data-tools="1" data-min="0">
+<div class="cat-top"><h3>apibase</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">Free</span></div>
+</article>
+<article class="cat-card" data-name="apiflash" data-label="Media" data-cat="media" data-tools="1" data-min="0.005">
+<div class="cat-top"><h3>apiflash</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.005</span></div>
+</article>
+<article class="cat-card" data-name="arbeitnow" data-label="Jobs" data-cat="jobs" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>arbeitnow</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="autodev" data-label="Developer" data-cat="developer" data-tools="1" data-min="0.003">
+<div class="cat-top"><h3>autodev</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.003</span></div>
+</article>
+<article class="cat-card" data-name="calendarific" data-label="World" data-cat="world" data-tools="1" data-min="0.002">
+<div class="cat-top"><h3>calendarific</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="chart" data-label="Developer" data-cat="developer" data-tools="1" data-min="0.002">
+<div class="cat-top"><h3>chart</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="currentuvindex" data-label="Weather" data-cat="weather" data-tools="1" data-min="0.002">
+<div class="cat-top"><h3>currentuvindex</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Weather</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="dhl" data-label="Logistics" data-cat="logistics" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>dhl</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Logistics</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="email_verify" data-label="Messaging" data-cat="messaging" data-tools="1" data-min="0.01">
+<div class="cat-top"><h3>email_verify</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Messaging</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.01</span></div>
+</article>
+<article class="cat-card" data-name="firms" data-label="Space" data-cat="space" data-tools="1" data-min="0.002">
+<div class="cat-top"><h3>firms</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Space</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="hunter" data-label="Business" data-cat="business" data-tools="1" data-min="0.005">
+<div class="cat-top"><h3>hunter</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Business</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.005</span></div>
+</article>
+<article class="cat-card" data-name="jooble" data-label="Jobs" data-cat="jobs" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>jooble</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="ocrspace" data-label="Media" data-cat="media" data-tools="1" data-min="0.002">
+<div class="cat-top"><h3>ocrspace</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="randomuser" data-label="World" data-cat="world" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>randomuser</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="razorpayifsc" data-label="Finance" data-cat="finance" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>razorpayifsc</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="remotive" data-label="Jobs" data-cat="jobs" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>remotive</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Jobs</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="soil" data-label="World" data-cat="world" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>soil</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="stability" data-label="Media" data-cat="media" data-tools="1" data-min="0.07">
+<div class="cat-top"><h3>stability</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Media</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.07</span></div>
+</article>
+<article class="cat-card" data-name="unpaywall" data-label="Education" data-cat="education" data-tools="1" data-min="0.002">
+<div class="cat-top"><h3>unpaywall</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Education</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.002</span></div>
+</article>
+<article class="cat-card" data-name="usgs-epqs" data-label="Location" data-cat="location" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>usgs-epqs</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="usgs-mrds" data-label="World" data-cat="world" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>usgs-mrds</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">World</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="walkscore" data-label="Location" data-cat="location" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>walkscore</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Location</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="worldbank" data-label="Finance" data-cat="finance" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>worldbank</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Finance</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
+<article class="cat-card" data-name="zerobounce" data-label="Messaging" data-cat="messaging" data-tools="1" data-min="0.025">
+<div class="cat-top"><h3>zerobounce</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Messaging</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.025</span></div>
+</article>
+<article class="cat-card" data-name="zippopotamus" data-label="Developer" data-cat="developer" data-tools="1" data-min="0.001">
+<div class="cat-top"><h3>zippopotamus</h3><span class="m-badge" data-status="ok">Live</span></div>
+<span class="cat-cat">Developer</span>
+<div class="cat-foot"><span><b>1</b> tools</span><span class="cat-price">$0.001</span></div>
+</article>
 </div>
 <p class="note">Machine-readable: <a href="/api/tools">/api/tools</a> (public, no auth, cached 1h) or the full paginated <a href="/api/v1/tools">/api/v1/tools</a> (filter by <code>?tier=</code> or <code>?max_price=</code>). Per-tool schemas and pricing: <a href="/pricing">/pricing</a>.</p>
 
 <h2>Shops</h2>
 <p>Merchants who sell through APIbase to AI agents: <a href="/shops">/shops</a> lists every active shop; each one has a public page, <code>agent.json</code> and <code>llms.txt</code> under <code>/m/&lt;slug&gt;</code>.</p>
-
-<div class="footer">
-<div class="footer-row">
-<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
-</div>
-<div class="footer-row">
-<span>1398 tools  |  404 providers  |  x402 USDC on Base + MPP USDC on Tempo</span>
-<span>BUILD: v1.0.0</span>
-</div>
+<div class="cat-shops">
+<a href="/shops"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9.5L5.5 4.5h13L20 9.5M4 9.5h16v10H4zM9.5 19.5v-5h5v5"></path></svg><strong>All shops</strong><span>Every active shop that sells to AI agents in USDC.</span></a>
+<a class="add" href="/integrator"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg><strong>Your store here</strong><span>Let AI agents order and pay in USDC.</span></a>
 </div>
 
+<p class="cat-foot-line">1398 tools &middot; 404 providers &middot; x402 USDC on Base + MPP USDC on Tempo</p>
 
 </div>
 </div>
@@ -554,5 +2227,29 @@ td:last-child, th:last-child{text-align:right}
 <div class="sf-agents"><span class="sf-h">For AI agents</span><a href="/index.md">/index.md</a><a href="/llms.txt">/llms.txt</a><a href="/ai.txt">/ai.txt</a><a href="https://apibase.pro/mcp">https://apibase.pro/mcp</a></div>
 <div class="sf-note"><span>&copy; 2026 APIbase</span><span>USDC via x402 on Base and MPP on Tempo</span></div>
 </div></footer>
+<script>(function(){
+var g=document.getElementById("cat-grid");if(!g)return;
+var cards=[].slice.call(g.children),q=document.getElementById("cat-q"),sort=document.getElementById("cat-sort"),
+chips=[].slice.call(document.querySelectorAll("#cat-chips button")),count=document.getElementById("cat-count"),
+empty=document.getElementById("cat-empty"),emptyQ=document.getElementById("cat-empty-q"),clear=document.getElementById("cat-clear"),
+cat="",total=cards.length;
+document.getElementById("cat-controls").hidden=false;
+function run(){
+var t=q.value.trim().toLowerCase(),shown=0,order=cards.slice();
+var s=sort.value;
+order.sort(function(a,b){
+if(s==="tools")return b.dataset.tools-a.dataset.tools||a.dataset.name.localeCompare(b.dataset.name);
+if(s==="price")return a.dataset.min-b.dataset.min||a.dataset.name.localeCompare(b.dataset.name);
+return a.dataset.name.localeCompare(b.dataset.name);});
+order.forEach(function(c){g.appendChild(c);
+var ok=(!cat||c.dataset.cat===cat)&&(!t||c.dataset.name.indexOf(t)>-1||c.dataset.label.toLowerCase().indexOf(t)>-1);
+c.hidden=!ok;if(ok)shown++;});
+count.textContent="Showing "+shown+" of "+total+" providers";
+empty.hidden=shown>0;emptyQ.textContent=t?'"'+q.value.trim()+'"':"this filter";}
+q.addEventListener("input",run);sort.addEventListener("change",run);
+chips.forEach(function(b){b.addEventListener("click",function(){cat=b.dataset.cat;
+chips.forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});run();});});
+clear.addEventListener("click",function(){q.value="";cat="";chips.forEach(function(x){x.setAttribute("aria-pressed",x.dataset.cat===""?"true":"false");});run();q.focus();});
+run();})();</script>
 </body>
 </html>
