@@ -104,3 +104,13 @@ td.k{color:#00ff41;background:#0a1a0a;width:40%}
 .cn pre{background:#0b0b0b;color:#f2f2f2;border-color:#222}
 .cn [hidden]{display:none!important}
 @media (max-width:767px){.cn-nav .lp-cta{flex:1}}
+.pgrid{grid-template-columns:1fr}
+@media (min-width:560px){.pgrid{grid-template-columns:repeat(2,1fr)}}
+@media (min-width:960px){.pgrid{grid-template-columns:repeat(3,1fr)}}
+.pimg{height:120px;border:1px dashed #1a3a1a;border-radius:4px;background:#0a1a0a}
+.buy summary.btn{list-style:none;cursor:pointer;margin:0}
+.buy summary.btn::-webkit-details-marker{display:none}
+.buy pre{margin:.5rem 0}
+.demo-banner{border:1px solid #00aa30;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0;background:#0a1a0a}
+.demo-banner p{color:#b0ffb0}
+#for-agents{margin-top:2rem}

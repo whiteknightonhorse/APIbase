@@ -30,6 +30,8 @@ const kv = (o: Record<string, unknown>): Array<[string, string]> =>
 
 const shopUrl = (slug: string) => `${PUBLIC_BASE}/m/${slug}`;
 const productUrl = (slug: string, sku: string) => `${shopUrl(slug)}/p/${encodeURIComponent(sku)}`;
+/** Only the demo store gets the human banner and the demo wording. */
+const isDemoShop = (s: PublicShop) => s.slug === 'apibase-demo';
 const domainNote = (s: PublicShop) => (s.domain_verified ? 'domain_verified' : 'unverified_domain');
 
 /** Human labels for known policy keys; an unknown key is shown raw, nothing is dropped. */
@@ -166,16 +168,26 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
       ? ` <span class="label">CONFIRM SLA:</span><strong>${esc(sla)}h</strong>`
       : '') +
     '</div>';
+  const demo = isDemoShop(s);
   const cards = products
     .map((p) => {
       const href = `/m/${slug}/p/${encodeURIComponent(p.sku)}`;
+      const ask = `Buy ${p.title} from apibase.pro/m/${s.slug}`;
       return (
-        `<div class="card"><a href="${href}">${esc(p.title)}</a>` +
+        `<div class="card pcard"><div class="pimg" aria-hidden="true"></div><a href="${href}">${esc(p.title)}</a>` +
         `<div class="row"><span class="price">$${esc(p.price_usd)}</span><span class="stock">[ ${esc(p.availability)} ]</span></div>` +
-        `<a class="btn" href="${href}">Buy with your AI agent</a></div>`
+        `<details class="buy"><summary class="btn">Buy with your AI agent</summary>` +
+        `<p>Tell your AI assistant:</p><pre>${esc(ask)}</pre>` +
+        `<button type="button" data-copy="${esc(ask)}" onclick="navigator.clipboard&amp;&amp;navigator.clipboard.writeText(this.dataset.copy);this.textContent='Copied'">Copy</button></details></div>`
       );
     })
     .join('');
+  const banner = demo
+    ? `<div class="demo-banner"><p>This is a demo store. Ask your AI agent to buy something here — or see how it works for your shop.</p>` +
+      `<a class="btn p" href="/integrator?utm_source=demo_store&amp;utm_medium=banner" onclick="window.apibaseTrack&amp;&amp;apibaseTrack('cta_connect_click',{position:'demo_banner'})">Get this for my store</a>` +
+      `<a class="btn" href="/integrator#how-it-works">How an agent orders</a></div>` +
+      `<script>window.apibaseTrack&&apibaseTrack('demo_store_view',{slug:${JSON.stringify(s.slug)}})</script>`
+    : '';
   const policyRows = kv(s.policy)
     .map(([k, v]) => {
       const m = POLICY_LABELS[k];
@@ -197,20 +209,31 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
         `<div><span class="k">connection check</span> <span class="dots">……</span> <a href="/integrator/check/${slug}">/integrator/check/${slug}</a></div></div>`
       : `<p class="muted">No reputation data yet. Shown as data, never invented.</p>` +
         `<div class="kv"><div><span class="k">connection check</span> <span class="dots">……</span> <a href="/integrator/check/${slug}">/integrator/check/${slug}</a></div></div>`);
+  const forAgents =
+    `<details id="for-agents"><summary>For AI agents</summary>` +
+    `<h2>Buy with your AI agent</h2><p>Point your agent's MCP client at this shop's storefront. It sees only this shop's tools, gets a fixed-price quote and pays in USDC straight to the merchant.</p>` +
+    codeBlock(mcpUrl(s.slug)) +
+    `<p class="muted">Machine-readable: <a href="/m/${slug}/agent.json">agent.json</a> · <a href="/m/${slug}/llms.txt">llms.txt</a> · Agents also find this shop with apibase.discover (kind: merchant).</p>` +
+    `<h2>Policy</h2><div class="table-wrap"><table>${policyRows}` +
+    `<tr><td class="k">Payment</td><td>USDC on Base (x402) or Tempo (MPP), to the merchant's wallet</td></tr></table></div>` +
+    reputation +
+    provekHtml(s) +
+    '</details>';
+  const operator = demo
+    ? '<p class="muted">Operated by the APIbase team (demo).</p>'
+    : s.provek
+      ? `<p class="muted">${esc(PROVEK_DISCLOSURE)}</p>`
+      : '';
   const body =
     monitor +
+    banner +
     `<h1>${esc(s.name)}</h1><p class="sub">${esc(s.category)} · <a href="${esc(s.site_url)}" rel="nofollow noopener">${esc(s.site_url)}</a></p>` +
     (s.domain_verified
       ? '<p class="ok">[ OK ] domain_verified</p>'
       : '<p class="warn"><strong>[ WARN ]</strong> unverified_domain — the merchant has not yet proven control of this site.</p>') +
-    `<h2>Buy with your AI agent</h2><p>Point your agent's MCP client at this shop's storefront. It sees only this shop's tools, gets a fixed-price quote and pays in USDC straight to the merchant.</p>` +
-    codeBlock(mcpUrl(s.slug)) +
-    `<p class="muted">Machine-readable: <a href="/m/${slug}/agent.json">agent.json</a> · <a href="/m/${slug}/llms.txt">llms.txt</a> · Agents also find this shop with apibase.discover (kind: merchant).</p>` +
-    `<h2>Products</h2><div class="grid">${cards}</div>` +
-    `<h2>Policy</h2><div class="table-wrap"><table>${policyRows}` +
-    `<tr><td class="k">Payment</td><td>USDC on Base (x402) or Tempo (MPP), to the merchant's wallet</td></tr></table></div>` +
-    reputation +
-    provekHtml(s);
+    `<h2>Products</h2><div class="grid pgrid">${cards}</div>` +
+    operator +
+    forAgents;
   const ld = [
     {
       '@context': 'https://schema.org',
