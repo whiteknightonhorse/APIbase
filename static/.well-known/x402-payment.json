@@ -20,8 +20,8 @@
   ],
   "payment_endpoint": "https://apibase.pro/api/v1/tools/{toolId}/call",
   "price_range": {
-    "min_usd": "0.001",
-    "max_usd": "0.035"
+    "min_usd": "0.0005",
+    "max_usd": "29.99"
   },
   "testnet": false,
   "dual_rail": {

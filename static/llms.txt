@@ -36,7 +36,7 @@ news, podcasts, search, social, space, travel, weather, world
 ## Payment
 - Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
 - Token: USDC on Base mainnet (x402) or Tempo (MPP)
-- Prices: $0.001–$29.99 per call (most tools $0.001–$0.005)
+- Prices: $0.0005–$29.99 per call (90% of tools <= $0.003)
 - Details: https://apibase.pro/.well-known/x402-payment.json
 - IMPORTANT: use ONE protocol per request, not both
 - If using mppx SDK: set polyfill: false to avoid intercepting x402 requests

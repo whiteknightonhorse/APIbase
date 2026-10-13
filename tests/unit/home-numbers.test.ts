@@ -47,9 +47,11 @@ describe('H2 numbers only from sync-counts tokens', () => {
     // The counts-sync cron rewrites the tool count, so read it from the pages instead of hardcoding.
     const count = /(\d+) tools/.exec(read('static/index.html'))![1];
     const aiCount = /Tools: (\d+) across/.exec(read('static/ai.txt'))![1];
+    const pr = JSON.parse(read('static/.well-known/mcp.json')).price_range_usd;
+    const [pmin, pmax] = [String(pr.min), String(pr.max)];
     const cases: Array<[string, string, string, string]> = [
       ['static/index.html', `${count} tools`, '1500 tools', 'baseline'],
-      ['static/index.html', '$0.001–$0.035', '$0.001–$1.00', 'baseline'],
+      ['static/index.html', `$${pmin} to $${pmax}`, '$0.001 to $1.00', 'baseline'],
       [
         'static/ai.txt',
         `Tools: ${aiCount} across`,
@@ -92,7 +94,8 @@ describe('H4 sync-counts consistency', () => {
     expect(read('scripts/sync-counts-cron.sh')).toMatch(/static\/llms\.txt static\/ai\.txt /);
     const ai = read('static/ai.txt');
     expect(ai).not.toMatch(/Last updated/);
-    expect(ai).not.toMatch(/29\.99/);
+    const text = JSON.parse(read('static/.well-known/mcp.json')).price_range_usd.text;
+    expect(ai).toContain(`Prices: ${text}`);
   });
   it('mutation: a stale price range makes home-facts check fail', () => {
     const dir = mkdtempSync(join(tmpdir(), 'homechk-'));
@@ -106,7 +109,10 @@ describe('H4 sync-counts consistency', () => {
       execFileSync('mkdir', ['-p', join(dst, '..')]);
       copyFileSync(join(ROOT, f), dst);
     }
-    writeFileSync(join(dir, 'static/ai.txt'), read('static/ai.txt').replace('$0.035', '$29.99'));
+    writeFileSync(
+      join(dir, 'static/ai.txt'),
+      read('static/ai.txt').replace(/Prices: \$[0-9.]+–\$[0-9.]+/, 'Prices: $0.001–$1.00'),
+    );
     const r = spawnSync('python3', [join(ROOT, 'scripts/home-facts.py'), 'check'], {
       cwd: dir,
       encoding: 'utf8',

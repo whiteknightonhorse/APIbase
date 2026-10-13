@@ -38,7 +38,7 @@ API key format: ak_live_<32 hex> in Authorization: Bearer header.
 ## Payments
 Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
 Token: USDC on Base mainnet (x402) or USDC.e on Tempo (MPP)
-Prices: $0.001–$0.035 per call
+Prices: $0.0005–$29.99 per call (90% of tools <= $0.003)
 Details: https://apibase.pro/.well-known/x402-payment.json
 
 ## Agent Integration Guide

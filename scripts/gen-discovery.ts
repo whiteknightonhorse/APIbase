@@ -30,6 +30,7 @@ import { resolve } from 'path';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 import { toolSchemas } from '../src/schemas/index';
 import { shopToolDefinitions } from '../src/shop/tool-definitions';
+import { buildPriceRange, type PriceRange } from './price-range';
 import { computeMcpCounts } from './count-mcp-tools';
 import { buildIntegratorBlock as buildIntegratorFacts } from '../src/shop/integrator/facts';
 
@@ -46,8 +47,8 @@ const ROOT = resolve(__dirname, '..');
 // instead of writing one — closes the whole class at once instead of adding a fifth regex.
 const CHECK_MODE = process.argv.includes('--check');
 const driftPaths: string[] = [];
-/** Single source of the public per-call price range; mcp.json carries it, home-facts.py renders it. */
-const PRICE_RANGE_USD = { min: 0.001, max: 0.035 };
+/** Single source of the public per-call price range (T-0341); mcp.json carries it, home-facts.py renders it. */
+let PRICE_RANGE_USD: PriceRange;
 
 function reportDrift(path: string, candidateStr: string, existingRaw: string | null): void {
   driftPaths.push(path);
@@ -276,8 +277,20 @@ function sha256File(path: string): string {
 // Main
 // ---------------------------------------------------------------------------
 
+/** Snapshot text with a price column: the frozen SYNC_COUNTS_SNAPSHOT, else the live DB. */
+async function loadSnapshotText(): Promise<string> {
+  const snapshotPath = process.env.SYNC_COUNTS_SNAPSHOT;
+  if (snapshotPath) return readFileSync(snapshotPath, 'utf8');
+  const rows = await prisma.tool.findMany({
+    where: { status: { not: 'unavailable' } },
+    select: { tool_id: true, provider: true, price_usd: true },
+  });
+  return rows.map((r) => `${r.tool_id}\t${r.provider}\t${Number(r.price_usd)}`).join('\n');
+}
+
 async function main(): Promise<void> {
   const providerOf = await loadActiveProviderMap();
+  PRICE_RANGE_USD = buildPriceRange(await loadSnapshotText());
   const activeDefs = TOOL_DEFINITIONS.filter((d) => providerOf.has(d.toolId));
 
   const orphaned = TOOL_DEFINITIONS.length - activeDefs.length;

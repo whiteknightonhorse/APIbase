@@ -51,7 +51,7 @@ append-only; duplicate keys return the original response with `Idempotency-Repla
 
 ## Prices
 
-Per-call cost ranges from **$0.001 to $0.035** depending on upstream cost.
+Per-call cost ranges from **$0.0005 to $29.99** depending on upstream cost.
 Exact price per tool: `x-payment-info` in the OpenAPI spec
 (<https://apibase.pro/.well-known/openapi.json>).
 

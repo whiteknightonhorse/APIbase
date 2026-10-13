@@ -202,6 +202,7 @@ FILES=(
   static/.well-known/agent-skills/index.json static/.well-known/agent-skills/discover-tools.md
   static/.well-known/openapi.json static/.well-known/openapi-discovery.json
   scripts/discovery-snapshot.tsv
+  static/.well-known/x402-payment.json static/.well-known/agent-skills/x402-payment.md
 )
 
 # T-0173 (ruling-2, attempt-2): FILES above is hand-maintained prose ("kept in sync with its own

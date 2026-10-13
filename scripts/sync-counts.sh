@@ -135,7 +135,7 @@ else
   SNAPSHOT="$(mktemp /tmp/sync-counts-snapshot.XXXXXX)"
   trap 'rm -f "$SNAPSHOT"' EXIT
   docker exec apibase-postgres-1 psql -U apibase -d apibase -tAc \
-    "select tool_id||E'\t'||provider from tools where status != 'unavailable' order by tool_id" > "$SNAPSHOT"
+    "select tool_id||E'\t'||provider||E'\t'||price_usd::float8 from tools where status != 'unavailable' order by tool_id" > "$SNAPSHOT"
   TOOLS=$(wc -l < "$SNAPSHOT" | tr -d ' ')
   PROV=$(cut -f2 "$SNAPSHOT" | sort -u | wc -l | tr -d ' ')
   [ -n "$TOOLS" ] && [ "$TOOLS" != "0" ] && [ -n "$PROV" ] && [ "$PROV" != "0" ] \
@@ -580,6 +580,10 @@ PY
 STALE_INTEGRATOR=$(python3 scripts/integrator-facts.py check 2>&1 || true)
 # T-INT-27: homepage / ai.txt / index.md numbers vs the same baseline, both modes.
 STALE_HOME=$(python3 scripts/home-facts.py check 2>&1 || true)
+# T-0341: one price range and one header bar, both generated from the committed snapshot via
+# mcp.json (scripts/price-range.ts -> gen-discovery.ts -> home-facts.py), both modes.
+STALE_PRICE_RANGE=$(python3 scripts/home-facts.py check-range 2>&1 || true)
+STALE_HEADER_BAR=$(python3 scripts/home-facts.py check-bar 2>&1 || true)
 
 # T-0332: one tool-count formula (scripts/count-mcp-tools.ts). Prints all five numbers on every
 # run; exits 1 naming the surface (mcp.json / openapi.json / snapshot) that disagrees with it.
@@ -591,6 +595,8 @@ STALE_MCP_COUNT=$(echo "$STALE_MCP_COUNT" | grep 'STALE_MCP_COUNT' || true)
 
 FAIL=0
 [ -n "$STALE_MCP_COUNT" ] && { echo "sync-counts: STALE_MCP_COUNT:"; echo "$STALE_MCP_COUNT"; FAIL=1; }
+[ -n "$STALE_PRICE_RANGE" ] && { echo "sync-counts: STALE_PRICE_RANGE — a static/ price range differs from the generated one:"; echo "$STALE_PRICE_RANGE"; FAIL=1; }
+[ -n "$STALE_HEADER_BAR" ] && { echo "sync-counts: STALE_HEADER_BAR — a header bar differs from the generated one:"; echo "$STALE_HEADER_BAR"; FAIL=1; }
 [ -n "$STALE_HOME" ] && { echo "sync-counts: STALE homepage facts:"; echo "$STALE_HOME"; FAIL=1; }
 [ -n "$STALE_INTEGRATOR" ] && { echo "sync-counts: STALE integrator facts:"; echo "$STALE_INTEGRATOR"; FAIL=1; }
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }

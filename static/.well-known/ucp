@@ -38,12 +38,14 @@
       ],
       "token": "USDC",
       "price_range_usd": {
-        "min": 0.001,
-        "max": 0.035
+        "min": 0.0005,
+        "max": 29.99,
+        "p90": 0.003,
+        "text": "$0.0005–$29.99 per call (90% of tools <= $0.003)"
       },
       "wallet": "0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480"
     },
     "documentation": "https://apibase.pro/ai.txt",
-    "updated_at": "2026-10-12"
+    "updated_at": "2026-10-13"
   }
 }

@@ -1,1407 +1,1407 @@
-abr.abn_lookup	abr
-abr.acn_lookup	abr
-abr.name_search	abr
-abs.cpi	abs
-abs.gdp	abs
-abs.labour_force	abs
-abs.population	abs
-abs.trade	abs
-account.timeseries	account
-account.tools	account
-account.usage	account
-adbkidb.data	adbkidb
-adbkidb.dataflows_list	adbkidb
-adbkidb.economies	adbkidb
-adbkidb.indicators	adbkidb
-adsbdb.aircraft_lookup	adsbdb
-adsbdb.airline_lookup	adsbdb
-adsbdb.callsign_lookup	adsbdb
-adzuna.categories	adzuna
-adzuna.salary	adzuna
-adzuna.search	adzuna
-africa.countries.list	africa
-africa.countries.signals	africa
-africa.data.indicator	africa
-africa.markets.fx_rates	africa
-africa.politics.elections	africa
-aipush.check_visibility	aipush
-aipush.generate_page	aipush
-aipush.list_pages	aipush
-aipush.market_report	aipush
-aipush.market_report_status	aipush
-aipush.page_content	aipush
-aipush.setup_website	aipush
-aipush.website_profile	aipush
-aipush.website_status	aipush
-airnow.current_latlng	airnow
-airnow.current_zip	airnow
-airnow.forecast_latlng	airnow
-airnow.forecast_zip	airnow
-airquality.city	iqair
-airquality.nearest	iqair
-apibase.discover	apibase
-arbeitnow.jobs	arbeitnow
-archiveorg.metadata	archiveorg
-archiveorg.search	archiveorg
-archiveorg.wayback_check	archiveorg
-artic.artist	artic
-artic.artwork	artic
-artic.search	artic
-aster.exchange_info	asterdex
-aster.klines	asterdex
-aster.market_data	asterdex
-aster.order_book	asterdex
-au-data-gov.dataset_detail	au-data-gov
-au-data-gov.dataset_search	au-data-gov
-au-data-gov.organization_search	au-data-gov
-au-data-gov.subject_list	au-data-gov
-audd.lyrics	audd
-audd.recognize	audd
-autodev.vin_decode	autodev
-aviasales.airport_lookup	aviasales
-aviasales.cheap_flights	aviasales
-aviasales.nearby_destinations	aviasales
-aviasales.popular_routes	aviasales
-aviasales.price_calendar	aviasales
-aviasales.search_flights	aviasales
-aviationweather.metar	aviationweather
-aviationweather.pirep	aviationweather
-aviationweather.stations	aviationweather
-aviationweather.taf	aviationweather
-avwx.notams	avwx
-avwx.pireps	avwx
-avwx.station_summary	avwx
-awc.metar	awc
-awc.sigmet	awc
-awc.taf	awc
-bank-of-england.bank_rate	bank-of-england
-bank-of-england.money_supply_m4	bank-of-england
-bank-of-england.mortgage_rate_2y_fixed	bank-of-england
-bank-of-england.sonia_rate	bank-of-england
-bankofcanada.fx_rates	bankofcanada
-bankofcanada.inflation	bankofcanada
-bankofcanada.policy_rate	bankofcanada
-bankofcanada.series	bankofcanada
-banxico.fx.fix_rate	banxico
-banxico.fx.rates	banxico
-banxico.inflation.cpi	banxico
-banxico.rates.target	banxico
-banxico.rates.tiie	banxico
-bcb.cdi	bcb
-bcb.eur_brl	bcb
-bcb.ipca	bcb
-bcb.selic	bcb
-bcb.selic_target	bcb
-bcb.usd_brl	bcb
-bdl.games	balldontlie
-bdl.players	balldontlie
-bdl.teams	balldontlie
-bea.gdp	bea
-bea.industry_gdp	bea
-bea.personal_income	bea
-bea.state_gdp	bea
-bea.trade_balance	bea
-bgs-ogcapi.borehole_search	bgs-ogcapi
-bgs-ogcapi.earthquake_search	bgs-ogcapi
-bgs-ogcapi.geology_bedrock	bgs-ogcapi
-bgs-ogcapi.landslide_search	bgs-ogcapi
-bhl.literature.by_subject	bhl
-bhl.literature.fulltext	bhl
-bhl.literature.search	bhl
-bhl.taxonomy.name_search	bhl
-bible.books	bible
-bible.commentaries	bible
-bible.passage	bible
-bible.translations	bible
-biomodels.model.detail	biomodels
-biomodels.model.files	biomodels
-biomodels.model.latest	biomodels
-biomodels.model.search	biomodels
-bis-stats.exchange_rates	bis-stats
-bis-stats.policy_rates	bis-stats
-bis-stats.property_prices	bis-stats
-bls-macro.cpi	bls-macro
-bls-macro.payrolls	bls-macro
-bls-macro.series	bls-macro
-bls-macro.unemployment	bls-macro
-bluesky.feed	bluesky
-bluesky.profile	bluesky
-bluesky.search_posts	bluesky
-books.author	openlibrary
-books.isbn_lookup	openlibrary
-books.search	openlibrary
-books.work_details	openlibrary
-brasilapi.banks	brasilapi
-brasilapi.cep	brasilapi
-brasilapi.cnpj	brasilapi
-brasilapi.ddd	brasilapi
-brasilapi.holidays	brasilapi
-brasilapi.rates	brasilapi
-brightsky.alerts	brightsky
-brightsky.current	brightsky
-brightsky.observations	brightsky
-brightsky.stations	brightsky
-browser.create_session	browserbase
-browser.list_sessions	browserbase
-browser.session_content	browserbase
-browser.session_status	browserbase
-brreg.entity	brreg
-brreg.roles	brreg
-brreg.search	brreg
-brreg.sub_units	brreg
-bts.aviation_traffic	bts-transport
-bts.border_crossings	bts-transport
-bts.freight_indicators	bts-transport
-bts.tsi	bts-transport
-bundesbank-timeseries.data	bundesbank-timeseries
-bundesbank-timeseries.dataflows	bundesbank-timeseries
-bundesbank-timeseries.structure	bundesbank-timeseries
-calendarific.holidays	calendarific
-canopy.deals	canopy
-canopy.offers	canopy
-canopy.product	canopy
-canopy.search	canopy
-carbonintensity.current	carbon-intensity-uk
-carbonintensity.forecast	carbon-intensity-uk
-carbonintensity.generation	carbon-intensity-uk
-carbonintensity.regional	carbon-intensity-uk
-carmarket.listing	marketcheck
-carmarket.search	marketcheck
-cbs.catalog_search	cbs
-cbs.table_data	cbs
-cbs.table_info	cbs
-cbs.table_properties	cbs
-cdc.datasets	cdc
-cdc.query	cdc
-cdc_chronic.indicators	cdc-chronic
-cdc_chronic.state_compare	cdc-chronic
-cdc_chronic.topics	cdc-chronic
-cdc_chronic.trend	cdc-chronic
-celestrak.group	celestrak
-celestrak.intdes	celestrak
-celestrak.search	celestrak
-celestrak.tle	celestrak
-census.demographics	census
-census.economic	census
-census.housing	census
-census.population	census
-censusmapper.data	censusmapper
-censusmapper.list_datasets	censusmapper
-cernopendata.datasets	cernopendata
-cernopendata.detail	cernopendata
-cernopendata.glossary	cernopendata
-cernopendata.search	cernopendata
-cfpb-complaints.geo_states	cfpb-complaints
-cfpb-complaints.search	cfpb-complaints
-cfpb-complaints.trends	cfpb-complaints
-chart.create	chart
-checkwx.metar_decoded	checkwx
-checkwx.station_info	checkwx
-checkwx.taf_decoded	checkwx
-chem.formula	cactus
-chem.names	cactus
-chem.resolve	cactus
-chembl.bioactivity	chembl
-chembl.molecule_detail	chembl
-chembl.molecule_search	chembl
-chembl.target_search	chembl
-chesscom.player_profile	chesscom
-chesscom.player_stats	chesscom
-chesscom.titled_players	chesscom
-climate.arctic_ice	climate
-climate.co2	climate
-climate.methane	climate
-climate.nitrous_oxide	climate
-climate.temperature	climate
-clinical.search	clinicaltrials
-clinical.stats	clinicaltrials
-clinical.study	clinicaltrials
-clinicaltrials.recruiting	clinicaltrials
-clinicaltrials.search	clinicaltrials
-clinicaltrials.stats	clinicaltrials
-clinicaltrials.study	clinicaltrials
-cloudflare.dns_create	cloudflare
-cloudflare.dns_delete	cloudflare
-cloudflare.dns_list	cloudflare
-cloudflare.purge_cache	cloudflare
-cloudflare.zone_analytics	cloudflare
-cloudflare.zones_list	cloudflare
-cms.dialysis_search	cms
-cms.home_health_search	cms
-cms.hospital_search	cms
-cms.nursing_home_search	cms
-cocktail.random	cocktaildb
-cocktail.search	cocktaildb
-code.execute	judge0
-code.languages	judge0
-coingecko.get_market	coingecko
-col.children	col
-col.detail	col
-col.search	col
-col.suggest	col
-comtrade.availability	comtrade
-comtrade.metadata	comtrade
-comtrade.reporters	comtrade
-comtrade.trade_data	comtrade
-congress.bill_details	congress
-congress.bills	congress
-congress.members	congress
-convert.from_pdf	convertapi
-convert.to_pdf	convertapi
-convert.web_to_pdf	convertapi
-coops.conditions	coops
-coops.predictions	coops
-coops.stations	coops
-coops.water_level	coops
-copernicus-sentinel.list_collections	copernicus-sentinel
-copernicus-sentinel.scene_detail	copernicus-sentinel
-copernicus-sentinel.search_scenes	copernicus-sentinel
-cordis.organisation_search	cordis
-cordis.project_details	cordis
-cordis.project_publications	cordis
-cordis.project_search	cordis
-country.by_code	restcountries
-country.search	restcountries
-courtlistener.dockets	courtlistener
-courtlistener.opinion	courtlistener
-courtlistener.search	courtlistener
-cpsc.by_manufacturer	cpsc
-cpsc.detail	cpsc
-cpsc.recent	cpsc
-cpsc.search	cpsc
-crossref-datacitations.article_datasets	crossref-datacitations
-crossref-datacitations.dataset_citations	crossref-datacitations
-crossref-datacitations.recent_citations	crossref-datacitations
-crossref.funder_search	crossref
-crossref.journal_lookup	crossref
-crossref.member_search	crossref
-crossref.works_search	crossref
-crypto.coin_detail	coingecko
-crypto.dex_pools	coingecko
-crypto.get_price	coingecko
-crypto.global	coingecko
-crypto.price_history	coingecko
-crypto.search	coingecko
-crypto.token_by_address	coingecko
-crypto.trending	coingecko
-currents.categories	currents
-currents.latest	currents
-currents.search	currents
-currentuvindex.uv_index	currentuvindex
-cve-mitre.id_status	cve-mitre
-cve-mitre.record	cve-mitre
-czso.dataset_data	czso
-czso.dataset_list	czso
-czso.dataset_metadata	czso
-data-europa.catalogue_list	data-europa
-data-europa.dataset_detail	data-europa
-data-europa.dataset_search	data-europa
-data-europa.theme_list	data-europa
-data-usa.cubes	data-usa
-data-usa.members	data-usa
-data-usa.query	data-usa
-datacite.client.search	datacite
-datacite.doi.lookup	datacite
-datacite.doi.search	datacite
-datacite.works.stats	datacite
-dblp.author	dblp
-dblp.search	dblp
-dbnomics.datasets	dbnomics
-dbnomics.fetch_series	dbnomics
-dbnomics.providers	dbnomics
-dbnomics.series	dbnomics
-delphi.covid_hosp	delphi
-delphi.covidcast	delphi
-delphi.flusurv	delphi
-delphi.fluview	delphi
-denmark-energidataservice.co2_emissions	denmark-energidataservice
-denmark-energidataservice.production_consumption	denmark-energidataservice
-denmark-energidataservice.spot_prices	denmark-energidataservice
-depsdev.advisories	depsdev
-depsdev.dependencies	depsdev
-depsdev.package	depsdev
-device.command	device
-device.list	device
-device.state	device
-dhl.track	dhl
-dictionary.define	dictionary
-dictionary.words	dictionary
-diffbot.article_extract	diffbot
-diffbot.page_analyze	diffbot
-diffbot.product_extract	diffbot
-diffbot.search	diffbot
-disease.covid_country	disease
-disease.covid_global	disease
-disease.covid_history	disease
-disease.influenza	disease
-doaj.article_detail	doaj
-doaj.article_search	doaj
-doaj.journal_detail	doaj
-doaj.journal_search	doaj
-dogceo.breeds_list	dogceo
-dogceo.random_image	dogceo
-dogceo.sub_breeds	dogceo
-dpla.items.by_subject	dpla
-dpla.items.detail	dpla
-dpla.items.facets	dpla
-dpla.items.search	dpla
-drought.county_stats	drought-monitor
-drought.dsci	drought-monitor
-drought.national_stats	drought-monitor
-drought.weeks_in_drought	drought-monitor
-duckduckgo.instant_answer	duckduckgo
-duckduckgo.related_topics	duckduckgo
-ea-hydrology.readings_latest	ea-hydrology
-ea-hydrology.readings_range	ea-hydrology
-ea-hydrology.station_measures	ea-hydrology
-ea-hydrology.station_search	ea-hydrology
-earthquake.count	usgs-earthquake
-earthquake.feed	usgs-earthquake
-earthquake.search	usgs-earthquake
-ebi-metagenomics.biome_browse	ebi-metagenomics
-ebi-metagenomics.sample_list	ebi-metagenomics
-ebi-metagenomics.study_detail	ebi-metagenomics
-ebi-metagenomics.study_search	ebi-metagenomics
-ecb-rates.hicp_inflation	ecb-rates
-ecb-rates.key_rates	ecb-rates
-ecb-rates.money_supply	ecb-rates
-ecb-rates.yield_curve	ecb-rates
-ecdc-surveillance.cases_deaths	ecdc-surveillance
-ecdc-surveillance.hospital_icu	ecdc-surveillance
-ecdc-surveillance.testing_rate	ecdc-surveillance
-echo.air_facilities	echo
-echo.facility_detail	echo
-echo.facility_search	echo
-echo.violations	echo
-edgar.company_facts	edgar
-edgar.company_search	edgar
-edgar.filings	edgar
-edgar.xbrl_concept	edgar
-edgar.xbrl_frames	edgar
-education.arxiv_search	education
-education.college_details	education
-education.college_search	education
-education.doi_lookup	education
-education.paper_details	education
-education.paper_search	education
-education.pubmed_search	education
-eia.electricity_retail	eia
-eia.natural_gas	eia
-eia.petroleum_spot	eia
-eia.series	eia
-email.validate	zerobounce
-email_verify.check	email_verify
-emsc.event_detail	emsc
-emsc.search_earthquakes	emsc
-ensembl.gene_lookup	ensembl
-ensembl.sequence_region	ensembl
-enviroatlas.block_group_metrics	enviroatlas
-enviroatlas.communities	enviroatlas
-enviroatlas.community_summary	enviroatlas
-eonet.categories	eonet
-eonet.event_detail	eonet
-eonet.events	eonet
-eonet.layers	eonet
-epa-aqs.annual_data	epa-aqs
-epa-aqs.daily_data	epa-aqs
-epa-aqs.list_counties	epa-aqs
-epa-aqs.list_parameters	epa-aqs
-epa-aqs.monitors	epa-aqs
-epa.toxic_releases	epa
-epa.water_systems	epa
-estat-japan-dashboard.get_data	estat-japan-dashboard
-estat-japan-dashboard.indicator_info	estat-japan-dashboard
-estat-japan-dashboard.region_info	estat-japan-dashboard
-estonia-statistics.catalog	estonia-statistics
-estonia-statistics.table_metadata	estonia-statistics
-estonia-statistics.table_query	estonia-statistics
-eu_parliament.legislation.adopted_texts	eu_parliament
-eu_parliament.legislation.procedures	eu_parliament
-eu_parliament.meps.details	eu_parliament
-eu_parliament.meps.list	eu_parliament
-eurlex.legislation.by_type	eurlex
-eurlex.legislation.detail	eurlex
-eurlex.legislation.recent	eurlex
-eurlex.legislation.search	eurlex
-europeana.record	europeana
-europeana.search	europeana
-europepmc.article	europepmc
-europepmc.citations	europepmc
-europepmc.references	europepmc
-europepmc.search	europepmc
-eurostat.gdp_growth	eurostat
-eurostat.inflation	eurostat
-eurostat.population	eurostat
-eurostat.unemployment	eurostat
-eurostat2.fertility	eurostat2
-eurostat2.ghg_emissions	eurostat2
-eurostat2.rd_spending	eurostat2
-eurostat2.renewable_energy	eurostat2
-eurostat2.youth_employment	eurostat2
-evcharge.details	openchargemap
-evcharge.nearby	openchargemap
-evcharge.search	openchargemap
-exa.contents	exa
-exa.find_similar	exa
-exa.search	exa
-exchangerate.convert	exchangerate
-exchangerate.latest	exchangerate
-f1.races.results	f1
-f1.races.schedule	f1
-f1.standings.constructors	f1
-f1.standings.drivers	f1
-faostat.food_insecurity	faostat
-faostat.food_loss	faostat
-faostat.food_security	faostat
-faostat.forest_area	faostat
-faostat.water_stress	faostat
-fatsecret.food_details	fatsecret
-fatsecret.food_search	fatsecret
-fbi.national_annual	fbi
-fbi.national_offenses	fbi
-fbi.state_annual	fbi
-fbi.state_offenses	fbi
-fbiwanted.by_category	fbiwanted
-fbiwanted.recent	fbiwanted
-fbiwanted.search	fbiwanted
-fcc.geo.block_fips	fcc
-fcc.regulatory.filings	fcc
-fcc.regulatory.proceeding_detail	fcc
-fcc.regulatory.proceedings	fcc
-fda_openfda.drug_recalls	fda_openfda
-fda_openfda.food_adverse_events	fda_openfda
-fda_openfda.ndc_directory	fda_openfda
-fdic.details	fdic
-fdic.failures	fdic
-fdic.financials	fdic
-fdic.search	fdic
-fec.candidates	fec
-fec.committee_totals	fec
-fec.elections	fec
-fec.super_pac_spending	fec
-federalregister.agencies	federalregister
-federalregister.document	federalregister
-federalregister.public_inspection	federalregister
-federalregister.search	federalregister
-fedregister.document	fedregister
-fedregister.recent	fedregister
-fedregister.search	fedregister
-fema.assistance	fema
-fema.disasters	fema
-fema.flood_claims	fema
-figi.filter	figi
-figi.map	figi
-figi.search	figi
-figshare.article_details	figshare
-figshare.categories	figshare
-figshare.search	figshare
-finance.country_data	finance
-finance.ecb_rates	finance
-finance.economic_indicator	finance
-finance.exchange_rates	finance
-finance.treasury_data	finance
-finance.validate_iban	finance
-finnhub.company_news	finnhub
-finnhub.company_profile	finnhub
-finnhub.market_news	finnhub
-finnhub.quote	finnhub
-firms.fires	firms
-food.barcode	openfoodfacts
-food.search	openfoodfacts
-frankfurter.currencies	frankfurter
-frankfurter.historical	frankfurter
-frankfurter.latest	frankfurter
-frankfurter.series	frankfurter
-freetogame.filter_by_tag	freetogame
-freetogame.game_detail	freetogame
-freetogame.game_list	freetogame
-gbif.occurrence_count	gbif
-gbif.occurrences	gbif
-gbif.species_details	gbif
-gbif.species_search	gbif
-gdacs.alerts	gdacs
-gdacs.events	gdacs
-gdacs.history	gdacs
-gebco.elevation_point	gebco
-gebco.elevation_profile	gebco
-geo.autocomplete	geo
-geo.geocode	geo
-geo.ip_geolocation	geo
-geo.isochrone	geo
-geo.place_search	geo
-geo.reverse_geocode	geo
-geo.routing	geo
-geoboundaries.boundary.available_levels	geoboundaries
-geoboundaries.boundary.detail	geoboundaries
-geoboundaries.boundary.list_countries	geoboundaries
-geocodio.geocode	geocodio
-geocodio.reverse	geocodio
-geodiva.eruption_search	geodiva
-geodiva.volcano_detail	geodiva
-geodiva.volcano_list	geodiva
-geonames.country.info	geonames
-geonames.place.search	geonames
-geonames.place.timezone	geonames
-geonames.postal.lookup	geonames
-geonet-nz.quake_detail	geonet-nz
-geonet-nz.quake_search	geonet-nz
-geonet-nz.quake_stats	geonet-nz
-geonet-nz.volcano_alert_level	geonet-nz
-gfw.ocean.fishing_effort	gfw
-gfw.vessel.details	gfw
-gfw.vessel.fishing_events	gfw
-gfw.vessel.search	gfw
-github.repo	github-api
-github.search_repos	github-api
-github.user	github-api
-global-health-covid.latest_snapshot	global-health-covid
-global-health-covid.location_history	global-health-covid
-global-health-covid.location_search	global-health-covid
-govuk.content	govuk
-govuk.organisations	govuk
-govuk.search	govuk
-gus-poland.data	gus-poland
-gus-poland.subjects	gus-poland
-gus-poland.variables	gus-poland
-gutendex.book	gutendex
-gutendex.by_author	gutendex
-gutendex.popular	gutendex
-gutendex.search	gutendex
-hackernews.best_stories	hackernews
-hackernews.item_details	hackernews
-hackernews.new_stories	hackernews
-hackernews.top_stories	hackernews
-hackernews.user_profile	hackernews
-hathitrust-digital.batch_lookup	hathitrust-digital
-hathitrust-digital.get_full_record	hathitrust-digital
-hathitrust-digital.lookup_by_id	hathitrust-digital
-hdx-hapi.baseline_population	hdx-hapi
-hdx-hapi.food_security	hdx-hapi
-hdx-hapi.humanitarian_needs	hdx-hapi
-hdx-hapi.operational_presence	hdx-hapi
-hdx.dataset_detail	hdx
-hdx.dataset_search	hdx
-hdx.location_list	hdx
-hdx.organization_list	hdx
-health.drug_events	health
-health.drug_labels	health
-health.food_details	health
-health.food_recalls	health
-health.food_search	health
-health.supplement_details	health
-health.supplement_search	health
-hf.datasets	hf
-hf.model_details	hf
-hf.models	hf
-hf_inference.ner	hf_inference
-hf_inference.sentiment	hf_inference
-hf_inference.summarize	hf_inference
-hf_inference.translate	hf_inference
-hf_inference.zero_shot	hf_inference
-hnalgolia.item_details	hnalgolia
-hnalgolia.search	hnalgolia
-hnalgolia.search_comments	hnalgolia
-hnalgolia.search_recent	hnalgolia
-hnalgolia.user_profile	hnalgolia
-holidays.by_country	nagerdate
-holidays.next	nagerdate
-hungary-ksh.dataset_data	hungary-ksh
-hungary-ksh.dataset_metadata	hungary-ksh
-hungary-ksh.dataset_search	hungary-ksh
-hunter.company	hunter
-hyperliquid.account	hyperliquid
-hyperliquid.klines	hyperliquid
-hyperliquid.market_data	hyperliquid
-hyperliquid.order_book	hyperliquid
-hyperliquid.positions	hyperliquid
-hyperliquid.vault	hyperliquid
-iban.calculate	ibanapi
-iban.validate	ibanapi
-ibge.cnae	ibge
-ibge.municipalities	ibge
-ibge.name_frequency	ibge
-ibge.regions	ibge
-ibge.states	ibge
-icd11.autocomplete	nlm-icd11
-icd11.lookup	nlm-icd11
-icd11.primary_search	nlm-icd11
-icd11.search	nlm-icd11
-iceland-statistics.catalog	iceland-statistics
-iceland-statistics.table_metadata	iceland-statistics
-iceland-statistics.table_query	iceland-statistics
-igdb.company_info	igdb
-igdb.game_details	igdb
-igdb.game_media	igdb
-igdb.game_search	igdb
-igdb.platform_info	igdb
-ilostat.data	ilostat
-ilostat.dataflows	ilostat
-ilostat.structure	ilostat
-imf.current_account	imf
-imf.fiscal_balance	imf
-imf.gdp_growth	imf
-imf.inflation	imf
-imgflip.caption	imgflip
-imgflip.memes	imgflip
-inaturalist.observations_search	inaturalist
-inaturalist.places_search	inaturalist
-inaturalist.species_counts	inaturalist
-inaturalist.taxa_search	inaturalist
-indec-argentina.get_series	indec-argentina
-indec-argentina.search_series	indec-argentina
-indec-georef.departamentos	indec-georef
-indec-georef.geocode	indec-georef
-indec-georef.localidades	indec-georef
-indec-georef.provincias	indec-georef
-indec-georef.reverse_geocode	indec-georef
-ine-chile.data	ine-chile
-ine-chile.dataflows	ine-chile
-ine-chile.structure	ine-chile
-ine-portugal.indicator_data	ine-portugal
-ine-portugal.indicator_metadata	ine-portugal
-ine-spain.operations	ine-spain
-ine-spain.series_data	ine-spain
-ine-spain.table_data	ine-spain
-ine-spain.tables	ine-spain
-ine.operations	ine
-ine.series_data	ine
-ine.series_metadata	ine
-ine.tables	ine
-insee.company_by_siren	insee
-insee.establishment_by_siret	insee
-insee.search_companies	insee
-insee.search_establishments	insee
-ip.bulk_lookup	ipapi
-ip.lookup	ipapi
-ipqs.email_check	ipqs
-ipqs.ip_check	ipqs
-ipqs.phone_check	ipqs
-ipqs.url_check	ipqs
-irail.connections	irail
-irail.disturbances	irail
-irail.liveboard	irail
-irail.stations	irail
-irail.vehicle	irail
-irctc.station_search	irctc
-irctc.train_search	irctc
-irctc.train_status	irctc
-irena.capacity_country	irena
-irena.capacity_region	irena
-irena.generation_country	irena
-irena.share_renewables	irena
-iss.position	iss
-iss.tle	iss
-istat.data	istat
-istat.dataflows	istat
-istat.structure	istat
-itistaxonomy.get_full_record	itistaxonomy
-itistaxonomy.search_common_name	itistaxonomy
-itistaxonomy.search_scientific_name	itistaxonomy
-jma-bosai.areas	jma-bosai
-jma-bosai.earthquakes	jma-bosai
-jma-bosai.forecast	jma-bosai
-jma-bosai.overview	jma-bosai
-jma-bosai.warnings	jma-bosai
-jobs.esco_details	jobs
-jobs.esco_search	jobs
-jobs.job_search	jobs
-jobs.occupation_details	jobs
-jobs.occupation_search	jobs
-jobs.salary_data	jobs
-jooble.search	jooble
-jpl.close_approaches	jpl
-jpl.fireballs	jpl
-jpl.impact_risk	jpl
-jpl.small_body	jpl
-langbly.detect	langbly
-langbly.languages	langbly
-langbly.translate	langbly
-latvia-statistics.catalog	latvia-statistics
-latvia-statistics.table_metadata	latvia-statistics
-latvia-statistics.table_query	latvia-statistics
-launch-library-2.agency_search	launch-library-2
-launch-library-2.astronaut_search	launch-library-2
-launch-library-2.launch_detail	launch-library-2
-launch-library-2.upcoming_launches	launch-library-2
-lei.lookup	gleif
-lei.relationships	gleif
-lei.search	gleif
-librivox.book	librivox
-librivox.search	librivox
-lichess.daily_puzzle	lichess
-lichess.top_players	lichess
-lichess.user_profile	lichess
-listennotes.best	listennotes
-listennotes.podcast	listennotes
-listennotes.search	listennotes
-lmpr.boxed_beef_cutout	lmpr
-lmpr.cattle_slaughter_prices	lmpr
-lmpr.dairy_product_prices	lmpr
-lmpr.hog_slaughter_prices	lmpr
-lmpr.lamb_carcass_cutout	lmpr
-loc.collections	loc
-loc.item	loc
-loc.search	loc
-macrostrat.columns_search	macrostrat
-macrostrat.fossils_search	macrostrat
-macrostrat.geologic_map_units	macrostrat
-macrostrat.units_search	macrostrat
-malaria-atlas.case_estimates	malaria-atlas
-malaria-atlas.country_list	malaria-atlas
-malaria-atlas.parasite_rate_survey	malaria-atlas
-malaria-atlas.vector_occurrence	malaria-atlas
-malaysiagov.dataset	malaysiagov
-malaysiagov.earthquake	malaysiagov
-malaysiagov.flood_warning	malaysiagov
-malaysiagov.weather_forecast	malaysiagov
-malaysiagov.weather_warning	malaysiagov
-marine.forecast	marine
-marine.sea_temperature	marine
-marine.swell_forecast	marine
-marine.wave_conditions	marine
-mastodon.trending	mastodon
-mastodon.trending_tags	mastodon
-materials.details	materials-project
-materials.elasticity	materials-project
-materials.search	materials-project
-mbta-transit.alerts	mbta-transit
-mbta-transit.predictions	mbta-transit
-mbta-transit.routes	mbta-transit
-mbta-transit.stops	mbta-transit
-medlineplus.icd10_lookup	medlineplus
-medlineplus.icd9_lookup	medlineplus
-medlineplus.rxnorm_lookup	medlineplus
-medlineplus.snomed_lookup	medlineplus
-met.browse	met-museum
-met.departments	met-museum
-met.details	met-museum
-met.search	met-museum
-meteostat.daily_data	meteostat
-meteostat.hourly_data	meteostat
-meteostat.monthly_data	meteostat
-meteostat.station_info	meteostat
-meteostat.stations_nearby	meteostat
-metno.alerts	met-norway
-metno.forecast	met-norway
-metno.nowcast	met-norway
-metno.sunrise	met-norway
-mfapi.nav_history	mfapi
-mfapi.nav_latest	mfapi
-mfapi.scheme_list	mfapi
-mfapi.scheme_search	mfapi
-msc-geomet.aqhi_observations	msc-geomet
-msc-geomet.climate_daily	msc-geomet
-msc-geomet.climate_stations	msc-geomet
-msc-geomet.hydrometric_realtime	msc-geomet
-music.artist_details	music
-music.artist_search	music
-music.fresh_releases	music
-music.radio_search	music
-music.recording_search	music
-music.release_details	music
-music.release_search	music
-mychem.annotation	mychem
-mychem.batch_query	mychem
-mychem.metadata	mychem
-mychem.search	mychem
-mygene.batch_genes	mygene
-mygene.gene_info	mygene
-mygene.query_by_symbol	mygene
-mygene.search	mygene
-myvariant.batch_variants	myvariant
-myvariant.metadata	myvariant
-myvariant.search	myvariant
-myvariant.variant_info	myvariant
-namesilo.domain_check	namesilo
-namesilo.domain_info	namesilo
-namesilo.domain_list	namesilo
-namesilo.domain_register	namesilo
-namesilo.get_prices	namesilo
-nasa-cmr.collection_detail	nasa-cmr
-nasa-cmr.list_providers	nasa-cmr
-nasa-cmr.search_collections	nasa-cmr
-nasa-cmr.search_granules	nasa-cmr
-nasa.apod	nasa
-nasa.donki_flr	nasa
-nasa.epic	nasa
-nasa.image_search	nasa
-nasa.neo_feed	nasa
-nasaexoplanet.habitable	nasaexoplanet
-nasaexoplanet.planet_detail	nasaexoplanet
-nasaexoplanet.search	nasaexoplanet
-nasaexoplanet.stats	nasaexoplanet
-nasantrs.recent	nasantrs
-nasantrs.report	nasantrs
-nasantrs.search	nasantrs
-nasantrs.stats	nasantrs
-nbi.bridge_detail	nbi
-nbi.condition_stats	nbi
-nbi.nearby	nbi
-nbi.search	nbi
-ncbi-eutils.taxonomy_lineage	ncbi-eutils
-ncbi-eutils.taxonomy_search	ncbi-eutils
-ncbi-eutils.taxonomy_summary	ncbi-eutils
-ncei.daily_data	ncei
-ncei.stations	ncei
-netherlands-pdok-kadaster.get_perceel	netherlands-pdok-kadaster
-netherlands-pdok-kadaster.search_bebouwing	netherlands-pdok-kadaster
-netherlands-pdok-kadaster.search_percelen	netherlands-pdok-kadaster
-news.crypto	newsdata
-news.latest	newsdata
-news.sources	newsdata
-nihreporter.projects.by_org	nihreporter
-nihreporter.projects.by_pi	nihreporter
-nihreporter.projects.search	nihreporter
-nihreporter.publications.by_project	nihreporter
-noaa-fisheries-stats.landings	noaa-fisheries-stats
-noaa-fisheries-stats.survey_catch	noaa-fisheries-stats
-noaa-fisheries-stats.survey_species	noaa-fisheries-stats
-noaa.forecast	noaa
-noaa.hourly	noaa
-noaa.observation	noaa
-nominatim-osm.lookup	nominatim-osm
-nominatim-osm.reverse	nominatim-osm
-nominatim-osm.search	nominatim-osm
-norgesbank.fx.history	norgesbank
-norgesbank.fx.latest	norgesbank
-norgesbank.rates.current	norgesbank
-norgesbank.rates.history	norgesbank
-norway-kartverket-stedsnavn.get_place	norway-kartverket-stedsnavn
-norway-kartverket-stedsnavn.search_by_point	norway-kartverket-stedsnavn
-norway-kartverket-stedsnavn.search_names	norway-kartverket-stedsnavn
-npm.downloads	npm
-npm.package_info	npm
-npm.search	npm
-npm.versions	npm
-nps.alerts	nps
-nps.campgrounds	nps
-nps.parks	nps
-nps.things_to_do	nps
-nrc.annual_data	nrc
-nrc.current_status	nrc
-nrc.outages	nrc
-nrc.reactor_history	nrc
-nrel.afdc_station_detail	nrel
-nrel.afdc_stations_nearest	nrel
-nrel.afdc_stations_search	nrel
-nrel.pvwatts_estimate	nrel
-nsf-awards.award_detail	nsf-awards
-nsf-awards.search	nsf-awards
-nvd.cpe_search	nvd
-nvd.cve_detail	nvd
-nvd.cve_search	nvd
-nwis.annual_stats	usgs-nwis
-nwis.basin_conditions	usgs-nwis
-nwis.daily_values	usgs-nwis
-nwis.site_info	usgs-nwis
-obis.checklist	obis
-obis.dataset_search	obis
-obis.occurrence_search	obis
-obis.taxon_search	obis
-ocr.extract_text	ocrspace
-oecd-data.data	oecd-data
-oecd-data.dataflows	oecd-data
-oecd-data.structure	oecd-data
-oecd.economy.gdp	oecd-stats
-oecd.economy.inflation	oecd-stats
-oecd.economy.trade	oecd-stats
-oecd.economy.unemployment	oecd-stats
-oecd.environment.emissions	oecd-stats
-ofac.meta.programs	ofac
-ofac.meta.publication_info	ofac
-ofac.sdn.aliases	ofac
-ofac.sdn.search	ofac
-ons.datasets.list	ons-uk-stats
-ons.stats.cpih	ons-uk-stats
-ons.stats.gdp	ons-uk-stats
-ons.stats.population	ons-uk-stats
-ons.stats.unemployment	ons-uk-stats
-open-canada.dataset_detail	open-canada
-open-canada.dataset_search	open-canada
-open-canada.organization_list	open-canada
-open-canada.subject_list	open-canada
-openaire.organization_search	openaire
-openaire.product_details	openaire
-openaire.project_search	openaire
-openaire.search	openaire
-openalex.authors_search	openalex
-openalex.get_work	openalex
-openalex.works_search	openalex
-openbeautyfacts.barcode	openbeautyfacts
-openbeautyfacts.search	openbeautyfacts
-openbrewery.list	openbrewery
-openbrewery.random	openbrewery
-openbrewery.search	openbrewery
-opencontext.detail	opencontext
-opencontext.facets	opencontext
-opencontext.projects	opencontext
-opencontext.search	opencontext
-opendota.match_detail	opendota
-opendota.player_matches	opendota
-opendota.player_summary	opendota
-opendota.pro_teams	opendota
-openfda_devices.adverse_events	openfda_devices
-openfda_devices.classification	openfda_devices
-openfda_devices.clearances_510k	openfda_devices
-openfda_devices.recalls	openfda_devices
-openmeteoaq.current	openmeteoaq
-openmeteoaq.forecast	openmeteoaq
-openmeteoaq.historical	openmeteoaq
-openmeteoaq.pollen	openmeteoaq
-opensensemap.box_detail	opensensemap
-opensensemap.box_search	opensensemap
-opensensemap.sensor_timeseries	opensensemap
-opensensemap.sensors_latest	opensensemap
-opensky.aircraft_state	opensky
-opensky.aircraft_track	opensky
-opensky.states_bbox	opensky
-opensky.states_country	opensky
-openstates.bill_detail	openstates
-openstates.bills_search	openstates
-openstates.committees	openstates
-openstates.people_search	openstates
-opentdb.categories	opentdb
-opentdb.category_count	opentdb
-opentdb.global_count	opentdb
-opentdb.questions	opentdb
-opentopo.dem_catalog	opentopography
-opentopo.elevation_area	opentopography
-opentopo.elevation_point	opentopography
-opentopo.lidar_catalog	opentopography
-opentopodata.batch	opentopodata
-opentopodata.high_res	opentopodata
-opentopodata.ocean	opentopodata
-opentopodata.point	opentopodata
-orcid.get_person	orcid
-orcid.get_works	orcid
-orcid.search_researcher	orcid
-orphadata.disease_epidemiology	orphadata
-orphadata.disease_lookup	orphadata
-orphadata.disease_natural_history	orphadata
-orphadata.disease_phenotypes	orphadata
-osv.batch_query	osv
-osv.get	osv
-osv.query	osv
-overpass.amenities	overpass
-overpass.named_place	overpass
-overpass.pois_nearby	overpass
-overpass.public_transport	overpass
-p2pquake.quake_history	p2pquake
-p2pquake.recent_quakes	p2pquake
-p2pquake.tsunami_warnings	p2pquake
-paleoclimate.study_detail	paleoclimate
-paleoclimate.study_search	paleoclimate
-pdb.ligand	rcsb
-pdb.search	rcsb
-pdb.sequence	rcsb
-pdb.structure	rcsb
-pexels.curated	pexels
-pexels.search_photos	pexels
-pexels.search_videos	pexels
-pharmgkb.drug_labels	pharmgkb
-pharmgkb.drug_search	pharmgkb
-pharmgkb.gene_search	pharmgkb
-pharmgkb.variant_lookup	pharmgkb
-platform.call_batch	platform
-platform.tool_quality	platform
-platform.tool_rankings	platform
-plos-search.article_detail	plos-search
-plos-search.search	plos-search
-podcast.by_feed	podcastindex
-podcast.episodes	podcastindex
-podcast.search	podcastindex
-podcast.trending	podcastindex
-pokeapi.move	pokeapi
-pokeapi.pokemon	pokeapi
-pokeapi.species	pokeapi
-pokeapi.type	pokeapi
-polymarket.balance	polymarket
-polymarket.cancel_order	polymarket
-polymarket.get_orderbook	polymarket
-polymarket.market_detail	polymarket
-polymarket.open_orders	polymarket
-polymarket.place_order	polymarket
-polymarket.price_history	polymarket
-polymarket.prices	polymarket
-polymarket.search	polymarket
-polymarket.trade_history	polymarket
-polymarket.trending	polymarket
-postal.lookup	zippopotamus
-postcode-japan.lookup	postcode-japan
-postcode-japan.prefectures	postcode-japan
-postcode-japan.search	postcode-japan
-pubchem.bioassay_summary	pubchem
-pubchem.compound_properties	pubchem
-pubchem.compound_search	pubchem
-pubchem.compound_synonyms	pubchem
-pubchem.hazard_data	pubchem
-pubchem.structure_lookup	pubchem
-pypi.package_info	pypi
-pypi.releases	pypi
-qrserver.generate	qrserver
-qrserver.read	qrserver
-random.user	randomuser
-rateapi.auto_loan	rateapi
-rateapi.heloc	rateapi
-rateapi.mortgage	rateapi
-rateapi.personal_loan	rateapi
-rawg.game_details	rawg
-rawg.game_search	rawg
-rawg.game_series	rawg
-rawg.screenshots	rawg
-rawg.store_links	rawg
-razorpayifsc.lookup	razorpayifsc
-reed.details	reed
-reed.search	reed
-regulations.document	regulations
-regulations.search	regulations
-remotive.search	remotive
-resend.email_status	resend
-resend.send_email	resend
-rijks.details	rijksmuseum
-rijks.search	rijksmuseum
-ror.affiliation	ror
-ror.filter	ror
-ror.get	ror
-ror.search	ror
-rxnorm.drug_class	rxnorm
-rxnorm.drug_search	rxnorm
-rxnorm.ndc_lookup	rxnorm
-rxnorm.rxcui_properties	rxnorm
-sabre.airline_lookup	sabre
-sabre.destination_finder	sabre
-sabre.search_flights	sabre
-sabre.travel_themes	sabre
-safety.complaints	nhtsa-safety
-safety.investigations	nhtsa-safety
-safety.ratings	nhtsa-safety
-safety.recalls	nhtsa-safety
-sam.entity_detail	sam
-sam.entity_search	sam
-samuni.audit_opinions	samuni
-samuni.income_expenditure	samuni
-samuni.municipalities	samuni
-samuni.officials	samuni
-scb.catalog	scb
-scb.table_metadata	scb
-scb.table_query	scb
-screenshot.capture	apiflash
-sdwis.enforcement	sdwis
-sdwis.service_areas	sdwis
-sdwis.violations	sdwis
-sdwis.water_systems	sdwis
-sec-edgar.company_lookup	sec-edgar
-sec-edgar.filings	sec-edgar
-sec-edgar.financial_concept	sec-edgar
-semanticscholar.authors_search	semanticscholar
-semanticscholar.get_paper	semanticscholar
-semanticscholar.papers_search	semanticscholar
-sepa-scotland.rainfall_history	sepa-scotland
-sepa-scotland.station_current	sepa-scotland
-sepa-scotland.stations_search	sepa-scotland
-serper.image_search	serper
-serper.news_search	serper
-serper.shopping_search	serper
-serper.web_search	serper
-sg.air_quality	datagovsg
-sg.rainfall	datagovsg
-sg.taxi_availability	datagovsg
-sg.weather_forecast	datagovsg
-shipengine.carriers	shipengine
-shipengine.rates	shipengine
-shipengine.validate	shipengine
-shorturl.create	shortio
-shorturl.stats	shortio
-slovakia-statistics.dataset_data	slovakia-statistics
-slovakia-statistics.dataset_metadata	slovakia-statistics
-slovakia-statistics.dataset_search	slovakia-statistics
-smhi.fire_risk	smhi
-smhi.forecast	smhi
-smhi.observations	smhi
-smhi.warnings	smhi
-smithsonian.record	smithsonian
-smithsonian.search	smithsonian
-socrata.dataset_metadata	socrata
-socrata.dataset_search	socrata
-socrata.query_dataset	socrata
-soil.properties	soil
-solar.bodies	solar
-solar.body_details	solar
-spending.agency	spending
-spending.awards	spending
-spending.geography	spending
-spider.scrape	spider
-spider.search	spider
-spoonacular.analyze_recipe	spoonacular
-spoonacular.by_ingredients	spoonacular
-spoonacular.ingredient_search	spoonacular
-spoonacular.recipe_details	spoonacular
-spoonacular.recipe_search	spoonacular
-sports.basketball_games	apisports
-sports.football_fixtures	apisports
-sports.football_leagues	apisports
-sports.football_standings	apisports
-ssbnorway.metadata	ssbnorway
-ssbnorway.population	ssbnorway
-ssbnorway.query	ssbnorway
-ssbnorway.search	ssbnorway
-stability.generate	stability
-standard-ebooks.new_releases	standard-ebooks
-standard-ebooks.search	standard-ebooks
-statbel.datasource_detail	statbel
-statbel.list_datasources	statbel
-statbel.list_views	statbel
-statbel.view_data	statbel
-statcan.catalogue_search	statcan
-statcan.series_data	statcan
-statcan.series_info	statcan
-statcan.table_data	statcan
-statcan.table_metadata	statcan
-statfin.consumer_price_index	statfin
-statfin.population	statfin
-statfin.table_search	statfin
-statfin.unemployment	statfin
-statistics-denmark.data	statistics-denmark
-statistics-denmark.subjects	statistics-denmark
-statistics-denmark.table_info	statistics-denmark
-statistics-denmark.tables	statistics-denmark
-statistik-austria.category_codes	statistik-austria
-statistik-austria.dataset_data	statistik-austria
-statistik-austria.dataset_metadata	statistik-austria
-statistik-austria.dataset_search	statistik-austria
-sunrisesunset.daily	sunrisesunset
-sunrisesunset.moon_phase	sunrisesunset
-sunrisesunset.range	sunrisesunset
-sunrisesunset.sun_position	sunrisesunset
-swissfso.catalog.list	swissfso
-swissfso.table.metadata	swissfso
-swissfso.table.query	swissfso
-swissfso.wages.monthly	swissfso
-swissnbm.fx_rates	swissnbm
-swissnbm.monetary_aggregates	swissnbm
-swissnbm.policy_rate	swissnbm
-swissnbm.saron_rates	swissnbm
-swpc.aurora	swpc
-swpc.k_index	swpc
-swpc.solar_regions	swpc
-swpc.solar_wind	swpc
-tatoeba.languages	tatoeba
-tatoeba.search	tatoeba
-tatoeba.sentence	tatoeba
-tavily.extract	tavily
-tavily.search	tavily
-telegram.get_chat	telegram
-telegram.get_updates	telegram
-telegram.send_document	telegram
-telegram.send_message	telegram
-telegram.send_photo	telegram
-telnyx.balance	telnyx
-telnyx.estimate_price	telnyx
-telnyx.list_messages	telnyx
-telnyx.message_status	telnyx
-telnyx.send_sms_na	telnyx
-telnyx.send_sms_premium	telnyx
-telnyx.send_sms_world	telnyx
-tfl.arrivals	tfl
-tfl.bike_points	tfl
-tfl.journey_plan	tfl
-tfl.line_status	tfl
-theirstack.companies	theirstack
-theirstack.jobs	theirstack
-thesportsdb.events_next	thesportsdb
-thesportsdb.events_past	thesportsdb
-thesportsdb.player_search	thesportsdb
-thesportsdb.team_search	thesportsdb
-ticketmaster.artist_events	ticketmaster
-ticketmaster.event_details	ticketmaster
-ticketmaster.events_categories	ticketmaster
-ticketmaster.events_nearby	ticketmaster
-ticketmaster.events_search	ticketmaster
-ticketmaster.events_trending	ticketmaster
-ticketmaster.venue_events	ticketmaster
-tides.predictions	noaa-tides
-tides.water_levels	noaa-tides
-tmdb.movie_details	tmdb
-tmdb.movie_discover	tmdb
-tmdb.movie_person	tmdb
-tmdb.movie_search	tmdb
-tmdb.movie_similar	tmdb
-tmdb.movie_trending	tmdb
-tmdb.movie_where_to_watch	tmdb
-tracking.list	17track
-tracking.register	17track
-tracking.status	17track
-transcribe.result	assemblyai
-transcribe.status	assemblyai
-transcribe.submit	assemblyai
-transport-rest.journey_search	transport-rest
-transport-rest.location_search	transport-rest
-transport-rest.nearby_stops	transport-rest
-transport-rest.stop_departures	transport-rest
-treasurydirect.auction_results	treasurydirect
-treasurydirect.search_cusip	treasurydirect
-treasurydirect.tips_rates	treasurydirect
-treasurydirect.upcoming_auctions	treasurydirect
-treasuryfiscal.debt.current	treasuryfiscal
-treasuryfiscal.debt.expense	treasuryfiscal
-treasuryfiscal.rates.interest	treasuryfiscal
-treasuryfiscal.yield.quarterly	treasuryfiscal
-tvmaze.schedule	tvmaze
-tvmaze.show_cast	tvmaze
-tvmaze.show_details	tvmaze
-tvmaze.show_episodes	tvmaze
-tvmaze.show_search	tvmaze
-twilio.lookup	twilio
-twilio.send_sms	twilio
-twitter.followers	twitterapi
-twitter.search	twitterapi
-twitter.trending	twitterapi
-twitter.user	twitterapi
-uk-ea-flood-monitoring.current_warnings	uk-ea-flood-monitoring
-uk-ea-flood-monitoring.station_readings	uk-ea-flood-monitoring
-uk-ea-flood-monitoring.station_search	uk-ea-flood-monitoring
-uk-landregistry-pricepaid.get_transaction	uk-landregistry-pricepaid
-uk-landregistry-pricepaid.search_by_area	uk-landregistry-pricepaid
-uk-landregistry-pricepaid.search_by_postcode	uk-landregistry-pricepaid
-ukcompany.details	companieshouse
-ukcompany.search	companieshouse
-ukfsa.establishment_details	ukfsa
-ukfsa.establishment_search	ukfsa
-ukfsa.local_authorities	ukfsa
-ukhsa-dashboard.browse	ukhsa-dashboard
-ukhsa-dashboard.metric_data	ukhsa-dashboard
-ukleg.legislation.details	ukleg
-ukleg.legislation.recent	ukleg
-ukleg.legislation.search	ukleg
-ukleg.legislation.sections	ukleg
-ukpolice.crimes_near	ukpolice
-ukpolice.forces	ukpolice
-ukpolice.outcomes_at_location	ukpolice
-ukpost.lookup	postcodes-io
-ukpost.nearest	postcodes-io
-ukpost.validate	postcodes-io
-unesco-data.geounit_list	unesco-data
-unesco-data.get_data	unesco-data
-unesco-data.indicator_search	unesco-data
-unhabitat.city_budget	unhabitat
-unhabitat.land_consumption	unhabitat
-unhabitat.open_spaces	unhabitat
-unhabitat.transport_access	unhabitat
-unhcr.asylum_applications	unhcr
-unhcr.asylum_decisions	unhcr
-unhcr.population	unhcr
-unhcr.solutions	unhcr
-uniprot.protein_entry	uniprot
-uniprot.protein_features	uniprot
-uniprot.protein_search	uniprot
-uniprot.taxonomy	uniprot
-unpaywall.oa_lookup	unpaywall
-unsdg.data.query	unsdg
-unsdg.geo.countries	unsdg
-unsdg.goals.list	unsdg
-unsdg.indicators.list	unsdg
-unsdg.targets.list	unsdg
-upc.lookup	upcitemdb
-upc.search	upcitemdb
-usajobs.code_lists	usajobs
-usajobs.position_detail	usajobs
-usajobs.search	usajobs
-usdamars.get_report	usdamars
-usdamars.list_corrected	usdamars
-usdamars.list_reports	usdamars
-usdamars.search_reports	usdamars
-usgs-epqs.elevation	usgs-epqs
-usgs-mrds.search_by_area	usgs-mrds
-usgs-nationalmap.list_datasets	usgs-nationalmap
-usgs-nationalmap.search_products	usgs-nationalmap
-usno.moon_phases	usno
-usno.seasons	usno
-usno.sun_moon	usno
-usrealestate.for_sale	usrealestate
-usrealestate.location_suggest	usrealestate
-usrealestate.property_detail	usrealestate
-vam.by_category	vam
-vam.by_maker	vam
-vam.object	vam
-vam.search	vam
-vatcomply.currencies	vatcomply
-vatcomply.rates	vatcomply
-vatcomply.validate	vatcomply
-vin.decode	nhtsa
-vin.models	nhtsa
-volcano.cap_alerts	usgs-hans-volcano
-volcano.detail	usgs-hans-volcano
-volcano.elevated	usgs-hans-volcano
-volcano.latest_notice	usgs-hans-volcano
-volcano.monitored	usgs-hans-volcano
-volcano.us_catalog	usgs-hans-volcano
-walkscore.score	walkscore
-water.realtime	usgs-water
-water.sites	usgs-water
-weather.get_current	openweathermap
-weather.get_forecast	openweathermap
-weather_alerts.active	nws
-weather_alerts.by_area	nws
-weatherapi.astronomy	weatherapi
-weatherapi.current	weatherapi
-weatherapi.forecast	weatherapi
-weatherapi.search	weatherapi
-wger.exercise_details	wger
-wger.exercise_search	wger
-wger.ingredients	wger
-who.countries	who
-who.country_health	who-gho
-who.data	who
-who.dimension_values	who-gho
-who.indicator_data	who-gho
-who.indicator_search	who-gho
-who.indicators	who
-whois.availability	whoisxml
-whois.dns_lookup	whoisxml
-whois.lookup	whoisxml
-whois.reverse	whoisxml
-whoisjson.ssl_check	whoisjson
-whoisjson.subdomains	whoisjson
-wikidata.entity	wikidata
-wikidata.search	wikidata
-wikimedia-analytics.edits_aggregate	wikimedia-analytics
-wikimedia-analytics.pageviews_aggregate	wikimedia-analytics
-wikimedia-analytics.pageviews_per_article	wikimedia-analytics
-wikimedia-analytics.pageviews_top	wikimedia-analytics
-wikimedia-commons.category_files	wikimedia-commons
-wikimedia-commons.file_info	wikimedia-commons
-wikimedia-commons.random	wikimedia-commons
-wikimedia-commons.search	wikimedia-commons
-wikimedia-rest.media_list	wikimedia-rest
-wikimedia-rest.on_this_day	wikimedia-rest
-wikimedia-rest.page_summary	wikimedia-rest
-wikimedia-rest.search_page	wikimedia-rest
-wikipedia.article.media	wikipedia
-wikipedia.article.summary	wikipedia
-wikipedia.feed.featured	wikipedia
-wikipedia.feed.on_this_day	wikipedia
-wikipedia.search.pages	wikipedia
-wits-trade.tariff_stats	wits-trade
-wits-trade.trade_stats	wits-trade
-wmo-weather.city_search	wmo-weather
-wmo-weather.climate_normals	wmo-weather
-wmo-weather.forecast	wmo-weather
-world-bank-cckp.climate_normal	world-bank-cckp
-world-bank-cckp.climate_projection	world-bank-cckp
-world-bank-cckp.extreme_indices	world-bank-cckp
-worldbank.indicators	worldbank
-worldclock.convert	timeapi
-worldclock.current	timeapi
-worldclock.zones	timeapi
-worms.species.classification	worms
-worms.species.details	worms
-worms.species.search	worms
-worms.species.vernaculars	worms
-wto.indicators	wto
-wto.reporters	wto
-wto.topics	wto
-wto.trade_data	wto
-zenodo.communities	zenodo
-zenodo.files	zenodo
-zenodo.record	zenodo
-zenodo.search	zenodo
+abr.abn_lookup	abr	0.001
+abr.acn_lookup	abr	0.001
+abr.name_search	abr	0.002
+abs.cpi	abs	0.001
+abs.gdp	abs	0.001
+abs.labour_force	abs	0.001
+abs.population	abs	0.001
+abs.trade	abs	0.001
+account.timeseries	account	0
+account.tools	account	0
+account.usage	account	0
+adbkidb.data	adbkidb	0.002
+adbkidb.dataflows_list	adbkidb	0.001
+adbkidb.economies	adbkidb	0.001
+adbkidb.indicators	adbkidb	0.001
+adsbdb.aircraft_lookup	adsbdb	0.001
+adsbdb.airline_lookup	adsbdb	0.001
+adsbdb.callsign_lookup	adsbdb	0.001
+adzuna.categories	adzuna	0.001
+adzuna.salary	adzuna	0.001
+adzuna.search	adzuna	0.001
+africa.countries.list	africa	0.001
+africa.countries.signals	africa	0.002
+africa.data.indicator	africa	0.002
+africa.markets.fx_rates	africa	0.002
+africa.politics.elections	africa	0.001
+aipush.check_visibility	aipush	0.1
+aipush.generate_page	aipush	0.05
+aipush.list_pages	aipush	0.002
+aipush.market_report	aipush	29.99
+aipush.market_report_status	aipush	0
+aipush.page_content	aipush	0.003
+aipush.setup_website	aipush	1
+aipush.website_profile	aipush	0.01
+aipush.website_status	aipush	0.002
+airnow.current_latlng	airnow	0.001
+airnow.current_zip	airnow	0.001
+airnow.forecast_latlng	airnow	0.002
+airnow.forecast_zip	airnow	0.002
+airquality.city	iqair	0.002
+airquality.nearest	iqair	0.002
+apibase.discover	apibase	0
+arbeitnow.jobs	arbeitnow	0.001
+archiveorg.metadata	archiveorg	0.002
+archiveorg.search	archiveorg	0.002
+archiveorg.wayback_check	archiveorg	0.001
+artic.artist	artic	0.001
+artic.artwork	artic	0.001
+artic.search	artic	0.001
+aster.exchange_info	asterdex	0.001
+aster.klines	asterdex	0.003
+aster.market_data	asterdex	0.002
+aster.order_book	asterdex	0.003
+au-data-gov.dataset_detail	au-data-gov	0.002
+au-data-gov.dataset_search	au-data-gov	0.002
+au-data-gov.organization_search	au-data-gov	0.001
+au-data-gov.subject_list	au-data-gov	0.001
+audd.lyrics	audd	0.003
+audd.recognize	audd	0.007
+autodev.vin_decode	autodev	0.003
+aviasales.airport_lookup	aviasales	0.001
+aviasales.cheap_flights	aviasales	0.001
+aviasales.nearby_destinations	aviasales	0.001
+aviasales.popular_routes	aviasales	0.001
+aviasales.price_calendar	aviasales	0.001
+aviasales.search_flights	aviasales	0.005
+aviationweather.metar	aviationweather	0.001
+aviationweather.pirep	aviationweather	0.001
+aviationweather.stations	aviationweather	0.001
+aviationweather.taf	aviationweather	0.001
+avwx.notams	avwx	0.003
+avwx.pireps	avwx	0.002
+avwx.station_summary	avwx	0.003
+awc.metar	awc	0.001
+awc.sigmet	awc	0.002
+awc.taf	awc	0.002
+bank-of-england.bank_rate	bank-of-england	0.001
+bank-of-england.money_supply_m4	bank-of-england	0.002
+bank-of-england.mortgage_rate_2y_fixed	bank-of-england	0.002
+bank-of-england.sonia_rate	bank-of-england	0.001
+bankofcanada.fx_rates	bankofcanada	0.001
+bankofcanada.inflation	bankofcanada	0.001
+bankofcanada.policy_rate	bankofcanada	0.001
+bankofcanada.series	bankofcanada	0.001
+banxico.fx.fix_rate	banxico	0.001
+banxico.fx.rates	banxico	0.001
+banxico.inflation.cpi	banxico	0.001
+banxico.rates.target	banxico	0.001
+banxico.rates.tiie	banxico	0.001
+bcb.cdi	bcb	0.001
+bcb.eur_brl	bcb	0.001
+bcb.ipca	bcb	0.001
+bcb.selic	bcb	0.001
+bcb.selic_target	bcb	0.001
+bcb.usd_brl	bcb	0.001
+bdl.games	balldontlie	0.002
+bdl.players	balldontlie	0.002
+bdl.teams	balldontlie	0.001
+bea.gdp	bea	0.001
+bea.industry_gdp	bea	0.002
+bea.personal_income	bea	0.001
+bea.state_gdp	bea	0.002
+bea.trade_balance	bea	0.002
+bgs-ogcapi.borehole_search	bgs-ogcapi	0.002
+bgs-ogcapi.earthquake_search	bgs-ogcapi	0.002
+bgs-ogcapi.geology_bedrock	bgs-ogcapi	0.002
+bgs-ogcapi.landslide_search	bgs-ogcapi	0.002
+bhl.literature.by_subject	bhl	0.001
+bhl.literature.fulltext	bhl	0.001
+bhl.literature.search	bhl	0.001
+bhl.taxonomy.name_search	bhl	0.001
+bible.books	bible	0.001
+bible.commentaries	bible	0.001
+bible.passage	bible	0.001
+bible.translations	bible	0.001
+biomodels.model.detail	biomodels	0.001
+biomodels.model.files	biomodels	0.001
+biomodels.model.latest	biomodels	0.001
+biomodels.model.search	biomodels	0.001
+bis-stats.exchange_rates	bis-stats	0.002
+bis-stats.policy_rates	bis-stats	0.002
+bis-stats.property_prices	bis-stats	0.002
+bls-macro.cpi	bls-macro	0.001
+bls-macro.payrolls	bls-macro	0.001
+bls-macro.series	bls-macro	0.002
+bls-macro.unemployment	bls-macro	0.001
+bluesky.feed	bluesky	0.001
+bluesky.profile	bluesky	0.001
+bluesky.search_posts	bluesky	0.001
+books.author	openlibrary	0.001
+books.isbn_lookup	openlibrary	0.001
+books.search	openlibrary	0.001
+books.work_details	openlibrary	0.001
+brasilapi.banks	brasilapi	0.001
+brasilapi.cep	brasilapi	0.001
+brasilapi.cnpj	brasilapi	0.002
+brasilapi.ddd	brasilapi	0.001
+brasilapi.holidays	brasilapi	0.001
+brasilapi.rates	brasilapi	0.001
+brightsky.alerts	brightsky	0.001
+brightsky.current	brightsky	0.001
+brightsky.observations	brightsky	0.002
+brightsky.stations	brightsky	0.001
+browser.create_session	browserbase	0.01
+browser.list_sessions	browserbase	0.001
+browser.session_content	browserbase	0.001
+browser.session_status	browserbase	0.001
+brreg.entity	brreg	0.001
+brreg.roles	brreg	0.002
+brreg.search	brreg	0.001
+brreg.sub_units	brreg	0.001
+bts.aviation_traffic	bts-transport	0.001
+bts.border_crossings	bts-transport	0.001
+bts.freight_indicators	bts-transport	0.001
+bts.tsi	bts-transport	0.001
+bundesbank-timeseries.data	bundesbank-timeseries	0.002
+bundesbank-timeseries.dataflows	bundesbank-timeseries	0.001
+bundesbank-timeseries.structure	bundesbank-timeseries	0.001
+calendarific.holidays	calendarific	0.002
+canopy.deals	canopy	0.012
+canopy.offers	canopy	0.012
+canopy.product	canopy	0.012
+canopy.search	canopy	0.012
+carbonintensity.current	carbon-intensity-uk	0.001
+carbonintensity.forecast	carbon-intensity-uk	0.001
+carbonintensity.generation	carbon-intensity-uk	0.001
+carbonintensity.regional	carbon-intensity-uk	0.001
+carmarket.listing	marketcheck	0.0104
+carmarket.search	marketcheck	0.0104
+cbs.catalog_search	cbs	0.001
+cbs.table_data	cbs	0.002
+cbs.table_info	cbs	0.001
+cbs.table_properties	cbs	0.001
+cdc.datasets	cdc	0.001
+cdc.query	cdc	0.001
+cdc_chronic.indicators	cdc-chronic	0.002
+cdc_chronic.state_compare	cdc-chronic	0.002
+cdc_chronic.topics	cdc-chronic	0.001
+cdc_chronic.trend	cdc-chronic	0.002
+celestrak.group	celestrak	0.001
+celestrak.intdes	celestrak	0.001
+celestrak.search	celestrak	0.001
+celestrak.tle	celestrak	0.001
+census.demographics	census	0.001
+census.economic	census	0.001
+census.housing	census	0.001
+census.population	census	0.001
+censusmapper.data	censusmapper	0.002
+censusmapper.list_datasets	censusmapper	0.002
+cernopendata.datasets	cernopendata	0.001
+cernopendata.detail	cernopendata	0.001
+cernopendata.glossary	cernopendata	0.001
+cernopendata.search	cernopendata	0.001
+cfpb-complaints.geo_states	cfpb-complaints	0.001
+cfpb-complaints.search	cfpb-complaints	0.002
+cfpb-complaints.trends	cfpb-complaints	0.001
+chart.create	chart	0.002
+checkwx.metar_decoded	checkwx	0.002
+checkwx.station_info	checkwx	0.001
+checkwx.taf_decoded	checkwx	0.003
+chem.formula	cactus	0.001
+chem.names	cactus	0.001
+chem.resolve	cactus	0.001
+chembl.bioactivity	chembl	0.002
+chembl.molecule_detail	chembl	0.001
+chembl.molecule_search	chembl	0.001
+chembl.target_search	chembl	0.001
+chesscom.player_profile	chesscom	0.001
+chesscom.player_stats	chesscom	0.001
+chesscom.titled_players	chesscom	0.001
+climate.arctic_ice	climate	0.003
+climate.co2	climate	0.003
+climate.methane	climate	0.003
+climate.nitrous_oxide	climate	0.003
+climate.temperature	climate	0.003
+clinical.search	clinicaltrials	0.001
+clinical.stats	clinicaltrials	0.001
+clinical.study	clinicaltrials	0.001
+clinicaltrials.recruiting	clinicaltrials	0.001
+clinicaltrials.search	clinicaltrials	0.001
+clinicaltrials.stats	clinicaltrials	0.001
+clinicaltrials.study	clinicaltrials	0.001
+cloudflare.dns_create	cloudflare	0.005
+cloudflare.dns_delete	cloudflare	0.005
+cloudflare.dns_list	cloudflare	0.001
+cloudflare.purge_cache	cloudflare	0.005
+cloudflare.zone_analytics	cloudflare	0.003
+cloudflare.zones_list	cloudflare	0.001
+cms.dialysis_search	cms	0.001
+cms.home_health_search	cms	0.001
+cms.hospital_search	cms	0.001
+cms.nursing_home_search	cms	0.001
+cocktail.random	cocktaildb	0.001
+cocktail.search	cocktaildb	0.001
+code.execute	judge0	0.005
+code.languages	judge0	0.001
+coingecko.get_market	coingecko	0.001
+col.children	col	0.001
+col.detail	col	0.001
+col.search	col	0.001
+col.suggest	col	0.001
+comtrade.availability	comtrade	0.001
+comtrade.metadata	comtrade	0.001
+comtrade.reporters	comtrade	0.001
+comtrade.trade_data	comtrade	0.002
+congress.bill_details	congress	0.001
+congress.bills	congress	0.001
+congress.members	congress	0.001
+convert.from_pdf	convertapi	0.005
+convert.to_pdf	convertapi	0.005
+convert.web_to_pdf	convertapi	0.005
+coops.conditions	coops	0.001
+coops.predictions	coops	0.001
+coops.stations	coops	0.001
+coops.water_level	coops	0.001
+copernicus-sentinel.list_collections	copernicus-sentinel	0.001
+copernicus-sentinel.scene_detail	copernicus-sentinel	0.001
+copernicus-sentinel.search_scenes	copernicus-sentinel	0.002
+cordis.organisation_search	cordis	0.002
+cordis.project_details	cordis	0.003
+cordis.project_publications	cordis	0.002
+cordis.project_search	cordis	0.002
+country.by_code	restcountries	0.001
+country.search	restcountries	0.001
+courtlistener.dockets	courtlistener	0.002
+courtlistener.opinion	courtlistener	0.002
+courtlistener.search	courtlistener	0.002
+cpsc.by_manufacturer	cpsc	0.001
+cpsc.detail	cpsc	0.001
+cpsc.recent	cpsc	0.001
+cpsc.search	cpsc	0.001
+crossref-datacitations.article_datasets	crossref-datacitations	0.002
+crossref-datacitations.dataset_citations	crossref-datacitations	0.002
+crossref-datacitations.recent_citations	crossref-datacitations	0.001
+crossref.funder_search	crossref	0.002
+crossref.journal_lookup	crossref	0.001
+crossref.member_search	crossref	0.002
+crossref.works_search	crossref	0.002
+crypto.coin_detail	coingecko	0.001
+crypto.dex_pools	coingecko	0.001
+crypto.get_price	coingecko	0.001
+crypto.global	coingecko	0.001
+crypto.price_history	coingecko	0.002
+crypto.search	coingecko	0.001
+crypto.token_by_address	coingecko	0.001
+crypto.trending	coingecko	0.001
+currents.categories	currents	0.001
+currents.latest	currents	0.002
+currents.search	currents	0.002
+currentuvindex.uv_index	currentuvindex	0.002
+cve-mitre.id_status	cve-mitre	0.001
+cve-mitre.record	cve-mitre	0.002
+czso.dataset_data	czso	0.002
+czso.dataset_list	czso	0.001
+czso.dataset_metadata	czso	0.001
+data-europa.catalogue_list	data-europa	0.001
+data-europa.dataset_detail	data-europa	0.002
+data-europa.dataset_search	data-europa	0.002
+data-europa.theme_list	data-europa	0.001
+data-usa.cubes	data-usa	0.001
+data-usa.members	data-usa	0.001
+data-usa.query	data-usa	0.003
+datacite.client.search	datacite	0.001
+datacite.doi.lookup	datacite	0.001
+datacite.doi.search	datacite	0.001
+datacite.works.stats	datacite	0.002
+dblp.author	dblp	0.001
+dblp.search	dblp	0.001
+dbnomics.datasets	dbnomics	0.001
+dbnomics.fetch_series	dbnomics	0.002
+dbnomics.providers	dbnomics	0.001
+dbnomics.series	dbnomics	0.001
+delphi.covid_hosp	delphi	0.001
+delphi.covidcast	delphi	0.001
+delphi.flusurv	delphi	0.001
+delphi.fluview	delphi	0.001
+denmark-energidataservice.co2_emissions	denmark-energidataservice	0.001
+denmark-energidataservice.production_consumption	denmark-energidataservice	0.002
+denmark-energidataservice.spot_prices	denmark-energidataservice	0.001
+depsdev.advisories	depsdev	0.001
+depsdev.dependencies	depsdev	0.001
+depsdev.package	depsdev	0.001
+device.command	device	0.003
+device.list	device	0.001
+device.state	device	0.001
+dhl.track	dhl	0.001
+dictionary.define	dictionary	0.001
+dictionary.words	dictionary	0.001
+diffbot.article_extract	diffbot	0.003
+diffbot.page_analyze	diffbot	0.003
+diffbot.product_extract	diffbot	0.003
+diffbot.search	diffbot	0.005
+disease.covid_country	disease	0.001
+disease.covid_global	disease	0.001
+disease.covid_history	disease	0.001
+disease.influenza	disease	0.001
+doaj.article_detail	doaj	0.001
+doaj.article_search	doaj	0.001
+doaj.journal_detail	doaj	0.001
+doaj.journal_search	doaj	0.001
+dogceo.breeds_list	dogceo	0.001
+dogceo.random_image	dogceo	0.001
+dogceo.sub_breeds	dogceo	0.001
+dpla.items.by_subject	dpla	0.001
+dpla.items.detail	dpla	0.001
+dpla.items.facets	dpla	0.001
+dpla.items.search	dpla	0.001
+drought.county_stats	drought-monitor	0.001
+drought.dsci	drought-monitor	0.001
+drought.national_stats	drought-monitor	0.001
+drought.weeks_in_drought	drought-monitor	0.001
+duckduckgo.instant_answer	duckduckgo	0.001
+duckduckgo.related_topics	duckduckgo	0.001
+ea-hydrology.readings_latest	ea-hydrology	0.001
+ea-hydrology.readings_range	ea-hydrology	0.002
+ea-hydrology.station_measures	ea-hydrology	0.001
+ea-hydrology.station_search	ea-hydrology	0.001
+earthquake.count	usgs-earthquake	0.001
+earthquake.feed	usgs-earthquake	0.001
+earthquake.search	usgs-earthquake	0.001
+ebi-metagenomics.biome_browse	ebi-metagenomics	0.001
+ebi-metagenomics.sample_list	ebi-metagenomics	0.001
+ebi-metagenomics.study_detail	ebi-metagenomics	0.001
+ebi-metagenomics.study_search	ebi-metagenomics	0.001
+ecb-rates.hicp_inflation	ecb-rates	0.001
+ecb-rates.key_rates	ecb-rates	0.001
+ecb-rates.money_supply	ecb-rates	0.001
+ecb-rates.yield_curve	ecb-rates	0.001
+ecdc-surveillance.cases_deaths	ecdc-surveillance	0.002
+ecdc-surveillance.hospital_icu	ecdc-surveillance	0.002
+ecdc-surveillance.testing_rate	ecdc-surveillance	0.002
+echo.air_facilities	echo	0.003
+echo.facility_detail	echo	0.003
+echo.facility_search	echo	0.003
+echo.violations	echo	0.003
+edgar.company_facts	edgar	0.001
+edgar.company_search	edgar	0.001
+edgar.filings	edgar	0.001
+edgar.xbrl_concept	edgar	0.001
+edgar.xbrl_frames	edgar	0.003
+education.arxiv_search	education	0.002
+education.college_details	education	0.003
+education.college_search	education	0.003
+education.doi_lookup	education	0.002
+education.paper_details	education	0.002
+education.paper_search	education	0.002
+education.pubmed_search	education	0.002
+eia.electricity_retail	eia	0.002
+eia.natural_gas	eia	0.002
+eia.petroleum_spot	eia	0.001
+eia.series	eia	0.002
+email.validate	zerobounce	0.025
+email_verify.check	email_verify	0.01
+emsc.event_detail	emsc	0.001
+emsc.search_earthquakes	emsc	0.002
+ensembl.gene_lookup	ensembl	0.002
+ensembl.sequence_region	ensembl	0.001
+enviroatlas.block_group_metrics	enviroatlas	0.001
+enviroatlas.communities	enviroatlas	0.001
+enviroatlas.community_summary	enviroatlas	0.001
+eonet.categories	eonet	0.001
+eonet.event_detail	eonet	0.001
+eonet.events	eonet	0.001
+eonet.layers	eonet	0.001
+epa-aqs.annual_data	epa-aqs	0.002
+epa-aqs.daily_data	epa-aqs	0.002
+epa-aqs.list_counties	epa-aqs	0.002
+epa-aqs.list_parameters	epa-aqs	0.002
+epa-aqs.monitors	epa-aqs	0.002
+epa.toxic_releases	epa	0.001
+epa.water_systems	epa	0.001
+estat-japan-dashboard.get_data	estat-japan-dashboard	0.003
+estat-japan-dashboard.indicator_info	estat-japan-dashboard	0.002
+estat-japan-dashboard.region_info	estat-japan-dashboard	0.001
+estonia-statistics.catalog	estonia-statistics	0.001
+estonia-statistics.table_metadata	estonia-statistics	0.002
+estonia-statistics.table_query	estonia-statistics	0.003
+eu_parliament.legislation.adopted_texts	eu_parliament	0.001
+eu_parliament.legislation.procedures	eu_parliament	0.001
+eu_parliament.meps.details	eu_parliament	0.001
+eu_parliament.meps.list	eu_parliament	0.001
+eurlex.legislation.by_type	eurlex	0.002
+eurlex.legislation.detail	eurlex	0.002
+eurlex.legislation.recent	eurlex	0.001
+eurlex.legislation.search	eurlex	0.002
+europeana.record	europeana	0.001
+europeana.search	europeana	0.001
+europepmc.article	europepmc	0.001
+europepmc.citations	europepmc	0.001
+europepmc.references	europepmc	0.001
+europepmc.search	europepmc	0.001
+eurostat.gdp_growth	eurostat	0.001
+eurostat.inflation	eurostat	0.002
+eurostat.population	eurostat	0.001
+eurostat.unemployment	eurostat	0.002
+eurostat2.fertility	eurostat2	0.002
+eurostat2.ghg_emissions	eurostat2	0.002
+eurostat2.rd_spending	eurostat2	0.002
+eurostat2.renewable_energy	eurostat2	0.002
+eurostat2.youth_employment	eurostat2	0.002
+evcharge.details	openchargemap	0.001
+evcharge.nearby	openchargemap	0.001
+evcharge.search	openchargemap	0.001
+exa.contents	exa	0.003
+exa.find_similar	exa	0.012
+exa.search	exa	0.012
+exchangerate.convert	exchangerate	0.001
+exchangerate.latest	exchangerate	0.001
+f1.races.results	f1	0.001
+f1.races.schedule	f1	0.001
+f1.standings.constructors	f1	0.001
+f1.standings.drivers	f1	0.001
+faostat.food_insecurity	faostat	0.001
+faostat.food_loss	faostat	0.002
+faostat.food_security	faostat	0.001
+faostat.forest_area	faostat	0.001
+faostat.water_stress	faostat	0.001
+fatsecret.food_details	fatsecret	0.002
+fatsecret.food_search	fatsecret	0.002
+fbi.national_annual	fbi	0.002
+fbi.national_offenses	fbi	0.001
+fbi.state_annual	fbi	0.002
+fbi.state_offenses	fbi	0.001
+fbiwanted.by_category	fbiwanted	0.002
+fbiwanted.recent	fbiwanted	0.001
+fbiwanted.search	fbiwanted	0.002
+fcc.geo.block_fips	fcc	0.001
+fcc.regulatory.filings	fcc	0.001
+fcc.regulatory.proceeding_detail	fcc	0.001
+fcc.regulatory.proceedings	fcc	0.001
+fda_openfda.drug_recalls	fda_openfda	0.001
+fda_openfda.food_adverse_events	fda_openfda	0.002
+fda_openfda.ndc_directory	fda_openfda	0.001
+fdic.details	fdic	0.001
+fdic.failures	fdic	0.001
+fdic.financials	fdic	0.001
+fdic.search	fdic	0.001
+fec.candidates	fec	0.001
+fec.committee_totals	fec	0.001
+fec.elections	fec	0.001
+fec.super_pac_spending	fec	0.002
+federalregister.agencies	federalregister	0.001
+federalregister.document	federalregister	0.001
+federalregister.public_inspection	federalregister	0.001
+federalregister.search	federalregister	0.001
+fedregister.document	fedregister	0.001
+fedregister.recent	fedregister	0.001
+fedregister.search	fedregister	0.001
+fema.assistance	fema	0.001
+fema.disasters	fema	0.001
+fema.flood_claims	fema	0.001
+figi.filter	figi	0.001
+figi.map	figi	0.001
+figi.search	figi	0.001
+figshare.article_details	figshare	0.001
+figshare.categories	figshare	0.001
+figshare.search	figshare	0.001
+finance.country_data	finance	0.005
+finance.ecb_rates	finance	0.002
+finance.economic_indicator	finance	0.005
+finance.exchange_rates	finance	0.002
+finance.treasury_data	finance	0.003
+finance.validate_iban	finance	0.001
+finnhub.company_news	finnhub	0.002
+finnhub.company_profile	finnhub	0.002
+finnhub.market_news	finnhub	0.002
+finnhub.quote	finnhub	0.001
+firms.fires	firms	0.002
+food.barcode	openfoodfacts	0.001
+food.search	openfoodfacts	0.001
+frankfurter.currencies	frankfurter	0.001
+frankfurter.historical	frankfurter	0.001
+frankfurter.latest	frankfurter	0.001
+frankfurter.series	frankfurter	0.002
+freetogame.filter_by_tag	freetogame	0.001
+freetogame.game_detail	freetogame	0.001
+freetogame.game_list	freetogame	0.001
+gbif.occurrence_count	gbif	0.001
+gbif.occurrences	gbif	0.001
+gbif.species_details	gbif	0.001
+gbif.species_search	gbif	0.001
+gdacs.alerts	gdacs	0.001
+gdacs.events	gdacs	0.001
+gdacs.history	gdacs	0.001
+gebco.elevation_point	gebco	0.001
+gebco.elevation_profile	gebco	0.002
+geo.autocomplete	geo	0.002
+geo.geocode	geo	0.002
+geo.ip_geolocation	geo	0.002
+geo.isochrone	geo	0.005
+geo.place_search	geo	0.003
+geo.reverse_geocode	geo	0.002
+geo.routing	geo	0.005
+geoboundaries.boundary.available_levels	geoboundaries	0.001
+geoboundaries.boundary.detail	geoboundaries	0.001
+geoboundaries.boundary.list_countries	geoboundaries	0.002
+geocodio.geocode	geocodio	0.002
+geocodio.reverse	geocodio	0.002
+geodiva.eruption_search	geodiva	0.002
+geodiva.volcano_detail	geodiva	0.001
+geodiva.volcano_list	geodiva	0.001
+geonames.country.info	geonames	0.001
+geonames.place.search	geonames	0.001
+geonames.place.timezone	geonames	0.001
+geonames.postal.lookup	geonames	0.001
+geonet-nz.quake_detail	geonet-nz	0.001
+geonet-nz.quake_search	geonet-nz	0.001
+geonet-nz.quake_stats	geonet-nz	0.001
+geonet-nz.volcano_alert_level	geonet-nz	0.001
+gfw.ocean.fishing_effort	gfw	0.003
+gfw.vessel.details	gfw	0.002
+gfw.vessel.fishing_events	gfw	0.002
+gfw.vessel.search	gfw	0.002
+github.repo	github-api	0.001
+github.search_repos	github-api	0.002
+github.user	github-api	0.001
+global-health-covid.latest_snapshot	global-health-covid	0.002
+global-health-covid.location_history	global-health-covid	0.003
+global-health-covid.location_search	global-health-covid	0.001
+govuk.content	govuk	0.002
+govuk.organisations	govuk	0.001
+govuk.search	govuk	0.002
+gus-poland.data	gus-poland	0.002
+gus-poland.subjects	gus-poland	0.001
+gus-poland.variables	gus-poland	0.001
+gutendex.book	gutendex	0.001
+gutendex.by_author	gutendex	0.001
+gutendex.popular	gutendex	0.001
+gutendex.search	gutendex	0.001
+hackernews.best_stories	hackernews	0.001
+hackernews.item_details	hackernews	0.001
+hackernews.new_stories	hackernews	0.001
+hackernews.top_stories	hackernews	0.001
+hackernews.user_profile	hackernews	0.001
+hathitrust-digital.batch_lookup	hathitrust-digital	0.002
+hathitrust-digital.get_full_record	hathitrust-digital	0.003
+hathitrust-digital.lookup_by_id	hathitrust-digital	0.001
+hdx-hapi.baseline_population	hdx-hapi	0.002
+hdx-hapi.food_security	hdx-hapi	0.002
+hdx-hapi.humanitarian_needs	hdx-hapi	0.002
+hdx-hapi.operational_presence	hdx-hapi	0.002
+hdx.dataset_detail	hdx	0.002
+hdx.dataset_search	hdx	0.002
+hdx.location_list	hdx	0.001
+hdx.organization_list	hdx	0.001
+health.drug_events	health	0.003
+health.drug_labels	health	0.003
+health.food_details	health	0.003
+health.food_recalls	health	0.002
+health.food_search	health	0.002
+health.supplement_details	health	0.003
+health.supplement_search	health	0.002
+hf.datasets	hf	0.001
+hf.model_details	hf	0.001
+hf.models	hf	0.001
+hf_inference.ner	hf_inference	0.002
+hf_inference.sentiment	hf_inference	0.002
+hf_inference.summarize	hf_inference	0.003
+hf_inference.translate	hf_inference	0.002
+hf_inference.zero_shot	hf_inference	0.003
+hnalgolia.item_details	hnalgolia	0.001
+hnalgolia.search	hnalgolia	0.001
+hnalgolia.search_comments	hnalgolia	0.001
+hnalgolia.search_recent	hnalgolia	0.001
+hnalgolia.user_profile	hnalgolia	0.001
+holidays.by_country	nagerdate	0.001
+holidays.next	nagerdate	0.001
+hungary-ksh.dataset_data	hungary-ksh	0.002
+hungary-ksh.dataset_metadata	hungary-ksh	0.001
+hungary-ksh.dataset_search	hungary-ksh	0.001
+hunter.company	hunter	0.005
+hyperliquid.account	hyperliquid	0.005
+hyperliquid.klines	hyperliquid	0.003
+hyperliquid.market_data	hyperliquid	0.002
+hyperliquid.order_book	hyperliquid	0.003
+hyperliquid.positions	hyperliquid	0.005
+hyperliquid.vault	hyperliquid	0.005
+iban.calculate	ibanapi	0.002
+iban.validate	ibanapi	0.002
+ibge.cnae	ibge	0.001
+ibge.municipalities	ibge	0.001
+ibge.name_frequency	ibge	0.001
+ibge.regions	ibge	0.001
+ibge.states	ibge	0.001
+icd11.autocomplete	nlm-icd11	0.001
+icd11.lookup	nlm-icd11	0.001
+icd11.primary_search	nlm-icd11	0.001
+icd11.search	nlm-icd11	0.001
+iceland-statistics.catalog	iceland-statistics	0.001
+iceland-statistics.table_metadata	iceland-statistics	0.002
+iceland-statistics.table_query	iceland-statistics	0.003
+igdb.company_info	igdb	0.001
+igdb.game_details	igdb	0.001
+igdb.game_media	igdb	0.001
+igdb.game_search	igdb	0.001
+igdb.platform_info	igdb	0.001
+ilostat.data	ilostat	0.002
+ilostat.dataflows	ilostat	0.001
+ilostat.structure	ilostat	0.001
+imf.current_account	imf	0.001
+imf.fiscal_balance	imf	0.001
+imf.gdp_growth	imf	0.001
+imf.inflation	imf	0.001
+imgflip.caption	imgflip	0.001
+imgflip.memes	imgflip	0.001
+inaturalist.observations_search	inaturalist	0.002
+inaturalist.places_search	inaturalist	0.001
+inaturalist.species_counts	inaturalist	0.002
+inaturalist.taxa_search	inaturalist	0.001
+indec-argentina.get_series	indec-argentina	0.001
+indec-argentina.search_series	indec-argentina	0.001
+indec-georef.departamentos	indec-georef	0.001
+indec-georef.geocode	indec-georef	0.001
+indec-georef.localidades	indec-georef	0.001
+indec-georef.provincias	indec-georef	0.001
+indec-georef.reverse_geocode	indec-georef	0.001
+ine-chile.data	ine-chile	0.001
+ine-chile.dataflows	ine-chile	0.001
+ine-chile.structure	ine-chile	0.001
+ine-portugal.indicator_data	ine-portugal	0.002
+ine-portugal.indicator_metadata	ine-portugal	0.001
+ine-spain.operations	ine-spain	0.001
+ine-spain.series_data	ine-spain	0.002
+ine-spain.table_data	ine-spain	0.002
+ine-spain.tables	ine-spain	0.001
+ine.operations	ine	0.001
+ine.series_data	ine	0.001
+ine.series_metadata	ine	0.001
+ine.tables	ine	0.001
+insee.company_by_siren	insee	0.001
+insee.establishment_by_siret	insee	0.001
+insee.search_companies	insee	0.002
+insee.search_establishments	insee	0.002
+ip.bulk_lookup	ipapi	0.005
+ip.lookup	ipapi	0.002
+ipqs.email_check	ipqs	0.003
+ipqs.ip_check	ipqs	0.003
+ipqs.phone_check	ipqs	0.003
+ipqs.url_check	ipqs	0.003
+irail.connections	irail	0.002
+irail.disturbances	irail	0.001
+irail.liveboard	irail	0.001
+irail.stations	irail	0.001
+irail.vehicle	irail	0.001
+irctc.station_search	irctc	0.001
+irctc.train_search	irctc	0.005
+irctc.train_status	irctc	0.005
+irena.capacity_country	irena	0.002
+irena.capacity_region	irena	0.001
+irena.generation_country	irena	0.002
+irena.share_renewables	irena	0.001
+iss.position	iss	0.001
+iss.tle	iss	0.001
+istat.data	istat	0.002
+istat.dataflows	istat	0.001
+istat.structure	istat	0.001
+itistaxonomy.get_full_record	itistaxonomy	0.002
+itistaxonomy.search_common_name	itistaxonomy	0.001
+itistaxonomy.search_scientific_name	itistaxonomy	0.001
+jma-bosai.areas	jma-bosai	0.001
+jma-bosai.earthquakes	jma-bosai	0.001
+jma-bosai.forecast	jma-bosai	0.001
+jma-bosai.overview	jma-bosai	0.001
+jma-bosai.warnings	jma-bosai	0.001
+jobs.esco_details	jobs	0.003
+jobs.esco_search	jobs	0.003
+jobs.job_search	jobs	0.003
+jobs.occupation_details	jobs	0.003
+jobs.occupation_search	jobs	0.003
+jobs.salary_data	jobs	0.003
+jooble.search	jooble	0.001
+jpl.close_approaches	jpl	0.001
+jpl.fireballs	jpl	0.001
+jpl.impact_risk	jpl	0.001
+jpl.small_body	jpl	0.001
+langbly.detect	langbly	0.001
+langbly.languages	langbly	0.001
+langbly.translate	langbly	0.002
+latvia-statistics.catalog	latvia-statistics	0.001
+latvia-statistics.table_metadata	latvia-statistics	0.002
+latvia-statistics.table_query	latvia-statistics	0.003
+launch-library-2.agency_search	launch-library-2	0.001
+launch-library-2.astronaut_search	launch-library-2	0.001
+launch-library-2.launch_detail	launch-library-2	0.002
+launch-library-2.upcoming_launches	launch-library-2	0.002
+lei.lookup	gleif	0.001
+lei.relationships	gleif	0.001
+lei.search	gleif	0.001
+librivox.book	librivox	0.001
+librivox.search	librivox	0.001
+lichess.daily_puzzle	lichess	0.001
+lichess.top_players	lichess	0.001
+lichess.user_profile	lichess	0.001
+listennotes.best	listennotes	0.002
+listennotes.podcast	listennotes	0.002
+listennotes.search	listennotes	0.003
+lmpr.boxed_beef_cutout	lmpr	0.001
+lmpr.cattle_slaughter_prices	lmpr	0.001
+lmpr.dairy_product_prices	lmpr	0.001
+lmpr.hog_slaughter_prices	lmpr	0.001
+lmpr.lamb_carcass_cutout	lmpr	0.001
+loc.collections	loc	0.001
+loc.item	loc	0.001
+loc.search	loc	0.002
+macrostrat.columns_search	macrostrat	0.002
+macrostrat.fossils_search	macrostrat	0.002
+macrostrat.geologic_map_units	macrostrat	0.001
+macrostrat.units_search	macrostrat	0.002
+malaria-atlas.case_estimates	malaria-atlas	0.002
+malaria-atlas.country_list	malaria-atlas	0.001
+malaria-atlas.parasite_rate_survey	malaria-atlas	0.002
+malaria-atlas.vector_occurrence	malaria-atlas	0.002
+malaysiagov.dataset	malaysiagov	0.001
+malaysiagov.earthquake	malaysiagov	0.001
+malaysiagov.flood_warning	malaysiagov	0.001
+malaysiagov.weather_forecast	malaysiagov	0.001
+malaysiagov.weather_warning	malaysiagov	0.001
+marine.forecast	marine	0.002
+marine.sea_temperature	marine	0.001
+marine.swell_forecast	marine	0.001
+marine.wave_conditions	marine	0.001
+mastodon.trending	mastodon	0.001
+mastodon.trending_tags	mastodon	0.001
+materials.details	materials-project	0.001
+materials.elasticity	materials-project	0.001
+materials.search	materials-project	0.001
+mbta-transit.alerts	mbta-transit	0.001
+mbta-transit.predictions	mbta-transit	0.002
+mbta-transit.routes	mbta-transit	0.001
+mbta-transit.stops	mbta-transit	0.001
+medlineplus.icd10_lookup	medlineplus	0.001
+medlineplus.icd9_lookup	medlineplus	0.001
+medlineplus.rxnorm_lookup	medlineplus	0.001
+medlineplus.snomed_lookup	medlineplus	0.001
+met.browse	met-museum	0.001
+met.departments	met-museum	0.001
+met.details	met-museum	0.001
+met.search	met-museum	0.001
+meteostat.daily_data	meteostat	0.002
+meteostat.hourly_data	meteostat	0.002
+meteostat.monthly_data	meteostat	0.002
+meteostat.station_info	meteostat	0.001
+meteostat.stations_nearby	meteostat	0.002
+metno.alerts	met-norway	0.001
+metno.forecast	met-norway	0.002
+metno.nowcast	met-norway	0.001
+metno.sunrise	met-norway	0.001
+mfapi.nav_history	mfapi	0.002
+mfapi.nav_latest	mfapi	0.001
+mfapi.scheme_list	mfapi	0.002
+mfapi.scheme_search	mfapi	0.002
+msc-geomet.aqhi_observations	msc-geomet	0.001
+msc-geomet.climate_daily	msc-geomet	0.002
+msc-geomet.climate_stations	msc-geomet	0.001
+msc-geomet.hydrometric_realtime	msc-geomet	0.001
+music.artist_details	music	0.003
+music.artist_search	music	0.003
+music.fresh_releases	music	0.003
+music.radio_search	music	0.002
+music.recording_search	music	0.003
+music.release_details	music	0.003
+music.release_search	music	0.003
+mychem.annotation	mychem	0.001
+mychem.batch_query	mychem	0.002
+mychem.metadata	mychem	0.001
+mychem.search	mychem	0.001
+mygene.batch_genes	mygene	0.002
+mygene.gene_info	mygene	0.001
+mygene.query_by_symbol	mygene	0.001
+mygene.search	mygene	0.001
+myvariant.batch_variants	myvariant	0.002
+myvariant.metadata	myvariant	0.001
+myvariant.search	myvariant	0.001
+myvariant.variant_info	myvariant	0.001
+namesilo.domain_check	namesilo	0.001
+namesilo.domain_info	namesilo	0.001
+namesilo.domain_list	namesilo	0.001
+namesilo.domain_register	namesilo	21
+namesilo.get_prices	namesilo	0.001
+nasa-cmr.collection_detail	nasa-cmr	0.001
+nasa-cmr.list_providers	nasa-cmr	0.001
+nasa-cmr.search_collections	nasa-cmr	0.002
+nasa-cmr.search_granules	nasa-cmr	0.002
+nasa.apod	nasa	0.001
+nasa.donki_flr	nasa	0.001
+nasa.epic	nasa	0.001
+nasa.image_search	nasa	0.001
+nasa.neo_feed	nasa	0.001
+nasaexoplanet.habitable	nasaexoplanet	0.002
+nasaexoplanet.planet_detail	nasaexoplanet	0.001
+nasaexoplanet.search	nasaexoplanet	0.001
+nasaexoplanet.stats	nasaexoplanet	0.001
+nasantrs.recent	nasantrs	0.001
+nasantrs.report	nasantrs	0.001
+nasantrs.search	nasantrs	0.001
+nasantrs.stats	nasantrs	0.001
+nbi.bridge_detail	nbi	0.002
+nbi.condition_stats	nbi	0.001
+nbi.nearby	nbi	0.002
+nbi.search	nbi	0.001
+ncbi-eutils.taxonomy_lineage	ncbi-eutils	0.001
+ncbi-eutils.taxonomy_search	ncbi-eutils	0.001
+ncbi-eutils.taxonomy_summary	ncbi-eutils	0.001
+ncei.daily_data	ncei	0.002
+ncei.stations	ncei	0.002
+netherlands-pdok-kadaster.get_perceel	netherlands-pdok-kadaster	0.001
+netherlands-pdok-kadaster.search_bebouwing	netherlands-pdok-kadaster	0.002
+netherlands-pdok-kadaster.search_percelen	netherlands-pdok-kadaster	0.002
+news.crypto	newsdata	0.002
+news.latest	newsdata	0.002
+news.sources	newsdata	0.001
+nihreporter.projects.by_org	nihreporter	0.001
+nihreporter.projects.by_pi	nihreporter	0.001
+nihreporter.projects.search	nihreporter	0.001
+nihreporter.publications.by_project	nihreporter	0.001
+noaa-fisheries-stats.landings	noaa-fisheries-stats	0.002
+noaa-fisheries-stats.survey_catch	noaa-fisheries-stats	0.002
+noaa-fisheries-stats.survey_species	noaa-fisheries-stats	0.001
+noaa.forecast	noaa	0.002
+noaa.hourly	noaa	0.002
+noaa.observation	noaa	0.002
+nominatim-osm.lookup	nominatim-osm	0.002
+nominatim-osm.reverse	nominatim-osm	0.002
+nominatim-osm.search	nominatim-osm	0.002
+norgesbank.fx.history	norgesbank	0.002
+norgesbank.fx.latest	norgesbank	0.001
+norgesbank.rates.current	norgesbank	0.001
+norgesbank.rates.history	norgesbank	0.002
+norway-kartverket-stedsnavn.get_place	norway-kartverket-stedsnavn	0.001
+norway-kartverket-stedsnavn.search_by_point	norway-kartverket-stedsnavn	0.002
+norway-kartverket-stedsnavn.search_names	norway-kartverket-stedsnavn	0.002
+npm.downloads	npm	0.001
+npm.package_info	npm	0.001
+npm.search	npm	0.001
+npm.versions	npm	0.001
+nps.alerts	nps	0.001
+nps.campgrounds	nps	0.001
+nps.parks	nps	0.001
+nps.things_to_do	nps	0.001
+nrc.annual_data	nrc	0.003
+nrc.current_status	nrc	0.002
+nrc.outages	nrc	0.002
+nrc.reactor_history	nrc	0.002
+nrel.afdc_station_detail	nrel	0.001
+nrel.afdc_stations_nearest	nrel	0.002
+nrel.afdc_stations_search	nrel	0.002
+nrel.pvwatts_estimate	nrel	0.003
+nsf-awards.award_detail	nsf-awards	0.001
+nsf-awards.search	nsf-awards	0.001
+nvd.cpe_search	nvd	0.002
+nvd.cve_detail	nvd	0.001
+nvd.cve_search	nvd	0.002
+nwis.annual_stats	usgs-nwis	0.002
+nwis.basin_conditions	usgs-nwis	0.003
+nwis.daily_values	usgs-nwis	0.001
+nwis.site_info	usgs-nwis	0.001
+obis.checklist	obis	0.002
+obis.dataset_search	obis	0.001
+obis.occurrence_search	obis	0.001
+obis.taxon_search	obis	0.001
+ocr.extract_text	ocrspace	0.002
+oecd-data.data	oecd-data	0.002
+oecd-data.dataflows	oecd-data	0.001
+oecd-data.structure	oecd-data	0.001
+oecd.economy.gdp	oecd-stats	0.002
+oecd.economy.inflation	oecd-stats	0.002
+oecd.economy.trade	oecd-stats	0.002
+oecd.economy.unemployment	oecd-stats	0.002
+oecd.environment.emissions	oecd-stats	0.002
+ofac.meta.programs	ofac	0.002
+ofac.meta.publication_info	ofac	0.001
+ofac.sdn.aliases	ofac	0.002
+ofac.sdn.search	ofac	0.003
+ons.datasets.list	ons-uk-stats	0.001
+ons.stats.cpih	ons-uk-stats	0.001
+ons.stats.gdp	ons-uk-stats	0.001
+ons.stats.population	ons-uk-stats	0.002
+ons.stats.unemployment	ons-uk-stats	0.001
+open-canada.dataset_detail	open-canada	0.002
+open-canada.dataset_search	open-canada	0.002
+open-canada.organization_list	open-canada	0.001
+open-canada.subject_list	open-canada	0.001
+openaire.organization_search	openaire	0.002
+openaire.product_details	openaire	0.001
+openaire.project_search	openaire	0.002
+openaire.search	openaire	0.002
+openalex.authors_search	openalex	0.001
+openalex.get_work	openalex	0.002
+openalex.works_search	openalex	0.002
+openbeautyfacts.barcode	openbeautyfacts	0.001
+openbeautyfacts.search	openbeautyfacts	0.001
+openbrewery.list	openbrewery	0.002
+openbrewery.random	openbrewery	0.001
+openbrewery.search	openbrewery	0.002
+opencontext.detail	opencontext	0.002
+opencontext.facets	opencontext	0.001
+opencontext.projects	opencontext	0.001
+opencontext.search	opencontext	0.001
+opendota.match_detail	opendota	0.002
+opendota.player_matches	opendota	0.002
+opendota.player_summary	opendota	0.001
+opendota.pro_teams	opendota	0.001
+openfda_devices.adverse_events	openfda_devices	0.002
+openfda_devices.classification	openfda_devices	0.001
+openfda_devices.clearances_510k	openfda_devices	0.002
+openfda_devices.recalls	openfda_devices	0.001
+openmeteoaq.current	openmeteoaq	0.001
+openmeteoaq.forecast	openmeteoaq	0.002
+openmeteoaq.historical	openmeteoaq	0.002
+openmeteoaq.pollen	openmeteoaq	0.001
+opensensemap.box_detail	opensensemap	0.001
+opensensemap.box_search	opensensemap	0.002
+opensensemap.sensor_timeseries	opensensemap	0.002
+opensensemap.sensors_latest	opensensemap	0.001
+opensky.aircraft_state	opensky	0.001
+opensky.aircraft_track	opensky	0.002
+opensky.states_bbox	opensky	0.001
+opensky.states_country	opensky	0.002
+openstates.bill_detail	openstates	0.002
+openstates.bills_search	openstates	0.001
+openstates.committees	openstates	0.001
+openstates.people_search	openstates	0.001
+opentdb.categories	opentdb	0.001
+opentdb.category_count	opentdb	0.001
+opentdb.global_count	opentdb	0.001
+opentdb.questions	opentdb	0.001
+opentopo.dem_catalog	opentopography	0.002
+opentopo.elevation_area	opentopography	0.003
+opentopo.elevation_point	opentopography	0.002
+opentopo.lidar_catalog	opentopography	0.002
+opentopodata.batch	opentopodata	0.002
+opentopodata.high_res	opentopodata	0.001
+opentopodata.ocean	opentopodata	0.001
+opentopodata.point	opentopodata	0.001
+orcid.get_person	orcid	0.001
+orcid.get_works	orcid	0.002
+orcid.search_researcher	orcid	0.001
+orphadata.disease_epidemiology	orphadata	0.001
+orphadata.disease_lookup	orphadata	0.001
+orphadata.disease_natural_history	orphadata	0.001
+orphadata.disease_phenotypes	orphadata	0.001
+osv.batch_query	osv	0.003
+osv.get	osv	0.001
+osv.query	osv	0.001
+overpass.amenities	overpass	0.002
+overpass.named_place	overpass	0.002
+overpass.pois_nearby	overpass	0.002
+overpass.public_transport	overpass	0.002
+p2pquake.quake_history	p2pquake	0.001
+p2pquake.recent_quakes	p2pquake	0.001
+p2pquake.tsunami_warnings	p2pquake	0.001
+paleoclimate.study_detail	paleoclimate	0.001
+paleoclimate.study_search	paleoclimate	0.002
+pdb.ligand	rcsb	0.001
+pdb.search	rcsb	0.001
+pdb.sequence	rcsb	0.001
+pdb.structure	rcsb	0.001
+pexels.curated	pexels	0.001
+pexels.search_photos	pexels	0.001
+pexels.search_videos	pexels	0.001
+pharmgkb.drug_labels	pharmgkb	0.002
+pharmgkb.drug_search	pharmgkb	0.001
+pharmgkb.gene_search	pharmgkb	0.001
+pharmgkb.variant_lookup	pharmgkb	0.001
+platform.call_batch	platform	0
+platform.tool_quality	platform	0
+platform.tool_rankings	platform	0
+plos-search.article_detail	plos-search	0.001
+plos-search.search	plos-search	0.002
+podcast.by_feed	podcastindex	0.001
+podcast.episodes	podcastindex	0.001
+podcast.search	podcastindex	0.001
+podcast.trending	podcastindex	0.001
+pokeapi.move	pokeapi	0.001
+pokeapi.pokemon	pokeapi	0.001
+pokeapi.species	pokeapi	0.001
+pokeapi.type	pokeapi	0.001
+polymarket.balance	polymarket	0.0005
+polymarket.cancel_order	polymarket	0.001
+polymarket.get_orderbook	polymarket	0.0005
+polymarket.market_detail	polymarket	0.0005
+polymarket.open_orders	polymarket	0.0005
+polymarket.place_order	polymarket	0.001
+polymarket.price_history	polymarket	0.0005
+polymarket.prices	polymarket	0.0005
+polymarket.search	polymarket	0.0005
+polymarket.trade_history	polymarket	0.0005
+polymarket.trending	polymarket	0.0005
+postal.lookup	zippopotamus	0.001
+postcode-japan.lookup	postcode-japan	0.001
+postcode-japan.prefectures	postcode-japan	0.001
+postcode-japan.search	postcode-japan	0.001
+pubchem.bioassay_summary	pubchem	0.001
+pubchem.compound_properties	pubchem	0.001
+pubchem.compound_search	pubchem	0.001
+pubchem.compound_synonyms	pubchem	0.001
+pubchem.hazard_data	pubchem	0.001
+pubchem.structure_lookup	pubchem	0.001
+pypi.package_info	pypi	0.001
+pypi.releases	pypi	0.001
+qrserver.generate	qrserver	0.001
+qrserver.read	qrserver	0.001
+random.user	randomuser	0.001
+rateapi.auto_loan	rateapi	0.002
+rateapi.heloc	rateapi	0.002
+rateapi.mortgage	rateapi	0.002
+rateapi.personal_loan	rateapi	0.002
+rawg.game_details	rawg	0.001
+rawg.game_search	rawg	0.001
+rawg.game_series	rawg	0.001
+rawg.screenshots	rawg	0.001
+rawg.store_links	rawg	0.001
+razorpayifsc.lookup	razorpayifsc	0.001
+reed.details	reed	0.001
+reed.search	reed	0.001
+regulations.document	regulations	0.001
+regulations.search	regulations	0.001
+remotive.search	remotive	0.001
+resend.email_status	resend	0.001
+resend.send_email	resend	0.003
+rijks.details	rijksmuseum	0.001
+rijks.search	rijksmuseum	0.001
+ror.affiliation	ror	0.001
+ror.filter	ror	0.001
+ror.get	ror	0.001
+ror.search	ror	0.001
+rxnorm.drug_class	rxnorm	0.001
+rxnorm.drug_search	rxnorm	0.001
+rxnorm.ndc_lookup	rxnorm	0.001
+rxnorm.rxcui_properties	rxnorm	0.001
+sabre.airline_lookup	sabre	0.002
+sabre.destination_finder	sabre	0.005
+sabre.search_flights	sabre	0.01
+sabre.travel_themes	sabre	0.002
+safety.complaints	nhtsa-safety	0.001
+safety.investigations	nhtsa-safety	0.001
+safety.ratings	nhtsa-safety	0.001
+safety.recalls	nhtsa-safety	0.001
+sam.entity_detail	sam	0.002
+sam.entity_search	sam	0.002
+samuni.audit_opinions	samuni	0.002
+samuni.income_expenditure	samuni	0.002
+samuni.municipalities	samuni	0.001
+samuni.officials	samuni	0.001
+scb.catalog	scb	0.001
+scb.table_metadata	scb	0.002
+scb.table_query	scb	0.003
+screenshot.capture	apiflash	0.005
+sdwis.enforcement	sdwis	0.001
+sdwis.service_areas	sdwis	0.001
+sdwis.violations	sdwis	0.002
+sdwis.water_systems	sdwis	0.001
+sec-edgar.company_lookup	sec-edgar	0.001
+sec-edgar.filings	sec-edgar	0.002
+sec-edgar.financial_concept	sec-edgar	0.002
+semanticscholar.authors_search	semanticscholar	0.001
+semanticscholar.get_paper	semanticscholar	0.002
+semanticscholar.papers_search	semanticscholar	0.002
+sepa-scotland.rainfall_history	sepa-scotland	0.002
+sepa-scotland.station_current	sepa-scotland	0.001
+sepa-scotland.stations_search	sepa-scotland	0.001
+serper.image_search	serper	0.002
+serper.news_search	serper	0.002
+serper.shopping_search	serper	0.002
+serper.web_search	serper	0.002
+sg.air_quality	datagovsg	0.002
+sg.rainfall	datagovsg	0.001
+sg.taxi_availability	datagovsg	0.002
+sg.weather_forecast	datagovsg	0.001
+shipengine.carriers	shipengine	0.001
+shipengine.rates	shipengine	0.003
+shipengine.validate	shipengine	0.002
+shorturl.create	shortio	0.002
+shorturl.stats	shortio	0.001
+slovakia-statistics.dataset_data	slovakia-statistics	0.002
+slovakia-statistics.dataset_metadata	slovakia-statistics	0.001
+slovakia-statistics.dataset_search	slovakia-statistics	0.001
+smhi.fire_risk	smhi	0.001
+smhi.forecast	smhi	0.001
+smhi.observations	smhi	0.001
+smhi.warnings	smhi	0.001
+smithsonian.record	smithsonian	0.001
+smithsonian.search	smithsonian	0.001
+socrata.dataset_metadata	socrata	0.001
+socrata.dataset_search	socrata	0.002
+socrata.query_dataset	socrata	0.002
+soil.properties	soil	0.001
+solar.bodies	solar	0.001
+solar.body_details	solar	0.001
+spending.agency	spending	0.001
+spending.awards	spending	0.001
+spending.geography	spending	0.001
+spider.scrape	spider	0.003
+spider.search	spider	0.005
+spoonacular.analyze_recipe	spoonacular	0.005
+spoonacular.by_ingredients	spoonacular	0.003
+spoonacular.ingredient_search	spoonacular	0.002
+spoonacular.recipe_details	spoonacular	0.003
+spoonacular.recipe_search	spoonacular	0.003
+sports.basketball_games	apisports	0.003
+sports.football_fixtures	apisports	0.003
+sports.football_leagues	apisports	0.002
+sports.football_standings	apisports	0.003
+ssbnorway.metadata	ssbnorway	0.001
+ssbnorway.population	ssbnorway	0.001
+ssbnorway.query	ssbnorway	0.002
+ssbnorway.search	ssbnorway	0.001
+stability.generate	stability	0.07
+standard-ebooks.new_releases	standard-ebooks	0.001
+standard-ebooks.search	standard-ebooks	0.001
+statbel.datasource_detail	statbel	0.001
+statbel.list_datasources	statbel	0.001
+statbel.list_views	statbel	0.001
+statbel.view_data	statbel	0.002
+statcan.catalogue_search	statcan	0.002
+statcan.series_data	statcan	0.002
+statcan.series_info	statcan	0.001
+statcan.table_data	statcan	0.002
+statcan.table_metadata	statcan	0.001
+statfin.consumer_price_index	statfin	0.001
+statfin.population	statfin	0.001
+statfin.table_search	statfin	0.001
+statfin.unemployment	statfin	0.001
+statistics-denmark.data	statistics-denmark	0.002
+statistics-denmark.subjects	statistics-denmark	0.001
+statistics-denmark.table_info	statistics-denmark	0.001
+statistics-denmark.tables	statistics-denmark	0.001
+statistik-austria.category_codes	statistik-austria	0.001
+statistik-austria.dataset_data	statistik-austria	0.002
+statistik-austria.dataset_metadata	statistik-austria	0.001
+statistik-austria.dataset_search	statistik-austria	0.001
+sunrisesunset.daily	sunrisesunset	0.001
+sunrisesunset.moon_phase	sunrisesunset	0.001
+sunrisesunset.range	sunrisesunset	0.002
+sunrisesunset.sun_position	sunrisesunset	0.001
+swissfso.catalog.list	swissfso	0.001
+swissfso.table.metadata	swissfso	0.001
+swissfso.table.query	swissfso	0.003
+swissfso.wages.monthly	swissfso	0.002
+swissnbm.fx_rates	swissnbm	0.002
+swissnbm.monetary_aggregates	swissnbm	0.002
+swissnbm.policy_rate	swissnbm	0.001
+swissnbm.saron_rates	swissnbm	0.001
+swpc.aurora	swpc	0.001
+swpc.k_index	swpc	0.001
+swpc.solar_regions	swpc	0.001
+swpc.solar_wind	swpc	0.001
+tatoeba.languages	tatoeba	0.001
+tatoeba.search	tatoeba	0.001
+tatoeba.sentence	tatoeba	0.001
+tavily.extract	tavily	0.01
+tavily.search	tavily	0.01
+telegram.get_chat	telegram	0.001
+telegram.get_updates	telegram	0.001
+telegram.send_document	telegram	0.001
+telegram.send_message	telegram	0.001
+telegram.send_photo	telegram	0.001
+telnyx.balance	telnyx	0.001
+telnyx.estimate_price	telnyx	0.001
+telnyx.list_messages	telnyx	0.002
+telnyx.message_status	telnyx	0.001
+telnyx.send_sms_na	telnyx	0.012
+telnyx.send_sms_premium	telnyx	0.25
+telnyx.send_sms_world	telnyx	0.1
+tfl.arrivals	tfl	0.001
+tfl.bike_points	tfl	0.001
+tfl.journey_plan	tfl	0.002
+tfl.line_status	tfl	0.001
+theirstack.companies	theirstack	0.002
+theirstack.jobs	theirstack	0.002
+thesportsdb.events_next	thesportsdb	0.001
+thesportsdb.events_past	thesportsdb	0.001
+thesportsdb.player_search	thesportsdb	0.001
+thesportsdb.team_search	thesportsdb	0.001
+ticketmaster.artist_events	ticketmaster	0.005
+ticketmaster.event_details	ticketmaster	0.005
+ticketmaster.events_categories	ticketmaster	0.001
+ticketmaster.events_nearby	ticketmaster	0.003
+ticketmaster.events_search	ticketmaster	0.003
+ticketmaster.events_trending	ticketmaster	0.003
+ticketmaster.venue_events	ticketmaster	0.003
+tides.predictions	noaa-tides	0.001
+tides.water_levels	noaa-tides	0.001
+tmdb.movie_details	tmdb	0.005
+tmdb.movie_discover	tmdb	0.005
+tmdb.movie_person	tmdb	0.003
+tmdb.movie_search	tmdb	0.002
+tmdb.movie_similar	tmdb	0.003
+tmdb.movie_trending	tmdb	0.002
+tmdb.movie_where_to_watch	tmdb	0.003
+tracking.list	17track	0.001
+tracking.register	17track	0.025
+tracking.status	17track	0.002
+transcribe.result	assemblyai	0.005
+transcribe.status	assemblyai	0.003
+transcribe.submit	assemblyai	0.01
+transport-rest.journey_search	transport-rest	0.002
+transport-rest.location_search	transport-rest	0.001
+transport-rest.nearby_stops	transport-rest	0.001
+transport-rest.stop_departures	transport-rest	0.002
+treasurydirect.auction_results	treasurydirect	0.001
+treasurydirect.search_cusip	treasurydirect	0.001
+treasurydirect.tips_rates	treasurydirect	0.001
+treasurydirect.upcoming_auctions	treasurydirect	0.001
+treasuryfiscal.debt.current	treasuryfiscal	0.001
+treasuryfiscal.debt.expense	treasuryfiscal	0.001
+treasuryfiscal.rates.interest	treasuryfiscal	0.001
+treasuryfiscal.yield.quarterly	treasuryfiscal	0.001
+tvmaze.schedule	tvmaze	0.001
+tvmaze.show_cast	tvmaze	0.001
+tvmaze.show_details	tvmaze	0.001
+tvmaze.show_episodes	tvmaze	0.001
+tvmaze.show_search	tvmaze	0.001
+twilio.lookup	twilio	0.005
+twilio.send_sms	twilio	0.015
+twitter.followers	twitterapi	0.003
+twitter.search	twitterapi	0.002
+twitter.trending	twitterapi	0.002
+twitter.user	twitterapi	0.002
+uk-ea-flood-monitoring.current_warnings	uk-ea-flood-monitoring	0.002
+uk-ea-flood-monitoring.station_readings	uk-ea-flood-monitoring	0.002
+uk-ea-flood-monitoring.station_search	uk-ea-flood-monitoring	0.002
+uk-landregistry-pricepaid.get_transaction	uk-landregistry-pricepaid	0.001
+uk-landregistry-pricepaid.search_by_area	uk-landregistry-pricepaid	0.003
+uk-landregistry-pricepaid.search_by_postcode	uk-landregistry-pricepaid	0.002
+ukcompany.details	companieshouse	0.001
+ukcompany.search	companieshouse	0.001
+ukfsa.establishment_details	ukfsa	0.001
+ukfsa.establishment_search	ukfsa	0.002
+ukfsa.local_authorities	ukfsa	0.001
+ukhsa-dashboard.browse	ukhsa-dashboard	0.001
+ukhsa-dashboard.metric_data	ukhsa-dashboard	0.002
+ukleg.legislation.details	ukleg	0.002
+ukleg.legislation.recent	ukleg	0.001
+ukleg.legislation.search	ukleg	0.001
+ukleg.legislation.sections	ukleg	0.002
+ukpolice.crimes_near	ukpolice	0.002
+ukpolice.forces	ukpolice	0.001
+ukpolice.outcomes_at_location	ukpolice	0.002
+ukpost.lookup	postcodes-io	0.001
+ukpost.nearest	postcodes-io	0.001
+ukpost.validate	postcodes-io	0.001
+unesco-data.geounit_list	unesco-data	0.001
+unesco-data.get_data	unesco-data	0.003
+unesco-data.indicator_search	unesco-data	0.002
+unhabitat.city_budget	unhabitat	0.002
+unhabitat.land_consumption	unhabitat	0.001
+unhabitat.open_spaces	unhabitat	0.001
+unhabitat.transport_access	unhabitat	0.001
+unhcr.asylum_applications	unhcr	0.001
+unhcr.asylum_decisions	unhcr	0.001
+unhcr.population	unhcr	0.001
+unhcr.solutions	unhcr	0.001
+uniprot.protein_entry	uniprot	0.002
+uniprot.protein_features	uniprot	0.002
+uniprot.protein_search	uniprot	0.001
+uniprot.taxonomy	uniprot	0.001
+unpaywall.oa_lookup	unpaywall	0.002
+unsdg.data.query	unsdg	0.002
+unsdg.geo.countries	unsdg	0.001
+unsdg.goals.list	unsdg	0.001
+unsdg.indicators.list	unsdg	0.001
+unsdg.targets.list	unsdg	0.001
+upc.lookup	upcitemdb	0.002
+upc.search	upcitemdb	0.002
+usajobs.code_lists	usajobs	0.001
+usajobs.position_detail	usajobs	0.001
+usajobs.search	usajobs	0.002
+usdamars.get_report	usdamars	0.001
+usdamars.list_corrected	usdamars	0.001
+usdamars.list_reports	usdamars	0.001
+usdamars.search_reports	usdamars	0.001
+usgs-epqs.elevation	usgs-epqs	0.001
+usgs-mrds.search_by_area	usgs-mrds	0.001
+usgs-nationalmap.list_datasets	usgs-nationalmap	0.001
+usgs-nationalmap.search_products	usgs-nationalmap	0.002
+usno.moon_phases	usno	0.001
+usno.seasons	usno	0.001
+usno.sun_moon	usno	0.001
+usrealestate.for_sale	usrealestate	0.002
+usrealestate.location_suggest	usrealestate	0.001
+usrealestate.property_detail	usrealestate	0.003
+vam.by_category	vam	0.001
+vam.by_maker	vam	0.001
+vam.object	vam	0.001
+vam.search	vam	0.001
+vatcomply.currencies	vatcomply	0.001
+vatcomply.rates	vatcomply	0.001
+vatcomply.validate	vatcomply	0.001
+vin.decode	nhtsa	0.001
+vin.models	nhtsa	0.001
+volcano.cap_alerts	usgs-hans-volcano	0.002
+volcano.detail	usgs-hans-volcano	0.001
+volcano.elevated	usgs-hans-volcano	0.001
+volcano.latest_notice	usgs-hans-volcano	0.002
+volcano.monitored	usgs-hans-volcano	0.001
+volcano.us_catalog	usgs-hans-volcano	0.001
+walkscore.score	walkscore	0.001
+water.realtime	usgs-water	0.001
+water.sites	usgs-water	0.001
+weather.get_current	openweathermap	0.002
+weather.get_forecast	openweathermap	0.003
+weather_alerts.active	nws	0.001
+weather_alerts.by_area	nws	0.001
+weatherapi.astronomy	weatherapi	0.001
+weatherapi.current	weatherapi	0.001
+weatherapi.forecast	weatherapi	0.001
+weatherapi.search	weatherapi	0.001
+wger.exercise_details	wger	0.001
+wger.exercise_search	wger	0.001
+wger.ingredients	wger	0.001
+who.countries	who	0.001
+who.country_health	who-gho	0.002
+who.data	who	0.001
+who.dimension_values	who-gho	0.001
+who.indicator_data	who-gho	0.002
+who.indicator_search	who-gho	0.001
+who.indicators	who	0.001
+whois.availability	whoisxml	0.003
+whois.dns_lookup	whoisxml	0.003
+whois.lookup	whoisxml	0.005
+whois.reverse	whoisxml	0.008
+whoisjson.ssl_check	whoisjson	0.003
+whoisjson.subdomains	whoisjson	0.003
+wikidata.entity	wikidata	0.001
+wikidata.search	wikidata	0.001
+wikimedia-analytics.edits_aggregate	wikimedia-analytics	0.002
+wikimedia-analytics.pageviews_aggregate	wikimedia-analytics	0.001
+wikimedia-analytics.pageviews_per_article	wikimedia-analytics	0.001
+wikimedia-analytics.pageviews_top	wikimedia-analytics	0.002
+wikimedia-commons.category_files	wikimedia-commons	0.001
+wikimedia-commons.file_info	wikimedia-commons	0.001
+wikimedia-commons.random	wikimedia-commons	0.001
+wikimedia-commons.search	wikimedia-commons	0.001
+wikimedia-rest.media_list	wikimedia-rest	0.001
+wikimedia-rest.on_this_day	wikimedia-rest	0.001
+wikimedia-rest.page_summary	wikimedia-rest	0.001
+wikimedia-rest.search_page	wikimedia-rest	0.001
+wikipedia.article.media	wikipedia	0.001
+wikipedia.article.summary	wikipedia	0.001
+wikipedia.feed.featured	wikipedia	0.002
+wikipedia.feed.on_this_day	wikipedia	0.002
+wikipedia.search.pages	wikipedia	0.001
+wits-trade.tariff_stats	wits-trade	0.002
+wits-trade.trade_stats	wits-trade	0.002
+wmo-weather.city_search	wmo-weather	0.001
+wmo-weather.climate_normals	wmo-weather	0.001
+wmo-weather.forecast	wmo-weather	0.002
+world-bank-cckp.climate_normal	world-bank-cckp	0.001
+world-bank-cckp.climate_projection	world-bank-cckp	0.001
+world-bank-cckp.extreme_indices	world-bank-cckp	0.002
+worldbank.indicators	worldbank	0.001
+worldclock.convert	timeapi	0.001
+worldclock.current	timeapi	0.001
+worldclock.zones	timeapi	0.001
+worms.species.classification	worms	0.001
+worms.species.details	worms	0.001
+worms.species.search	worms	0.001
+worms.species.vernaculars	worms	0.001
+wto.indicators	wto	0.001
+wto.reporters	wto	0.001
+wto.topics	wto	0.001
+wto.trade_data	wto	0.002
+zenodo.communities	zenodo	0.001
+zenodo.files	zenodo	0.001
+zenodo.record	zenodo	0.001
+zenodo.search	zenodo	0.001

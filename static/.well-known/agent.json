@@ -28,8 +28,8 @@
     "network": "eip155:8453",
     "token": "USDC",
     "price_range_usd": [
-      0.001,
-      0.035
+      0.0005,
+      29.99
     ]
   },
   "discovery": {
@@ -43,5 +43,5 @@
   "contact": {
     "github": "https://github.com/whiteknightonhorse/APIbase"
   },
-  "updated_at": "2026-10-12"
+  "updated_at": "2026-10-13"
 }

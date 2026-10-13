@@ -21,10 +21,13 @@ describe('policy-moderation page, merchant catalogs section', () => {
     expect(html).toContain('href="/integrator/docs#catalog"');
   });
 
-  it('has no 4-digit count in the system header', () => {
+  it('has no hand-typed 4-digit count in the system header (generated bar, T-0341)', () => {
     const m = /<div class="sys-monitor">([\s\S]*?)<\/div>/.exec(html);
     expect(m).not.toBeNull();
-    expect(m![1]).not.toMatch(/1[0-9]{3}/);
+    const tools = JSON.parse(
+      readFileSync(join(__dirname, '../../static/.well-known/mcp.json'), 'utf8'),
+    ).tools_count;
+    expect(m![1].replace(`<strong>${tools}</strong>`, '')).not.toMatch(/1[0-9]{3}/);
   });
 
   it('has no digits in the new section', () => {

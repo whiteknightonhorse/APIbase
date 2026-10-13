@@ -8,15 +8,39 @@ phrases are rewritten by sync-counts.sh's own sed pass; this script owns the res
 
   render  rewrite those shapes in place
   check   read-only; exit 1 on any disagreement (used by sync-counts.sh in both modes)
+  check-bar    STALE_HEADER_BAR: exit 1 if any header bar differs from the generated one
+  check-range  STALE_PRICE_RANGE: exit 1 if any static/ file carries another global price range
   lint F  print every number of 2+ digits in F that is neither a token carrying the baseline
           value nor on the allow-list (years, HTTP codes, ids); exit 1 if any
 """
 import json
+import os
 import re
 import sys
 
 MCP = "static/.well-known/mcp.json"
-FILES = ["static/index.html", "static/index.md", "static/ai.txt"]
+FILES = [
+    "static/index.html", "static/index.md", "static/ai.txt", "static/llms.txt", "static/pricing.html",
+    "static/.well-known/x402-payment.json",
+    "static/.well-known/agent-skills/x402-payment.md",
+]
+# T-0341: pages whose header sys-monitor bar is generated (SYSTEM ... sys-cursor), and the pages
+# where only the PRICE value of a hand-laid-out bar is generated.
+BAR_PAGES = [
+    "static/index.html", "static/terms.html", "static/privacy.html", "static/contact.html",
+    "static/policy-moderation.html",
+]
+BAR_PRICE_ONLY = ["static/pricing.html"]
+BAR_RE = re.compile(r'<span class="label">SYSTEM</span>.*?(?=<span class="sys-cursor">)', re.S)
+BAR_PRICE_RE = re.compile(r'(?<=<span class="label">PRICE:</span><strong>)[^<]*')
+INTEGRATOR_BAR = "static/integrator/index.html"
+INTEGRATOR_BAR_RE = re.compile(r'<div class="sys-monitor">.*?</div>', re.S)
+INTEGRATOR_BAR_HTML = (
+    '<div class="sys-monitor"><span class="prompt">></span> <span class="label">MODE:</span>'
+    '<strong>integrator</strong>  <span class="label">FEE:</span><strong>{{INTEGRATOR_FEE_PCT}}</strong>'
+    '  <span class="label">MIN:</span><strong>{{INTEGRATOR_MIN_ORDER}}</strong>'
+    '  <span class="label">RAILS:</span><strong>x402+MPP</strong></div>'
+)
 
 
 def facts():
@@ -28,7 +52,22 @@ def facts():
         "categories": int(d["categories_count"]),
         "pmin": "%g" % pr["min"],
         "pmax": "%g" % pr["max"],
+        "range": pr["text"],
     }
+
+
+def html_range(f):
+    return f["range"].replace("<", "&lt;")
+
+
+def canonical_bar(f):
+    """The one header bar: PRV / TOOLS / PRICE / PAY, generated from the baseline."""
+    return (
+        '<span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>%d</strong>'
+        '  <span class="label">TOOLS:</span><strong>%d</strong>'
+        '  <span class="label">PRICE:</span><strong>%s</strong>'
+        '  <span class="label">PAY:</span><strong>x402+MPP</strong>'
+    ) % (f["providers"], f["tools"], html_range(f))
 
 
 def money(x):
@@ -37,14 +76,29 @@ def money(x):
 
 # (regex, callable(facts, match) -> replacement); each regex isolates the number(s) it owns.
 def _price(f, m):
-    return "%s%s%s" % (money(f["pmin"]), m.group(1), money(f["pmax"]))
+    star = "**" if m.group(0).startswith("**") else ""
+    return "%s%s%s%s" % (star, money(f["pmin"]), m.group(1), money(f["pmax"]))
+
+
+# "$a–$b per call" with its optional parenthetical (p90 clause, or the retired "most tools" one).
+RANGE_FULL = (
+    r"\$0\.\d+–\$\d+(?:\.\d+)? per call"
+    r"(?: \((?:90% of tools (?:<=|&lt;=) \$\d+(?:\.\d+)?|most tools \$\d+(?:\.\d+)?–\$\d+(?:\.\d+)?)\))?"
+)
+
+
+def _range_full(f, m):
+    return html_range(f) if "&lt;" in m.group(0) else f["range"]
 
 
 RULES = [
     (re.compile(r"\d+\+?(?= (?:more )?categories)"), lambda f, m: str(f["categories"])),
     (re.compile(r"(?<=ategories \()\d+(?=\))"), lambda f, m: str(f["categories"])),
     (re.compile(r"\d+(?= separate provider integrations)"), lambda f, m: str(f["providers"])),
-    (re.compile(r"\$0\.001(–| to )\$\d+(?:\.\d+)?"), _price),
+    (re.compile(RANGE_FULL), _range_full),
+    (re.compile(r"(?<=from )(?:\*\*)?\$\d+(?:\.\d+)?(–| to )\$\d+(?:\.\d+)?"), _price),
+    (re.compile(r'(?<="min_usd": ")[0-9.]+'), lambda f, m: f["pmin"]),
+    (re.compile(r'(?<="max_usd": ")[0-9.]+'), lambda f, m: f["pmax"]),
     (re.compile(r'(?<="lowPrice":")[0-9.]+'), lambda f, m: f["pmin"]),
     (re.compile(r'(?<="highPrice":")[0-9.]+'), lambda f, m: f["pmax"]),
 ]
@@ -60,17 +114,27 @@ COUNT_RULES = [
 ]
 
 
-def rendered(s, f):
+def rendered(s, f, path=""):
     for rx, fn in RULES:
         s = rx.sub(lambda m, fn=fn: fn(f, m), s)
+    if path in BAR_PAGES:
+        s = BAR_RE.sub(lambda m: canonical_bar(f), s)
+    if path in BAR_PRICE_ONLY:
+        s = BAR_PRICE_RE.sub(lambda m: html_range(f), s)
+    if path == INTEGRATOR_BAR:
+        s = INTEGRATOR_BAR_RE.sub(lambda m: INTEGRATOR_BAR_HTML, s, count=1)
     return s
+
+
+def rendered_files():
+    return [p for p in FILES + BAR_PAGES + BAR_PRICE_ONLY + [INTEGRATOR_BAR] if os.path.exists(p)]
 
 
 def render():
     f = facts()
-    for path in FILES:
+    for path in dict.fromkeys(rendered_files()):
         s = open(path).read()
-        n = rendered(s, f)
+        n = rendered(s, f, path)
         if n != s:
             open(path, "w").write(n)
             print("  updated %s (home facts)" % path)
@@ -80,9 +144,50 @@ def check():
     f = facts()
     problems = []
     for path in FILES:
+        if not os.path.exists(path):
+            continue
         s = open(path).read()
         if rendered(s, f) != s:
             problems.append("%s: categories/price/provider-integration numbers differ from mcp.json" % path)
+    if problems:
+        print("\n".join(problems))
+        sys.exit(1)
+
+
+def check_bar():
+    """STALE_HEADER_BAR: every generated bar must equal the canonical one."""
+    f = facts()
+    problems = []
+    for path in BAR_PAGES + BAR_PRICE_ONLY + [INTEGRATOR_BAR]:
+        s = open(path).read()
+        if rendered(s, f, path) != s:
+            problems.append("%s: header bar differs from the generated one" % path)
+    if problems:
+        print("\n".join(problems))
+        sys.exit(1)
+
+
+RANGE_ANY = re.compile(r"\$(0\.\d+)\s?(?:–|&ndash;|-| to )\s?\$(\d+(?:\.\d+)?)")
+
+
+def check_range():
+    """STALE_PRICE_RANGE: no static/ file may carry a global range other than the generated one."""
+    f = facts()
+    pmin, pmax = float(f["pmin"]), float(f["pmax"])
+    problems = []
+    for root, _dirs, names in os.walk("static"):
+        for name in names:
+            path = os.path.join(root, name)
+            if not name.endswith((".html", ".md", ".txt", ".json", ".xml")) and name != "ucp":
+                continue
+            try:
+                s = open(path, encoding="utf-8").read()
+            except (UnicodeDecodeError, OSError):
+                continue
+            for m in RANGE_ANY.finditer(s):
+                lo, hi = float(m.group(1)), float(m.group(2))
+                if lo <= max(pmin, 0.001) and (lo != pmin or hi != pmax):
+                    problems.append("%s: %s != generated $%s–$%s" % (path, m.group(0), f["pmin"], f["pmax"]))
     if problems:
         print("\n".join(problems))
         sys.exit(1)
@@ -108,7 +213,7 @@ def lint(path):
         lambda m: " ".join(re.findall(r"\$\d[\d.]*(?:(?:–| to )\$\d[\d.]*)?|\d[\d.,]*\+? (?:more )?[A-Za-z]+", m.group(0))),
         s, flags=re.S,
     )
-    s = re.sub(r"<(?!/?(?:strong|code)\b)[^>]*>", " ", s)  # drop tag attributes (urls, css, ids)
+    s = re.sub(r"<(?!/?(?:strong|code)\b)[A-Za-z/!][^>]*>", " ", s)  # drop tag attributes (urls, css, ids)
     bad = []
     spans = []  # (start, end) of accepted tokens
     for rx, key in COUNT_RULES:
@@ -142,6 +247,10 @@ if __name__ == "__main__":
         render()
     elif cmd == "check":
         check()
+    elif cmd == "check-bar":
+        check_bar()
+    elif cmd == "check-range":
+        check_range()
     elif cmd == "lint" and len(sys.argv) > 2:
         lint(sys.argv[2])
     else:
