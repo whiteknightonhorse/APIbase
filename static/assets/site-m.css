@@ -202,7 +202,7 @@ details p{margin:0 0 var(--s4)}
 .hm .hm-ep-url code{flex:1;min-width:0;background:none;border:0;padding:0;font-size:15px;white-space:nowrap;overflow-x:auto}
 .hm #hm-copy{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid var(--line-2);border-radius:var(--r-chip);background:var(--surf-2);color:var(--ink);font:inherit;font-size:14px;cursor:pointer;flex:none}
 .hm #hm-copy:hover{border-color:var(--ink-3)}
-.hm .hm-ep-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:var(--s4)}
+.hm .hm-ep-nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:var(--s4)}
 .hm .hm-n{white-space:nowrap}
 .hm .hm-n{font-size:clamp(24px,2.6vw,30px);font-weight:700;letter-spacing:-.02em;line-height:1.1;color:var(--ink);font-variant-numeric:tabular-nums}
 .hm .hm-flow{list-style:none;margin:0;padding:var(--s4) 0 0;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}

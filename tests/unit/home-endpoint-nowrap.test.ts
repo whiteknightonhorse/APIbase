@@ -21,4 +21,10 @@ describe('home hero endpoint card (T-0396)', () => {
   it('the card keeps at least 380px (or the full row) so URL + Copy fit', () => {
     expect(bodies('.hm .hm-ep')).toContain('min-width:min(100%,380px)');
   });
+
+  it('stat columns are wide enough for a 30px "404 providers" so the pair stacks instead of overflowing', () => {
+    const m = bodies('.hm .hm-ep-nums').match(/minmax\(min\(100%,(\d+)px\),1fr\)/);
+    expect(m).not.toBeNull();
+    expect(Number(m![1])).toBeGreaterThanOrEqual(190);
+  });
 });
