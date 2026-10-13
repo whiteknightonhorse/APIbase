@@ -1,0 +1,4504 @@
+{
+  "generated_at": "2026-10-13T06:50:11.550Z",
+  "providers": [
+    {
+      "provider": "17track",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11166
+    },
+    {
+      "provider": "abr",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10090
+    },
+    {
+      "provider": "abs",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 17168
+    },
+    {
+      "provider": "account",
+      "health": {
+        "status": "green",
+        "latency_ms": 145,
+        "last_check": "2026-10-13T06:40:00.755Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 610
+    },
+    {
+      "provider": "adbkidb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18008
+    },
+    {
+      "provider": "adsbdb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12849
+    },
+    {
+      "provider": "adzuna",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13329
+    },
+    {
+      "provider": "africa",
+      "health": {
+        "status": "green",
+        "latency_ms": 196,
+        "last_check": "2026-10-13T05:48:02.305Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3728
+    },
+    {
+      "provider": "aipush",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7688
+    },
+    {
+      "provider": "airnow",
+      "health": {
+        "status": "green",
+        "latency_ms": 312,
+        "last_check": "2026-10-13T05:02:01.877Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6489
+    },
+    {
+      "provider": "amadeus",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "DOWN",
+      "reliability_score": 81,
+      "probe_age_s": 24489
+    },
+    {
+      "provider": "apibase",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": null,
+      "reliability_score": null,
+      "probe_age_s": null
+    },
+    {
+      "provider": "apiflash",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22448
+    },
+    {
+      "provider": "apisports",
+      "health": {
+        "status": "green",
+        "latency_ms": 19,
+        "last_check": "2026-10-13T06:16:18.732Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2032
+    },
+    {
+      "provider": "arbeitnow",
+      "health": {
+        "status": "green",
+        "latency_ms": 36,
+        "last_check": "2026-10-13T06:40:04.556Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 606
+    },
+    {
+      "provider": "archiveorg",
+      "health": {
+        "status": "green",
+        "latency_ms": 632,
+        "last_check": "2026-10-13T05:46:05.315Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 3845
+    },
+    {
+      "provider": "artic",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 20289
+    },
+    {
+      "provider": "assemblyai",
+      "health": {
+        "status": "green",
+        "latency_ms": 58,
+        "last_check": "2026-10-13T05:30:02.806Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4808
+    },
+    {
+      "provider": "asterdex",
+      "health": {
+        "status": "green",
+        "latency_ms": 113,
+        "last_check": "2026-10-13T05:02:01.548Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6489
+    },
+    {
+      "provider": "au-data-gov",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10209
+    },
+    {
+      "provider": "audd",
+      "health": {
+        "status": "green",
+        "latency_ms": 199,
+        "last_check": "2026-10-13T05:30:03.188Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4808
+    },
+    {
+      "provider": "autodev",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15129
+    },
+    {
+      "provider": "aviasales",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11289
+    },
+    {
+      "provider": "aviationweather",
+      "health": {
+        "status": "green",
+        "latency_ms": 243,
+        "last_check": "2026-10-13T06:28:00.633Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1330
+    },
+    {
+      "provider": "avwx",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7450
+    },
+    {
+      "provider": "awc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 16796
+    },
+    {
+      "provider": "balldontlie",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10329
+    },
+    {
+      "provider": "bank-of-england",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21727
+    },
+    {
+      "provider": "bankofcanada",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9489
+    },
+    {
+      "provider": "banxico",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9116
+    },
+    {
+      "provider": "bcb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 16568
+    },
+    {
+      "provider": "bea",
+      "health": {
+        "status": "green",
+        "latency_ms": 998,
+        "last_check": "2026-10-13T06:32:02.638Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 87,
+      "probe_age_s": 1088
+    },
+    {
+      "provider": "bgs-ogcapi",
+      "health": {
+        "status": "green",
+        "latency_ms": 820,
+        "last_check": "2026-10-13T05:08:05.234Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6126
+    },
+    {
+      "provider": "bhl",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19208
+    },
+    {
+      "provider": "bible",
+      "health": {
+        "status": "green",
+        "latency_ms": 165,
+        "last_check": "2026-10-13T05:44:01.369Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3969
+    },
+    {
+      "provider": "biomodels",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7450
+    },
+    {
+      "provider": "bis-stats",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11407
+    },
+    {
+      "provider": "bls-macro",
+      "health": {
+        "status": "green",
+        "latency_ms": 537,
+        "last_check": "2026-10-13T06:22:01.624Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1689
+    },
+    {
+      "provider": "bluesky",
+      "health": {
+        "status": "green",
+        "latency_ms": 331,
+        "last_check": "2026-10-13T06:38:01.381Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 97,
+      "probe_age_s": 729
+    },
+    {
+      "provider": "brasilapi",
+      "health": {
+        "status": "green",
+        "latency_ms": 39,
+        "last_check": "2026-10-13T06:00:10.143Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3001
+    },
+    {
+      "provider": "brightsky",
+      "health": {
+        "status": "green",
+        "latency_ms": 545,
+        "last_check": "2026-10-13T06:08:02.816Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2528
+    },
+    {
+      "provider": "browserbase",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12489
+    },
+    {
+      "provider": "brreg",
+      "health": {
+        "status": "green",
+        "latency_ms": 781,
+        "last_check": "2026-10-13T05:38:06.117Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4325
+    },
+    {
+      "provider": "bts-transport",
+      "health": {
+        "status": "green",
+        "latency_ms": 580,
+        "last_check": "2026-10-13T06:16:18.705Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2032
+    },
+    {
+      "provider": "bundesbank-timeseries",
+      "health": {
+        "status": "green",
+        "latency_ms": 494,
+        "last_check": "2026-10-13T05:12:01.025Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 86,
+      "probe_age_s": 5890
+    },
+    {
+      "provider": "cactus",
+      "health": {
+        "status": "green",
+        "latency_ms": 227,
+        "last_check": "2026-10-13T04:58:01.782Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 89,
+      "probe_age_s": 6729
+    },
+    {
+      "provider": "calendarific",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 79,
+      "probe_age_s": 18366
+    },
+    {
+      "provider": "canopy",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18008
+    },
+    {
+      "provider": "carbon-intensity-uk",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9010
+    },
+    {
+      "provider": "cbs",
+      "health": {
+        "status": "green",
+        "latency_ms": 484,
+        "last_check": "2026-10-13T06:26:00.849Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 95,
+      "probe_age_s": 1450
+    },
+    {
+      "provider": "cdc",
+      "health": {
+        "status": "green",
+        "latency_ms": 302,
+        "last_check": "2026-10-13T05:26:08.388Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 5042
+    },
+    {
+      "provider": "cdc-chronic",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19806
+    },
+    {
+      "provider": "celestrak",
+      "health": {
+        "status": "green",
+        "latency_ms": 89,
+        "last_check": "2026-10-13T04:54:00.343Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 92,
+      "probe_age_s": 6970
+    },
+    {
+      "provider": "census",
+      "health": {
+        "status": "green",
+        "latency_ms": 621,
+        "last_check": "2026-10-13T05:22:01.877Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5289
+    },
+    {
+      "provider": "censusmapper",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9369
+    },
+    {
+      "provider": "cernopendata",
+      "health": {
+        "status": "green",
+        "latency_ms": 907,
+        "last_check": "2026-10-13T06:02:01.478Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 86,
+      "probe_age_s": 2889
+    },
+    {
+      "provider": "cfpb-complaints",
+      "health": {
+        "status": "green",
+        "latency_ms": 225,
+        "last_check": "2026-10-13T06:12:02.664Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2288
+    },
+    {
+      "provider": "chart",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12129
+    },
+    {
+      "provider": "checkwx",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22209
+    },
+    {
+      "provider": "chembl",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 77,
+      "probe_age_s": 19928
+    },
+    {
+      "provider": "chesscom",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11408
+    },
+    {
+      "provider": "climate",
+      "health": {
+        "status": "green",
+        "latency_ms": 306,
+        "last_check": "2026-10-13T05:22:01.233Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5290
+    },
+    {
+      "provider": "clinicaltrials",
+      "health": {
+        "status": "green",
+        "latency_ms": 128,
+        "last_check": "2026-10-13T06:36:01.802Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 849
+    },
+    {
+      "provider": "cloudflare",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 12129
+    },
+    {
+      "provider": "cms",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9486
+    },
+    {
+      "provider": "cocktaildb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8528
+    },
+    {
+      "provider": "coingecko",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11290
+    },
+    {
+      "provider": "col",
+      "health": {
+        "status": "green",
+        "latency_ms": 678,
+        "last_check": "2026-10-13T06:08:00.828Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2530
+    },
+    {
+      "provider": "companieshouse",
+      "health": {
+        "status": "green",
+        "latency_ms": 735,
+        "last_check": "2026-10-13T05:26:03.075Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5048
+    },
+    {
+      "provider": "comtrade",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11167
+    },
+    {
+      "provider": "congress",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19568
+    },
+    {
+      "provider": "convertapi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12368
+    },
+    {
+      "provider": "coops",
+      "health": {
+        "status": "green",
+        "latency_ms": 288,
+        "last_check": "2026-10-13T05:48:01.474Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3729
+    },
+    {
+      "provider": "copernicus-sentinel",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13088
+    },
+    {
+      "provider": "cordis",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12848
+    },
+    {
+      "provider": "courtlistener",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13809
+    },
+    {
+      "provider": "cpsc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 98,
+      "probe_age_s": 7210
+    },
+    {
+      "provider": "crossref",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2506,
+        "last_check": "2026-10-13T05:00:03.808Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 72,
+      "probe_age_s": 6607
+    },
+    {
+      "provider": "crossref-datacitations",
+      "health": {
+        "status": "green",
+        "latency_ms": 248,
+        "last_check": "2026-10-13T05:52:01.215Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3490
+    },
+    {
+      "provider": "currents",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19569
+    },
+    {
+      "provider": "currentuvindex",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7808
+    },
+    {
+      "provider": "cve-mitre",
+      "health": {
+        "status": "green",
+        "latency_ms": 466,
+        "last_check": "2026-10-13T05:16:02.597Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 43,
+      "probe_age_s": 5648
+    },
+    {
+      "provider": "czso",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 67,
+      "probe_age_s": 11649
+    },
+    {
+      "provider": "data-europa",
+      "health": {
+        "status": "green",
+        "latency_ms": 250,
+        "last_check": "2026-10-13T06:06:00.711Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2650
+    },
+    {
+      "provider": "data-usa",
+      "health": {
+        "status": "green",
+        "latency_ms": 26,
+        "last_check": "2026-10-13T06:28:00.671Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1330
+    },
+    {
+      "provider": "datacite",
+      "health": {
+        "status": "green",
+        "latency_ms": 1026,
+        "last_check": "2026-10-13T05:02:01.385Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6489
+    },
+    {
+      "provider": "datagovsg",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13687
+    },
+    {
+      "provider": "dblp",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11889
+    },
+    {
+      "provider": "dbnomics",
+      "health": {
+        "status": "green",
+        "latency_ms": 687,
+        "last_check": "2026-10-13T05:46:02.575Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3848
+    },
+    {
+      "provider": "delphi",
+      "health": {
+        "status": "green",
+        "latency_ms": 557,
+        "last_check": "2026-10-13T05:40:01.433Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 43,
+      "probe_age_s": 4209
+    },
+    {
+      "provider": "denmark-energidataservice",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10689
+    },
+    {
+      "provider": "depsdev",
+      "health": {
+        "status": "green",
+        "latency_ms": 102,
+        "last_check": "2026-10-13T06:04:00.218Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2771
+    },
+    {
+      "provider": "device",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": null,
+      "reliability_score": null,
+      "probe_age_s": null
+    },
+    {
+      "provider": "dhl",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 23766
+    },
+    {
+      "provider": "dictionary",
+      "health": {
+        "status": "green",
+        "latency_ms": 111,
+        "last_check": "2026-10-13T05:06:02.875Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 6248
+    },
+    {
+      "provider": "diffbot",
+      "health": {
+        "status": "green",
+        "latency_ms": 108,
+        "last_check": "2026-10-13T05:20:03.660Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5407
+    },
+    {
+      "provider": "disease",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18130
+    },
+    {
+      "provider": "doaj",
+      "health": {
+        "status": "green",
+        "latency_ms": 333,
+        "last_check": "2026-10-13T05:28:01.319Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4929
+    },
+    {
+      "provider": "dogceo",
+      "health": {
+        "status": "green",
+        "latency_ms": 513,
+        "last_check": "2026-10-13T06:00:01.888Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3009
+    },
+    {
+      "provider": "dpla",
+      "health": {
+        "status": "green",
+        "latency_ms": 397,
+        "last_check": "2026-10-13T06:18:03.672Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1927
+    },
+    {
+      "provider": "drought-monitor",
+      "health": {
+        "status": "green",
+        "latency_ms": 233,
+        "last_check": "2026-10-13T05:16:03.301Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5648
+    },
+    {
+      "provider": "duckduckgo",
+      "health": {
+        "status": "green",
+        "latency_ms": 464,
+        "last_check": "2026-10-13T05:38:06.593Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4324
+    },
+    {
+      "provider": "ea-hydrology",
+      "health": {
+        "status": "green",
+        "latency_ms": 687,
+        "last_check": "2026-10-13T05:36:05.912Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4445
+    },
+    {
+      "provider": "ebi-metagenomics",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10449
+    },
+    {
+      "provider": "ecb-rates",
+      "health": {
+        "status": "green",
+        "latency_ms": 794,
+        "last_check": "2026-10-13T05:52:04.389Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3486
+    },
+    {
+      "provider": "ecdc-surveillance",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 13928
+    },
+    {
+      "provider": "echo",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2387,
+        "last_check": "2026-10-13T05:58:07.953Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 84,
+      "probe_age_s": 3123
+    },
+    {
+      "provider": "edgar",
+      "health": {
+        "status": "green",
+        "latency_ms": 122,
+        "last_check": "2026-10-13T05:50:01.436Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3609
+    },
+    {
+      "provider": "education",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2361,
+        "last_check": "2026-10-13T06:30:02.774Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1208
+    },
+    {
+      "provider": "eia",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19568
+    },
+    {
+      "provider": "email_verify",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21728
+    },
+    {
+      "provider": "emsc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19327
+    },
+    {
+      "provider": "ensembl",
+      "health": {
+        "status": "red",
+        "latency_ms": 12002,
+        "last_check": "2026-10-13T06:16:17.998Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 83,
+      "probe_age_s": 2033
+    },
+    {
+      "provider": "enviroatlas",
+      "health": {
+        "status": "green",
+        "latency_ms": 700,
+        "last_check": "2026-10-13T05:36:03.835Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 90,
+      "probe_age_s": 4447
+    },
+    {
+      "provider": "eonet",
+      "health": {
+        "status": "green",
+        "latency_ms": 359,
+        "last_check": "2026-10-13T06:16:00.981Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2050
+    },
+    {
+      "provider": "epa",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18967
+    },
+    {
+      "provider": "epa-aqs",
+      "health": {
+        "status": "green",
+        "latency_ms": 558,
+        "last_check": "2026-10-13T05:38:02.461Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4328
+    },
+    {
+      "provider": "estat-japan-dashboard",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2233,
+        "last_check": "2026-10-13T06:28:05.219Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1326
+    },
+    {
+      "provider": "estonia-statistics",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9370
+    },
+    {
+      "provider": "eu_parliament",
+      "health": {
+        "status": "green",
+        "latency_ms": 847,
+        "last_check": "2026-10-13T05:38:01.892Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4329
+    },
+    {
+      "provider": "eurlex",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15969
+    },
+    {
+      "provider": "europeana",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8168
+    },
+    {
+      "provider": "europepmc",
+      "health": {
+        "status": "green",
+        "latency_ms": 1223,
+        "last_check": "2026-10-13T05:30:01.932Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 97,
+      "probe_age_s": 4809
+    },
+    {
+      "provider": "eurostat",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7688
+    },
+    {
+      "provider": "eurostat2",
+      "health": {
+        "status": "green",
+        "latency_ms": 506,
+        "last_check": "2026-10-13T05:58:00.550Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 81,
+      "probe_age_s": 3130
+    },
+    {
+      "provider": "exa",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14169
+    },
+    {
+      "provider": "exchangerate",
+      "health": {
+        "status": "green",
+        "latency_ms": 168,
+        "last_check": "2026-10-13T06:22:01.035Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1690
+    },
+    {
+      "provider": "f1",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11410
+    },
+    {
+      "provider": "faostat",
+      "health": {
+        "status": "green",
+        "latency_ms": 249,
+        "last_check": "2026-10-13T05:46:01.876Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3849
+    },
+    {
+      "provider": "fatsecret",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 20408
+    },
+    {
+      "provider": "fbi",
+      "health": {
+        "status": "green",
+        "latency_ms": 152,
+        "last_check": "2026-10-13T05:26:01.727Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5049
+    },
+    {
+      "provider": "fbiwanted",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11769
+    },
+    {
+      "provider": "fcc",
+      "health": {
+        "status": "green",
+        "latency_ms": 333,
+        "last_check": "2026-10-13T06:06:00.447Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2650
+    },
+    {
+      "provider": "fda_openfda",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21250
+    },
+    {
+      "provider": "fdic",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 24369
+    },
+    {
+      "provider": "fec",
+      "health": {
+        "status": "green",
+        "latency_ms": 206,
+        "last_check": "2026-10-13T05:16:02.814Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5648
+    },
+    {
+      "provider": "federalregister",
+      "health": {
+        "status": "green",
+        "latency_ms": 201,
+        "last_check": "2026-10-13T06:18:02.671Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1928
+    },
+    {
+      "provider": "fedregister",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 97,
+      "probe_age_s": 8529
+    },
+    {
+      "provider": "fema",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10922
+    },
+    {
+      "provider": "figi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 20644
+    },
+    {
+      "provider": "figshare",
+      "health": {
+        "status": "green",
+        "latency_ms": 682,
+        "last_check": "2026-10-13T05:20:01.366Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5409
+    },
+    {
+      "provider": "finance",
+      "health": {
+        "status": "green",
+        "latency_ms": 19,
+        "last_check": "2026-10-13T06:20:00.321Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1811
+    },
+    {
+      "provider": "finnhub",
+      "health": {
+        "status": "green",
+        "latency_ms": 106,
+        "last_check": "2026-10-13T06:14:00.316Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2171
+    },
+    {
+      "provider": "firms",
+      "health": {
+        "status": "green",
+        "latency_ms": 346,
+        "last_check": "2026-10-13T05:14:00.937Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5770
+    },
+    {
+      "provider": "frankfurter",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 8287
+    },
+    {
+      "provider": "freetogame",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13207
+    },
+    {
+      "provider": "gbif",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 16209
+    },
+    {
+      "provider": "gdacs",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 19568
+    },
+    {
+      "provider": "gebco",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 22928
+    },
+    {
+      "provider": "geo",
+      "health": {
+        "status": "green",
+        "latency_ms": 206,
+        "last_check": "2026-10-13T05:06:02.702Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6248
+    },
+    {
+      "provider": "geoboundaries",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9850
+    },
+    {
+      "provider": "geocodio",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 17889
+    },
+    {
+      "provider": "geodiva",
+      "health": {
+        "status": "green",
+        "latency_ms": 172,
+        "last_check": "2026-10-13T06:26:01.033Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1450
+    },
+    {
+      "provider": "geonames",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15728
+    },
+    {
+      "provider": "geonet-nz",
+      "health": {
+        "status": "green",
+        "latency_ms": 345,
+        "last_check": "2026-10-13T05:50:01.303Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 98,
+      "probe_age_s": 3610
+    },
+    {
+      "provider": "gfw",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22447
+    },
+    {
+      "provider": "github-api",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11289
+    },
+    {
+      "provider": "gleif",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22328
+    },
+    {
+      "provider": "global-health-covid",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 71,
+      "probe_age_s": 11528
+    },
+    {
+      "provider": "govuk",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 97,
+      "probe_age_s": 16330
+    },
+    {
+      "provider": "gus-poland",
+      "health": {
+        "status": "green",
+        "latency_ms": 1890,
+        "last_check": "2026-10-13T06:38:03.691Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 727
+    },
+    {
+      "provider": "gutendex",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 96,
+      "probe_age_s": 22929
+    },
+    {
+      "provider": "hackernews",
+      "health": {
+        "status": "green",
+        "latency_ms": 908,
+        "last_check": "2026-10-13T06:20:00.450Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1810
+    },
+    {
+      "provider": "hathitrust-digital",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15845
+    },
+    {
+      "provider": "hdx",
+      "health": {
+        "status": "green",
+        "latency_ms": 269,
+        "last_check": "2026-10-13T05:34:02.423Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 96,
+      "probe_age_s": 4568
+    },
+    {
+      "provider": "hdx-hapi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18130
+    },
+    {
+      "provider": "health",
+      "health": {
+        "status": "red",
+        "latency_ms": 178,
+        "last_check": "2026-10-13T06:22:00.535Z"
+      },
+      "state": "DOWN",
+      "reliability_score": 51,
+      "probe_age_s": 1690
+    },
+    {
+      "provider": "hf",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7451
+    },
+    {
+      "provider": "hf_inference",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21126
+    },
+    {
+      "provider": "hnalgolia",
+      "health": {
+        "status": "green",
+        "latency_ms": 1754,
+        "last_check": "2026-10-13T06:40:00.780Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 610
+    },
+    {
+      "provider": "hungary-ksh",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10922
+    },
+    {
+      "provider": "hunter",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22089
+    },
+    {
+      "provider": "hyperliquid",
+      "health": {
+        "status": "orange",
+        "latency_ms": 103,
+        "last_check": "2026-10-13T06:32:00.644Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1090
+    },
+    {
+      "provider": "ibanapi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9368
+    },
+    {
+      "provider": "ibge",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 11047
+    },
+    {
+      "provider": "iceland-statistics",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 58,
+      "probe_age_s": 24370
+    },
+    {
+      "provider": "igdb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10449
+    },
+    {
+      "provider": "ilostat",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8168
+    },
+    {
+      "provider": "imf",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2661,
+        "last_check": "2026-10-13T06:38:06.845Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 724
+    },
+    {
+      "provider": "imgflip",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14049
+    },
+    {
+      "provider": "inaturalist",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7688
+    },
+    {
+      "provider": "indec-argentina",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 69,
+      "probe_age_s": 18010
+    },
+    {
+      "provider": "indec-georef",
+      "health": {
+        "status": "green",
+        "latency_ms": 671,
+        "last_check": "2026-10-13T05:30:02.614Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 97,
+      "probe_age_s": 4808
+    },
+    {
+      "provider": "ine",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2582,
+        "last_check": "2026-10-13T06:40:03.324Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 608
+    },
+    {
+      "provider": "ine-chile",
+      "health": {
+        "status": "green",
+        "latency_ms": 1271,
+        "last_check": "2026-10-13T06:18:02.460Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1928
+    },
+    {
+      "provider": "ine-portugal",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 73,
+      "probe_age_s": 17768
+    },
+    {
+      "provider": "ine-spain",
+      "health": {
+        "status": "green",
+        "latency_ms": 963,
+        "last_check": "2026-10-13T06:36:01.441Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 849
+    },
+    {
+      "provider": "insee",
+      "health": {
+        "status": "green",
+        "latency_ms": 906,
+        "last_check": "2026-10-13T05:24:01.561Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5169
+    },
+    {
+      "provider": "ipapi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8528
+    },
+    {
+      "provider": "ipqs",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11769
+    },
+    {
+      "provider": "iqair",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12370
+    },
+    {
+      "provider": "irail",
+      "health": {
+        "status": "green",
+        "latency_ms": 516,
+        "last_check": "2026-10-13T06:08:01.354Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2530
+    },
+    {
+      "provider": "irctc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10808
+    },
+    {
+      "provider": "irena",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 68,
+      "probe_age_s": 22328
+    },
+    {
+      "provider": "iss",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9607
+    },
+    {
+      "provider": "istat",
+      "health": {
+        "status": "green",
+        "latency_ms": 679,
+        "last_check": "2026-10-13T05:34:02.143Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 84,
+      "probe_age_s": 4569
+    },
+    {
+      "provider": "itistaxonomy",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14169
+    },
+    {
+      "provider": "jikan",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "DOWN",
+      "reliability_score": 22,
+      "probe_age_s": 29889
+    },
+    {
+      "provider": "jma-bosai",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15010
+    },
+    {
+      "provider": "jobs",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7809
+    },
+    {
+      "provider": "jooble",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12730
+    },
+    {
+      "provider": "jpl",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7209
+    },
+    {
+      "provider": "judge0",
+      "health": {
+        "status": "green",
+        "latency_ms": 222,
+        "last_check": "2026-10-13T06:20:00.676Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1810
+    },
+    {
+      "provider": "langbly",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21608
+    },
+    {
+      "provider": "latvia-statistics",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 17048
+    },
+    {
+      "provider": "launch-library-2",
+      "health": {
+        "status": "green",
+        "latency_ms": 486,
+        "last_check": "2026-10-13T06:26:01.696Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1449
+    },
+    {
+      "provider": "librivox",
+      "health": {
+        "status": "green",
+        "latency_ms": 55,
+        "last_check": "2026-10-13T05:54:01.041Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 94,
+      "probe_age_s": 3370
+    },
+    {
+      "provider": "lichess",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13447
+    },
+    {
+      "provider": "listennotes",
+      "health": {
+        "status": "green",
+        "latency_ms": 42,
+        "last_check": "2026-10-13T06:34:00.531Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 970
+    },
+    {
+      "provider": "lmpr",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15610
+    },
+    {
+      "provider": "loc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 87,
+      "probe_age_s": 10330
+    },
+    {
+      "provider": "macrostrat",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9010
+    },
+    {
+      "provider": "malaria-atlas",
+      "health": {
+        "status": "green",
+        "latency_ms": 809,
+        "last_check": "2026-10-13T06:34:01.494Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 969
+    },
+    {
+      "provider": "malaysiagov",
+      "health": {
+        "status": "green",
+        "latency_ms": 1750,
+        "last_check": "2026-10-13T06:30:04.533Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 1206
+    },
+    {
+      "provider": "marine",
+      "health": {
+        "status": "green",
+        "latency_ms": 707,
+        "last_check": "2026-10-13T06:30:00.550Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1210
+    },
+    {
+      "provider": "marketcheck",
+      "health": {
+        "status": "green",
+        "latency_ms": 102,
+        "last_check": "2026-10-13T06:32:02.749Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1088
+    },
+    {
+      "provider": "mastodon",
+      "health": {
+        "status": "green",
+        "latency_ms": 230,
+        "last_check": "2026-10-13T05:14:01.444Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5769
+    },
+    {
+      "provider": "materials-project",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9607
+    },
+    {
+      "provider": "mbta-transit",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10090
+    },
+    {
+      "provider": "medlineplus",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 20168
+    },
+    {
+      "provider": "met-museum",
+      "health": {
+        "status": "green",
+        "latency_ms": 258,
+        "last_check": "2026-10-13T05:52:01.791Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3489
+    },
+    {
+      "provider": "met-norway",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10329
+    },
+    {
+      "provider": "meteostat",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14407
+    },
+    {
+      "provider": "mfapi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18847
+    },
+    {
+      "provider": "msc-geomet",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9850
+    },
+    {
+      "provider": "music",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 92,
+      "probe_age_s": 17405
+    },
+    {
+      "provider": "mychem",
+      "health": {
+        "status": "green",
+        "latency_ms": 711,
+        "last_check": "2026-10-13T05:56:01.958Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3249
+    },
+    {
+      "provider": "mygene",
+      "health": {
+        "status": "green",
+        "latency_ms": 32,
+        "last_check": "2026-10-13T04:58:00.817Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6730
+    },
+    {
+      "provider": "myvariant",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 17288
+    },
+    {
+      "provider": "nagerdate",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13207
+    },
+    {
+      "provider": "namesilo",
+      "health": {
+        "status": "green",
+        "latency_ms": 536,
+        "last_check": "2026-10-13T06:06:01.779Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2649
+    },
+    {
+      "provider": "nasa",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13207
+    },
+    {
+      "provider": "nasa-cmr",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14650
+    },
+    {
+      "provider": "nasaexoplanet",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 16928
+    },
+    {
+      "provider": "nasantrs",
+      "health": {
+        "status": "green",
+        "latency_ms": 942,
+        "last_check": "2026-10-13T06:36:02.752Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 848
+    },
+    {
+      "provider": "nbi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 83,
+      "probe_age_s": 18490
+    },
+    {
+      "provider": "ncbi-eutils",
+      "health": {
+        "status": "green",
+        "latency_ms": 165,
+        "last_check": "2026-10-13T05:50:01.842Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3609
+    },
+    {
+      "provider": "ncei",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21727
+    },
+    {
+      "provider": "netherlands-pdok-kadaster",
+      "health": {
+        "status": "green",
+        "latency_ms": 480,
+        "last_check": "2026-10-13T05:04:00.904Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6370
+    },
+    {
+      "provider": "newsdata",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8409
+    },
+    {
+      "provider": "nhtsa",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18250
+    },
+    {
+      "provider": "nhtsa-safety",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7328
+    },
+    {
+      "provider": "nihreporter",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2019,
+        "last_check": "2026-10-13T06:36:08.897Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 842
+    },
+    {
+      "provider": "nlm-icd11",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14169
+    },
+    {
+      "provider": "noaa",
+      "health": {
+        "status": "green",
+        "latency_ms": 131,
+        "last_check": "2026-10-13T05:56:02.099Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3249
+    },
+    {
+      "provider": "noaa-fisheries-stats",
+      "health": {
+        "status": "green",
+        "latency_ms": 410,
+        "last_check": "2026-10-13T06:38:04.173Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 727
+    },
+    {
+      "provider": "noaa-tides",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15129
+    },
+    {
+      "provider": "nominatim-osm",
+      "health": {
+        "status": "green",
+        "latency_ms": 501,
+        "last_check": "2026-10-13T05:10:01.861Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6009
+    },
+    {
+      "provider": "norgesbank",
+      "health": {
+        "status": "green",
+        "latency_ms": 227,
+        "last_check": "2026-10-13T05:10:00.703Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6010
+    },
+    {
+      "provider": "norway-kartverket-stedsnavn",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 20529
+    },
+    {
+      "provider": "npm",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15729
+    },
+    {
+      "provider": "nps",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9247
+    },
+    {
+      "provider": "nrc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 99,
+      "probe_age_s": 15845
+    },
+    {
+      "provider": "nrel",
+      "health": {
+        "status": "green",
+        "latency_ms": 210,
+        "last_check": "2026-10-13T05:28:01.541Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4929
+    },
+    {
+      "provider": "nsf-awards",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 10450
+    },
+    {
+      "provider": "nvd",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8289
+    },
+    {
+      "provider": "nws",
+      "health": {
+        "status": "green",
+        "latency_ms": 88,
+        "last_check": "2026-10-13T05:36:03.936Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4447
+    },
+    {
+      "provider": "obis",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 20887
+    },
+    {
+      "provider": "ocrspace",
+      "health": {
+        "status": "green",
+        "latency_ms": 524,
+        "last_check": "2026-10-13T06:04:00.915Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2770
+    },
+    {
+      "provider": "oecd-data",
+      "health": {
+        "status": "green",
+        "latency_ms": 41,
+        "last_check": "2026-10-13T06:20:00.445Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1811
+    },
+    {
+      "provider": "oecd-stats",
+      "health": {
+        "status": "green",
+        "latency_ms": 147,
+        "last_check": "2026-10-13T05:58:08.615Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3122
+    },
+    {
+      "provider": "ofac",
+      "health": {
+        "status": "green",
+        "latency_ms": 655,
+        "last_check": "2026-10-13T06:24:01.004Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1570
+    },
+    {
+      "provider": "ons-uk-stats",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 16449
+    },
+    {
+      "provider": "open-canada",
+      "health": {
+        "status": "green",
+        "latency_ms": 340,
+        "last_check": "2026-10-13T05:36:02.125Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4449
+    },
+    {
+      "provider": "openaire",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15846
+    },
+    {
+      "provider": "openalex",
+      "health": {
+        "status": "green",
+        "latency_ms": 438,
+        "last_check": "2026-10-13T05:44:02.039Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3969
+    },
+    {
+      "provider": "openbeautyfacts",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 17888
+    },
+    {
+      "provider": "openbrewery",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11409
+    },
+    {
+      "provider": "openchargemap",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9490
+    },
+    {
+      "provider": "opencontext",
+      "health": {
+        "status": "green",
+        "latency_ms": 650,
+        "last_check": "2026-10-13T04:54:01.297Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6970
+    },
+    {
+      "provider": "opendota",
+      "health": {
+        "status": "green",
+        "latency_ms": 256,
+        "last_check": "2026-10-13T05:48:01.173Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3730
+    },
+    {
+      "provider": "openfda_devices",
+      "health": {
+        "status": "green",
+        "latency_ms": 241,
+        "last_check": "2026-10-13T06:10:02.516Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2408
+    },
+    {
+      "provider": "openfoodfacts",
+      "health": {
+        "status": "green",
+        "latency_ms": 477,
+        "last_check": "2026-10-13T05:50:02.739Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3608
+    },
+    {
+      "provider": "openlibrary",
+      "health": {
+        "status": "green",
+        "latency_ms": 102,
+        "last_check": "2026-10-13T06:40:04.509Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 606
+    },
+    {
+      "provider": "openmeteoaq",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18848
+    },
+    {
+      "provider": "opensensemap",
+      "health": {
+        "status": "green",
+        "latency_ms": 506,
+        "last_check": "2026-10-13T05:36:01.774Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 4449
+    },
+    {
+      "provider": "opensky",
+      "health": {
+        "status": "green",
+        "latency_ms": 457,
+        "last_check": "2026-10-13T06:14:01.629Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2169
+    },
+    {
+      "provider": "openstates",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15128
+    },
+    {
+      "provider": "opentdb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8650
+    },
+    {
+      "provider": "opentopodata",
+      "health": {
+        "status": "green",
+        "latency_ms": 326,
+        "last_check": "2026-10-13T05:58:08.420Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3123
+    },
+    {
+      "provider": "opentopography",
+      "health": {
+        "status": "green",
+        "latency_ms": 863,
+        "last_check": "2026-10-13T06:36:03.626Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 847
+    },
+    {
+      "provider": "openweathermap",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9606
+    },
+    {
+      "provider": "orcid",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9009
+    },
+    {
+      "provider": "orphadata",
+      "health": {
+        "status": "green",
+        "latency_ms": 941,
+        "last_check": "2026-10-13T06:40:04.275Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 43,
+      "probe_age_s": 607
+    },
+    {
+      "provider": "osv",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12250
+    },
+    {
+      "provider": "overpass",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12489
+    },
+    {
+      "provider": "p2pquake",
+      "health": {
+        "status": "green",
+        "latency_ms": 232,
+        "last_check": "2026-10-13T05:40:01.678Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4209
+    },
+    {
+      "provider": "paleoclimate",
+      "health": {
+        "status": "green",
+        "latency_ms": 333,
+        "last_check": "2026-10-13T05:42:01.178Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4090
+    },
+    {
+      "provider": "pexels",
+      "health": {
+        "status": "green",
+        "latency_ms": 106,
+        "last_check": "2026-10-13T05:32:01.930Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4689
+    },
+    {
+      "provider": "pharmgkb",
+      "health": {
+        "status": "green",
+        "latency_ms": 214,
+        "last_check": "2026-10-13T06:36:01.665Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 849
+    },
+    {
+      "provider": "platform",
+      "health": {
+        "status": "green",
+        "latency_ms": 19,
+        "last_check": "2026-10-13T06:40:00.788Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 610
+    },
+    {
+      "provider": "plos-search",
+      "health": {
+        "status": "green",
+        "latency_ms": 349,
+        "last_check": "2026-10-13T04:52:00.882Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7090
+    },
+    {
+      "provider": "podcastindex",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7811
+    },
+    {
+      "provider": "pokeapi",
+      "health": {
+        "status": "green",
+        "latency_ms": 21,
+        "last_check": "2026-10-13T06:22:00.345Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1691
+    },
+    {
+      "provider": "polymarket",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 24368
+    },
+    {
+      "provider": "postcode-japan",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9606
+    },
+    {
+      "provider": "postcodes-io",
+      "health": {
+        "status": "green",
+        "latency_ms": 231,
+        "last_check": "2026-10-13T06:08:03.059Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2528
+    },
+    {
+      "provider": "pubchem",
+      "health": {
+        "status": "green",
+        "latency_ms": 283,
+        "last_check": "2026-10-13T04:54:00.637Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6970
+    },
+    {
+      "provider": "pypi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22328
+    },
+    {
+      "provider": "qrserver",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8167
+    },
+    {
+      "provider": "randomuser",
+      "health": {
+        "status": "green",
+        "latency_ms": 262,
+        "last_check": "2026-10-13T06:06:01.232Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2650
+    },
+    {
+      "provider": "rateapi",
+      "health": {
+        "status": "green",
+        "latency_ms": 663,
+        "last_check": "2026-10-13T05:00:04.482Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6607
+    },
+    {
+      "provider": "rawg",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8524
+    },
+    {
+      "provider": "razorpayifsc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22329
+    },
+    {
+      "provider": "rcsb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9249
+    },
+    {
+      "provider": "reed",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 20050
+    },
+    {
+      "provider": "regulations",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14649
+    },
+    {
+      "provider": "remotive",
+      "health": {
+        "status": "green",
+        "latency_ms": 31,
+        "last_check": "2026-10-13T05:30:02.980Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4808
+    },
+    {
+      "provider": "resend",
+      "health": {
+        "status": "green",
+        "latency_ms": 86,
+        "last_check": "2026-10-13T05:54:03.272Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3368
+    },
+    {
+      "provider": "restcountries",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18489
+    },
+    {
+      "provider": "rijksmuseum",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21607
+    },
+    {
+      "provider": "ror",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8286
+    },
+    {
+      "provider": "rxnorm",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15608
+    },
+    {
+      "provider": "sabre",
+      "health": {
+        "status": "green",
+        "latency_ms": 432,
+        "last_check": "2026-10-13T05:40:02.137Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4209
+    },
+    {
+      "provider": "sam",
+      "health": {
+        "status": "green",
+        "latency_ms": 359,
+        "last_check": "2026-10-13T05:50:02.213Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3609
+    },
+    {
+      "provider": "samuni",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 19807
+    },
+    {
+      "provider": "scb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 22447
+    },
+    {
+      "provider": "sdwis",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18605
+    },
+    {
+      "provider": "sec-edgar",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19568
+    },
+    {
+      "provider": "semanticscholar",
+      "health": {
+        "status": "green",
+        "latency_ms": 692,
+        "last_check": "2026-10-13T05:12:03.496Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5888
+    },
+    {
+      "provider": "sepa-scotland",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2018,
+        "last_check": "2026-10-13T05:54:03.068Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3368
+    },
+    {
+      "provider": "serper",
+      "health": {
+        "status": "green",
+        "latency_ms": 88,
+        "last_check": "2026-10-13T06:22:01.750Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1689
+    },
+    {
+      "provider": "shipengine",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21128
+    },
+    {
+      "provider": "shortio",
+      "health": {
+        "status": "green",
+        "latency_ms": 175,
+        "last_check": "2026-10-13T05:52:04.575Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3486
+    },
+    {
+      "provider": "slovakia-statistics",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19087
+    },
+    {
+      "provider": "smhi",
+      "health": {
+        "status": "green",
+        "latency_ms": 830,
+        "last_check": "2026-10-13T06:14:01.160Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2170
+    },
+    {
+      "provider": "smithsonian",
+      "health": {
+        "status": "red",
+        "latency_ms": 204,
+        "last_check": "2026-10-13T06:06:00.925Z"
+      },
+      "state": "DOWN",
+      "reliability_score": 67,
+      "probe_age_s": 2650
+    },
+    {
+      "provider": "socrata",
+      "health": {
+        "status": "green",
+        "latency_ms": 252,
+        "last_check": "2026-10-13T05:36:04.511Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4447
+    },
+    {
+      "provider": "soil",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11407
+    },
+    {
+      "provider": "solar",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21127
+    },
+    {
+      "provider": "spending",
+      "health": {
+        "status": "green",
+        "latency_ms": 184,
+        "last_check": "2026-10-13T05:34:02.618Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 98,
+      "probe_age_s": 4568
+    },
+    {
+      "provider": "spider",
+      "health": {
+        "status": "green",
+        "latency_ms": 232,
+        "last_check": "2026-10-13T06:38:01.626Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 729
+    },
+    {
+      "provider": "spoonacular",
+      "health": {
+        "status": "green",
+        "latency_ms": 700,
+        "last_check": "2026-10-13T05:06:02.456Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6249
+    },
+    {
+      "provider": "ssbnorway",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9009
+    },
+    {
+      "provider": "sslchecker",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "DOWN",
+      "reliability_score": 22,
+      "probe_age_s": 41170
+    },
+    {
+      "provider": "stability",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13688
+    },
+    {
+      "provider": "standard-ebooks",
+      "health": {
+        "status": "green",
+        "latency_ms": 237,
+        "last_check": "2026-10-13T05:08:04.403Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6127
+    },
+    {
+      "provider": "statbel",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 98,
+      "probe_age_s": 8887
+    },
+    {
+      "provider": "statcan",
+      "health": {
+        "status": "orange",
+        "latency_ms": 3254,
+        "last_check": "2026-10-13T05:40:05.421Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4206
+    },
+    {
+      "provider": "statfin",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12369
+    },
+    {
+      "provider": "statistics-denmark",
+      "health": {
+        "status": "green",
+        "latency_ms": 983,
+        "last_check": "2026-10-13T05:52:03.585Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 98,
+      "probe_age_s": 3487
+    },
+    {
+      "provider": "statistik-austria",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12248
+    },
+    {
+      "provider": "sunrisesunset",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2187,
+        "last_check": "2026-10-13T04:54:03.495Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6968
+    },
+    {
+      "provider": "swissfso",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 87,
+      "probe_age_s": 10924
+    },
+    {
+      "provider": "swissnbm",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21849
+    },
+    {
+      "provider": "swpc",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15608
+    },
+    {
+      "provider": "tatoeba",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2688,
+        "last_check": "2026-10-13T05:38:05.326Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4326
+    },
+    {
+      "provider": "tavily",
+      "health": {
+        "status": "green",
+        "latency_ms": 209,
+        "last_check": "2026-10-13T06:32:03.136Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1088
+    },
+    {
+      "provider": "telegram",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 15009
+    },
+    {
+      "provider": "telnyx",
+      "health": {
+        "status": "green",
+        "latency_ms": 166,
+        "last_check": "2026-10-13T05:22:02.058Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5289
+    },
+    {
+      "provider": "tfl",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13088
+    },
+    {
+      "provider": "theirstack",
+      "health": {
+        "status": "orange",
+        "latency_ms": 108,
+        "last_check": "2026-10-13T05:32:01.764Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4689
+    },
+    {
+      "provider": "thesportsdb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11167
+    },
+    {
+      "provider": "ticketmaster",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 16449
+    },
+    {
+      "provider": "timeapi",
+      "health": {
+        "status": "green",
+        "latency_ms": 527,
+        "last_check": "2026-10-13T06:26:02.953Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1448
+    },
+    {
+      "provider": "tmdb",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 7809
+    },
+    {
+      "provider": "transport-rest",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 83,
+      "probe_age_s": 15729
+    },
+    {
+      "provider": "treasurydirect",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19807
+    },
+    {
+      "provider": "treasuryfiscal",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19207
+    },
+    {
+      "provider": "tvmaze",
+      "health": {
+        "status": "green",
+        "latency_ms": 548,
+        "last_check": "2026-10-13T06:18:03.229Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1928
+    },
+    {
+      "provider": "twilio",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14287
+    },
+    {
+      "provider": "twitterapi",
+      "health": {
+        "status": "green",
+        "latency_ms": 130,
+        "last_check": "2026-10-13T05:44:01.509Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3970
+    },
+    {
+      "provider": "uk-ea-flood-monitoring",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2061,
+        "last_check": "2026-10-13T05:02:03.979Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6487
+    },
+    {
+      "provider": "uk-landregistry-pricepaid",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8048
+    },
+    {
+      "provider": "ukfsa",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 19088
+    },
+    {
+      "provider": "ukhsa-dashboard",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 23048
+    },
+    {
+      "provider": "ukleg",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 98,
+      "probe_age_s": 11770
+    },
+    {
+      "provider": "ukpolice",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11406
+    },
+    {
+      "provider": "unesco-data",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9368
+    },
+    {
+      "provider": "unhabitat",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8649
+    },
+    {
+      "provider": "unhcr",
+      "health": {
+        "status": "green",
+        "latency_ms": 709,
+        "last_check": "2026-10-13T04:58:01.544Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6729
+    },
+    {
+      "provider": "uniprot",
+      "health": {
+        "status": "green",
+        "latency_ms": 582,
+        "last_check": "2026-10-13T06:36:09.491Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 842
+    },
+    {
+      "provider": "unpaywall",
+      "health": {
+        "status": "green",
+        "latency_ms": 344,
+        "last_check": "2026-10-13T04:56:01.867Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6849
+    },
+    {
+      "provider": "unsdg",
+      "health": {
+        "status": "green",
+        "latency_ms": 887,
+        "last_check": "2026-10-13T05:12:02.794Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5888
+    },
+    {
+      "provider": "upcitemdb",
+      "health": {
+        "status": "green",
+        "latency_ms": 373,
+        "last_check": "2026-10-13T05:48:02.724Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3728
+    },
+    {
+      "provider": "usajobs",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 91,
+      "probe_age_s": 13330
+    },
+    {
+      "provider": "usdamars",
+      "health": {
+        "status": "green",
+        "latency_ms": 338,
+        "last_check": "2026-10-13T05:14:01.794Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 84,
+      "probe_age_s": 5769
+    },
+    {
+      "provider": "usgs-earthquake",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 8047
+    },
+    {
+      "provider": "usgs-epqs",
+      "health": {
+        "status": "green",
+        "latency_ms": 190,
+        "last_check": "2026-10-13T04:56:01.512Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6850
+    },
+    {
+      "provider": "usgs-hans-volcano",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13570
+    },
+    {
+      "provider": "usgs-mrds",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 88,
+      "probe_age_s": 21849
+    },
+    {
+      "provider": "usgs-nationalmap",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 20529
+    },
+    {
+      "provider": "usgs-nwis",
+      "health": {
+        "status": "green",
+        "latency_ms": 297,
+        "last_check": "2026-10-13T05:28:00.976Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 81,
+      "probe_age_s": 4930
+    },
+    {
+      "provider": "usgs-water",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 80,
+      "probe_age_s": 11649
+    },
+    {
+      "provider": "usno",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9117
+    },
+    {
+      "provider": "usrealestate",
+      "health": {
+        "status": "green",
+        "latency_ms": 962,
+        "last_check": "2026-10-13T05:46:03.546Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 89,
+      "probe_age_s": 3847
+    },
+    {
+      "provider": "vam",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 21604
+    },
+    {
+      "provider": "vatcomply",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18366
+    },
+    {
+      "provider": "walkscore",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 16796
+    },
+    {
+      "provider": "weatherapi",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9489
+    },
+    {
+      "provider": "wger",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13447
+    },
+    {
+      "provider": "who",
+      "health": {
+        "status": "green",
+        "latency_ms": 989,
+        "last_check": "2026-10-13T05:46:04.668Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 3846
+    },
+    {
+      "provider": "who-gho",
+      "health": {
+        "status": "green",
+        "latency_ms": 1168,
+        "last_check": "2026-10-13T06:36:04.835Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 846
+    },
+    {
+      "provider": "whoisjson",
+      "health": {
+        "status": "green",
+        "latency_ms": 514,
+        "last_check": "2026-10-13T05:42:01.703Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4089
+    },
+    {
+      "provider": "whoisxml",
+      "health": {
+        "status": "green",
+        "latency_ms": 63,
+        "last_check": "2026-10-13T06:08:01.585Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 2529
+    },
+    {
+      "provider": "wikidata",
+      "health": {
+        "status": "green",
+        "latency_ms": 689,
+        "last_check": "2026-10-13T05:36:05.213Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 4446
+    },
+    {
+      "provider": "wikimedia-analytics",
+      "health": {
+        "status": "green",
+        "latency_ms": 543,
+        "last_check": "2026-10-13T05:26:02.330Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 5049
+    },
+    {
+      "provider": "wikimedia-commons",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9115
+    },
+    {
+      "provider": "wikimedia-rest",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 18366
+    },
+    {
+      "provider": "wikipedia",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 14767
+    },
+    {
+      "provider": "wits-trade",
+      "health": {
+        "status": "orange",
+        "latency_ms": 2768,
+        "last_check": "2026-10-13T04:56:04.648Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 6846
+    },
+    {
+      "provider": "wmo-weather",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 13689
+    },
+    {
+      "provider": "world-bank-cckp",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 82,
+      "probe_age_s": 17048
+    },
+    {
+      "provider": "worldbank",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 12489
+    },
+    {
+      "provider": "worms",
+      "health": {
+        "status": "green",
+        "latency_ms": 557,
+        "last_check": "2026-10-13T06:40:05.124Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 606
+    },
+    {
+      "provider": "wto",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 11168
+    },
+    {
+      "provider": "zenodo",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 83,
+      "probe_age_s": 18250
+    },
+    {
+      "provider": "zerobounce",
+      "health": {
+        "status": "green",
+        "latency_ms": 31,
+        "last_check": "2026-10-13T06:26:01.073Z"
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 1450
+    },
+    {
+      "provider": "zippopotamus",
+      "health": {
+        "status": "unknown",
+        "latency_ms": null,
+        "last_check": null
+      },
+      "state": "HEALTHY",
+      "reliability_score": 100,
+      "probe_age_s": 9850
+    }
+  ]
+}

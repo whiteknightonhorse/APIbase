@@ -23,7 +23,9 @@ function createFakeRedis(asapFlags: string[] = []) {
   for (const p of asapFlags) strings.set(`probe:asap:${p}`, '1');
   const hashes = new Map<string, Record<string, string>>();
   const deleted: string[] = [];
+  const expires: Array<{ key: string; seconds: number }> = [];
   return {
+    expires,
     strings,
     hashes,
     deleted,
@@ -43,7 +45,8 @@ function createFakeRedis(asapFlags: string[] = []) {
       hashes.set(key, { ...(hashes.get(key) ?? {}), ...fields });
       return 'OK';
     },
-    async expire() {
+    async expire(key: string, seconds: number) {
+      expires.push({ key, seconds });
       return 1;
     },
     async incr(key: string) {
@@ -811,5 +814,30 @@ describe('run() — retired provider is skipped on every path (T-0152a)', () => 
     // every 2-minute tick forever, never actually doing anything)
     expect(redis.deleted).toContain('probe:asap:alpha');
     expect(redis.strings.has('probe:asap:alpha')).toBe(false);
+  });
+
+  it('T-0360: provider:health TTL is max(7200, 2 x the probe_interval_s written to provider_status)', async () => {
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    const t0 = Date.now();
+    const db = createFakeDb({
+      alpha: {
+        provider: 'alpha',
+        state: 'HEALTHY',
+        state_since: new Date(t0 - 3600_000),
+        next_probe_at: new Date(t0 - 1000),
+        probe_interval_s: 21600,
+        consecutive_failures: 0,
+      },
+    });
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(db, mockProviderLimits());
+
+    await run(redis as never);
+
+    const written = db.statuses.get('alpha')?.probe_interval_s as number;
+    expect(written).toBeGreaterThan(0);
+    const alpha = redis.expires.filter((e) => e.key === 'provider:health:alpha');
+    expect(alpha).toHaveLength(1);
+    expect(alpha[0].seconds).toBe(Math.max(7200, 2 * written));
   });
 });

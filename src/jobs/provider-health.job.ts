@@ -741,7 +741,8 @@ export async function recordProbeResult(
     latency_ms: String(meta.latencyMs ?? 0),
     last_check: now.toISOString(),
   });
-  await redis.expire(`provider:health:${provider}`, REDIS_HEALTH_TTL);
+  // Same 2x predicate as effectiveReliability in dashboard.service: one freshness window.
+  await redis.expire(`provider:health:${provider}`, Math.max(REDIS_HEALTH_TTL, 2 * t.newIntervalS));
 }
 
 /** SKIPPED_BUDGET: probe_log gets the row, provider_status is left exactly

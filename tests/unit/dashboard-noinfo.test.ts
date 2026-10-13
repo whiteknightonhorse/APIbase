@@ -8,6 +8,7 @@ jest.mock('../../src/services/redis.service', () => ({
 
 import { getDashboardData } from '../../src/services/dashboard.service';
 import { getPrisma } from '../../src/services/prisma.service';
+import { ensureRedisConnected } from '../../src/services/redis.service';
 
 /**
  * AP-10 (819-autopilot-dashboard-ui.md, item 5 + acceptance checklist item 3):
@@ -251,6 +252,8 @@ describe('T-0330: unmeasured is not healthy', () => {
   });
 
   it('score is kept only with calc + fresh probe (<= 2x interval); stale probe -> null', async () => {
+    // T-0360: with Redis unavailable health is unknown, so even a fresh probe yields null.
+    // The kept branch (health known) is covered in the T-0360 describe below.
     const fresh = await run([
       {
         ...baseRow,
@@ -261,7 +264,7 @@ describe('T-0330: unmeasured is not healthy', () => {
         last_probe_at: new Date(NOW - 7000_000),
       },
     ]);
-    expect(fresh.providers[0].reliability_score).toBe(90);
+    expect(fresh.providers[0].reliability_score).toBeNull();
     const stale = await run([
       {
         ...baseRow,
@@ -302,5 +305,76 @@ describe('T-0330: unmeasured is not healthy', () => {
       expect(html).toMatch(/if \(hs === 'green'\) hGreen\+\+;/);
       expect(html).toContain("UNKNOWN:' + hUnknown");
     });
+  });
+});
+
+describe('T-0360', () => {
+  const NOW = Date.now();
+  const abrRow = () => ({
+    tool_count: 1n,
+    calls_24h: 0n,
+    calls_today: 0n,
+    calls_this_month: 0n,
+    calls_total: 0n,
+    paid_calls_24h: 0n,
+    revenue_24h: null,
+    avg_latency_ms: null,
+    provider_state: 'HEALTHY',
+    provider_risk: 'NORMAL',
+    open_incidents: 0n,
+    provider: 'abr',
+    reliability_score: 100,
+    reliability_calculated_at: new Date(NOW - 3600_000),
+    probe_interval_s: 21600,
+    last_probe_at: new Date(NOW - 21526_000),
+  });
+  async function run(rows: Array<Record<string, unknown>>) {
+    (getPrisma as jest.Mock).mockReturnValue({
+      $queryRawUnsafe: jest.fn().mockResolvedValue(rows),
+    });
+    return getDashboardData();
+  }
+
+  it('prod fixture 2026-10-12: rows with health unknown but a reliability_score (the dispatcher post-deploy jq)', () => {
+    // This predicate is the dispatcher's post-deploy jq; the test pins that both
+    // agree on the shape of the real payload.
+    const fixture = JSON.parse(
+      fs.readFileSync(path.join(__dirname, '../fixtures/dashboard-prod-2026-10-12.json'), 'utf-8'),
+    ) as {
+      providers: Array<{ health: { status: string }; reliability_score: number | null }>;
+    };
+    const n = fixture.providers.filter(
+      (p) => p.health.status === 'unknown' && p.reliability_score !== null,
+    ).length;
+    expect(n).toBe(225);
+  });
+
+  it('abr row that passed the old gate: health unknown (Redis unavailable) -> reliability_score null', async () => {
+    const d = await run([abrRow()]);
+    const p = d.providers[0];
+    expect(p.health.status).toBe('unknown');
+    expect(p.probe_age_s).toBeGreaterThanOrEqual(21526);
+    expect(p.probe_age_s).toBeLessThanOrEqual(21530);
+    expect(p.reliability_score).toBeNull();
+  });
+
+  it('same row with a live Redis health hash -> health green, score kept', async () => {
+    // getDashboardData calls ensureRedisConnected twice (cache read, then health read),
+    // so the same client is served for both; get() -> null keeps the cache cold.
+    const client = {
+      get: jest.fn(async () => null),
+      set: jest.fn(async () => 'OK'),
+      setex: jest.fn(async () => 'OK'),
+      hgetall: jest.fn(async (k: string) =>
+        k === 'provider:health:abr'
+          ? { status: 'green', latency_ms: '120', last_check: new Date(NOW).toISOString() }
+          : {},
+      ),
+    };
+    (ensureRedisConnected as jest.Mock).mockResolvedValueOnce(client).mockResolvedValueOnce(client);
+    const d = await run([abrRow()]);
+    const p = d.providers[0];
+    expect(p.health.status).toBe('green');
+    expect(p.reliability_score).toBe(100);
   });
 });

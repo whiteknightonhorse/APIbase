@@ -59,10 +59,10 @@ interface ProviderDashboardEntry {
   // UNKNOWN/NOINFO value, which IS one of the enum's own members.
   state: string | null; // UNKNOWN|HEALTHY|DEGRADED|DOWN
   risk: string | null; // NOINFO|NORMAL|ATTENTION|WARNING|CRITICAL|EXHAUSTED
-  // 0-100, §20. T-0330: null unless the score is trustworthy — the daily calc has
-  // run (reliability_calculated_at set), the provider was probed (last_probe_at set)
-  // and that probe is within 2x probe_interval_s. A stored score next to a missing
-  // or stale probe is NOT reported (it used to surface as 100 for unprobed rows).
+  // 0-100, §20. T-0330/T-0360: null whenever health.status is unknown (Redis key
+  // expired / Redis down), and otherwise only with calc + probe within 2x
+  // probe_interval_s. A stored score next to a missing or stale probe is NOT
+  // reported (it used to surface as 100 for unprobed rows).
   reliability_score: number | null;
   probe_age_s: number | null; // seconds since last_probe_at; null = never probed
   open_incidents: number; // non-RESOLVED incidents for this provider right now
@@ -332,7 +332,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       tool_count: toolCount,
       state: row.provider_state,
       risk: row.provider_risk,
-      reliability_score: effectiveReliability(row, probeAgeS),
+      reliability_score: effectiveReliability(row, probeAgeS, health),
       probe_age_s: probeAgeS,
       open_incidents: Number(row.open_incidents),
     });
@@ -437,7 +437,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
   return response;
 }
 
-// T-0330: a stored reliability_score is reported only when both the daily calc and
+// T-0330/T-0360: a stored reliability_score is reported only when health is known and both the daily calc and
 // a probe exist and the probe is fresh (<= 2x probe_interval_s). Otherwise null.
 function effectiveReliability(
   row: {
@@ -446,7 +446,9 @@ function effectiveReliability(
     probe_interval_s: number | null;
   },
   probeAgeS: number | null,
+  health: { status: string },
 ): number | null {
+  if (health.status === 'unknown') return null;
   if (row.reliability_score === null || row.reliability_score === undefined) return null;
   if (!row.reliability_calculated_at || probeAgeS === null) return null;
   if (!row.probe_interval_s || probeAgeS > 2 * row.probe_interval_s) return null;
