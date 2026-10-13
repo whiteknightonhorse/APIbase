@@ -115,3 +115,6 @@ scripts/integrator/state/
 
 # Audit script output (T-0299)
 /reports/
+
+# Docker compose secret files (T-0357) — never commit
+secrets/

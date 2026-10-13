@@ -10,8 +10,10 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-apibase}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD required}
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
       POSTGRES_DB: ${POSTGRES_DB:-apibase}
+    secrets:
+      - postgres_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -263,6 +265,13 @@ services:
 volumes:
   postgres_data:
   redis_data:
+
+# ---------------------------------------------------------------------------
+# Secrets — file-based, created on the host (docs/runbook.md 9.5), gitignored
+# ---------------------------------------------------------------------------
+secrets:
+  postgres_password:
+    file: ./secrets/postgres_password
 
 # ---------------------------------------------------------------------------
 # Network — single bridge network (§12.200)

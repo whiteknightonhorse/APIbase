@@ -523,6 +523,25 @@ The script restores the dump into a throwaway postgres container and checks tabl
 
 Off-box copy: see docs/backup-offsite.md (T-0313)
 
+### 9.5 Postgres password as a compose secret (T-0357)
+
+`POSTGRES_PASSWORD` is no longer in the environment of `postgres`, `postgres_backup` or `postgres_exporter`. They read `/run/secrets/postgres_password` (`POSTGRES_PASSWORD_FILE`; `DATA_SOURCE_PASS_FILE` for postgres_exporter v0.15.0, documented in its README).
+
+Create the file on the host (value taken from the current `.env`, never echoed):
+
+```
+mkdir -p ~/apibase/secrets && chmod 700 ~/apibase/secrets
+install -m 600 /dev/stdin ~/apibase/secrets/postgres_password
+```
+
+Type or paste the password on stdin, then Ctrl-D (no trailing newline: the postgres image does not strip it; when scripting use `printf '%s' "$PW" | install -m 600 /dev/stdin ...`). The `secrets/` directory is gitignored.
+
+The app is unchanged: it still reads `DATABASE_URL` from `.env`. On rotation update both `.env` and this file, then `docker compose up -d postgres postgres_backup postgres_exporter`.
+
+Honest limit: any member of the docker group can still run `docker exec apibase-postgres cat /run/secrets/postgres_password` (security F6, accepted risk). What changes is that `docker exec ... env` and `docker inspect` no longer show the value.
+
+Check after deploy: `docker exec apibase-postgres env | grep -c '^POSTGRES_PASSWORD='` prints 0.
+
 ---
 
 ## 10. Autopilot
