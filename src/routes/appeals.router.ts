@@ -122,19 +122,26 @@ ${formBlock}
 
 export const appealsRouter = Router();
 
+/** HTML unless the client asks for JSON explicitly (application/json named, text/html not named).
+ *  The /api/v1 paths are JSON-only regardless of Accept. */
+const wantsJson = (req: Request): boolean => {
+  if ((req.baseUrl + req.path).startsWith('/api/')) return true;
+  const a = req.get('accept');
+  return typeof a === 'string' && /application\/json/i.test(a) && !/text\/html/i.test(a);
+};
+
 /** 400 for a malformed appeal_id (not a UUID at all) -- distinct from 404
  *  (well-formed id, no such row), same content-negotiation as the 404
  *  branch below. Live bug this fixes: an invalid id used to fall through to
  *  Prisma's UUID cast, which throws uncaught -> 502 at the edge. */
 function sendInvalidAppealId(req: Request, res: Response): void {
   res.status(400);
-  const accept = req.headers.accept || '';
-  if (accept.includes('text/html')) {
+  if (wantsJson(req)) {
+    res.json({ error: 'invalid_id', message: 'appealId must be a UUID' });
+  } else {
     res
       .type('html')
       .send('<!DOCTYPE html><title>Invalid appeal id</title><p>Malformed appeal id.</p>');
-  } else {
-    res.json({ error: 'invalid_id', message: 'appealId must be a UUID' });
   }
 }
 
@@ -150,20 +157,18 @@ appealsRouter.get('/appeals/:appealId', async (req: Request, res: Response) => {
     const appeal = await getAppeal(appealId);
     if (!appeal) {
       res.status(404);
-      const accept = req.headers.accept || '';
-      if (accept.includes('text/html')) {
-        res.type('html').send('<!DOCTYPE html><title>Not found</title><p>No such appeal.</p>');
-      } else {
+      if (wantsJson(req)) {
         res.json({ error: 'not_found', message: 'No appeal with that id' });
+      } else {
+        res.type('html').send('<!DOCTYPE html><title>Not found</title><p>No such appeal.</p>');
       }
       return;
     }
 
-    const accept = req.headers.accept || '';
-    if (accept.includes('text/html')) {
-      res.type('html').send(renderPage(appeal));
-    } else {
+    if (wantsJson(req)) {
       res.json(appeal);
+    } else {
+      res.type('html').send(renderPage(appeal));
     }
   } catch (err) {
     logger.error({ err, appealId }, 'Failed to load appeal');
@@ -240,11 +245,10 @@ async function handleSubmit(req: Request, res: Response): Promise<void> {
 
     logger.info({ requestId, appealId }, 'Appeal submission accepted');
 
-    const accept = req.headers.accept || '';
-    if (accept.includes('text/html')) {
-      res.type('html').send(renderPage(result.appeal));
-    } else {
+    if (wantsJson(req)) {
       res.json({ status: 'accepted', appeal: result.appeal });
+    } else {
+      res.type('html').send(renderPage(result.appeal));
     }
   } catch (err) {
     logger.error({ err, requestId, appealId }, 'Failed to submit appeal');

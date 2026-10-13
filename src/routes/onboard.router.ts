@@ -121,6 +121,12 @@ const JSON_SCHEMA_RESPONSE = {
   },
 };
 
+/** HTML unless the client asks for JSON explicitly: application/json named and text/html not named. */
+const wantsJson = (req: Request): boolean => {
+  const a = req.get('accept');
+  return typeof a === 'string' && /application\/json/i.test(a) && !/text\/html/i.test(a);
+};
+
 // ---------------------------------------------------------------------------
 // Router
 // ---------------------------------------------------------------------------
@@ -128,15 +134,14 @@ const JSON_SCHEMA_RESPONSE = {
 export const onboardRouter = Router();
 
 /**
- * GET /onboard — Serve HTML form or JSON schema (§6.12)
+ * GET /onboard — HTML by default; JSON schema when Accept asks for
+ * application/json without text/html (agent-automated submissions).
  */
 onboardRouter.get('/onboard', (req: Request, res: Response) => {
-  const accept = req.headers.accept || '';
-
-  if (accept.includes('text/html')) {
-    res.type('html').send(HTML_FORM);
-  } else {
+  if (wantsJson(req)) {
     res.json(JSON_SCHEMA_RESPONSE);
+  } else {
+    res.type('html').send(HTML_FORM);
   }
 });
 
