@@ -1,5 +1,2 @@
 # T-0383: terminal decoration removed by the design-M migration (fake titlebar, boot sequence).
 apibase@prod ~ /srv/apibase/partners
-# T-0385: terminal status line and build tag removed by the design-M migration.
-STATUS: ONLINE | PID: 1337 | TTY: pts/0 | USER: apibase
-BUILD: v1.0.0

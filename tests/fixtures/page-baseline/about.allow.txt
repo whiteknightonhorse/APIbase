@@ -1,4 +1,2 @@
 # T-0383: terminal decoration removed by the design-M migration (fake titlebar, boot sequence).
 apibase@prod:~$ cat /srv/apibase/about.html | render
-# T-0385: terminal status line removed by the design-M migration.
-STATUS: ONLINE | USER: apibase
