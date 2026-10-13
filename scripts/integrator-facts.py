@@ -37,6 +37,7 @@ HOME_FEE_RE = re.compile(r"<!--fee-->.*?<!--/fee-->")
 HOME_MERCH_RE = re.compile(r"<!--merchants-->.*?<!--/merchants-->", re.S)
 SENTENCE_RE = re.compile(r"Integrator: [^<\n]*? invoiced(?: otherwise)?\.")
 MERCHANTS_RE = re.compile(r"Merchants connected: [0-9]+\.")
+FEE_STATE_RE = re.compile(r"<!--fee-state-->.*?<!--/fee-state-->")
 
 
 def facts():
@@ -58,6 +59,10 @@ def sentence(f):
         "Integrator: %s fee from the merchant, min %s, orders from %s; "
         "on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise." % (f["fee"], f["fee_min"], f["min_order"])
     )
+
+
+def fee_state(f):
+    return "<!--fee-state-->Integrator fee: %s. Fee Switch state is published here per Merchant Agreement &sect;8.<!--/fee-state-->" % f["fee"]
 
 
 def merchants_line(f):
@@ -93,6 +98,8 @@ def render():
     for path in RENDERED:
         s = open(path).read()
         n = SENTENCE_RE.sub(lambda m: sentence(f), s)
+        if path.endswith("pricing.html"):
+            n = FEE_STATE_RE.sub(lambda m: fee_state(f), n)
         if path.endswith("llms.txt"):
             n = MERCHANTS_RE.sub(lambda m: merchants_line(f), n)
         if n != s:
@@ -108,6 +115,8 @@ def check():
         found = SENTENCE_RE.findall(s)
         if found != [sentence(f)]:
             problems.append("%s: Integrator sentence %r != expected %r" % (path, found, sentence(f)))
+        if path.endswith("pricing.html") and FEE_STATE_RE.findall(s) != [fee_state(f)]:
+            problems.append("%s: fee-state line differs from the mcp.json baseline" % path)
         if path.endswith("llms.txt"):
             if "/integrator" not in s:
                 problems.append("%s: no /integrator link" % path)

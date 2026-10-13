@@ -83,8 +83,11 @@ describe('T-INT-05 legal documents', () => {
     const db = fakeDb();
     await syncLegalDocs(db);
     const s = await serve({ db });
-    const idx = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Row[];
+    const all = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Array<
+      Row & { registry?: boolean }
+    >;
     await s.close();
+    const idx = all.filter((e) => e.registry !== false);
     expect(idx.map((e) => e.doc_id)).toEqual([...LEGAL_DOC_IDS]);
     for (const e of idx) {
       const sum = execFileSync('sha256sum', [join(LEGAL_DIR, `${e.doc_id}.md`)])

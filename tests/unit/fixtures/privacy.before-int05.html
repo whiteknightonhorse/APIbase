@@ -98,14 +98,14 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 </nav>
 
 <div class="sys-monitor">
-<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>401</strong>  <span class="label">TOOLS:</span><strong>1390</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (90% of tools &lt;= $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
+<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>406</strong>  <span class="label">TOOLS:</span><strong>1407</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (90% of tools &lt;= $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
 </div>
 
 <h1>Privacy Policy</h1>
-<p class="updated">Last updated: March 13, 2026</p>
+<p class="updated">Last updated: October 13, 2026</p>
 
 <h2>1. Service Description</h2>
-<p>APIbase.pro ("Service") is an API hub for AI agents. The Service provides programmatic access to third-party APIs via MCP (Model Context Protocol) and REST endpoints with x402 micropayments.</p>
+<p>APIbase.pro ("Service") is an API hub for AI agents. The Service provides programmatic access to third-party APIs via MCP (Model Context Protocol) and REST endpoints, paid via x402 (USDC on Base), MPP (USDC on Tempo), or a prepaid balance.</p>
 
 <h2>2. Data We Collect</h2>
 <ul>
@@ -117,7 +117,7 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 
 <h2>3. Data We Do NOT Collect</h2>
 <ul>
-<li>Personal names, email addresses, or phone numbers (agent-first platform, no human accounts).</li>
+<li>Account data for platform tool calls: there are no human accounts, so no personal names, email addresses, or phone numbers are collected for them. Merchant orders are different: the delivery address, passport data where a product requires it, and payer contact are processed as described in <a href="#integrator">section 11</a> and the <a href="/legal/dpa">DPA</a>.</li>
 <li>Full request/response payloads from provider API calls.</li>
 <li>IP addresses in application logs (only in Nginx access logs, retained 15 days).</li>
 <li>Cookies, browser fingerprints, or tracking pixels.</li>
@@ -126,13 +126,13 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 <h2>4. How We Use Data</h2>
 <ul>
 <li>Authenticate and authorize API requests.</li>
-<li>Process x402 micropayments and maintain the financial ledger.</li>
+<li>Process x402 and MPP micropayments, debit prepaid balances, and maintain the financial ledger.</li>
 <li>Enforce rate limits and prevent abuse.</li>
 <li>Monitor system health and performance.</li>
 </ul>
 
 <h2>5. Data Sharing</h2>
-<p>We forward request parameters to third-party API providers (e.g., Foursquare, Amadeus) solely to fulfill tool invocations. We do not sell, rent, or share data with advertisers or data brokers.</p>
+<p>We forward request parameters to third-party API providers (e.g., Foursquare, Amadeus) solely to fulfill tool invocations. Our sub-processors are Hetzner (hosting) and Resend (transactional e-mail), as named in the <a href="/legal/dpa">DPA</a>. We do not sell, rent, or share data with advertisers or data brokers.</p>
 
 <h2>6. Data Retention</h2>
 <ul>
@@ -158,7 +158,6 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
 <span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
 </div>
 <div class="footer-row">
-<span id="gen-time">Generated: --</span>
 <span id="uptime-counter">Uptime: 0m 0s</span>
 <span>BUILD: v1.0.0</span>
 </div>
@@ -188,8 +187,6 @@ a:hover{color:#66ddff;text-shadow:0 0 6px rgba(0,204,255,0.4)}
       sessionStorage.setItem('apibase_privacy_booted', '1');
     }, delay + 600);
   } else { bootScreen.style.display = 'none'; mainContent.style.opacity = '1'; }
-  var genEl = document.getElementById('gen-time');
-  if (genEl) genEl.textContent = 'Generated: ' + new Date().toLocaleTimeString();
   setInterval(function() {
     var elapsed = Math.floor((Date.now() - pageLoadTime) / 1000);
     var el = document.getElementById('uptime-counter');
