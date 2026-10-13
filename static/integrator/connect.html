@@ -1,23 +1,47 @@
-<h1>Connect AI payment</h1>
-<p class="muted">You sign three messages with your browser wallet: the encryption key, the registration and the acceptance of the documents. Smart-contract wallets (ERC-1271) are accepted. No wallet in the browser? Use your agent: see <a href="/integrator/agent-guide">agent-guide</a>.</p>
-<form id="f">
-<label>Shop address (slug)<input name="slug" required pattern="[a-z0-9-]{3,40}" placeholder="my-shop"></label>
-<label>Shop name<input name="name" required></label>
-<label>Category<select name="category" required>{{CATEGORY_OPTIONS}}</select></label>
-<label>Country (ISO code)<input name="country" required maxlength="2" placeholder="DE"></label>
-<label>Contact email (never shown to buyers)<input name="contact_email" type="email" required></label>
-<label>Website<input name="site_url" type="url" required placeholder="https://my-shop.example"></label>
+<div class="lp cn">
+<h1>Connect your store</h1>
+<p class="lp-sub">Three quick steps. No payment, no gas. Registering through an AI agent or the API? See the <a href="/integrator/agent-guide">agent guide</a>.</p>
+<ol class="cn-bar" id="bar"><li class="on">1 Your store</li><li>2 Agreements</li><li>3 Connect wallet</li></ol>
+<form id="f" novalidate>
+<div class="cn-step" id="s1">
+<h2>Your store</h2>
+<label>Shop name<input name="name" autocomplete="organization" placeholder="My Shop"></label><small class="err" data-for="name"></small>
+<label>Website<input name="site_url" type="url" inputmode="url" autocomplete="url" placeholder="https://my-shop.example"></label><small class="err" data-for="site_url"></small>
+<label>Contact email (never shown to buyers)<input name="contact_email" type="email" autocomplete="email" placeholder="you@my-shop.example"></label><small class="err" data-for="contact_email"></small>
+<label>Category<select name="category">{{CATEGORY_OPTIONS}}</select></label>
+<label>Country<select name="country" id="country"></select></label><small class="err" data-for="country"></small>
+<label>Shop address (slug)<input name="slug" autocapitalize="none" placeholder="my-shop"></label><small class="err" data-for="slug"></small>
+<p class="muted">Your page: apibase.pro/m/<b id="pv">my-shop</b></p>
+</div>
+<div class="cn-step" id="s2" hidden>
+<h2>Agreements</h2>
+<label class="cn-check"><input type="checkbox" name="accept"> <span>I have read and accept the <a href="/legal/merchant-agreement" target="_blank" rel="noopener">Merchant Agreement</a>, <a href="/legal/aup" target="_blank" rel="noopener">Acceptable Use Policy</a>, <a href="/legal/dpa" target="_blank" rel="noopener">Data Processing Addendum</a> and <a href="/legal/refund-framework" target="_blank" rel="noopener">Refund Framework</a></span></label><small class="err" data-for="accept"></small>
+<details><summary>Document versions</summary><pre id="docs">loading /legal/index.json ...</pre></details>
+<p class="muted">{{LEGAL_STATUS}}</p>
+</div>
+<div class="cn-step" id="s3" hidden>
+<h2>Connect wallet</h2>
+<p>You sign three short messages with your wallet to prove it's yours — no payment, no gas.</p>
+<div id="nw" hidden class="cn-card">
+<h3>Open this page in your wallet app</h3>
+<p class="muted">This browser has no wallet. Your answers are kept, so you can continue there.</p>
+<p><a class="lp-cta" href="https://metamask.app.link/dapp/apibase.pro/integrator/connect">Open in MetaMask</a> <a class="lp-cta" href="https://go.cb-w.com/dapp?cb_url=https%3A%2F%2Fapibase.pro%2Fintegrator%2Fconnect">Open in Coinbase Wallet</a></p>
+<h3>Finish on a computer</h3>
+<p><button type="button" class="cn-ghost" data-copy="https://apibase.pro/integrator/connect">Copy link</button></p>
+<p><a href="/integrator/wallet">Don't have a wallet yet?</a></p>
+<p><a href="/integrator/agent-guide">Registering through an AI agent or the API?</a></p>
+</div>
+<details><summary>Use a different payout wallet</summary>
 <label>Payout wallet on Base (empty = the signing wallet)<input name="payout_wallet_base" placeholder="0x..."></label>
 <label>Payout wallet on Tempo (empty = the signing wallet)<input name="payout_wallet_tempo" placeholder="0x..."></label>
-<h2>Documents</h2>
-<pre id="docs">loading /legal/index.json ...</pre>
-<p class="muted">Read them at <a href="/legal/merchant-agreement">merchant agreement</a>, <a href="/legal/aup">AUP</a>, <a href="/legal/dpa">DPA</a>, <a href="/legal/refund-framework">refund framework</a>. {{LEGAL_STATUS}}</p>
-<label><input type="checkbox" name="accept" required> I have read and accept these four documents with the hashes above.</label>
-<button type="submit">Sign and connect</button>
+</details>
+<div id="er" class="cn-error" hidden></div>
+</div>
+<p class="cn-nav"><button type="button" id="bk" class="cn-ghost" hidden>Back</button> <button type="button" id="nx" class="lp-cta">Continue</button></p>
 </form>
-<pre id="out"></pre>
+<div id="out" hidden></div>
 <script>
-const $ = (id) => document.getElementById(id), say = (m) => { $('out').textContent = m; };
+const $ = (id) => document.getElementById(id), f = $('f'), F = f.elements, S = ['s1', 's2', 's3'], T = (n, p) => window.apibaseTrack && apibaseTrack(n, p);
 const hex = (m) => '0x' + [...new TextEncoder().encode(m)].map((b) => b.toString(16).padStart(2, '0')).join('');
 const b64 = (b) => btoa(String.fromCharCode(...new Uint8Array(b)));
 const call = async (u, method, body) => {
@@ -28,19 +52,59 @@ const call = async (u, method, body) => {
 const sign = (a, m) => ethereum.request({ method: 'personal_sign', params: [hex(m), a] });
 const nonce = (a, p) => call('/api/v1/shop/auth/nonce?wallet=' + a + '&purpose=' + p, 'GET');
 fetch('/legal/index.json').then((r) => r.json()).then((d) => { $('docs').textContent = d.map((x) => x.doc_id + ' v' + x.version + ' sha256:' + x.sha256).join('\n'); });
-$('f').onsubmit = async (e) => {
-  e.preventDefault();
-  try {
-    if (!window.ethereum || !crypto.subtle) throw new Error('no browser wallet: use your agent, see /integrator/agent-guide');
-    const f = Object.fromEntries(new FormData(e.target)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0];
-    const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
-    const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
-    const n = await nonce(w, 'register'), b = { wallet: w, slug: f.slug, name: f.name, category: f.category, country: f.country.toUpperCase(), contact_email: f.contact_email, site_url: f.site_url, payout_wallet_base: f.payout_wallet_base || w, payout_wallet_tempo: f.payout_wallet_tempo || w, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
-    const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
-    const doc_hashes = r.docs_to_accept.map((x) => ({ doc_id: x.doc_id, version: x.version, sha256: x.sha256 }));
-    const ok = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' });
-    say('Connected. API key (shown once): ' + ok.api_key + '\nDecryption key, keep it safe: ' + b64(await crypto.subtle.exportKey('pkcs8', k.privateKey)) + '\nCheck: ');
-    const l = document.createElement('a'); l.href = '/integrator/check/' + f.slug; l.textContent = l.href; $('out').append(l);
-  } catch (err) { say('Error: ' + err.message); }
+const CC = 'AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CL CM CN CO CR CU CV CY CZ DE DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FR GA GB GD GE GH GM GN GQ GR GT GW GY HK HN HR HT HU ID IE IL IN IQ IR IS IT JM JO JP KE KG KH KM KR KW KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MK ML MM MN MO MR MT MU MV MW MX MY MZ NA NE NG NI NL NO NP NZ OM PA PE PG PH PK PL PT PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SN SO SR SV SY SZ TD TG TH TJ TM TN TO TR TT TW TZ UA UG US UY UZ VA VE VN VU WS YE ZA ZM ZW'.split(' ');
+const dn = window.Intl && Intl.DisplayNames ? new Intl.DisplayNames(['en'], { type: 'region' }) : null;
+CC.forEach((c) => { const o = new Option(c + (dn ? ' — ' + dn.of(c) : ''), c); F.country.add(o); }); F.country.value = 'US';
+const V = {
+  name: (v) => v.trim() ? '' : 'Enter your shop name.',
+  site_url: (v) => /^https?:\/\/[^\s.]+\.\S+$/i.test(v.trim()) ? '' : 'Enter the full website address, starting with http:// or https://',
+  contact_email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.',
+  slug: (v) => /^[a-z0-9-]{3,40}$/.test(v) ? '' : 'Use 3-40 characters: lowercase letters, digits and dashes.',
+  country: (v) => /^[A-Z]{2}$/.test(v) ? '' : 'Choose a country.',
+  accept: () => F.accept.checked ? '' : 'Tick the box to accept the agreements.'
 };
+const chk = (n, show) => { const m = V[n](F[n].type === 'checkbox' ? '' : F[n].value); if (show) f.querySelector('[data-for=' + n + ']').textContent = m; return !m; };
+const STEP = [['name', 'site_url', 'contact_email', 'country', 'slug'], ['accept'], []];
+let cur = 0, edited = false, nw = !window.ethereum || !(window.crypto && crypto.subtle);
+const ok = (i, show) => STEP[i].map((n) => chk(n, show)).every(Boolean);
+const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+const show = (i) => {
+  cur = i; S.forEach((s, j) => { $(s).hidden = j !== i; }); [...$('bar').children].forEach((li, j) => li.className = j === i ? 'on' : j < i ? 'done' : '');
+  $('bk').hidden = !i; $('nx').textContent = i === 2 ? 'Connect wallet and finish' : 'Continue'; $('nx').hidden = i === 2 && nw; $('nw').hidden = !(i === 2 && nw);
+  $('nx').classList.toggle('off', i < 2 && !ok(i, false)); $('er').hidden = true;
+};
+const save = () => { try { sessionStorage.setItem('apibase_connect', JSON.stringify(Object.fromEntries(['name', 'site_url', 'contact_email', 'category', 'country', 'slug'].map((n) => [n, F[n].value])))); } catch (e) {} };
+try { const d = JSON.parse(sessionStorage.getItem('apibase_connect') || 'null'); if (d) { for (const n in d) if (F[n] && typeof d[n] === 'string') F[n].value = d[n]; edited = !!F.slug.value; } } catch (e) {}
+const pv = () => { $('pv').textContent = F.slug.value || 'my-shop'; $('nx').classList.toggle('off', cur < 2 && !ok(cur, false)); save(); };
+F.name.addEventListener('input', () => { if (!edited) F.slug.value = slugify(F.name.value); pv(); });
+F.slug.addEventListener('input', () => { edited = true; pv(); });
+f.addEventListener('input', pv); f.addEventListener('change', pv);
+f.addEventListener('focusout', (e) => { if (e.target.name in V) chk(e.target.name, true); });
+f.addEventListener('submit', (e) => e.preventDefault());
+document.addEventListener('click', (e) => { const c = e.target.closest && e.target.closest('[data-copy]'); if (c) { try { navigator.clipboard.writeText(c.dataset.copy).then(() => { c.textContent = 'Copied'; }); } catch (x) {} } });
+$('bk').onclick = () => show(cur - 1);
+const done = async (r, slug, k) => {
+  const box = (t, v) => { const d = document.createElement('div'), p = document.createElement('pre'), b = document.createElement('button'); d.className = 'cn-card'; d.append(Object.assign(document.createElement('h3'), { textContent: t })); p.textContent = v; b.type = 'button'; b.className = 'cn-ghost'; b.textContent = 'Copy'; b.dataset.copy = v; d.append(p, b); return d; };
+  const a = Object.assign(document.createElement('a'), { className: 'lp-cta', href: '/integrator/check/' + slug, textContent: 'Check your store' }), w = document.createElement('p');
+  w.className = 'cn-warn'; w.textContent = 'Shown once — save both now (password manager).';
+  $('out').replaceChildren(Object.assign(document.createElement('h2'), { textContent: 'Your store is connected' }), a, w, box('API key', r.api_key), box('Decryption key', b64(await crypto.subtle.exportKey('pkcs8', k.privateKey))));
+  f.hidden = true; $('bar').hidden = true; $('out').hidden = false; try { sessionStorage.removeItem('apibase_connect'); } catch (e) {} T('sign_up', { method: 'wallet' });
+};
+const run = async () => {
+  const x = Object.fromEntries(new FormData(f)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0];
+  const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
+  const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
+  const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
+  const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
+  const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
+  await done(await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' }), x.slug, k);
+};
+$('nx').onclick = async () => {
+  if (cur < 2) { if (!ok(cur, true)) return; T('connect_step', { step: cur + 2 }); return show(cur + 1); }
+  const bt = $('nx'); bt.disabled = true; $('er').hidden = true;
+  try { await run(); } catch (err) { $('er').replaceChildren(document.createTextNode(err.message + ' '), Object.assign(document.createElement('button'), { type: 'button', className: 'cn-ghost', textContent: 'Try again', onclick: () => { $('er').hidden = true; } })); $('er').hidden = false; }
+  bt.disabled = false;
+};
+pv(); show(0);
 </script>
+</div>

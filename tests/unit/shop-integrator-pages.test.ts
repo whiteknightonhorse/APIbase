@@ -166,7 +166,7 @@ describe('integrator pages', () => {
     }
   });
 
-  it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 40 lines', async () => {
+  it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 80 lines (T-0377: 3-step flow)', async () => {
     const { text: raw } = await get('/integrator/connect');
     const text = stripMeta(raw);
     expect(text).toContain('<input type="checkbox"');
@@ -177,14 +177,14 @@ describe('integrator pages', () => {
     expect(text).not.toMatch(/<script[^>]*\ssrc=/i);
     const js = [...text.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1].trim());
     expect(js).toHaveLength(1);
-    expect(js[0].split('\n').length).toBeLessThanOrEqual(40);
+    expect(js[0].split('\n').length).toBeLessThanOrEqual(80);
     expect(text).toContain('<option>digital-goods</option>');
     expect(text).toContain('agent-guide');
   });
 
-  it('IP7: HTML <= 35 KB, 390 px friendly viewport, no external resources', async () => {
+  it('IP7: HTML <= 38 KB (T-0377: shared _page.css grew), 390 px friendly viewport, no external resources', async () => {
     const { text } = await get('/integrator');
-    expect(Buffer.byteLength(text)).toBeLessThanOrEqual(35 * 1024);
+    expect(Buffer.byteLength(text)).toBeLessThanOrEqual(38 * 1024);
     expect(text).toContain('name="viewport"');
     const page = stripMeta(text);
     expect(page).not.toMatch(/<(?:script|link|img|iframe)[^>]+(?:src|href)="https?:/i);
