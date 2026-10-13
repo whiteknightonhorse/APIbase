@@ -28,7 +28,11 @@ set -euo pipefail
 ROOT="${ROOT:-/home/apibase/apibase}"; cd "$ROOT"
 
 CHECK=0
-[ "${1:-}" = "--check" ] && CHECK=1
+NO_FETCH=0
+for a in "$@"; do
+  [ "$a" = "--check" ] && CHECK=1
+  [ "$a" = "--no-fetch" ] && NO_FETCH=1
+done
 
 # T-75 (2026-09-03, Fable ruling): self-heal (no --check) writes TRACKED files. The deploy
 # tree (/home/apibase/apibase) belongs to deploy.sh alone (F2 dirty-tree gate) -- a write here
@@ -608,6 +612,32 @@ FAIL=0
 [ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
 [ -n "$STALE_README_BADGE_NUM" ] && { echo "sync-counts: README.md has a shields.io badge with a hand-typed number remaining:"; echo "$STALE_README_BADGE_NUM"; FAIL=1; }
 [ -n "$STALE_STAGE_COUNT" ] && { echo "sync-counts: STALE stage-count number in static/*.md or agent-skills/*.md (remove the number, don't update it):"; echo "$STALE_STAGE_COUNT"; FAIL=1; }
+# T-0342: coverage regression guard + every robots.txt Sitemap: URL must answer 200.
+# SITEMAP_FETCH_CMD (test stub / override) is run as `$SITEMAP_FETCH_CMD <url>` and must print
+# the HTTP status. Default: local nginx (127.0.0.1:8880, Host apibase.pro). --no-fetch skips
+# the network part (CI has no server); the coverage guard still runs.
+SITEMAP_COVERAGE=""
+if [ "$CHECK" = "1" ]; then
+  for want in "/legal/aup" "/integrator"; do
+    grep -q "<loc>https://apibase.pro${want}</loc>" static/sitemap.xml 2>/dev/null \
+      || SITEMAP_COVERAGE="${SITEMAP_COVERAGE}  static/sitemap.xml lacks ${want}"$'\n'
+  done
+fi
+ROBOTS_SITEMAP_404=""
+if [ "$CHECK" = "1" ] && [ "$NO_FETCH" != "1" ]; then
+  fetch_status() {
+    if [ -n "${SITEMAP_FETCH_CMD:-}" ]; then $SITEMAP_FETCH_CMD "$1"
+    else curl -s -o /dev/null --max-time 10 -w '%{http_code}' -H 'Host: apibase.pro' \
+      "${SITEMAP_FETCH_BASE:-http://127.0.0.1:8880}${1#https://apibase.pro}"; fi
+  }
+  while IFS= read -r u; do
+    [ -n "$u" ] || continue
+    code=$(fetch_status "$u" 2>/dev/null || true)
+    [ "$code" = "200" ] || ROBOTS_SITEMAP_404="${ROBOTS_SITEMAP_404}  ${u} -> ${code:-no response}"$'\n'
+  done < <(sed -n 's/^Sitemap:[[:space:]]*\([^[:space:]]*\).*/\1/p' static/robots.txt)
+fi
+[ -n "$SITEMAP_COVERAGE" ] && { echo "sync-counts: SITEMAP_COVERAGE — sitemap.xml coverage regression:"; printf '%s' "$SITEMAP_COVERAGE"; FAIL=1; }
+[ -n "$ROBOTS_SITEMAP_404" ] && { echo "sync-counts: ROBOTS_SITEMAP_404 — robots.txt Sitemap URL(s) not 200:"; printf '%s' "$ROBOTS_SITEMAP_404"; FAIL=1; }
 [ -n "$STALE_SITEMAP" ] && { echo "sync-counts: STALE static/sitemap.xml — differs from the generated URL set:"; echo "$STALE_SITEMAP"; FAIL=1; }
 [ -n "$STALE_DISCOVERY" ] && { echo "sync-counts: STALE discovery surface(s) remain:"; echo "$STALE_DISCOVERY"; FAIL=1; }
 [ -n "$STALE_POSITIONING" ] && { echo "sync-counts: STALE_POSITIONING — canonical sentence disagrees with baseline:"; echo "$STALE_POSITIONING"; FAIL=1; }

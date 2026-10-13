@@ -26,13 +26,17 @@ set -euo pipefail
 ROOT="${ROOT:-/home/apibase/apibase}"; cd "$ROOT"
 
 OUT="static/sitemap.xml"
-[ "${1:-}" = "--print" ] && OUT="/dev/stdout"
+PRINT=0
+TMP="$(mktemp)"; trap 'rm -f "$TMP"' EXIT
+[ "${1:-}" = "--print" ] && PRINT=1
 
 lastmod() {
   local f="$1"
   local d
   d=$(git log -1 --format=%cd --date=format:%Y-%m-%d -- "$f" 2>/dev/null || true)
-  [ -n "$d" ] && echo "$d" || date +%Y-%m-%d
+  if [ -n "$d" ]; then echo "$d"
+  elif [ -e "$f" ]; then date -u -r "$f" +%Y-%m-%d
+  else date +%Y-%m-%d; fi
 }
 
 # priority/changefreq: known values carried over from the original hand-authored file
@@ -93,7 +97,7 @@ emit() {
     case "$base" in
       index) url="/" ;;
       policy-moderation) url="/policy/moderation" ;;
-      autopilot-incident) url="/autopilot/incident" ;;
+      autopilot-incident) continue ;;  # noindex (T-0342)
       *) url="/$base" ;;
     esac
     emit "$url" "$f"
@@ -111,8 +115,32 @@ emit() {
     emit "/.well-known/$rel" "$f"
   done < <(find static/.well-known -type f | sort)
 
-  echo '</urlset>'
-} > "$OUT"
+  # T-0342: app-served pages (nginx proxies /integrator, /shops, /legal to the app). Derived
+  # from static/integrator and static/legal so a new page only needs to exist on disk.
+  # Noindex pages are skipped: /integrator/connect, /m/*/p/*, /autopilot/incident. /m/<slug>
+  # is NOT listed here: it lives in the app-served shops sitemap (sitemap-shops-index.xml).
+  for f in static/integrator/*.html static/integrator/*.md static/integrator/platforms/*.md; do
+    [ -f "$f" ] || continue
+    rel="${f#static/integrator/}"; rel="${rel%.*}"
+    case "$f" in static/integrator/index.md) continue ;; esac  # twin of index.html
+    case "$rel" in
+      _*|connect|llms) continue ;;
+      index) url="/integrator" ;;
+      *) url="/integrator/$rel" ;;
+    esac
+    emit "$url" "$f"
+  done
+  emit "/shops" "src/shop/routes/storefront.router.ts"
+  for f in static/legal/*.md; do
+    [ -f "$f" ] || continue
+    emit "/legal/$(basename "$f" .md)" "$f"
+  done
+  emit "/video/" "static/video/index.html"
 
-[ "$OUT" = "static/sitemap.xml" ] && echo "gen-sitemap: wrote $(grep -c '<loc>' static/sitemap.xml) URLs to static/sitemap.xml"
+  echo '</urlset>'
+} > "$TMP"
+# /dev/stdout fails when stdout is a socket (spawnSync pipes), so print via cat.
+if [ "$PRINT" = "1" ]; then cat "$TMP"; else cat "$TMP" > "$OUT"; fi
+
+[ "$PRINT" = "0" ] && echo "gen-sitemap: wrote $(grep -c '<loc>' static/sitemap.xml) URLs to static/sitemap.xml"
 exit 0
