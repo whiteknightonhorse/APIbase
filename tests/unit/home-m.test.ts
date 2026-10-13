@@ -8,13 +8,13 @@ const idsOf = (s: string) => new Set([...s.matchAll(/\sid="([^"]+)"/g)].map((m) 
 const widget = /<!--sea-js--><script>([\s\S]*?)<\/script><!--\/sea-js-->/.exec(html)![1];
 
 describe('home design M (T-0384)', () => {
-  it('the Sea Hunter markup keeps its ids, the JSON link and sits in a 16:9 frame', () => {
+  it('the Sea Hunter markup keeps its ids, the JSON link and sits in a frame with no fixed aspect ratio', () => {
     const ids = idsOf(html);
     for (const id of ['sh-cv', 'sh-txt', 'sh-pause']) expect(ids.has(id)).toBe(true);
     expect(html).toContain('<a href="/api/v1/fleet/sea">Fleet data (JSON)</a>');
     expect(html).toMatch(/<div class="hm-frame">\s*<canvas id="sh-cv"/);
     const css = readFileSync(join(ROOT, 'static/assets/site-m.css'), 'utf8');
-    expect(css).toMatch(/\.hm-frame\{[^}]*aspect-ratio:16\/9/);
+    expect(css).not.toMatch(/\.hm-frame\{[^}]*aspect-ratio/);
   });
 
   it('the inline widget script parses and finds its elements on the page ids', () => {
