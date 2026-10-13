@@ -434,7 +434,7 @@ details p{margin:0 0 var(--s4)}
 .ig .ig-pager a{display:inline-flex;align-items:center;min-height:44px}
 /* what the buyer's agent sees (illustrative product card) */
 .ig .ig-example{display:flex;flex-wrap:wrap;gap:var(--s5) var(--s6);align-items:center}
-.ig .ig-pcard{flex:0 1 320px;width:100%;min-width:0;background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden}
+.ig .ig-pcard{flex:1 1 320px;max-width:420px;min-width:0;background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden}
 .ig .ig-pshop{padding:var(--s2) var(--s4);border-bottom:1px solid var(--line);font-family:var(--mono);font-size:var(--fs-caption);color:var(--ink-3)}
 .ig .ig-pimg{display:block;width:100%;height:auto}
 .ig .ig-pbody{display:flex;flex-direction:column;gap:var(--s2);padding:var(--s4)}
@@ -486,6 +486,7 @@ details p{margin:0 0 var(--s4)}
 .ig .lp-chips li{display:flex;align-items:center;gap:var(--s2);margin:0;font-size:var(--fs-small)}
 .ig .lp-chips li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none}
 .ig .lp-visual{flex:1 1 320px;min-width:0;max-width:440px;display:flex;flex-direction:column;align-items:stretch}
+@media (max-width:959px){.ig .lp-visual,.ig .ig-pcard{max-width:none}}
 .ig .lp-frame{background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);padding:var(--s4)}
 .ig .lp-label{margin-bottom:var(--s2);font-family:var(--mono);font-size:var(--fs-caption);letter-spacing:.04em;color:var(--ink-3)}
 .ig .lp-bubble{max-width:90%;margin-bottom:var(--s2);padding:var(--s2) var(--s3);border-radius:var(--r-card);font-size:15px;color:var(--ink)}
