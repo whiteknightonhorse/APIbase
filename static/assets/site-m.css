@@ -386,7 +386,8 @@ details p{margin:0 0 var(--s4)}
 .ig .muted{color:var(--ink-3)}
 .ig .sub{color:var(--ink-2);margin:0 0 var(--s4)}
 .ig .ig-lead{font-size:var(--fs-lead);line-height:1.5;max-width:640px;margin:0 0 var(--s5)}
-.ig nav[aria-label="Integrator"]{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s2);margin:0 0 var(--s5)}
+.ig nav[aria-label="Integrator"]{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);margin:0 0 var(--s5)}
+.nav-sub{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s3);max-width:100%;margin:0 0 var(--s5)}
 .ig nav[aria-label="Integrator"] a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s4);border:1px solid var(--line-2);border-radius:var(--r-chip);color:var(--ink-2);font-size:var(--fs-small);text-decoration:none}
 .ig nav[aria-label="Integrator"] a:hover{border-color:var(--accent);color:var(--ink)}
 .ig .sys-monitor{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s1) var(--s3);margin:0 0 var(--s5);padding:0;font-size:var(--fs-small);letter-spacing:0;color:var(--ink-3)}
