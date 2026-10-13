@@ -33,13 +33,13 @@ describe('gen-sitemap.sh --print', () => {
   });
 });
 
-describe('sync-counts.sh --check robots sitemap fetch', () => {
+describe('check-robots-sitemaps.sh (called by sync-counts.sh --check)', () => {
   it('fails with ROBOTS_SITEMAP_404 when a stubbed fetch returns 404', () => {
     const dir = mkdtempSync(join(tmpdir(), 'sitemap-stub-'));
     const stub = join(dir, 'fetch404.sh');
     writeFileSync(stub, '#!/bin/sh\necho 404\n');
     chmodSync(stub, 0o755);
-    const r = run('sync-counts.sh', ['--check'], { SITEMAP_FETCH_CMD: stub });
+    const r = run('check-robots-sitemaps.sh', [], { SITEMAP_FETCH_CMD: stub });
     expect(r.status).toBe(1);
     expect(r.stdout).toContain('ROBOTS_SITEMAP_404');
   }, 120_000);
