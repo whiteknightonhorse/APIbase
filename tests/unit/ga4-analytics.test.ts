@@ -91,4 +91,16 @@ describe('T-0375 GA4', () => {
     for (const o of ['https://www.googletagmanager.com', 'https://*.google-analytics.com'])
       expect(dir('img-src')).toContain(o);
   });
+
+  it('(e) T-0384a: nginx CSP lets the page load its own stylesheet and fonts', () => {
+    for (const f of ['nginx/apibase-host.conf', 'deploy/sandbox/nginx-sandbox.conf']) {
+      const line = rd(f)
+        .split('\n')
+        .find((l) => l.includes('Content-Security-Policy'))!;
+      const dir = (n: string) => line.split(';').find((d) => d.trim().startsWith(n))!;
+      expect(dir('style-src')).toContain("'self'");
+      expect(dir('style-src')).toContain("'unsafe-inline'");
+      expect(dir('font-src')).toContain("'self'");
+    }
+  });
 });
