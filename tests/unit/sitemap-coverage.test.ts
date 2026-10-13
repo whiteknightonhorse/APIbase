@@ -1,6 +1,6 @@
 /** T-0342: main sitemap covers app-served pages; sync-counts --check verifies robots.txt Sitemap URLs. */
 import { spawnSync } from 'node:child_process';
-import { chmodSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -43,4 +43,45 @@ describe('check-robots-sitemaps.sh (called by sync-counts.sh --check)', () => {
     expect(r.status).toBe(1);
     expect(r.stdout).toContain('ROBOTS_SITEMAP_404');
   }, 120_000);
+});
+
+describe('nginx slash-canon whitelist covers the sitemap (T-0342)', () => {
+  const conf = readFileSync(join(ROOT, 'nginx', 'nginx.conf'), 'utf8');
+  const line = conf
+    .split('\n')
+    .map((l, i, a) => ({ l, next: a[i + 1] ?? '' }))
+    .find(
+      (x) => x.l.includes('location ~ ^/(') && x.next.includes('return 301 https://apibase.pro/$1'),
+    );
+  const m = line && /location ~ (\^.*\$) \{/.exec(line.l);
+  const re = new RegExp(m ? m[1] : '(?!)');
+  const out = run('gen-sitemap.sh', ['--print']).stdout;
+  const locs = [...out.matchAll(/<loc>https:\/\/apibase\.pro([^<]*)<\/loc>/g)].map((x) => x[1]);
+  const canon = locs.filter(
+    (p) => p !== '/' && !p.endsWith('/') && !p.startsWith('/.well-known/') && !/\.[a-z]+$/.test(p),
+  );
+
+  it('finds the whitelist regex', () => {
+    expect(m).not.toBeNull();
+    expect(canon.length).toBeGreaterThan(10);
+  });
+
+  it('matches the slash form of every canonical sitemap page', () => {
+    const missing = canon.filter((p) => !re.test(p + '/'));
+    expect(missing).toEqual([]);
+  });
+
+  it.each([
+    '/api/v1/tools/',
+    '/mcp/',
+    '/health/ready/',
+    '/.well-known/mcp.json/',
+    '/m/x/',
+    '/guides/',
+    '/video/',
+    '/integrator//',
+    '/legal//',
+  ])('does not hijack %s', (p) => {
+    expect(re.test(p)).toBe(false);
+  });
 });
