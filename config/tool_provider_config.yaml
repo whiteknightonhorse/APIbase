@@ -4000,6 +4000,7 @@ tools:
     name: Razorpay IFSC Bank Lookup
     provider: razorpayifsc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-416: Lichess ---
@@ -4007,16 +4008,19 @@ tools:
     name: Lichess User Profile
     provider: lichess
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
   - tool_id: lichess.top_players
     name: Lichess Top Players
     provider: lichess
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 600
   - tool_id: lichess.daily_puzzle
     name: Lichess Daily Puzzle
     provider: lichess
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-417: Chess.com Public Data API ---
@@ -4024,16 +4028,19 @@ tools:
     name: Chess.com Player Profile
     provider: chesscom
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 600
   - tool_id: chesscom.player_stats
     name: Chess.com Player Stats
     provider: chesscom
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 600
   - tool_id: chesscom.titled_players
     name: Chess.com Titled Players List
     provider: chesscom
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-422: NOAA Aviation Weather Center (AWC) ---
@@ -4041,16 +4048,19 @@ tools:
     name: Aviation METAR Weather Report
     provider: awc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
   - tool_id: awc.taf
     name: Aviation TAF Terminal Forecast
     provider: awc
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 7200
   - tool_id: awc.sigmet
     name: Aviation SIGMET / AIRMET Hazard Alerts
     provider: awc
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   # --- UC-429: UK Food Standards Agency (FSA) — Food Hygiene Rating Scheme ---
@@ -4058,16 +4068,19 @@ tools:
     name: UK FSA Food Business Search
     provider: ukfsa
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: ukfsa.establishment_details
     name: UK FSA Food Business Details
     provider: ukfsa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: ukfsa.local_authorities
     name: UK FSA Local Authorities
     provider: ukfsa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-430: GOV.UK Content API (Cabinet Office, UK) ---
@@ -4075,16 +4088,19 @@ tools:
     name: GOV.UK Content Search
     provider: govuk
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
   - tool_id: govuk.content
     name: GOV.UK Document Content
     provider: govuk
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: govuk.organisations
     name: GOV.UK Organisations Directory
     provider: govuk
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-431: Statistics Sweden (SCB) ---
@@ -4092,16 +4108,19 @@ tools:
     name: SCB Sweden Statistics Catalog
     provider: scb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: scb.table_metadata
     name: SCB Sweden Table Metadata
     provider: scb
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: scb.table_query
     name: SCB Sweden Table Query
     provider: scb
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   # --- UC-426: IRCTC Indian Railways (via RapidAPI) ---
@@ -4218,21 +4237,25 @@ tools:
     name: NIH Grant Search
     provider: nihreporter
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: nihreporter.projects.by_org
     name: NIH Grants by Institution
     provider: nihreporter
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: nihreporter.projects.by_pi
     name: NIH Grants by Principal Investigator
     provider: nihreporter
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: nihreporter.publications.by_project
     name: NIH Grant Publications
     provider: nihreporter
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-418: OpenDota ---
@@ -4284,21 +4307,25 @@ tools:
     name: Search Exoplanets
     provider: nasaexoplanet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: nasaexoplanet.planet_detail
     name: Exoplanet Detail
     provider: nasaexoplanet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: nasaexoplanet.habitable
     name: Habitable Zone Candidates
     provider: nasaexoplanet
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: nasaexoplanet.stats
     name: Exoplanet Discovery Statistics
     provider: nasaexoplanet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-457: UN SDG API ---
@@ -4306,26 +4333,31 @@ tools:
     name: UN SDG Goals
     provider: unsdg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: unsdg.targets.list
     name: UN SDG Targets
     provider: unsdg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: unsdg.indicators.list
     name: UN SDG Indicators
     provider: unsdg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: unsdg.data.query
     name: UN SDG Data Query
     provider: unsdg
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: unsdg.geo.countries
     name: UN SDG Geo Areas
     provider: unsdg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-458: DataCite ---
@@ -4333,6 +4365,7 @@ tools:
     name: DataCite DOI Search
     provider: datacite
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: datacite.doi.lookup
     name: DataCite DOI Lookup
@@ -4340,16 +4373,19 @@ tools:
     capability: research.doi_lookup
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: datacite.works.stats
     name: DataCite Works Statistics
     provider: datacite
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: datacite.client.search
     name: DataCite Repository Search
     provider: datacite
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-459: Statistics Norway (SSB) ---
@@ -4357,21 +4393,25 @@ tools:
     name: SSB Norway Table Search
     provider: ssbnorway
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: ssbnorway.metadata
     name: SSB Norway Table Metadata
     provider: ssbnorway
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: ssbnorway.query
     name: SSB Norway Table Data
     provider: ssbnorway
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: ssbnorway.population
     name: SSB Norway Population Statistics
     provider: ssbnorway
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-594: Statistics Denmark (StatBank) ---
@@ -4379,21 +4419,25 @@ tools:
     name: Statistics Denmark Subject Areas
     provider: statistics-denmark
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: statistics-denmark.tables
     name: Statistics Denmark Table Search
     provider: statistics-denmark
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
   - tool_id: statistics-denmark.table_info
     name: Statistics Denmark Table Metadata
     provider: statistics-denmark
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
   - tool_id: statistics-denmark.data
     name: Statistics Denmark Table Data
     provider: statistics-denmark
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-460: Overpass API (OpenStreetMap) ---
@@ -4451,24 +4495,28 @@ tools:
     name: Search NASA Technical Reports
     provider: nasantrs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nasantrs.report
     name: Get NASA Technical Report Details
     provider: nasantrs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: nasantrs.recent
     name: Get Recent NASA Technical Reports
     provider: nasantrs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nasantrs.stats
     name: Get NASA Technical Reports Corpus Statistics
     provider: nasantrs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-475: CERN Open Data ---
@@ -4476,24 +4524,28 @@ tools:
     name: CERN Open Data Search
     provider: cernopendata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cernopendata.detail
     name: CERN Open Data Record Detail
     provider: cernopendata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: cernopendata.datasets
     name: CERN Open Data Datasets Browser
     provider: cernopendata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cernopendata.glossary
     name: CERN HEP Physics Glossary
     provider: cernopendata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
 # --- UC-476: CelesTrak ---
@@ -4501,24 +4553,28 @@ tools:
     name: Get Satellite Orbital Elements by NORAD ID
     provider: celestrak
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: celestrak.search
     name: Search Satellites by Name
     provider: celestrak
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: celestrak.group
     name: Get Satellite Group Orbital Elements
     provider: celestrak
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: celestrak.intdes
     name: Get Satellite by International Designator
     provider: celestrak
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-477: NASA EONET ---
@@ -4526,24 +4582,28 @@ tools:
     name: List Natural Disaster Events
     provider: eonet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: eonet.event_detail
     name: Get Natural Event Detail
     provider: eonet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: eonet.categories
     name: List EONET Event Categories
     provider: eonet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: eonet.layers
     name: Get EONET GIS Visualization Layers
     provider: eonet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-478: RxNorm ---
@@ -4551,24 +4611,28 @@ tools:
     name: Search RxNorm Drugs by Name
     provider: rxnorm
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: rxnorm.rxcui_properties
     name: Get RxNorm Drug Properties
     provider: rxnorm
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: rxnorm.ndc_lookup
     name: Look Up Drug by NDC Code
     provider: rxnorm
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: rxnorm.drug_class
     name: Get Drug Classification
     provider: rxnorm
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-479: MyGene.info ---
@@ -4576,24 +4640,28 @@ tools:
     name: Search Genes by Keyword or Symbol
     provider: mygene
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: mygene.gene_info
     name: Get Comprehensive Gene Details
     provider: mygene
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: mygene.batch_genes
     name: Batch Fetch Multiple Genes
     provider: mygene
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: mygene.query_by_symbol
     name: Look Up Gene by Official Symbol
     provider: mygene
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-480: MyVariant.info ---
@@ -4601,24 +4669,28 @@ tools:
     name: Search Genetic Variants
     provider: myvariant
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: myvariant.variant_info
     name: Get Variant Annotation Details
     provider: myvariant
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: myvariant.batch_variants
     name: Batch Fetch Variant Annotations
     provider: myvariant
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: myvariant.metadata
     name: Get MyVariant API Metadata
     provider: myvariant
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-481: MyChem.info ---
@@ -4626,24 +4698,28 @@ tools:
     name: Search Chemical Compounds
     provider: mychem
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: mychem.annotation
     name: Get Chemical Annotation Details
     provider: mychem
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: mychem.batch_query
     name: Batch Query Chemical Compounds
     provider: mychem
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: mychem.metadata
     name: Get MyChem API Metadata
     provider: mychem
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-482: US Drought Monitor ---
@@ -4651,24 +4727,28 @@ tools:
     name: US National Drought Statistics
     provider: drought-monitor
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: drought.dsci
     name: US Drought Severity and Coverage Index
     provider: drought-monitor
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: drought.county_stats
     name: US County Drought Statistics
     provider: drought-monitor
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: drought.weeks_in_drought
     name: Counties by Weeks in Drought
     provider: drought-monitor
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-490: Europe PMC ---
@@ -4676,24 +4756,28 @@ tools:
     name: Search Biomedical Literature
     provider: europepmc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: europepmc.article
     name: Get Biomedical Article Details
     provider: europepmc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: europepmc.citations
     name: Get Article Citations
     provider: europepmc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: europepmc.references
     name: Get Article References
     provider: europepmc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-491: ROR (Research Organization Registry) ---
@@ -4701,24 +4785,28 @@ tools:
     name: Search Research Organizations
     provider: ror
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ror.get
     name: Get Research Organization by ROR ID
     provider: ror
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ror.filter
     name: Filter Research Organizations
     provider: ror
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ror.affiliation
     name: Match Affiliation String to Organizations
     provider: ror
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-493: Open Context ---
@@ -4726,24 +4814,28 @@ tools:
     name: Search Open Context Archaeological Records
     provider: opencontext
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: opencontext.detail
     name: Get Open Context Item Detail
     provider: opencontext
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: opencontext.facets
     name: Get Open Context Search Facets
     provider: opencontext
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: opencontext.projects
     name: Search Open Context Excavation Projects
     provider: opencontext
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-492: Catalogue of Life ---
@@ -4751,24 +4843,28 @@ tools:
     name: Search Species in Catalogue of Life
     provider: col
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: col.detail
     name: Get Taxon Details from Catalogue of Life
     provider: col
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: col.suggest
     name: Autocomplete Species Name in Catalogue of Life
     provider: col
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: col.children
     name: List Child Taxa in Catalogue of Life
     provider: col
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-494: WTO Timeseries API ---
@@ -4901,24 +4997,28 @@ tools:
     name: V&A Collection Search
     provider: vam
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: vam.object
     name: V&A Museum Object Details
     provider: vam
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: vam.by_maker
     name: V&A Objects by Maker
     provider: vam
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: vam.by_category
     name: V&A Objects by Category
     provider: vam
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-500: PharmGKB ---
@@ -4926,24 +5026,28 @@ tools:
     name: PharmGKB Gene Search
     provider: pharmgkb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: pharmgkb.drug_search
     name: PharmGKB Drug Search
     provider: pharmgkb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: pharmgkb.variant_lookup
     name: PharmGKB Variant Lookup
     provider: pharmgkb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: pharmgkb.drug_labels
     name: PharmGKB Drug Label Annotations
     provider: pharmgkb
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-501: Brreg ---
@@ -4951,24 +5055,28 @@ tools:
     name: Brreg Company Search
     provider: brreg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: brreg.entity
     name: Brreg Entity Detail
     provider: brreg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: brreg.sub_units
     name: Brreg Sub-Units
     provider: brreg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: brreg.roles
     name: Brreg Company Roles
     provider: brreg
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-502: WoRMS ---
@@ -4976,24 +5084,28 @@ tools:
     name: WoRMS Species Search
     provider: worms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: worms.species.details
     name: WoRMS Species Details
     provider: worms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: worms.species.classification
     name: WoRMS Taxonomic Classification
     provider: worms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: worms.species.vernaculars
     name: WoRMS Vernacular Names
     provider: worms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-503: Bank of Canada ---
@@ -5003,24 +5115,28 @@ tools:
     capability: fx.latest
     scope: regional:CA
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: bankofcanada.policy_rate
     name: Bank of Canada Policy & Prime Rate
     provider: bankofcanada
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: bankofcanada.inflation
     name: Bank of Canada Inflation (CPI)
     provider: bankofcanada
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bankofcanada.series
     name: Bank of Canada Valet Series Lookup
     provider: bankofcanada
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-505: OpenFDA Devices ---
@@ -5072,24 +5188,28 @@ tools:
     name: OpenSenseMap Station Search
     provider: opensensemap
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: opensensemap.box_detail
     name: OpenSenseMap Station Detail
     provider: opensensemap
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: opensensemap.sensors_latest
     name: OpenSenseMap Latest Sensor Readings
     provider: opensensemap
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: opensensemap.sensor_timeseries
     name: OpenSenseMap Sensor Time-Series Data
     provider: opensensemap
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-506: Open-Meteo Marine ---
@@ -5097,24 +5217,28 @@ tools:
     name: Marine Comprehensive Forecast
     provider: marine
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: marine.wave_conditions
     name: Marine Wave Conditions Forecast
     provider: marine
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: marine.swell_forecast
     name: Marine Swell Forecast
     provider: marine
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: marine.sea_temperature
     name: Sea Surface Temperature Forecast
     provider: marine
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-507: MFAPI — India Mutual Funds ---
@@ -5122,24 +5246,28 @@ tools:
     name: India Mutual Fund Scheme Search
     provider: mfapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: mfapi.scheme_list
     name: India Mutual Fund Scheme List
     provider: mfapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: mfapi.nav_latest
     name: India Mutual Fund Latest NAV
     provider: mfapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: mfapi.nav_history
     name: India Mutual Fund NAV History
     provider: mfapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-508: EPA SDWIS (Safe Drinking Water Information System) ---
@@ -5147,24 +5275,28 @@ tools:
     name: Search Public Water Systems
     provider: sdwis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sdwis.violations
     name: Search Drinking Water Violations
     provider: sdwis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sdwis.enforcement
     name: Lookup Water System Enforcement Actions
     provider: sdwis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sdwis.service_areas
     name: Lookup Water System Service Areas
     provider: sdwis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-509: BLS Macro (Bureau of Labor Statistics) ---
@@ -5222,24 +5354,28 @@ tools:
     name: UNHCR Refugee & Displacement Statistics
     provider: unhcr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: unhcr.solutions
     name: UNHCR Durable Solutions Data
     provider: unhcr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: unhcr.asylum_applications
     name: UNHCR Asylum Applications
     provider: unhcr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: unhcr.asylum_decisions
     name: UNHCR Asylum Decisions
     provider: unhcr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-512: GeoNames ---
@@ -5274,24 +5410,28 @@ tools:
     name: UK Carbon Intensity — Current
     provider: carbon-intensity-uk
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: carbonintensity.generation
     name: UK Carbon Intensity — Generation Mix
     provider: carbon-intensity-uk
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: carbonintensity.regional
     name: UK Carbon Intensity — Regional Breakdown
     provider: carbon-intensity-uk
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: carbonintensity.forecast
     name: UK Carbon Intensity — 24-Hour Forecast
     provider: carbon-intensity-uk
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   # --- UC-514: Open Topo Data ---
@@ -5357,24 +5497,28 @@ tools:
     capability: fx.latest
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: frankfurter.historical
     name: Frankfurter — Historical ECB Rates by Date
     provider: frankfurter
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: frankfurter.series
     name: Frankfurter — ECB Rate Time Series
     provider: frankfurter
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: frankfurter.currencies
     name: Frankfurter — List Supported Currencies
     provider: frankfurter
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-517: SunriseSunset.io ---
@@ -5382,24 +5526,28 @@ tools:
     name: SunriseSunset — Daily Sun & Moon Times
     provider: sunrisesunset
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sunrisesunset.range
     name: SunriseSunset — Date Range Sun & Moon Data
     provider: sunrisesunset
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sunrisesunset.moon_phase
     name: SunriseSunset — Moon Phase & Lunar Times
     provider: sunrisesunset
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sunrisesunset.sun_position
     name: SunriseSunset — Sun Position & Golden Hour
     provider: sunrisesunset
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-518: PokéAPI ---
@@ -5407,24 +5555,28 @@ tools:
     name: PokéAPI — Pokemon Details
     provider: pokeapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: pokeapi.species
     name: PokéAPI — Pokemon Species Info
     provider: pokeapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: pokeapi.move
     name: PokéAPI — Pokemon Move Details
     provider: pokeapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: pokeapi.type
     name: PokéAPI — Pokemon Type Matchup
     provider: pokeapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-519: SA National Treasury Municipal Finance ---
@@ -5432,24 +5584,28 @@ tools:
     name: SA Municipal — List Municipalities
     provider: samuni
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: samuni.audit_opinions
     name: SA Municipal — Audit Opinions
     provider: samuni
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: samuni.income_expenditure
     name: SA Municipal — Income & Expenditure
     provider: samuni
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: samuni.officials
     name: SA Municipal — Officials Directory
     provider: samuni
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-520: TVMaze TV Show Database ---
@@ -5488,30 +5644,35 @@ tools:
     name: HackerNews — Top Stories
     provider: hackernews
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: hackernews.new_stories
     name: HackerNews — New Stories
     provider: hackernews
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: hackernews.best_stories
     name: HackerNews — Best Stories
     provider: hackernews
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 600
 
   - tool_id: hackernews.item_details
     name: HackerNews — Item Details
     provider: hackernews
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: hackernews.user_profile
     name: HackerNews — User Profile
     provider: hackernews
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-522: HackerNews Algolia ---
@@ -5519,30 +5680,35 @@ tools:
     name: HN Algolia — Search (Relevance)
     provider: hnalgolia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: hnalgolia.search_recent
     name: HN Algolia — Search (Recent)
     provider: hnalgolia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: hnalgolia.search_comments
     name: HN Algolia — Search Comments
     provider: hnalgolia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: hnalgolia.item_details
     name: HN Algolia — Item Details
     provider: hnalgolia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: hnalgolia.user_profile
     name: HN Algolia — User Profile
     provider: hnalgolia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-523: Wikipedia REST API ---
@@ -5550,30 +5716,35 @@ tools:
     name: Wikipedia Article Summary
     provider: wikipedia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikipedia.search.pages
     name: Wikipedia Page Search
     provider: wikipedia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: wikipedia.article.media
     name: Wikipedia Article Media
     provider: wikipedia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikipedia.feed.featured
     name: Wikipedia Daily Featured Content
     provider: wikipedia
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikipedia.feed.on_this_day
     name: Wikipedia On This Day
     provider: wikipedia
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-524: iRail Belgium Rail ---
@@ -5581,30 +5752,35 @@ tools:
     name: iRail Belgium Stations
     provider: irail
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: irail.liveboard
     name: iRail Station Liveboard
     provider: irail
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   - tool_id: irail.connections
     name: iRail Train Connections
     provider: irail
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: irail.vehicle
     name: iRail Train Vehicle Schedule
     provider: irail
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   - tool_id: irail.disturbances
     name: iRail Service Disturbances
     provider: irail
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 120
 
   # --- UC-525: Norges Bank ---
@@ -5639,24 +5815,28 @@ tools:
     name: Swiss FSO Dataset Catalog
     provider: swissfso
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: swissfso.table.metadata
     name: Swiss FSO Table Dimensions
     provider: swissfso
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: swissfso.table.query
     name: Swiss FSO Table Data Query
     provider: swissfso
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: swissfso.wages.monthly
     name: Swiss Monthly Gross Wages
     provider: swissfso
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-527: US Treasury Fiscal Data ---
@@ -5664,24 +5844,28 @@ tools:
     name: US National Debt — Current
     provider: treasuryfiscal
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: treasuryfiscal.rates.interest
     name: US Treasury Average Interest Rates
     provider: treasuryfiscal
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: treasuryfiscal.yield.quarterly
     name: US Treasury Quarterly Portfolio Yield
     provider: treasuryfiscal
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: treasuryfiscal.debt.expense
     name: US Federal Interest Expense on Debt
     provider: treasuryfiscal
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-528: USDA AMS MARS MyMarketNews ---
@@ -5689,24 +5873,28 @@ tools:
     name: List USDA Agricultural Market Reports
     provider: usdamars
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: usdamars.get_report
     name: Get USDA Market Report Details
     provider: usdamars
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: usdamars.list_corrected
     name: List Corrected USDA Market Reports
     provider: usdamars
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: usdamars.search_reports
     name: Search USDA Agricultural Market Reports by Commodity
     provider: usdamars
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-529: ADS-B DB ---
@@ -5714,18 +5902,21 @@ tools:
     name: Lookup Aircraft by Mode-S or Registration
     provider: adsbdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: adsbdb.airline_lookup
     name: Lookup Airline by ICAO or IATA Code
     provider: adsbdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: adsbdb.callsign_lookup
     name: Lookup Flight Route by Callsign
     provider: adsbdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-530: FAO FAOSTAT SDG API ---
@@ -5733,30 +5924,35 @@ tools:
     name: FAO Undernourishment (SDG 2.1.1)
     provider: faostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: faostat.food_insecurity
     name: FAO Food Insecurity (SDG 2.1.2)
     provider: faostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: faostat.water_stress
     name: FAO Water Stress (SDG 6.4.2)
     provider: faostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: faostat.forest_area
     name: FAO Forest Coverage (SDG 15.1.1)
     provider: faostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: faostat.food_loss
     name: FAO Food Loss Index (SDG 12.3.1)
     provider: faostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-531: ClinicalTrials.gov v2 ---
@@ -5793,30 +5989,35 @@ tools:
     name: Australian GDP
     provider: abs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: abs.cpi
     name: Australian CPI
     provider: abs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: abs.labour_force
     name: Australian Labour Force
     provider: abs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: abs.population
     name: Australian Population Estimates
     provider: abs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: abs.trade
     name: Australian Trade & Balance of Payments
     provider: abs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-533: ONS UK Statistics ---
@@ -5824,30 +6025,35 @@ tools:
     name: ONS Datasets List
     provider: ons-uk-stats
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: ons.stats.cpih
     name: ONS Consumer Prices Index (CPIH)
     provider: ons-uk-stats
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ons.stats.gdp
     name: ONS UK GDP Monthly Estimate
     provider: ons-uk-stats
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ons.stats.unemployment
     name: ONS UK Labour Market Statistics
     provider: ons-uk-stats
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ons.stats.population
     name: ONS UK Population Estimates
     provider: ons-uk-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-534: UN Comtrade Public Preview ---
@@ -5880,30 +6086,35 @@ tools:
     name: USDA Cattle Slaughter Prices
     provider: lmpr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: lmpr.hog_slaughter_prices
     name: USDA Hog Slaughter Prices
     provider: lmpr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: lmpr.boxed_beef_cutout
     name: USDA Boxed Beef Cutout
     provider: lmpr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: lmpr.dairy_product_prices
     name: USDA Dairy Product Prices
     provider: lmpr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: lmpr.lamb_carcass_cutout
     name: USDA Lamb Carcass Cutout
     provider: lmpr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-536: TreasuryDirect ---
@@ -5911,24 +6122,28 @@ tools:
     name: Treasury Auction Results
     provider: treasurydirect
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: treasurydirect.upcoming_auctions
     name: Upcoming Treasury Auctions
     provider: treasurydirect
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: treasurydirect.search_cusip
     name: Treasury Security CUSIP Lookup
     provider: treasurydirect
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: treasurydirect.tips_rates
     name: TIPS Auction Rates and CPI Reference
     provider: treasurydirect
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-537: OpenTopography ---
@@ -6052,24 +6267,28 @@ tools:
     capability: fx.latest
     scope: regional:CH
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: swissnbm.policy_rate
     name: SNB Policy Rate and Sight Deposit Rates
     provider: swissnbm
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: swissnbm.saron_rates
     name: SNB SARON Reference Rates
     provider: swissnbm
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: swissnbm.monetary_aggregates
     name: SNB Swiss Monetary Aggregates
     provider: swissnbm
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-542: Eurostat SDMX 2.1 ---
@@ -6077,30 +6296,35 @@ tools:
     name: Eurostat EU Fertility Indicators
     provider: eurostat2
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: eurostat2.ghg_emissions
     name: Eurostat EU GHG Emissions
     provider: eurostat2
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: eurostat2.rd_spending
     name: Eurostat EU R&D Expenditure
     provider: eurostat2
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: eurostat2.renewable_energy
     name: Eurostat EU Renewable Energy
     provider: eurostat2
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: eurostat2.youth_employment
     name: Eurostat EU Youth Employment
     provider: eurostat2
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-543: Australian Business Register (ABR) ---
@@ -6332,24 +6556,28 @@ tools:
     name: DOAJ — Search Open Access Journals
     provider: doaj
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: doaj.journal_detail
     name: DOAJ — Open Access Journal Detail
     provider: doaj
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: doaj.article_search
     name: DOAJ — Search Open Access Articles
     provider: doaj
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: doaj.article_detail
     name: DOAJ — Open Access Article Detail
     provider: doaj
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-552: Cleveland Museum of Art Open Access ---
@@ -6386,24 +6614,28 @@ tools:
     name: UniProt — Search Proteins
     provider: uniprot
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: uniprot.protein_entry
     name: UniProt — Protein Entry Details
     provider: uniprot
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: uniprot.protein_features
     name: UniProt — Protein Sequence Features
     provider: uniprot
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: uniprot.taxonomy
     name: UniProt — Taxonomy Search
     provider: uniprot
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-554: BioModels ---
@@ -6411,24 +6643,28 @@ tools:
     name: BioModels — Search Biological Models
     provider: biomodels
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: biomodels.model.detail
     name: BioModels — Model Details
     provider: biomodels
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: biomodels.model.files
     name: BioModels — Model Download Files
     provider: biomodels
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: biomodels.model.latest
     name: BioModels — Latest Curated Models
     provider: biomodels
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   # --- UC-555: Open-Meteo Air Quality ---
@@ -6463,36 +6699,42 @@ tools:
     name: USGS — Monitored Volcanoes
     provider: usgs-hans-volcano
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: volcano.elevated
     name: USGS — Elevated Alert Volcanoes
     provider: usgs-hans-volcano
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 120
 
   - tool_id: volcano.cap_alerts
     name: USGS — CAP Volcanic Alerts
     provider: usgs-hans-volcano
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 120
 
   - tool_id: volcano.us_catalog
     name: USGS — US Volcano Catalog
     provider: usgs-hans-volcano
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: volcano.detail
     name: USGS — Volcano Detail
     provider: usgs-hans-volcano
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: volcano.latest_notice
     name: USGS — Latest Volcano Notice
     provider: usgs-hans-volcano
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-557: USGS NWIS Streamflow ---
@@ -6500,24 +6742,28 @@ tools:
     name: USGS NWIS — Daily Streamflow Values
     provider: usgs-nwis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nwis.annual_stats
     name: USGS NWIS — Annual Streamflow Statistics
     provider: usgs-nwis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: nwis.basin_conditions
     name: USGS NWIS — Basin-Wide Streamflow Conditions
     provider: usgs-nwis
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: nwis.site_info
     name: USGS NWIS — Gauge Station Metadata
     provider: usgs-nwis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-558: WHO Global Health Observatory OData ---
@@ -6525,24 +6771,28 @@ tools:
     name: WHO GHO — Search Health Indicators
     provider: who-gho
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: who.indicator_data
     name: WHO GHO — Get Indicator Data
     provider: who-gho
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: who.country_health
     name: WHO GHO — Country Health Data
     provider: who-gho
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: who.dimension_values
     name: WHO GHO — List Dimension Values
     provider: who-gho
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-560: NLM ICD-11 Clinical Tables ---
@@ -6550,24 +6800,28 @@ tools:
     name: NLM ICD-11 — Search Disease Codes
     provider: nlm-icd11
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: icd11.lookup
     name: NLM ICD-11 — Look Up Specific Code
     provider: nlm-icd11
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: icd11.autocomplete
     name: NLM ICD-11 — Autocomplete Suggestions
     provider: nlm-icd11
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: icd11.primary_search
     name: NLM ICD-11 — Search Primary Diagnosis Codes
     provider: nlm-icd11
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-559: CMU Delphi Epidata ---
@@ -6575,24 +6829,28 @@ tools:
     name: CMU Delphi — CDC ILINet Flu Surveillance
     provider: delphi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: delphi.flusurv
     name: CMU Delphi — FluSurv-NET Hospitalization Rates
     provider: delphi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: delphi.covidcast
     name: CMU Delphi — COVID-19 Signal Data (COVIDcast)
     provider: delphi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: delphi.covid_hosp
     name: CMU Delphi — COVID-19 Hospitalization State Timeseries
     provider: delphi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-561: CMS Provider Data ---
@@ -6600,24 +6858,28 @@ tools:
     name: CMS — US Hospital Search
     provider: cms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: cms.nursing_home_search
     name: CMS — US Nursing Home Search
     provider: cms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: cms.home_health_search
     name: CMS — US Home Health Agency Search
     provider: cms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: cms.dialysis_search
     name: CMS — US Dialysis Facility Search
     provider: cms
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-562: CPSC SaferProducts.gov ---
@@ -6625,24 +6887,28 @@ tools:
     name: CPSC — US Product Recall Search
     provider: cpsc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cpsc.detail
     name: CPSC — US Recall Full Details
     provider: cpsc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: cpsc.recent
     name: CPSC — Recent US Product Recalls
     provider: cpsc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cpsc.by_manufacturer
     name: CPSC — Recalls by Manufacturer
     provider: cpsc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-563: NRC Power Reactor Status ---
@@ -6650,24 +6916,28 @@ tools:
     name: NRC — US Nuclear Reactor Current Status
     provider: nrc
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nrc.reactor_history
     name: NRC — Nuclear Reactor Power History
     provider: nrc
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nrc.outages
     name: NRC — Nuclear Reactor Outages & Reduced Power
     provider: nrc
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nrc.annual_data
     name: NRC — Nuclear Reactor Annual Historical Status
     provider: nrc
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-564: BTS Transport ---
@@ -6675,24 +6945,28 @@ tools:
     name: BTS — US Border Crossing Entry Data
     provider: bts-transport
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bts.tsi
     name: BTS — Transportation Services Index
     provider: bts-transport
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bts.freight_indicators
     name: BTS — Supply Chain & Freight Indicators
     provider: bts-transport
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: bts.aviation_traffic
     name: BTS — US Aviation Traffic by Airport (T100)
     provider: bts-transport
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-565: CDC Chronic Disease Indicators ---
@@ -6700,24 +6974,28 @@ tools:
     name: CDC — Chronic Disease Indicators Query
     provider: cdc-chronic
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cdc_chronic.topics
     name: CDC — Chronic Disease Topics & Questions
     provider: cdc-chronic
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: cdc_chronic.state_compare
     name: CDC — Chronic Disease State-by-State Comparison
     provider: cdc-chronic
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cdc_chronic.trend
     name: CDC — Chronic Disease Trend Over Years
     provider: cdc-chronic
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-566: OpenSky Network ADS-B ---
@@ -6725,24 +7003,28 @@ tools:
     name: OpenSky — Live Aircraft in Bounding Box
     provider: opensky
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: opensky.aircraft_state
     name: OpenSky — Current State for Specific Aircraft
     provider: opensky
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: opensky.states_country
     name: OpenSky — Live Aircraft by Origin Country
     provider: opensky
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: opensky.aircraft_track
     name: OpenSky — Flight Track / Trajectory for Aircraft
     provider: opensky
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 120
 
   # --- UC-567: NOAA CO-OPS Tides & Currents ---
@@ -6750,24 +7032,28 @@ tools:
     name: NOAA CO-OPS — Tide High/Low Predictions
     provider: coops
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: coops.water_level
     name: NOAA CO-OPS — Observed Water Level
     provider: coops
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: coops.stations
     name: NOAA CO-OPS — List Tide Gauge Stations
     provider: coops
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: coops.conditions
     name: NOAA CO-OPS — Marine Meteorological Conditions
     provider: coops
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-568: Transport for London (TfL) ---
@@ -6775,24 +7061,28 @@ tools:
     name: TfL — Real-Time London Line Status
     provider: tfl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   - tool_id: tfl.arrivals
     name: TfL — Live Arrivals at London Stop
     provider: tfl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 30
 
   - tool_id: tfl.journey_plan
     name: TfL — London Journey Planner
     provider: tfl
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: tfl.bike_points
     name: TfL — Santander Cycles Bike Point Availability
     provider: tfl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   # --- UC-569: National Bridge Inventory (NBI) ---
@@ -6800,24 +7090,28 @@ tools:
     name: NBI — Search US Bridges by State and Condition
     provider: nbi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: nbi.bridge_detail
     name: NBI — Detailed Bridge Record by Structure Number
     provider: nbi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: nbi.nearby
     name: NBI — Find Bridges Near a Location
     provider: nbi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: nbi.condition_stats
     name: NBI — Bridge Condition Statistics for a State
     provider: nbi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-570: Bright Sky DWD ---
@@ -6827,6 +7121,7 @@ tools:
     capability: weather.current
     scope: regional:DE
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: brightsky.observations
@@ -6835,18 +7130,21 @@ tools:
     capability: weather.forecast
     scope: regional:DE
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: brightsky.alerts
     name: Bright Sky — DWD Severe Weather Alerts for Germany
     provider: brightsky
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: brightsky.stations
     name: Bright Sky — Find Nearby DWD Weather Stations
     provider: brightsky
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-571: Statistics Finland PxWeb ---
@@ -6854,24 +7152,28 @@ tools:
     name: Statistics Finland — Consumer Price Index (CPI)
     provider: statfin
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: statfin.population
     name: Statistics Finland — Population of Finland
     provider: statfin
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: statfin.unemployment
     name: Statistics Finland — Unemployed Jobseekers in Finland
     provider: statfin
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: statfin.table_search
     name: Statistics Finland — List Statistical Tables
     provider: statfin
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-572: DBnomics ---
@@ -6879,24 +7181,28 @@ tools:
     name: DBnomics — List Statistical Data Providers
     provider: dbnomics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: dbnomics.datasets
     name: DBnomics — List Datasets for a Provider
     provider: dbnomics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: dbnomics.series
     name: DBnomics — Browse Series in a Dataset
     provider: dbnomics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: dbnomics.fetch_series
     name: DBnomics — Fetch Time-Series Data
     provider: dbnomics
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-573: SMHI Open Data ---
@@ -6906,24 +7212,28 @@ tools:
     capability: weather.forecast
     scope: regional:SE
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: smhi.fire_risk
     name: SMHI — Fire Weather Index Forecast
     provider: smhi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: smhi.warnings
     name: SMHI — Active Weather Warnings for Sweden
     provider: smhi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: smhi.observations
     name: SMHI — Weather Station Observations
     provider: smhi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 600
 
   # --- UC-574: Digital Public Library of America ---
@@ -6956,24 +7266,28 @@ tools:
     name: Aviation Weather — METAR Observation
     provider: aviationweather
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: aviationweather.taf
     name: Aviation Weather — TAF Forecast
     provider: aviationweather
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   - tool_id: aviationweather.pirep
     name: Aviation Weather — Pilot Reports (PIREPs)
     provider: aviationweather
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: aviationweather.stations
     name: Aviation Weather — Station Lookup
     provider: aviationweather
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-576: OBIS (Ocean Biodiversity Information System) ---
@@ -6981,24 +7295,28 @@ tools:
     name: OBIS — Marine Species Occurrence Search
     provider: obis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: obis.taxon_search
     name: OBIS — Marine Taxon Lookup
     provider: obis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: obis.checklist
     name: OBIS — Marine Species Checklist
     provider: obis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: obis.dataset_search
     name: OBIS — Marine Dataset Search
     provider: obis
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-577: EPA ECHO ---
@@ -7031,24 +7349,28 @@ tools:
     name: NASA CMR — Search Earth Science Datasets
     provider: nasa-cmr
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: nasa-cmr.collection_detail
     name: NASA CMR — Collection Metadata Detail
     provider: nasa-cmr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nasa-cmr.search_granules
     name: NASA CMR — Search Data Granules
     provider: nasa-cmr
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: nasa-cmr.list_providers
     name: NASA CMR — List Data Providers
     provider: nasa-cmr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-579: ChEMBL ---
@@ -7056,24 +7378,28 @@ tools:
     name: ChEMBL — Search Drug Molecules
     provider: chembl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: chembl.molecule_detail
     name: ChEMBL — Molecule Detail by ID
     provider: chembl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: chembl.target_search
     name: ChEMBL — Search Biological Targets
     provider: chembl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: chembl.bioactivity
     name: ChEMBL — Bioactivity Measurements
     provider: chembl
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-580: MedlinePlus Connect ---
@@ -7081,24 +7407,28 @@ tools:
     name: MedlinePlus Connect — ICD-10 Code Lookup
     provider: medlineplus
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: medlineplus.icd9_lookup
     name: MedlinePlus Connect — ICD-9 Code Lookup
     provider: medlineplus
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: medlineplus.snomed_lookup
     name: MedlinePlus Connect — SNOMED CT Lookup
     provider: medlineplus
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: medlineplus.rxnorm_lookup
     name: MedlinePlus Connect — RxNorm Drug Lookup
     provider: medlineplus
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-581: Orphadata — Orphanet Rare Disease Knowledge Base ---
@@ -7106,24 +7436,28 @@ tools:
     name: Orphadata — Rare Disease Lookup
     provider: orphadata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: orphadata.disease_epidemiology
     name: Orphadata — Rare Disease Epidemiology
     provider: orphadata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: orphadata.disease_phenotypes
     name: Orphadata — Rare Disease Phenotypes (HPO)
     provider: orphadata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: orphadata.disease_natural_history
     name: Orphadata — Rare Disease Natural History
     provider: orphadata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-582: CBS Netherlands ---
@@ -7131,24 +7465,28 @@ tools:
     name: CBS Netherlands — Catalog Search
     provider: cbs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cbs.table_info
     name: CBS Netherlands — Table Info
     provider: cbs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cbs.table_properties
     name: CBS Netherlands — Table Properties
     provider: cbs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cbs.table_data
     name: CBS Netherlands — Table Data
     provider: cbs
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-583: ADB KIDB ---
@@ -7181,24 +7519,28 @@ tools:
     name: Open Trivia DB — Get Questions
     provider: opentdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: opentdb.categories
     name: Open Trivia DB — List Categories
     provider: opentdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: opentdb.category_count
     name: Open Trivia DB — Category Question Count
     provider: opentdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: opentdb.global_count
     name: Open Trivia DB — Global Question Statistics
     provider: opentdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-585: Jolpica F1 ---
@@ -7206,24 +7548,28 @@ tools:
     name: F1 Race Schedule
     provider: f1
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: f1.races.results
     name: F1 Race Results
     provider: f1
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: f1.standings.drivers
     name: F1 Driver Championship Standings
     provider: f1
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: f1.standings.constructors
     name: F1 Constructor Championship Standings
     provider: f1
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-586: TheSportsDB ---
@@ -7256,24 +7602,28 @@ tools:
     name: Search EU Legislation
     provider: eurlex
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: eurlex.legislation.recent
     name: Recent EU Legislation
     provider: eurlex
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: eurlex.legislation.detail
     name: EU Legal Act Detail
     provider: eurlex
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: eurlex.legislation.by_type
     name: Browse EU Legislation by Type
     provider: eurlex
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-588: European Parliament ---
@@ -7281,24 +7631,28 @@ tools:
     name: List EU Parliament MEPs
     provider: eu_parliament
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: eu_parliament.meps.details
     name: Get MEP Profile and Memberships
     provider: eu_parliament
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: eu_parliament.legislation.adopted_texts
     name: List EP Adopted Legislative Texts
     provider: eu_parliament
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: eu_parliament.legislation.procedures
     name: List EP Legislative Procedures
     provider: eu_parliament
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-589: UK Legislation ---
@@ -7306,24 +7660,28 @@ tools:
     name: Search UK Legislation
     provider: ukleg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ukleg.legislation.details
     name: Get UK Legislation Details
     provider: ukleg
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ukleg.legislation.recent
     name: Get Recent UK Legislation
     provider: ukleg
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ukleg.legislation.sections
     name: List UK Legislation Sections
     provider: ukleg
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-590: OFAC Sanctions List ---
@@ -7331,24 +7689,28 @@ tools:
     name: Search OFAC SDN List
     provider: ofac
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ofac.sdn.aliases
     name: Get OFAC Entity Aliases
     provider: ofac
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ofac.meta.programs
     name: List OFAC Sanctions Programs
     provider: ofac
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ofac.meta.publication_info
     name: Get OFAC List Publication Info
     provider: ofac
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-591: Japan Postal Codes (postcode.teraren.com) ---
@@ -7358,18 +7720,21 @@ tools:
     capability: geo.postal_lookup
     scope: regional:JP
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: postcode-japan.search
     name: Japan Postcode Search
     provider: postcode-japan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: postcode-japan.prefectures
     name: Japan Prefecture List
     provider: postcode-japan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-592: P2PQuake ---
@@ -7379,12 +7744,14 @@ tools:
     capability: geo.earthquakes
     scope: regional:JP
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: p2pquake.tsunami_warnings
     name: Japan Tsunami Warnings
     provider: p2pquake
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: p2pquake.quake_history
@@ -7393,6 +7760,7 @@ tools:
     capability: geo.earthquakes
     scope: regional:JP
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-593: JMA Bosai (Japan Meteorological Agency Disaster Prevention) ---
@@ -7402,18 +7770,21 @@ tools:
     capability: weather.forecast
     scope: regional:JP
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: jma-bosai.overview
     name: JMA Weather Overview
     provider: jma-bosai
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: jma-bosai.warnings
     name: JMA Active Weather Warnings
     provider: jma-bosai
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 600
 
   - tool_id: jma-bosai.earthquakes
@@ -7422,12 +7793,14 @@ tools:
     capability: geo.earthquakes
     scope: regional:JP
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: jma-bosai.areas
     name: JMA Area Reference List
     provider: jma-bosai
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-452: Destatis GENESIS-Online (4 tools) ---
@@ -7460,24 +7833,28 @@ tools:
     name: ECB Key Interest Rates
     provider: ecb-rates
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ecb-rates.hicp_inflation
     name: Euro Area HICP Inflation Rate
     provider: ecb-rates
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ecb-rates.money_supply
     name: Euro Area M3 Money Supply
     provider: ecb-rates
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ecb-rates.yield_curve
     name: Euro Area Government Bond Yield Curve
     provider: ecb-rates
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-596: INE (Instituto Nacional de Estadística, Spain, 4 tools) ---
@@ -7485,24 +7862,28 @@ tools:
     name: INE Statistical Operations
     provider: ine
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine.tables
     name: INE Tables for an Operation
     provider: ine
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine.series_metadata
     name: INE Series Metadata
     provider: ine
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine.series_data
     name: INE Series Data
     provider: ine
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-602: INE Chile (Instituto Nacional de Estadísticas, Chile SIMEL, 3 tools) ---
@@ -7510,18 +7891,21 @@ tools:
     name: INE Chile SIMEL Dataflows
     provider: ine-chile
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine-chile.structure
     name: INE Chile SIMEL Dataflow Structure
     provider: ine-chile
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine-chile.data
     name: INE Chile SIMEL Dataflow Data
     provider: ine-chile
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-597: CrossRef (Scholarly Metadata Registry, 4 tools) ---
@@ -7529,24 +7913,28 @@ tools:
     name: CrossRef Works Search
     provider: crossref
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: crossref.journal_lookup
     name: CrossRef Journal Lookup
     provider: crossref
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: crossref.funder_search
     name: CrossRef Funder Search
     provider: crossref
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: crossref.member_search
     name: CrossRef Member Search
     provider: crossref
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-598: Unpaywall (Open-Access Full-Text Finder, 1 tool) ---
@@ -7554,6 +7942,7 @@ tools:
     name: Unpaywall Open-Access Lookup
     provider: unpaywall
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-599: Wikimedia Commons (Media Archive, 4 tools) ---
@@ -7561,36 +7950,42 @@ tools:
     name: Wikimedia Commons Media Search
     provider: wikimedia-commons
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikimedia-commons.file_info
     name: Wikimedia Commons File Info
     provider: wikimedia-commons
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: wikimedia-commons.category_files
     name: Wikimedia Commons Category Files
     provider: wikimedia-commons
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikimedia-commons.random
     name: Wikimedia Commons Random Media
     provider: wikimedia-commons
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 0
 
   - tool_id: standard-ebooks.search
     name: Search Standard Ebooks
     provider: standard-ebooks
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: standard-ebooks.new_releases
     name: Standard Ebooks New Releases
     provider: standard-ebooks
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: indec-georef.geocode
@@ -7632,12 +8027,14 @@ tools:
     name: Search Argentina Statistics Series
     provider: indec-argentina
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: indec-argentina.get_series
     name: Get Argentina Statistics Series Data
     provider: indec-argentina
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
 # --- UC-797: noaa-fisheries-stats (NOAA Fisheries FOSS landings + AFSC groundfish survey) ---
@@ -7645,18 +8042,21 @@ tools:
     name: NOAA Fisheries Landings
     provider: noaa-fisheries-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: noaa-fisheries-stats.survey_species
     name: NOAA Groundfish Survey Species
     provider: noaa-fisheries-stats
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: noaa-fisheries-stats.survey_catch
     name: NOAA Groundfish Survey Catch
     provider: noaa-fisheries-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
 # --- UC-796: wits-trade (World Bank WITS trade + tariff statistics) ---
@@ -7664,54 +8064,63 @@ tools:
     name: WITS Trade Flow Statistics
     provider: wits-trade
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: wits-trade.tariff_stats
     name: WITS Tariff Statistics
     provider: wits-trade
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: enviroatlas.communities
     name: List EnviroAtlas Pilot Communities
     provider: enviroatlas
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: enviroatlas.block_group_metrics
     name: Get Block-Group Ecosystem-Service Metrics
     provider: enviroatlas
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: enviroatlas.community_summary
     name: Get Community Ecosystem-Service Summary
     provider: enviroatlas
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: federalregister.search
     name: Search Federal Register Documents
     provider: federalregister
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   - tool_id: federalregister.document
     name: Get Federal Register Document Detail
     provider: federalregister
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: federalregister.agencies
     name: Search Federal Agencies
     provider: federalregister
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: federalregister.public_inspection
     name: Get Upcoming Public Inspection Documents
     provider: federalregister
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   - tool_id: ensembl.gene_lookup
@@ -7730,84 +8139,98 @@ tools:
     name: Get Canonical CVE Record
     provider: cve-mitre
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: cve-mitre.id_status
     name: Check CVE ID Reservation Status
     provider: cve-mitre
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: usgs-mrds.search_by_area
     name: Search Mineral Deposits By Area
     provider: usgs-mrds
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: paleoclimate.study_search
     name: Search Paleoclimate Studies
     provider: paleoclimate
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: paleoclimate.study_detail
     name: Get Paleoclimate Study Detail
     provider: paleoclimate
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: plos-search.search
     name: Search PLOS Open-Access Articles
     provider: plos-search
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: plos-search.article_detail
     name: Get PLOS Article Detail
     provider: plos-search
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: nsf-awards.search
     name: Search NSF Research Awards
     provider: nsf-awards
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: nsf-awards.award_detail
     name: Get NSF Award Detail
     provider: nsf-awards
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: usgs-nationalmap.search_products
     name: Search USGS National Map Products
     provider: usgs-nationalmap
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: usgs-nationalmap.list_datasets
     name: List USGS National Map Datasets
     provider: usgs-nationalmap
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: sec-edgar.company_lookup
     name: Look Up SEC-Registered Company
     provider: sec-edgar
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: sec-edgar.filings
     name: Get SEC Company Filings
     provider: sec-edgar
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sec-edgar.financial_concept
     name: Get SEC XBRL Financial Concept
     provider: sec-edgar
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: usgs-epqs.elevation
@@ -7816,24 +8239,28 @@ tools:
     capability: geo.elevation
     scope: regional:US
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: cfpb-complaints.search
     name: Search CFPB Consumer Complaints
     provider: cfpb-complaints
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   - tool_id: cfpb-complaints.trends
     name: CFPB Consumer Complaint Volume Trends
     provider: cfpb-complaints
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: cfpb-complaints.geo_states
     name: CFPB Consumer Complaints by US State
     provider: cfpb-complaints
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: emsc.search_earthquakes
@@ -7842,12 +8269,14 @@ tools:
     capability: geo.earthquakes
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: emsc.event_detail
     name: Get EMSC Earthquake Event Detail
     provider: emsc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: currentuvindex.uv_index
@@ -7902,18 +8331,21 @@ tools:
     name: Search Figshare Research Articles
     provider: figshare
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   - tool_id: figshare.article_details
     name: Get Figshare Article Details
     provider: figshare
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: figshare.categories
     name: Browse Figshare Subject Categories
     provider: figshare
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-622: OpenAIRE ---
@@ -7948,12 +8380,14 @@ tools:
     capability: geo.elevation
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 2592000
 
   - tool_id: gebco.elevation_profile
     name: Get GEBCO Elevation Profile
     provider: gebco
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 2592000
 
   # --- UC-624: EBI Metagenomics / MGnify ---
@@ -7961,24 +8395,28 @@ tools:
     name: Search MGnify Metagenomic Studies
     provider: ebi-metagenomics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   - tool_id: ebi-metagenomics.study_detail
     name: Get MGnify Study Detail
     provider: ebi-metagenomics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ebi-metagenomics.sample_list
     name: List Samples for a MGnify Study
     provider: ebi-metagenomics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ebi-metagenomics.biome_browse
     name: Browse MGnify Biome Classification Tree
     provider: ebi-metagenomics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-434: IMF DataMapper API ---
@@ -7986,24 +8424,28 @@ tools:
     name: Get IMF Real GDP Growth
     provider: imf
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: imf.inflation
     name: Get IMF Inflation Rate
     provider: imf
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: imf.fiscal_balance
     name: Get IMF Government Fiscal Balance
     provider: imf
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: imf.current_account
     name: Get IMF Current Account Balance
     provider: imf
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-625: ECDC COVID-19 Surveillance ---
@@ -8105,18 +8547,21 @@ tools:
     name: OECD Dataflows
     provider: oecd-data
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: oecd-data.structure
     name: OECD Dataflow Structure
     provider: oecd-data
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: oecd-data.data
     name: OECD Dataflow Data
     provider: oecd-data
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-630: World Bank Climate Change Knowledge Portal (CCKP) ---
@@ -8124,18 +8569,21 @@ tools:
     name: Climate Historical Normal
     provider: world-bank-cckp
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: world-bank-cckp.climate_projection
     name: Climate Future Projection
     provider: world-bank-cckp
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: world-bank-cckp.extreme_indices
     name: Climate Extreme Indices
     provider: world-bank-cckp
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-631: geoBoundaries ---
@@ -8143,18 +8591,21 @@ tools:
     name: Administrative Boundary Detail
     provider: geoboundaries
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: geoboundaries.boundary.list_countries
     name: List Countries At Boundary Level
     provider: geoboundaries
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: geoboundaries.boundary.available_levels
     name: Available Boundary Levels For Country
     provider: geoboundaries
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-632: Wikimedia Analytics ---
@@ -8162,24 +8613,28 @@ tools:
     name: Wikipedia Pageviews Aggregate
     provider: wikimedia-analytics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikimedia-analytics.pageviews_top
     name: Wikipedia Top Viewed Articles
     provider: wikimedia-analytics
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: wikimedia-analytics.pageviews_per_article
     name: Wikipedia Article Pageview History
     provider: wikimedia-analytics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikimedia-analytics.edits_aggregate
     name: Wikipedia Edit Count Aggregate
     provider: wikimedia-analytics
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-633: Bank of England IADB ---
@@ -8187,24 +8642,28 @@ tools:
     name: BoE Official Bank Rate
     provider: bank-of-england
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: bank-of-england.sonia_rate
     name: BoE SONIA Overnight Rate
     provider: bank-of-england
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: bank-of-england.money_supply_m4
     name: BoE M4 Money Supply Growth
     provider: bank-of-england
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bank-of-england.mortgage_rate_2y_fixed
     name: BoE 2-Year Fixed Mortgage Rate
     provider: bank-of-england
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-634: CrossRef Data Citations (Article<->Dataset Citation Links, 3 tools) ---
@@ -8212,18 +8671,21 @@ tools:
     name: CrossRef Papers Citing a Dataset
     provider: crossref-datacitations
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: crossref-datacitations.article_datasets
     name: CrossRef Datasets Cited by an Article
     provider: crossref-datacitations
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: crossref-datacitations.recent_citations
     name: CrossRef Recent Data Citation Events
     provider: crossref-datacitations
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-635: Wikimedia REST Content API (4 tools) ---
@@ -8231,24 +8693,28 @@ tools:
     name: Wikipedia Page Summary
     provider: wikimedia-rest
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wikimedia-rest.search_page
     name: Wikipedia Full-Text Search
     provider: wikimedia-rest
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: wikimedia-rest.on_this_day
     name: Wikipedia On This Day
     provider: wikimedia-rest
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: wikimedia-rest.media_list
     name: Wikipedia Page Media List
     provider: wikimedia-rest
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-636: FreeToGame (3 tools) ---
@@ -8256,18 +8722,21 @@ tools:
     name: FreeToGame Game List
     provider: freetogame
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: freetogame.game_detail
     name: FreeToGame Game Detail
     provider: freetogame
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: freetogame.filter_by_tag
     name: FreeToGame Filter By Tag
     provider: freetogame
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-637: DuckDuckGo Instant Answer (2 tools) ---
@@ -8275,12 +8744,14 @@ tools:
     name: DuckDuckGo Instant Answer
     provider: duckduckgo
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: duckduckgo.related_topics
     name: DuckDuckGo Related Topics
     provider: duckduckgo
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-638: Humanitarian Data Exchange (HDX) (4 tools) ---
@@ -8288,24 +8759,28 @@ tools:
     name: HDX Dataset Search
     provider: hdx
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: hdx.dataset_detail
     name: HDX Dataset Detail
     provider: hdx
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: hdx.location_list
     name: HDX Location List
     provider: hdx
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: hdx.organization_list
     name: HDX Organization List
     provider: hdx
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-639: Google "COVID-19 Open Data" (3 tools) ---
@@ -8332,24 +8807,28 @@ tools:
     name: Malaria Parasite Rate Survey
     provider: malaria-atlas
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: malaria-atlas.case_estimates
     name: Malaria Case Estimates by Region
     provider: malaria-atlas
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: malaria-atlas.vector_occurrence
     name: Anopheles Vector Occurrence
     provider: malaria-atlas
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: malaria-atlas.country_list
     name: Malaria Atlas Country List
     provider: malaria-atlas
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-641: Government of Canada Open Data (open-canada) (4 tools) ---
@@ -8357,24 +8836,28 @@ tools:
     name: Canada Open Data Search
     provider: open-canada
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: open-canada.dataset_detail
     name: Canada Open Data Dataset Detail
     provider: open-canada
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: open-canada.subject_list
     name: Canada Open Data Subject List
     provider: open-canada
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: open-canada.organization_list
     name: Canada Open Data Organization List
     provider: open-canada
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-642: EU Open Data Portal (data-europa) (4 tools) ---
@@ -8382,24 +8865,28 @@ tools:
     name: EU Open Data Search
     provider: data-europa
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: data-europa.dataset_detail
     name: EU Open Data Dataset Detail
     provider: data-europa
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: data-europa.theme_list
     name: EU Open Data Theme List
     provider: data-europa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: data-europa.catalogue_list
     name: EU Open Data Catalogue List
     provider: data-europa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-643: Macrostrat Geologic Database (4 tools) ---
@@ -8407,24 +8894,28 @@ tools:
     name: Macrostrat Stratigraphic Column Search
     provider: macrostrat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: macrostrat.units_search
     name: Macrostrat Geologic Unit Search
     provider: macrostrat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: macrostrat.geologic_map_units
     name: Macrostrat Bedrock Geologic Map Units
     provider: macrostrat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: macrostrat.fossils_search
     name: Macrostrat Fossil Collection Search
     provider: macrostrat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-644: GeoDIVA / Alaska Volcano Observatory (3 tools) ---
@@ -8432,18 +8923,21 @@ tools:
     name: GeoDIVA Alaska Volcano List
     provider: geodiva
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: geodiva.volcano_detail
     name: GeoDIVA Volcano Detail
     provider: geodiva
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: geodiva.eruption_search
     name: GeoDIVA Eruption History Search
     provider: geodiva
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-645: Launch Library 2 / The Space Devs (4 tools) ---
@@ -8476,18 +8970,21 @@ tools:
     name: Socrata Dataset Search
     provider: socrata
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: socrata.dataset_metadata
     name: Socrata Dataset Metadata
     provider: socrata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: socrata.query_dataset
     name: Socrata Dataset Query
     provider: socrata
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-647: NCBI E-utilities Taxonomy (3 tools) ---
@@ -8495,18 +8992,21 @@ tools:
     name: NCBI Taxonomy Search
     provider: ncbi-eutils
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: ncbi-eutils.taxonomy_summary
     name: NCBI Taxonomy Summary
     provider: ncbi-eutils
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: ncbi-eutils.taxonomy_lineage
     name: NCBI Taxonomy Lineage
     provider: ncbi-eutils
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-648: HDX Humanitarian API v2 (4 tools) ---
@@ -8514,24 +9014,28 @@ tools:
     name: HDX HAPI Operational Presence (3W)
     provider: hdx-hapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: hdx-hapi.humanitarian_needs
     name: HDX HAPI Humanitarian Needs (PIN)
     provider: hdx-hapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: hdx-hapi.baseline_population
     name: HDX HAPI Baseline Population
     provider: hdx-hapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: hdx-hapi.food_security
     name: HDX HAPI Food Security (IPC)
     provider: hdx-hapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-649: GeoNet NZ (4 tools) ---
@@ -8539,24 +9043,28 @@ tools:
     name: GeoNet NZ Quake Search
     provider: geonet-nz
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 60
 
   - tool_id: geonet-nz.quake_detail
     name: GeoNet NZ Quake Detail
     provider: geonet-nz
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: geonet-nz.quake_stats
     name: GeoNet NZ Quake Statistics
     provider: geonet-nz
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: geonet-nz.volcano_alert_level
     name: GeoNet NZ Volcanic Alert Level
     provider: geonet-nz
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-650: BGS OGC API (4 tools) ---
@@ -8564,6 +9072,7 @@ tools:
     name: BGS Bedrock Geology Lookup
     provider: bgs-ogcapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: bgs-ogcapi.earthquake_search
@@ -8572,18 +9081,21 @@ tools:
     capability: geo.earthquakes
     scope: regional:GB
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: bgs-ogcapi.borehole_search
     name: BGS Borehole Index Search
     provider: bgs-ogcapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: bgs-ogcapi.landslide_search
     name: BGS National Landslide Database Search
     provider: bgs-ogcapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-651: ILOSTAT SDMX public REST API (3 tools) ---
@@ -8591,18 +9103,21 @@ tools:
     name: ILOSTAT Dataflows
     provider: ilostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ilostat.structure
     name: ILOSTAT Dataflow Structure
     provider: ilostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ilostat.data
     name: ILOSTAT Dataflow Data
     provider: ilostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-652: Australian Government Open Data (au-data-gov) (4 tools) ---
@@ -8610,24 +9125,28 @@ tools:
     name: Australia Open Data Search
     provider: au-data-gov
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: au-data-gov.dataset_detail
     name: Australia Open Data Dataset Detail
     provider: au-data-gov
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: au-data-gov.subject_list
     name: Australia Open Data Subject List
     provider: au-data-gov
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: au-data-gov.organization_search
     name: Australia Open Data Organization Search
     provider: au-data-gov
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-653: UKHSA Data Dashboard (ukhsa-dashboard) (2 tools) ---
@@ -8635,12 +9154,14 @@ tools:
     name: UKHSA Dashboard Browse
     provider: ukhsa-dashboard
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ukhsa-dashboard.metric_data
     name: UKHSA Dashboard Metric Data
     provider: ukhsa-dashboard
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-654: Environment Agency Hydrology (ea-hydrology) (4 tools) ---
@@ -8648,24 +9169,28 @@ tools:
     name: EA Hydrology Station Search
     provider: ea-hydrology
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ea-hydrology.station_measures
     name: EA Hydrology Station Measures
     provider: ea-hydrology
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ea-hydrology.readings_latest
     name: EA Hydrology Latest Reading
     provider: ea-hydrology
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: ea-hydrology.readings_range
     name: EA Hydrology Readings Range
     provider: ea-hydrology
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-655: Statbel beSTAT (statbel) (4 tools) ---
@@ -8673,24 +9198,28 @@ tools:
     name: Statbel List Views
     provider: statbel
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: statbel.view_data
     name: Statbel View Data
     provider: statbel
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: statbel.list_datasources
     name: Statbel List Datasources
     provider: statbel
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: statbel.datasource_detail
     name: Statbel Datasource Detail
     provider: statbel
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-656: ISTAT SDMX public REST API (3 tools) ---
@@ -8698,18 +9227,21 @@ tools:
     name: ISTAT Dataflows
     provider: istat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: istat.structure
     name: ISTAT Dataflow Structure
     provider: istat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: istat.data
     name: ISTAT Dataflow Data
     provider: istat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-657: MSC GeoMet OGC API - Features (4 tools) ---
@@ -8717,18 +9249,21 @@ tools:
     name: Canadian Climate Station Search
     provider: msc-geomet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: msc-geomet.climate_daily
     name: Canadian Daily Climate Observations
     provider: msc-geomet
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: msc-geomet.hydrometric_realtime
     name: Canadian Real-Time River and Lake Levels
     provider: msc-geomet
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: msc-geomet.aqhi_observations
@@ -8737,6 +9272,7 @@ tools:
     capability: air_quality
     scope: regional:CA
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-658: Statistics Portugal (INE) JSON Indicator API (2 tools) ---
@@ -8744,12 +9280,14 @@ tools:
     name: Portuguese Official Statistics Indicator Data
     provider: ine-portugal
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine-portugal.indicator_metadata
     name: Portuguese Official Statistics Indicator Metadata
     provider: ine-portugal
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-659: Deutsche Bundesbank SDMX REST API (3 tools) ---
@@ -8757,18 +9295,21 @@ tools:
     name: Bundesbank Dataflows
     provider: bundesbank-timeseries
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bundesbank-timeseries.structure
     name: Bundesbank Dataflow Structure
     provider: bundesbank-timeseries
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bundesbank-timeseries.data
     name: Bundesbank Dataflow Data
     provider: bundesbank-timeseries
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-663: INE Spain (Instituto Nacional de Estadística) Tempus3 API ---
@@ -8776,24 +9317,28 @@ tools:
     name: INE Spain Operation Catalog
     provider: ine-spain
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine-spain.tables
     name: INE Spain Tables for Operation
     provider: ine-spain
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: ine-spain.table_data
     name: INE Spain Table Data
     provider: ine-spain
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: ine-spain.series_data
     name: INE Spain Series Data
     provider: ine-spain
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-664: CZSO (Czech Statistical Office) VDB open-data catalog ---
@@ -8801,18 +9346,21 @@ tools:
     name: CZSO Dataset Catalog
     provider: czso
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: czso.dataset_metadata
     name: CZSO Dataset Metadata
     provider: czso
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: czso.dataset_data
     name: CZSO Dataset Data
     provider: czso
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-665: Statistik Austria open-data portal ---
@@ -8820,24 +9368,28 @@ tools:
     name: Statistik Austria Dataset Search
     provider: statistik-austria
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: statistik-austria.dataset_metadata
     name: Statistik Austria Dataset Metadata
     provider: statistik-austria
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: statistik-austria.dataset_data
     name: Statistik Austria Dataset Data
     provider: statistik-austria
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: statistik-austria.category_codes
     name: Statistik Austria Category Codes
     provider: statistik-austria
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-666: Hungary KSH (Központi Statisztikai Hivatal) open-data portal ---
@@ -8845,18 +9397,21 @@ tools:
     name: Hungary KSH Dataset Search
     provider: hungary-ksh
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: hungary-ksh.dataset_metadata
     name: Hungary KSH Dataset Metadata
     provider: hungary-ksh
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: hungary-ksh.dataset_data
     name: Hungary KSH Dataset Data
     provider: hungary-ksh
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-667: Slovakia Statistics (Statistical Office of the Slovak Republic, "DATAcube.") ---
@@ -8864,18 +9419,21 @@ tools:
     name: Slovakia Statistics Dataset Search
     provider: slovakia-statistics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: slovakia-statistics.dataset_metadata
     name: Slovakia Statistics Dataset Metadata
     provider: slovakia-statistics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: slovakia-statistics.dataset_data
     name: Slovakia Statistics Dataset Data
     provider: slovakia-statistics
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-668: Latvia Statistics (Central Statistical Bureau of Latvia, PXWeb API) ---
@@ -8883,18 +9441,21 @@ tools:
     name: Latvia Statistics Catalog Browse
     provider: latvia-statistics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: latvia-statistics.table_metadata
     name: Latvia Statistics Table Metadata
     provider: latvia-statistics
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: latvia-statistics.table_query
     name: Latvia Statistics Table Query
     provider: latvia-statistics
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   # --- UC-669: Iceland Statistics (Hagstofa Íslands, PXWeb API) ---
@@ -8902,18 +9463,21 @@ tools:
     name: Iceland Statistics Catalog Browse
     provider: iceland-statistics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: iceland-statistics.table_metadata
     name: Iceland Statistics Table Metadata
     provider: iceland-statistics
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: iceland-statistics.table_query
     name: Iceland Statistics Table Query
     provider: iceland-statistics
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   # --- UC-670: Estonia Statistics (Statistikaamet, PXWeb API) ---
@@ -8921,18 +9485,21 @@ tools:
     name: Estonia Statistics Catalog Browse
     provider: estonia-statistics
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: estonia-statistics.table_metadata
     name: Estonia Statistics Table Metadata
     provider: estonia-statistics
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: estonia-statistics.table_query
     name: Estonia Statistics Table Query
     provider: estonia-statistics
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   # --- UC-671: e-Stat Japan Dashboard (dashboard.e-stat.go.jp, Japan MIC) ---
@@ -8940,18 +9507,21 @@ tools:
     name: e-Stat Japan Dashboard Indicator Info
     provider: estat-japan-dashboard
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: estat-japan-dashboard.region_info
     name: e-Stat Japan Dashboard Region Info
     provider: estat-japan-dashboard
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: estat-japan-dashboard.get_data
     name: e-Stat Japan Dashboard Get Data
     provider: estat-japan-dashboard
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-672: WMO World Weather Information Service (worldweather.wmo.int) ---
@@ -8959,6 +9529,7 @@ tools:
     name: WMO City Search
     provider: wmo-weather
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: wmo-weather.forecast
@@ -8967,12 +9538,14 @@ tools:
     capability: weather.forecast
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: wmo-weather.climate_normals
     name: WMO City Climate Normals
     provider: wmo-weather
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-673: UNESCO Institute for Statistics (UIS) Data API (api.uis.unesco.org) ---
@@ -8980,18 +9553,21 @@ tools:
     name: UNESCO UIS Indicator Search
     provider: unesco-data
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: unesco-data.geounit_list
     name: UNESCO UIS Geo Unit List
     provider: unesco-data
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: unesco-data.get_data
     name: UNESCO UIS Get Data
     provider: unesco-data
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   # --- UC-674: OpenAlex REST API (api.openalex.org) ---
@@ -9020,12 +9596,14 @@ tools:
     name: Semantic Scholar Papers Search
     provider: semanticscholar
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: semanticscholar.authors_search
     name: Semantic Scholar Authors Search
     provider: semanticscholar
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: semanticscholar.get_paper
@@ -9034,6 +9612,7 @@ tools:
     capability: research.doi_lookup
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-676: SEPA Scotland Rainfall Data API (www2.sepa.org.uk/rainfall/api) ---
@@ -9041,18 +9620,21 @@ tools:
     name: SEPA Rainfall Station Search
     provider: sepa-scotland
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 3600
 
   - tool_id: sepa-scotland.station_current
     name: SEPA Current Rainfall Reading
     provider: sepa-scotland
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 900
 
   - tool_id: sepa-scotland.rainfall_history
     name: SEPA Rainfall History
     provider: sepa-scotland
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   # --- UC-677: Danish Energy Data Service API (api.energidataservice.dk) ---
@@ -9060,18 +9642,21 @@ tools:
     name: Denmark Electricity Spot Prices
     provider: denmark-energidataservice
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: denmark-energidataservice.co2_emissions
     name: Denmark Grid CO2 Intensity
     provider: denmark-energidataservice
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: denmark-energidataservice.production_consumption
     name: Denmark Power Production & Consumption
     provider: denmark-energidataservice
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 1800
 
   - tool_id: platform.call_batch
@@ -9110,18 +9695,21 @@ tools:
     name: UK Property Sales By Postcode
     provider: uk-landregistry-pricepaid
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: uk-landregistry-pricepaid.search_by_area
     name: UK Property Sales By Area
     provider: uk-landregistry-pricepaid
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: uk-landregistry-pricepaid.get_transaction
     name: UK Property Transaction Detail
     provider: uk-landregistry-pricepaid
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-679: HathiTrust Digital Library Bibliographic API (catalog.hathitrust.org/api/volumes) ---
@@ -9129,18 +9717,21 @@ tools:
     name: HathiTrust Catalog Lookup
     provider: hathitrust-digital
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: hathitrust-digital.get_full_record
     name: HathiTrust Full Catalog Record
     provider: hathitrust-digital
     price_usd: "0.003"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: hathitrust-digital.batch_lookup
     name: HathiTrust Batch Catalog Lookup
     provider: hathitrust-digital
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   # --- UC-680: PDOK Kadaster Kadastrale Kaart OGC API Features (3 tools) ---
@@ -9148,18 +9739,21 @@ tools:
     name: Dutch Cadastral Parcel Search
     provider: netherlands-pdok-kadaster
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: netherlands-pdok-kadaster.get_perceel
     name: Dutch Cadastral Parcel Detail
     provider: netherlands-pdok-kadaster
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: netherlands-pdok-kadaster.search_bebouwing
     name: Dutch Building Outline Search
     provider: netherlands-pdok-kadaster
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-681: Kartverket Stedsnavn (Norwegian Place Names) API (3 tools) ---
@@ -9167,18 +9761,21 @@ tools:
     name: Norwegian Place Name Search
     provider: norway-kartverket-stedsnavn
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: norway-kartverket-stedsnavn.search_by_point
     name: Norwegian Place Name Reverse Lookup
     provider: norway-kartverket-stedsnavn
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: norway-kartverket-stedsnavn.get_place
     name: Norwegian Place Detail
     provider: norway-kartverket-stedsnavn
     price_usd: "0.001"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-682: BIS Statistics (Bank for International Settlements) (3 tools) ---
@@ -9186,18 +9783,21 @@ tools:
     name: BIS Central Bank Policy Rates
     provider: bis-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bis-stats.exchange_rates
     name: BIS Effective Exchange Rates
     provider: bis-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 86400
 
   - tool_id: bis-stats.property_prices
     name: BIS Residential Property Prices
     provider: bis-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   # --- UC-683: UK Environment Agency Real Time Flood Monitoring API (3 tools) ---
@@ -9205,18 +9805,21 @@ tools:
     name: UK Flood Warnings & Alerts
     provider: uk-ea-flood-monitoring
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   - tool_id: uk-ea-flood-monitoring.station_search
     name: UK Flood Monitoring Station Search
     provider: uk-ea-flood-monitoring
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 604800
 
   - tool_id: uk-ea-flood-monitoring.station_readings
     name: UK Flood Monitoring Station Latest Readings
     provider: uk-ea-flood-monitoring
     price_usd: "0.002"
+    upstream_cost_usd: "0"
     cache_ttl: 300
 
   # --- UC-685: Dog CEO API (3 tools) ---
