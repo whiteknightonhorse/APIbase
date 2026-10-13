@@ -1,15 +1,17 @@
-<!-- version: 1.2; effective_from: 2026-10-12; status: accepted by operator without legal review -->
-# Acceptable Use Policy v1.2
+<!-- version: 1.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->
+# Acceptable Use Policy v1.3
 
 ## 1. Allowed categories
 
-Digital goods and content; online courses and education; software and SaaS subscriptions (subscriptions later); services (consulting, design, development); ordinary physical goods (clothing, footwear, sporting goods, furniture, unrestricted electronics, books, home goods); tours and excursions without air tickets; accommodation and service booking (no timeshares).
+Digital goods and content; online courses and education; software and SaaS subscriptions (terms in Merchant Agreement section 10); services (consulting, design, development); ordinary physical goods (clothing, footwear, sporting goods, furniture, unrestricted electronics, books, home goods); tours and excursions without air tickets; accommodation and service booking (no timeshares).
 
 ## 2. Prohibited categories
 
-Anything illegal; drugs and analogues; counterfeits and IP infringement; stolen goods, forged documents; hate or violence propaganda; dangerous, explosive or radioactive materials; pyramid schemes, MLM, get-rich-quick; gambling and games of chance for a prize; alcohol, tobacco, vapes; pharma, prescription goods, telemedicine, pseudo-pharma and supplements with medical claims; weapons and parts; cannabis/CBD; adult content and services; financial services (loans, brokers, BNPL, transfers, currency and crypto exchange, wallets, stored value and gift cards); insurance; dating; commercial airlines, cruises, timeshares; charity, crowdfunding, politics; precious metals and high-value jewelry; marketplaces, aggregators, payment intermediaries; negative options and unclear trial periods; telemarketing; remote "tech support"; credit repair and debt services; traffic or engagement trading; resale without added value; dropshipping "advice".
+This is the single list of prohibited categories for merchant storefronts. The machine-readable copy is published at /legal/prohibited-categories.json; the block below is kept equal to it. Where the Terms of Service (section 5, platform tool calls) or the Moderation Policy also apply, the stricter rule wins; the Moderation Policy describes enforcement, not categories.
 
-The machine-readable list is `config/integrator/prohibited-categories.json`.
+<!-- prohibited:start -->
+anything illegal; drugs and analogues; counterfeit goods and IP infringement; stolen goods, forged documents; hate and violence propaganda; dangerous, explosive or radioactive materials; pyramid schemes, MLM, get-rich-quick; gambling and games of chance for a prize; alcohol, tobacco, vapes; pharma, prescription, telemedicine, pseudo-pharma and supplements with medical claims; weapons and weapon parts; cannabis and CBD; adult content and services; financial services (loans, brokers, BNPL, transfers, currency and crypto exchange, wallets, stored value, gift cards); insurance; dating; commercial airlines, cruises, timeshares; charity, crowdfunding, politics; precious metals and high-value jewelry; marketplaces, aggregators, payment intermediaries; negative options and unclear trial periods; telemarketing; remote tech support; credit repair and debt services; traffic and engagement trading; resale without added value; dropshipping 'advice'.
+<!-- prohibited:end -->
 
 ## 3. Deceptive practices
 
@@ -23,4 +25,4 @@ A merchant whose entity is registered in one of these countries is not onboarded
 CU, IR, KP, RU, BY, CN, DZ, BD, EG, IQ, MA, NP, QA, TN, TR, ID, VN, KW, SY, SA, OM, MK, VE, MM, AF
 <!-- countries:end -->
 
-Sign-ups from IP addresses in some countries and regions are also refused. Payout wallets on the OFAC SDN list are refused.
+Sign-ups from some IP addresses, countries and regions may be refused. Payout wallets on the OFAC SDN list are refused.

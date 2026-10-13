@@ -20,6 +20,7 @@ export const DRAFT_BANNER =
   '<div class="draft-banner">DRAFT — not yet published; do not rely on this text</div>';
 
 const STATIC_DIR = resolve(LEGAL_DIR, '..');
+const PROHIBITED_FILE = resolve(LEGAL_DIR, '../../config/integrator/prohibited-categories.json');
 
 export interface LegalRouterOptions {
   db?: ShopTx;
@@ -223,6 +224,30 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
 
   router.get('/legal', (_req, res) => sendIndex(res));
   router.get('/legal/index.json', (_req, res) => sendIndex(res));
+
+  const prohibitedLimiter = rateLimit({
+    windowMs: 60_000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    validate: false,
+    handler: (_req, res) => {
+      res.status(429).json({
+        error: 'rate_limited',
+        error_code: 'rate_limited',
+        message: 'too many requests from this address',
+        suggested_action: 'retry_after_delay',
+        documentation_url: '/integrator/docs#legal-documents',
+      });
+    },
+  });
+
+  router.get('/legal/prohibited-categories.json', prohibitedLimiter, (_req, res) => {
+    res
+      .set('Cache-Control', 'public, max-age=3600')
+      .type('application/json')
+      .send(readFileSync(PROHIBITED_FILE));
+  });
 
   router.get('/legal/:doc', (req: Request, res: Response) => {
     const raw = String(req.params.doc);

@@ -1,5 +1,5 @@
-<!-- version: 1.2; effective_from: 2026-10-12; status: accepted by operator without legal review -->
-# Refund Framework v1.2
+<!-- version: 1.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->
+# Refund Framework v1.3
 
 ## 1. What the merchant must publish
 
@@ -19,4 +19,11 @@ The buyer's funds are with the merchant, so the merchant makes the refund in a t
 
 APIbase is not an arbitrator. It records orders, refunds and dispute statements and passes them between the parties. The outcome of a dispute is between the buyer and the merchant.
 
-APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant; the legal entity and jurisdiction will be announced.
+On-chain payments are irreversible. An order placed by the buyer's agent binds the buyer; a refund of an order placed by mistake is made only under this Framework and the merchant's published policy.
+
+## 4. Subscriptions and streams
+
+- Subscription: a cancelled subscription is not charged again; the current paid period is not refunded unless the merchant's published policy says so. A renewal charged outside the renewal window or above the authorised amount is refunded in full within 7 days.
+- Stream: the unconsumed deposit is returned through the payment channel when the stream closes; consumed seconds are refunded only under the merchant's published policy.
+
+APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant; APIbase has no registered legal entity and is operated as a decentralised autonomous organisation of independent open-source developers.
