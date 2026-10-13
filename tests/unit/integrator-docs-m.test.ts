@@ -111,6 +111,8 @@ describe('T-0386 attempt 2: steps with continuations', () => {
     const h = docToHtml('# T\n\n1. one\n\n   more\n\n   ```\n   code\n   ```\n\n2. two\n\nafter\n');
     expect((h.match(/<ol/g) ?? []).length).toBe(1);
     expect(h).toContain('<pre>code</pre>');
+    const lazy = docToHtml('# T\n\n1. one\n   two\n\n   three\n');
+    expect(lazy).toMatch(/one two\s*<p>three<\/p>/);
     expect(h).toMatch(/<p>more<\/p>[\s\S]*dx-code[\s\S]*<\/li>\s*<li>[\s\S]*<\/ol>\s*<p>after/);
   });
 });

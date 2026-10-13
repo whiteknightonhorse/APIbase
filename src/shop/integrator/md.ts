@@ -87,6 +87,9 @@ function parse(md: string): Doc {
     anchors = '';
   };
   let fenceIndent = 0;
+  // The open step's first text line (index in `out` + raw text): unblanked indented lines extend it.
+  let stepIdx = -1;
+  let stepRaw = '';
   const close = () => {
     if (list) out.push(list === 'ol' ? '</div></li></ol>' : `</${list}>`);
     list = null;
@@ -121,6 +124,7 @@ function parse(md: string): Doc {
         fence = null;
       } else {
         flush();
+        stepIdx = -1;
         if (!inStep) close();
         flushTable();
         fence = [];
@@ -185,9 +189,15 @@ function parse(md: string): Doc {
           ? `<li><div class="dx-step-body">${inline(li[2])}`
           : `<li>${inline(li[2])}</li>`,
       );
+      stepIdx = kind === 'ol' ? out.length - 1 : -1;
+      stepRaw = li[2];
     } else if (!line.trim()) {
       flush();
+      stepIdx = -1;
       if (list !== 'ol') close();
+    } else if (inStep && stepIdx >= 0 && !para.length) {
+      stepRaw += ` ${line.trim()}`;
+      out[stepIdx] = `<li><div class="dx-step-body">${inline(stepRaw)}`;
     } else para.push(line.trim());
   }
   flush();
