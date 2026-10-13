@@ -65,6 +65,18 @@ export function readLegalFile(doc_id: LegalDocId, dir: string = LEGAL_DIR): Lega
 export const readAllLegalFiles = (dir: string = LEGAL_DIR): LegalFile[] =>
   LEGAL_DOC_IDS.map((id) => readLegalFile(id, dir));
 
+export class LegalEffectiveFromError extends Error {
+  constructor(
+    readonly doc_id: string,
+    readonly version: string,
+  ) {
+    super(
+      `legal doc ${doc_id} v${version}: effective_from must be strictly later than every registered version`,
+    );
+    this.name = 'LegalEffectiveFromError';
+  }
+}
+
 export class LegalDocChangedError extends Error {
   constructor(
     readonly doc_id: string,
@@ -92,6 +104,16 @@ export async function syncLegalDocs(db: ShopTx, dir: string = LEGAL_DIR): Promis
       if (rows[0].sha256.trim() !== f.sha256) throw new LegalDocChangedError(f.doc_id, f.version);
       continue;
     }
+    // A later version must carry a strictly later effective_from (a tie makes "current" depend on
+    // the version tie-break only); a same-day re-release needs the next day's date.
+    const latest = await db.$queryRawUnsafe<Array<{ max_from: Date | string | null }>>(
+      `SELECT max(effective_from) AS max_from FROM shop_legal_docs WHERE doc_id = $1`,
+      f.doc_id,
+    );
+    const maxFrom = latest[0]?.max_from;
+    if (maxFrom && Date.parse(f.effective_from) <= new Date(maxFrom).getTime()) {
+      throw new LegalEffectiveFromError(f.doc_id, f.version);
+    }
     await db.$executeRawUnsafe(
       `INSERT INTO shop_legal_docs (doc_id, version, sha256, url, effective_from, body_md)
        VALUES ($1, $2, $3, $4, $5::timestamptz, $6)`,
@@ -114,8 +136,15 @@ export interface LegalIndexEntry {
   effective_from: string;
 }
 
-/** Latest effective version of each of the four documents, in LEGAL_DOC_IDS order. */
-export async function legalIndex(db: ShopTx, now: number = Date.now()): Promise<LegalIndexEntry[]> {
+/**
+ * The one "current version" query: latest (effective_from <= now) row per doc_id; a tie on
+ * effective_from resolves to the higher version. Every selector (index.json, terms guard) uses it.
+ */
+export async function latestLegalRows(
+  db: ShopTx,
+  ids: readonly string[],
+  now: number = Date.now(),
+): Promise<LegalIndexEntry[]> {
   const rows = await db.$queryRawUnsafe<
     Array<{
       doc_id: string;
@@ -129,21 +158,20 @@ export async function legalIndex(db: ShopTx, now: number = Date.now()): Promise<
        FROM shop_legal_docs
       WHERE doc_id = ANY($1::text[]) AND effective_from <= $2::timestamptz
       ORDER BY doc_id, effective_from DESC, version DESC`,
-    [...LEGAL_DOC_IDS],
+    [...ids],
     new Date(now).toISOString(),
   );
-  return LEGAL_DOC_IDS.flatMap((id) => {
-    const r = rows.find((x) => x.doc_id === id);
-    return r
-      ? [
-          {
-            doc_id: r.doc_id,
-            version: r.version,
-            sha256: r.sha256.trim(),
-            url: r.url,
-            effective_from: new Date(r.effective_from).toISOString(),
-          },
-        ]
-      : [];
-  });
+  return rows.map((r) => ({
+    doc_id: r.doc_id,
+    version: r.version,
+    sha256: r.sha256.trim(),
+    url: r.url,
+    effective_from: new Date(r.effective_from).toISOString(),
+  }));
+}
+
+/** Latest effective version of each of the four documents, in LEGAL_DOC_IDS order. */
+export async function legalIndex(db: ShopTx, now: number = Date.now()): Promise<LegalIndexEntry[]> {
+  const rows = await latestLegalRows(db, LEGAL_DOC_IDS, now);
+  return LEGAL_DOC_IDS.flatMap((id) => rows.filter((x) => x.doc_id === id));
 }

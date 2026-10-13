@@ -1,5 +1,6 @@
 import type { SuggestedAction } from '../../types/errors';
 import type { ShopTx } from '../db';
+import { latestLegalRows } from '../legal/legal-docs';
 
 /** The four documents a merchant accepts to go live (§11.2), in message order. */
 export const REQUIRED_DOCS = ['merchant-agreement', 'aup', 'dpa', 'refund-framework'] as const;
@@ -70,14 +71,7 @@ const docView = (d: LegalDoc) => ({
 
 /** Latest (effective_from <= now) version of each required document, in REQUIRED_DOCS order. */
 export async function currentDocs(db: ShopTx, now: number = Date.now()): Promise<LegalDoc[]> {
-  const rows = await db.$queryRawUnsafe<LegalDoc[]>(
-    `SELECT DISTINCT ON (doc_id) doc_id, version, sha256, url, effective_from
-       FROM shop_legal_docs
-      WHERE doc_id = ANY($1::text[]) AND effective_from <= $2::timestamptz
-      ORDER BY doc_id, effective_from DESC`,
-    [...REQUIRED_DOCS],
-    new Date(now).toISOString(),
-  );
+  const rows = await latestLegalRows(db, REQUIRED_DOCS, now);
   return REQUIRED_DOCS.map((id) => rows.find((r) => r.doc_id === id)).filter(
     (d): d is LegalDoc => !!d,
   );

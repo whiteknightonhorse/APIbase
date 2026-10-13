@@ -10,6 +10,7 @@ import {
   LEGAL_DIR,
   LEGAL_DOC_IDS,
   LegalDocChangedError,
+  LegalEffectiveFromError,
   syncLegalDocs,
 } from '../../src/shop/legal/legal-docs';
 import {
@@ -41,6 +42,10 @@ function fakeDb(rows: Row[] = []): ShopTx & { rows: Row[] } {
           if (!cur || newer! > 0) out.set(r.doc_id, r);
         }
         return [...out.values()] as never;
+      }
+      if (q.includes('max(effective_from)')) {
+        const ts = rows.filter((r) => r.doc_id === v[0]).map((r) => Date.parse(r.effective_from));
+        return [{ max_from: ts.length ? new Date(Math.max(...ts)).toISOString() : null }] as never;
       }
       return rows
         .filter((r) => r.doc_id === v[0] && r.version === v[1])
@@ -113,7 +118,13 @@ describe('T-INT-05 legal documents', () => {
     const aup = join(dir, 'aup.md');
     writeFileSync(aup, read(aup) + 'x');
     await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalDocChangedError);
-    writeFileSync(aup, read(aup).replace('version: 1.3;', 'version: 1.4;'));
+    const bumped = read(aup).replace('version: 1.3;', 'version: 1.4;');
+    writeFileSync(aup, bumped);
+    await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalEffectiveFromError);
+    writeFileSync(
+      aup,
+      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-10-14'),
+    );
     await syncLegalDocs(db, dir);
     expect(
       db.rows

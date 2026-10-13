@@ -1,4 +1,4 @@
-/** T-INT-04 TA1-TA9. Real MCP server + real express router; in-memory ShopTx/Redis; real EIP-191 signatures. */
+/** T-INT-04 TA1-TA10. Real MCP server + real express router; in-memory ShopTx/Redis; real EIP-191 signatures. */
 import express from 'express';
 import type { AddressInfo } from 'node:net';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
@@ -8,6 +8,7 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { createHash } from 'node:crypto';
 import { hashApiKey } from '../../src/services/api-key.service';
 import { encryptionKeyMessage } from '../../src/shop/merchant.service';
+import { legalIndex } from '../../src/shop/legal/legal-docs';
 import { assertTermsAccepted } from '../../src/shop/auth/terms.guard';
 import { issueNonce } from '../../src/shop/auth/nonce.service';
 import { acceptTermsMessage, type ShopDeps } from '../../src/shop/merchant-lifecycle.service';
@@ -96,7 +97,11 @@ function build() {
         for (const id of v[0] as string[]) {
           const c = docs
             .filter((d) => d.doc_id === id && Date.parse(d.effective_from) <= cutoff)
-            .sort((a, b) => Date.parse(b.effective_from) - Date.parse(a.effective_from));
+            .sort(
+              (a, b) =>
+                Date.parse(b.effective_from) - Date.parse(a.effective_from) ||
+                b.version.localeCompare(a.version),
+            );
           if (c[0]) out.push(c[0]);
         }
         return out;
@@ -565,5 +570,80 @@ describe('E2/E5 contract wallet acceptance (T-INT-45)', () => {
     const other = await regBody(env, { message: body.message, signature: body.signature });
     const again = await call('shop.merchant.register', other.body);
     expect(again.isError).toBe(true);
+  });
+});
+
+describe('TA10 same effective_from, two versions (T-0369)', () => {
+  it('nonce message, accept_terms and 428 all follow legalIndex(), not an arbitrary row', async () => {
+    const env = build();
+    const same = new Date(now() - 5 * DAY).toISOString();
+    env.docs.length = 0;
+    // older version registered first, as on prod
+    for (const version of ['1.2', '1.3'])
+      for (const doc_id of ['merchant-agreement', 'aup', 'dpa', 'refund-framework'])
+        env.docs.push({
+          doc_id,
+          version,
+          sha256: sha(doc_id + version),
+          url: `/legal/${doc_id}`,
+          effective_from: same,
+        });
+    const idx = await legalIndex(env.deps.db, now());
+    expect(idx.map((e) => e.version)).toEqual(['1.3', '1.3', '1.3', '1.3']);
+
+    const app = express();
+    app.use(express.json());
+    app.use(createMerchantRouter(env.deps));
+    const srv = app.listen(0);
+    const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/api/v1/shop`;
+    try {
+      const wallet = privateKeyToAccount(generatePrivateKey());
+      const n1: any = await (
+        await fetch(`${base}/auth/nonce?wallet=${wallet.address}&purpose=register`)
+      ).json();
+      const { body } = await regBody(env, {}, wallet);
+      body.message = n1.message;
+      body.signature = await wallet.signMessage({ message: n1.message });
+      const reg = await fetch(`${base}/merchants`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      expect(reg.status).toBe(201);
+
+      const accept = async (hashes: Array<{ doc_id: string; version: string; sha256: string }>) => {
+        const n: any = await (
+          await fetch(`${base}/auth/nonce?wallet=${wallet.address}&purpose=accept_terms`)
+        ).json();
+        const listed = [...(n.message as string).matchAll(/(\S+) v(\S+) sha256:([0-9a-f]+)/g)].map(
+          (m) => ({ doc_id: m[1], version: m[2], sha256: m[3] }),
+        );
+        const res = await fetch(`${base}/merchants/me/acceptances`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            wallet: wallet.address,
+            doc_hashes: hashes,
+            message: n.message,
+            signature: await wallet.signMessage({ message: n.message }),
+          }),
+        });
+        return { res, listed };
+      };
+      const pick = ({ doc_id, version, sha256 }: any) => ({ doc_id, version, sha256 });
+      const older = env.docs.filter((d) => d.version === '1.2').map(pick);
+      const stale = await accept(older);
+      expect(stale.res.status).toBe(428);
+      const staleBody: any = await stale.res.json();
+      expect(JSON.stringify(staleBody)).toContain('1.3');
+      expect(JSON.stringify(staleBody)).not.toContain('"version":"1.2"');
+
+      const fresh = await accept(idx.map(pick));
+      expect(fresh.listed).toEqual(idx.map(pick));
+      expect(fresh.res.status).toBe(200);
+      expect(((await fresh.res.json()) as any).status).toBe('active');
+    } finally {
+      srv.close();
+    }
   });
 });
