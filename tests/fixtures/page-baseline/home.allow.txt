@@ -14,3 +14,5 @@ href: /guides/model-context-protocol-mcp
 href: /guides/power-bi-mcp
 href: /guides/uscis-api-for-case-status
 href: /guides/viewmax-mcp-for-claude
+# T-0384: the htop-style prompt glyph before SYSTEM in The numbers is terminal decoration.
+>
