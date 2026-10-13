@@ -32,6 +32,8 @@ class Base(unittest.TestCase):
             "taskloop_active": os.path.join(r, "taskloop", "active"),
             "taskloop_tick": os.path.join(r, "taskloop", "logs", "tick.log"),
             "orchestra_heartbeat": os.path.join(r, "orch", "heartbeat"),
+            "orchestra_log_dir": os.path.join(r, "orch", "logs"),
+            "orchestra_pause": os.path.join(r, "orch", "pause"),
             "content_guides": os.path.join(r, "guides"),
             "doors": os.path.join(r, "doors"),
         }
@@ -145,6 +147,62 @@ class Levels(Base):
         touch(self.paths["taskloop_active"] + "/another.md")
         out = self.build()
         self.assertEqual([s["id"] for s in out["ships"] if s["class"] == "builder"], ["builder-1", "builder-2"])
+
+
+def stamp(age_s):
+    return sea.iso(NOW - age_s)
+
+
+class ScoutProgress(Base):
+    def write_log(self, lines):
+        os.makedirs(self.paths["orchestra_log_dir"], exist_ok=True)
+        day = sea.iso(NOW)[:10]
+        with open(os.path.join(self.paths["orchestra_log_dir"], f"orchestra-{day}.log"), "w") as f:
+            f.write("\n".join(lines) + "\n")
+
+    def scout(self):
+        return [s for s in self.build()["ships"] if s["class"] == "scout"][0]
+
+    def test_working_on_onboard_ok(self):
+        self.write_log([f"[{stamp(600)}] ONBOARD_OK foo adapter ready"])
+        self.assertEqual(self.scout()["state"], "working")
+
+    def test_working_on_new_candidate_name(self):
+        self.write_log([f"[{stamp(9000)}] ONBOARD candidate: old", f"[{stamp(300)}] ONBOARD candidate: fresh"])
+        self.assertEqual(self.scout()["state"], "working")
+
+    def test_stalled_when_only_repeated_names(self):
+        self.write_log([f"[{stamp(9000)}] ONBOARD candidate: zippopotam", f"[{stamp(300)}] ONBOARD candidate: zippopotam"])
+        s = self.scout()
+        self.assertEqual(s["state"], "stalled")
+        self.assertEqual(s["reason"], "no progress 2 h")
+
+    def test_stalled_when_no_log(self):
+        self.assertEqual(self.scout()["state"], "stalled")
+
+    def test_old_onboard_ok_is_stalled(self):
+        self.write_log([f"[{stamp(7300)}] ONBOARD_OK foo"])
+        self.assertEqual(self.scout()["state"], "stalled")
+
+    def test_idle_when_heartbeat_stale(self):
+        touch(self.paths["orchestra_heartbeat"], 3000)
+        self.write_log([f"[{stamp(60)}] ONBOARD_OK foo"])
+        s = self.scout()
+        self.assertEqual(s["state"], "idle")
+        self.assertNotIn("reason", s)
+
+    def test_orchestra_pause_rests_fleet(self):
+        with open(self.paths["orchestra_pause"], "w") as f:
+            f.write(f"{int(NOW) + 3600}\nreason: {CANARY}\nby: x\n")
+        out = self.build()
+        self.assertTrue(out["fleet_paused"])
+        self.assertTrue(all(s["state"] == "resting" for s in out["ships"]))
+        self.assertNotIn(CANARY, json.dumps(out))
+
+    def test_expired_orchestra_pause_ignored(self):
+        with open(self.paths["orchestra_pause"], "w") as f:
+            f.write(f"{int(NOW) - 5}\n")
+        self.assertFalse(self.build()["fleet_paused"])
 
 
 if __name__ == "__main__":

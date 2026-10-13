@@ -18,6 +18,7 @@ Schedule (installed by the dispatcher after promotion, not by this task), every 
 import glob
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -25,8 +26,10 @@ from datetime import datetime, timezone
 
 HOME = os.path.expanduser("~")
 CLASSES = ("builder", "scout", "medic", "writer", "watch")
-STATES = ("working", "idle", "resting")
+STATES = ("working", "idle", "resting", "stalled")
 WINDOW_S = 900
+PROGRESS_WINDOW_S = 7200
+HEARTBEAT_FRESH_S = 600
 REDIS_KEY = "fleet:sea"
 REDIS_TTL_S = 180
 MAX_PER_CLASS = 8
@@ -36,6 +39,8 @@ PATHS = {
     "taskloop_active": os.path.join(HOME, "taskloop", "active"),
     "taskloop_tick": os.path.join(HOME, "taskloop", "logs", "tick.log"),
     "orchestra_heartbeat": os.path.join(HOME, "apibase", "scripts", "night-orchestra", "state", "heartbeat"),
+    "orchestra_log_dir": os.path.join(HOME, "apibase", "scripts", "night-orchestra", "logs"),
+    "orchestra_pause": os.path.join(HOME, "apibase", "scripts", "night-orchestra", "state", "pause"),
     "content_guides": os.path.join(HOME, "content-hub", "guides"),
     "doors": os.path.join(HOME, "fleet", "heartbeat"),
 }
@@ -57,6 +62,11 @@ def read_pause_until(path):
         return None
 
 
+def orchestra_paused(path, now):
+    until = read_pause_until(path) if path else None
+    return until is not None and now < until
+
+
 def mtime(path):
     try:
         return os.stat(path).st_mtime
@@ -73,6 +83,56 @@ def activity_level(age_s):
     if age_s <= 1800:
         return 1
     return 0
+
+
+_LOG_LINE = re.compile(r"^\[(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})Z\] (ONBOARD_OK\b|ONBOARD candidate: (\S+))")
+
+
+def orchestra_progress_ts(log_dir, now):
+    """Epoch of the latest real progress in the orchestra daily logs (today + yesterday): an
+    ONBOARD_OK line, or an ONBOARD candidate line whose name was not seen earlier in those logs.
+    A loop re-attempting the same names makes no progress. None if there is none."""
+    seen, best = set(), None
+    days = [datetime.fromtimestamp(now - d * 86400, timezone.utc).strftime("%Y-%m-%d") for d in (1, 0)]
+    for day in days:
+        try:
+            with open(os.path.join(log_dir, f"orchestra-{day}.log"), encoding="utf-8", errors="replace") as f:
+                lines = f.readlines()
+        except OSError:
+            continue
+        for ln in lines:
+            m = _LOG_LINE.match(ln)
+            if not m:
+                continue
+            ts = datetime.strptime(m.group(1), "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc).timestamp()
+            if m.group(3) is not None:
+                name = m.group(3).lower()
+                if name in seen:
+                    continue
+                seen.add(name)
+            if best is None or ts > best:
+                best = ts
+    return best
+
+
+def scout_ship(now, paths):
+    """working = fresh heartbeat AND progress within 2 h; stalled = fresh heartbeat, no progress;
+    idle = stale heartbeat. None if there is no heartbeat file."""
+    hb = mtime(paths["orchestra_heartbeat"])
+    if hb is None:
+        return None
+    ship = _ship("scout", hb, now)
+    if now - hb > HEARTBEAT_FRESH_S:
+        ship["state"] = "idle"
+        return ship
+    prog = orchestra_progress_ts(paths["orchestra_log_dir"], now)
+    if prog is not None and now - prog <= PROGRESS_WINDOW_S:
+        ship["state"] = "working"
+    else:
+        ship["state"] = "stalled"
+        ship["reason"] = "no progress 2 h"
+        ship["activity_level"] = min(ship["activity_level"], 1)
+    return ship
 
 
 def _ship(cls, ts, now, forced_state=None):
@@ -113,7 +173,10 @@ def collect_internal(now, paths, engine_heartbeat_ts):
             raw += [_ship("builder", tick, now) for _ in range(min(active, MAX_PER_CLASS))]
         else:
             raw.append(_ship("builder", tick, now, forced_state="idle"))
-    add("scout", mtime(paths["orchestra_heartbeat"]))
+    scout = scout_ship(now, paths)
+    if scout is not None:
+        stamps.append(now - scout["since_s"])
+        raw.append(scout)
     add("medic", engine_heartbeat_ts)
     add("writer", latest_publication_mtime(paths["content_guides"]))
     return raw, stamps
@@ -155,7 +218,7 @@ def bucket(n):
 
 def build(now, paths, engine_heartbeat_ts, ledger_rows, agents):
     until = read_pause_until(paths["pause"])
-    paused = until is not None and now < until
+    paused = (until is not None and now < until) or orchestra_paused(paths.get("orchestra_pause"), now)
     raw, stamps = collect_internal(now, paths, engine_heartbeat_ts)
     draw, dstamps = collect_doors(now, paths["doors"])
     raw += draw
@@ -171,6 +234,8 @@ def build(now, paths, engine_heartbeat_ts, ledger_rows, agents):
             "since_s": r["since_s"],
             "activity_level": 0 if paused else r["activity_level"],
         })
+        if r.get("reason") and not paused:
+            ships[-1]["reason"] = r["reason"]
     cats = {}
     for cat, calls in ledger_rows:
         cats[cat] = cats.get(cat, 0) + int(calls)
@@ -188,7 +253,8 @@ def build(now, paths, engine_heartbeat_ts, ledger_rows, agents):
         "honesty": {"last_activity_at": iso(max(stamps)) if stamps else None},
     }
     if paused:
-        out["paused_until_minute"] = iso(until - until % 60)
+        ends = [u for u in (until, read_pause_until(paths.get("orchestra_pause"))) if u is not None and now < u]
+        out["paused_until_minute"] = iso(max(ends) - max(ends) % 60)
     return out
 
 
