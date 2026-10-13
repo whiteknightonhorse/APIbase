@@ -235,3 +235,41 @@ details p{margin:0 0 var(--s4)}
 .hm #links li a{display:inline-flex;align-items:center;min-height:44px}
 @media (max-width:600px){.hm .hm-ep{padding:var(--s4)}}
 @media (max-width:480px){.btn-row,.hm-cta{gap:12px}.hm .btn,.hm .hm-cta .btn,.hm .btn-row .btn{width:100%;flex-basis:100%}.hm .btn+.btn{margin-left:0}.hm .sh{grid-template-columns:1fr}.hm .hm-hero{gap:var(--s6)}.hm .sys-monitor{padding:var(--s3) var(--s4)}}
+
+/* marketing pages (T-0385): .mk scope, namespaced mk-*; why, pricing, partners, frameworks, connect, about, *-intent */
+.mk{max-width:880px}
+.mk .container{padding-top:clamp(16px,4vw,48px)}
+.mk .mk-hero{display:flex;flex-direction:column;gap:var(--s4);padding:0 0 clamp(24px,4vw,48px);margin-bottom:var(--s5)}
+.mk .mk-hero h1{font-size:var(--fs-display);line-height:1.05;letter-spacing:-.025em;margin:0;text-wrap:balance}
+.mk .mk-lead,.mk .lede{font-size:var(--fs-lead);line-height:1.5;max-width:680px;color:var(--ink-2);margin:0}
+.mk .endpoint{display:inline-block;align-self:flex-start;max-width:100%;margin:0;padding:10px var(--s4);background:var(--surf);border:1px solid var(--line-2);border-radius:var(--r-ctl);font-family:var(--mono);font-size:16px;color:var(--ink);overflow-wrap:anywhere}
+.mk h2{margin:var(--s8) 0 var(--s4);padding-top:var(--s5);border-top:1px solid var(--line);font-size:clamp(24px,3vw,32px);letter-spacing:-.02em;line-height:1.15;text-wrap:balance}
+.mk .mk-hero+h2,.mk .jump+h2{margin-top:var(--s6);padding-top:0;border-top:0}
+.mk h3{margin:var(--s6) 0 var(--s3)}
+.mk .step,.mk .path,.mk .card{background:var(--surf);border:1px solid var(--line);border-radius:var(--r-card);padding:var(--s5);margin:0 0 var(--s4)}
+.mk .step>:last-child,.mk .path>:last-child,.mk .card>:last-child{margin-bottom:0}
+.mk .path h2{margin:0 0 var(--s3);padding:0;border:0;font-size:var(--fs-h3);letter-spacing:0}
+.mk .card p{margin-bottom:var(--s3)}
+.mk .note{color:var(--ink-3);font-size:var(--fs-small);font-style:normal}
+.mk .badge{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:0 10px;margin-left:var(--s2);border-radius:var(--r-chip);border:1px solid var(--line-2);background:var(--surf-2);color:var(--ink-2);font-family:var(--sans);font-size:var(--fs-caption);font-weight:650;letter-spacing:0;vertical-align:middle}
+.mk .badge-go{border-color:var(--accent);color:var(--accent)}
+.mk .badge-warn{border-color:var(--warn);color:var(--warn)}
+.mk .jump{display:flex;flex-wrap:wrap;gap:var(--s1) var(--s2);margin:0 0 var(--s5)}
+.mk .jump a{display:inline-flex;align-items:center;min-height:44px;padding:0 var(--s4);border:1px solid var(--line-2);border-radius:var(--r-chip);color:var(--ink);text-decoration:none;font-size:var(--fs-small)}
+.mk .jump a:hover{border-color:var(--accent);color:var(--accent)}
+.mk .code-wrap{position:relative;margin:0 0 var(--s4)}
+.mk .code-wrap pre{margin:0;padding-right:84px}
+.mk .code-wrap .copy-btn{min-width:0}
+.mk .copy-btn.copied{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.mk .table-wrap{margin:0 0 var(--s4)}
+.mk .table-wrap table{margin:0;min-width:520px}
+.mk .mk-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:var(--s3);margin:0 0 var(--s6)}
+.mk .mk-stats .label{font-family:var(--mono);font-size:var(--fs-caption);letter-spacing:.04em;color:var(--ink-3)}
+.mk .mk-stats strong{font-size:20px;line-height:1.25}
+.mk .badge-preview{display:inline-flex;align-items:center;gap:var(--s3);padding:var(--s3) var(--s4);margin:0 0 var(--s4);background:var(--surf);border:1px solid var(--line-2);border-radius:var(--r-ctl);color:var(--ink)}
+.mk .badge-preview img{width:28px;height:28px}
+.mk ul li a,.mk .note a{display:inline-flex;align-items:center;min-height:44px}
+.mk p a{min-height:0}
+.mk .mk-foot{margin:var(--s7) 0 0;padding-top:var(--s4);border-top:1px solid var(--line);color:var(--ink-3);font-size:var(--fs-small)}
+.mk .mk-foot a{color:var(--ink-2)}
+@media (max-width:600px){.mk .step,.mk .path,.mk .card{padding:var(--s4)}.mk .code-wrap pre{padding-right:var(--s4);padding-top:52px}}

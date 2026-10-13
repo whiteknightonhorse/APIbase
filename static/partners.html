@@ -15,40 +15,6 @@
 <meta property="og:description" content="Badge, embeddable snippet, logo and press kit for API providers and integration partners.">
 <meta property="og:url" content="https://apibase.pro/partners">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;background:#0e100f;color:#b7beb8;line-height:1.7}
-
-.container{padding:1.8rem 2rem 2rem;position:relative;z-index:1}
-h1{color:#4fd283;font-size:1.3rem;margin-bottom:0.5rem;line-height:1.5}
-
-h2{color:#4fd283;font-size:1.05rem;margin:2rem 0 0.8rem;padding-left:1rem;border-left:2px solid #4fd283}
-
-h3{color:#4fd283;font-size:0.92rem;margin:1.1rem 0 0.5rem}
-p{margin-bottom:0.8rem;font-size:1rem;color:#b7beb8}
-strong{color:#4fd283}
-.updated{color:#9ca59e;font-size:0.82rem;margin-bottom:1.8rem}
-ul, ol{padding-left:1.5rem;margin-bottom:1rem}
-li{margin-bottom:0.4rem;font-size:1rem;color:#b7beb8}
-li::marker{color:#9ca59e}
-a{color:#eef1ed;text-decoration:none}
-a:hover{color:#4fd283}
-pre{background:#151816;border:1px solid #272c29;border-radius:6px;padding:0.9rem;overflow-x:auto;font-size:0.8rem;margin:0.6rem 0 1rem;color:#b7beb8;line-height:1.5}
-code{background:#151816;border:1px solid #272c29;border-radius:3px;padding:0.05rem 0.35rem;color:#4fd283;font-size:0.85em}
-pre code{background:none;border:none;padding:0;color:inherit}
-.step{border:1px solid #272c29;border-radius:8px;padding:1rem 1.2rem;margin:1rem 0 1.6rem;background:rgba(79,210,131,0.02)}
-.note{color:#9ca59e;font-size:0.82rem;font-style:italic}
-.badge-preview{display:inline-flex;align-items:center;gap:0.5rem;border:1px solid #272c29;border-radius:6px;padding:0.5rem 0.8rem;background:#151816;margin:0.4rem 0 1rem}
-.badge-preview img{height:20px;width:20px;display:block}
-.badge-preview span{color:#b7beb8;font-size:0.9rem}
-.footer{margin-top:2rem;padding:0.6rem 0;border-top:1px solid #272c29;color:#9ca59e;font-size:0.72rem;display:flex;flex-direction:column;gap:0.2rem}
-.footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.5rem}
-.footer .online{color:#9ca59e}
-*::-webkit-scrollbar{width:8px;height:8px}
-*::-webkit-scrollbar-track{background:#0e100f;border:1px solid #272c29}
-*::-webkit-scrollbar-thumb{background:#1b1f1c;border-radius:4px;border:1px solid #0e100f}
-*::-webkit-scrollbar-thumb:hover{background:#4fd283}
-*{scrollbar-width:thin;scrollbar-color:#3e4541 #0e100f}
-@media(max-width:600px){.container{padding:1rem}h1{font-size:1.05rem}.footer{font-size:0.65rem}}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -68,11 +34,14 @@ pre code{background:none;border:none;padding:0;color:inherit}
 .site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
 @media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
 /*/site-nav*/
+/* T-60 gate reads inline CSS only: every pre/table scrolls inside its own box (site-m.css styles the rest) */
+pre{overflow-x:auto}
+.table-wrap,.m-table-wrap{overflow-x:auto}
 </style>
 </head>
 <body>
 <!--site-nav-->
-<link rel="stylesheet" href="/assets/site-m.css?v=0e8d0f13">
+<link rel="stylesheet" href="/assets/site-m.css?v=1a29ffae">
 <header class="site-header"><div class="sh-in">
 <a class="brand" href="/">APIbase.pro</a>
 <nav class="nav-full" aria-label="Main">
@@ -112,13 +81,16 @@ pre code{background:none;border:none;padding:0;color:inherit}
 </div></header>
 <script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
-<div class="page-shell">
+<div class="page-shell mk">
 <div class="container" id="main-content">
 
 
 
+<header class="mk-hero">
+<span class="m-caption">For providers and partners</span>
 <h1>Partners</h1>
-<p class="updated">For API providers and integration partners &mdash; badge, embeddable snippet, logo, and press kit. Live figures are never hardcoded on this page: check <a href="/llms.txt">apibase.pro/llms.txt</a> for the current tool/provider count.</p>
+<p class="mk-lead">For API providers and integration partners &mdash; badge, embeddable snippet, logo, and press kit. Live figures are never hardcoded on this page: check <a href="/llms.txt">apibase.pro/llms.txt</a> for the current tool/provider count.</p>
+</header>
 
 <p>APIbase is a single MCP + REST endpoint that lets AI agents discover, evaluate, pay for, and call tools from many API providers &mdash; without a separate signup, API key, or integration per provider. Payment is per call in USDC, settled through either the x402 rail on Base mainnet or the MPP rail on Tempo, with no subscription and no dashboard step between finding a tool and calling it. Full mechanics: <a href="/why">/why</a>.</p>
 
@@ -161,15 +133,7 @@ pre code{background:none;border:none;padding:0;color:inherit}
 <h2>Get in touch</h2>
 <p>Questions about listing an API, the badge, or press material: <a href="/contact">/contact</a>. Technical integration details for building against the endpoint: <a href="/frameworks">/frameworks</a>. Source: <a href="https://github.com/whiteknightonhorse/APIbase">github.com/whiteknightonhorse/APIbase</a>.</p>
 
-<div class="footer">
-<div class="footer-row">
-<span><span class="online">STATUS: ONLINE</span>  |  PID: 1337  |  TTY: pts/0  |  USER: apibase</span>
-</div>
-<div class="footer-row">
-<span>Live tool/provider count: <a href="/llms.txt">apibase.pro/llms.txt</a>  |  x402 USDC on Base + MPP USDC on Tempo</span>
-<span>BUILD: v1.0.0</span>
-</div>
-</div>
+<p class="mk-foot">Live tool/provider count: <a href="/llms.txt">apibase.pro/llms.txt</a>  |  x402 USDC on Base + MPP USDC on Tempo</p>
 
 
 </div>
