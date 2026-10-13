@@ -90,6 +90,7 @@ function fakeRes() {
     _body: unknown;
     status: (c: number) => typeof res;
     json: (b: unknown) => typeof res;
+    _type: string | undefined;
     type: (t: string) => typeof res;
     send: (b: unknown) => typeof res;
   } = {
@@ -103,7 +104,9 @@ function fakeRes() {
       res._body = b;
       return res;
     },
-    type() {
+    _type: undefined,
+    type(t) {
+      res._type = t;
       return res;
     },
     send(b) {
@@ -123,6 +126,18 @@ function getHandler(path: string) {
   return layer.route.stack[0].handle;
 }
 
+// Minimal Express request: the handlers read req.get('accept'), req.baseUrl and req.path.
+function fakeReq(urlPrefix: string, appealId: string, accept?: string) {
+  const headers: Record<string, string> = accept ? { accept } : {};
+  return {
+    params: { appealId },
+    headers,
+    baseUrl: '',
+    path: urlPrefix + appealId,
+    get: (h: string) => headers[h.toLowerCase()],
+  };
+}
+
 describe.each([
   ['/appeals/:appealId', '/appeals/'],
   ['/api/v1/appeals/:appealId', '/api/v1/appeals/'],
@@ -130,7 +145,7 @@ describe.each([
   it('malformed id -> 400, never 502/500', async () => {
     mockFindUnique.mockRejectedValue(new Error('would have been an uncaught Prisma throw'));
     const handler = getHandler(routePath);
-    const req = { params: { appealId: 'x' }, headers: { accept: 'application/json' } };
+    const req = fakeReq(urlPrefix, 'x', 'application/json');
     const res = fakeRes();
     await handler(req as never, res as never, (() => {}) as never);
     expect(res.statusCode).toBe(400);
@@ -140,7 +155,7 @@ describe.each([
   it('well-formed but unknown id -> 404', async () => {
     mockFindUnique.mockResolvedValue(null);
     const handler = getHandler(routePath);
-    const req = { params: { appealId: REAL_ID }, headers: { accept: 'application/json' } };
+    const req = fakeReq(urlPrefix, REAL_ID, 'application/json');
     const res = fakeRes();
     await handler(req as never, res as never, (() => {}) as never);
     expect(res.statusCode).toBe(404);
@@ -149,11 +164,21 @@ describe.each([
   it('CONTROL: existing appeal -> 200 with data', async () => {
     mockFindUnique.mockResolvedValue(REAL_ROW);
     const handler = getHandler(routePath);
-    const req = { params: { appealId: REAL_ID }, headers: { accept: 'application/json' } };
+    const req = fakeReq(urlPrefix, REAL_ID, 'application/json');
     const res = fakeRes();
     await handler(req as never, res as never, (() => {}) as never);
     expect(res.statusCode).toBe(200);
     expect(res._body).toMatchObject({ appeal_id: REAL_ID, tool_id: 'twilio.send_sms' });
   });
-  void urlPrefix; // documents which live path this maps to
+
+  if (routePath === '/appeals/:appealId') {
+    it('malformed id WITHOUT Accept -> 400 with an HTML page (humans never get a 5xx)', async () => {
+      const handler = getHandler(routePath);
+      const res = fakeRes();
+      await handler(fakeReq(urlPrefix, 'x') as never, res as never, (() => {}) as never);
+      expect(res.statusCode).toBe(400);
+      expect(res._type).toBe('html');
+      expect(String(res._body)).toContain('<!DOCTYPE html>');
+    });
+  }
 });

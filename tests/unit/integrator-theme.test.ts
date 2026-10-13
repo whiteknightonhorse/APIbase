@@ -105,7 +105,8 @@ describe('integrator terminal theme', () => {
     expect(out).toBe('');
   });
 
-  it('TD7: _page.css is at most 110 lines', () => {
-    expect(rd(resolve(DIR, '_page.css')).trimEnd().split('\n').length).toBeLessThanOrEqual(110);
+  it('TD7: _page.css is at most 140 lines', () => {
+    // T-0381: room for the human landing/sign-up/storefront styles (T-0376..0378)
+    expect(rd(resolve(DIR, '_page.css')).trimEnd().split('\n').length).toBeLessThanOrEqual(140);
   });
 });
