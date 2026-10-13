@@ -4,6 +4,8 @@
 # the rendered pages from the local nginx (PAGE_META_BASE, Host apibase.pro). /integrator* pages also
 # need a BreadcrumbList. Prints one line per failure and a summary; exit 1 on any failure.
 #   --no-fetch   crawl static/ only (CI has no server)
+# /guides/ is not in the default PAGE_META_PATHS: content-machine renders it in a separate repo (content-hub);
+# add it back once the follow-up card makes those generators emit the meta block and footer.
 # Needs no database of its own, but /m/apibase-demo is served from one, so a 5xx there is a failure.
 set -uo pipefail
 ROOT="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
@@ -11,7 +13,7 @@ NO_FETCH=0
 for a in "$@"; do [ "$a" = "--no-fetch" ] && NO_FETCH=1; done
 export ROOT NO_FETCH
 export PAGE_META_BASE="${PAGE_META_BASE:-http://127.0.0.1:8880}"
-export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal/aup /guides/ /integrator /integrator/buyers}"
+export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal/aup /integrator /integrator/buyers}"
 exec python3 -I - <<'PY'
 import glob, html, os, re, subprocess, sys
 
