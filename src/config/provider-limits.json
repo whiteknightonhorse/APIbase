@@ -320,13 +320,11 @@
   "figi": {
     "display_name": "OpenFIGI",
     "health_url": "https://api.openfigi.com/v3/search",
-    "limit_type": "daily",
-    "free_limit": 25000,
-    "reset_period": "daily",
+    "limit_type": "rate_limited",
+    "free_limit": 20,
+    "reset_period": "none",
     "docs_url": "https://www.openfigi.com/api",
-    "pricing_check": "manual",
-    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 25000.",
-    "limit_proof": "https://www.openfigi.com/api/documentation 2026-10-14: free and open to the public; search 20 requests/min with key, 5/min without; the 25,000/day config figure is not on the page",
+    "limit_proof": "https://www.openfigi.com/api/documentation 2026-10-14: Search/Filter API \"Max Amount of Requests\": with API key 20 per minute, without key 5 per minute; free_limit=20 is requests per minute (rate cap, no quota)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -1041,12 +1039,12 @@
   "firms": {
     "display_name": "NASA FIRMS",
     "health_url": "https://firms.modaps.eosdis.nasa.gov/api/data_availability/",
-    "limit_type": "hourly",
+    "limit_type": "rate_limited",
     "free_limit": 5000,
     "reset_period": "none",
     "docs_url": "https://firms.modaps.eosdis.nasa.gov/api/",
     "pricing_url": "https://firms.modaps.eosdis.nasa.gov/api/area/",
-    "limit_proof": "https://firms.modaps.eosdis.nasa.gov/api/area/ 2026-10-14: MAP_KEY limit is 5000 transactions / 10-minute interval; request free MAP_KEY",
+    "limit_proof": "https://firms.modaps.eosdis.nasa.gov/api/area/ 2026-10-14: MAP_KEY limit is 5000 transactions / 10-minute interval; request free MAP_KEY; free_limit=5000 is transactions per 10 minutes (rate cap, no quota)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -2177,12 +2175,12 @@
   "eia": {
     "display_name": "US Energy Information Administration",
     "health_url": "https://api.eia.gov/v2/?api_key=${PROVIDER_KEY_EIA}",
-    "limit_type": "hourly",
-    "free_limit": 5000,
-    "reset_period": "hourly",
+    "limit_type": "rate_limited",
+    "free_limit": 0,
+    "reset_period": "none",
     "docs_url": "https://www.eia.gov/opendata",
     "pricing_url": "https://www.eia.gov/opendata/documentation.php",
-    "limit_proof": "https://www.eia.gov/opendata/documentation.php 2026-10-14: register for this free key; numeric request limits not on the page (config 5,000/hour unverified)",
+    "limit_proof": "https://www.eia.gov/opendata/documentation.php 2026-10-14: programs \"must throttle the number of the requests they make per second and per hour\"; exceeding the limit temporarily suspends the key; thresholds not stated on the page; JSON responses return at most 5,000 rows (a row cap, not a request quota); free_limit=0 means no numeric quota is documented",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -2381,13 +2379,14 @@
   "fcc": {
     "display_name": "FCC Open Data",
     "health_url": "https://geo.fcc.gov/api/census/block/find?latitude=38.9&longitude=-77.0&format=json",
-    "limit_type": "unlimited",
-    "free_limit": 0,
-    "reset_period": "none",
+    "limit_type": "hourly",
+    "free_limit": 1000,
+    "reset_period": "hourly",
     "docs_url": "https://geo.fcc.gov/api/census/block/find",
-    "limit_proof": "US Government open data (FCC); geo.fcc.gov is unauthenticated and unlimited; ECFS API via api.data.gov shared key at 1,000 req/hr",
+    "limit_proof": "https://api.data.gov/docs/developer-manual/ 2026-10-14: Hourly Limit: 1,000 requests per hour per key (applies to ECFS via api.data.gov); the keyless geo.fcc.gov lookup publishes no limit",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "pricing_url": "https://api.data.gov/docs/developer-manual/"
   },
   "nasaexoplanet": {
     "display_name": "NASA Exoplanet Archive",
@@ -3511,11 +3510,11 @@
   "dpla": {
     "display_name": "Digital Public Library of America",
     "health_url": "https://api.dp.la/v2/items?q=test&api_key=${PROVIDER_KEY_DPLA}",
-    "limit_type": "unlimited",
+    "limit_type": "rate_limited",
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://pro.dp.la/developers/requests",
-    "limit_proof": "DPLA API docs state no rate limit is documented for API key holders. Free keys available \u2014 50M+ items across 2,000+ contributing US institutions.",
+    "limit_proof": "https://pro.dp.la/developers/requests 2026-10-14: page returned HTTP 403 to automated fetch (also /developers/api-codex), so no limit text could be verified; no numeric limit is asserted (free_limit=0); free API key required",
     "moderation_class": "data",
     "moderation_class_reviewed": true,
     "probe": {
@@ -3548,13 +3547,11 @@
   "echo": {
     "display_name": "EPA ECHO",
     "health_url": "https://echodata.epa.gov/echo/echo_rest_services.get_facilities?output=JSON&p_zip=10001&rows=1",
-    "limit_type": "hourly",
-    "free_limit": 300,
-    "reset_period": "hourly",
+    "limit_type": "rate_limited",
+    "free_limit": 0,
+    "reset_period": "none",
     "docs_url": "https://echo.epa.gov/tools/web-services",
-    "pricing_check": "manual",
-    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 300.",
-    "limit_proof": "ECHO REST services: 300 req/hour, 1500/day per IP. US Gov public domain (17 USC \u00a7105), no registration required.",
+    "limit_proof": "https://echo.epa.gov/tools/web-services 2026-10-14: page states no rate limit or quota; only advises \"To download a large volume of data, please use the ECHO Data Downloads\"; no numeric limit is asserted (free_limit=0)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
