@@ -98,12 +98,21 @@ def allow(name):
     return sorted(seqs, key=len, reverse=True), hs, ds
 
 
-ISO_TS = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?Z")
+ISO_TS = re.compile(r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?")
+COUNT = re.compile(r"\d[\d,]{2,}$")
+COUNT_UNIT = re.compile(r"(tools|providers)\b", re.I)
 
 
 def norm_ts(tokens):
-    """T-0391: dynamic ISO timestamps (catalog refresh time) compare as one placeholder token."""
-    return [ISO_TS.sub("<ISO-TIMESTAMP>", t) for t in tokens]
+    """T-0391/T-0400: volatile values compare as placeholders on both sides: ISO dates and datetimes
+    (catalog sync date, refresh time) and the generated site totals ("<N> tools", "<N> providers", N >= 100; small per-provider counts stay content).
+    Only the value is neutral; the words around it must still be present."""
+    out = []
+    for i, t in enumerate(tokens):
+        if COUNT.match(t) and i + 1 < len(tokens) and COUNT_UNIT.match(tokens[i + 1]):
+            t = "<COUNT>"
+        out.append(ISO_TS.sub("<ISO-DATE>", t))
+    return out
 
 
 def remove_seqs(tokens, seqs):

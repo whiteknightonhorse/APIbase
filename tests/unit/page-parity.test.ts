@@ -134,5 +134,23 @@ describe('T-0383 page-parity gate', () => {
       expect(allow).toContain('apibase@prod');
       expect(allow).not.toMatch(/^Privacy$/m);
     });
+
+    it('PP7: a changed date or count passes, a lost dated sentence fails', () => {
+      const base = join(tmp, 'tests/fixtures/page-baseline');
+      const page = (body: string) =>
+        writeFileSync(join(tmp, 'static/about.html'), `<html><body>${body}</body></html>`);
+      writeFileSync(
+        join(base, 'about.txt'),
+        'Stay tuned. Last synced 2026-10-13 with 1398 tools today.',
+      );
+      writeFileSync(join(base, 'about.meta.json'), '{"links":[],"ids":[],"scripts":0}');
+      writeFileSync(join(base, 'about.allow.txt'), '');
+      page('<p>Stay tuned.</p><p>Last synced 2026-10-14 with 1401 tools today.</p>');
+      expect(parity(['about', '--render'], tmp).status).toBe(0);
+      page('<p>Stay tuned.</p>');
+      const r = parity(['about', '--render'], tmp);
+      expect(r.status).toBe(1);
+      expect(r.stdout).toContain('PARITY_FAIL about: missing text Last synced');
+    });
   });
 });
