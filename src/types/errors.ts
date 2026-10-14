@@ -97,12 +97,20 @@ export class AppError extends Error {
   public readonly code: ErrorCodeValue;
   public readonly httpStatus: number;
   public readonly retryAfter?: number;
+  /** Overrides the handler's default documentation_url. */
+  public readonly documentationUrl?: string;
 
-  constructor(code: ErrorCodeValue, message: string, retryAfter?: number) {
+  constructor(
+    code: ErrorCodeValue,
+    message: string,
+    retryAfter?: number,
+    documentationUrl?: string,
+  ) {
     super(message);
     this.name = 'AppError';
     this.code = code;
     this.httpStatus = ErrorHttpStatus[code];
     this.retryAfter = retryAfter;
+    this.documentationUrl = documentationUrl;
   }
 }

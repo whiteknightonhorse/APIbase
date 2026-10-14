@@ -301,6 +301,8 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
     throw new AppError(
       ErrorCode.BAD_REQUEST,
       'MPP credentials are accepted only on the route that issued the challenge: POST /api/v1/tools/{tool_id}/call for API tools, POST /api/v1/shop/quotes/{id}/pay for shop orders (pay.mpp.url in the quote). This route has no MPP price; use x402 (X-Payment) or an API key here.',
+      undefined,
+      req.originalUrl.startsWith('/api/v1/shop/') ? '/integrator/docs#orders' : undefined,
     );
   }
 

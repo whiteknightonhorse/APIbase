@@ -31,7 +31,7 @@ export function errorHandlerMiddleware(
       message: err.message,
       request_id: requestId,
       suggested_action: SuggestedActionByStatus[err.httpStatus] ?? 'contact_support',
-      documentation_url: DOCS_URL,
+      documentation_url: err.documentationUrl ?? DOCS_URL,
     };
 
     if (err.retryAfter !== undefined) {

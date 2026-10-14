@@ -107,6 +107,14 @@ describe('mppMiddleware route/price gating (T-0256)', () => {
     expect(chargeInner).not.toHaveBeenCalled();
   });
 
+  it('T-SHOP-B: non-priced shop route + Payment -> 400 with shop documentation_url', async () => {
+    const e = await run(makeReq('/api/v1/shop/orders', 'Payment x'));
+    expect(e).toBeInstanceOf(AppError);
+    expect((e as AppError).documentationUrl).toBe('/integrator/docs#orders');
+    const t = await run(makeReq('/mcp', 'Payment x'));
+    expect((t as AppError).documentationUrl).toBeUndefined();
+  });
+
   it('M3: known tool → charge called with { amount: "0.25" }; req.mppPayment.amount set', async () => {
     const req = makeReq('/api/v1/tools/known.tool/call', 'Payment x');
     const e = await run(req);
