@@ -84,6 +84,30 @@ export async function cleanupExpiredModerationContent(): Promise<number> {
   }
 }
 
+/** /privacy states contact-form messages are kept for 12 months. */
+export const CONTACT_MESSAGE_RETENTION_MONTHS = 12;
+
+/** Delete /contact messages older than the retention term (name, e-mail, text, IP). */
+export async function purgeExpiredContactMessages(): Promise<number> {
+  const db = getPrisma();
+  try {
+    const deleted: number = await db.$executeRawUnsafe(
+      `DELETE FROM contact_messages
+       WHERE created_at < NOW() - INTERVAL '${CONTACT_MESSAGE_RETENTION_MONTHS} months'`,
+    );
+    if (deleted > 0) {
+      logger.info({ job: 'partition-cleanup', rows: deleted }, 'Expired contact messages purged');
+    }
+    return deleted;
+  } catch (error) {
+    logger.error(
+      { err: error, job: 'partition-cleanup', table: 'contact_messages' },
+      'Failed to purge expired contact messages',
+    );
+    throw error;
+  }
+}
+
 export async function run(): Promise<void> {
   const db = getPrisma();
 
@@ -132,4 +156,5 @@ export async function run(): Promise<void> {
   }
 
   await cleanupExpiredModerationContent();
+  await purgeExpiredContactMessages();
 }

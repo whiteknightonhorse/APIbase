@@ -255,6 +255,8 @@ describe('T-INT-05 legal documents', () => {
       const counts = (h: string) =>
         h
           .replace(/<h2[^>]*>3a\. Analytics<\/h2>\n<p>[^\n]*<\/p>\n\n/g, '')
+          // T-0416 adds one contact-form retention paragraph to privacy's data-categories section.
+          .replace(/<\/ul>\n<p>Messages sent through the [^\n]*<\/p>/g, '</ul>')
           .replace(/<head>[\s\S]*?<\/head>/, '')
           .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '')
           .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->/g, '')

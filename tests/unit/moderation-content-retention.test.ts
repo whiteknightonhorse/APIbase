@@ -280,3 +280,27 @@ describe('partition-cleanup.job.ts cleanupExpiredModerationContent — query sha
     expect(sql).toMatch(/content_expires_at\s*<\s*NOW\(\)/i);
   });
 });
+
+describe('partition-cleanup.job.ts purgeExpiredContactMessages — query shape (T-0416)', () => {
+  const mockExecuteRawUnsafe = jest.fn();
+
+  beforeAll(() => {
+    jest.resetModules();
+    jest.doMock('@prisma/client', () => ({
+      PrismaClient: jest.fn().mockImplementation(() => ({
+        $executeRawUnsafe: mockExecuteRawUnsafe,
+      })),
+    }));
+  });
+
+  it('deletes only contact_messages rows older than 12 months', async () => {
+    mockExecuteRawUnsafe.mockReset();
+    mockExecuteRawUnsafe.mockResolvedValue(2);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { purgeExpiredContactMessages } = require('../../src/jobs/partition-cleanup.job');
+    expect(await purgeExpiredContactMessages()).toBe(2);
+    const sql = mockExecuteRawUnsafe.mock.calls[0][0] as string;
+    expect(sql).toMatch(/DELETE FROM contact_messages/i);
+    expect(sql).toMatch(/created_at\s*<\s*NOW\(\)\s*-\s*INTERVAL '12 months'/i);
+  });
+});
