@@ -95,3 +95,24 @@ the cheapest tier that includes the endpoint, marked `tier assumed: <name>; oper
 | langbly | Pay-as-you-go | T-SITE-F3; model metered; card required for the 500K included characters |
 | launch-library-2 | Free anonymous | T-SITE-F3; model free_tier |
 | listennotes | Free | T-SITE-F3; model free_tier |
+| materials-project | Free API key | T-SITE-F4; model free_tier |
+| mbta-transit | Free API key | T-SITE-F4; model free_tier |
+| met-norway | Public API, no key | T-SITE-F4; model free |
+| meteostat | Public data dumps, no key | T-SITE-F4; model free |
+| nasa | Free api.nasa.gov key | T-SITE-F4; model free_tier |
+| ncei | Free CDO token | T-SITE-F4; model free_tier |
+| newsdata | Free | T-SITE-F4; model free_tier |
+| norgesbank | Public API, no key | T-SITE-F4; model free |
+| nrel | Free developer key | T-SITE-F4; model free_tier |
+| nvd | Free API key | T-SITE-F4; model free_tier |
+| oecd-stats | Public API, no key | T-SITE-F4; model free |
+| openaire | Public Graph API, no key | T-SITE-F4; model free |
+| openalex | No key / free key | T-SITE-F4; model free_tier |
+| opendota | Premium key | T-SITE-F4; model flat |
+| openfda_devices | No key / free key | T-SITE-F4; model free_tier |
+| openmeteoaq | free non-commercial access | T-SITE-F4; model metered |
+| openstates | Free | T-SITE-F4; model free_tier |
+| opentopodata | Public API, no key | T-SITE-F4; model free |
+| opentopography | Free registered key | T-SITE-F4; model free_tier |
+| openweathermap | Free | T-SITE-F4; model free_tier |
+| overpass | Public API, no key | T-SITE-F4; model free |

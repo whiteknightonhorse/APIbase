@@ -35,11 +35,11 @@
   "openweathermap": {
     "display_name": "OpenWeatherMap",
     "health_url": "https://api.openweathermap.org/data/2.5/weather?q=London&appid=test",
-    "limit_type": "daily",
-    "free_limit": 1000,
-    "reset_period": "daily",
+    "limit_type": "monthly",
+    "free_limit": 1000000,
+    "reset_period": "monthly",
     "docs_url": "https://openweathermap.org/price",
-    "limit_proof": "Free plan: 1,000 calls/day, 60 calls/min",
+    "limit_proof": "Free plan: 60 API calls/minute, 1,000,000 calls/month (https://openweathermap.org/price, checked 2026-10-14)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },

@@ -182,3 +182,24 @@ Provider | model | cost | tier | source date. Every tier below is assumed (opera
 | langbly | metered | NOT_MEASURED; characters x $0.000005 beyond 500K/month included | tier assumed: Pay-as-you-go | 2026-10-14 |
 | launch-library-2 | free_tier | $0 (15/hour anonymous) | tier assumed: Free anonymous | 2026-10-14 |
 | listennotes | free_tier | $0 (150/month) | tier assumed: Free | 2026-10-14 |
+| materials-project | free_tier | $0 (25/sec, 640K/day) | tier assumed: Free API key | 2026-10-14 |
+| mbta-transit | free_tier | $0 (500/day, 20/min no key) | tier assumed: Free API key | 2026-10-14 |
+| met-norway | free | $0 (no key, User-Agent only) | tier assumed: Public API, no key | 2026-10-14 |
+| meteostat | free | $0 (no key) | tier assumed: Public data dumps, no key | 2026-10-14 |
+| nasa | free_tier | $0 (1,000/hour) | tier assumed: Free api.nasa.gov key | 2026-10-14 |
+| ncei | free_tier | $0 (1,000/day) | tier assumed: Free CDO token | 2026-10-14 |
+| newsdata | free_tier | $0 (200 credits/day) | tier assumed: Free | 2026-10-14 |
+| norgesbank | free | $0 (no key) | tier assumed: Public API, no key | 2026-10-14 |
+| nrel | free_tier | $0 (1,000/hour) | tier assumed: Free developer key | 2026-10-14 |
+| nvd | free_tier | $0 (50 per 30 s with key) | tier assumed: Free API key | 2026-10-14 |
+| oecd-stats | free | $0 (no key) | tier assumed: Public API, no key | 2026-10-14 |
+| openaire | free | $0 (no key, 60/hour) | tier assumed: Public Graph API, no key | 2026-10-14 |
+| openalex | free_tier | $0 (daily credit budget, free key 10x) | tier assumed: No key / free key | 2026-10-14 |
+| opendota | flat | $0.0001 (premium $0.0001/call) | tier assumed: Premium key | 2026-10-14 |
+| openfda_devices | free_tier | $0 (1,000/day no key, 120,000/day key) | tier assumed: No key / free key | 2026-10-14 |
+| openmeteoaq | metered | NOT_MEASURED; plan fee / included calls, commercial plan price unpublished | tier assumed: free non-commercial access | 2026-10-14 |
+| openstates | free_tier | $0 (500/day, 10/min) | tier assumed: Free | 2026-10-14 |
+| opentopodata | free | $0 (no key, 1 req/s) | tier assumed: Public API, no key | 2026-10-14 |
+| opentopography | free_tier | $0 (5,000/day) | tier assumed: Free registered key | 2026-10-14 |
+| openweathermap | free_tier | $0 (60/min, 1,000,000/month) | tier assumed: Free | 2026-10-14 |
+| overpass | free | $0 (no key, 2 concurrent queries) | tier assumed: Public API, no key | 2026-10-14 |

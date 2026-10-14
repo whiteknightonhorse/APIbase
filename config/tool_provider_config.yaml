@@ -10,6 +10,9 @@ tools:
     capability: weather.current
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://openweathermap.org/price — \"Free plan: 60 API calls/minute, 1,000,000 calls/month\"; Current Weather, 5-day/3-hour Forecast, Air Pollution and Geocoding are \"Free for everyone\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: weather.get_forecast
@@ -18,18 +21,27 @@ tools:
     capability: weather.forecast
     scope: global
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://openweathermap.org/price — \"Free plan: 60 API calls/minute, 1,000,000 calls/month\"; Current Weather, 5-day/3-hour Forecast, Air Pollution and Geocoding are \"Free for everyone\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 600
 
   - tool_id: weather.get_alerts
     name: Weather Alerts
     provider: openweathermap
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://openweathermap.org/price — \"Free plan: 60 API calls/minute, 1,000,000 calls/month\"; Current Weather, 5-day/3-hour Forecast, Air Pollution and Geocoding are \"Free for everyone\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: weather.get_history
     name: Weather History
     provider: openweathermap
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://openweathermap.org/price — \"Free plan: 60 API calls/minute, 1,000,000 calls/month\"; Current Weather, 5-day/3-hour Forecast, Air Pollution and Geocoding are \"Free for everyone\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: weather.air_quality
@@ -38,18 +50,27 @@ tools:
     capability: air_quality
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://openweathermap.org/price — \"Free plan: 60 API calls/minute, 1,000,000 calls/month\"; Current Weather, 5-day/3-hour Forecast, Air Pollution and Geocoding are \"Free for everyone\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: weather.geocode
     name: Weather Geocode
     provider: openweathermap
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://openweathermap.org/price — \"Free plan: 60 API calls/minute, 1,000,000 calls/month\"; Current Weather, 5-day/3-hour Forecast, Air Pollution and Geocoding are \"Free for everyone\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: weather.compare
     name: Weather Compare
     provider: openweathermap
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://openweathermap.org/price — \"Free plan: 60 API calls/minute, 1,000,000 calls/month\"; Current Weather, 5-day/3-hour Forecast, Air Pollution and Geocoding are \"Free for everyone\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   # --- UC-004: CoinGecko ---
@@ -1089,30 +1110,45 @@ tools:
     name: NASA Astronomy Picture of the Day
     provider: nasa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.nasa.gov/ — \"1,000 requests/hour per API key\" — 2026-10-14 — tier assumed: Free api.nasa.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: nasa.neo_feed
     name: NASA Near-Earth Asteroids Feed
     provider: nasa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.nasa.gov/ — \"1,000 requests/hour per API key\" — 2026-10-14 — tier assumed: Free api.nasa.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: nasa.donki_flr
     name: NASA Solar Flare Events
     provider: nasa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.nasa.gov/ — \"1,000 requests/hour per API key\" — 2026-10-14 — tier assumed: Free api.nasa.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: nasa.epic
     name: NASA Earth Camera (EPIC)
     provider: nasa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.nasa.gov/ — \"1,000 requests/hour per API key\" — 2026-10-14 — tier assumed: Free api.nasa.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: nasa.image_search
     name: NASA Image & Video Search
     provider: nasa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.nasa.gov/ — \"1,000 requests/hour per API key\" — 2026-10-14 — tier assumed: Free api.nasa.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-035: NASA JPL Solar System Dynamics ---
@@ -2355,18 +2391,27 @@ tools:
     name: Latest Global News
     provider: newsdata
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://newsdata.io/pricing — \"Free plan: 200 API credits/day, commercial use permitted on all plans\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 60
 
   - tool_id: news.crypto
     name: Crypto & Blockchain News
     provider: newsdata
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://newsdata.io/pricing — \"Free plan: 200 API credits/day, commercial use permitted on all plans\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 60
 
   - tool_id: news.sources
     name: News Sources Directory
     provider: newsdata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://newsdata.io/pricing — \"Free plan: 200 API credits/day, commercial use permitted on all plans\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-069: Exa Semantic Search ---
@@ -3668,16 +3713,25 @@ tools:
     name: Search Materials Database
     provider: materials-project
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.materialsproject.org/docs — \"Free unlimited with API key. Rate limits: 25/sec, 1K/min, 40K/hr, 640K/day\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: materials.details
     name: Material Properties
     provider: materials-project
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.materialsproject.org/docs — \"Free unlimited with API key. Rate limits: 25/sec, 1K/min, 40K/hr, 640K/day\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: materials.elasticity
     name: Material Elastic Properties
     provider: materials-project
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.materialsproject.org/docs — \"Free unlimited with API key. Rate limits: 25/sec, 1K/min, 40K/hr, 640K/day\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-221: 17TRACK (Package Tracking) ---
@@ -4277,11 +4331,17 @@ tools:
     name: NCEI Weather Stations
     provider: ncei
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.ncei.noaa.gov/cdo-web/webservices/v2 — \"Free API key, 1,000 req/day\" — 2026-10-14 — tier assumed: Free CDO token; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: ncei.daily_data
     name: NCEI Daily Climate Data
     provider: ncei
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.ncei.noaa.gov/cdo-web/webservices/v2 — \"Free API key, 1,000 req/day\" — 2026-10-14 — tier assumed: Free CDO token; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-342: Global Warming API (Climate Indicators) ---
@@ -4749,16 +4809,25 @@ tools:
     name: NIST NVD CVE Search
     provider: nvd
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://nvd.nist.gov/developers/start-here — \"With API key: 50 requests per 30-second rolling window\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: nvd.cve_detail
     name: NIST NVD CVE Detail
     provider: nvd
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://nvd.nist.gov/developers/start-here — \"With API key: 50 requests per 30-second rolling window\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: nvd.cpe_search
     name: NIST NVD CPE Product Lookup
     provider: nvd
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://nvd.nist.gov/developers/start-here — \"With API key: 50 requests per 30-second rolling window\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-415: USAJOBS — Office of Personnel Management ---
@@ -4785,21 +4854,33 @@ tools:
     name: NREL AFDC Nearest Alt-Fuel Stations
     provider: nrel
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.nlr.gov/docs/rate-limits/ — \"1000 requests/hour shared across all NREL APIs\" — 2026-10-14 — tier assumed: Free developer key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: nrel.afdc_stations_search
     name: NREL AFDC Alt-Fuel Stations Search
     provider: nrel
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.nlr.gov/docs/rate-limits/ — \"1000 requests/hour shared across all NREL APIs\" — 2026-10-14 — tier assumed: Free developer key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: nrel.afdc_station_detail
     name: NREL AFDC Station Detail
     provider: nrel
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.nlr.gov/docs/rate-limits/ — \"1000 requests/hour shared across all NREL APIs\" — 2026-10-14 — tier assumed: Free developer key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: nrel.pvwatts_estimate
     name: NREL PVWatts Solar PV Production Estimate
     provider: nrel
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.nlr.gov/docs/rate-limits/ — \"1000 requests/hour shared across all NREL APIs\" — 2026-10-14 — tier assumed: Free developer key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-423: CheckWX Aviation Weather ---
@@ -4885,21 +4966,33 @@ tools:
     name: OpenDota Player Summary
     provider: opendota
     price_usd: "0.001"
+    upstream_cost_usd: "0.0001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.opendota.com/#section/Authentication — \"Premium tier with API key: unlimited calls/day... Billed monthly at $0.0001/call. Without key: 60k calls/month free.\" (quoted from provider-limits.json limit_proof; docs page is JS-rendered) — 2026-10-14 — tier assumed: Premium key at $0.0001/call (adapter always sends api_key); operator to confirm"
     cache_ttl: 1800
   - tool_id: opendota.player_matches
     name: OpenDota Player Match History
     provider: opendota
     price_usd: "0.002"
+    upstream_cost_usd: "0.0001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.opendota.com/#section/Authentication — \"Premium tier with API key: unlimited calls/day... Billed monthly at $0.0001/call. Without key: 60k calls/month free.\" (quoted from provider-limits.json limit_proof; docs page is JS-rendered) — 2026-10-14 — tier assumed: Premium key at $0.0001/call (adapter always sends api_key); operator to confirm"
     cache_ttl: 600
   - tool_id: opendota.match_detail
     name: OpenDota Match Detail
     provider: opendota
     price_usd: "0.002"
+    upstream_cost_usd: "0.0001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.opendota.com/#section/Authentication — \"Premium tier with API key: unlimited calls/day... Billed monthly at $0.0001/call. Without key: 60k calls/month free.\" (quoted from provider-limits.json limit_proof; docs page is JS-rendered) — 2026-10-14 — tier assumed: Premium key at $0.0001/call (adapter always sends api_key); operator to confirm"
     cache_ttl: 86400
   - tool_id: opendota.pro_teams
     name: OpenDota Pro Teams
     provider: opendota
     price_usd: "0.001"
+    upstream_cost_usd: "0.0001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.opendota.com/#section/Authentication — \"Premium tier with API key: unlimited calls/day... Billed monthly at $0.0001/call. Without key: 60k calls/month free.\" (quoted from provider-limits.json limit_proof; docs page is JS-rendered) — 2026-10-14 — tier assumed: Premium key at $0.0001/call (adapter always sends api_key); operator to confirm"
     cache_ttl: 3600
 
   # --- UC-455: FCC Open Data ---
@@ -5079,24 +5172,36 @@ tools:
     name: Find OSM Amenities in Bounding Box
     provider: overpass
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://wiki.openstreetmap.org/wiki/Overpass_API#Public_API_endpoints — public endpoint, no key, 2 concurrent queries per IP, no daily cap; ODbL — 2026-10-14"
     cache_ttl: 300
 
   - tool_id: overpass.pois_nearby
     name: Find POIs Near a Coordinate
     provider: overpass
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://wiki.openstreetmap.org/wiki/Overpass_API#Public_API_endpoints — public endpoint, no key, 2 concurrent queries per IP, no daily cap; ODbL — 2026-10-14"
     cache_ttl: 300
 
   - tool_id: overpass.named_place
     name: Search Named Places and Landmarks
     provider: overpass
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://wiki.openstreetmap.org/wiki/Overpass_API#Public_API_endpoints — public endpoint, no key, 2 concurrent queries per IP, no daily cap; ODbL — 2026-10-14"
     cache_ttl: 300
 
   - tool_id: overpass.public_transport
     name: Find Public Transport Stops
     provider: overpass
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://wiki.openstreetmap.org/wiki/Overpass_API#Public_API_endpoints — public endpoint, no key, 2 concurrent queries per IP, no daily cap; ODbL — 2026-10-14"
     cache_ttl: 300
 
   # --- UC-461: Zenodo ---
@@ -5642,24 +5747,36 @@ tools:
     name: Search State Legislators
     provider: openstates
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.openstates.org/api-v3/ — \"Free tier: 500 requests/day, 10 requests/min\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: openstates.bills_search
     name: Search State Bills
     provider: openstates
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.openstates.org/api-v3/ — \"Free tier: 500 requests/day, 10 requests/min\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 1800
 
   - tool_id: openstates.bill_detail
     name: Get Bill Details
     provider: openstates
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.openstates.org/api-v3/ — \"Free tier: 500 requests/day, 10 requests/min\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: openstates.committees
     name: List Legislative Committees
     provider: openstates
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.openstates.org/api-v3/ — \"Free tier: 500 requests/day, 10 requests/min\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 7200
 
   # --- UC-499: Victoria and Albert Museum ---
@@ -5814,24 +5931,36 @@ tools:
     name: FDA Medical Device Recalls
     provider: openfda_devices
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.fda.gov/apis/authentication/ — \"1,000 req/day without API key; 120,000 req/day with free API key\" — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: openfda_devices.clearances_510k
     name: FDA 510(k) Premarket Clearances
     provider: openfda_devices
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.fda.gov/apis/authentication/ — \"1,000 req/day without API key; 120,000 req/day with free API key\" — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: openfda_devices.adverse_events
     name: FDA Medical Device Adverse Events (MAUDE)
     provider: openfda_devices
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.fda.gov/apis/authentication/ — \"1,000 req/day without API key; 120,000 req/day with free API key\" — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: openfda_devices.classification
     name: FDA Medical Device Classification
     provider: openfda_devices
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.fda.gov/apis/authentication/ — \"1,000 req/day without API key; 120,000 req/day with free API key\" — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-684: OpenFDA (drug recalls, NDC directory, food adverse events) ---
@@ -6020,24 +6149,36 @@ tools:
     name: MBTA Routes List
     provider: mbta-transit
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.mbta.com/developers/v3-api — \"No API key: 20 req/min, 500 req/day. Free API key increases limit.\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: mbta-transit.stops
     name: MBTA Stops & Stations
     provider: mbta-transit
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.mbta.com/developers/v3-api — \"No API key: 20 req/min, 500 req/day. Free API key increases limit.\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: mbta-transit.alerts
     name: MBTA Service Alerts
     provider: mbta-transit
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.mbta.com/developers/v3-api — \"No API key: 20 req/min, 500 req/day. Free API key increases limit.\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 60
 
   - tool_id: mbta-transit.predictions
     name: MBTA Real-Time Predictions
     provider: mbta-transit
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.mbta.com/developers/v3-api — \"No API key: 20 req/min, 500 req/day. Free API key increases limit.\" — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 15
 
   # --- UC-511: UNHCR Population ---
@@ -6144,12 +6285,18 @@ tools:
     capability: geo.elevation
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.opentopodata.org/api/ — public hosted API, no key, 1 request/second, 100 locations/request; MIT licence — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: opentopodata.batch
     name: Open Topo Data — Batch Elevation Query
     provider: opentopodata
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.opentopodata.org/api/ — public hosted API, no key, 1 request/second, 100 locations/request; MIT licence — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: opentopodata.high_res
@@ -6158,12 +6305,18 @@ tools:
     capability: geo.elevation
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.opentopodata.org/api/ — public hosted API, no key, 1 request/second, 100 locations/request; MIT licence — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: opentopodata.ocean
     name: Open Topo Data — Ocean Depth (Bathymetry)
     provider: opentopodata
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.opentopodata.org/api/ — public hosted API, no key, 1 request/second, 100 locations/request; MIT licence — 2026-10-14"
     cache_ttl: 86400
 
   # --- UC-515: MET Norway ---
@@ -6173,24 +6326,36 @@ tools:
     capability: weather.forecast
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://api.met.no/weatherapi/locationforecast/2.0/documentation — no API key required, only a User-Agent with contact info; CC BY 4.0 + NLOD 2.0, free for commercial use — 2026-10-14"
     cache_ttl: 1800
 
   - tool_id: metno.nowcast
     name: MET Norway — Precipitation Nowcast (2-Hour)
     provider: met-norway
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://api.met.no/weatherapi/locationforecast/2.0/documentation — no API key required, only a User-Agent with contact info; CC BY 4.0 + NLOD 2.0, free for commercial use — 2026-10-14"
     cache_ttl: 300
 
   - tool_id: metno.alerts
     name: MET Norway — Active Weather Alerts
     provider: met-norway
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://api.met.no/weatherapi/locationforecast/2.0/documentation — no API key required, only a User-Agent with contact info; CC BY 4.0 + NLOD 2.0, free for commercial use — 2026-10-14"
     cache_ttl: 300
 
   - tool_id: metno.sunrise
     name: MET Norway — Sunrise, Sunset & Moon Times
     provider: met-norway
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://api.met.no/weatherapi/locationforecast/2.0/documentation — no API key required, only a User-Agent with contact info; CC BY 4.0 + NLOD 2.0, free for commercial use — 2026-10-14"
     cache_ttl: 86400
 
   # --- UC-516: Frankfurter.dev ---
@@ -6493,24 +6658,36 @@ tools:
     capability: fx.latest
     scope: regional:NO
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://app.norges-bank.no/query/index.html#/en/ — Norges Bank SDMX REST API open data, no authentication or rate limit documented — 2026-10-14"
     cache_ttl: 3600
 
   - tool_id: norgesbank.fx.history
     name: Norges Bank FX Rate History
     provider: norgesbank
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://app.norges-bank.no/query/index.html#/en/ — Norges Bank SDMX REST API open data, no authentication or rate limit documented — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: norgesbank.rates.current
     name: Norges Bank Key Policy Rates (Current)
     provider: norgesbank
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://app.norges-bank.no/query/index.html#/en/ — Norges Bank SDMX REST API open data, no authentication or rate limit documented — 2026-10-14"
     cache_ttl: 3600
 
   - tool_id: norgesbank.rates.history
     name: Norges Bank Interest Rate History
     provider: norgesbank
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://app.norges-bank.no/query/index.html#/en/ — Norges Bank SDMX REST API open data, no authentication or rate limit documented — 2026-10-14"
     cache_ttl: 86400
 
   # --- UC-526: Swiss FSO STAT-TAB ---
@@ -6868,24 +7045,36 @@ tools:
     capability: geo.elevation
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portal.opentopography.org/requestApiKey — \"Free registered API key: 5,000 requests per 24-hour period\" — 2026-10-14 — tier assumed: Free registered key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: opentopo.elevation_area
     name: OpenTopography Area Elevation Stats
     provider: opentopography
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portal.opentopography.org/requestApiKey — \"Free registered API key: 5,000 requests per 24-hour period\" — 2026-10-14 — tier assumed: Free registered key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: opentopo.lidar_catalog
     name: OpenTopography LiDAR Dataset Catalog
     provider: opentopography
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portal.opentopography.org/requestApiKey — \"Free registered API key: 5,000 requests per 24-hour period\" — 2026-10-14 — tier assumed: Free registered key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: opentopo.dem_catalog
     name: OpenTopography DEM Raster Catalog
     provider: opentopography
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portal.opentopography.org/requestApiKey — \"Free registered API key: 5,000 requests per 24-hour period\" — 2026-10-14 — tier assumed: Free registered key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-538: OECD Statistics ---
@@ -6893,30 +7082,45 @@ tools:
     name: OECD Annual GDP and National Accounts
     provider: oecd-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.oecd.org/en/data/tools/oecd-data-explorer.html — OECD SDMX REST API is a public open-access service with no key and no documented rate limit; CC BY 4.0 — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: oecd.economy.unemployment
     name: OECD Monthly Unemployment Rate
     provider: oecd-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.oecd.org/en/data/tools/oecd-data-explorer.html — OECD SDMX REST API is a public open-access service with no key and no documented rate limit; CC BY 4.0 — 2026-10-14"
     cache_ttl: 3600
 
   - tool_id: oecd.economy.inflation
     name: OECD Consumer Price Index (CPI)
     provider: oecd-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.oecd.org/en/data/tools/oecd-data-explorer.html — OECD SDMX REST API is a public open-access service with no key and no documented rate limit; CC BY 4.0 — 2026-10-14"
     cache_ttl: 3600
 
   - tool_id: oecd.environment.emissions
     name: OECD Greenhouse Gas Emissions
     provider: oecd-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.oecd.org/en/data/tools/oecd-data-explorer.html — OECD SDMX REST API is a public open-access service with no key and no documented rate limit; CC BY 4.0 — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: oecd.economy.trade
     name: OECD Balance of Payments
     provider: oecd-stats
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.oecd.org/en/data/tools/oecd-data-explorer.html — OECD SDMX REST API is a public open-access service with no key and no documented rate limit; CC BY 4.0 — 2026-10-14"
     cache_ttl: 86400
 
   # --- UC-539: Statistics Canada WDS ---
@@ -7499,24 +7703,40 @@ tools:
     capability: air_quality
     scope: global
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://open-meteo.com/en/pricing — \"The free API is for non-commercial use.\" Commercial use needs a paid plan (Standard 1M calls/month, Professional 5M, \"Fixed monthly price\", amount not published on the page) — 2026-10-14 — tier assumed: free non-commercial access; operator to confirm commercial licence; formula: monthly plan fee / included calls, needs operator plan price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 1800
 
   - tool_id: openmeteoaq.forecast
     name: Open-Meteo — Air Quality Forecast
     provider: openmeteoaq
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://open-meteo.com/en/pricing — \"The free API is for non-commercial use.\" Commercial use needs a paid plan (Standard 1M calls/month, Professional 5M, \"Fixed monthly price\", amount not published on the page) — 2026-10-14 — tier assumed: free non-commercial access; operator to confirm commercial licence; formula: monthly plan fee / included calls, needs operator plan price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 1800
 
   - tool_id: openmeteoaq.historical
     name: Open-Meteo — Historical Air Quality
     provider: openmeteoaq
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://open-meteo.com/en/pricing — \"The free API is for non-commercial use.\" Commercial use needs a paid plan (Standard 1M calls/month, Professional 5M, \"Fixed monthly price\", amount not published on the page) — 2026-10-14 — tier assumed: free non-commercial access; operator to confirm commercial licence; formula: monthly plan fee / included calls, needs operator plan price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   - tool_id: openmeteoaq.pollen
     name: Open-Meteo — Pollen Forecast
     provider: openmeteoaq
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://open-meteo.com/en/pricing — \"The free API is for non-commercial use.\" Commercial use needs a paid plan (Standard 1M calls/month, Professional 5M, \"Fixed monthly price\", amount not published on the page) — 2026-10-14 — tier assumed: free non-commercial access; operator to confirm commercial licence; formula: monthly plan fee / included calls, needs operator plan price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 1800
 
   # --- UC-556: USGS HANS Volcano ---
@@ -9271,24 +9491,36 @@ tools:
     name: Search OpenAIRE Research Products
     provider: openaire
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://graph.openaire.eu/docs/apis/terms/ — \"The rate limit for [unauthenticated] requests is up to 60 requests per hour\"; registration not required for reads — 2026-10-14"
     cache_ttl: 3600
 
   - tool_id: openaire.product_details
     name: Get OpenAIRE Research Product Details
     provider: openaire
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://graph.openaire.eu/docs/apis/terms/ — \"The rate limit for [unauthenticated] requests is up to 60 requests per hour\"; registration not required for reads — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: openaire.project_search
     name: Search OpenAIRE Research Projects
     provider: openaire
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://graph.openaire.eu/docs/apis/terms/ — \"The rate limit for [unauthenticated] requests is up to 60 requests per hour\"; registration not required for reads — 2026-10-14"
     cache_ttl: 3600
 
   - tool_id: openaire.organization_search
     name: Search OpenAIRE Research Organizations
     provider: openaire
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://graph.openaire.eu/docs/apis/terms/ — \"The rate limit for [unauthenticated] requests is up to 60 requests per hour\"; registration not required for reads — 2026-10-14"
     cache_ttl: 86400
 
   # --- UC-623: GEBCO ---
@@ -9424,30 +9656,45 @@ tools:
     name: Find Nearby Weather Stations
     provider: meteostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://dev.meteostat.net/data/timeseries — \"This interface does not require an API key.\" — 2026-10-14"
     cache_ttl: 604800
 
   - tool_id: meteostat.station_info
     name: Get Weather Station Metadata
     provider: meteostat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://dev.meteostat.net/data/timeseries — \"This interface does not require an API key.\" — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: meteostat.daily_data
     name: Get Daily Weather Observations
     provider: meteostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://dev.meteostat.net/data/timeseries — \"This interface does not require an API key.\" — 2026-10-14"
     cache_ttl: 21600
 
   - tool_id: meteostat.monthly_data
     name: Get Monthly Weather History
     provider: meteostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://dev.meteostat.net/data/timeseries — \"This interface does not require an API key.\" — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: meteostat.hourly_data
     name: Get Hourly Weather Observations
     provider: meteostat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://dev.meteostat.net/data/timeseries — \"This interface does not require an API key.\" — 2026-10-14"
     cache_ttl: 3600
 
   # --- UC-628: Copernicus Data Space Ecosystem (Sentinel satellite imagery) ---
@@ -10532,12 +10779,18 @@ tools:
     name: OpenAlex Works Search
     provider: openalex
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://help.openalex.org/how-to-use-the-api/rate-limits-and-authentication — basic use is free without a key; a free key raises the daily budget 10x; paid prepaid/annual plans are optional — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: openalex.authors_search
     name: OpenAlex Authors Search
     provider: openalex
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://help.openalex.org/how-to-use-the-api/rate-limits-and-authentication — basic use is free without a key; a free key raises the daily budget 10x; paid prepaid/annual plans are optional — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: openalex.get_work
@@ -10546,6 +10799,9 @@ tools:
     capability: research.doi_lookup
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://help.openalex.org/how-to-use-the-api/rate-limits-and-authentication — basic use is free without a key; a free key raises the daily budget 10x; paid prepaid/annual plans are optional — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-675: Semantic Scholar Graph API (api.semanticscholar.org/graph/v1) ---
