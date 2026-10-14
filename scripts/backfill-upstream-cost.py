@@ -54,6 +54,8 @@ def plan(text, free):
         block = m.group("block")
         if "    upstream_cost_usd:" in block:
             return block
+        if "    upstream_cost_status: NOT_MEASURED\n" in block and "    upstream_cost_model: metered\n" in block:
+            return block  # T-SITE-F0a: a metered block is a recorded cost model, not an unknown
         provider = field(block, "provider")
         tool_id = re.match(r"  - tool_id: (\S+)", block).group(1)
         try:

@@ -83,3 +83,20 @@ A PR that ADDS a section is NOT DONE: new providers ship with a model from day o
 
 Night-orchestra and the onboard-provider skill emit the `free` shape for every new block. A paid-upstream provider
 replaces it with the right model above before the block is committed.
+
+## Assigned
+
+Provider | model | cost | tier | source date. Every tier below is assumed (operator answer 2026-10-14: tiers unknown); see `operator-tiers.md`.
+
+| provider | model | cost | tier | source date |
+|---|---|---|---|---|
+| telnyx | metered | NOT_MEASURED; SMS = parts x ($0.004 + carrier fee) | tier assumed: Pay-as-you-go | 2026-10-14 |
+| twilio | metered | NOT_MEASURED; SMS = segments x ($0.0083 + carrier fee); lookup $0.008 with carrier | tier assumed: Pay-as-you-go | 2026-10-14 |
+| namesilo | metered | NOT_MEASURED; register = years x getPrices price | tier assumed: pre-funded balance | 2026-10-14 |
+| stability | metered | NOT_MEASURED; credits x $0.01 (Core 3 credits) | tier assumed: pay-as-you-go credits | 2026-10-14 |
+| hf_inference | metered | NOT_MEASURED; compute seconds x hardware $/s | tier assumed: Free account + purchased credits | 2026-10-14 |
+| assemblyai | metered | NOT_MEASURED; audio hours x $0.15 (Universal-2) / $0.21 (3.5 Pro) | tier assumed: pay-as-you-go | 2026-10-14 |
+| amadeus | metered | NOT_MEASURED; per-endpoint price unreadable | tier assumed: Self-Service free quota then pay-per-call | 2026-10-14 |
+| browserbase | metered | NOT_MEASURED; browser hours x $0.12 beyond 100 included | tier assumed: Developer | 2026-10-14 |
+| api2pdf | metered | NOT_MEASURED; $0.001/MB + $0.00019551/s + $1/mo | tier assumed: pay-per-use | 2026-10-14 |
+| resend | free_tier | $0 (3,000/month, 100/day, no overage) | tier assumed: Free | 2026-10-14 |

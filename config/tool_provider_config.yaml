@@ -259,42 +259,70 @@ tools:
     name: Amadeus Flight Search
     provider: amadeus
     price_usd: "0.035"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/pricing — \"Moving to production keeps your monthly free request quota, and you pay only for the additional calls\" (per-request prices are on a JS-rendered page and could not be read) — 2026-10-14 — tier assumed: Self-Service free monthly quota then pay-per-call; operator to confirm; no number written, per-endpoint price needed from the Amadeus portal"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
 
   - tool_id: amadeus.flight_price
     name: Amadeus Flight Price
     provider: amadeus
     price_usd: "0.020"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/pricing — \"Moving to production keeps your monthly free request quota, and you pay only for the additional calls\" (per-request prices are on a JS-rendered page and could not be read) — 2026-10-14 — tier assumed: Self-Service free monthly quota then pay-per-call; operator to confirm; no number written, per-endpoint price needed from the Amadeus portal"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
 
   - tool_id: amadeus.flight_status
     name: Amadeus Flight Status
     provider: amadeus
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/pricing — \"Moving to production keeps your monthly free request quota, and you pay only for the additional calls\" (per-request prices are on a JS-rendered page and could not be read) — 2026-10-14 — tier assumed: Self-Service free monthly quota then pay-per-call; operator to confirm; no number written, per-endpoint price needed from the Amadeus portal"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
 
   - tool_id: amadeus.airport_search
     name: Amadeus Airport Search
     provider: amadeus
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/pricing — \"Moving to production keeps your monthly free request quota, and you pay only for the additional calls\" (per-request prices are on a JS-rendered page and could not be read) — 2026-10-14 — tier assumed: Self-Service free monthly quota then pay-per-call; operator to confirm; no number written, per-endpoint price needed from the Amadeus portal"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   - tool_id: amadeus.airport_nearest
     name: Amadeus Airport Nearest
     provider: amadeus
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/pricing — \"Moving to production keeps your monthly free request quota, and you pay only for the additional calls\" (per-request prices are on a JS-rendered page and could not be read) — 2026-10-14 — tier assumed: Self-Service free monthly quota then pay-per-call; operator to confirm; no number written, per-endpoint price needed from the Amadeus portal"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   - tool_id: amadeus.airport_routes
     name: Amadeus Airport Routes
     provider: amadeus
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/pricing — \"Moving to production keeps your monthly free request quota, and you pay only for the additional calls\" (per-request prices are on a JS-rendered page and could not be read) — 2026-10-14 — tier assumed: Self-Service free monthly quota then pay-per-call; operator to confirm; no number written, per-endpoint price needed from the Amadeus portal"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   - tool_id: amadeus.airline_lookup
     name: Amadeus Airline Lookup
     provider: amadeus
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://developers.amadeus.com/self-service/apis-docs/guides/developer-guides/pricing — \"Moving to production keeps your monthly free request quota, and you pay only for the additional calls\" (per-request prices are on a JS-rendered page and could not be read) — 2026-10-14 — tier assumed: Self-Service free monthly quota then pay-per-call; operator to confirm; no number written, per-endpoint price needed from the Amadeus portal"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   # --- UC-021: Hyperliquid ---
@@ -1441,12 +1469,20 @@ tools:
     name: Phone Number Lookup
     provider: twilio
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.twilio.com/en-us/user-authentication-identity/pricing/lookup — \"Line type intelligence $0.008 per request\" (includes carrier), \"Basic formatting and validation: Free\" — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: $0 without include_carrier, $0.008 with include_carrier=true (above the $0.005 price)"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   - tool_id: twilio.send_sms
     name: Send SMS
     provider: twilio
     price_usd: "0.015"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.twilio.com/en-us/sms/pricing/us — \"$0.0083 per outbound SMS segment\" plus carrier fee (AT&T $0.0035 ... Verizon $0.005; example AT&T $0.0118); failed messages \"$0.001\" processing fee — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: segments x ($0.0083 + carrier fee), max US long code $0.0133 per segment; non-US destinations priced separately and can exceed the fixed price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   # --- UC-395: Telnyx (CPaaS - SMS + Voice, geo-tiered pricing) ---
@@ -1454,24 +1490,40 @@ tools:
     name: Send SMS — NANP (Telnyx)
     provider: telnyx
     price_usd: "0.012"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — \"$0.004 per message part + carrier fee\" (AT&T $0.0035, T-Mobile/Verizon $0.0045 per part) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: parts x ($0.004 + carrier fee), roughly $0.0075-$0.0085 per part; multi-part messages scale linearly"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   - tool_id: telnyx.send_sms_world
     name: Send SMS — World (Telnyx)
     provider: telnyx
     price_usd: "0.10"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — \"Rates may vary by destination and volume tier\" (international rates not on the page; machine-readable GET /v2/public/pricing?primitive=sms) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: parts x per-destination rate from /v2/public/pricing, can exceed the fixed price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   - tool_id: telnyx.send_sms_premium
     name: Send SMS — Premium (Telnyx)
     provider: telnyx
     price_usd: "0.25"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — \"Rates may vary by destination and volume tier\" (premium/international rates not on the page) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: parts x per-destination rate from /v2/public/pricing, can exceed the fixed price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   - tool_id: telnyx.estimate_price
     name: Estimate SMS Tier + Price (Telnyx)
     provider: telnyx
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — page lists only per-message-part SMS charges, no per-call charge for read/status endpoints — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   # --- UC-396: NOAA SWPC (Space Weather) ---
@@ -1507,18 +1559,30 @@ tools:
     name: Message Status (Telnyx)
     provider: telnyx
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — page lists only per-message-part SMS charges, no per-call charge for read/status endpoints — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
 
   - tool_id: telnyx.list_messages
     name: List Messages (Telnyx)
     provider: telnyx
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — page lists only per-message-part SMS charges, no per-call charge for read/status endpoints — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
 
   - tool_id: telnyx.balance
     name: Account Balance (Telnyx)
     provider: telnyx
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — page lists only per-message-part SMS charges, no per-call charge for read/status endpoints — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 30
 
 
@@ -1920,6 +1984,10 @@ tools:
     name: Generate Image
     provider: stability
     price_usd: "0.070"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://platform.stability.ai/pricing — \"1 credit = $0.01\"; Stable Image Core 3 credits per image (third-party sources, the pricing page is JS-rendered and unreadable; limit_proof in provider-limits.json agrees) — 2026-10-14; tier assumed: pay-as-you-go credits; operator to confirm; formula: credits per model x $0.01 (Core $0.03, Ultra 8 credits $0.08 above the $0.07 price)"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   # --- UC-076: Resend (Transactional Email) ---
@@ -1927,12 +1995,18 @@ tools:
     name: Send Email
     provider: resend
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://resend.com/pricing — \"Free: 3,000 emails per month ... limited to 100 emails per day\", no overage charges — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 0
 
   - tool_id: resend.email_status
     name: Email Status
     provider: resend
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://resend.com/pricing — \"Free: 3,000 emails per month ... limited to 100 emails per day\", no overage charges — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 60
 
   # --- UC-081: Mastodon (Fediverse Social Media) ---
@@ -2205,21 +2279,37 @@ tools:
     name: Create Browser Session
     provider: browserbase
     price_usd: "0.01"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.browserbase.com/pricing — Free \"$0/mo, 1 browser hour, 15 minutes /session\"; Developer \"$20/mo, 100 browser hours, then $0.12/browser hr\" — 2026-10-14 — tier assumed: Developer (a Free-plan hour is too small for production traffic); operator to confirm; formula: session_minutes/60 x $0.12 beyond the included hours; provider-limits.json \"Hobby 100 sessions\" no longer matches the page"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: browser.session_status
     name: Browser Session Status
     provider: browserbase
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.browserbase.com/pricing — Free \"$0/mo, 1 browser hour, 15 minutes /session\"; Developer \"$20/mo, 100 browser hours, then $0.12/browser hr\" — 2026-10-14 — tier assumed: Developer (a Free-plan hour is too small for production traffic); operator to confirm; formula: session_minutes/60 x $0.12 beyond the included hours; provider-limits.json \"Hobby 100 sessions\" no longer matches the page"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: browser.session_content
     name: Browser Session Downloads
     provider: browserbase
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.browserbase.com/pricing — Free \"$0/mo, 1 browser hour, 15 minutes /session\"; Developer \"$20/mo, 100 browser hours, then $0.12/browser hr\" — 2026-10-14 — tier assumed: Developer (a Free-plan hour is too small for production traffic); operator to confirm; formula: session_minutes/60 x $0.12 beyond the included hours; provider-limits.json \"Hobby 100 sessions\" no longer matches the page"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: browser.list_sessions
     name: List Browser Sessions
     provider: browserbase
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.browserbase.com/pricing — Free \"$0/mo, 1 browser hour, 15 minutes /session\"; Developer \"$20/mo, 100 browser hours, then $0.12/browser hr\" — 2026-10-14 — tier assumed: Developer (a Free-plan hour is too small for production traffic); operator to confirm; formula: session_minutes/60 x $0.12 beyond the included hours; provider-limits.json \"Hobby 100 sessions\" no longer matches the page"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
 
   # --- UC-204: Telegram Bot API (Messaging) — EXCLUSIVE ---
@@ -2279,26 +2369,46 @@ tools:
     name: Check Domain Availability
     provider: namesilo
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.namesilo.com/api-reference — API reference states no per-call usage fee (checked 2026-10-14); no published price, so none is assumed — 2026-10-14 — tier assumed: pre-funded account balance, no API plan; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
   - tool_id: namesilo.domain_register
     name: Register Domain Name
     provider: namesilo
     price_usd: "21.00"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.namesilo.com/api-reference — registerDomain debits the account balance; per-TLD registration price is returned by getPrices (NameSilo blog sample: \".com $12.00 registration\") — 2026-10-14 — tier assumed: pre-funded account balance, no API plan; operator to confirm; formula: years x getPrices registration price for the TLD (+ any add-ons), varies by TLD and can exceed the fixed price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: namesilo.domain_list
     name: List Registered Domains
     provider: namesilo
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.namesilo.com/api-reference — API reference states no per-call usage fee (checked 2026-10-14); no published price, so none is assumed — 2026-10-14 — tier assumed: pre-funded account balance, no API plan; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
   - tool_id: namesilo.domain_info
     name: Domain Details
     provider: namesilo
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.namesilo.com/api-reference — API reference states no per-call usage fee (checked 2026-10-14); no published price, so none is assumed — 2026-10-14 — tier assumed: pre-funded account balance, no API plan; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
   - tool_id: namesilo.get_prices
     name: Domain TLD Pricing
     provider: namesilo
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.namesilo.com/api-reference — API reference states no per-call usage fee (checked 2026-10-14); no published price, so none is assumed — 2026-10-14 — tier assumed: pre-funded account balance, no API plan; operator to confirm; no measured cost yet"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   # --- UC-201: Cloudflare (DNS, CDN, Infrastructure) — EXCLUSIVE ---
@@ -2364,16 +2474,28 @@ tools:
     name: Submit Audio Transcription
     provider: assemblyai
     price_usd: "0.01"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.assemblyai.com/pricing — \"Universal-2 $0.15/hr\", \"Universal-3.5 Pro $0.21/hr\" (best routes to 3.5 Pro, nano to Universal-2) — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; formula: audio_hours x $0.15 (Universal-2) or $0.21 (3.5 Pro); a 1-hour file costs more than the $0.01 price"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: transcribe.status
     name: Transcription Status
     provider: assemblyai
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.assemblyai.com/pricing — billing is per audio hour of the submitted transcript (\"Universal-2 $0.15/hr\"); polling and fetching a result carries no separate published charge — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; cost sits on transcribe.submit"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: transcribe.result
     name: Transcription Result
     provider: assemblyai
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.assemblyai.com/pricing — billing is per audio hour of the submitted transcript (\"Universal-2 $0.15/hr\"); polling and fetching a result carries no separate published charge — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; cost sits on transcribe.submit"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   # --- UC-175: GLEIF LEI (Global Legal Entity Identifiers) ---
@@ -2532,8 +2654,9 @@ tools:
     provider: api2pdf
     price_usd: "0.005"
     upstream_cost_status: NOT_MEASURED
-    upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
-    upstream_cost_remeasure_by: "2026-10-05"
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.api2pdf.com/pricing/ — \"$1 a month, plus $0.001 per MB of bandwidth and $0.00019551 per second of compute\" — 2026-10-14 — tier assumed: pay-per-use; operator to confirm; formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: pdf.from_url
     name: URL to PDF
@@ -2542,16 +2665,18 @@ tools:
     scope: global
     price_usd: "0.005"
     upstream_cost_status: NOT_MEASURED
-    upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; one reference call 2026-09-05 measured cost=$0.00058256 (example.com); needs 30d real traffic for p80"
-    upstream_cost_remeasure_by: "2026-10-05"
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.api2pdf.com/pricing/ — \"$1 a month, plus $0.001 per MB of bandwidth and $0.00019551 per second of compute\" — 2026-10-14 — tier assumed: pay-per-use; operator to confirm; formula: $0.001/MB + $0.00019551/s + $1/mo flat; one reference call 2026-09-05 measured cost=$0.00058256 (example.com); needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: pdf.merge
     name: Merge PDFs
     provider: api2pdf
     price_usd: "0.005"
     upstream_cost_status: NOT_MEASURED
-    upstream_cost_note: "load-dependent (size+compute time); formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
-    upstream_cost_remeasure_by: "2026-10-05"
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.api2pdf.com/pricing/ — \"$1 a month, plus $0.001 per MB of bandwidth and $0.00019551 per second of compute\" — 2026-10-14 — tier assumed: pay-per-use; operator to confirm; formula: $0.001/MB + $0.00019551/s + $1/mo flat; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   # --- UC-141: PodcastIndex (Podcast Directory) ---
@@ -6450,18 +6575,30 @@ tools:
     name: HuggingFace — Sentiment Analysis
     provider: hf_inference
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://huggingface.co/docs/inference-providers/pricing — \"charged for every inference request based on the compute time x price of the underlying hardware\"; Free users get no included credits — 2026-10-14 — tier assumed: Free account with purchased credits (pay-as-you-go); operator to confirm; formula: seconds of compute x hardware $/s"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
 
   - tool_id: hf_inference.ner
     name: HuggingFace — Named Entity Recognition
     provider: hf_inference
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://huggingface.co/docs/inference-providers/pricing — \"charged for every inference request based on the compute time x price of the underlying hardware\"; Free users get no included credits — 2026-10-14 — tier assumed: Free account with purchased credits (pay-as-you-go); operator to confirm; formula: seconds of compute x hardware $/s"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
 
   - tool_id: hf_inference.zero_shot
     name: HuggingFace — Zero-shot Classification
     provider: hf_inference
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://huggingface.co/docs/inference-providers/pricing — \"charged for every inference request based on the compute time x price of the underlying hardware\"; Free users get no included credits — 2026-10-14 — tier assumed: Free account with purchased credits (pay-as-you-go); operator to confirm; formula: seconds of compute x hardware $/s"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
 
   # --- UC-548: UN-Habitat Urban Indicators Database ---
@@ -6493,12 +6630,20 @@ tools:
     name: HuggingFace — Machine Translation
     provider: hf_inference
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://huggingface.co/docs/inference-providers/pricing — \"charged for every inference request based on the compute time x price of the underlying hardware\"; Free users get no included credits — 2026-10-14 — tier assumed: Free account with purchased credits (pay-as-you-go); operator to confirm; formula: seconds of compute x hardware $/s"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   - tool_id: hf_inference.summarize
     name: HuggingFace — Text Summarization
     provider: hf_inference
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://huggingface.co/docs/inference-providers/pricing — \"charged for every inference request based on the compute time x price of the underlying hardware\"; Free users get no included credits — 2026-10-14 — tier assumed: Free account with purchased credits (pay-as-you-go); operator to confirm; formula: seconds of compute x hardware $/s"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
 
   # --- UC-549: CORDIS EU Research ---
