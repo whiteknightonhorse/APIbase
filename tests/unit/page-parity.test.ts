@@ -167,5 +167,25 @@ describe('T-0383 page-parity gate', () => {
       expect(r.status).toBe(1);
       expect(r.stdout).toContain('PARITY_FAIL about: missing text Last synced');
     });
+
+    it('PP9: labelled counts are volatile, a lost "numbers" sentence fails', () => {
+      const base = join(tmp, 'tests/fixtures/page-baseline');
+      const page = (body: string) =>
+        writeFileSync(join(tmp, 'static/about.html'), `<html><body>${body}</body></html>`);
+      writeFileSync(
+        join(base, 'about.txt'),
+        'Stay tuned. Merchants connected so far: 2. The numbers PRV: 404 TOOLS: 1398',
+      );
+      writeFileSync(join(base, 'about.meta.json'), '{"links":[],"ids":[],"scripts":0}');
+      writeFileSync(join(base, 'about.allow.txt'), '');
+      page(
+        '<p>Stay tuned.</p><p>Merchants connected so far: 1.</p><p>The numbers</p><span>PRV: 405</span> <span>TOOLS: 1405</span>',
+      );
+      expect(parity(['about', '--render'], tmp).status).toBe(0);
+      page('<p>Stay tuned.</p>');
+      const r = parity(['about', '--render'], tmp);
+      expect(r.status).toBe(1);
+      expect(r.stdout).toContain('PARITY_FAIL about: missing text Merchants connected so far:');
+    });
   });
 });

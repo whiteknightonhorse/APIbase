@@ -105,6 +105,10 @@ BUILD_TAG = re.compile(r"v\d+\.\d+\.\d+$")
 COUNT_UNIT = re.compile(r"(tools|providers)\b", re.I)
 
 
+LABEL_COUNT = re.compile(r"\d[\d,]*(?=[.,;]?$)")
+LABELS = ("TOOLS:", "PRV:", "PROVIDERS:", "MERCHANTS:")
+
+
 HUMAN_TS = [re.compile(r"\d{1,2}$"), re.compile(r"[A-Z][a-z]{2}$"), re.compile(r"\d{4},$"), re.compile(r"\d\d:\d\d$"), re.compile(r"UTC$")]
 
 
@@ -126,6 +130,14 @@ def norm_ts(tokens):
         # T-SITE-A: the footer BUILD label is the latest release tag and changes with every release.
         if t.startswith("v") and out and out[-1] == "BUILD:" and BUILD_TAG.match(t):
             out.append("<BUILD-TAG>")
+            continue
+        # T-0400b: a number right after a count label ("TOOLS: N", "PRV: N", "Merchants connected so far: N") is a generated total.
+        if out and LABEL_COUNT.match(t) and (out[-1].upper() in LABELS or out[-3:] == ["connected", "so", "far:"]):
+            out.append(LABEL_COUNT.sub("<COUNT>", t, count=1))
+            continue
+        # T-0400b: integrator docs list the template tokens "<fee> , <min order> , <merchants count> , Sandbox:"; the third value is the generated count.
+        if t.isdigit() and out[-2:-1] and out[-1] == "," and re.match(r"\$\d+\.\d\d$", out[-2]) and tokens[i + 1:i + 2] == [","]:
+            out.append("<COUNT>")
             continue
         # T-0401: a path token and its trailing punctuation compare apart, so wrapping a bare path in <a> is neutral.
         m = PATH_PUNCT.match(t)
