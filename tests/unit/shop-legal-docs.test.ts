@@ -335,3 +335,13 @@ describe('LG10 renderMarkdown strips comments completely', () => {
     expect(stripHtmlComments('no comments')).toBe('no comments');
   });
 });
+
+describe('T-0401 renderMarkdown links bare site paths', () => {
+  it('wraps a prose path in <a> with trailing dot outside; code stays code', () => {
+    const out = renderMarkdown('See /legal and /pricing. Also `/legal/x.json` here.');
+    expect(out).toContain('<a href="/legal">/legal</a>');
+    expect(out).toContain('<a href="/pricing">/pricing</a>.');
+    expect(out).toContain('<code>/legal/x.json</code>');
+    expect(out).not.toContain('<a href="/legal/x.json"');
+  });
+});

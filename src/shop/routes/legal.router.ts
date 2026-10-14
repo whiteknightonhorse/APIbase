@@ -12,6 +12,7 @@ import {
   SITE_NAV,
   SITE_NAV_CSS,
 } from '../page-meta';
+import { autolinkSitePaths } from '../integrator/md';
 import { legalDocumentHtml } from '../legal/legal-layout';
 import { defaultShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
@@ -53,9 +54,11 @@ function feeText(): string {
 }
 
 const inline = (s: string) =>
-  esc(s)
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  autolinkSitePaths(
+    esc(s)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>'),
+  );
 
 /** Drop every terminated `<!-- ... -->` block. Scans with indexOf and restarts after each removal,
  *  so a removal can never leave a new terminated comment behind; an unterminated opener is kept
