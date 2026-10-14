@@ -58,6 +58,7 @@ interface Opts {
   fixture: Fixture;
   reduced?: boolean;
   withObserver?: boolean;
+  accent?: string;
 }
 
 async function flush() {
@@ -65,7 +66,14 @@ async function flush() {
 }
 
 function harness(script: string, o: Opts) {
-  const stats = { raf: 0, frames: 0, fetched: [] as string[] };
+  const stats = {
+    raf: 0,
+    frames: 0,
+    fetched: [] as string[],
+    textY: [] as number[],
+    fills: [] as string[],
+    strokes: [] as string[],
+  };
   let queue: Array<{ id: number; cb: (t: number) => void }> = [];
   let nextId = 1;
   const listeners: Record<string, Record<string, Array<(e?: unknown) => void>>> = {
@@ -82,8 +90,18 @@ function harness(script: string, o: Opts) {
   const ctx2d = (count: boolean) =>
     new Proxy({} as Record<string, unknown>, {
       get: (t, k: string) =>
-        k === 'clearRect' && count ? () => void stats.frames++ : k in t ? t[k] : () => undefined,
-      set: (t, k: string, v) => ((t[k] = v), true),
+        k === 'clearRect' && count
+          ? () => void stats.frames++
+          : k === 'fillText' && count
+            ? (_s: string, _x: number, y: number) => void stats.textY.push(y)
+            : k in t
+              ? t[k]
+              : () => undefined,
+      set: (t, k: string, v) => {
+        if (count && k === 'fillStyle') stats.fills.push(String(v));
+        if (count && k === 'strokeStyle') stats.strokes.push(String(v));
+        return ((t[k] = v), true);
+      },
     });
   const mainCtx = ctx2d(true);
   const cv = {
@@ -106,6 +124,7 @@ function harness(script: string, o: Opts) {
     readyState: 'complete',
     hidden: false,
     getElementById: (id: string) => ({ 'sh-cv': cv, 'sh-txt': cap, 'sh-pause': btn })[id] ?? null,
+    documentElement: {},
     createElement: () => ({ width: 0, height: 0, getContext: () => ctx2d(false) }),
     addEventListener: on('doc'),
   };
@@ -123,6 +142,7 @@ function harness(script: string, o: Opts) {
     window: {
       matchMedia: (q: string) => ({ matches: !!o.reduced && /reduce/.test(q) }),
     },
+    getComputedStyle: () => ({ getPropertyValue: () => o.accent ?? '' }),
     fetch: (u: string) => {
       stats.fetched.push(u);
       return Promise.resolve({ ok: true, json: () => Promise.resolve(o.fixture) });
@@ -353,5 +373,54 @@ describe('SW9 neutral vocabulary', () => {
   });
   it('only the five neutral classes are drawn', () => {
     expect(SRC()).toContain("['builder', 'scout', 'medic', 'writer', 'watch']");
+  });
+});
+
+describe('T-0402 brand accent and unclipped labels', () => {
+  const MANY: Fixture = {
+    ...WORKING,
+    external: {
+      window_s: 900,
+      calls: 9,
+      agents_bucket: '1-5',
+      by_category: [
+        { category: 'entertainment', calls: 3 },
+        { category: 'travel', calls: 3 },
+        { category: 'space', calls: 3 },
+        { category: 'weather', calls: 3 },
+      ],
+    },
+  };
+  it('no off-brand green literals remain in the source or the inline copy', () => {
+    for (const src of [SRC(), widgetScript()]) {
+      expect(src).not.toMatch(/#33ff66|#50dca0|80,\s*220,\s*160/i);
+    }
+  });
+  it('draws with the --accent colour read from the stylesheet, ripples with its RGB', async () => {
+    const h = await shown(SRC(), { fixture: MANY, accent: '#102030' });
+    h.tick();
+    expect(h.stats.fills).toContain('#102030');
+    expect(h.stats.strokes).toContain('#102030');
+    expect(h.stats.strokes.some((s) => s.startsWith('rgba(16,32,48,'))).toBe(true);
+  });
+  it('falls back to #4fd283 when --accent is unavailable', async () => {
+    const h = await shown(SRC(), { fixture: MANY });
+    h.tick();
+    expect(h.stats.fills).toContain('#4fd283');
+    expect(h.stats.strokes.some((s) => s.startsWith('rgba(79,210,131,'))).toBe(true);
+  });
+  it('every category label baseline sits above the bottom bar (y <= H-16)', async () => {
+    const h = await shown(SRC(), { fixture: MANY });
+    h.tick();
+    const ys = h.stats.textY;
+    expect(ys.length).toBeGreaterThanOrEqual(3);
+    ys.forEach((y) => expect(y).toBeLessThanOrEqual(200 - 16));
+  });
+  it('a Pause click makes no fetch call', async () => {
+    const h = await shown(SRC(), { fixture: MANY });
+    const before = h.stats.fetched.length;
+    h.click();
+    h.click();
+    expect(h.stats.fetched.length).toBe(before);
   });
 });
