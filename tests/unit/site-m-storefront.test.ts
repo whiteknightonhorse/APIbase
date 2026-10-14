@@ -53,9 +53,8 @@ const titles = [
   'APIbase daily brief (subscription)',
   'APIbase agent commerce guide',
   'APIbase demo tour (passport required)',
-  'Verify import item',
 ];
-const skus = ['demo-bundle', 'demo-daily', 'demo-guide', 'demo-tour', 'v12-import-ok'];
+const skus = ['demo-bundle', 'demo-daily', 'demo-guide', 'demo-tour'];
 const products: PublicProduct[] = titles.map((title, i) => ({
   sku: skus[i],
   title,
