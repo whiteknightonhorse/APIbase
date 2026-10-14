@@ -96,7 +96,7 @@
   },
   "ticketmaster": {
     "display_name": "Ticketmaster",
-    "health_url": "https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=test",
+    "health_url": "https://app.ticketmaster.com/discovery/v2/events.json?size=1&apikey=${PROVIDER_KEY_TICKETMASTER}",
     "limit_type": "daily",
     "free_limit": 5000,
     "reset_period": "daily",
@@ -118,7 +118,7 @@
   },
   "health": {
     "display_name": "Health & Nutrition",
-    "health_url": "https://api.nal.usda.gov/fdc/v1/foods/search?query=test&pageSize=1&api_key=DEMO_KEY",
+    "health_url": "https://api.nal.usda.gov/fdc/v1/foods/search?query=test&pageSize=1&api_key=${PROVIDER_KEY_USDA}",
     "limit_type": "daily",
     "free_limit": 1000,
     "reset_period": "daily",
@@ -207,7 +207,7 @@
   },
   "geo": {
     "display_name": "Maps / Geolocation",
-    "health_url": "https://api.geoapify.com/v1/geocode/search?text=test&limit=1&apiKey=test",
+    "health_url": "https://api.geoapify.com/v1/geocode/search?text=test&limit=1&apiKey=${PROVIDER_KEY_GEOAPIFY}",
     "limit_type": "daily",
     "free_limit": 3000,
     "reset_period": "daily",
@@ -645,7 +645,7 @@
   },
   "nasa": {
     "display_name": "NASA Open APIs",
-    "health_url": "https://api.nasa.gov/DONKI/FLR?api_key=TOKEN_FROM_ENV_PROVIDER_KEY_NASA",
+    "health_url": "https://api.nasa.gov/DONKI/FLR?api_key=${PROVIDER_KEY_NASA}",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -664,7 +664,7 @@
   },
   "smithsonian": {
     "display_name": "Smithsonian Institution",
-    "health_url": "https://api.si.edu/openaccess/api/v1.0/stats?api_key=DEMO_KEY",
+    "health_url": "https://api.si.edu/openaccess/api/v1.0/stats?api_key=${PROVIDER_KEY_SMITHSONIAN}",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -698,7 +698,7 @@
   },
   "rawg": {
     "display_name": "RAWG Video Games",
-    "health_url": "https://api.rawg.io/api/games?key=test&page_size=1",
+    "health_url": "https://api.rawg.io/api/games?key=${PROVIDER_KEY_RAWG}&page_size=1",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
@@ -891,7 +891,7 @@
   },
   "regulations": {
     "display_name": "Regulations.gov",
-    "health_url": "https://api.regulations.gov/v4/documents?page[size]=5&api_key=TOKEN_FROM_ENV_PROVIDER_KEY_API_DATA_GOV",
+    "health_url": "https://api.regulations.gov/v4/documents?page[size]=5&api_key=${PROVIDER_KEY_API_DATA_GOV}",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -1115,7 +1115,7 @@
   },
   "calendarific": {
     "display_name": "Calendarific",
-    "health_url": "https://calendarific.com/api/v2/holidays?api_key=oDjn61EwR9r1WSJhyjAuDuGxPzAGq8xU&country=US&year=2026",
+    "health_url": "https://calendarific.com/api/v2/holidays?api_key=${PROVIDER_KEY_CALENDARIFIC}&country=US&year=2026",
     "limit_type": "monthly",
     "free_limit": 500,
     "reset_period": "monthly",
@@ -1276,7 +1276,7 @@
   },
   "namesilo": {
     "display_name": "NameSilo Domains",
-    "health_url": "https://www.namesilo.com/api/getPrices?version=1&type=json&key=24d6378783ea6df4e8c56f331",
+    "health_url": "https://www.namesilo.com/api/getPrices?version=1&type=json&key=${PROVIDER_KEY_NAMESILO}",
     "limit_type": "credits",
     "free_limit": 0,
     "reset_period": "none",
@@ -1380,7 +1380,7 @@
   },
   "europeana": {
     "display_name": "Europeana",
-    "health_url": "https://api.europeana.eu/record/v2/search.json?query=test&rows=1&wskey=nomacyto",
+    "health_url": "https://api.europeana.eu/record/v2/search.json?query=test&rows=1&wskey=${PROVIDER_KEY_EUROPEANA}",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
@@ -1442,7 +1442,7 @@
   },
   "geocodio": {
     "display_name": "Geocodio",
-    "health_url": "https://api.geocod.io/v1.7/geocode?q=test&api_key=06f48f40f99b9f9049f2422587b96618f1b1644",
+    "health_url": "https://api.geocod.io/v1.7/geocode?q=test&api_key=${PROVIDER_KEY_GEOCODIO}",
     "limit_type": "daily",
     "free_limit": 2500,
     "reset_period": "daily",
@@ -1468,7 +1468,7 @@
   },
   "hunter": {
     "display_name": "Hunter.io",
-    "health_url": "https://api.hunter.io/v2/account?api_key=7f7c60c7d0d3de8b191a7a1a5a3f6cbbf5f3e945",
+    "health_url": "https://api.hunter.io/v2/account?api_key=${PROVIDER_KEY_HUNTER}",
     "limit_type": "monthly",
     "free_limit": 50,
     "reset_period": "monthly",
@@ -1490,7 +1490,7 @@
   },
   "iqair": {
     "display_name": "IQAir AirVisual",
-    "health_url": "http://api.airvisual.com/v2/countries?key=e1fd5771-ced5-4e36-9d18-32a3df9a9d4b",
+    "health_url": "http://api.airvisual.com/v2/countries?key=${PROVIDER_KEY_IQAIR}",
     "limit_type": "monthly",
     "free_limit": 10000,
     "reset_period": "monthly",
@@ -2155,7 +2155,7 @@
   },
   "airnow": {
     "display_name": "AirNow EPA",
-    "health_url": "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=10001&distance=25&API_KEY=TOKEN_FROM_ENV_PROVIDER_KEY_AIRNOW",
+    "health_url": "https://www.airnowapi.org/aq/observation/zipCode/current/?format=application/json&zipCode=10001&distance=25&API_KEY=${PROVIDER_KEY_AIRNOW}",
     "limit_type": "hourly",
     "free_limit": 500,
     "reset_period": "hourly",
@@ -2178,7 +2178,7 @@
   },
   "eia": {
     "display_name": "US Energy Information Administration",
-    "health_url": "https://api.eia.gov/v2/?api_key=TOKEN_FROM_ENV_PROVIDER_KEY_EIA",
+    "health_url": "https://api.eia.gov/v2/?api_key=${PROVIDER_KEY_EIA}",
     "limit_type": "hourly",
     "free_limit": 5000,
     "reset_period": "hourly",
@@ -2190,7 +2190,7 @@
   },
   "fec": {
     "display_name": "US Federal Election Commission",
-    "health_url": "https://api.open.fec.gov/v1/candidates/?per_page=1&api_key=TOKEN_FROM_ENV_PROVIDER_KEY_API_DATA_GOV",
+    "health_url": "https://api.open.fec.gov/v1/candidates/?per_page=1&api_key=${PROVIDER_KEY_API_DATA_GOV}",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -2317,7 +2317,7 @@
   },
   "nrel": {
     "display_name": "NREL (Energy Lab)",
-    "health_url": "https://developer.nlr.gov/api/alt-fuel-stations/v1/nearest.json?api_key=DEMO_KEY&latitude=37.77&longitude=-122.41&limit=1",
+    "health_url": "https://developer.nlr.gov/api/alt-fuel-stations/v1/nearest.json?api_key=${PROVIDER_KEY_NREL}&latitude=37.77&longitude=-122.41&limit=1",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -2641,7 +2641,7 @@
   },
   "bhl": {
     "display_name": "Biodiversity Heritage Library",
-    "health_url": "https://www.biodiversitylibrary.org/api3?op=PublicationSearch&searchterm=darwin&searchtype=C&page=1&pagesize=1&format=json&apikey=TOKEN_FROM_ENV",
+    "health_url": "https://www.biodiversitylibrary.org/api3?op=PublicationSearch&searchterm=darwin&searchtype=C&page=1&pagesize=1&format=json&apikey=${PROVIDER_KEY_BHL}",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
@@ -3108,7 +3108,7 @@
   },
   "opentopography": {
     "display_name": "OpenTopography",
-    "health_url": "https://portal.opentopography.org/API/otCatalog?productFormat=Raster&minx=-122&miny=37&maxx=-121&maxy=38&outputFormat=json&API_Key=TOKEN_FROM_ENV",
+    "health_url": "https://portal.opentopography.org/API/otCatalog?productFormat=Raster&minx=-122&miny=37&maxx=-121&maxy=38&outputFormat=json&API_Key=${PROVIDER_KEY_OPENTOPO}",
     "limit_type": "daily",
     "free_limit": 5000,
     "reset_period": "daily",
@@ -3147,7 +3147,7 @@
   },
   "fbi": {
     "display_name": "FBI Crime Data Explorer (UCR)",
-    "health_url": "https://api.usa.gov/crime/fbi/cde/summarized/national/violent-crime?from=01-2022&to=12-2022&api_key=TOKEN_FROM_ENV",
+    "health_url": "https://api.usa.gov/crime/fbi/cde/summarized/national/violent-crime?from=01-2022&to=12-2022&api_key=${PROVIDER_KEY_API_DATA_GOV}",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
@@ -3514,7 +3514,7 @@
   },
   "dpla": {
     "display_name": "Digital Public Library of America",
-    "health_url": "https://api.dp.la/v2/items?q=test&api_key=TOKEN_FROM_ENV_PROVIDER_KEY_DPLA",
+    "health_url": "https://api.dp.la/v2/items?q=test&api_key=${PROVIDER_KEY_DPLA}",
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
@@ -4890,7 +4890,7 @@
   },
   "epa-aqs": {
     "display_name": "EPA Air Quality System (AQS)",
-    "health_url": "https://aqs.epa.gov/data/api/list/states?email=api@apibase.pro&key=TOKEN_FROM_ENV_PROVIDER_KEY_EPA_AQS",
+    "health_url": "https://aqs.epa.gov/data/api/list/states?email=api@apibase.pro&key=${PROVIDER_KEY_EPA_AQS}",
     "limit_type": "rate_limited",
     "free_limit": 10,
     "reset_period": "none",

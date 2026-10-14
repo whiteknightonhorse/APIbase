@@ -2,6 +2,7 @@ import https from 'https';
 import Redis from 'ioredis';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../config/logger';
+import { substituteEnvPlaceholders } from '../config/url-keys';
 import providerLimitsConfig from '../config/provider-limits.json';
 import {
   FAIL_THRESHOLD_DEGRADED,
@@ -905,6 +906,9 @@ async function probeHead(
   cfg: ProviderLimitEntry,
 ): Promise<void> {
   let healthUrl = cfg.health_url;
+  // T-0400c: `${VAR}` placeholders keep keys out of the repo; the substituted
+  // URL is never logged. The legacy TOKEN_FROM_ENV_<VAR> form is still honoured.
+  healthUrl = substituteEnvPlaceholders(healthUrl, process.env);
   healthUrl = healthUrl.replace(
     /TOKEN_FROM_ENV_([A-Z0-9_]+)/g,
     (_match, varName: string) => process.env[varName] ?? '',
