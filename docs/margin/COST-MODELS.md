@@ -203,3 +203,23 @@ Provider | model | cost | tier | source date. Every tier below is assumed (opera
 | opentopography | free_tier | $0 (5,000/day) | tier assumed: Free registered key | 2026-10-14 |
 | openweathermap | free_tier | $0 (60/min, 1,000,000/month) | tier assumed: Free | 2026-10-14 |
 | overpass | free | $0 (no key, 2 concurrent queries) | tier assumed: Public API, no key | 2026-10-14 |
+| pexels | free_tier | $0 (200/hour, 20,000/month) | tier assumed: Free key | 2026-10-14 |
+| rateapi | free_tier | $0 (20/month; Pro $49 for 100) | tier assumed: Free | 2026-10-14 |
+| regulations | free_tier | $0 (1,000/hour) | tier assumed: Free api.data.gov key | 2026-10-14 |
+| sam | free_tier | $0 (1,000/day with SAM role) | tier assumed: Free personal API key | 2026-10-14 |
+| shortio | free_tier | $0 (1,000 links, 50 req/s) | tier assumed: Free | 2026-10-14 |
+| smithsonian | free_tier | $0 (1,000/hour) | tier assumed: Free api.data.gov key | 2026-10-14 |
+| spoonacular | free_tier | $0 (50 points/day) | tier assumed: Free | 2026-10-14 |
+| statcan | free | $0 (no key, 25 req/s per IP) | tier assumed: Public API, no key | 2026-10-14 |
+| thesportsdb | free_tier | $0 (30/min) | tier assumed: Free (public key 3) | 2026-10-14 |
+| threatintel | metered | NOT_MEASURED; credits x unpublished price per credit (1 credit/call, full reputation 3); provider retired | tier assumed: Free trial 100 credits then pay-per-credit | 2026-10-14 |
+| ticketmaster | free_tier | $0 (5,000/day, 5/s) | tier assumed: Free API key | 2026-10-14 |
+| transport-rest | free | $0 (no key, 100/min) | tier assumed: Public API, no key | 2026-10-14 |
+| tvmaze | free | $0 (no key, 20 per 10 s) | tier assumed: Public API, no key | 2026-10-14 |
+| unhabitat | free | $0 (no key) | tier assumed: Public API, no key | 2026-10-14 |
+| upcitemdb | free_tier | $0 (100/day; DEV $99/month) | tier assumed: Free EXPLORER | 2026-10-14 |
+| usajobs | free_tier | $0 (free key) | tier assumed: Free API key | 2026-10-14 |
+| walkscore | free_tier | $0 (5,000/day) | tier assumed: Free | 2026-10-14 |
+| weatherapi | free_tier | $0 (100K/month) | tier assumed: Free | 2026-10-14 |
+| wto | free_tier | $0 (10,000/hour) | tier assumed: Free subscription key | 2026-10-14 |
+| zenodo | free | $0 (no key, 60/min guest) | tier assumed: Public API, no key | 2026-10-14 |

@@ -116,3 +116,23 @@ the cheapest tier that includes the endpoint, marked `tier assumed: <name>; oper
 | opentopography | Free registered key | T-SITE-F4; model free_tier |
 | openweathermap | Free | T-SITE-F4; model free_tier |
 | overpass | Public API, no key | T-SITE-F4; model free |
+| pexels | Free key | T-SITE-F5; model free_tier |
+| rateapi | Free | T-SITE-F5; model free_tier |
+| regulations | Free api.data.gov key | T-SITE-F5; model free_tier |
+| sam | Free personal API key | T-SITE-F5; model free_tier |
+| shortio | Free | T-SITE-F5; model free_tier |
+| smithsonian | Free api.data.gov key | T-SITE-F5; model free_tier |
+| spoonacular | Free | T-SITE-F5; model free_tier |
+| statcan | Public API, no key | T-SITE-F5; model free |
+| thesportsdb | Free (public key 3) | T-SITE-F5; model free_tier |
+| threatintel | Free trial 100 credits then pay-per-credit | T-SITE-F5; model metered |
+| ticketmaster | Free API key | T-SITE-F5; model free_tier |
+| transport-rest | Public API, no key | T-SITE-F5; model free |
+| tvmaze | Public API, no key | T-SITE-F5; model free |
+| unhabitat | Public API, no key | T-SITE-F5; model free |
+| upcitemdb | Free EXPLORER | T-SITE-F5; model free_tier |
+| usajobs | Free API key | T-SITE-F5; model free_tier |
+| walkscore | Free | T-SITE-F5; model free_tier |
+| weatherapi | Free | T-SITE-F5; model free_tier |
+| wto | Free subscription key | T-SITE-F5; model free_tier |
+| zenodo | Public API, no key | T-SITE-F5; model free |

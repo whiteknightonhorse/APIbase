@@ -475,42 +475,63 @@ tools:
     name: Ticketmaster Event Search
     provider: ticketmaster
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/ — \"default quota of 5000 API calls per day and rate limitation of 5 requests per second\"; no pricing statement — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: ticketmaster.event_details
     name: Ticketmaster Event Details
     provider: ticketmaster
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/ — \"default quota of 5000 API calls per day and rate limitation of 5 requests per second\"; no pricing statement — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 900
 
   - tool_id: ticketmaster.events_nearby
     name: Ticketmaster Events Nearby
     provider: ticketmaster
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/ — \"default quota of 5000 API calls per day and rate limitation of 5 requests per second\"; no pricing statement — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: ticketmaster.artist_events
     name: Ticketmaster Artist Events
     provider: ticketmaster
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/ — \"default quota of 5000 API calls per day and rate limitation of 5 requests per second\"; no pricing statement — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: ticketmaster.venue_events
     name: Ticketmaster Venue Events
     provider: ticketmaster
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/ — \"default quota of 5000 API calls per day and rate limitation of 5 requests per second\"; no pricing statement — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: ticketmaster.events_trending
     name: Ticketmaster Trending Events
     provider: ticketmaster
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/ — \"default quota of 5000 API calls per day and rate limitation of 5 requests per second\"; no pricing statement — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: ticketmaster.events_categories
     name: Ticketmaster Event Categories
     provider: ticketmaster
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.ticketmaster.com/products-and-docs/apis/getting-started/ — \"default quota of 5000 API calls per day and rate limitation of 5 requests per second\"; no pricing statement — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 604800
 
   # --- UC-010: TMDB (Movies & TV) ---
@@ -1079,30 +1100,45 @@ tools:
     name: Spoonacular Recipe Search
     provider: spoonacular
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://spoonacular.com/food-api/pricing — Free plan \"$0/mo\", 50 points/day, \"then no more calls\"; Cook \"$29/mo\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: spoonacular.recipe_details
     name: Spoonacular Recipe Details
     provider: spoonacular
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://spoonacular.com/food-api/pricing — Free plan \"$0/mo\", 50 points/day, \"then no more calls\"; Cook \"$29/mo\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: spoonacular.by_ingredients
     name: Spoonacular Find by Ingredients
     provider: spoonacular
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://spoonacular.com/food-api/pricing — Free plan \"$0/mo\", 50 points/day, \"then no more calls\"; Cook \"$29/mo\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: spoonacular.ingredient_search
     name: Spoonacular Ingredient Search
     provider: spoonacular
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://spoonacular.com/food-api/pricing — Free plan \"$0/mo\", 50 points/day, \"then no more calls\"; Cook \"$29/mo\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: spoonacular.analyze_recipe
     name: Spoonacular Analyze Recipe
     provider: spoonacular
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://spoonacular.com/food-api/pricing — Free plan \"$0/mo\", 50 points/day, \"then no more calls\"; Cook \"$29/mo\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-034: NASA Open APIs (Space / Astronomy) ---
@@ -1272,12 +1308,18 @@ tools:
     name: UPC Product Lookup
     provider: upcitemdb
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://devs.upcitemdb.com/ — EXPLORER \"$0\", \"100 combined requests / day\"; DEV \"$99/month\" — 2026-10-14 — tier assumed: Free EXPLORER; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: upc.search
     name: UPC Product Search
     provider: upcitemdb
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://devs.upcitemdb.com/ — EXPLORER \"$0\", \"100 combined requests / day\"; DEV \"$99/month\" — 2026-10-14 — tier assumed: Free EXPLORER; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-045: ipapi.is (IP Intelligence / Geolocation) ---
@@ -1405,12 +1447,18 @@ tools:
     name: Shorten URL
     provider: shortio
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://short.io/pricing — Free plan: \"1,000\" branded links, \"1,000\" link automation, \"50 req/s\"; Hobby \"$5/mo\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 0
 
   - tool_id: shorturl.stats
     name: Short URL Stats
     provider: shortio
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://short.io/pricing — Free plan: \"1,000\" branded links, \"1,000\" link automation, \"50 req/s\"; Hobby \"$5/mo\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   # --- UC-115: ExchangeRate-API (Currency Conversion) ---
@@ -2282,12 +2330,18 @@ tools:
     name: Search US Federal Regulations
     provider: regulations
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.gsa.gov/api/regulationsgov/ — api.data.gov key, 1,000 requests/hour per provider-limits.json limit_proof (page not re-verified first-hand) — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: regulations.document
     name: Regulatory Document Details
     provider: regulations
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.gsa.gov/api/regulationsgov/ — api.data.gov key, 1,000 requests/hour per provider-limits.json limit_proof (page not re-verified first-hand) — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-083: Federal Register (US Federal Rules) ---
@@ -2540,6 +2594,9 @@ tools:
     name: Walk Score & Transit Score
     provider: walkscore
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.walkscore.com/professional/api.php — 5,000 calls/day free per provider-limits.json limit_proof (page returned 504 on 2026-10-14, not re-verified) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 604800
 
   # --- UC-120: IQAir AirVisual (Air Quality) ---
@@ -2587,16 +2644,25 @@ tools:
     name: Search Pexels Stock Photos
     provider: pexels
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.pexels.com/api/documentation/ — \"By default, the API is rate-limited to 200 requests per hour and 20,000 requests per month\"; \"All content is available free of charge\" — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: pexels.search_videos
     name: Search Pexels Stock Videos
     provider: pexels
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.pexels.com/api/documentation/ — \"By default, the API is rate-limited to 200 requests per hour and 20,000 requests per month\"; \"All content is available free of charge\" — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: pexels.curated
     name: Pexels Curated Photos
     provider: pexels
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.pexels.com/api/documentation/ — \"By default, the API is rate-limited to 200 requests per hour and 20,000 requests per month\"; \"All content is available free of charge\" — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-205: Browserbase (Managed Browser Sessions) — EXCLUSIVE ---
@@ -3182,21 +3248,33 @@ tools:
     name: Mortgage Rate Decision
     provider: rateapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://rateapi.dev — \"Prototype free with 20 requests/month and no card\"; Pro is \"$49/month for 100 requests\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
   - tool_id: rateapi.auto_loan
     name: Auto Loan Rate Decision
     provider: rateapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://rateapi.dev — \"Prototype free with 20 requests/month and no card\"; Pro is \"$49/month for 100 requests\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
   - tool_id: rateapi.heloc
     name: HELOC Rate Decision
     provider: rateapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://rateapi.dev — \"Prototype free with 20 requests/month and no card\"; Pro is \"$49/month for 100 requests\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
   - tool_id: rateapi.personal_loan
     name: Personal Loan Rate Decision
     provider: rateapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://rateapi.dev — \"Prototype free with 20 requests/month and no card\"; Pro is \"$49/month for 100 requests\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   # --- UC-198: TwitterAPI.io (Twitter/X Data) ---
@@ -3516,6 +3594,9 @@ tools:
     capability: weather.current
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.weatherapi.com/pricing.aspx — Free plan \"100K calls per month\"; \"If you go over your calls or request per month then you will stop receiving data for that month\" — 2026-10-14 — tier assumed: Free (business trial expired 2026-04-13); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
   - tool_id: weatherapi.forecast
     name: Weather Forecast
@@ -3523,16 +3604,25 @@ tools:
     capability: weather.forecast
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.weatherapi.com/pricing.aspx — Free plan \"100K calls per month\"; \"If you go over your calls or request per month then you will stop receiving data for that month\" — 2026-10-14 — tier assumed: Free (business trial expired 2026-04-13); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 1800
   - tool_id: weatherapi.astronomy
     name: Astronomy Data
     provider: weatherapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.weatherapi.com/pricing.aspx — Free plan \"100K calls per month\"; \"If you go over your calls or request per month then you will stop receiving data for that month\" — 2026-10-14 — tier assumed: Free (business trial expired 2026-04-13); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: weatherapi.search
     name: Location Search
     provider: weatherapi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.weatherapi.com/pricing.aspx — Free plan \"100K calls per month\"; \"If you go over your calls or request per month then you will stop receiving data for that month\" — 2026-10-14 — tier assumed: Free (business trial expired 2026-04-13); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-238: Judge0 CE (Code Execution Sandbox) ---
@@ -3652,16 +3742,28 @@ tools:
     name: Domain Reputation Score
     provider: threatintel
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://threatintelligenceplatform.com/pricing — formula: credits x price per credit; 1 credit per call (reputation full = 3); dollar price per credit not published — 2026-10-14 — tier assumed: Free trial 100 credits then pay-per-credit; operator to confirm; provider retired 2026-10-12 (T-0356), needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
   - tool_id: threatintel.malware
     name: Malware & Phishing Check
     provider: threatintel
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://threatintelligenceplatform.com/pricing — formula: credits x price per credit; 1 credit per call (reputation full = 3); dollar price per credit not published — 2026-10-14 — tier assumed: Free trial 100 credits then pay-per-credit; operator to confirm; provider retired 2026-10-12 (T-0356), needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
   - tool_id: threatintel.infrastructure
     name: Domain Infrastructure Analysis
     provider: threatintel
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://threatintelligenceplatform.com/pricing — formula: credits x price per credit; 1 credit per call (reputation full = 3); dollar price per credit not published — 2026-10-14 — tier assumed: Free trial 100 credits then pay-per-credit; operator to confirm; provider retired 2026-10-12 (T-0356), needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   # --- UC-225: Listen Notes (Podcast Search) ---
@@ -4198,11 +4300,17 @@ tools:
     name: SAM.gov Entity Search
     provider: sam
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.gsa.gov/api/entity-api/ — \"Non-federal user with a Role in SAM.gov (personal API key): 1,000 requests/day\"; no fee statement found — 2026-10-14 — tier assumed: Free personal API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: sam.entity_detail
     name: SAM.gov Entity Detail
     provider: sam
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.gsa.gov/api/entity-api/ — \"Non-federal user with a Role in SAM.gov (personal API key): 1,000 requests/day\"; no fee statement found — 2026-10-14 — tier assumed: Free personal API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-334: OpenFEMA (Disaster Declarations, Flood Claims, Assistance) ---
@@ -4536,11 +4644,17 @@ tools:
     name: Search Smithsonian Collections
     provider: smithsonian
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/rate-limits/ — api.data.gov default 1,000 requests/hour per key (per provider-limits.json limit_proof; page not re-verified first-hand) — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: smithsonian.record
     name: Smithsonian Record Details
     provider: smithsonian
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/rate-limits/ — api.data.gov default 1,000 requests/hour per key (per provider-limits.json limit_proof; page not re-verified first-hand) — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # USDA Soil Data Access (UC-386) — SSURGO soil survey, US Gov open data, no auth
@@ -4837,16 +4951,25 @@ tools:
     capability: jobs.search
     scope: regional:US
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.usajobs.gov/guides/rate-limiting — Code List API: \"No limits\"; no cost statement; free API key — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 1800
   - tool_id: usajobs.position_detail
     name: USAJOBS Position Detail
     provider: usajobs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.usajobs.gov/guides/rate-limiting — Code List API: \"No limits\"; no cost statement; free API key — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 1800
   - tool_id: usajobs.code_lists
     name: USAJOBS Reference Code Lists
     provider: usajobs
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.usajobs.gov/guides/rate-limiting — Code List API: \"No limits\"; no cost statement; free API key — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-414: NREL — AFDC (EV chargers) + PVWatts (solar) ---
@@ -5209,24 +5332,36 @@ tools:
     name: Search Zenodo Research Records
     provider: zenodo
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://developers.zenodo.org/ — \"Global limit for guest users: 60 requests per minute, 2000 requests per hour\"; open access, no fee — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   - tool_id: zenodo.record
     name: Get Zenodo Record Details
     provider: zenodo
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://developers.zenodo.org/ — \"Global limit for guest users: 60 requests per minute, 2000 requests per hour\"; open access, no fee — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: zenodo.files
     name: List Zenodo Record Files
     provider: zenodo
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://developers.zenodo.org/ — \"Global limit for guest users: 60 requests per minute, 2000 requests per hour\"; open access, no fee — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: zenodo.communities
     name: Search Zenodo Communities
     provider: zenodo
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://developers.zenodo.org/ — \"Global limit for guest users: 60 requests per minute, 2000 requests per hour\"; open access, no fee — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   # --- UC-474: NASA Technical Reports Server (NTRS) ---
@@ -5611,24 +5746,36 @@ tools:
     name: Query WTO Trade and Tariff Data
     provider: wto
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apiportal.wto.org/api-details#api=TimeSeries-prod&operation=get-data — free subscription key, 10 requests/second, 10,000 requests/hour (provider-limits.json limit_proof; portal is JS-rendered, not re-verified) — 2026-10-14 — tier assumed: Free subscription key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: wto.indicators
     name: List WTO Trade Indicators
     provider: wto
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apiportal.wto.org/api-details#api=TimeSeries-prod&operation=get-data — free subscription key, 10 requests/second, 10,000 requests/hour (provider-limits.json limit_proof; portal is JS-rendered, not re-verified) — 2026-10-14 — tier assumed: Free subscription key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: wto.reporters
     name: List WTO Reporting Economies
     provider: wto
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apiportal.wto.org/api-details#api=TimeSeries-prod&operation=get-data — free subscription key, 10 requests/second, 10,000 requests/hour (provider-limits.json limit_proof; portal is JS-rendered, not re-verified) — 2026-10-14 — tier assumed: Free subscription key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: wto.topics
     name: List WTO Data Topics
     provider: wto
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apiportal.wto.org/api-details#api=TimeSeries-prod&operation=get-data — free subscription key, 10 requests/second, 10,000 requests/hour (provider-limits.json limit_proof; portal is JS-rendered, not re-verified) — 2026-10-14 — tier assumed: Free subscription key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-495: INSEE Sirene ---
@@ -6481,30 +6628,45 @@ tools:
     name: TVMaze — Search TV Shows
     provider: tvmaze
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.tvmaze.com/api — \"API calls are rate limited to allow at least 20 calls every 10 seconds per IP address\"; free public API — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   - tool_id: tvmaze.show_details
     name: TVMaze — Show Details
     provider: tvmaze
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.tvmaze.com/api — \"API calls are rate limited to allow at least 20 calls every 10 seconds per IP address\"; free public API — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   - tool_id: tvmaze.show_episodes
     name: TVMaze — Show Episodes
     provider: tvmaze
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.tvmaze.com/api — \"API calls are rate limited to allow at least 20 calls every 10 seconds per IP address\"; free public API — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: tvmaze.show_cast
     name: TVMaze — Show Cast
     provider: tvmaze
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.tvmaze.com/api — \"API calls are rate limited to allow at least 20 calls every 10 seconds per IP address\"; free public API — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: tvmaze.schedule
     name: TVMaze — TV Schedule
     provider: tvmaze
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.tvmaze.com/api — \"API calls are rate limited to allow at least 20 calls every 10 seconds per IP address\"; free public API — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   # --- UC-521: HackerNews Firebase ---
@@ -7128,30 +7290,45 @@ tools:
     name: Statistics Canada Table Search
     provider: statcan
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.statcan.gc.ca/en/developers/wds/user-guide — \"Server limits of 50 requests per second with a individual IP address limit of 25 requests per second\"; no key, no fee statement found — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: statcan.table_metadata
     name: Statistics Canada Table Metadata
     provider: statcan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.statcan.gc.ca/en/developers/wds/user-guide — \"Server limits of 50 requests per second with a individual IP address limit of 25 requests per second\"; no key, no fee statement found — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   - tool_id: statcan.series_info
     name: Statistics Canada Series Info
     provider: statcan
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.statcan.gc.ca/en/developers/wds/user-guide — \"Server limits of 50 requests per second with a individual IP address limit of 25 requests per second\"; no key, no fee statement found — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   - tool_id: statcan.series_data
     name: Statistics Canada Series Data
     provider: statcan
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.statcan.gc.ca/en/developers/wds/user-guide — \"Server limits of 50 requests per second with a individual IP address limit of 25 requests per second\"; no key, no fee statement found — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   - tool_id: statcan.table_data
     name: Statistics Canada Table Data
     provider: statcan
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.statcan.gc.ca/en/developers/wds/user-guide — \"Server limits of 50 requests per second with a individual IP address limit of 25 requests per second\"; no key, no fee statement found — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   # --- UC-540: FBI Crime Data Explorer (UCR) ---
@@ -7466,24 +7643,36 @@ tools:
     name: UN-Habitat — SDG 11.2.1 Public Transport Access
     provider: unhabitat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://data.unhabitat.org/ — public ArcGIS Feature Services, no auth, no documented rate limits (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: unhabitat.land_consumption
     name: UN-Habitat — SDG 11.3.1 Land Consumption Rates
     provider: unhabitat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://data.unhabitat.org/ — public ArcGIS Feature Services, no auth, no documented rate limits (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: unhabitat.open_spaces
     name: UN-Habitat — SDG 11.7.1 Urban Open Spaces
     provider: unhabitat
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://data.unhabitat.org/ — public ArcGIS Feature Services, no auth, no documented rate limits (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: unhabitat.city_budget
     name: UN-Habitat — Global Municipal Budget Database
     provider: unhabitat
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://data.unhabitat.org/ — public ArcGIS Feature Services, no auth, no documented rate limits (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: hf_inference.translate
@@ -8658,24 +8847,36 @@ tools:
     name: Sports Team Search
     provider: thesportsdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.thesportsdb.com/pricing — \"Free Sports API\" \"$0 /mo\", \"30 requests per minute\"; Single Developer \"$9 /mo\" — 2026-10-14 — tier assumed: Free (public key 3); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: thesportsdb.player_search
     name: Sports Player Search
     provider: thesportsdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.thesportsdb.com/pricing — \"Free Sports API\" \"$0 /mo\", \"30 requests per minute\"; Single Developer \"$9 /mo\" — 2026-10-14 — tier assumed: Free (public key 3); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: thesportsdb.events_past
     name: Past League Match Results
     provider: thesportsdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.thesportsdb.com/pricing — \"Free Sports API\" \"$0 /mo\", \"30 requests per minute\"; Single Developer \"$9 /mo\" — 2026-10-14 — tier assumed: Free (public key 3); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: thesportsdb.events_next
     name: Upcoming League Match Schedule
     provider: thesportsdb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.thesportsdb.com/pricing — \"Free Sports API\" \"$0 /mo\", \"30 requests per minute\"; Single Developer \"$9 /mo\" — 2026-10-14 — tier assumed: Free (public key 3); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   # --- UC-587: EUR-Lex Cellar ---
@@ -9631,24 +9832,36 @@ tools:
     name: Search Transit Stops & Addresses
     provider: transport-rest
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://v6.bvg.transport.rest/ — \"You can just use the API without authentication. There's a rate limit of 100 requests/minute\" (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 604800
 
   - tool_id: transport-rest.nearby_stops
     name: Find Nearby Transit Stops
     provider: transport-rest
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://v6.bvg.transport.rest/ — \"You can just use the API without authentication. There's a rate limit of 100 requests/minute\" (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 604800
 
   - tool_id: transport-rest.stop_departures
     name: Get Real-Time Stop Departures
     provider: transport-rest
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://v6.bvg.transport.rest/ — \"You can just use the API without authentication. There's a rate limit of 100 requests/minute\" (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 60
 
   - tool_id: transport-rest.journey_search
     name: Plan Transit Journey
     provider: transport-rest
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://v6.bvg.transport.rest/ — \"You can just use the API without authentication. There's a rate limit of 100 requests/minute\" (provider-limits.json limit_proof) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 60
 
   # --- UC-627: Meteostat (weather station observations) ---
