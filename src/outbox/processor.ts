@@ -39,7 +39,7 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
  *
  * Event types and owners:
  *   - cache_invalidate / TOOL_CONFIG_UPDATED → this worker (Redis cache purge)
- *   - form_submission                        → this worker (explicit ack/log only)
+ *   - form_submission / contact_message      → scripts/inbound-messages-alerts.py (processed=true there means "paged")
  *   - x402_settle_failed                     → scripts/x402-settle-leak-alerts.py
  *       (processed=true there means "paged")
  *   - mpp_refund_owed                        → scripts/mpp-refund-owed-alerts.py,
@@ -58,7 +58,6 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
 export const HANDLED_EVENT_TYPES = [
   'cache_invalidate',
   'TOOL_CONFIG_UPDATED',
-  'form_submission',
   // T-INT-14 (0259 §3 p.1): the third consumer — merchant webhooks. Only shop.* types; the money types
   // (mpp_refund_owed, x402_settle_failed) are NOT added and stay with their scripts.
   ...SHOP_WEBHOOK_EVENT_TYPES,
@@ -131,19 +130,6 @@ export async function processEvent(event: OutboxEvent, deps: ProcessorDeps): Pro
 
       deps.log.info({ eventType, toolId }, 'Cache invalidated for tool');
     }
-    return true;
-  }
-
-  if (eventType === 'form_submission') {
-    // Explicit ack (no consumer yet). contact_email is PII — never logged.
-    deps.log.info(
-      {
-        submission_id: payload.submission_id,
-        company_name: payload.company_name,
-        category: payload.category,
-      },
-      'Onboarding form submission recorded',
-    );
     return true;
   }
 

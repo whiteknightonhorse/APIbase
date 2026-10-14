@@ -87,7 +87,7 @@ ${SITE_NAV}
 <div class="hp"><label>Leave empty</label><input name="_honeypot" tabindex="-1" autocomplete="off"></div>
 <div class="fm-box bad fm-note" id="ob-errors" role="note" hidden>${BAD_ICON}<div><strong>Check the highlighted fields</strong><span id="ob-errors-n"></span></div></div>
 <div class="fm-actions"><button class="fm-btn p" id="ob-submit" type="submit">Submit</button></div>
-<p class="fm-note">We review submissions within 24-48 hours.</p>
+<p class="fm-note">We review every submission manually and reply by email.</p>
 </form>
 </div>
 </div>
@@ -138,7 +138,7 @@ ${SITE_NAV}
       .then(function(x){
         b.disabled=false;
         if(x.s===200&&x.j.status==='accepted'){
-          document.getElementById('ob-sent-text').textContent='Reference '+x.j.submission_id+'. We reply to '+body.contact_email+' after review (24-48 hours).';
+          document.getElementById('ob-sent-text').textContent='Reference '+x.j.submission_id+'. We reply to '+body.contact_email+' after a manual review.';
           document.getElementById('ob-sent').hidden=false;
           f.hidden=true;
           return;
@@ -243,7 +243,7 @@ onboardRouter.post('/onboard', async (req: Request, res: Response) => {
       status: 'accepted',
       submission_id: `sub_${Date.now().toString(16)}`,
       message: 'Your submission has been received.',
-      estimated_processing: '24-48 hours',
+      estimated_processing: 'manual review; reply by email',
     });
     return;
   }
@@ -261,7 +261,7 @@ onboardRouter.post('/onboard', async (req: Request, res: Response) => {
       status: 'accepted',
       submission_id: result.submission_id,
       message: 'Your submission has been received and will be reviewed.',
-      estimated_processing: '24-48 hours',
+      estimated_processing: 'manual review; reply by email',
     });
   } catch (err) {
     logger.error({ err, requestId, ip }, 'Failed to create onboarding submission');

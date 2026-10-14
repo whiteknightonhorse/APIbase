@@ -23,7 +23,7 @@ import {
  *
  * Ownership rule (T-0259): this worker owns ONLY HANDLED_EVENT_TYPES
  * (src/outbox/processor.ts) — cache_invalidate, TOOL_CONFIG_UPDATED,
- * form_submission. It selects only those rows and marks `processed = true`
+ * shop.* webhooks. It selects only those rows and marks `processed = true`
  * only after a handler ran. Money events belong to scripts/*.py with two
  * different meanings of `processed`:
  *   - x402_settle_failed: processed=true = "paged" (x402-settle-leak-alerts.py)

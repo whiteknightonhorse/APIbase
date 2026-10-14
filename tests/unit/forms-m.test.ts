@@ -47,7 +47,7 @@ describe('T-0390 forms in design M', () => {
     for (const f of FIELDS.filter((x) => x !== '_honeypot')) {
       expect(html).toContain(`for="ob-${f}"`);
     }
-    expect(html).toContain('We review submissions within 24-48 hours.');
+    expect(html).toContain('We review every submission manually and reply by email.');
   });
 
   it('F2: every page script of /onboard and /contact parses', () => {

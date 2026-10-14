@@ -57,7 +57,6 @@ describe('outbox processor (T-0259)', () => {
     expect([...HANDLED_EVENT_TYPES]).toEqual([
       'cache_invalidate',
       'TOOL_CONFIG_UPDATED',
-      'form_submission',
       // T-INT-14: the webhook consumer — shop.* only, never a money type
       'shop.order.paid',
       'shop.order.confirmed',
@@ -109,19 +108,12 @@ describe('outbox processor (T-0259)', () => {
     expect(deps.executeRaw.mock.calls[0][1]).toBe(2n);
   });
 
-  it('O5: form_submission → true, one UPDATE, contact_email never logged', async () => {
-    const { deps, log } = makeDeps();
-    const e = ev('form_submission', {
-      submission_id: 's1',
-      company_name: 'Acme',
-      category: 'travel',
-      contact_email: 'secret@example.com',
-    });
-    expect(await processBatch([e], deps)).toBe(1);
-    expect(deps.executeRaw).toHaveBeenCalledTimes(1);
-    expect(log.info).toHaveBeenCalledTimes(1);
-    expect(JSON.stringify(log.info.mock.calls[0])).not.toContain('secret@example.com');
-    expect(JSON.stringify(log.info.mock.calls[0])).not.toContain('contact_email');
+  it('O5: form_submission / contact_message are not owned by this worker (host script pages them)', async () => {
+    const { deps } = makeDeps();
+    expect(HANDLED_EVENT_TYPES).not.toContain('form_submission' as never);
+    expect(HANDLED_EVENT_TYPES).not.toContain('contact_message' as never);
+    expect(await processBatch([ev('form_submission', { submission_id: 's1' })], deps)).toBe(0);
+    expect(deps.executeRaw).not.toHaveBeenCalled();
   });
 
   it('O6: batch result counts handled events, not batch length', async () => {
