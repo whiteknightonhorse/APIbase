@@ -196,7 +196,7 @@ dbDescribe('shop.order.pay ESCROW binding', () => {
     expect(over.body.error).toBe('payment_amount_mismatch');
     const redirected = await pay(f, header({ value: toMicroUsdc(5), to: PLATFORM }));
     expect(redirected.status).toBe(402);
-    expect(redirected.body.error).toBe('payment_required');
+    expect(redirected.body.error).toBe('payment_amount_mismatch');
     expect(mockClaim).not.toHaveBeenCalled();
     expect(await payments(f)).toBe(0);
     expect(await orderState(f)).toBe('QUOTED');
