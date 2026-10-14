@@ -153,7 +153,10 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
   });
   const jsonProducts = guard(async (req, res) => {
     const { merchant_id } = await loadShop(db(), req.params.slug);
-    res.json({ products: await listProducts(db(), merchant_id) });
+    const q = req.query.limit;
+    const c = req.query.cursor;
+    const limit = typeof q === 'string' && /^\d{1,3}$/.test(q) ? Number(q) : 100;
+    res.json(await listProducts(db(), merchant_id, limit, typeof c === 'string' ? c : undefined));
   });
   router.get('/api/v1/shop/shops', jsonIndex);
   router.get('/api/v1/shop/shops/:slug', jsonShop);
@@ -216,7 +219,7 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
     '/m/:slug',
     guard(async (req, res) => {
       const { merchant_id, shop } = await loadShop(db(), req.params.slug);
-      const products = await listProducts(db(), merchant_id);
+      const { products } = await listProducts(db(), merchant_id);
       sendText(
         res,
         req,
@@ -256,7 +259,7 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
     '/m/:slug/agent.json',
     guard(async (req, res) => {
       const { merchant_id, shop } = await loadShop(db(), req.params.slug);
-      res.json(agentJson(shop, await listProducts(db(), merchant_id, 3)));
+      res.json(agentJson(shop, (await listProducts(db(), merchant_id, 3)).products));
     }),
   );
   router.get(
@@ -272,7 +275,7 @@ export function createStorefrontRouter(opts: StorefrontRouterOptions = {}): Rout
       const { merchant_id, shop } = await loadShop(db(), req.params.slug);
       res
         .type('text/plain; charset=utf-8')
-        .send(llmsTxt(shop, await listProducts(db(), merchant_id, 3)));
+        .send(llmsTxt(shop, (await listProducts(db(), merchant_id, 3)).products));
     }),
   );
 

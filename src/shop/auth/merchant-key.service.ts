@@ -67,13 +67,15 @@ const limited = (max: number) =>
 const writeLimiter = limited(WRITE_LIMIT_PER_MIN);
 const readLimiter = limited(READ_LIMIT_PER_MIN);
 
+export const MALFORMED_KEY_MESSAGE = 'missing or malformed merchant key';
+
 /** Bearer mk_live_ -> hash -> shop_merchant_keys (not revoked) -> req.merchant. */
 export async function authenticateMerchantKey(
   db: ShopTx,
   authorization: string | undefined,
 ): Promise<AuthedMerchant> {
   const m = /^Bearer (mk_live_[0-9a-f]{32})$/.exec(authorization ?? '');
-  if (!m) throw new ShopAuthError(401, 'missing or malformed merchant key');
+  if (!m) throw new ShopAuthError(401, MALFORMED_KEY_MESSAGE);
   const key_hash = hashApiKey(m[1]);
   const rows = await db.$queryRawUnsafe<Array<{ merchant_id: string; scopes: string[] }>>(
     `SELECT merchant_id, scopes FROM shop_merchant_keys
@@ -95,7 +97,15 @@ export function requireMerchantKey(
     try {
       req.merchant = await authenticateMerchantKey(await getDb(), req.headers.authorization);
     } catch (err) {
-      if (err instanceof ShopAuthError) {
+      if (err instanceof ShopAuthError && err.message === MALFORMED_KEY_MESSAGE) {
+        res.status(401).json({
+          error: 'unauthorized',
+          error_code: 'unauthorized',
+          message: err.message,
+          suggested_action: 'send Authorization: Bearer mk_live_...',
+          documentation_url: '/integrator/agent-guide#unauthorized',
+        });
+      } else if (err instanceof ShopAuthError) {
         res.status(err.status).json({ error: err.message });
       } else {
         res.status(503).json({ error: 'auth backend unavailable' });

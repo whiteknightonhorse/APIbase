@@ -17,7 +17,10 @@ import {
   createMerchantMcpServer,
   loadStorefront,
   selfTestStorefront,
+  storefrontCacheHas,
 } from '../../src/shop/merchant-mcp-server';
+import { mcpUrl } from '../../src/shop/storefront/storefront.service';
+import { deactivateMerchant } from '../../src/shop/merchant-lifecycle.service';
 import { createCheckRouter } from '../../src/shop/routes/check.router';
 import { setWebhook } from '../../src/shop/webhook/webhook.service';
 import type { WebhookTransport } from '../../src/shop/webhook/transport';
@@ -356,6 +359,52 @@ dbDescribe('storefront MCP, discovery, connection check (INT-16)', () => {
       expect(r3.status).toBe('incomplete');
       expect(step(r3, 'webhook_ping')).toMatchObject({ status: 'fail', code: 'webhook_not_2xx' });
       reply = 200;
+    });
+
+    it('SF13 (T-SHOP-E): three paid test orders today -> the check stays connected (daily_cap_reached)', async () => {
+      reply = 200;
+      for (let i = 0; i < 3; i++) {
+        const quote = await q(
+          `INSERT INTO shop_quotes (merchant_id, items, subtotal, total_usd, is_test, expires_at, status)
+           VALUES ($1::uuid, '[]'::jsonb, 0.01, 0.01, true, now() + interval '1 hour', 'paid')
+           RETURNING quote_id`,
+          C.id,
+        );
+        await x(
+          `INSERT INTO shop_orders (quote_id, merchant_id, state, total_usd) VALUES ($1::uuid, $2::uuid, 'PAID', 0.01)`,
+          quote[0].quote_id,
+          C.id,
+        );
+      }
+      const r = await runCheck(deps, C.id);
+      expect(step(r, 'quote_test_sku')).toMatchObject({ status: 'ok', code: 'daily_cap_reached' });
+      expect(r.status).toBe('connected');
+    });
+
+    it('SF14 (T-SHOP-E): mcp_url follows PUBLIC_BASE_URL; a deactivated merchant says so; deactivate evicts the cache', async () => {
+      const D = await shop('Deact Shop');
+      await product(D.id, '__apibase_test', 'test item', { price: 0.01, test: true });
+      await x(`UPDATE shop_merchants SET slug = $2 WHERE merchant_id = $1::uuid`, D.id, D.slug);
+      const prev = E.PUBLIC_BASE_URL;
+      E.PUBLIC_BASE_URL = 'https://sandbox.apibase.pro/';
+      try {
+        expect(mcpUrl(D.slug)).toBe(`https://sandbox.apibase.pro/mcp/m/${D.slug}`);
+        const ok = await runCheck(deps, D.id);
+        expect(ok.mcp_url).toBe(`https://sandbox.apibase.pro/mcp/m/${D.slug}`);
+      } finally {
+        if (prev === undefined) delete E.PUBLIC_BASE_URL;
+        else E.PUBLIC_BASE_URL = prev;
+      }
+      await loadStorefront(deps.db, D.slug, { fresh: true });
+      expect(storefrontCacheHas(D.slug)).toBe(true);
+      await deactivateMerchant(deps, D.id);
+      expect(storefrontCacheHas(D.slug)).toBe(false);
+      const r = await runCheck(deps, D.id);
+      expect(step(r, 'storefront_initialize')).toMatchObject({
+        status: 'fail',
+        code: 'merchant_unavailable',
+        detail: 'the merchant is deactivated or suspended',
+      });
     });
 
     it('SF7: GET /integrator/check/<slug> is statuses and codes only (no http, @, 0x, bodies)', async () => {

@@ -21,7 +21,7 @@ import { extractKeywords, scoreTool } from '../mcp/keyword-match';
 import { getToolCacheEntries } from '../pipeline/stages/tool-status.stage';
 import type { McpToolDefinition } from '../mcp/types';
 import type { ShopTx } from '../shop/db';
-import { PUBLIC_BASE } from '../shop/storefront/storefront.service';
+import { publicBase } from '../shop/storefront/storefront.service';
 
 /**
  * Discovery service (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1).
@@ -460,7 +460,7 @@ async function merchantCandidates(
     slug: f.slug,
     name: f.name,
     category: f.category,
-    mcp_url: `${PUBLIC_BASE}/mcp/m/${f.slug}`,
+    mcp_url: `${publicBase()}/mcp/m/${f.slug}`,
     products_sample: sample
       .filter((r) => r.merchant_id === f.merchant_id)
       .map(({ sku, title, price_usd }) => ({ sku, title, price_usd })),

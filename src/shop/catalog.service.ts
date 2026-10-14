@@ -377,12 +377,12 @@ export async function upsertCatalog(
   items: unknown,
   opts: CatalogOpts = {},
 ): Promise<CatalogReport> {
+  const { merchant, banner } = await gate(d.db, merchant_id, d.now);
   if (!Array.isArray(items) || items.length === 0)
     throw validation('items must be a non-empty array');
   if (items.length > MAX_ITEMS_PER_CALL) {
     throw validation(`at most ${MAX_ITEMS_PER_CALL} items per call`);
   }
-  const { merchant, banner } = await gate(d.db, merchant_id, d.now);
   const identity = `merchant:${merchant.wallet_address.toLowerCase()}`;
   const ban = await checkBan(identity);
   if (ban.banned) {

@@ -2,8 +2,8 @@ import { layout } from '../integrator/layout';
 import { PROVEK_DISCLOSURE, type ProvekPublic } from '../provek/provek.service';
 import {
   mcpUrl,
-  PUBLIC_BASE,
-  REST_BASE,
+  publicBase,
+  restBase,
   type CartLine,
   type PublicProduct,
   type PublicProductCard,
@@ -42,7 +42,7 @@ export const fmtUtc = (v: unknown): string => {
 const kv = (o: Record<string, unknown>): Array<[string, string]> =>
   Object.entries(o).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]);
 
-const shopUrl = (slug: string) => `${PUBLIC_BASE}/m/${slug}`;
+const shopUrl = (slug: string) => `${publicBase()}/m/${slug}`;
 const productUrl = (slug: string, sku: string) => `${shopUrl(slug)}/p/${encodeURIComponent(sku)}`;
 /** Only the demo store gets the human banner and the demo wording. */
 const isDemoShop = (s: PublicShop) => s.slug === 'apibase-demo';
@@ -380,7 +380,7 @@ export const agentJson = (s: PublicShop, sample: PublicProduct[]) => ({
   name: s.name,
   category: s.category,
   mcp_url: mcpUrl(s.slug),
-  rest_base: REST_BASE,
+  rest_base: restBase(),
   payment: { rails: ['x402', 'mpp'] },
   policy: s.policy,
   ...(s.provek ? { provek: s.provek } : {}),

@@ -16,7 +16,7 @@ import {
   type StorefrontMerchant,
 } from './merchant-mcp-server';
 import { cancelOrder, createQuote } from './quote.service';
-import { PUBLIC_BASE, StorefrontError } from './storefront/storefront.service';
+import { publicBase, StorefrontError } from './storefront/storefront.service';
 import { defaultResolver, resolvePublicTarget, type HostResolver } from './webhook/ssrf';
 import { httpsTransport, WEBHOOK_TIMEOUT_MS, type WebhookTransport } from './webhook/transport';
 import { signPayload } from './webhook/webhook.service';
@@ -143,6 +143,14 @@ async function quoteTestSku(d: CheckDeps, merchant_id: string): Promise<CheckSte
     return step('quote_test_sku', 'ok');
   } catch (err) {
     const body = toApiError(err).body;
+    if (body.error_code === 'test_sku_daily_cap') {
+      return step(
+        'quote_test_sku',
+        'ok',
+        'daily_cap_reached',
+        'three paid test orders today: the storefront is proven',
+      );
+    }
     return step(
       'quote_test_sku',
       'fail',
@@ -181,7 +189,14 @@ export async function runCheck(d: CheckDeps, merchant_id: string): Promise<Check
         ? 'merchant_unavailable'
         : 'merchant_not_active';
     steps.push(
-      step('storefront_initialize', 'fail', code, 'the merchant must be active (accept terms)'),
+      step(
+        'storefront_initialize',
+        'fail',
+        code,
+        code === 'merchant_unavailable'
+          ? 'the merchant is deactivated or suspended'
+          : 'the merchant must be active (accept terms)',
+      ),
     );
   }
 
@@ -245,8 +260,8 @@ export async function runCheck(d: CheckDeps, merchant_id: string): Promise<Check
     status: connected ? 'connected' : 'incomplete',
     steps,
     payment_verified: verified,
-    public_url: `${PUBLIC_BASE}/integrator/check/${slug}`,
-    mcp_url: `${PUBLIC_BASE}/mcp/m/${slug}`,
+    public_url: `${publicBase()}/integrator/check/${slug}`,
+    mcp_url: `${publicBase()}/mcp/m/${slug}`,
     ...(failed ? { suggested_action: 'fix_request', documentation_url: `${DOCS}` } : {}),
   };
 }

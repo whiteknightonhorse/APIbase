@@ -286,7 +286,11 @@ describe('TA1/TA2/TA9 register -> accept_terms (MCP)', () => {
     // replay: 200, no new key
     const r2 = await call('shop.merchant.accept_terms', acc);
     expect(r2.isError).toBe(false);
-    expect(r2.structured).toEqual({ status: 'active' });
+    expect(r2.structured).toEqual({
+      status: 'active',
+      api_key_issued: true,
+      hint: 'key already issued; use POST /merchants/me/keys/reissue',
+    });
     expect(env.keys).toHaveLength(1);
     expect(env.acceptances).toHaveLength(4);
   });
@@ -317,11 +321,16 @@ describe('TA1/TA2/TA9 register -> accept_terms (MCP)', () => {
     expect(env.merchants[0].status).toBe('pending');
     expect(env.acceptances).toHaveLength(0);
 
-    // message text diverging from the template while doc_hashes are right -> 428
+    // message text diverging from the template while doc_hashes are right -> 401
     const ok = await acceptBody(env, wallet);
     const tampered = { ...ok, message: ok.message.replace('aup v1.0', 'aup v9.9') };
     const t = await call('shop.merchant.accept_terms', tampered);
-    expect(t.text.error_code).toBe('terms_not_accepted');
+    expect(t.isError).toBe(true);
+    expect(t.text.error_code).toBe('unauthorized');
+    expect(t.text.message).toMatch(/does not match the nonce message/);
+    expect(t.text.suggested_action).toBe(
+      'sign the message returned by GET /auth/nonce?purpose=accept_terms',
+    );
     expect(env.acceptances).toHaveLength(0);
   });
 

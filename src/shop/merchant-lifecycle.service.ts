@@ -108,11 +108,13 @@ function acceptanceMethod(signer_kind: SignerKind, requested: AcceptInput['metho
 }
 
 /** UC-10: verify the §11.2 acceptance, store 4 rows, activate, return the one-time key. */
+const KEY_ISSUED_HINT = 'key already issued; use POST /merchants/me/keys/reissue';
+
 export async function acceptTerms(
   d: ShopDeps,
   input: AcceptInput,
   ctx: { ip?: string; user_agent?: string } = {},
-): Promise<{ status: 'active'; api_key?: string }> {
+): Promise<{ status: 'active'; api_key?: string; api_key_issued?: true; hint?: string }> {
   if (!ADDR_RE.test(input.wallet ?? '')) {
     throw new MerchantRegisterError(
       422,
@@ -150,13 +152,17 @@ export async function acceptTerms(
   }
   const [, , nonce, time] = parsed;
   if (input.message !== acceptTermsMessage(docs, { wallet: parsed[1], nonce, time })) {
-    throw termsNotAccepted(docs);
+    throw new ShopAuthError(
+      401,
+      'acceptance message does not match the nonce message (Time, Nonce or Wallet differ)',
+      'sign the message returned by GET /auth/nonce?purpose=accept_terms',
+    );
   }
 
   // Replay of an acceptance that already stands: 200, no second key (nonce is spent anyway).
   const st = await termsStatus(d.db, m.merchant_id, now);
   if (m.status === 'active' && st.pending.length === 0 && st.overdue.length === 0) {
-    return { status: 'active' };
+    return { status: 'active', api_key_issued: true, hint: KEY_ISSUED_HINT };
   }
 
   const { signer_kind } = await verifyBoundNonceSignature(
@@ -194,7 +200,9 @@ export async function acceptTerms(
         WHERE merchant_id = $1::uuid AND status = 'pending' RETURNING merchant_id`,
       m.merchant_id,
     );
-    if (won.length === 0) return { status: 'active' as const };
+    if (won.length === 0) {
+      return { status: 'active' as const, api_key_issued: true as const, hint: KEY_ISSUED_HINT };
+    }
     const api_key = await issueKey(tx, m.merchant_id, undefined, 'initial');
     logger.info({ merchant_id: m.merchant_id, signer_kind }, 'merchant activated');
     return { status: 'active' as const, api_key };
@@ -206,7 +214,7 @@ export async function deactivateMerchant(
   d: ShopDeps,
   merchant_id: string,
 ): Promise<{ status: string }> {
-  return d.transaction(async (tx) => {
+  const res = await d.transaction(async (tx) => {
     const rows = await tx.$queryRawUnsafe<unknown[]>(
       `UPDATE shop_merchants SET status = 'deactivated', status_reason = 'self'
         WHERE merchant_id = $1::uuid AND status IN ('pending', 'active') RETURNING merchant_id`,
@@ -225,6 +233,23 @@ export async function deactivateMerchant(
     );
     return { status: cur[0]?.status ?? 'deactivated' };
   });
+  await evictStorefront(d.db, merchant_id);
+  return res;
+}
+
+/** Drops the cached storefront descriptor so /mcp/m/<slug> turns 410 at once (the TTL stays as fallback). */
+export async function evictStorefront(db: ShopTx, merchant_id: string): Promise<void> {
+  try {
+    const rows = await db.$queryRawUnsafe<Array<{ slug: string }>>(
+      `SELECT slug FROM shop_merchants WHERE merchant_id = $1::uuid`,
+      merchant_id,
+    );
+    // lazy import: merchant-mcp-server imports this module (cycle)
+    const { clearStorefrontCache } = await import('./merchant-mcp-server');
+    if (rows[0]) clearStorefrontCache(rows[0].slug);
+  } catch (err) {
+    logger.warn({ err, merchant_id }, 'storefront cache eviction failed');
+  }
 }
 
 export async function registerWithDocs(

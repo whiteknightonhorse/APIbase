@@ -1,7 +1,7 @@
 import type { ShopDeps } from '../merchant-lifecycle.service';
 import type { ShopTx } from '../db';
 import { moderateTexts } from '../moderation/product-rules';
-import { mcpUrl, PUBLIC_BASE } from '../storefront/storefront.service';
+import { mcpUrl, publicBase } from '../storefront/storefront.service';
 
 /**
  * A3-9: the optional Provek declaration. `shop_merchants.provek` (0027) holds
@@ -164,12 +164,12 @@ export function buildDeclaration(shop: DeclarationShop, p: ProvekStored) {
         mechanism: 'shop.merchant.deactivate → storefront 410',
       },
       insurance,
-      dispute_path: { type: 'url', url: `${PUBLIC_BASE}/m/${shop.slug}#disputes` },
+      dispute_path: { type: 'url', url: `${publicBase()}/m/${shop.slug}#disputes` },
     },
     service: {
       order_url: mcpUrl(shop.slug),
       offering: `${shop.name}: ${shop.category} via APIbase AI payment`,
-      pricing_url: `${PUBLIC_BASE}/m/${shop.slug}`,
+      pricing_url: `${publicBase()}/m/${shop.slug}`,
     },
     operated_via: { platform: 'APIbase', same_owner_as_provek: true },
   };

@@ -229,6 +229,26 @@ dbDescribe('public storefront (INT-15)', () => {
     expect(await (await get(`/m/${slugA}/agent.json`)).text()).not.toContain('b-only');
   });
 
+  it('PG9b T-SHOP-E: /shops/<slug>/products pages through 111 items with cursor, limit is bounded', async () => {
+    const slugP = `sp-${tag}`;
+    const idP = await mk(slugP, 'active');
+    for (let i = 0; i < 111; i++) await prod(idP, `p${String(i).padStart(3, '0')}`, '1.00');
+    const first = await (await get(`/shops/${slugP}/products`)).json();
+    expect(first.products).toHaveLength(100);
+    expect(typeof first.next_cursor).toBe('string');
+    const second = await (
+      await get(`/shops/${slugP}/products?cursor=${encodeURIComponent(first.next_cursor)}`)
+    ).json();
+    expect(second.products).toHaveLength(11);
+    expect(second.next_cursor).toBeUndefined();
+    const skus = [...first.products, ...second.products].map((p: { sku: string }) => p.sku);
+    expect(new Set(skus).size).toBe(111);
+    const small = await (await get(`/shops/${slugP}/products?limit=5`)).json();
+    expect(small.products).toHaveLength(5);
+    const huge = await (await get(`/shops/${slugP}/products?limit=9999&cursor[]=x`)).json();
+    expect(huge.products).toHaveLength(100);
+  });
+
   it('PG10 unverified domain is shown; the verify job flips the flag only on proof', async () => {
     const slugV = `sv-${tag}`;
     await mk(slugV, 'active', false);

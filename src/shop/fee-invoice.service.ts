@@ -227,6 +227,8 @@ export async function enforceFeeOverdue(d: ShopDeps, now: Date): Promise<Overdue
     });
     out.flagged += r.flagged;
     out.merchants_restricted += r.restricted;
+    if (r.restricted)
+      await (await import('./merchant-lifecycle.service')).evictStorefront(d.db, m.merchant_id);
   }
   return out;
 }

@@ -405,6 +405,8 @@ dbDescribe('shop catalog', () => {
       id,
     );
     expect((await fail(up(id, [item(2)]))).status).toBe(410);
+    // T-SHOP-E: the status check runs before body validation, an empty body is 410 too
+    expect((await fail(up(id, []))).status).toBe(410);
     const e2 = await fail(searchCatalog(deps.db, { merchant: slug }));
     expect(e2.status).toBe(410);
     expect(e2.error_code).toBe('merchant_unavailable');

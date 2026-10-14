@@ -1,10 +1,12 @@
 import type { ShopTx } from '../db';
+import { getShopEnv } from '../../config/env';
 import { cents } from '../catalog.service';
 import { provekIfDeclared, type ProvekPublic, type ProvekStored } from '../provek/provek.service';
 
-export const PUBLIC_BASE = 'https://apibase.pro';
-export const mcpUrl = (slug: string) => `${PUBLIC_BASE}/mcp/m/${slug}`;
-export const REST_BASE = `${PUBLIC_BASE}/api/v1/shop`;
+export const publicBase = (): string =>
+  (getShopEnv().PUBLIC_BASE_URL || 'https://apibase.pro').replace(/\/+$/, '');
+export const mcpUrl = (slug: string) => `${publicBase()}/mcp/m/${slug}`;
+export const restBase = (): string => `${publicBase()}/api/v1/shop`;
 const SHOPS_PAGE_SIZE = 50;
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;
 const CART_MAX_ITEMS = 50;
@@ -162,7 +164,7 @@ export async function shopSitemapIndex(db: ShopTx): Promise<string> {
     const items = Array.from(
       { length: shards },
       (_, i) =>
-        `  <sitemap>\n    <loc>${PUBLIC_BASE}/sitemap-shops-${i + 1}.xml</loc>\n    <lastmod>${lastmod}</lastmod>\n  </sitemap>\n`,
+        `  <sitemap>\n    <loc>${publicBase()}/sitemap-shops-${i + 1}.xml</loc>\n    <lastmod>${lastmod}</lastmod>\n  </sitemap>\n`,
     ).join('');
     return (
       '<?xml version="1.0" encoding="UTF-8"?>\n' +
@@ -189,7 +191,7 @@ export async function shopSitemapShard(db: ShopTx, n: number): Promise<string | 
       .filter((r) => SLUG_RE.test(r.slug))
       .map(
         (r) =>
-          `  <url>\n    <loc>${PUBLIC_BASE}/m/${r.slug}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.5</priority>\n  </url>\n`,
+          `  <url>\n    <loc>${publicBase()}/m/${r.slug}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>0.5</priority>\n  </url>\n`,
       )
       .join('');
     return (
@@ -206,7 +208,10 @@ export async function listProducts(
   db: ShopTx,
   merchant_id: string,
   limit = 100,
-): Promise<PublicProduct[]> {
+  cursor?: string,
+): Promise<{ products: PublicProduct[]; next_cursor?: string }> {
+  const pageSize = Math.min(100, Math.max(1, Math.floor(limit) || 100));
+  const after = decodeCursor(cursor);
   const rows = await db.$queryRawUnsafe<
     Array<PublicProduct & { available: number | null; reserved: number }>
   >(
@@ -214,12 +219,14 @@ export async function listProducts(
             requires_pii, fulfillment_mode
        FROM shop_products
       WHERE merchant_id = $1::uuid AND NOT is_test AND moderation_status = 'ok'
-        AND fulfillment_mode <> 'stream'
+        AND fulfillment_mode <> 'stream' AND ($3::text IS NULL OR sku > $3::text)
       ORDER BY sku LIMIT $2::int`,
     merchant_id,
-    limit,
+    pageSize + 1,
+    after,
   );
-  return rows.map((r) => ({
+  const page = rows.slice(0, pageSize);
+  const products: PublicProduct[] = page.map((r) => ({
     sku: r.sku,
     title: r.title,
     price_usd: r.price_usd,
@@ -227,6 +234,17 @@ export async function listProducts(
     requires_pii: r.requires_pii,
     fulfillment_mode: r.fulfillment_mode,
   }));
+  return rows.length > pageSize
+    ? {
+        products,
+        next_cursor: Buffer.from(page[page.length - 1].sku, 'utf8').toString('base64url'),
+      }
+    : { products };
+}
+
+function decodeCursor(cursor: unknown): string | null {
+  if (typeof cursor !== 'string' || cursor === '' || cursor.length > 400) return null;
+  return Buffer.from(cursor, 'base64url').toString('utf8') || null;
 }
 
 export async function getProductCard(

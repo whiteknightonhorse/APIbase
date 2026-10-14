@@ -207,7 +207,15 @@ describe('ID3/ID7 guard', () => {
       expect((await fetch(`${base}/read`, h(ro))).status).toBe(200);
       expect((await fetch(`${base}/write`, { method: 'POST', ...h(ro) })).status).toBe(403);
       expect((await fetch(`${base}/read`, h('garbage'))).status).toBe(401);
-      expect((await fetch(`${base}/read`)).status).toBe(401);
+      const miss = await fetch(`${base}/read`);
+      expect(miss.status).toBe(401);
+      expect(await miss.json()).toEqual({
+        error: 'unauthorized',
+        error_code: 'unauthorized',
+        message: 'missing or malformed merchant key',
+        suggested_action: 'send Authorization: Bearer mk_live_...',
+        documentation_url: '/integrator/agent-guide#unauthorized',
+      });
       f.keys.find((k) => k.key_hash === hashApiKey(ro))!.revoked_at = new Date();
       expect((await fetch(`${base}/read`, h(ro))).status).toBe(401);
       const codes: number[] = [];
