@@ -150,7 +150,7 @@ Provider | model | cost | tier | source date. Every tier below is assumed (opera
 | dhl | free_tier | $0 (250/day, 1 call per 5 s) | tier assumed: Initial-development key (free) | 2026-10-14 |
 | dpla | free_tier | $0 (free key, no stated limit) | tier assumed: Free key | 2026-10-14 |
 | ecdc-surveillance | free | $0 (no key) | tier assumed: Public open data, no key | 2026-10-14 |
-| echo | free_tier | $0 (300/hour per IP) | tier assumed: Public, no key | 2026-10-14 |
+| echo | free_tier | $0 (no limit stated on page) | tier assumed: Public, no key | 2026-10-14 |
 | eia | free_tier | $0 (free key) | tier assumed: Free API key | 2026-10-14 |
 | ensembl | free | $0 (no key, 55,000/hour) | tier assumed: Public API, no key | 2026-10-14 |
 | exchangerate | free_tier | $0 (1,500/month) | tier assumed: Free | 2026-10-14 |
