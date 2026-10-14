@@ -12,6 +12,9 @@ export async function resolveBuyer(p: {
   ip?: string;
   session?: string;
 }): Promise<Buyer> {
+  if (typeof p.apiKey === 'string' && /^bt_[0-9a-f]{64}$/.test(p.apiKey)) {
+    return { identity: `token:${createHash('sha256').update(p.apiKey).digest('hex')}` };
+  }
   if (p.apiKey && isValidApiKeyFormat(p.apiKey)) {
     try {
       const { getPrisma } = await import('../services/prisma.service');

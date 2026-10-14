@@ -394,7 +394,12 @@ dbDescribe('shop quotes', () => {
       expect(await reserved(m, sku)).toBe(1);
       const got = await fetch(`${base}/api/v1/shop/quotes/${ja.quote_id}`);
       expect((await got.json()).quote_id).toBe(ja.quote_id);
-      const c = await post(`/api/v1/shop/orders/${ja.order_id}/cancel`, { reason: 'bye' });
+      // anonymous REST buyer: the quote's buyer_token is the identity (T-SHOP-A)
+      const c = await post(
+        `/api/v1/shop/orders/${ja.order_id}/cancel`,
+        { reason: 'bye' },
+        { authorization: `Bearer ${ja.buyer_token}` },
+      );
       expect((await c.json()).state).toBe('CANCELLED');
     });
 
