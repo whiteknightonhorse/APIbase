@@ -89,13 +89,13 @@
 <div class="fm-grid">
 <div class="fm-main">
 <h2 id="send-a-message">Send a message</h2>
-<div class="fm-box" id="contact-sent" role="status" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4fd283" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8 12.5l3 3 5-6"></path></svg><div><strong>Your email app should open</strong><span>The message is addressed to support@apibase.pro. If nothing opened, write to us at that address.</span></div></div>
+<div class="fm-box" id="contact-sent" role="status" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4fd283" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M8 12.5l3 3 5-6"></path></svg><div><strong id="contact-sent-title">Received</strong><span id="contact-sent-text">We answer by email. If you do not hear from us, write to support@apibase.pro.</span></div></div>
 <form id="contact-form" method="post" action="mailto:support@apibase.pro" enctype="text/plain" novalidate>
 <div class="fm-f"><label for="c-name">Your name</label><input id="c-name" name="name" type="text" autocomplete="name" maxlength="120" required><p class="fm-err" id="c-name-err" role="alert" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.01"></path></svg><span></span></p></div>
 <div class="fm-f"><label for="c-email">Email</label><input id="c-email" name="email" type="email" autocomplete="email" maxlength="256" placeholder="name@company.com" required><p class="fm-err" id="c-email-err" role="alert" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.01"></path></svg><span></span></p></div>
 <div class="fm-f wide"><label for="c-message">Message</label><textarea id="c-message" name="message" rows="5" maxlength="1500" required></textarea><p class="fm-err" id="c-message-err" role="alert" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"></path><path d="M12 10v4M12 17v.01"></path></svg><span></span></p></div>
 <div class="fm-box bad fm-note" id="contact-errors" role="note" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff7262" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M9 9l6 6M15 9l-6 6"></path></svg><div><strong>Check the highlighted fields</strong><span id="contact-errors-n"></span></div></div>
-<div class="fm-actions"><button class="fm-btn p" type="submit">Send message</button><span class="fm-hint">All fields required. Sending opens your email app.</span></div>
+<div class="fm-actions"><button class="fm-btn p" type="submit">Send message</button><span class="fm-hint">All fields required. We answer by email.</span></div>
 </form>
 </div>
 
@@ -162,8 +162,29 @@
     document.getElementById('contact-errors-n').textContent=n===1?'1 field needs attention before you can send.':n+' fields need attention before you can send.';
     if(n)return;
     var body=v.message.trim()+'\n\n'+v.name.trim()+' <'+v.email.trim()+'>';
-    window.location.href='mailto:support@apibase.pro?subject='+encodeURIComponent('Message from '+v.name.trim())+'&body='+encodeURIComponent(body);
-    document.getElementById('contact-sent').hidden=false;
+    function viaMailto(){
+      window.location.href='mailto:support@apibase.pro?subject='+encodeURIComponent('Message from '+v.name.trim())+'&body='+encodeURIComponent(body);
+      document.getElementById('contact-sent-title').textContent='Your email app should open';
+      document.getElementById('contact-sent-text').textContent='The message is addressed to support@apibase.pro. If nothing opened, write to us at that address.';
+      document.getElementById('contact-sent').hidden=false;
+    }
+    fetch('/api/v1/contact',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({name:v.name.trim(),email:v.email.trim(),message:v.message.trim()})})
+      .then(function(r){return r.json().catch(function(){return {}}).then(function(j){return {s:r.status,j:j}})})
+      .then(function(x){
+        if(x.s===200&&x.j.status==='accepted'){
+          document.getElementById('contact-sent-title').textContent='Received';
+          document.getElementById('contact-sent-text').textContent='Received. Reference '+x.j.message_id+'. We answer by email to '+v.email.trim()+'.';
+          document.getElementById('contact-sent').hidden=false;
+          return;
+        }
+        if(x.s>=400&&x.s<500){
+          document.getElementById('contact-errors').hidden=false;
+          document.getElementById('contact-errors-n').textContent=x.s===429?'Too many messages from this address. Try again later.':'The server rejected some fields. Check the highlighted fields.';
+          return;
+        }
+        viaMailto();
+      })
+      .catch(viaMailto);
   });
 })();
 </script>

@@ -14,6 +14,7 @@ import { x402Middleware } from '../middleware/x402.middleware';
 import { mppMiddleware } from '../middleware/mpp.middleware';
 import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
+import { contactRouter } from '../routes/contact.router';
 import { appealsRouter } from '../routes/appeals.router';
 import { createMerchantRouter } from '../shop/routes/merchant.router';
 import { createOrderRouter } from '../shop/routes/order.router';
@@ -104,6 +105,7 @@ export function createApp(): express.Express {
 
   // --- Smart Onboarding Form (§6.12, §AP-10 — before content-type enforcement) ---
   app.use(onboardRouter);
+  app.use(contactRouter);
 
   // --- Moderation appeal page + endpoint (F2/C-3 — HTML form posts before
   // content-type enforcement, same reason as onboardRouter above) ---

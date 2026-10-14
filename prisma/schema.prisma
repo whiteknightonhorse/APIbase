@@ -277,6 +277,22 @@ model OnboardingSubmission {
 }
 
 // ---------------------------------------------------------------------------
+// contact_messages — /contact form (T-SITE-C). Outbox event: contact_message.
+// ---------------------------------------------------------------------------
+model ContactMessage {
+  message_id  String   @id
+  name        String
+  email       String
+  message     String
+  ip_address  String
+  status      String   @default("new")
+  created_at  DateTime @default(now()) @db.Timestamptz()
+
+  @@index([status, created_at])
+  @@map("contact_messages")
+}
+
+// ---------------------------------------------------------------------------
 // device_connections -- F5 physical-device layer: per-agent vendor OAuth
 // account links (Tuya first). Never stores a vendor PASSWORD -- only the
 // OAuth access/refresh tokens the vendor issued for the user's own account
