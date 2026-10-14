@@ -12,6 +12,7 @@ Usage: inbound-messages-alerts.py [--selftest]
 """
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -84,7 +85,7 @@ def send(tg, text):
     if not (token and chat_id):
         return False
     r = subprocess.run(
-        ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
+        ["curl", "-sS", "--max-time", "30", "--form-string", f"chat_id={chat_id}", "--form-string", f"text={text}",
          f"https://api.telegram.org/bot{token}/sendMessage"],
         capture_output=True, text=True,
     )
@@ -148,6 +149,15 @@ def page_new():
     return 0
 
 
+def parse_ts(s):
+    """Parse row_to_json timestamps; PG trims trailing zeros of the fraction, Python 3.10 needs 3 or 6 digits."""
+    m = re.match(r"^(.*?T\d\d:\d\d:\d\d)(?:\.(\d+))?(.*)$", s)
+    if not m:
+        return datetime.fromisoformat(s)
+    head, frac, tail = m.groups()
+    return datetime.fromisoformat(head + ("." + frac.ljust(6, "0")[:6] if frac else "") + tail)
+
+
 def nag_once_a_day():
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     try:
@@ -167,7 +177,7 @@ def nag_once_a_day():
         return
 
     def parse(rs):
-        return [(r["id"], datetime.fromisoformat(r["created_at"])) for r in rs]
+        return [(r["id"], parse_ts(r["created_at"])) for r in rs]
 
     ob_ids, ct_ids = select_stale(parse(ob), parse(ct), datetime.now(timezone.utc))
     text = format_nag(ob_ids, ct_ids)
@@ -192,6 +202,8 @@ def selftest():
 
     assert select_stale([("a", ago(8)), ("b", ago(6))], [("c", ago(4)), ("d", ago(2))], now) == (["a"], ["c"])
     assert format_nag([], []) == "" and "a" in format_nag(["a"], ["c"])
+    assert parse_ts("2026-07-20T11:30:01.36+00:00") == datetime(2026, 7, 20, 11, 30, 1, 360000, tzinfo=timezone.utc)
+    assert parse_ts("2026-07-20T11:30:01+00:00").second == 1 and parse_ts("2026-07-20T11:30:01.1+00:00").microsecond == 100000
     print("inbound-messages-alerts selftest OK")
 
 
