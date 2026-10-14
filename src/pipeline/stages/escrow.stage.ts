@@ -499,7 +499,7 @@ function verifyFeeSplitLegs(
  * `afterVerify` (quote orders: the payer OFAC screen, §8.4) runs after a valid
  * verify and BEFORE the nonce claim, so a refused payer never burns a nonce.
  */
-async function verifyX402Binding(
+export async function verifyX402Binding(
   ctx: PipelineContext,
   binding: PaymentBinding,
   afterVerify?: (v: VerifiedX402) => Promise<Result<true, PipelineError>>,
@@ -511,6 +511,7 @@ async function verifyX402Binding(
     reason: string,
     code = 'payment_required',
     message?: string,
+    mismatch?: 'amount' | 'pay_to' | 'fee_split',
   ): Result<never, PipelineError> => {
     logger.warn(
       { toolId: ctx.toolId, requestId: ctx.requestId, reason },
@@ -523,7 +524,11 @@ async function verifyX402Binding(
         message:
           message ??
           'Payment required: sign an exact x402 authorization for the quoted amount and payee.',
-        extra: { binding, quote_id: binding.resource.slice('quote:'.length) },
+        extra: {
+          binding,
+          quote_id: binding.resource.slice('quote:'.length),
+          ...(mismatch ? { mismatch } : {}),
+        },
       });
     }
     return err<PipelineError>({
@@ -571,15 +576,22 @@ async function verifyX402Binding(
           'amount_mismatch',
           'payment_amount_mismatch',
           `The authorization must be for exactly ${toMicroUsdc(binding.amount_usd)} micro-USDC (the quoted total).`,
+          'amount',
         );
       }
     } else {
       const split = verifyFeeSplitLegs(binding, payload, auth as Eip3009Leg, feeAuthRaw);
-      if (!split.ok) return reject(split.reason, 'payment_amount_mismatch', split.message);
+      if (!split.ok)
+        return reject(split.reason, 'payment_amount_mismatch', split.message, 'fee_split');
       feeSplitLeg = split.leg;
     }
     if (auth.to.toLowerCase() !== binding.pay_to.toLowerCase()) {
-      return reject('pay_to_mismatch');
+      return reject(
+        'pay_to_mismatch',
+        'payment_amount_mismatch',
+        'authorization.to differs from the quote payTo',
+        'pay_to',
+      );
     }
     if (p.accepted?.network !== undefined && p.accepted.network !== x402Cfg.network) {
       return reject('network_mismatch');
@@ -643,6 +655,7 @@ async function verifyX402Binding(
         `fee_leg_${feeResult.invalidReason ?? 'invalid'}`,
         'payment_amount_mismatch',
         'The fee authorization is not valid for the quoted fee.',
+        'fee_split',
       );
     }
   }

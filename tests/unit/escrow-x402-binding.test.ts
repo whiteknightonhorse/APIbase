@@ -69,9 +69,11 @@ jest.mock('../../src/services/x402-server.service', () => ({
   getSharedResourceServer: () => ({ verifyPayment: mockVerify }),
 }));
 
-import { escrowStage } from '../../src/pipeline/stages/escrow.stage';
+import { escrowStage, verifyX402Binding } from '../../src/pipeline/stages/escrow.stage';
 import { toMicroUsdc, buildServerX402Requirements } from '../../src/config/x402.config';
 import { buildPaymentRequiredResponse } from '../../src/middleware/x402.middleware';
+import { parsePaymentPayload } from '@x402/core/schemas';
+import { claimPaymentNonce } from '../../src/services/payment-nonce.service';
 import type { PipelineContext } from '../../src/pipeline/types';
 
 const RECEIVER = '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480';
@@ -161,4 +163,65 @@ describe('x402 amount rounding consistency', () => {
       expect(challengeAmount).toBe(toMicroUsdc(price));
     },
   );
+});
+
+describe('x402 quote binding: mismatch field (T-SHOP-F)', () => {
+  const PAYOUT = '0x1111111111111111111111111111111111111111';
+  const binding = {
+    amount_usd: 5,
+    pay_to: PAYOUT,
+    rail: 'base' as const,
+    resource: 'quote:q-1' as const,
+  };
+  const payloadWith = (to: string, value: string) => ({
+    success: true,
+    data: {
+      accepted: {},
+      payload: {
+        authorization: {
+          from: '0xPAYER',
+          to,
+          value,
+          validAfter: '0',
+          validBefore: String(Math.floor(Date.now() / 1000) + 60),
+          nonce: '0xnonce-quote-test',
+        },
+      },
+    },
+  });
+
+  beforeEach(() => {
+    (claimPaymentNonce as jest.Mock).mockClear();
+  });
+
+  it('wrong recipient -> 402 payment_amount_mismatch, mismatch pay_to, no nonce claim', async () => {
+    (parsePaymentPayload as jest.Mock).mockReturnValueOnce(payloadWith(RECEIVER, toMicroUsdc(5)));
+
+    const res = await verifyX402Binding(ctx(), binding);
+
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.error.code).toBe(402);
+      expect(res.error.error).toBe('payment_amount_mismatch');
+      expect(res.error.message).toBe('authorization.to differs from the quote payTo');
+      expect(res.error.extra?.mismatch).toBe('pay_to');
+    }
+    expect(mockVerify).not.toHaveBeenCalled();
+    expect(claimPaymentNonce).not.toHaveBeenCalled();
+  });
+
+  it('wrong amount -> 402 payment_amount_mismatch, mismatch amount, no nonce claim', async () => {
+    (parsePaymentPayload as jest.Mock).mockReturnValueOnce(payloadWith(PAYOUT, toMicroUsdc(1)));
+
+    const res = await verifyX402Binding(ctx(), binding);
+
+    expect(res.ok).toBe(false);
+    if (!res.ok) {
+      expect(res.error.code).toBe(402);
+      expect(res.error.error).toBe('payment_amount_mismatch');
+      expect(res.error.extra?.mismatch).toBe('amount');
+    }
+    expect(mockVerify).not.toHaveBeenCalled();
+    expect(claimPaymentNonce).not.toHaveBeenCalled();
+  });
 });
