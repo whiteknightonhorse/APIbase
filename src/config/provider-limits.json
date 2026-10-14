@@ -254,7 +254,7 @@
     "reset_period": "monthly",
     "docs_url": "https://docs.diffbot.com/reference/account-limits",
     "pricing_url": "https://www.diffbot.com/pricing/",
-    "limit_proof": "Free trial: 10,000 calls/month",
+    "limit_proof": "https://www.diffbot.com/pricing/ 2026-10-14: Free $0, 10,000 credits/month, 5 requests/min, No credit card required",
     "key_expiry": {
       "PROVIDER_KEY_DIFFBOT": {
         "date": "unknown",
@@ -288,7 +288,7 @@
     "free_limit": 1000,
     "reset_period": "monthly",
     "docs_url": "https://whoisjson.com/",
-    "limit_proof": "Basic plan: 1,000 req/month free, 20 req/min, all endpoints included, expires May 2026",
+    "limit_proof": "https://whoisjson.com/pricing 2026-10-14: Basic (free) 1,000 requests/month, 20 req/min, no card",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -933,7 +933,7 @@
     "free_limit": 25000,
     "reset_period": "monthly",
     "docs_url": "https://ocr.space/ocrapi",
-    "limit_proof": "Free OCR API: 25,000 requests/month, commercial use permitted",
+    "limit_proof": "https://ocr.space/ocrapi 2026-10-14: Free plan 25,000 requests per month; rate limit of 500 requests per day per IP address",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -965,11 +965,11 @@
     "display_name": "Exa Semantic Search",
     "health_url": "https://api.exa.ai/search",
     "limit_type": "monthly",
-    "free_limit": 1000,
+    "free_limit": 2500,
     "reset_period": "monthly",
     "docs_url": "https://docs.exa.ai/reference/search",
     "pricing_url": "https://exa.ai/pricing",
-    "limit_proof": "Free tier: 1,000 requests/month, no credit card required",
+    "limit_proof": "https://exa.ai/pricing 2026-10-14: The Free Tier gives you $10 in credits (up to 2,500 Instant searches); resets monthly, no payment method required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -981,7 +981,7 @@
     "reset_period": "monthly",
     "docs_url": "https://docs.tavily.com/documentation/api-reference/search",
     "pricing_url": "https://www.tavily.com/pricing",
-    "limit_proof": "Free tier: 1,000 API credits/month, no credit card required",
+    "limit_proof": "https://www.tavily.com/pricing 2026-10-14: Free plan 1,000 API credits / month; pay-as-you-go $0.008 per credit",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },

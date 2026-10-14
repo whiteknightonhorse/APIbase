@@ -16,3 +16,24 @@ the cheapest tier that includes the endpoint, marked `tier assumed: <name>; oper
 | browserbase | Developer ($20/mo, 100 hours) | provider-limits.json still says "Hobby 100 sessions"; the page shows Free = 1 browser hour |
 | api2pdf | pay-per-use | One plan |
 | resend | Free | 3,000/month, 100/day |
+| spider | Pay as you go | T-SITE-F0b; model metered |
+| diffbot | Free | T-SITE-F0b; model free_tier |
+| exa | Free | T-SITE-F0b; model free_tier |
+| tavily | Free | T-SITE-F0b; model free_tier |
+| serper | Starter pack | T-SITE-F0b; model flat |
+| twitterapi | pay-as-you-go credits | T-SITE-F0b; model metered |
+| zerobounce | Pay as You Go | T-SITE-F0b; model flat |
+| email_verify | pay-as-you-go credit pool | T-SITE-F0b; model metered |
+| whoisxml | pay-as-you-go credit pool | T-SITE-F0b; model metered |
+| whoisjson | Basic (free) | T-SITE-F0b; model free_tier |
+| convertapi | Developer / top-up | T-SITE-F0b; model metered |
+| apiflash | Lite | T-SITE-F0b; model flat |
+| ocrspace | Free | T-SITE-F0b; model free_tier |
+| canopy | pay-as-you-go | T-SITE-F0b; model flat |
+| theirstack | API $49/month | T-SITE-F0b; model metered |
+| usrealestate | RapidAPI BASIC | T-SITE-F0b; model metered |
+| audd | $5/month base plan | T-SITE-F0b; model flat |
+| ipqs | Free | T-SITE-F0b; model free_tier |
+| hunter | Starter | T-SITE-F0b; model flat |
+| 17track | Free plan, paid unpriced | T-SITE-F0b; model metered |
+| zyte | Pay as you go | T-SITE-F0b; model metered |

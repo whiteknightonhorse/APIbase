@@ -100,3 +100,24 @@ Provider | model | cost | tier | source date. Every tier below is assumed (opera
 | browserbase | metered | NOT_MEASURED; browser hours x $0.12 beyond 100 included | tier assumed: Developer | 2026-10-14 |
 | api2pdf | metered | NOT_MEASURED; $0.001/MB + $0.00019551/s + $1/mo | tier assumed: pay-per-use | 2026-10-14 |
 | resend | free_tier | $0 (3,000/month, 100/day, no overage) | tier assumed: Free | 2026-10-14 |
+| spider | metered | NOT_MEASURED; GB x $1 + CPU min x $0.0001 | tier assumed: Pay as you go | 2026-10-14 |
+| diffbot | free_tier | $0 (10,000 credits/month) | tier assumed: Free | 2026-10-14 |
+| exa | free_tier | $0 ($10 monthly credit, 2,500 instant searches) | tier assumed: Free | 2026-10-14 |
+| tavily | free_tier | $0 (1,000 credits/month) | tier assumed: Free | 2026-10-14 |
+| serper | flat | $0.001 ($50 / 50k credits) | tier assumed: Starter pack | 2026-10-14 |
+| twitterapi | metered | NOT_MEASURED; items x $0.00015 per tweet, min $0.00015 per call | tier assumed: pay-as-you-go credits | 2026-10-14 |
+| zerobounce | flat | $0.0195 ($39 / 2,000) | tier assumed: Pay as You Go | 2026-10-14 |
+| email_verify | metered | NOT_MEASURED; credits x pool rate ($129/month pool) | tier assumed: pay-as-you-go credit pool | 2026-10-14 |
+| whoisxml | metered | NOT_MEASURED; credits x pool rate ($129/month pool) | tier assumed: pay-as-you-go credit pool | 2026-10-14 |
+| whoisjson | free_tier | $0 (1,000 requests/month) | tier assumed: Basic (free) | 2026-10-14 |
+| convertapi | metered | NOT_MEASURED; conversions x per-conversion price (unpublished) | tier assumed: Developer / top-up | 2026-10-14 |
+| apiflash | flat | $0.007 ($7 / 1,000) | tier assumed: Lite | 2026-10-14 |
+| ocrspace | free_tier | $0 (25,000/month, 500/day/IP) | tier assumed: Free | 2026-10-14 |
+| canopy | flat | $0.01 (PAYG per provider-limits.json, not re-verified) | tier assumed: pay-as-you-go | 2026-10-14 |
+| theirstack | metered | NOT_MEASURED; results x credits x $0.0327 | tier assumed: API $49/month | 2026-10-14 |
+| usrealestate | metered | NOT_MEASURED; RapidAPI price unreadable | tier assumed: RapidAPI BASIC | 2026-10-14 |
+| audd | flat | $0.005 ($5 / 1,000) | tier assumed: $5/month base plan | 2026-10-14 |
+| ipqs | free_tier | $0 (1,000 lookups/month) | tier assumed: Free | 2026-10-14 |
+| hunter | flat | $0.0245 ($49 / 2,000) | tier assumed: Starter | 2026-10-14 |
+| 17track | metered | NOT_MEASURED; register = quota units x package price | tier assumed: Free plan, paid unpriced | 2026-10-14 |
+| zyte | metered | NOT_MEASURED; $0.00013-$0.00127 per HTTP response, browser $0.00101-$0.01608 | tier assumed: Pay as you go | 2026-10-14 |

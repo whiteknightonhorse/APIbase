@@ -875,24 +875,36 @@ tools:
     name: Diffbot Product Extract
     provider: diffbot
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.diffbot.com/pricing/ — \"Free $0, 10,000 credits/month, 5 requests/min, No credit card required; Extract 1 page = 1 credit, Web Search 1 search = 1 credit\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal (Startup overage would be $0.001/credit)"
     cache_ttl: 3600
 
   - tool_id: diffbot.page_analyze
     name: Diffbot Page Analyze
     provider: diffbot
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.diffbot.com/pricing/ — \"Free $0, 10,000 credits/month, 5 requests/min, No credit card required; Extract 1 page = 1 credit, Web Search 1 search = 1 credit\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal (Startup overage would be $0.001/credit)"
     cache_ttl: 3600
 
   - tool_id: diffbot.article_extract
     name: Diffbot Article Extract
     provider: diffbot
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.diffbot.com/pricing/ — \"Free $0, 10,000 credits/month, 5 requests/min, No credit card required; Extract 1 page = 1 credit, Web Search 1 search = 1 credit\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal (Startup overage would be $0.001/credit)"
     cache_ttl: 3600
 
   - tool_id: diffbot.search
     name: Diffbot Knowledge Graph Search
     provider: diffbot
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.diffbot.com/pricing/ — \"Free $0, 10,000 credits/month, 5 requests/min, No credit card required; Extract 1 page = 1 credit, Web Search 1 search = 1 credit\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal (Startup overage would be $0.001/credit)"
     cache_ttl: 86400
 
   # --- UC-028: WhoisXML API (Domain / WHOIS / DNS) ---
@@ -900,24 +912,40 @@ tools:
     name: WHOIS Domain Lookup
     provider: whoisxml
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://whois.whoisxmlapi.com/pricing — only \"One Universal API Credit Pool: Start from $129/month\" is published; per-query credit cost per product is not on the page — 2026-10-14 — tier assumed: pay-as-you-go credit pool; operator to confirm; formula: credits per query (whois, dns, availability, reverse differ) x pool price per credit; per-product credit cost needs the WhoisXML account; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   - tool_id: whois.dns_lookup
     name: DNS Record Lookup
     provider: whoisxml
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://whois.whoisxmlapi.com/pricing — only \"One Universal API Credit Pool: Start from $129/month\" is published; per-query credit cost per product is not on the page — 2026-10-14 — tier assumed: pay-as-you-go credit pool; operator to confirm; formula: credits per query (whois, dns, availability, reverse differ) x pool price per credit; per-product credit cost needs the WhoisXML account; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   - tool_id: whois.availability
     name: Domain Availability Check
     provider: whoisxml
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://whois.whoisxmlapi.com/pricing — only \"One Universal API Credit Pool: Start from $129/month\" is published; per-query credit cost per product is not on the page — 2026-10-14 — tier assumed: pay-as-you-go credit pool; operator to confirm; formula: credits per query (whois, dns, availability, reverse differ) x pool price per credit; per-product credit cost needs the WhoisXML account; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
 
   - tool_id: whois.reverse
     name: Reverse WHOIS Search
     provider: whoisxml
     price_usd: "0.008"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://whois.whoisxmlapi.com/pricing — only \"One Universal API Credit Pool: Start from $129/month\" is published; per-query credit cost per product is not on the page — 2026-10-14 — tier assumed: pay-as-you-go credit pool; operator to confirm; formula: credits per query (whois, dns, availability, reverse differ) x pool price per credit; per-product credit cost needs the WhoisXML account; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   # --- UC-031: Spoonacular (Recipe / Cooking / Food Data) ---
@@ -1220,6 +1248,9 @@ tools:
     name: Email Validation
     provider: zerobounce
     price_usd: "0.025"
+    upstream_cost_usd: "0.0195"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://www.zerobounce.net/pricing/ — \"Pay as You Go option starts at $39 USD for validating 2,000 email addresses; Free: 100 validation credits, refill monthly; one credit per email; Unknown results are not charged\" — 2026-10-14 — tier assumed: Pay as You Go ($39 / 2,000 credits); operator to confirm; $39 / 2000 = $0.0195 per validation; free 100/month is too small to count as free_tier"
     cache_ttl: 86400
 
   # --- UC-112: Short.io (URL Shortener) ---
@@ -1418,6 +1449,9 @@ tools:
     capability: web.screenshot
     scope: global
     price_usd: "0.005"
+    upstream_cost_usd: "0.007"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://apiflash.com/ — \"Free $0/month 100 Screenshots; Lite $7/month 1,000 Screenshots; Medium $35/month 10,000\" — 2026-10-14 — tier assumed: Lite; operator to confirm; $7 / 1000 = $0.007 per screenshot; free 100/month is too small to count as free_tier"
     cache_ttl: 86400
 
   # --- UC-089: API-Sports (Multi-Sport Data) ---
@@ -2083,6 +2117,9 @@ tools:
     name: Extract Text from Image (OCR)
     provider: ocrspace
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://ocr.space/ocrapi — \"Free plan 25,000 requests per month; rate limit of 500 requests per day per IP address; PRO $30/month for 300,000\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-074: Finnhub (Stock Market Data) ---
@@ -2147,18 +2184,27 @@ tools:
     capability: search.web
     scope: global
     price_usd: "0.012"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://exa.ai/pricing — \"The Free Tier gives you $10 in credits (up to 2,500 Instant searches)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid list price search $4/1k instant, contents $1/1k pages"
     cache_ttl: 300
 
   - tool_id: exa.contents
     name: Extract Page Content
     provider: exa
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://exa.ai/pricing — \"The Free Tier gives you $10 in credits (up to 2,500 Instant searches)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid list price search $4/1k instant, contents $1/1k pages"
     cache_ttl: 3600
 
   - tool_id: exa.find_similar
     name: Find Similar Pages
     provider: exa
     price_usd: "0.012"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://exa.ai/pricing — \"The Free Tier gives you $10 in credits (up to 2,500 Instant searches)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid list price search $4/1k instant, contents $1/1k pages"
     cache_ttl: 3600
 
   # --- UC-068: Tavily AI Search ---
@@ -2168,12 +2214,18 @@ tools:
     capability: search.web
     scope: global
     price_usd: "0.010"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.tavily.com/pricing — \"Free plan: 1,000 API credits / month; pay-as-you-go $0.008 per credit\" — 2026-10-14 — tier assumed: Free (Researcher); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: tavily.extract
     name: Web Page Content Extract
     provider: tavily
     price_usd: "0.010"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.tavily.com/pricing — \"Free plan: 1,000 API credits / month; pay-as-you-go $0.008 per credit\" — 2026-10-14 — tier assumed: Free (Researcher); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-067: Serper.dev (Google Search API) ---
@@ -2183,24 +2235,36 @@ tools:
     capability: search.web
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0.001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://serper.dev — \"Starter: $50 for 50k credits, $1.00 per 1k; Try 2,500 queries for free; credits valid 6 months\" — 2026-10-14 — tier assumed: Starter pack; operator to confirm; $50 / 50000 = $0.001 per credit; assumed 1 credit per query for every search type"
     cache_ttl: 300
 
   - tool_id: serper.news_search
     name: Google News Search
     provider: serper
     price_usd: "0.002"
+    upstream_cost_usd: "0.001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://serper.dev — \"Starter: $50 for 50k credits, $1.00 per 1k; Try 2,500 queries for free; credits valid 6 months\" — 2026-10-14 — tier assumed: Starter pack; operator to confirm; $50 / 50000 = $0.001 per credit; assumed 1 credit per query for every search type"
     cache_ttl: 60
 
   - tool_id: serper.image_search
     name: Google Image Search
     provider: serper
     price_usd: "0.002"
+    upstream_cost_usd: "0.001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://serper.dev — \"Starter: $50 for 50k credits, $1.00 per 1k; Try 2,500 queries for free; credits valid 6 months\" — 2026-10-14 — tier assumed: Starter pack; operator to confirm; $50 / 50000 = $0.001 per credit; assumed 1 credit per query for every search type"
     cache_ttl: 300
 
   - tool_id: serper.shopping_search
     name: Google Shopping Search
     provider: serper
     price_usd: "0.002"
+    upstream_cost_usd: "0.001"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://serper.dev — \"Starter: $50 for 50k credits, $1.00 per 1k; Try 2,500 queries for free; credits valid 6 months\" — 2026-10-14 — tier assumed: Starter pack; operator to confirm; $50 / 50000 = $0.001 per credit; assumed 1 credit per query for every search type"
     cache_ttl: 300
 
   # --- UC-063: US Real Estate (RapidAPI — Property Listings & Details) ---
@@ -2208,18 +2272,30 @@ tools:
     name: US Properties For Sale
     provider: usrealestate
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://rapidapi.com/apidojo/api/realtor — RapidAPI pricing page is JS-rendered and returned no text; provider-limits.json records \"500K req/month free BASIC plan via RapidAPI\" but it is dashboard-only — 2026-10-14 — tier assumed: RapidAPI BASIC; operator to confirm; formula: requests x plan overage price from the RapidAPI dashboard; quota unverifiable so free_tier is not claimed; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   - tool_id: usrealestate.property_detail
     name: US Property Details
     provider: usrealestate
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://rapidapi.com/apidojo/api/realtor — RapidAPI pricing page is JS-rendered and returned no text; provider-limits.json records \"500K req/month free BASIC plan via RapidAPI\" but it is dashboard-only — 2026-10-14 — tier assumed: RapidAPI BASIC; operator to confirm; formula: requests x plan overage price from the RapidAPI dashboard; quota unverifiable so free_tier is not claimed; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   - tool_id: usrealestate.location_suggest
     name: US Location Search
     provider: usrealestate
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://rapidapi.com/apidojo/api/realtor — RapidAPI pricing page is JS-rendered and returned no text; provider-limits.json records \"500K req/month free BASIC plan via RapidAPI\" but it is dashboard-only — 2026-10-14 — tier assumed: RapidAPI BASIC; operator to confirm; formula: requests x plan overage price from the RapidAPI dashboard; quota unverifiable so free_tier is not claimed; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 604800
 
   # --- UC-062: Walk Score (Walkability & Transit Intelligence) ---
@@ -2623,11 +2699,19 @@ tools:
     name: Document to PDF
     provider: convertapi
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.convertapi.com/prices — \"Sign up for free and get 250 conversions!\"; Developer plan 1,000 conversions/month billed monthly; dollar amounts are not in the page text — 2026-10-14 — tier assumed: Developer / credit top-up; operator to confirm; formula: conversions consumed x per-conversion price; credits per conversion vary by format and file size; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: convert.from_pdf
     name: PDF to Document
     provider: convertapi
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.convertapi.com/prices — \"Sign up for free and get 250 conversions!\"; Developer plan 1,000 conversions/month billed monthly; dollar amounts are not in the page text — 2026-10-14 — tier assumed: Developer / credit top-up; operator to confirm; formula: conversions consumed x per-conversion price; credits per conversion vary by format and file size; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: convert.web_to_pdf
     name: Web to PDF (ConvertAPI)
@@ -2635,6 +2719,10 @@ tools:
     capability: document.pdf_generate
     scope: global
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.convertapi.com/prices — \"Sign up for free and get 250 conversions!\"; Developer plan 1,000 conversions/month billed monthly; dollar amounts are not in the page text — 2026-10-14 — tier assumed: Developer / credit top-up; operator to confirm; formula: conversions consumed x per-conversion price; credits per conversion vary by format and file size; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   # --- UC-146: API2PDF (PDF Generation) ---
@@ -2733,6 +2821,9 @@ tools:
     name: Company Email & Enrichment
     provider: hunter
     price_usd: "0.005"
+    upstream_cost_usd: "0.0245"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://hunter.io/pricing — \"Free plan: 50 credits per month; Starter $49/month billed monthly, 2,000 credits per month\" — 2026-10-14 — tier assumed: Starter; operator to confirm; $49 / 2000 = $0.0245 per credit; assumed 1 credit per company enrichment call; free 50/month too small for free_tier"
     cache_ttl: 3600
 
   # --- UC-191: FDIC BankFind ---
@@ -2854,21 +2945,37 @@ tools:
     name: Search Tweets
     provider: twitterapi
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://twitterapi.io/pricing — \"$0.15 per 1K tweets\", \"from $0.01 per 1K users\", \"1 USD = 100,000 Credits\", \"Minimum $0.00015 (15 credits) per API call\" — 2026-10-14 — tier assumed: pay-as-you-go credits; operator to confirm; formula: tweets returned x $0.00015 (min $0.00015 per call); user/follower items from $0.00001 each; a 20-tweet search page = $0.003, above the $0.002 price; trends not listed; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
   - tool_id: twitter.user
     name: User Profile
     provider: twitterapi
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://twitterapi.io/pricing — \"$0.15 per 1K tweets\", \"from $0.01 per 1K users\", \"1 USD = 100,000 Credits\", \"Minimum $0.00015 (15 credits) per API call\" — 2026-10-14 — tier assumed: pay-as-you-go credits; operator to confirm; formula: tweets returned x $0.00015 (min $0.00015 per call); user/follower items from $0.00001 each; a 20-tweet search page = $0.003, above the $0.002 price; trends not listed; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
   - tool_id: twitter.followers
     name: User Followers
     provider: twitterapi
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://twitterapi.io/pricing — \"$0.15 per 1K tweets\", \"from $0.01 per 1K users\", \"1 USD = 100,000 Credits\", \"Minimum $0.00015 (15 credits) per API call\" — 2026-10-14 — tier assumed: pay-as-you-go credits; operator to confirm; formula: tweets returned x $0.00015 (min $0.00015 per call); user/follower items from $0.00001 each; a 20-tweet search page = $0.003, above the $0.002 price; trends not listed; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
   - tool_id: twitter.trending
     name: Trending Topics
     provider: twitterapi
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://twitterapi.io/pricing — \"$0.15 per 1K tweets\", \"from $0.01 per 1K users\", \"1 USD = 100,000 Credits\", \"Minimum $0.00015 (15 credits) per API call\" — 2026-10-14 — tier assumed: pay-as-you-go credits; operator to confirm; formula: tweets returned x $0.00015 (min $0.00015 per call); user/follower items from $0.00001 each; a 20-tweet search page = $0.003, above the $0.002 price; trends not listed; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
 
   # --- UC-210: Currents API (Global News) ---
@@ -2963,21 +3070,33 @@ tools:
     name: IP Fraud Detection
     provider: ipqs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.ipqualityscore.com/documentation/overview — \"Free plan: 1,000 lookups/month (35/day), shared across all endpoints (vendor page /plans returned no text on 2026-10-14; figure from provider-limits.json)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
   - tool_id: ipqs.email_check
     name: Email Fraud Detection
     provider: ipqs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.ipqualityscore.com/documentation/overview — \"Free plan: 1,000 lookups/month (35/day), shared across all endpoints (vendor page /plans returned no text on 2026-10-14; figure from provider-limits.json)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: ipqs.url_check
     name: URL Malware Scanner
     provider: ipqs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.ipqualityscore.com/documentation/overview — \"Free plan: 1,000 lookups/month (35/day), shared across all endpoints (vendor page /plans returned no text on 2026-10-14; figure from provider-limits.json)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: ipqs.phone_check
     name: Phone Fraud Detection
     provider: ipqs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.ipqualityscore.com/documentation/overview — \"Free plan: 1,000 lookups/month (35/day), shared across all endpoints (vendor page /plans returned no text on 2026-10-14; figure from provider-limits.json)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-220: NCI CACTUS Chemical Identifier Resolver ---
@@ -3155,16 +3274,18 @@ tools:
     provider: zyte
     price_usd: "0.003"
     upstream_cost_status: NOT_MEASURED
-    upstream_cost_note: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, HTTP response body $0.13-$1.27/1,000 responses = $0.00013-$0.00127/request documented range; real per-call/period cost unmeasured, Stats API returned 403 (dashboard key MANUAL_REQUIRED, see provider-limits.json)"
-    upstream_cost_remeasure_by: "2026-09-30"
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.zyte.com/pricing/ — \"1 Simple $0.13 ... 5 Advanced $1.27\" per 1,000 HTTP responses; browser rendered \"$1.01 ... $16.08\" per 1,000; screenshot price not listed — 2026-10-14 — tier assumed: Pay as you go (provider-limits.json: $100/mo cap, no commitment); operator to confirm; formula: extract = per-site tier price / 1000 ($0.00013-$0.00127); browser = $0.00101-$0.01608 per response; screenshot unlisted; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
   - tool_id: scrape.browser
     name: Browser-Rendered Page HTML
     provider: zyte
     price_usd: "0.015"
     upstream_cost_status: NOT_MEASURED
-    upstream_cost_note: "zyte.com/pricing (playwright snapshot 2026-09-05): PAYG plan, Browser rendered $1.01-$16.08/1,000 responses = $0.00101-$0.01608/request documented range; real per-call/period cost unmeasured, Stats API returned 403 (dashboard key MANUAL_REQUIRED, see provider-limits.json). NOTE for the operator: even at the low end of this range ($0.00101) margin is fine, but at the documented max ($0.01608) required minimum price = 0.01608 * 1.3 (MARGIN_MULTIPLIER) = 0.020904 > price_usd 0.015 -- worth knowing before a future measurement lands, not something this task decides."
-    upstream_cost_remeasure_by: "2026-09-30"
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.zyte.com/pricing/ — \"1 Simple $0.13 ... 5 Advanced $1.27\" per 1,000 HTTP responses; browser rendered \"$1.01 ... $16.08\" per 1,000; screenshot price not listed — 2026-10-14 — tier assumed: Pay as you go (provider-limits.json: $100/mo cap, no commitment); operator to confirm; formula: extract = per-site tier price / 1000 ($0.00013-$0.00127); browser = $0.00101-$0.01608 per response; screenshot unlisted; at the documented max $0.01608 x 1.3 = $0.0209 exceeds price_usd 0.015 (re-price decision for the operator); needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
   - tool_id: scrape.screenshot
     name: Web Page Screenshot
@@ -3172,6 +3293,10 @@ tools:
     capability: web.screenshot
     scope: global
     price_usd: "0.024"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.zyte.com/pricing/ — \"1 Simple $0.13 ... 5 Advanced $1.27\" per 1,000 HTTP responses; browser rendered \"$1.01 ... $16.08\" per 1,000; screenshot price not listed — 2026-10-14 — tier assumed: Pay as you go (provider-limits.json: $100/mo cap, no commitment); operator to confirm; formula: extract = per-site tier price / 1000 ($0.00013-$0.00127); browser = $0.00101-$0.01608 per response; screenshot unlisted; screenshot has no published rate, billed as browser rendered (>= $0.01608 max) plus an undocumented surcharge, above price_usd 0.024 at the top of the range; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     # Zyte publishes no distinct screenshot rate -- it bills as Browser rendered
     # (same render path as scrape.browser) plus an undocumented "additional costs
     # for some features" surcharge (zyte.com/pricing, playwright snapshot
@@ -3179,9 +3304,6 @@ tools:
     # ($0.01608/request) and priced 3x lower ($0.005 vs $0.015) for a
     # structurally equal-or-greater cost -- a finding for the operator (see T-11
     # journal), NOT a number to invent here (⛔ no fabricated prices).
-    upstream_cost_status: NOT_MEASURED
-    upstream_cost_note: "no published per-screenshot rate; billed as Browser rendered (>= $0.01608/req documented max) + undocumented feature surcharge"
-    upstream_cost_remeasure_by: "2026-09-30"
     # T-01 (2026-09-05), law "never sell below cost" (dispute 01-law-never-sell-below-cost,
     # Fable ruling-1 decisions A + C2). NOT read by scripts/seed.ts (unknown key, inert) --
     # this is the audit trail, not a machine-read field.
@@ -3269,11 +3391,17 @@ tools:
     name: Identify Song from Audio
     provider: audd
     price_usd: "0.007"
+    upstream_cost_usd: "0.005"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://audd.io/ — \"The $5/month base plan includes 1,000 requests. Additional requests are billed at $0.005 each ($5 per 1,000); 300 free recognition requests for new accounts\" — 2026-10-14 — tier assumed: $5/month base plan; operator to confirm; applied to lyrics lookups too (assumed to count as requests)"
     cache_ttl: 0
   - tool_id: audd.lyrics
     name: Search Song Lyrics
     provider: audd
     price_usd: "0.003"
+    upstream_cost_usd: "0.005"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://audd.io/ — \"The $5/month base plan includes 1,000 requests. Additional requests are billed at $0.005 each ($5 per 1,000); 300 free recognition requests for new accounts\" — 2026-10-14 — tier assumed: $5/month base plan; operator to confirm; applied to lyrics lookups too (assumed to count as requests)"
     cache_ttl: 86400
 
   # --- UC-222: Materials Project (Materials Science) ---
@@ -3298,16 +3426,28 @@ tools:
     name: Register Package Tracking
     provider: 17track
     price_usd: "0.025"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://api.17track.net/en — free trial quota \"200 quota units/month for /register\" (provider-limits.json); paid package prices are not published on the page — 2026-10-14 — tier assumed: Free plan, paid packages unpriced; operator to confirm; formula: register = quota units x package price per unit; gettrackinfo and gettracklist consume no quota after registration per provider-limits.json; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: tracking.status
     name: Get Tracking Events
     provider: 17track
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://api.17track.net/en — free trial quota \"200 quota units/month for /register\" (provider-limits.json); paid package prices are not published on the page — 2026-10-14 — tier assumed: Free plan, paid packages unpriced; operator to confirm; formula: register = quota units x package price per unit; gettrackinfo and gettracklist consume no quota after registration per provider-limits.json; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 60
   - tool_id: tracking.list
     name: List Tracked Packages
     provider: 17track
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://api.17track.net/en — free trial quota \"200 quota units/month for /register\" (provider-limits.json); paid package prices are not published on the page — 2026-10-14 — tier assumed: Free plan, paid packages unpriced; operator to confirm; formula: register = quota units x package price per unit; gettrackinfo and gettracklist consume no quota after registration per provider-limits.json; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 30
 
   # --- UC-219: NHTSA Safety (Vehicle Recalls, Complaints, Ratings) ---
@@ -3440,6 +3580,10 @@ tools:
     name: Scrape Web Page
     provider: spider
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://spider.cloud/pricing — \"Pay as you go starts at $1/GB\", bandwidth $1 per GB plus compute $0.0001 per minute of CPU, \"Failed requests cost $0\"; per-endpoint cost for search not stated on the page — 2026-10-14 — tier assumed: Pay as you go; operator to confirm; formula: bytes fetched / 1e9 x $1 + CPU minutes x $0.0001; spider.search cost per query not published; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
   - tool_id: spider.search
     name: Web Search + Scrape
@@ -3447,6 +3591,10 @@ tools:
     capability: search.web
     scope: global
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://spider.cloud/pricing — \"Pay as you go starts at $1/GB\", bandwidth $1 per GB plus compute $0.0001 per minute of CPU, \"Failed requests cost $0\"; per-endpoint cost for search not stated on the page — 2026-10-14 — tier assumed: Pay as you go; operator to confirm; formula: bytes fetched / 1e9 x $1 + CPU minutes x $0.0001; spider.search cost per query not published; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 1800
 
   # --- UC-265: Canopy API (Amazon Product Data) ---
@@ -3454,21 +3602,33 @@ tools:
     name: Search Amazon Products
     provider: canopy
     price_usd: "0.012"
+    upstream_cost_usd: "0.01"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
     cache_ttl: 3600
   - tool_id: canopy.product
     name: Amazon Product Details
     provider: canopy
     price_usd: "0.012"
+    upstream_cost_usd: "0.01"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
     cache_ttl: 86400
   - tool_id: canopy.offers
     name: Amazon Offers & Buy Box
     provider: canopy
     price_usd: "0.012"
+    upstream_cost_usd: "0.01"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
     cache_ttl: 1800
   - tool_id: canopy.deals
     name: Amazon Current Deals
     provider: canopy
     price_usd: "0.012"
+    upstream_cost_usd: "0.01"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
     cache_ttl: 3600
 
   # --- UC-258: Remotive (Remote Jobs) ---
@@ -3523,11 +3683,19 @@ tools:
     capability: jobs.search
     scope: global
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://theirstack.com/en/pricing — \"API (monthly subscription): 1,500 credits for $49/month\"; jobs 1 credit per job, companies 3 credits each — 2026-10-14 — tier assumed: API $49/month (1,500 credits); operator to confirm; formula: results returned x credits per result x $0.0327 ($49 / 1500); a jobs call returning N jobs costs N credits, far above the $0.002 price; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
   - tool_id: theirstack.companies
     name: Search Companies by Tech Stack
     provider: theirstack
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://theirstack.com/en/pricing — \"API (monthly subscription): 1,500 credits for $49/month\"; jobs 1 credit per job, companies 3 credits each — 2026-10-14 — tier assumed: API $49/month (1,500 credits); operator to confirm; formula: results returned x credits per result x $0.0327 ($49 / 1500); a jobs call returning N jobs costs N credits, far above the $0.002 price; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 3600
 
   # --- F4: Account Analytics (internal, $0) ---
@@ -3595,11 +3763,17 @@ tools:
     name: SSL Certificate Check
     provider: whoisjson
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://whoisjson.com/pricing — \"Basic (free) $0, 1,000 requests/month, 20 req/min; Pro $10/mo for 30,000\" — 2026-10-14 — tier assumed: Basic (free); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: whoisjson.subdomains
     name: Subdomain Discovery
     provider: whoisjson
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://whoisjson.com/pricing — \"Basic (free) $0, 1,000 requests/month, 20 req/min; Pro $10/mo for 30,000\" — 2026-10-14 — tier assumed: Basic (free); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-344: npm Registry (JavaScript Package Intelligence) ---
@@ -3932,6 +4106,10 @@ tools:
     name: Verify Email Address
     provider: email_verify
     price_usd: "0.010"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://whois.whoisxmlapi.com/pricing — only \"One Universal API Credit Pool: Start from $129/month\" is published; per-query credit cost is not on the page — 2026-10-14 — tier assumed: pay-as-you-go credit pool; operator to confirm; formula: credits per verification x pool price per credit; $129/month pool, credits per call needs the WhoisXML account; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   # --- UC-354: Solar System OpenData ---
