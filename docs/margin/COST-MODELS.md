@@ -162,3 +162,23 @@ Provider | model | cost | tier | source date. Every tier below is assumed (opera
 | figi | free_tier | $0 (20/min with key) | tier assumed: Free key | 2026-10-14 |
 | firms | free_tier | $0 (5,000 transactions / 10 min) | tier assumed: Free MAP_KEY | 2026-10-14 |
 | geo | free_tier | $0 (3,000 credits/day, soft limit) | tier assumed: Free | 2026-10-14 |
+| geocodio | free_tier | $0 (2,500 lookups/day; $0.001 above if card attached) | tier assumed: Free | 2026-10-14 |
+| geonames | free_tier | $0 (20,000 credits/hour) | tier assumed: Free registered account | 2026-10-14 |
+| gfw | free_tier | $0 (50,000/day) | tier assumed: Free API token | 2026-10-14 |
+| github-api | free_tier | $0 (5,000/hour) | tier assumed: Free account PAT | 2026-10-14 |
+| global-health-covid | free | $0 (public bucket, no key) | tier assumed: Public, no key | 2026-10-14 |
+| gus-poland | free_tier | $0 (anonymous quota, ~80-100/hour) | tier assumed: Anonymous | 2026-10-14 |
+| health | free_tier | $0 (1,000/hour) | tier assumed: Free api.data.gov key | 2026-10-14 |
+| ibanapi | free_tier | $0 (100 basic + 20 bank credits/30 days) | tier assumed: Free | 2026-10-14 |
+| inaturalist | free_tier | $0 (100/min, 10,000/day) | tier assumed: Anonymous | 2026-10-14 |
+| indec-georef | free | $0 (no key, 3,000,000/day) | tier assumed: Public API, no key | 2026-10-14 |
+| insee | free_tier | $0 (30/min, 500,000/month) | tier assumed: Free public plan | 2026-10-14 |
+| ipapi | free_tier | $0 (1,000/day with free key) | tier assumed: Free | 2026-10-14 |
+| iqair | free_tier | $0 (5/min, 500/day, 10,000/month) | tier assumed: Community (free) | 2026-10-14 |
+| irctc | metered | NOT_MEASURED; RapidAPI price unreadable | tier assumed: RapidAPI BASIC | 2026-10-14 |
+| irena | free | $0 (no key) | tier assumed: Public API, no key | 2026-10-14 |
+| jobs | free_tier | $0 (BLS 500/day) | tier assumed: Free registered keys | 2026-10-14 |
+| jooble | free_tier | $0 (500 requests default) | tier assumed: Free key | 2026-10-14 |
+| langbly | metered | NOT_MEASURED; characters x $0.000005 beyond 500K/month included | tier assumed: Pay-as-you-go | 2026-10-14 |
+| launch-library-2 | free_tier | $0 (15/hour anonymous) | tier assumed: Free anonymous | 2026-10-14 |
+| listennotes | free_tier | $0 (150/month) | tier assumed: Free | 2026-10-14 |

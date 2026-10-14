@@ -547,42 +547,63 @@ tools:
     name: USDA Food Search
     provider: health
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://fdc.nal.usda.gov/api-guide — USDA FoodData Central: 1,000 requests per hour per key; openFDA shares the free key model — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 21600
 
   - tool_id: health.food_details
     name: USDA Food Nutrition Details
     provider: health
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://fdc.nal.usda.gov/api-guide — USDA FoodData Central: 1,000 requests per hour per key; openFDA shares the free key model — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: health.drug_events
     name: FDA Drug Adverse Events
     provider: health
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://fdc.nal.usda.gov/api-guide — USDA FoodData Central: 1,000 requests per hour per key; openFDA shares the free key model — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: health.food_recalls
     name: FDA Food Recalls
     provider: health
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://fdc.nal.usda.gov/api-guide — USDA FoodData Central: 1,000 requests per hour per key; openFDA shares the free key model — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 21600
 
   - tool_id: health.drug_labels
     name: FDA Drug Labels
     provider: health
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://fdc.nal.usda.gov/api-guide — USDA FoodData Central: 1,000 requests per hour per key; openFDA shares the free key model — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: health.supplement_search
     name: NIH Supplement Search
     provider: health
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://fdc.nal.usda.gov/api-guide — USDA FoodData Central: 1,000 requests per hour per key; openFDA shares the free key model — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: health.supplement_details
     name: NIH Supplement Details
     provider: health
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://fdc.nal.usda.gov/api-guide — USDA FoodData Central: 1,000 requests per hour per key; openFDA shares the free key model — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-016: Finance / Banking / Financial Intelligence ---
@@ -717,30 +738,45 @@ tools:
     name: Salary Data (BLS)
     provider: jobs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — BLS registered key: 500 requests per day (bls.gov returns 403 to bots, figure from provider-limits.json); ESCO and CareerJet are keyless/free — 2026-10-14 — tier assumed: Free registered keys; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: jobs.occupation_search
     name: Occupation Search (O*NET)
     provider: jobs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — BLS registered key: 500 requests per day (bls.gov returns 403 to bots, figure from provider-limits.json); ESCO and CareerJet are keyless/free — 2026-10-14 — tier assumed: Free registered keys; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: jobs.occupation_details
     name: Occupation Details (O*NET)
     provider: jobs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — BLS registered key: 500 requests per day (bls.gov returns 403 to bots, figure from provider-limits.json); ESCO and CareerJet are keyless/free — 2026-10-14 — tier assumed: Free registered keys; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 604800
 
   - tool_id: jobs.esco_search
     name: EU Skills Search (ESCO)
     provider: jobs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — BLS registered key: 500 requests per day (bls.gov returns 403 to bots, figure from provider-limits.json); ESCO and CareerJet are keyless/free — 2026-10-14 — tier assumed: Free registered keys; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 604800
 
   - tool_id: jobs.esco_details
     name: EU Skill/Occupation Details (ESCO)
     provider: jobs
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — BLS registered key: 500 requests per day (bls.gov returns 403 to bots, figure from provider-limits.json); ESCO and CareerJet are keyless/free — 2026-10-14 — tier assumed: Free registered keys; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 604800
 
   - tool_id: jobs.job_search
@@ -749,6 +785,9 @@ tools:
     capability: jobs.search
     scope: global
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — BLS registered key: 500 requests per day (bls.gov returns 403 to bots, figure from provider-limits.json); ESCO and CareerJet are keyless/free — 2026-10-14 — tier assumed: Free registered keys; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 14400
 
   # --- UC-017: Education / Academic Research ---
@@ -1212,12 +1251,18 @@ tools:
     capability: geo.ip_lookup
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://ipapi.is/pricing.html — \"1,000 requests per day, forever\" with a free account and API key; paid Basic $20/month for 20,000 requests/day — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: ip.bulk_lookup
     name: Bulk IP Lookup
     provider: ipapi
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://ipapi.is/pricing.html — \"1,000 requests per day, forever\" with a free account and API key; paid Basic $20/month for 20,000 requests/day — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-048: USGS Earthquake Hazards Program ---
@@ -1574,18 +1619,30 @@ tools:
     name: Translate Text
     provider: langbly
     price_usd: "0.002"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://langbly.com/pricing — \"500K characters included every month\" on Pay-as-you-go, \"$5/ 1M chars\" beyond; formula: translate = characters x $0.000005 beyond the 500K monthly included (detect and languages: character count unpublished) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   - tool_id: langbly.detect
     name: Detect Language
     provider: langbly
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://langbly.com/pricing — \"500K characters included every month\" on Pay-as-you-go, \"$5/ 1M chars\" beyond; formula: translate = characters x $0.000005 beyond the 500K monthly included (detect and languages: character count unpublished) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   - tool_id: langbly.languages
     name: List Languages
     provider: langbly
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://langbly.com/pricing — \"500K characters included every month\" on Pay-as-you-go, \"$5/ 1M chars\" beyond; formula: translate = characters x $0.000005 beyond the 500K monthly included (detect and languages: character count unpublished) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 604800
 
   # --- UC-086: Twilio (SMS & Phone Lookup) ---
@@ -2447,6 +2504,9 @@ tools:
     capability: air_quality
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.iqair.com/air-pollution-data-api — Community API plan \"FREE\": 5 calls/minute, 500/day, 10,000/month; paid plans unpriced (\"Get in Touch\") — 2026-10-14 — tier assumed: Community (free); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
   - tool_id: airquality.nearest
     name: Air Quality by Coordinates
@@ -2454,6 +2514,9 @@ tools:
     capability: air_quality
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.iqair.com/air-pollution-data-api — Community API plan \"FREE\": 5 calls/minute, 500/day, 10,000/month; paid plans unpriced (\"Get in Touch\") — 2026-10-14 — tier assumed: Community (free); operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   # --- UC-126: FatSecret (Nutrition Database) ---
@@ -2941,6 +3004,9 @@ tools:
     capability: geo.geocode_forward
     scope: regional:US_CA
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geocod.io/pricing/ — \"2,500 lookups free daily\"; \"No credit card is required until you exceed the free tier\"; then \"$1 / 1,000\" — 2026-10-14 — tier assumed: Free (pay-as-you-go, under 2,500/day); operator to confirm; if a card is attached, overage bills $0.001 per lookup above the free tier"
     cache_ttl: 86400
   - tool_id: geocodio.reverse
     name: Reverse Geocode (US/Canada)
@@ -2948,6 +3014,9 @@ tools:
     capability: geo.geocode_reverse
     scope: regional:US_CA
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geocod.io/pricing/ — \"2,500 lookups free daily\"; \"No credit card is required until you exceed the free tier\"; then \"$1 / 1,000\" — 2026-10-14 — tier assumed: Free (pay-as-you-go, under 2,500/day); operator to confirm; if a card is attached, overage bills $0.001 per lookup above the free tier"
     cache_ttl: 86400
 
   # --- UC-127: Auto.dev (Global VIN Decoder) ---
@@ -3154,11 +3223,17 @@ tools:
     name: Validate IBAN
     provider: ibanapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://ibanapi.com/documentation — 100 basic + 20 bank credits per 30 days free (documentation returns 403 to bots; figure from provider-limits.json, not verified first-hand) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: iban.calculate
     name: Calculate IBAN
     provider: ibanapi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://ibanapi.com/documentation — 100 basic + 20 bank credits per 30 days free (documentation returns 403 to bots; figure from provider-limits.json, not verified first-hand) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-213: PubChem Chemical Compound Database ---
@@ -3549,16 +3624,25 @@ tools:
     name: Search Podcasts & Episodes
     provider: listennotes
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.listennotes.com/api/pricing/ — Free plan \"150 requests/month\", exceeding \"suspends your access until the next month\"; Pro $200/month, $1.60 per extra 1,000 beyond 5,000 — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: listennotes.podcast
     name: Podcast Details
     provider: listennotes
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.listennotes.com/api/pricing/ — Free plan \"150 requests/month\", exceeding \"suspends your access until the next month\"; Pro $200/month, $1.60 per extra 1,000 beyond 5,000 — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: listennotes.best
     name: Best Podcasts by Genre
     provider: listennotes
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.listennotes.com/api/pricing/ — Free plan \"150 requests/month\", exceeding \"suspends your access until the next month\"; Pro $200/month, $1.60 per extra 1,000 beyond 5,000 — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-226: AudD Music Recognition ---
@@ -3710,16 +3794,25 @@ tools:
     name: Search GitHub Repositories
     provider: github-api
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api — authenticated requests: 5,000 requests per hour — 2026-10-14 — tier assumed: Free account PAT; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 3600
   - tool_id: github.user
     name: GitHub User Profile
     provider: github-api
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api — authenticated requests: 5,000 requests per hour — 2026-10-14 — tier assumed: Free account PAT; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
   - tool_id: github.repo
     name: GitHub Repository Details
     provider: github-api
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api — authenticated requests: 5,000 requests per hour — 2026-10-14 — tier assumed: Free account PAT; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-304: TheCocktailDB (Cocktail Recipes) ---
@@ -3849,6 +3942,9 @@ tools:
     capability: jobs.search
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://jooble.org/api/about — access via a request form to \"obtain a key\"; 500 requests default limit per provider-limits.json; page states no price — 2026-10-14 — tier assumed: Free key; operator to confirm; no price published, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-254: TheirStack (Job Market Intelligence) ---
@@ -4624,16 +4720,28 @@ tools:
     name: IRCTC Train Search Between Stations
     provider: irctc
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing — RapidAPI pricing page is JS-rendered and unreadable; formula: per-request price of the subscribed plan, plan and overage unknown — 2026-10-14 — tier assumed: RapidAPI BASIC; operator to confirm; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 600
   - tool_id: irctc.train_status
     name: IRCTC Live Train Running Status
     provider: irctc
     price_usd: "0.005"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing — RapidAPI pricing page is JS-rendered and unreadable; formula: per-request price of the subscribed plan, plan and overage unknown — 2026-10-14 — tier assumed: RapidAPI BASIC; operator to confirm; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 300
   - tool_id: irctc.station_search
     name: IRCTC Railway Station Lookup
     provider: irctc
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://rapidapi.com/IRCTCAPI/api/irctc1/pricing — RapidAPI pricing page is JS-rendered and unreadable; formula: per-request price of the subscribed plan, plan and overage unknown — 2026-10-14 — tier assumed: RapidAPI BASIC; operator to confirm; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   # --- UC-413: NIST National Vulnerability Database (NVD) ---
@@ -5423,24 +5531,36 @@ tools:
     name: Lookup French Company by SIREN
     provider: insee
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portail-api.insee.fr/catalog/api/2ba0e549-5587-3ef1-9082-99cd865de66f/doc — free plan 30 requests per minute, 500,000 calls per month per key (portal is JS-rendered, figure from provider-limits.json) — 2026-10-14 — tier assumed: Free public plan; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: insee.establishment_by_siret
     name: Lookup French Establishment by SIRET
     provider: insee
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portail-api.insee.fr/catalog/api/2ba0e549-5587-3ef1-9082-99cd865de66f/doc — free plan 30 requests per minute, 500,000 calls per month per key (portal is JS-rendered, figure from provider-limits.json) — 2026-10-14 — tier assumed: Free public plan; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: insee.search_companies
     name: Search French Companies in Sirene
     provider: insee
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portail-api.insee.fr/catalog/api/2ba0e549-5587-3ef1-9082-99cd865de66f/doc — free plan 30 requests per minute, 500,000 calls per month per key (portal is JS-rendered, figure from provider-limits.json) — 2026-10-14 — tier assumed: Free public plan; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: insee.search_establishments
     name: Search French Establishments in Sirene
     provider: insee
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://portail-api.insee.fr/catalog/api/2ba0e549-5587-3ef1-9082-99cd865de66f/doc — free plan 30 requests per minute, 500,000 calls per month per key (portal is JS-rendered, figure from provider-limits.json) — 2026-10-14 — tier assumed: Free public plan; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-496: Biodiversity Heritage Library ---
@@ -5485,24 +5605,36 @@ tools:
     name: Search Fishing Vessels
     provider: gfw
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://globalfishingwatch.org/our-apis/ — free-tier account limits observed in response headers: x-ratelimit-daily-limit-requests 50000, x-ratelimit-monthly-limit-requests 1500000 (not stated on the page) — 2026-10-14 — tier assumed: Free API token; operator to confirm; no billing surface"
     cache_ttl: 3600
 
   - tool_id: gfw.vessel.details
     name: Get Vessel Details
     provider: gfw
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://globalfishingwatch.org/our-apis/ — free-tier account limits observed in response headers: x-ratelimit-daily-limit-requests 50000, x-ratelimit-monthly-limit-requests 1500000 (not stated on the page) — 2026-10-14 — tier assumed: Free API token; operator to confirm; no billing surface"
     cache_ttl: 3600
 
   - tool_id: gfw.vessel.fishing_events
     name: Get Vessel Fishing Events
     provider: gfw
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://globalfishingwatch.org/our-apis/ — free-tier account limits observed in response headers: x-ratelimit-daily-limit-requests 50000, x-ratelimit-monthly-limit-requests 1500000 (not stated on the page) — 2026-10-14 — tier assumed: Free API token; operator to confirm; no billing surface"
     cache_ttl: 1800
 
   - tool_id: gfw.ocean.fishing_effort
     name: Analyze Fishing Effort
     provider: gfw
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://globalfishingwatch.org/our-apis/ — free-tier account limits observed in response headers: x-ratelimit-daily-limit-requests 50000, x-ratelimit-monthly-limit-requests 1500000 (not stated on the page) — 2026-10-14 — tier assumed: Free API token; operator to confirm; no billing surface"
     cache_ttl: 3600
 
   # --- UC-498: OpenStates ---
@@ -5942,6 +6074,9 @@ tools:
     name: GeoNames Place Search
     provider: geonames
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geonames.org/export/credits.html — \"1 credit per request\" (postalCodeSearch), \"2 credits per request\" (findNearbyPostalCodes); 20,000 credits/hour for a free registered account per provider-limits.json (not verifiable on the page) — 2026-10-14 — tier assumed: Free registered account; operator to confirm; premium plan is a separate contract, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: geonames.postal.lookup
@@ -5950,18 +6085,27 @@ tools:
     capability: geo.postal_lookup
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geonames.org/export/credits.html — \"1 credit per request\" (postalCodeSearch), \"2 credits per request\" (findNearbyPostalCodes); 20,000 credits/hour for a free registered account per provider-limits.json (not verifiable on the page) — 2026-10-14 — tier assumed: Free registered account; operator to confirm; premium plan is a separate contract, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: geonames.country.info
     name: GeoNames Country Info
     provider: geonames
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geonames.org/export/credits.html — \"1 credit per request\" (postalCodeSearch), \"2 credits per request\" (findNearbyPostalCodes); 20,000 credits/hour for a free registered account per provider-limits.json (not verifiable on the page) — 2026-10-14 — tier assumed: Free registered account; operator to confirm; premium plan is a separate contract, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: geonames.place.timezone
     name: GeoNames Timezone Lookup
     provider: geonames
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geonames.org/export/credits.html — \"1 credit per request\" (postalCodeSearch), \"2 credits per request\" (findNearbyPostalCodes); 20,000 credits/hour for a free registered account per provider-limits.json (not verifiable on the page) — 2026-10-14 — tier assumed: Free registered account; operator to confirm; premium plan is a separate contract, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-513: UK National Grid Carbon Intensity ---
@@ -7200,24 +7344,36 @@ tools:
     name: IRENA — Renewable Electricity Capacity by Country
     provider: irena
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://pxweb.irena.org/api/v1/en/IRENASTAT/ — public PX-Web API, no key, no documented rate limit — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: irena.generation_country
     name: IRENA — Renewable Electricity Generation by Country
     provider: irena
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://pxweb.irena.org/api/v1/en/IRENASTAT/ — public PX-Web API, no key, no documented rate limit — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: irena.capacity_region
     name: IRENA — Renewable Electricity Capacity by World Region
     provider: irena
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://pxweb.irena.org/api/v1/en/IRENASTAT/ — public PX-Web API, no key, no documented rate limit — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: irena.share_renewables
     name: IRENA — Renewable Energy Share of Electricity
     provider: irena
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://pxweb.irena.org/api/v1/en/IRENASTAT/ — public PX-Web API, no key, no documented rate limit — 2026-10-14"
     cache_ttl: 86400
 
   # --- UC-551: DOAJ — Directory of Open Access Journals ---
@@ -8711,6 +8867,9 @@ tools:
     capability: geo.geocode_forward
     scope: regional:AR
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://apis.datos.gob.ar/georef/api — Argentine government open-data API, no API key; quota X-RateLimit-Limit-Day 3000000 observed in response headers — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: indec-georef.reverse_geocode
@@ -8719,24 +8878,36 @@ tools:
     capability: geo.geocode_reverse
     scope: regional:AR
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://apis.datos.gob.ar/georef/api — Argentine government open-data API, no API key; quota X-RateLimit-Limit-Day 3000000 observed in response headers — 2026-10-14"
     cache_ttl: 86400
 
   - tool_id: indec-georef.provincias
     name: List Argentine Provinces
     provider: indec-georef
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://apis.datos.gob.ar/georef/api — Argentine government open-data API, no API key; quota X-RateLimit-Limit-Day 3000000 observed in response headers — 2026-10-14"
     cache_ttl: 604800
 
   - tool_id: indec-georef.departamentos
     name: Search Argentine Departments
     provider: indec-georef
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://apis.datos.gob.ar/georef/api — Argentine government open-data API, no API key; quota X-RateLimit-Limit-Day 3000000 observed in response headers — 2026-10-14"
     cache_ttl: 604800
 
   - tool_id: indec-georef.localidades
     name: Search Argentine Localities
     provider: indec-georef
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://apis.datos.gob.ar/georef/api — Argentine government open-data API, no API key; quota X-RateLimit-Limit-Day 3000000 observed in response headers — 2026-10-14"
     cache_ttl: 604800
 
 # --- UC-776: indec-argentina (Argentina Gov Series de Tiempo) ---
@@ -9015,42 +9186,63 @@ tools:
     name: Browse GUS Poland BDL Subject Tree
     provider: gus-poland
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.stat.gov.pl/Home/BdlApi — anonymous tier observed live: errorResult quota messages \"1000 per 12h\" and \"100 per 15 min\" — 2026-10-14 — tier assumed: Anonymous (no X-ClientId); operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 604800
 
   - tool_id: gus-poland.variables
     name: Search GUS Poland BDL Variables
     provider: gus-poland
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.stat.gov.pl/Home/BdlApi — anonymous tier observed live: errorResult quota messages \"1000 per 12h\" and \"100 per 15 min\" — 2026-10-14 — tier assumed: Anonymous (no X-ClientId); operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 604800
 
   - tool_id: gus-poland.data
     name: Get GUS Poland BDL Statistical Data
     provider: gus-poland
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.stat.gov.pl/Home/BdlApi — anonymous tier observed live: errorResult quota messages \"1000 per 12h\" and \"100 per 15 min\" — 2026-10-14 — tier assumed: Anonymous (no X-ClientId); operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: inaturalist.taxa_search
     name: Search iNaturalist Species and Taxa
     provider: inaturalist
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.inaturalist.org/v1/docs/ — \"max of 100 requests per minute\", keep \"under 10,000 requests per day\" — 2026-10-14 — tier assumed: Anonymous (no key); operator to confirm; no billing surface, overage = throttling"
     cache_ttl: 86400
 
   - tool_id: inaturalist.observations_search
     name: Search iNaturalist Wildlife Observations
     provider: inaturalist
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.inaturalist.org/v1/docs/ — \"max of 100 requests per minute\", keep \"under 10,000 requests per day\" — 2026-10-14 — tier assumed: Anonymous (no key); operator to confirm; no billing surface, overage = throttling"
     cache_ttl: 3600
 
   - tool_id: inaturalist.species_counts
     name: Get Most-Observed Species in a Place
     provider: inaturalist
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.inaturalist.org/v1/docs/ — \"max of 100 requests per minute\", keep \"under 10,000 requests per day\" — 2026-10-14 — tier assumed: Anonymous (no key); operator to confirm; no billing surface, overage = throttling"
     cache_ttl: 21600
 
   - tool_id: inaturalist.places_search
     name: Search iNaturalist Places
     provider: inaturalist
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.inaturalist.org/v1/docs/ — \"max of 100 requests per minute\", keep \"under 10,000 requests per day\" — 2026-10-14 — tier assumed: Anonymous (no key); operator to confirm; no billing surface, overage = throttling"
     cache_ttl: 604800
 
   - tool_id: figshare.search
@@ -9532,18 +9724,27 @@ tools:
     name: COVID-19 Location Search
     provider: global-health-covid
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://github.com/GoogleCloudPlatform/covid-19-open-data — public Google Cloud Storage bucket of static CSV dumps, no key, no documented rate limit — 2026-10-14"
     cache_ttl: 604800
 
   - tool_id: global-health-covid.latest_snapshot
     name: COVID-19 Latest Snapshot
     provider: global-health-covid
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://github.com/GoogleCloudPlatform/covid-19-open-data — public Google Cloud Storage bucket of static CSV dumps, no key, no documented rate limit — 2026-10-14"
     cache_ttl: 2592000
 
   - tool_id: global-health-covid.location_history
     name: COVID-19 Location History
     provider: global-health-covid
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://github.com/GoogleCloudPlatform/covid-19-open-data — public Google Cloud Storage bucket of static CSV dumps, no key, no documented rate limit — 2026-10-14"
     cache_ttl: 2592000
 
   # --- UC-640: Malaria Atlas Project (MAP) (4 tools) ---
@@ -9689,24 +9890,36 @@ tools:
     name: Launch Library 2 Upcoming Launches
     provider: launch-library-2
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://thespacedevs.com/llapi — \"all the API data is available at no cost for up to 15 non-authenticated requests per hour\"; higher rates via Patreon — 2026-10-14 — tier assumed: Free anonymous; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 1800
 
   - tool_id: launch-library-2.launch_detail
     name: Launch Library 2 Launch Detail
     provider: launch-library-2
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://thespacedevs.com/llapi — \"all the API data is available at no cost for up to 15 non-authenticated requests per hour\"; higher rates via Patreon — 2026-10-14 — tier assumed: Free anonymous; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: launch-library-2.astronaut_search
     name: Launch Library 2 Astronaut Search
     provider: launch-library-2
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://thespacedevs.com/llapi — \"all the API data is available at no cost for up to 15 non-authenticated requests per hour\"; higher rates via Patreon — 2026-10-14 — tier assumed: Free anonymous; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: launch-library-2.agency_search
     name: Launch Library 2 Agency Search
     provider: launch-library-2
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://thespacedevs.com/llapi — \"all the API data is available at no cost for up to 15 non-authenticated requests per hour\"; higher rates via Patreon — 2026-10-14 — tier assumed: Free anonymous; operator to confirm; no billing surface, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-646: Socrata Open Data (SODA) (3 tools) ---

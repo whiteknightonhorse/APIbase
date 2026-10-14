@@ -758,7 +758,7 @@
     "free_limit": 1000,
     "reset_period": "daily",
     "docs_url": "https://ipapi.is/developers.html",
-    "limit_proof": "Free tier: 1,000 requests/day without API key",
+    "limit_proof": "Free account with API key: 1,000 requests per day, forever (https://ipapi.is/pricing.html, checked 2026-10-14). Without a key: 30 per day",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -1761,12 +1761,10 @@
     "display_name": "Listen Notes",
     "health_url": "https://listen-api.listennotes.com/api/v2/best_podcasts",
     "limit_type": "monthly",
-    "free_limit": 50,
+    "free_limit": 150,
     "reset_period": "monthly",
     "docs_url": "https://www.listennotes.com/api/docs/",
-    "pricing_check": "manual",
-    "pricing_note": "No public page states the config number in server-rendered text (JS-rendered, response-header-observed or sign-up-gated); checked 2026-10-05, verify in the vendor account. Missing on pages: 50, 200, 1.6.",
-    "limit_proof": "Free plan: 50 requests/month. Pro: $200/mo + $1.60/1K calls. X-ListenAPI-Key header auth",
+    "limit_proof": "Free plan: 150 requests/month (https://www.listennotes.com/api/pricing/, checked 2026-10-14), access suspended until next month when exceeded. Pro: $200/mo + $1.60/1K calls beyond 5,000. X-ListenAPI-Key header auth",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },

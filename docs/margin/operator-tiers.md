@@ -78,3 +78,20 @@ the cheapest tier that includes the endpoint, marked `tier assumed: <name>; oper
 | figi | Free key | T-SITE-F2; model free_tier |
 | firms | Free MAP_KEY | T-SITE-F2; model free_tier |
 | geo | Free | T-SITE-F2; model free_tier |
+| geocodio | Free | T-SITE-F3; model free_tier; card needed only above 2,500/day |
+| geonames | Free registered account | T-SITE-F3; model free_tier |
+| gfw | Free API token | T-SITE-F3; model free_tier |
+| github-api | Free account PAT | T-SITE-F3; model free_tier |
+| gus-poland | Anonymous | T-SITE-F3; model free_tier |
+| health | Free api.data.gov key | T-SITE-F3; model free_tier |
+| ibanapi | Free | T-SITE-F3; model free_tier; not verifiable first-hand |
+| inaturalist | Anonymous | T-SITE-F3; model free_tier |
+| insee | Free public plan | T-SITE-F3; model free_tier |
+| ipapi | Free | T-SITE-F3; model free_tier |
+| iqair | Community (free) | T-SITE-F3; model free_tier |
+| irctc | RapidAPI BASIC | T-SITE-F3; model metered; RapidAPI price unreadable |
+| jobs | Free registered keys | T-SITE-F3; model free_tier |
+| jooble | Free key | T-SITE-F3; model free_tier; no price published |
+| langbly | Pay-as-you-go | T-SITE-F3; model metered; card required for the 500K included characters |
+| launch-library-2 | Free anonymous | T-SITE-F3; model free_tier |
+| listennotes | Free | T-SITE-F3; model free_tier |
