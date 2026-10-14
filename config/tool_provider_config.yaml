@@ -810,6 +810,9 @@ tools:
     capability: geo.geocode_forward
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geoapify.com/pricing — Free \"3,000 credits per day\", \"No credit card required\"; API 10 is $59/month; the page does not say whether Free overage is billed, limits are soft — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; Geoapify may ask to upgrade or block accounts that keep exceeding"
     cache_ttl: 2592000
 
   - tool_id: geo.reverse_geocode
@@ -818,30 +821,45 @@ tools:
     capability: geo.geocode_reverse
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geoapify.com/pricing — Free \"3,000 credits per day\", \"No credit card required\"; API 10 is $59/month; the page does not say whether Free overage is billed, limits are soft — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; Geoapify may ask to upgrade or block accounts that keep exceeding"
     cache_ttl: 2592000
 
   - tool_id: geo.place_search
     name: Place Search (Geoapify)
     provider: geo
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geoapify.com/pricing — Free \"3,000 credits per day\", \"No credit card required\"; API 10 is $59/month; the page does not say whether Free overage is billed, limits are soft — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; Geoapify may ask to upgrade or block accounts that keep exceeding"
     cache_ttl: 86400
 
   - tool_id: geo.autocomplete
     name: Address Autocomplete (Geoapify)
     provider: geo
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geoapify.com/pricing — Free \"3,000 credits per day\", \"No credit card required\"; API 10 is $59/month; the page does not say whether Free overage is billed, limits are soft — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; Geoapify may ask to upgrade or block accounts that keep exceeding"
     cache_ttl: 604800
 
   - tool_id: geo.routing
     name: Routing / Directions (Geoapify)
     provider: geo
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geoapify.com/pricing — Free \"3,000 credits per day\", \"No credit card required\"; API 10 is $59/month; the page does not say whether Free overage is billed, limits are soft — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; Geoapify may ask to upgrade or block accounts that keep exceeding"
     cache_ttl: 86400
 
   - tool_id: geo.isochrone
     name: Isochrone / Reachability (Geoapify)
     provider: geo
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geoapify.com/pricing — Free \"3,000 credits per day\", \"No credit card required\"; API 10 is $59/month; the page does not say whether Free overage is billed, limits are soft — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; Geoapify may ask to upgrade or block accounts that keep exceeding"
     cache_ttl: 86400
 
   - tool_id: geo.ip_geolocation
@@ -850,6 +868,9 @@ tools:
     capability: geo.ip_lookup
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.geoapify.com/pricing — Free \"3,000 credits per day\", \"No credit card required\"; API 10 is $59/month; the page does not say whether Free overage is billed, limits are soft — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; Geoapify may ask to upgrade or block accounts that keep exceeding"
     cache_ttl: 604800
 
   # --- UC-019: AIPush AI Marketing ---
@@ -1318,12 +1339,18 @@ tools:
     capability: fx.latest
     scope: global
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.exchangerate-api.com/ — Free \"$ 0\" per month, \"1.5K API Requests p/m\", \"No credit card details required for Free plan!\"; Pro $10/month — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: exchangerate.convert
     name: Convert Currency
     provider: exchangerate
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.exchangerate-api.com/ — Free \"$ 0\" per month, \"1.5K API Requests p/m\", \"No credit card details required for Free plan!\"; Pro $10/month — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-111: Calendarific (Premium World Holidays) ---
@@ -1466,6 +1493,9 @@ tools:
     name: Detect Fires by Satellite
     provider: firms
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://firms.modaps.eosdis.nasa.gov/api/area/ — \"MAP_KEY limit is 5000 transactions / 10-minute interval\"; \"request free MAP_KEY\" — 2026-10-14 — tier assumed: Free MAP_KEY; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 300
 
   # --- UC-103: TimeAPI.io (World Clock & Timezone) ---
@@ -2046,21 +2076,33 @@ tools:
     name: US Retail Electricity (EIA)
     provider: eia
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.eia.gov/opendata/documentation.php — \"register for this free key\"; \"EIA data is provided free of charge\"; numeric request limits not on the page — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: eia.petroleum_spot
     name: US Petroleum Spot Prices (EIA)
     provider: eia
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.eia.gov/opendata/documentation.php — \"register for this free key\"; \"EIA data is provided free of charge\"; numeric request limits not on the page — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: eia.natural_gas
     name: US Natural Gas Prices (EIA)
     provider: eia
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.eia.gov/opendata/documentation.php — \"register for this free key\"; \"EIA data is provided free of charge\"; numeric request limits not on the page — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: eia.series
     name: EIA Total-Energy Series
     provider: eia
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.eia.gov/opendata/documentation.php — \"register for this free key\"; \"EIA data is provided free of charge\"; numeric request limits not on the page — 2026-10-14 — tier assumed: Free API key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-408: US FEC Campaign Finance (4 tools) ---
@@ -2068,21 +2110,33 @@ tools:
     name: FEC Candidates
     provider: fec
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: fec.committee_totals
     name: FEC Committee Totals
     provider: fec
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: fec.super_pac_spending
     name: Super PAC Independent Expenditures (FEC)
     provider: fec
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: fec.elections
     name: FEC Election Totals
     provider: fec
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-080: Stability AI (Image Generation) ---
@@ -2170,18 +2224,27 @@ tools:
     name: Search US Court Opinions
     provider: courtlistener
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://wiki.free.law/c/courtlistener/help/api/rest/v4/overview — authenticated users may make \"up to 5 requests per minute, 50 requests per hour, and 125 requests per day\"; no prices listed — 2026-10-14 — tier assumed: Free authenticated token; operator to confirm; no card attached, overage = refusal; provider-limits.json said 5000/hour"
     cache_ttl: 3600
 
   - tool_id: courtlistener.opinion
     name: Court Opinion Text
     provider: courtlistener
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://wiki.free.law/c/courtlistener/help/api/rest/v4/overview — authenticated users may make \"up to 5 requests per minute, 50 requests per hour, and 125 requests per day\"; no prices listed — 2026-10-14 — tier assumed: Free authenticated token; operator to confirm; no card attached, overage = refusal; provider-limits.json said 5000/hour"
     cache_ttl: 86400
 
   - tool_id: courtlistener.dockets
     name: Search Court Dockets
     provider: courtlistener
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://wiki.free.law/c/courtlistener/help/api/rest/v4/overview — authenticated users may make \"up to 5 requests per minute, 50 requests per hour, and 125 requests per day\"; no prices listed — 2026-10-14 — tier assumed: Free authenticated token; operator to confirm; no card attached, overage = refusal; provider-limits.json said 5000/hour"
     cache_ttl: 3600
 
   # --- UC-078: OCR.space (Optical Character Recognition) ---
@@ -2398,11 +2461,17 @@ tools:
     name: Search Food Nutrition
     provider: fatsecret
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://platform.fatsecret.com/api-editions — Basic \"Free (self sign up)\", 5,000 API calls per day, attribution required — 2026-10-14 — tier assumed: Basic (free); operator to confirm; no card attached, overage = refusal; attribution required"
     cache_ttl: 3600
   - tool_id: fatsecret.food_details
     name: Food Nutritional Details
     provider: fatsecret
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://platform.fatsecret.com/api-editions — Basic \"Free (self sign up)\", 5,000 API calls per day, attribution required — 2026-10-14 — tier assumed: Basic (free); operator to confirm; no card attached, overage = refusal; attribution required"
     cache_ttl: 86400
 
   # --- UC-207: Pexels (Stock Photos & Videos) ---
@@ -3059,16 +3128,25 @@ tools:
     name: Latest Global News
     provider: currents
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://currentsapi.services/en/pricing — Developer \"$0\" with \"250 requests per day\"; Builder $69 for 75,000/month — 2026-10-14 — tier assumed: Developer (free); operator to confirm; no card attached, overage = refusal; provider-limits.json said 20/day"
     cache_ttl: 120
   - tool_id: currents.search
     name: Search News
     provider: currents
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://currentsapi.services/en/pricing — Developer \"$0\" with \"250 requests per day\"; Builder $69 for 75,000/month — 2026-10-14 — tier assumed: Developer (free); operator to confirm; no card attached, overage = refusal; provider-limits.json said 20/day"
     cache_ttl: 120
   - tool_id: currents.categories
     name: News Categories
     provider: currents
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://currentsapi.services/en/pricing — Developer \"$0\" with \"250 requests per day\"; Builder $69 for 75,000/month — 2026-10-14 — tier assumed: Developer (free); operator to confirm; no card attached, overage = refusal; provider-limits.json said 20/day"
     cache_ttl: 86400
 
   # --- UC-212: IBANAPI (IBAN Validation + Bank ID) ---
@@ -3264,6 +3342,9 @@ tools:
     name: Track DHL Shipment
     provider: dhl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.dhl.com/api-reference/shipment-tracking — \"250 calls per day, with a maximum of 1 call every 5 seconds\"; no price listed — 2026-10-14 — tier assumed: Initial-development key (free); operator to confirm; no card attached, overage = refusal; page says not suitable for production use, upgrade on request"
     cache_ttl: 300
 
   # --- UC-249: Postcodes.io (UK Postal Lookup) ---
@@ -4152,16 +4233,25 @@ tools:
     name: Map Financial Identifier to FIGI
     provider: figi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.openfigi.com/api/documentation — \"free and open to the public\"; search 5/min without key, 20/min with key; no fees listed — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal; the 25,000/day figure in provider-limits.json is not on the page"
     cache_ttl: 86400
   - tool_id: figi.search
     name: Search Financial Instruments
     provider: figi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.openfigi.com/api/documentation — \"free and open to the public\"; search 5/min without key, 20/min with key; no fees listed — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal; the 25,000/day figure in provider-limits.json is not on the page"
     cache_ttl: 86400
   - tool_id: figi.filter
     name: Filter Financial Instruments
     provider: figi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.openfigi.com/api/documentation — \"free and open to the public\"; search 5/min without key, 20/min with key; no fees listed — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal; the 25,000/day figure in provider-limits.json is not on the page"
     cache_ttl: 86400
 
   # --- UC-353: USNO Astronomical (Moon, Sun, Seasons) ---
@@ -4709,21 +4799,33 @@ tools:
     name: FCC Census Block FIPS Lookup
     provider: fcc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key for the ECFS tools; geo.fcc.gov block lookup needs no key — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: fcc.regulatory.proceedings
     name: FCC Regulatory Proceedings Search
     provider: fcc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key for the ECFS tools; geo.fcc.gov block lookup needs no key — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: fcc.regulatory.filings
     name: FCC Regulatory Filings Search
     provider: fcc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key for the ECFS tools; geo.fcc.gov block lookup needs no key — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: fcc.regulatory.proceeding_detail
     name: FCC Proceeding Detail
     provider: fcc
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key for the ECFS tools; geo.fcc.gov block lookup needs no key — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-456: NASA Exoplanet Archive ---
@@ -5605,18 +5707,27 @@ tools:
     name: FDA Drug Recall Enforcement Reports
     provider: fda_openfda
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.fda.gov/apis/authentication/ — without key \"1,000 requests per day, per IP address\"; with key \"120,000 requests per day, per key\" — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal; config keeps the conservative 1,000/day"
     cache_ttl: 3600
 
   - tool_id: fda_openfda.ndc_directory
     name: FDA National Drug Code (NDC) Directory
     provider: fda_openfda
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.fda.gov/apis/authentication/ — without key \"1,000 requests per day, per IP address\"; with key \"120,000 requests per day, per key\" — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal; config keeps the conservative 1,000/day"
     cache_ttl: 86400
 
   - tool_id: fda_openfda.food_adverse_events
     name: FDA Food & Supplement Adverse Event Reports (CAERS)
     provider: fda_openfda
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://open.fda.gov/apis/authentication/ — without key \"1,000 requests per day, per IP address\"; with key \"120,000 requests per day, per key\" — 2026-10-14 — tier assumed: No key / free key; operator to confirm; no card attached, overage = refusal; config keeps the conservative 1,000/day"
     cache_ttl: 3600
 
   # --- UC-504: OpenSenseMap ---
@@ -6700,24 +6811,36 @@ tools:
     name: FBI UCR National Crime Statistics
     provider: fbi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: fbi.state_offenses
     name: FBI UCR State Crime Statistics
     provider: fbi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: fbi.national_annual
     name: FBI UCR National Annual Crime Trends
     provider: fbi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: fbi.state_annual
     name: FBI UCR State Annual Crime Trends
     provider: fbi
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api.data.gov/docs/developer-manual/ — \"Hourly Limit: 1,000 requests per hour\" per key, no cost stated — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-541: Swiss National Bank ---
@@ -7040,24 +7163,36 @@ tools:
     name: CORDIS — EU Research Project Search
     provider: cordis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://cordis.europa.eu/about/services — public SPARQL endpoint, no auth or documented rate limit (provider-limits.json limit_proof; page not re-fetched) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 3600
 
   - tool_id: cordis.project_details
     name: CORDIS — EU Project Full Details
     provider: cordis
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://cordis.europa.eu/about/services — public SPARQL endpoint, no auth or documented rate limit (provider-limits.json limit_proof; page not re-fetched) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: cordis.organisation_search
     name: CORDIS — EU Research Organisation Search
     provider: cordis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://cordis.europa.eu/about/services — public SPARQL endpoint, no auth or documented rate limit (provider-limits.json limit_proof; page not re-fetched) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: cordis.project_publications
     name: CORDIS — EU Project Publications Search
     provider: cordis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://cordis.europa.eu/about/services — public SPARQL endpoint, no auth or documented rate limit (provider-limits.json limit_proof; page not re-fetched) — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   # --- UC-550: IRENA IRENASTAT ---
@@ -7775,24 +7910,36 @@ tools:
     name: DPLA — Search Digitized Items
     provider: dpla
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://pro.dp.la/developers/requests — free API key, no documented rate limit (provider-limits.json limit_proof; page returned HTTP 403 to the fetch, not verifiable first-hand) — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: dpla.items.detail
     name: DPLA — Fetch Item by ID
     provider: dpla
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://pro.dp.la/developers/requests — free API key, no documented rate limit (provider-limits.json limit_proof; page returned HTTP 403 to the fetch, not verifiable first-hand) — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: dpla.items.by_subject
     name: DPLA — Browse Items by Subject
     provider: dpla
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://pro.dp.la/developers/requests — free API key, no documented rate limit (provider-limits.json limit_proof; page returned HTTP 403 to the fetch, not verifiable first-hand) — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: dpla.items.facets
     name: DPLA — Get Top Facets
     provider: dpla
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://pro.dp.la/developers/requests — free API key, no documented rate limit (provider-limits.json limit_proof; page returned HTTP 403 to the fetch, not verifiable first-hand) — 2026-10-14 — tier assumed: Free key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   # --- UC-575: NOAA Aviation Weather Center ---
@@ -7858,24 +8005,36 @@ tools:
     name: EPA ECHO — Facility Search
     provider: echo
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://echo.epa.gov/tools/web-services — 300 req/hour per IP, no registration (provider-limits.json limit_proof; page is JS-rendered, not verifiable first-hand) — 2026-10-14 — tier assumed: Public, no key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: echo.facility_detail
     name: EPA ECHO — Facility Detail
     provider: echo
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://echo.epa.gov/tools/web-services — 300 req/hour per IP, no registration (provider-limits.json limit_proof; page is JS-rendered, not verifiable first-hand) — 2026-10-14 — tier assumed: Public, no key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: echo.air_facilities
     name: EPA ECHO — Air Program Facilities
     provider: echo
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://echo.epa.gov/tools/web-services — 300 req/hour per IP, no registration (provider-limits.json limit_proof; page is JS-rendered, not verifiable first-hand) — 2026-10-14 — tier assumed: Public, no key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: echo.violations
     name: EPA ECHO — Facility Violations & Enforcement
     provider: echo
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://echo.epa.gov/tools/web-services — 300 req/hour per IP, no registration (provider-limits.json limit_proof; page is JS-rendered, not verifiable first-hand) — 2026-10-14 — tier assumed: Public, no key; operator to confirm; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-578: NASA CMR ---
@@ -8354,24 +8513,36 @@ tools:
     name: Germany GDP & National Accounts
     provider: destatis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.destatis.de/EN/Service/OpenData/api-webservice.html — \"can be used free of charge and without registering\" — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: destatis.population
     name: Germany Population by Reference Date
     provider: destatis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.destatis.de/EN/Service/OpenData/api-webservice.html — \"can be used free of charge and without registering\" — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: destatis.prices
     name: Germany Consumer Price Index
     provider: destatis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.destatis.de/EN/Service/OpenData/api-webservice.html — \"can be used free of charge and without registering\" — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   - tool_id: destatis.trade
     name: Germany Foreign Trade (Exports/Imports)
     provider: destatis
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://www.destatis.de/EN/Service/OpenData/api-webservice.html — \"can be used free of charge and without registering\" — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 86400
 
   # --- UC-595: ECB Data Portal (official SDW, 4 tools) ---
@@ -8673,12 +8844,18 @@ tools:
     name: Look Up Gene by Symbol
     provider: ensembl
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://github.com/Ensembl/ensembl-rest/wiki/Rate-Limits — \"we are allowed 55000 requests over an hour\"; no key, no fee mentioned — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 604800
 
   - tool_id: ensembl.sequence_region
     name: Get Genomic Sequence for Region
     provider: ensembl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://github.com/Ensembl/ensembl-rest/wiki/Rate-Limits — \"we are allowed 55000 requests over an hour\"; no key, no fee mentioned — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 604800
 
   - tool_id: cve-mitre.record
@@ -8829,6 +9006,9 @@ tools:
     name: Get Current UV Index and Forecast
     provider: currentuvindex
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://currentuvindex.com/api — \"Our free (no key required) API\"; \"Accessing our UV Index API requires no signup or API Key\" — 2026-10-14 — tier assumed: Public API, no key; operator to confirm"
     cache_ttl: 1800
 
   - tool_id: gus-poland.subjects
@@ -8999,18 +9179,27 @@ tools:
     name: Get ECDC COVID-19 Cases & Deaths
     provider: ecdc-surveillance
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://opendata.ecdc.europa.eu/covid19/testing/json/ — no API key, no documented rate limit, CC BY 4.0 (provider-limits.json limit_proof; datasets frozen since 2023-12) — 2026-10-14 — tier assumed: Public open data, no key; operator to confirm"
     cache_ttl: 2592000
 
   - tool_id: ecdc-surveillance.testing_rate
     name: Get ECDC COVID-19 Testing Rate
     provider: ecdc-surveillance
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://opendata.ecdc.europa.eu/covid19/testing/json/ — no API key, no documented rate limit, CC BY 4.0 (provider-limits.json limit_proof; datasets frozen since 2023-12) — 2026-10-14 — tier assumed: Public open data, no key; operator to confirm"
     cache_ttl: 2592000
 
   - tool_id: ecdc-surveillance.hospital_icu
     name: Get ECDC COVID-19 Hospital & ICU Rates
     provider: ecdc-surveillance
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://opendata.ecdc.europa.eu/covid19/testing/json/ — no API key, no documented rate limit, CC BY 4.0 (provider-limits.json limit_proof; datasets frozen since 2023-12) — 2026-10-14 — tier assumed: Public open data, no key; operator to confirm"
     cache_ttl: 2592000
 
   # --- UC-626: transport.rest (Berlin/Brandenburg transit) ---
@@ -10231,18 +10420,30 @@ tools:
     name: List Connected Devices
     provider: device
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.tuya.com/vas/commodity/IOT_CORE — Tuya IoT Core trial edition \"API call/month: 26,000\", valid 1 month, \"for testing only\"; 1-year plan prices not shown — 2026-10-14 — tier assumed: IoT Core trial / paid plan; operator to confirm; formula: plan fee / included API calls (list/state = 1 call, command = 1 call); needs 30d real traffic and the operator's Tuya plan"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   - tool_id: device.state
     name: Get Device State
     provider: device
     price_usd: "0.001"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.tuya.com/vas/commodity/IOT_CORE — Tuya IoT Core trial edition \"API call/month: 26,000\", valid 1 month, \"for testing only\"; 1-year plan prices not shown — 2026-10-14 — tier assumed: IoT Core trial / paid plan; operator to confirm; formula: plan fee / included API calls (list/state = 1 call, command = 1 call); needs 30d real traffic and the operator's Tuya plan"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   - tool_id: device.command
     name: Send Device Command
     provider: device
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.tuya.com/vas/commodity/IOT_CORE — Tuya IoT Core trial edition \"API call/month: 26,000\", valid 1 month, \"for testing only\"; 1-year plan prices not shown — 2026-10-14 — tier assumed: IoT Core trial / paid plan; operator to confirm; formula: plan fee / included API calls (list/state = 1 call, command = 1 call); needs 30d real traffic and the operator's Tuya plan"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
 
   # --- UC-678: HM Land Registry Price Paid Data (landregistry.data.gov.uk/data/ppi) ---

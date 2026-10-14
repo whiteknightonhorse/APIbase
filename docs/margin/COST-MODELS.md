@@ -141,3 +141,24 @@ Provider | model | cost | tier | source date. Every tier below is assumed (opera
 | comtrade | free_tier | $0 (500/day) | tier assumed: Free key | 2026-10-14 |
 | congress | free_tier | $0 (5,000/hour) | tier assumed: Free api.data.gov key | 2026-10-14 |
 | copernicus-sentinel | free_tier | $0 (50,000 requests/month, then throttled) | tier assumed: Free account | 2026-10-14 |
+| cordis | free | $0 (no key) | tier assumed: Public API, no key | 2026-10-14 |
+| courtlistener | free_tier | $0 (5/min, 50/hour, 125/day) | tier assumed: Free authenticated token | 2026-10-14 |
+| currents | free_tier | $0 (250/day) | tier assumed: Developer (free) | 2026-10-14 |
+| currentuvindex | free | $0 (no key, 500/day/IP) | tier assumed: Public API, no key | 2026-10-14 |
+| destatis | free | $0 (free of charge, no registration) | tier assumed: Public API, no key | 2026-10-14 |
+| device | metered | NOT_MEASURED; plan fee / included Tuya API calls (trial 26,000/month) | tier assumed: IoT Core trial / paid plan | 2026-10-14 |
+| dhl | free_tier | $0 (250/day, 1 call per 5 s) | tier assumed: Initial-development key (free) | 2026-10-14 |
+| dpla | free_tier | $0 (free key, no stated limit) | tier assumed: Free key | 2026-10-14 |
+| ecdc-surveillance | free | $0 (no key) | tier assumed: Public open data, no key | 2026-10-14 |
+| echo | free_tier | $0 (300/hour per IP) | tier assumed: Public, no key | 2026-10-14 |
+| eia | free_tier | $0 (free key) | tier assumed: Free API key | 2026-10-14 |
+| ensembl | free | $0 (no key, 55,000/hour) | tier assumed: Public API, no key | 2026-10-14 |
+| exchangerate | free_tier | $0 (1,500/month) | tier assumed: Free | 2026-10-14 |
+| fatsecret | free_tier | $0 (5,000/day, attribution required) | tier assumed: Basic (free) | 2026-10-14 |
+| fbi | free_tier | $0 (1,000/hour) | tier assumed: Free api.data.gov key | 2026-10-14 |
+| fcc | free_tier | $0 (1,000/hour for ECFS; geo lookup keyless) | tier assumed: Free api.data.gov key | 2026-10-14 |
+| fda_openfda | free_tier | $0 (1,000/day no key, 120,000/day with key) | tier assumed: No key / free key | 2026-10-14 |
+| fec | free_tier | $0 (1,000/hour) | tier assumed: Free api.data.gov key | 2026-10-14 |
+| figi | free_tier | $0 (20/min with key) | tier assumed: Free key | 2026-10-14 |
+| firms | free_tier | $0 (5,000 transactions / 10 min) | tier assumed: Free MAP_KEY | 2026-10-14 |
+| geo | free_tier | $0 (3,000 credits/day, soft limit) | tier assumed: Free | 2026-10-14 |

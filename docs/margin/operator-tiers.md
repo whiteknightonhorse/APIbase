@@ -57,3 +57,24 @@ the cheapest tier that includes the endpoint, marked `tier assumed: <name>; oper
 | comtrade | Free key | T-SITE-F1; model free_tier; not verifiable first-hand |
 | congress | Free api.data.gov key | T-SITE-F1; model free_tier; free key, no billing surface |
 | copernicus-sentinel | Free account | T-SITE-F1; model free_tier; overage = throttling, never billing |
+| cordis | Public API, no key | T-SITE-F2; model free |
+| courtlistener | Free authenticated token | T-SITE-F2; model free_tier |
+| currents | Developer (free) | T-SITE-F2; model free_tier |
+| currentuvindex | Public API, no key | T-SITE-F2; model free |
+| destatis | Public API, no key | T-SITE-F2; model free |
+| device | IoT Core trial / paid plan | T-SITE-F2; model metered |
+| dhl | Initial-development key (free) | T-SITE-F2; model free_tier |
+| dpla | Free key | T-SITE-F2; model free_tier |
+| ecdc-surveillance | Public open data, no key | T-SITE-F2; model free |
+| echo | Public, no key | T-SITE-F2; model free_tier |
+| eia | Free API key | T-SITE-F2; model free_tier |
+| ensembl | Public API, no key | T-SITE-F2; model free |
+| exchangerate | Free | T-SITE-F2; model free_tier |
+| fatsecret | Basic (free) | T-SITE-F2; model free_tier |
+| fbi | Free api.data.gov key | T-SITE-F2; model free_tier |
+| fcc | Free api.data.gov key | T-SITE-F2; model free_tier |
+| fda_openfda | No key / free key | T-SITE-F2; model free_tier |
+| fec | Free api.data.gov key | T-SITE-F2; model free_tier |
+| figi | Free key | T-SITE-F2; model free_tier |
+| firms | Free MAP_KEY | T-SITE-F2; model free_tier |
+| geo | Free | T-SITE-F2; model free_tier |
