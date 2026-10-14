@@ -121,3 +121,23 @@ Provider | model | cost | tier | source date. Every tier below is assumed (opera
 | hunter | flat | $0.0245 ($49 / 2,000) | tier assumed: Starter | 2026-10-14 |
 | 17track | metered | NOT_MEASURED; register = quota units x package price | tier assumed: Free plan, paid unpriced | 2026-10-14 |
 | zyte | metered | NOT_MEASURED; $0.00013-$0.00127 per HTTP response, browser $0.00101-$0.01608 | tier assumed: Pay as you go | 2026-10-14 |
+| abr | free_tier | $0 (free GUID, no stated limit) | tier assumed: Free GUID registration | 2026-10-14 |
+| adbkidb | free | $0 (no key) | tier assumed: Public API, no key | 2026-10-14 |
+| adzuna | free_tier | $0 (250/day) | tier assumed: Free key | 2026-10-14 |
+| africa | free_tier | $0 (1,000/month) | tier assumed: Free | 2026-10-14 |
+| airnow | free_tier | $0 (500/hour) | tier assumed: Free EPA API key | 2026-10-14 |
+| apisports | free_tier | $0 (100/day) | tier assumed: Free | 2026-10-14 |
+| autodev | metered | NOT_MEASURED; first 1,000 calls/month free then usage-based, price unpublished | tier assumed: Starter / Free | 2026-10-14 |
+| aviasales | free_tier | $0 (token, per-minute caps) | tier assumed: Free partner token | 2026-10-14 |
+| avwx | free_tier | $0 (1,000/month) | tier assumed: Hobby (free) | 2026-10-14 |
+| balldontlie | free_tier | $0 (5 req/min) | tier assumed: Free (Basic data, 1 sport) | 2026-10-14 |
+| banxico | free_tier | $0 (free token) | tier assumed: Free SIE token | 2026-10-14 |
+| bea | free_tier | $0 (free key) | tier assumed: Free UserID key | 2026-10-14 |
+| bhl | free_tier | $0 (free key) | tier assumed: Free API key | 2026-10-14 |
+| bls-macro | free_tier | $0 (500/day) | tier assumed: API v2 registered key (free) | 2026-10-14 |
+| calendarific | free_tier | $0 (500/month) | tier assumed: Free | 2026-10-14 |
+| checkwx | free_tier | $0 (200/day) | tier assumed: Trial Plan (free) | 2026-10-14 |
+| coingecko | free_tier | $0 (10,000/month) | tier assumed: Demo (free) | 2026-10-14 |
+| comtrade | free_tier | $0 (500/day) | tier assumed: Free key | 2026-10-14 |
+| congress | free_tier | $0 (5,000/hour) | tier assumed: Free api.data.gov key | 2026-10-14 |
+| copernicus-sentinel | free_tier | $0 (50,000 requests/month, then throttled) | tier assumed: Free account | 2026-10-14 |

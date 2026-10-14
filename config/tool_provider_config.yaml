@@ -57,54 +57,81 @@ tools:
     name: Crypto Price
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 5
 
   - tool_id: coingecko.get_market
     name: Crypto Market Overview
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 30
 
   - tool_id: crypto.coin_detail
     name: Crypto Coin Detail
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 30
 
   - tool_id: crypto.price_history
     name: Crypto Price History
     provider: coingecko
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 60
 
   - tool_id: crypto.trending
     name: Crypto Trending
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 60
 
   - tool_id: crypto.global
     name: Crypto Global Stats
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 30
 
   - tool_id: crypto.dex_pools
     name: DEX Pools
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 10
 
   - tool_id: crypto.token_by_address
     name: Token by Address
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 30
 
   - tool_id: crypto.search
     name: Crypto Search
     provider: coingecko
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.coingecko.com/en/api/pricing — Demo plan \"$0 /month\", \"a monthly cap of 10,000 calls\", \"No credit card required\" — 2026-10-14 — tier assumed: Demo (free); operator to confirm; no card attached, overage = refusal; limit is 100 calls/minute on the page, provider-limits.json said 30"
     cache_ttl: 60
 
   # --- UC-001: Polymarket ---
@@ -193,36 +220,54 @@ tools:
     name: Flight Search
     provider: aviasales
     price_usd: "0.005"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://support.travelpayouts.com/hc/en-us/articles/203956083 — page returned 403 to non-browser clients; second-hand search snippets: token is free with a Travelpayouts signup, rate limits per method 30-600 per minute, 429 beyond the window; provider-limits.json records 200 req/hour per IP — 2026-10-14 — tier assumed: Free partner token; operator to confirm; not verifiable first-hand; partner-monetised via affiliate links, not billed per call; overage = refusal (429)"
     cache_ttl: 60
 
   - tool_id: aviasales.price_calendar
     name: Price Calendar
     provider: aviasales
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://support.travelpayouts.com/hc/en-us/articles/203956083 — page returned 403 to non-browser clients; second-hand search snippets: token is free with a Travelpayouts signup, rate limits per method 30-600 per minute, 429 beyond the window; provider-limits.json records 200 req/hour per IP — 2026-10-14 — tier assumed: Free partner token; operator to confirm; not verifiable first-hand; partner-monetised via affiliate links, not billed per call; overage = refusal (429)"
     cache_ttl: 86400
 
   - tool_id: aviasales.cheap_flights
     name: Cheap Flights
     provider: aviasales
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://support.travelpayouts.com/hc/en-us/articles/203956083 — page returned 403 to non-browser clients; second-hand search snippets: token is free with a Travelpayouts signup, rate limits per method 30-600 per minute, 429 beyond the window; provider-limits.json records 200 req/hour per IP — 2026-10-14 — tier assumed: Free partner token; operator to confirm; not verifiable first-hand; partner-monetised via affiliate links, not billed per call; overage = refusal (429)"
     cache_ttl: 86400
 
   - tool_id: aviasales.popular_routes
     name: Popular Routes
     provider: aviasales
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://support.travelpayouts.com/hc/en-us/articles/203956083 — page returned 403 to non-browser clients; second-hand search snippets: token is free with a Travelpayouts signup, rate limits per method 30-600 per minute, 429 beyond the window; provider-limits.json records 200 req/hour per IP — 2026-10-14 — tier assumed: Free partner token; operator to confirm; not verifiable first-hand; partner-monetised via affiliate links, not billed per call; overage = refusal (429)"
     cache_ttl: 86400
 
   - tool_id: aviasales.nearby_destinations
     name: Nearby Destinations
     provider: aviasales
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://support.travelpayouts.com/hc/en-us/articles/203956083 — page returned 403 to non-browser clients; second-hand search snippets: token is free with a Travelpayouts signup, rate limits per method 30-600 per minute, 429 beyond the window; provider-limits.json records 200 req/hour per IP — 2026-10-14 — tier assumed: Free partner token; operator to confirm; not verifiable first-hand; partner-monetised via affiliate links, not billed per call; overage = refusal (429)"
     cache_ttl: 86400
 
   - tool_id: aviasales.airport_lookup
     name: Airport Lookup
     provider: aviasales
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://support.travelpayouts.com/hc/en-us/articles/203956083 — page returned 403 to non-browser clients; second-hand search snippets: token is free with a Travelpayouts signup, rate limits per method 30-600 per minute, 429 beyond the window; provider-limits.json records 200 req/hour per IP — 2026-10-14 — tier assumed: Free partner token; operator to confirm; not verifiable first-hand; partner-monetised via affiliate links, not billed per call; overage = refusal (429)"
     cache_ttl: 86400
 
   # --- UC-023: Sabre GDS ---
@@ -1288,6 +1333,9 @@ tools:
     capability: holidays.public
     scope: global
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://calendarific.com/pricing — Free \"$0.00 /Month\", \"500 Calls/month\" — 2026-10-14 — tier assumed: Free; operator to confirm; card requirement and overage behaviour not stated on the page"
     cache_ttl: 86400
 
   # --- UC-109: NWS Weather Alerts ---
@@ -1459,24 +1507,36 @@ tools:
     name: Football Fixtures & Scores
     provider: apisports
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api-sports.io/pricing — page returned 403 to non-browser clients; second-hand search summaries: free plan 100 requests/day, all endpoints — 2026-10-14 — tier assumed: Free; operator to confirm; not verifiable first-hand; no card attached assumed, overage = refusal; paid plans not held"
     cache_ttl: 60
 
   - tool_id: sports.football_standings
     name: Football League Standings
     provider: apisports
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api-sports.io/pricing — page returned 403 to non-browser clients; second-hand search summaries: free plan 100 requests/day, all endpoints — 2026-10-14 — tier assumed: Free; operator to confirm; not verifiable first-hand; no card attached assumed, overage = refusal; paid plans not held"
     cache_ttl: 3600
 
   - tool_id: sports.football_leagues
     name: Search Football Leagues
     provider: apisports
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api-sports.io/pricing — page returned 403 to non-browser clients; second-hand search summaries: free plan 100 requests/day, all endpoints — 2026-10-14 — tier assumed: Free; operator to confirm; not verifiable first-hand; no card attached assumed, overage = refusal; paid plans not held"
     cache_ttl: 86400
 
   - tool_id: sports.basketball_games
     name: Basketball Games & Scores
     provider: apisports
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://api-sports.io/pricing — page returned 403 to non-browser clients; second-hand search summaries: free plan 100 requests/day, all endpoints — 2026-10-14 — tier assumed: Free; operator to confirm; not verifiable first-hand; no card attached assumed, overage = refusal; paid plans not held"
     cache_ttl: 60
 
   # --- UC-087: Langbly Translation ---
@@ -1924,6 +1984,9 @@ tools:
     capability: air_quality
     scope: regional:US
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.airnowapi.org/faq — \"If this limit is met within a specific hour, the web service will not return data until the next hour.\" — 2026-10-14 — tier assumed: Free EPA API key; operator to confirm; no card attached, overage = refusal; the 500/hour figure is second-hand (home-assistant.io/integrations/airnow)"
     cache_ttl: 600
   - tool_id: airnow.current_latlng
     name: Current AQI by Coordinate (AirNow)
@@ -1931,16 +1994,25 @@ tools:
     capability: air_quality
     scope: regional:US
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.airnowapi.org/faq — \"If this limit is met within a specific hour, the web service will not return data until the next hour.\" — 2026-10-14 — tier assumed: Free EPA API key; operator to confirm; no card attached, overage = refusal; the 500/hour figure is second-hand (home-assistant.io/integrations/airnow)"
     cache_ttl: 600
   - tool_id: airnow.forecast_zip
     name: AQI Forecast by ZIP (AirNow)
     provider: airnow
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.airnowapi.org/faq — \"If this limit is met within a specific hour, the web service will not return data until the next hour.\" — 2026-10-14 — tier assumed: Free EPA API key; operator to confirm; no card attached, overage = refusal; the 500/hour figure is second-hand (home-assistant.io/integrations/airnow)"
     cache_ttl: 3600
   - tool_id: airnow.forecast_latlng
     name: AQI Forecast by Coordinate (AirNow)
     provider: airnow
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://docs.airnowapi.org/faq — \"If this limit is met within a specific hour, the web service will not return data until the next hour.\" — 2026-10-14 — tier assumed: Free EPA API key; operator to confirm; no card attached, overage = refusal; the 500/hour figure is second-hand (home-assistant.io/integrations/airnow)"
     cache_ttl: 3600
 
   # --- UC-406: US National Park Service (4 tools) ---
@@ -2814,6 +2886,10 @@ tools:
     name: Global VIN Decode
     provider: autodev
     price_usd: "0.003"
+    upstream_cost_status: NOT_MEASURED
+    upstream_cost_model: metered
+    upstream_cost_note: "https://www.auto.dev/pricing — Free tier \"1,000 API calls / month\", \"5 requests/second\"; paid tiers \"Unlimited monthly volume\" with per-API-call pricing; Free overage behaviour and paid per-call prices are not stated — 2026-10-14 — tier assumed: Starter / Free; operator to confirm; formula: first 1,000 calls/month free, then usage-based data fees per provider-limits.json limit_proof; price per call unpublished; needs 30d real traffic for p80"
+    upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 86400
 
   # --- UC-128: Hunter.io (Company Enrichment) ---
@@ -3126,16 +3202,25 @@ tools:
     capability: jobs.search
     scope: regional:multi
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.adzuna.com/overview — page says only \"Register to receive an app_key and app_id.\"; limits second-hand (jobspipe.dev/blog/adzuna-api): \"Free to register, with default limits of 25 calls a minute, 250 a day, 1,000 a week and 2,500 a month.\" — 2026-10-14 — tier assumed: Free key; operator to confirm; commercial use may need a licence agreement; adzuna.com/terms-of-service returned 403; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: adzuna.categories
     name: Job Categories
     provider: adzuna
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.adzuna.com/overview — page says only \"Register to receive an app_key and app_id.\"; limits second-hand (jobspipe.dev/blog/adzuna-api): \"Free to register, with default limits of 25 calls a minute, 250 a day, 1,000 a week and 2,500 a month.\" — 2026-10-14 — tier assumed: Free key; operator to confirm; commercial use may need a licence agreement; adzuna.com/terms-of-service returned 403; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: adzuna.salary
     name: Salary Histogram
     provider: adzuna
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://developer.adzuna.com/overview — page says only \"Register to receive an app_key and app_id.\"; limits second-hand (jobspipe.dev/blog/adzuna-api): \"Free to register, with default limits of 25 calls a minute, 250 a day, 1,000 a week and 2,500 a month.\" — 2026-10-14 — tier assumed: Free key; operator to confirm; commercial use may need a licence agreement; adzuna.com/terms-of-service returned 403; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-251: BallDontLie (Sports Data) ---
@@ -3143,16 +3228,25 @@ tools:
     name: Sports Games & Scores
     provider: balldontlie
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.balldontlie.io/#pricing — Free is \"$0/mo per sport\", \"5 req/min\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free (Basic data, 1 sport); operator to confirm; no card attached, overage = refusal; All-Star $9.99/month and GOAT $39.99/month per sport are not held; operator to confirm the used endpoints are in the Basic tier"
     cache_ttl: 300
   - tool_id: bdl.teams
     name: Sports Teams
     provider: balldontlie
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.balldontlie.io/#pricing — Free is \"$0/mo per sport\", \"5 req/min\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free (Basic data, 1 sport); operator to confirm; no card attached, overage = refusal; All-Star $9.99/month and GOAT $39.99/month per sport are not held; operator to confirm the used endpoints are in the Basic tier"
     cache_ttl: 86400
   - tool_id: bdl.players
     name: Player Search
     provider: balldontlie
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.balldontlie.io/#pricing — Free is \"$0/mo per sport\", \"5 req/min\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free (Basic data, 1 sport); operator to confirm; no card attached, overage = refusal; All-Star $9.99/month and GOAT $39.99/month per sport are not held; operator to confirm the used endpoints are in the Basic tier"
     cache_ttl: 3600
 
   # --- UC-250: Zippopotam.us (Global Postal Codes) ---
@@ -3945,16 +4039,25 @@ tools:
     name: US Congressional Bills
     provider: congress
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://github.com/LibraryOfCongress/api.congress.gov — \"The rate limit is set to 5,000 requests per hour.\" — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; free key, no billing surface; the page does not state the signup cost; no card attached, overage = refusal"
     cache_ttl: 3600
   - tool_id: congress.bill_details
     name: US Bill Details
     provider: congress
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://github.com/LibraryOfCongress/api.congress.gov — \"The rate limit is set to 5,000 requests per hour.\" — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; free key, no billing surface; the page does not state the signup cost; no card attached, overage = refusal"
     cache_ttl: 86400
   - tool_id: congress.members
     name: US Congressional Members
     provider: congress
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://github.com/LibraryOfCongress/api.congress.gov — \"The rate limit is set to 5,000 requests per hour.\" — 2026-10-14 — tier assumed: Free api.data.gov key; operator to confirm; free key, no billing surface; the page does not state the signup cost; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-347: deps.dev (Google Open Source Insights) ---
@@ -4506,16 +4609,25 @@ tools:
     name: CheckWX Decoded METAR
     provider: checkwx
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.checkwxapi.com/pricing — Trial Plan \"200 Daily Requests\" (plan name and limit lines of the page); second-hand (community.tempest.earth/t/checkwx-api-change/28153): \"(still completely free)\" — 2026-10-14 — tier assumed: Trial Plan (free); operator to confirm; risk: a key still on the old 3,000/day tier reportedly started charging about $1/month from 2026-06-01 (second-hand) - operator to confirm the key is on Trial; no card attached, overage = refusal"
     cache_ttl: 1800
   - tool_id: checkwx.taf_decoded
     name: CheckWX Decoded TAF
     provider: checkwx
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.checkwxapi.com/pricing — Trial Plan \"200 Daily Requests\" (plan name and limit lines of the page); second-hand (community.tempest.earth/t/checkwx-api-change/28153): \"(still completely free)\" — 2026-10-14 — tier assumed: Trial Plan (free); operator to confirm; risk: a key still on the old 3,000/day tier reportedly started charging about $1/month from 2026-06-01 (second-hand) - operator to confirm the key is on Trial; no card attached, overage = refusal"
     cache_ttl: 7200
   - tool_id: checkwx.station_info
     name: CheckWX Station Information
     provider: checkwx
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.checkwxapi.com/pricing — Trial Plan \"200 Daily Requests\" (plan name and limit lines of the page); second-hand (community.tempest.earth/t/checkwx-api-change/28153): \"(still completely free)\" — 2026-10-14 — tier assumed: Trial Plan (free); operator to confirm; risk: a key still on the old 3,000/day tier reportedly started charging about $1/month from 2026-06-01 (second-hand) - operator to confirm the key is on Trial; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-424: AVWX Aviation Weather ---
@@ -4523,16 +4635,25 @@ tools:
     name: AVWX Parsed NOTAMs
     provider: avwx
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://account.avwx.rest/pricing — pricing pages 404 or render only a title; no verbatim quote available; provider-limits.json records Free tier 1,000 requests/month and paid plans from $10/month — 2026-10-14 — tier assumed: Hobby (free); operator to confirm; not verifiable first-hand; paid_balance flag in provider-limits.json means the operator may hold a paid plan - operator to check the account.avwx.rest plan before trusting $0; no card attached, overage = refusal"
     cache_ttl: 1800
   - tool_id: avwx.pireps
     name: AVWX Parsed PIREPs
     provider: avwx
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://account.avwx.rest/pricing — pricing pages 404 or render only a title; no verbatim quote available; provider-limits.json records Free tier 1,000 requests/month and paid plans from $10/month — 2026-10-14 — tier assumed: Hobby (free); operator to confirm; not verifiable first-hand; paid_balance flag in provider-limits.json means the operator may hold a paid plan - operator to check the account.avwx.rest plan before trusting $0; no card attached, overage = refusal"
     cache_ttl: 900
   - tool_id: avwx.station_summary
     name: AVWX Station Summary
     provider: avwx
     price_usd: "0.003"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://account.avwx.rest/pricing — pricing pages 404 or render only a title; no verbatim quote available; provider-limits.json records Free tier 1,000 requests/month and paid plans from $10/month — 2026-10-14 — tier assumed: Hobby (free); operator to confirm; not verifiable first-hand; paid_balance flag in provider-limits.json means the operator may hold a paid plan - operator to check the account.avwx.rest plan before trusting $0; no card attached, overage = refusal"
     cache_ttl: 1800
 
   # --- UC-454: NIH Reporter (NIH-funded research grants & publications) ---
@@ -5225,24 +5346,36 @@ tools:
     name: Search BHL Publications (Catalog)
     provider: bhl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.biodiversitylibrary.org/api3 — page unreachable (empty or 403); no quote available; provider-limits.json records no documented rate limits and public-domain open access — 2026-10-14 — tier assumed: Free API key; operator to confirm; not verifiable first-hand; free key, no billing surface; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: bhl.literature.fulltext
     name: Search BHL Full Text
     provider: bhl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.biodiversitylibrary.org/api3 — page unreachable (empty or 403); no quote available; provider-limits.json records no documented rate limits and public-domain open access — 2026-10-14 — tier assumed: Free API key; operator to confirm; not verifiable first-hand; free key, no billing surface; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: bhl.taxonomy.name_search
     name: Search BHL Taxonomic Names
     provider: bhl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.biodiversitylibrary.org/api3 — page unreachable (empty or 403); no quote available; provider-limits.json records no documented rate limits and public-domain open access — 2026-10-14 — tier assumed: Free API key; operator to confirm; not verifiable first-hand; free key, no billing surface; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: bhl.literature.by_subject
     name: Browse BHL Subject Tags
     provider: bhl
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.biodiversitylibrary.org/api3 — page unreachable (empty or 403); no quote available; provider-limits.json records no documented rate limits and public-domain open access — 2026-10-14 — tier assumed: Free API key; operator to confirm; not verifiable first-hand; free key, no billing surface; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-497: Global Fishing Watch ---
@@ -5607,24 +5740,36 @@ tools:
     name: BLS Time Series Lookup
     provider: bls-macro
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — \"Registered users may request up to 500 queries daily.\" — 2026-10-14 — tier assumed: API v2 registered key (free); operator to confirm; free registration, no billing surface; overage = refusal"
     cache_ttl: 3600
 
   - tool_id: bls-macro.cpi
     name: Consumer Price Index (Inflation)
     provider: bls-macro
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — \"Registered users may request up to 500 queries daily.\" — 2026-10-14 — tier assumed: API v2 registered key (free); operator to confirm; free registration, no billing surface; overage = refusal"
     cache_ttl: 3600
 
   - tool_id: bls-macro.unemployment
     name: U.S. Unemployment Rate
     provider: bls-macro
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — \"Registered users may request up to 500 queries daily.\" — 2026-10-14 — tier assumed: API v2 registered key (free); operator to confirm; free registration, no billing surface; overage = refusal"
     cache_ttl: 3600
 
   - tool_id: bls-macro.payrolls
     name: U.S. Nonfarm Payroll Employment
     provider: bls-macro
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.bls.gov/developers/api_faqs.htm — \"Registered users may request up to 500 queries daily.\" — 2026-10-14 — tier assumed: API v2 registered key (free); operator to confirm; free registration, no billing surface; overage = refusal"
     cache_ttl: 3600
 
   # --- UC-510: MBTA Transit ---
@@ -6364,24 +6509,36 @@ tools:
     name: UN Comtrade Trade Data Query
     provider: comtrade
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://comtradedeveloper.un.org/ — page states no limits or prices; second-hand (ropensci/comtradr vignette): 500 calls/day, 100,000 records per call — 2026-10-14 — tier assumed: Free key; operator to confirm; not verifiable first-hand; premium/bulk subscriptions are paid and not held; overage = refusal"
     cache_ttl: 86400
 
   - tool_id: comtrade.availability
     name: UN Comtrade Data Availability
     provider: comtrade
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://comtradedeveloper.un.org/ — page states no limits or prices; second-hand (ropensci/comtradr vignette): 500 calls/day, 100,000 records per call — 2026-10-14 — tier assumed: Free key; operator to confirm; not verifiable first-hand; premium/bulk subscriptions are paid and not held; overage = refusal"
     cache_ttl: 86400
 
   - tool_id: comtrade.metadata
     name: UN Comtrade Dataset Metadata
     provider: comtrade
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://comtradedeveloper.un.org/ — page states no limits or prices; second-hand (ropensci/comtradr vignette): 500 calls/day, 100,000 records per call — 2026-10-14 — tier assumed: Free key; operator to confirm; not verifiable first-hand; premium/bulk subscriptions are paid and not held; overage = refusal"
     cache_ttl: 86400
 
   - tool_id: comtrade.reporters
     name: UN Comtrade Reporter Countries
     provider: comtrade
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://comtradedeveloper.un.org/ — page states no limits or prices; second-hand (ropensci/comtradr vignette): 500 calls/day, 100,000 records per call — 2026-10-14 — tier assumed: Free key; operator to confirm; not verifiable first-hand; premium/bulk subscriptions are paid and not held; overage = refusal"
     cache_ttl: 86400
 
   # --- UC-535: USDA LMPR Datamart ---
@@ -6635,18 +6792,27 @@ tools:
     name: ABR ABN Lookup
     provider: abr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://abr.business.gov.au/Tools/WebServices — \"Access to the ABN Lookup web services is free of charge.\" — 2026-10-14 — tier assumed: Free GUID registration; operator to confirm; keyed free service, no overage billing; no rate limit stated on the page, agreement text not read"
     cache_ttl: 3600
 
   - tool_id: abr.acn_lookup
     name: ABR ACN Lookup
     provider: abr
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://abr.business.gov.au/Tools/WebServices — \"Access to the ABN Lookup web services is free of charge.\" — 2026-10-14 — tier assumed: Free GUID registration; operator to confirm; keyed free service, no overage billing; no rate limit stated on the page, agreement text not read"
     cache_ttl: 3600
 
   - tool_id: abr.name_search
     name: ABR Business Name Search
     provider: abr
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://abr.business.gov.au/Tools/WebServices — \"Access to the ABN Lookup web services is free of charge.\" — 2026-10-14 — tier assumed: Free GUID registration; operator to confirm; keyed free service, no overage billing; no rate limit stated on the page, agreement text not read"
     cache_ttl: 3600
 
   # --- UC-544: Banco de México SIE ---
@@ -6656,6 +6822,9 @@ tools:
     capability: fx.latest
     scope: regional:MX
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.banxico.org.mx/SieAPIRest/service/v1/ — \"Todas las solicitudes que se realicen al API requieren enviar un token de consulta\"; page states no price — 2026-10-14 — tier assumed: Free SIE token; operator to confirm; free token via the SIE site, no billing surface; query limits exist but their numbers were not read; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: banxico.fx.rates
@@ -6664,24 +6833,36 @@ tools:
     capability: fx.latest
     scope: regional:MX
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.banxico.org.mx/SieAPIRest/service/v1/ — \"Todas las solicitudes que se realicen al API requieren enviar un token de consulta\"; page states no price — 2026-10-14 — tier assumed: Free SIE token; operator to confirm; free token via the SIE site, no billing surface; query limits exist but their numbers were not read; no card attached, overage = refusal"
     cache_ttl: 300
 
   - tool_id: banxico.rates.target
     name: Banxico Overnight Target Rate
     provider: banxico
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.banxico.org.mx/SieAPIRest/service/v1/ — \"Todas las solicitudes que se realicen al API requieren enviar un token de consulta\"; page states no price — 2026-10-14 — tier assumed: Free SIE token; operator to confirm; free token via the SIE site, no billing surface; query limits exist but their numbers were not read; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: banxico.rates.tiie
     name: Banxico TIIE 28-Day Rate
     provider: banxico
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.banxico.org.mx/SieAPIRest/service/v1/ — \"Todas las solicitudes que se realicen al API requieren enviar un token de consulta\"; page states no price — 2026-10-14 — tier assumed: Free SIE token; operator to confirm; free token via the SIE site, no billing surface; query limits exist but their numbers were not read; no card attached, overage = refusal"
     cache_ttl: 3600
 
   - tool_id: banxico.inflation.cpi
     name: Banxico Mexico CPI / INPC
     provider: banxico
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://www.banxico.org.mx/SieAPIRest/service/v1/ — \"Todas las solicitudes que se realicen al API requieren enviar un token de consulta\"; page states no price — 2026-10-14 — tier assumed: Free SIE token; operator to confirm; free token via the SIE site, no billing surface; query limits exist but their numbers were not read; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-545: Bureau of Economic Analysis (BEA) ---
@@ -6689,30 +6870,45 @@ tools:
     name: BEA US Real GDP Growth
     provider: bea
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apps.bea.gov/api/signup/ — \"Please provide your name (or organization name), a valid email address, and agree to the published terms of service.\"; page states no price and no rate limit — 2026-10-14 — tier assumed: Free UserID key; operator to confirm; free email-signup key, no billing surface; limits live in the user guide, not read; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: bea.personal_income
     name: BEA US Personal Income and Outlays
     provider: bea
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apps.bea.gov/api/signup/ — \"Please provide your name (or organization name), a valid email address, and agree to the published terms of service.\"; page states no price and no rate limit — 2026-10-14 — tier assumed: Free UserID key; operator to confirm; free email-signup key, no billing surface; limits live in the user guide, not read; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: bea.trade_balance
     name: BEA US International Trade Balance
     provider: bea
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apps.bea.gov/api/signup/ — \"Please provide your name (or organization name), a valid email address, and agree to the published terms of service.\"; page states no price and no rate limit — 2026-10-14 — tier assumed: Free UserID key; operator to confirm; free email-signup key, no billing surface; limits live in the user guide, not read; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: bea.state_gdp
     name: BEA US State GDP by Industry
     provider: bea
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apps.bea.gov/api/signup/ — \"Please provide your name (or organization name), a valid email address, and agree to the published terms of service.\"; page states no price and no rate limit — 2026-10-14 — tier assumed: Free UserID key; operator to confirm; free email-signup key, no billing surface; limits live in the user guide, not read; no card attached, overage = refusal"
     cache_ttl: 86400
 
   - tool_id: bea.industry_gdp
     name: BEA GDP Value Added by Industry
     provider: bea
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://apps.bea.gov/api/signup/ — \"Please provide your name (or organization name), a valid email address, and agree to the published terms of service.\"; page states no price and no rate limit — 2026-10-14 — tier assumed: Free UserID key; operator to confirm; free email-signup key, no billing surface; limits live in the user guide, not read; no card attached, overage = refusal"
     cache_ttl: 86400
 
   # --- UC-546: Africa API ---
@@ -6720,12 +6916,18 @@ tools:
     name: Africa API — List African Countries
     provider: africa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://africa-api.com/pricing — \"Free plan: $0/month, 1,000 monthly requests, 5/minute\"; over-limit requests return HTTP 429; \"No card required to start.\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid plans Analyst $99/month, Team $349/month are not held"
     cache_ttl: 86400
 
   - tool_id: africa.countries.signals
     name: Africa API — Country Economic Signals
     provider: africa
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://africa-api.com/pricing — \"Free plan: $0/month, 1,000 monthly requests, 5/minute\"; over-limit requests return HTTP 429; \"No card required to start.\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid plans Analyst $99/month, Team $349/month are not held"
     cache_ttl: 3600
 
   - tool_id: africa.markets.fx_rates
@@ -6734,18 +6936,27 @@ tools:
     capability: fx.latest
     scope: regional:Africa
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://africa-api.com/pricing — \"Free plan: $0/month, 1,000 monthly requests, 5/minute\"; over-limit requests return HTTP 429; \"No card required to start.\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid plans Analyst $99/month, Team $349/month are not held"
     cache_ttl: 3600
 
   - tool_id: africa.data.indicator
     name: Africa API — Economic Indicator Data
     provider: africa
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://africa-api.com/pricing — \"Free plan: $0/month, 1,000 monthly requests, 5/minute\"; over-limit requests return HTTP 429; \"No card required to start.\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid plans Analyst $99/month, Team $349/month are not held"
     cache_ttl: 3600
 
   - tool_id: africa.politics.elections
     name: Africa API — African Elections
     provider: africa
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://africa-api.com/pricing — \"Free plan: $0/month, 1,000 monthly requests, 5/minute\"; over-limit requests return HTTP 429; \"No card required to start.\" (fetch-tool summary of the page) — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid plans Analyst $99/month, Team $349/month are not held"
     cache_ttl: 86400
 
   # --- UC-547: HuggingFace Inference NLP ---
@@ -7817,24 +8028,36 @@ tools:
     name: ADB KIDB — List Dataflows
     provider: adbkidb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://kidb.adb.org/api — no pricing text readable (JS-rendered page); evidence is the observed x-ratelimit-limit: 20 header and unauthenticated public access recorded in provider-limits.json — 2026-10-14 — no-auth public API, no billing surface"
     cache_ttl: 86400
 
   - tool_id: adbkidb.indicators
     name: ADB KIDB — List Indicators
     provider: adbkidb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://kidb.adb.org/api — no pricing text readable (JS-rendered page); evidence is the observed x-ratelimit-limit: 20 header and unauthenticated public access recorded in provider-limits.json — 2026-10-14 — no-auth public API, no billing surface"
     cache_ttl: 86400
 
   - tool_id: adbkidb.data
     name: ADB KIDB — Query Economic Data
     provider: adbkidb
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://kidb.adb.org/api — no pricing text readable (JS-rendered page); evidence is the observed x-ratelimit-limit: 20 header and unauthenticated public access recorded in provider-limits.json — 2026-10-14 — no-auth public API, no billing surface"
     cache_ttl: 3600
 
   - tool_id: adbkidb.economies
     name: ADB KIDB — List Member Economies
     provider: adbkidb
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free
+    upstream_cost_note: "https://kidb.adb.org/api — no pricing text readable (JS-rendered page); evidence is the observed x-ratelimit-limit: 20 header and unauthenticated public access recorded in provider-limits.json — 2026-10-14 — no-auth public API, no billing surface"
     cache_ttl: 86400
 
   # --- UC-584: Open Trivia Database ---
@@ -8851,18 +9074,27 @@ tools:
     name: Search Sentinel Satellite Scenes
     provider: copernicus-sentinel
     price_usd: "0.002"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://documentation.dataspace.copernicus.eu/Quotas.html — \"After reaching this monthly transfer limit, the maximum bandwidth drops to 1MB/s\"; no prices listed — 2026-10-14 — tier assumed: Free account; operator to confirm; overage = throttling, never billing; extra quota only via commercial cloud credits, not held"
     cache_ttl: 1800
 
   - tool_id: copernicus-sentinel.scene_detail
     name: Get Sentinel Scene Metadata
     provider: copernicus-sentinel
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://documentation.dataspace.copernicus.eu/Quotas.html — \"After reaching this monthly transfer limit, the maximum bandwidth drops to 1MB/s\"; no prices listed — 2026-10-14 — tier assumed: Free account; operator to confirm; overage = throttling, never billing; extra quota only via commercial cloud credits, not held"
     cache_ttl: 604800
 
   - tool_id: copernicus-sentinel.list_collections
     name: List Sentinel Imagery Collections
     provider: copernicus-sentinel
     price_usd: "0.001"
+    upstream_cost_usd: "0"
+    upstream_cost_model: free_tier
+    upstream_cost_note: "https://documentation.dataspace.copernicus.eu/Quotas.html — \"After reaching this monthly transfer limit, the maximum bandwidth drops to 1MB/s\"; no prices listed — 2026-10-14 — tier assumed: Free account; operator to confirm; overage = throttling, never billing; extra quota only via commercial cloud credits, not held"
     cache_ttl: 604800
 
   # --- UC-629: OECD SDMX public REST API (3 tools) ---

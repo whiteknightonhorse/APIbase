@@ -37,3 +37,23 @@ the cheapest tier that includes the endpoint, marked `tier assumed: <name>; oper
 | hunter | Starter | T-SITE-F0b; model flat |
 | 17track | Free plan, paid unpriced | T-SITE-F0b; model metered |
 | zyte | Pay as you go | T-SITE-F0b; model metered |
+| abr | Free GUID registration | T-SITE-F1; model free_tier; keyed free service, no overage billing |
+| adbkidb | Public API, no key | T-SITE-F1; model free; no-auth public API, no billing surface |
+| adzuna | Free key | T-SITE-F1; model free_tier; commercial use may need a licence agreement |
+| africa | Free | T-SITE-F1; model free_tier; no card attached, overage = refusal |
+| airnow | Free EPA API key | T-SITE-F1; model free_tier; no card attached, overage = refusal |
+| apisports | Free | T-SITE-F1; model free_tier; not verifiable first-hand |
+| autodev | Starter / Free | T-SITE-F1; model metered; formula: first 1,000 calls/month free, then usage-based data fees per provider-limits.json limit_proof |
+| aviasales | Free partner token | T-SITE-F1; model free_tier; not verifiable first-hand |
+| avwx | Hobby (free) | T-SITE-F1; model free_tier; not verifiable first-hand |
+| balldontlie | Free (Basic data, 1 sport) | T-SITE-F1; model free_tier; no card attached, overage = refusal |
+| banxico | Free SIE token | T-SITE-F1; model free_tier; free token via the SIE site, no billing surface |
+| bea | Free UserID key | T-SITE-F1; model free_tier; free email-signup key, no billing surface |
+| bhl | Free API key | T-SITE-F1; model free_tier; not verifiable first-hand |
+| bls-macro | API v2 registered key (free) | T-SITE-F1; model free_tier; free registration, no billing surface |
+| calendarific | Free | T-SITE-F1; model free_tier; card requirement and overage behaviour not stated on the page |
+| checkwx | Trial Plan (free) | T-SITE-F1; model free_tier; risk: a key still on the old 3,000/day tier reportedly started charging about $1/month from 2026-06-01 (second-hand) - operator to confirm the key is on Trial |
+| coingecko | Demo (free) | T-SITE-F1; model free_tier; no card attached, overage = refusal |
+| comtrade | Free key | T-SITE-F1; model free_tier; not verifiable first-hand |
+| congress | Free api.data.gov key | T-SITE-F1; model free_tier; free key, no billing surface |
+| copernicus-sentinel | Free account | T-SITE-F1; model free_tier; overage = throttling, never billing |

@@ -50,7 +50,7 @@
     "free_limit": 10000,
     "reset_period": "monthly",
     "docs_url": "https://www.coingecko.com/en/api/pricing",
-    "limit_proof": "Demo plan: 10,000 calls/month, 30 calls/min",
+    "limit_proof": "https://www.coingecko.com/en/api/pricing 2026-10-14: Demo plan $0/month, a monthly cap of 10,000 calls, 100 calls per minute, No credit card required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -527,7 +527,7 @@
     "reset_period": "hourly",
     "docs_url": "https://api.congress.gov/",
     "pricing_url": "https://github.com/LibraryOfCongress/api.congress.gov",
-    "limit_proof": "Library of Congress open data. Free API key, 5,000 req/hour. All US legislation since 1973.",
+    "limit_proof": "https://github.com/LibraryOfCongress/api.congress.gov 2026-10-14: The rate limit is set to 5,000 requests per hour",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -1120,7 +1120,7 @@
     "free_limit": 500,
     "reset_period": "monthly",
     "docs_url": "https://calendarific.com/api-documentation",
-    "limit_proof": "Free plan: 500 requests/month, 230+ countries",
+    "limit_proof": "https://calendarific.com/pricing 2026-10-14: Free $0.00/Month, 500 Calls/month",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -1849,7 +1849,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://docs.balldontlie.io/",
-    "limit_proof": "Free: $0/sport, 5 req/min. NBA + NFL + more. No credit card required.",
+    "limit_proof": "https://www.balldontlie.io/#pricing 2026-10-14: Free $0/mo per sport, 5 req/min; no credit card required",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -2161,7 +2161,7 @@
     "reset_period": "hourly",
     "docs_url": "https://docs.airnowapi.org/webservices",
     "pricing_url": "https://docs.airnowapi.org/",
-    "limit_proof": "500 req/hr per endpoint, no monthly cap. US Gov free.",
+    "limit_proof": "https://docs.airnowapi.org/faq 2026-10-14: if the hourly limit is met the web service will not return data until the next hour; 500 req/hr per endpoint (second-hand: home-assistant.io/integrations/airnow)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -2346,14 +2346,12 @@
   "checkwx": {
     "display_name": "CheckWX Aviation Weather",
     "health_url": "https://api.checkwx.com/station/KJFK",
-    "limit_type": "monthly",
-    "free_limit": 10000,
-    "reset_period": "monthly",
+    "limit_type": "daily",
+    "free_limit": 200,
+    "reset_period": "daily",
     "docs_url": "https://www.checkwxapi.com/documentation",
     "pricing_url": "https://www.checkwxapi.com/",
-    "pricing_check": "manual",
-    "pricing_note": "10,000 calls/month appears on checkwxapi.com only intermittently in server-rendered text (verified once on 2026-10-05, absent on the next fetch); verify in the CheckWX account.",
-    "limit_proof": "Free tier: 10,000 calls/month. AMBER ToS \u2014 commercial use OK with attribution. Requires API key.",
+    "limit_proof": "https://www.checkwxapi.com/pricing 2026-10-14: Trial Plan 200 Daily Requests; Starter 3,000 per day is paid",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -2811,7 +2809,7 @@
     "docs_url": "https://www.bls.gov/developers/api_faqs.htm",
     "pricing_check": "manual",
     "pricing_note": "bls.gov returns 403 to non-browser clients on every developers page; 500 queries/day not machine-verifiable.",
-    "limit_proof": "BLS API FAQs: registered key = 500 queries/day, 50 series/request, 10 years/query. Unregistered: 25 queries/day. Free registration at bls.gov/developers.",
+    "limit_proof": "https://www.bls.gov/developers/api_faqs.htm 2026-10-14: Registered users may request up to 500 queries daily",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -3186,7 +3184,7 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://abr.business.gov.au/Tools/WebServices",
-    "limit_proof": "ABR Web Services Agreement \u2014 free GUID registration, no documented rate limits. Australian Government open data service covering 15M+ ABN entities.",
+    "limit_proof": "https://abr.business.gov.au/Tools/WebServices 2026-10-14: Access to the ABN Lookup web services is free of charge; free GUID registration, no rate limit stated",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -3220,7 +3218,7 @@
     "reset_period": "monthly",
     "docs_url": "https://africa-api.com/docs",
     "pricing_url": "https://africa-api.com/pricing",
-    "limit_proof": "Free plan: 1,000 requests/month, 5 requests/minute. Paid plans available for higher throughput.",
+    "limit_proof": "https://africa-api.com/pricing 2026-10-14: Free plan $0/month, 1,000 monthly requests, 5/minute; over-limit requests return HTTP 429",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -4186,7 +4184,7 @@
     "free_limit": 50000,
     "reset_period": "monthly",
     "docs_url": "https://documentation.dataspace.copernicus.eu/Quotas.html",
-    "limit_proof": "Docs: OData/STAC/S3 quota is 50,000 requests/month (IAD data), 4 concurrent connections, resetting on the 1st of each month. No authentication required for STAC catalog search/browse endpoints \u2014 verified live with unauthenticated GET/POST requests.",
+    "limit_proof": "https://documentation.dataspace.copernicus.eu/Quotas.html 2026-10-14: monthly transfer limit then bandwidth drops to 1MB/s; direct COG HTTP 50,000 requests/month; 4 concurrent connections; no prices listed",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
