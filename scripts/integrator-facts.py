@@ -22,11 +22,11 @@ RENDERED = ["static/pricing.html", "static/llms.txt"]
 TOKEN_FILES = {
     "static/integrator/index.html": [
         "INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT", "INTEGRATOR_MIN_ORDER", "SANDBOX_STATUS",
-        "LEGAL_STATUS",
+        "LEGAL_STATUS_HTML",
     ],
     "static/integrator/llms.txt": ["INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT"],
     "static/integrator/index.md": ["MERCHANTS_COUNT", "LEGAL_STATUS"],
-    "static/integrator/connect.html": ["LEGAL_STATUS"],
+    "static/integrator/connect.html": ["LEGAL_STATUS_HTML"],
     "static/integrator/buyers.md": ["STREAM_CLOSE_GRACE_S"],
 }
 # Homepage surfaces are static files (no request-time tokens): the fee phrase and the merchants line

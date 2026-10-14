@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { getShopEnv } from '../../config/env';
 import { isLegalPublished, LEGAL_PUBLISHED_FILE } from '../legal/legal-docs';
+import { autolinkSitePaths } from './md';
 
 export const MCP_BASELINE = resolve(__dirname, '../../../static/.well-known/mcp.json');
 
@@ -68,6 +69,7 @@ export function renderTokens(
     .replace(/\{\{INTEGRATOR_BASE_FEE_MODE\}\}/g, () => INTEGRATOR_BASE_FEE_MODE)
     .replace(/\{\{STREAM_CLOSE_GRACE_S\}\}/g, () => String(STREAM_CLOSE_GRACE_S))
     .replace(/\{\{MERCHANTS_COUNT\}\}/g, () => merchants)
+    .replace(/\{\{LEGAL_STATUS_HTML\}\}/g, () => autolinkSitePaths(legalStatus(legalFile)))
     .replace(/\{\{LEGAL_STATUS\}\}/g, () => legalStatus(legalFile))
     .replace(/\{\{SANDBOX_STATUS\}\}/g, () => e.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS);
 }

@@ -1,11 +1,32 @@
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const SITE_PATH =
+  /(?<![\w/.:%-])\/(?:integrator|legal|pricing|guides|catalog|shops|dashboard|contact|onboard|m(?=\/))(?![\w])[\w\-./#]*/g;
+const SKIP_SEGMENT =
+  /(<a\b[^>]*>[\s\S]*?<\/a>|<code>[\s\S]*?<\/code>|<pre>[\s\S]*?<\/pre>|<[^>]+>)/;
+
+/** Wrap bare site paths in prose with <a>, leaving anchors, code, pre and tags untouched. */
+export const autolinkSitePaths = (html: string): string =>
+  html
+    .split(SKIP_SEGMENT)
+    .map((seg, i) =>
+      i % 2
+        ? seg
+        : seg.replace(SITE_PATH, (m) => {
+            const path = m.replace(/[.,;:\-]+$/, '');
+            return `<a href="${path}">${path}</a>${m.slice(path.length)}`;
+          }),
+    )
+    .join('');
+
 const inline = (s: string) =>
-  esc(s)
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>');
+  autolinkSitePaths(
+    esc(s)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>'),
+  );
 
 const slug = (s: string) =>
   s

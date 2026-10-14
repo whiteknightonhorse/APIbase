@@ -116,3 +116,34 @@ describe('T-0386 attempt 2: steps with continuations', () => {
     expect(h).toMatch(/<p>more<\/p>[\s\S]*dx-code[\s\S]*<\/li>\s*<li>[\s\S]*<\/ol>\s*<p>after/);
   });
 });
+
+describe('T-0401: bare site paths in prose become links', () => {
+  const body = (md: string) => docToHtml(`# T\n\n${md}\n`);
+  it('links a bare path and keeps trailing punctuation outside', () => {
+    expect(body('See /integrator/buyers.')).toContain(
+      'See <a href="/integrator/buyers">/integrator/buyers</a>.',
+    );
+    expect(body('(/legal/aup), then /pricing; ok')).toContain(
+      '(<a href="/legal/aup">/legal/aup</a>), then <a href="/pricing">/pricing</a>; ok',
+    );
+  });
+  it('keeps the hash', () => {
+    expect(body('Go to /integrator#options now')).toContain(
+      '<a href="/integrator#options">/integrator#options</a> now',
+    );
+  });
+  it('leaves code and existing links alone', () => {
+    const c = body('Use `/integrator/buyers` here');
+    expect(c).toContain('<code>/integrator/buyers</code>');
+    expect(c).not.toContain('<a href');
+    const l = body('[the guide](/integrator/buyers) and [/legal/aup](/legal/aup)');
+    expect(l).toContain('<a href="/integrator/buyers">the guide</a>');
+    expect(l).toContain('<a href="/legal/aup">/legal/aup</a>');
+    expect(l).not.toContain('<a href="/legal/aup"><a');
+    expect(body('```\n/integrator/buyers\n```')).toContain('<pre>/integrator/buyers</pre>');
+  });
+  it('does not touch URLs or non-site paths', () => {
+    const h = body('https://x.io/legal/aup and /etc/passwd and /integratorx');
+    expect(h).not.toContain('<a href');
+  });
+});

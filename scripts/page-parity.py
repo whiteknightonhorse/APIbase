@@ -100,6 +100,7 @@ def allow(name):
 
 ISO_TS = re.compile(r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?")
 COUNT = re.compile(r"\d[\d,]{2,}$")
+PATH_PUNCT = re.compile(r"(/[^\s]*?)([.,;:)]+)$")
 COUNT_UNIT = re.compile(r"(tools|providers)\b", re.I)
 
 
@@ -109,6 +110,11 @@ def norm_ts(tokens):
     Only the value is neutral; the words around it must still be present."""
     out = []
     for i, t in enumerate(tokens):
+        # T-0401: a path token and its trailing punctuation compare apart, so wrapping a bare path in <a> is neutral.
+        m = PATH_PUNCT.match(t)
+        if m:
+            out.extend([m.group(1), m.group(2)])
+            continue
         if COUNT.match(t) and i + 1 < len(tokens) and COUNT_UNIT.match(tokens[i + 1]):
             t = "<COUNT>"
         out.append(ISO_TS.sub("<ISO-DATE>", t))

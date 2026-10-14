@@ -174,7 +174,9 @@ describe('T-INT-19', () => {
       const p = join(dir, 'legal-published.json');
       writeFileSync(p, JSON.stringify({ published_at: '2026-10-20T10:00:00Z', by: 'operator' }));
       const page = renderTokens(read('static/integrator/index.html'), MCP_BASELINE, p);
-      expect(page).toContain('Published on 2026-10-20; the hashes are in /legal/index.json.');
+      expect(page).toContain(
+        'Published on 2026-10-20; the hashes are in <a href="/legal/index.json">/legal/index.json</a>.',
+      );
       expect(page).not.toContain('not yet published');
     } finally {
       rmSync(dir, { recursive: true, force: true });
