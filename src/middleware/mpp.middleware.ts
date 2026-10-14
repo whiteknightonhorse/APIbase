@@ -58,9 +58,31 @@ function toolIdFromUrl(originalUrl: string): string | undefined {
 /** What `mppx.charge()` is called with (T-INT-10: an order quote adds recipient/memo/splits). */
 interface ChargeParams {
   amount: string;
+  chainId?: number;
   recipient?: string;
   memo?: string;
   splits?: Array<{ recipient: string; amount: string }>;
+}
+
+const TEMPO_TESTNET_CHAIN_ID = 42431;
+
+/**
+ * T-SHOP-B: the chainId every challenge is built with. mppx defaults to Tempo mainnet (4217)
+ * when none is passed, so it is always passed explicitly. Fail closed: a testnet config whose
+ * chainId is not the Tempo testnet must never issue a challenge (503, not a mainnet challenge).
+ */
+export function assertChallengeChainId(cfg: {
+  testnet?: boolean;
+  chainId?: number;
+}): number | undefined {
+  if (cfg.testnet === true && cfg.chainId !== TEMPO_TESTNET_CHAIN_ID) {
+    logger.error(
+      { chainId: cfg.chainId, expected: TEMPO_TESTNET_CHAIN_ID },
+      'mpp: MPP_TESTNET=true but the challenge chainId is not the Tempo testnet — refusing to issue a challenge',
+    );
+    throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'MPP chain configuration invalid', 2);
+  }
+  return cfg.chainId;
 }
 
 /** POST|GET /api/v1/shop/quotes/:id/pay — the only MPP route of an order (§6.3). */
@@ -81,7 +103,9 @@ async function resolveAmountForUrl(originalUrl: string): Promise<ChargeParams | 
   const toolId = toolIdFromUrl(originalUrl);
   if (!toolId) return undefined;
   const price = getToolPriceUsd(toolId);
-  return price === undefined ? undefined : { amount: String(price) };
+  return price === undefined
+    ? undefined
+    : { amount: String(price), chainId: assertChallengeChainId(getMppConfig()) };
 }
 
 interface QuoteRow {
@@ -136,6 +160,7 @@ async function quoteChargeParams(q: QuoteRow): Promise<ChargeParams> {
   const withFee = q.fee_usd > 0 && integratorConfig().fee_enabled;
   return {
     amount: String(q.total_usd),
+    chainId: assertChallengeChainId(getMppConfig()),
     recipient: currentPayout(q, 'tempo'),
     memo: quoteMemo(q.quote_id),
     ...(withFee && feeWallet
@@ -186,6 +211,7 @@ async function ensureMppx(): Promise<void> {
   }
   const params = {
     account,
+    chainId: assertChallengeChainId(cfg),
     currency: cfg.usdcAddress,
     recipient: cfg.walletAddress as `0x${string}`,
     // T-0257: replay store shared across processes and surviving restarts
@@ -274,7 +300,7 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   if (params === undefined) {
     throw new AppError(
       ErrorCode.BAD_REQUEST,
-      'MPP credentials are accepted only on POST /api/v1/tools/{tool_id}/call — the route that issued the challenge. This route has no MPP price; use x402 (X-Payment) or an API key here.',
+      'MPP credentials are accepted only on the route that issued the challenge: POST /api/v1/tools/{tool_id}/call for API tools, POST /api/v1/shop/quotes/{id}/pay for shop orders (pay.mpp.url in the quote). This route has no MPP price; use x402 (X-Payment) or an API key here.',
     );
   }
 
@@ -283,7 +309,7 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
     // T-0282: charge() settles on-chain and cannot be undone, so reject a body our own
     // schema would refuse (400) BEFORE any money moves. Provider-side 422s are out of scope.
     if (rejectInvalidBody(req, res)) return false;
-    await chargeAndRecord(req, params);
+    await chargeAndRecord(req, res, params);
     return true;
   }
   // GET /quotes/:id/pay only ever returns the challenge (§6.3): a credential is not settled here.
@@ -307,7 +333,7 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
       release();
       return conflict();
     }
-    await chargeAndRecord(req, params);
+    await chargeAndRecord(req, res, params);
   } catch (err) {
     release();
     throw err;
@@ -317,7 +343,7 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   return true;
 }
 
-async function chargeAndRecord(req: Request, params: ChargeParams): Promise<void> {
+async function chargeAndRecord(req: Request, res: Response, params: ChargeParams): Promise<void> {
   const log = req.log ?? logger;
   const authHeader = req.headers['authorization'] as string;
   const { amount } = params;
@@ -363,6 +389,18 @@ async function chargeAndRecord(req: Request, params: ChargeParams): Promise<void
       throw new AppError(ErrorCode.BAD_REQUEST, 'MPP payment verification failed');
     }
 
+    // Hand the receipt to the client exactly as mppx produced it (base64url JSON, no re-encoding).
+    // The charge already settled on-chain, so a missing receipt must never fail the request.
+    try {
+      const receipt = result.withReceipt(new globalThis.Response()).headers.get('Payment-Receipt');
+      if (receipt) res.setHeader('Payment-Receipt', receipt);
+    } catch (err) {
+      log.warn(
+        { requestId: req.requestId, err: err instanceof Error ? err.message : String(err) },
+        'mpp: could not attach Payment-Receipt header',
+      );
+    }
+
     // Payment verified — resolve who actually paid (on-chain truth, not a stub).
     const { payer, txHash } = await resolveRealPayer(result);
     req.mppPayment = {
@@ -404,6 +442,7 @@ export async function buildMppChallengeHeader(
 ): Promise<string | null> {
   const cfg = getMppConfig();
   if (!cfg.enabled) return null;
+  assertChallengeChainId(cfg);
 
   const mppx = await getMppxInstance();
   if (!mppx) return null;
@@ -412,7 +451,11 @@ export async function buildMppChallengeHeader(
     // Ensure URL uses https (server is behind Nginx)
     const httpsUrl = requestUrl.replace(/^http:/, 'https:');
     const fetchReq = new globalThis.Request(httpsUrl, { method: 'POST' });
-    const result = await mppx.charge({ amount: String(priceUsd), ...quoteParams })(fetchReq);
+    const result = await mppx.charge({
+      amount: String(priceUsd),
+      chainId: cfg.chainId,
+      ...quoteParams,
+    })(fetchReq);
 
     if (result.status === 402) {
       return result.challenge.headers.get('WWW-Authenticate');
