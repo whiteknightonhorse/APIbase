@@ -104,12 +104,24 @@ PATH_PUNCT = re.compile(r"(/[^\s]*?)([.,;:)]+)$")
 COUNT_UNIT = re.compile(r"(tools|providers)\b", re.I)
 
 
+HUMAN_TS = [re.compile(r"\d{1,2}$"), re.compile(r"[A-Z][a-z]{2}$"), re.compile(r"\d{4},$"), re.compile(r"\d\d:\d\d$"), re.compile(r"UTC$")]
+
+
 def norm_ts(tokens):
     """T-0391/T-0400: volatile values compare as placeholders on both sides: ISO dates and datetimes
     (catalog sync date, refresh time) and the generated site totals ("<N> tools", "<N> providers", N >= 100; small per-provider counts stay content).
     Only the value is neutral; the words around it must still be present."""
     out = []
+    skip = 0
     for i, t in enumerate(tokens):
+        if skip:
+            skip -= 1
+            continue
+        # T-0403: "14 Oct 2026, 05:15 UTC" (the human form of a datetime) is the same volatile value.
+        if i + 5 <= len(tokens) and all(r.match(tokens[i + j]) for j, r in enumerate(HUMAN_TS)):
+            out.append("<ISO-DATE>")
+            skip = 4
+            continue
         # T-0401: a path token and its trailing punctuation compare apart, so wrapping a bare path in <a> is neutral.
         m = PATH_PUNCT.match(t)
         if m:

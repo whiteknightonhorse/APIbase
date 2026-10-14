@@ -75,3 +75,21 @@ describe('T-0378 storefront human-first', () => {
     ).not.toContain('application/ld+json');
   });
 });
+
+describe('T-0403 fmtUtc', () => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const { fmtUtc } = require('../../src/shop/storefront/storefront.view');
+  it('renders an ISO datetime as readable UTC inside <time>', () => {
+    expect(fmtUtc('2026-10-14T05:15:02.156960+00:00')).toBe(
+      '<time datetime="2026-10-14T05:15:02+00:00">14 Oct 2026, 05:15 UTC</time>',
+    );
+  });
+  it('normalises an offset to UTC', () => {
+    expect(fmtUtc('2026-10-14T07:15:00+02:00')).toContain('>14 Oct 2026, 05:15 UTC<');
+  });
+  it('leaves non-datetimes escaped and unchanged', () => {
+    expect(fmtUtc('3 <b>')).toBe('3 &lt;b&gt;');
+    expect(fmtUtc('2026-10-14')).toBe('2026-10-14');
+    expect(fmtUtc(['x'])).toBe('x');
+  });
+});

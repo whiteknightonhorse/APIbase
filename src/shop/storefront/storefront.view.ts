@@ -25,6 +25,20 @@ const ldScripts = (ld: unknown[]) =>
 const NOINDEX = '<meta name="robots" content="noindex, follow">';
 const FOOTER = 'APIbase.pro · Shops · <a href="/integrator">Sell to AI agents</a>';
 
+const ISO_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/;
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** T-0403: an ISO datetime renders as "D Mon YYYY, HH:MM UTC" inside <time datetime>; anything else is escaped as-is. */
+export const fmtUtc = (v: unknown): string => {
+  if (typeof v !== 'string' || !ISO_DATETIME.test(v)) return esc(v);
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return esc(v);
+  const p = (n: number) => String(n).padStart(2, '0');
+  const iso = `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())}+00:00`;
+  const text = `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}, ${p(d.getUTCHours())}:${p(d.getUTCMinutes())} UTC`;
+  return `<time datetime="${iso}">${text}</time>`;
+};
+
 const kv = (o: Record<string, unknown>): Array<[string, string]> =>
   Object.entries(o).map(([k, v]) => [k, typeof v === 'object' ? JSON.stringify(v) : String(v)]);
 
@@ -231,7 +245,7 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
       ? `<div class="kv">${rep
           .map(
             ([k, v]) =>
-              `<div><span class="k">${esc(k)}</span> <span class="dots">……</span> <strong>${esc(v)}</strong></div>`,
+              `<div><span class="k">${esc(k)}</span> <span class="dots">……</span> <strong>${fmtUtc(v)}</strong></div>`,
           )
           .join('')}` +
         `<div><span class="k">connection check</span> <span class="dots">……</span> <a href="/integrator/check/${slug}">/integrator/check/${slug}</a></div></div>`
