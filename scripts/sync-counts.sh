@@ -40,6 +40,13 @@ done
 # and is still required to work in the deploy tree (CI's static-counts-drift job runs there).
 # Self-heal now runs from the fleet worktree via scripts/sync-counts-cron.sh, which commits
 # and pushes through the normal gated path -- same shape as .husky/pre-push's own refusal.
+# T-SITE-A: release tag for the footer BUILD label (both modes).
+TAG="$(git describe --tags --match 'v*' --abbrev=0 2>/dev/null || true)"
+if ! printf '%s' "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+  echo "sync-counts: no v* release tag reachable from HEAD"; exit 1
+fi
+BUILD_LINK="<a href=\"https://github.com/whiteknightonhorse/APIbase/releases/tag/${TAG}\">${TAG}</a>"
+
 if [ "$CHECK" != "1" ] && [ "$(git rev-parse --show-toplevel 2>/dev/null)" = "/home/apibase/apibase" ]; then
   echo "BLOCKED: sync-counts.sh self-heal (no --check) refused in the deploy tree (/home/apibase/apibase)." >&2
   echo "         It writes tracked files there and dirties F2's gate, aborting the next deploy." >&2
@@ -198,6 +205,14 @@ else
     b=$(md5sum "$f" | cut -d" " -f1)
     sed -i -E "s/TOOLS: [0-9]+</TOOLS: ${TOOLS}</g" "$f"
     [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f (footer TOOLS: N)"; CHANGED=$((CHANGED+1)); }
+  done
+
+  # T-SITE-A: the footer BUILD label is the latest v* release tag reachable from HEAD, linked to its GitHub release.
+  for f in static/index.html static/dashboard.html; do
+    [ -f "$f" ] || continue
+    b=$(md5sum "$f" | cut -d" " -f1)
+    sed -i -E "s#BUILD: (<a [^>]*>)?v[0-9][^<| ]*(</a>)?#BUILD: ${BUILD_LINK}#g" "$f"
+    [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f (footer BUILD)"; CHANGED=$((CHANGED+1)); }
   done
 
   # api-catalog (RFC 9727 linkset, no file extension so not caught by the glob above) has two
@@ -440,6 +455,8 @@ STALE_SYSMON=$(grep -hoE "PRV:</span><strong>[0-9]+</strong>|TOOLS:</span><stron
   | grep -vE "^PRV:</span><strong>${PROV}</strong>$|^TOOLS:</span><strong>${TOOLS}</strong>$" | sort -u || true)
 STALE_FOOTER_TOOLS=$(grep -hoE "TOOLS: [0-9]+<" static/index.html static/contact.html static/privacy.html static/dashboard.html 2>/dev/null \
   | grep -v "^TOOLS: ${TOOLS}<$" | sort -u || true)
+STALE_BUILD=$(grep -hn "BUILD:" static/index.html static/dashboard.html 2>/dev/null \
+  | grep -vF "BUILD: ${BUILD_LINK}" || true)
 # ZZ-03-06 attempt-3 (Fable REJECT item 6): mcp.json/agent.json/ai-capabilities.json/ucp/
 # acp.json/agent-skills/index.json/agent-skills/discover-tools.md's counts, versions, embedded
 # prose numbers and sha256 hashes were, until this attempt, checked field-by-field here -- and
@@ -607,6 +624,7 @@ FAIL=0
 [ -n "$STALE_AI_TXT" ] && { echo "sync-counts: STALE ai.txt 'Tools: N across' remains: $STALE_AI_TXT"; FAIL=1; }
 [ -n "$STALE_CATALOG" ] && { echo "sync-counts: STALE api-catalog remains:"; echo "$STALE_CATALOG"; FAIL=1; }
 [ -n "$STALE_SYSMON" ] && { echo "sync-counts: STALE sys-monitor bar(s) remain:"; echo "$STALE_SYSMON"; FAIL=1; }
+[ -n "$STALE_BUILD" ] && { echo "sync-counts: STALE_BUILD — footer BUILD label is not the linked latest release tag ${TAG}:"; echo "$STALE_BUILD"; FAIL=1; }
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
 [ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }
 [ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }

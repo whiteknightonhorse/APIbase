@@ -135,6 +135,21 @@ describe('T-0383 page-parity gate', () => {
       expect(allow).not.toMatch(/^Privacy$/m);
     });
 
+    it('PP8: a new release tag in the BUILD label passes, a lost BUILD label fails', () => {
+      const base = join(tmp, 'tests/fixtures/page-baseline');
+      const page = (body: string) =>
+        writeFileSync(join(tmp, 'static/about.html'), `<html><body>${body}</body></html>`);
+      writeFileSync(join(base, 'about.txt'), 'Stay tuned. BUILD: v1.0.0');
+      writeFileSync(join(base, 'about.meta.json'), '{"links":[],"ids":[],"scripts":0}');
+      writeFileSync(join(base, 'about.allow.txt'), '');
+      page(
+        '<p>Stay tuned.</p><span>BUILD: <a href="https://example.test/v1.7.0">v1.7.0</a></span>',
+      );
+      expect(parity(['about', '--render'], tmp).status).toBe(0);
+      page('<p>Stay tuned.</p>');
+      expect(parity(['about', '--render'], tmp).status).toBe(1);
+    });
+
     it('PP7: a changed date or count passes, a lost dated sentence fails', () => {
       const base = join(tmp, 'tests/fixtures/page-baseline');
       const page = (body: string) =>

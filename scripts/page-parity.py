@@ -101,6 +101,7 @@ def allow(name):
 ISO_TS = re.compile(r"\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?")
 COUNT = re.compile(r"\d[\d,]{2,}$")
 PATH_PUNCT = re.compile(r"(/[^\s]*?)([.,;:)]+)$")
+BUILD_TAG = re.compile(r"v\d+\.\d+\.\d+$")
 COUNT_UNIT = re.compile(r"(tools|providers)\b", re.I)
 
 
@@ -121,6 +122,10 @@ def norm_ts(tokens):
         if i + 5 <= len(tokens) and all(r.match(tokens[i + j]) for j, r in enumerate(HUMAN_TS)):
             out.append("<ISO-DATE>")
             skip = 4
+            continue
+        # T-SITE-A: the footer BUILD label is the latest release tag and changes with every release.
+        if t.startswith("v") and out and out[-1] == "BUILD:" and BUILD_TAG.match(t):
+            out.append("<BUILD-TAG>")
             continue
         # T-0401: a path token and its trailing punctuation compare apart, so wrapping a bare path in <a> is neutral.
         m = PATH_PUNCT.match(t)
@@ -159,7 +164,7 @@ def missing_runs(base, got):
 def compare(name, body):
     fails = []
     seqs, ah, ad = allow(name)
-    base = norm_ts(remove_seqs(read(os.path.join(FIX, name + ".txt")).split(), seqs))
+    base = remove_seqs(norm_ts(read(os.path.join(FIX, name + ".txt")).split()), [norm_ts(q) for q in seqs])
     for run in missing_runs(base, norm_ts(visible_tokens(body))):
         fails.append("missing text " + " ".join(run[:14]) + (" ..." if len(run) > 14 else ""))
     meta = json.load(open(os.path.join(FIX, name + ".meta.json"), encoding="utf-8"))
