@@ -219,7 +219,6 @@ export function isPayer(
   o: { buyer_identity: string | null; payer_wallet: string | null },
   identity: string,
 ): boolean {
-  if (identity.startsWith('ip:')) return false; // an IP is never the payer
   if (o.buyer_identity && o.buyer_identity === identity) return true;
   return Boolean(o.payer_wallet && identity === `wallet:${sha(o.payer_wallet.toLowerCase())}`);
 }

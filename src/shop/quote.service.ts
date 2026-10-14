@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { getX402Config, toMicroUsdc } from '../config/x402.config';
 import { checkBan } from '../services/moderation-ban.service';
 import { currentPayout } from './auth/identity.service';
@@ -134,8 +134,6 @@ export interface QuoteLine {
 
 export interface QuoteResponse {
   quote_id: string;
-  /** present only for anonymous REST quotes; send it as Authorization: Bearer <buyer_token> on pay/get/cancel/dispute */
-  buyer_token?: string;
   order_id: string;
   items: QuoteLine[];
   total_usd: number;
@@ -711,13 +709,6 @@ export async function createQuote(
     ]),
   ];
   const quote_id = randomUUID();
-  // Anonymous REST buyer: an IP is never the payer. Mint a bearer token, store only its hash.
-  let buyer_token: string | undefined;
-  let buyer_identity = buyer.identity;
-  if (buyer.identity.startsWith('ip:')) {
-    buyer_token = `bt_${randomBytes(32).toString('hex')}`;
-    buyer_identity = `token:${createHash('sha256').update(buyer_token).digest('hex')}`;
-  }
 
   let order_id: string;
   try {
@@ -730,7 +721,7 @@ export async function createQuote(
                  $6::numeric, $7::text[], $8::text[], $9, $10, $11::timestamptz, 'open', $14, $15)`,
         quote_id,
         merchant_id,
-        buyer_identity,
+        buyer.identity,
         JSON.stringify(lines.map((l) => l.line)),
         money(subtotalCents),
         money(feeCents),
@@ -846,7 +837,6 @@ export async function createQuote(
       },
       t,
     ),
-    ...(buyer_token ? { buyer_token } : {}),
     ...banner,
   };
 }
@@ -1040,8 +1030,7 @@ export async function cancelOrder(
     const mine =
       o &&
       (o.state === 'QUOTED'
-        ? !o.buyer_identity ||
-          (!buyer.identity.startsWith('ip:') && o.buyer_identity === buyer.identity)
+        ? !o.buyer_identity || o.buyer_identity === buyer.identity
         : isPayer(o, buyer.identity));
     if (!o || !mine) {
       throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
