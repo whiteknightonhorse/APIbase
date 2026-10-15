@@ -1,7 +1,15 @@
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-const stripTags = (h: string) => h.replace(/<[^>]+>/g, '');
+const stripTags = (h: string): string => {
+  let text = h;
+  for (;;) {
+    const open = text.indexOf('<');
+    const close = open === -1 ? -1 : text.indexOf('>', open);
+    if (close === -1) return text;
+    text = text.slice(0, open) + text.slice(close + 1);
+  }
+};
 
 export interface LegalToc {
   id: string;
