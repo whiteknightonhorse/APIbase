@@ -1114,6 +1114,8 @@ smhi.fire_risk	smhi	0.001
 smhi.forecast	smhi	0.001
 smhi.observations	smhi	0.001
 smhi.warnings	smhi	0.001
+smithsonian.record	smithsonian	0.001
+smithsonian.search	smithsonian	0.001
 socrata.dataset_metadata	socrata	0.001
 socrata.dataset_search	socrata	0.002
 socrata.query_dataset	socrata	0.002
