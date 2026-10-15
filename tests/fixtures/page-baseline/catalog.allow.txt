@@ -5,3 +5,6 @@ STATUS: ONLINE | PID: 1337 | TTY: pts/0 | USER: apibase
 BUILD: v1.0.0
 Provider Tools
 |
+# Providers dropped from the generated catalog by the daily cron sync (status flapped to unavailable); the baseline predates the drop.
+ibge 5
+overpass 4
