@@ -131,10 +131,10 @@ export function firstParagraph(bodyHtml: string): string {
     text = text.slice(0, open) + text.slice(close + 1);
   }
   return text
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
     .slice(0, 300);
 }
 
