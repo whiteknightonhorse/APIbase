@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.1.0",
   "updated_at": "2026-10-15T00:00:00Z",
-  "tools_count": 1396,
-  "providers_count": 403,
+  "tools_count": 1400,
+  "providers_count": 404,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1396 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1400 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -73,8 +73,8 @@
     },
     {
       "name": "location",
-      "tools": 56,
-      "providers": "Brasilapi, FCC, Geo, Geoboundaries, Geocodio, Geonames, Indec Georef, Netherlands Pdok Kadaster, Nominatim Osm, Norway Kartverket Stedsnavn, Openbrewery, Openchargemap, Opentopodata, Postcode Japan, Uk Landregistry Pricepaid, USGS Epqs, USGS Nationalmap, Usrealestate, Walkscore",
+      "tools": 60,
+      "providers": "Brasilapi, FCC, Geo, Geoboundaries, Geocodio, Geonames, Indec Georef, Netherlands Pdok Kadaster, Nominatim Osm, Norway Kartverket Stedsnavn, Openbrewery, Openchargemap, Opentopodata, Overpass, Postcode Japan, Uk Landregistry Pricepaid, USGS Epqs, USGS Nationalmap, Usrealestate, Walkscore",
       "examples": "Call discover_tools with category=\"location\" for the current tool list and descriptions."
     },
     {

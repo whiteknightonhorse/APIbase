@@ -977,6 +977,10 @@ orphadata.disease_phenotypes	orphadata	0.001
 osv.batch_query	osv	0.003
 osv.get	osv	0.001
 osv.query	osv	0.001
+overpass.amenities	overpass	0.002
+overpass.named_place	overpass	0.002
+overpass.pois_nearby	overpass	0.002
+overpass.public_transport	overpass	0.002
 p2pquake.quake_history	p2pquake	0.001
 p2pquake.recent_quakes	p2pquake	0.001
 p2pquake.tsunami_warnings	p2pquake	0.001
