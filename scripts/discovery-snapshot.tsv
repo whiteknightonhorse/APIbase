@@ -617,6 +617,11 @@ hyperliquid.positions	hyperliquid	0.005
 hyperliquid.vault	hyperliquid	0.005
 iban.calculate	ibanapi	0.002
 iban.validate	ibanapi	0.002
+ibge.cnae	ibge	0.001
+ibge.municipalities	ibge	0.001
+ibge.name_frequency	ibge	0.001
+ibge.regions	ibge	0.001
+ibge.states	ibge	0.001
 icd11.autocomplete	nlm-icd11	0.001
 icd11.lookup	nlm-icd11	0.001
 icd11.primary_search	nlm-icd11	0.001
