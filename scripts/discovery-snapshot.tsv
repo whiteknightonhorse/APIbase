@@ -821,11 +821,6 @@ nasa-cmr.collection_detail	nasa-cmr	0.001
 nasa-cmr.list_providers	nasa-cmr	0.001
 nasa-cmr.search_collections	nasa-cmr	0.002
 nasa-cmr.search_granules	nasa-cmr	0.002
-nasa.apod	nasa	0.001
-nasa.donki_flr	nasa	0.001
-nasa.epic	nasa	0.001
-nasa.image_search	nasa	0.001
-nasa.neo_feed	nasa	0.001
 nasaexoplanet.habitable	nasaexoplanet	0.002
 nasaexoplanet.planet_detail	nasaexoplanet	0.001
 nasaexoplanet.search	nasaexoplanet	0.001
