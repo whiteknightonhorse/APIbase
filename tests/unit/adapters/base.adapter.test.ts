@@ -6,6 +6,7 @@
 // down using a provider deliberately absent from this mock.
 jest.mock('../../../src/config/provider-limits.json', () => ({
   test_provider: { limit_type: 'unlimited' },
+  tls_provider: { limit_type: 'unlimited', tls: { max_version: 'TLSv1.2' } },
 }));
 
 // AP-2: minimal fake Redis so base.adapter.ts's header-capture / asap-flag
@@ -570,5 +571,30 @@ describe('BaseAdapter signal capture (AP-2)', () => {
     // a provider-call failure (best-effort signal capture).
     const result = await adapter.call(makeRequest());
     expect(result.body).toEqual({ result: 'ok' });
+  });
+});
+
+// T-0480: a provider with a `tls` block goes through https.request, not fetch.
+describe('BaseAdapter per-provider TLS transport (T-0480)', () => {
+  it('uses https.request with the tls agent when the provider has a tls block', async () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const https = require('https') as typeof import('https');
+    const fetchMock = jest.fn();
+    globalThis.fetch = fetchMock;
+    const reqSpy = jest.spyOn(https, 'request').mockImplementation((() => {
+      throw new Error('https.request reached');
+    }) as never);
+    const tlsAdapter = new TestAdapter({
+      provider: 'tls_provider',
+      baseUrl: 'https://api.test.com',
+      timeoutMs: 500,
+      maxRetries: 0,
+      maxResponseBytes: 1024,
+    });
+    await expect(tlsAdapter.call(makeRequest())).rejects.toBeDefined();
+    expect(reqSpy).toHaveBeenCalledTimes(1);
+    const options = reqSpy.mock.calls[0][1] as { agent?: { options?: { maxVersion?: string } } };
+    expect(options.agent?.options?.maxVersion).toBe('TLSv1.2');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
