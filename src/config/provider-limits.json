@@ -3649,6 +3649,9 @@
   "thesportsdb": {
     "display_name": "TheSportsDB",
     "health_url": "https://www.thesportsdb.com/api/v1/json/3/all_leagues.php",
+    "probe": {
+      "expect_status": [200]
+    },
     "limit_type": "rate_limited",
     "free_limit": 30,
     "reset_period": "none",

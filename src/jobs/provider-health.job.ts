@@ -91,6 +91,7 @@ interface ProbeConfig {
    *  (e.g. `x-api-key`) to send the key verbatim under that header instead,
    *  no `Bearer` prefix. */
   auth_header?: string;
+  /** also honoured on the achievability path (T-0489b); set only from a measured `curl -sI` status of the health_url */
   expect_status?: number[];
   cost_class?: 'free' | 'cheap' | 'paid';
   /** overrides the cost_class default cap (budgetMaxForCostClass) — see
@@ -224,12 +225,28 @@ const STATE_RANK: Record<string, number> = { UNKNOWN: 0, HEALTHY: 0, DEGRADED: 1
  * this job used to call OK were literally HTTP 429 (probe_log, 48h), while
  * true content success was 2/31. Folding 429 into FAIL_TRANSIENT lets the F1
  * state machine see the real failure rate instead of scoring it HEALTHY.
+ *
+ * T-0489b: an optional `expectStatus` (probe.expect_status) makes any other
+ * non-transient status a static FAIL_DETERMINISTIC. thesportsdb: 10/10 head
+ * probes were HTTP 403 (dead key) yet recorded OK while all 4 tools failed.
  */
-export function classifyHeadResult(outcome: ProbeOutcome): 'OK' | 'FAIL_TRANSIENT' {
+export function classifyHeadResult(outcome: ProbeOutcome, expectStatus?: number[]): ProbeResult {
   if (outcome.kind === 'timeout' || outcome.kind === 'network_error') return 'FAIL_TRANSIENT';
   if (outcome.status === 429) return 'FAIL_TRANSIENT';
   if (outcome.status >= 500) return 'FAIL_TRANSIENT';
+  if (expectStatus && !expectStatus.includes(outcome.status)) return 'FAIL_DETERMINISTIC';
   return 'OK';
+}
+
+/** T-0489b: state_reason for the expect_status mismatch branch; undefined otherwise. */
+function expectDetail(
+  result: ProbeResult,
+  outcome: ProbeOutcome,
+  expectStatus?: number[],
+): string | undefined {
+  if (result !== 'FAIL_DETERMINISTIC' || outcome.kind !== 'status' || !expectStatus)
+    return undefined;
+  return `${outcome.status} not in expect_status [${expectStatus.join(',')}]`;
 }
 
 /**
@@ -948,8 +965,11 @@ async function probeHead(
       ? probeTimeoutMs(cfg.probe)
       : HEALTH_CHECK_GET_TIMEOUT_MS;
     const getResult = await fetchOutcome(healthUrl, 'GET', getHeaders, getTimeoutMs, provider);
-    const result = classifyHeadResult(getResult.outcome);
-    const detail = probeDetail(getResult.outcome, getTimeoutMs);
+    const expectStatus = cfg.probe?.expect_status;
+    const result = classifyHeadResult(getResult.outcome, expectStatus);
+    const detail =
+      expectDetail(result, getResult.outcome, expectStatus) ??
+      probeDetail(getResult.outcome, getTimeoutMs);
     await recordProbeResult(db, redis, provider, 'get', result, {
       httpStatus: getResult.httpStatus,
       latencyMs: getResult.latencyMs,
@@ -959,13 +979,15 @@ async function probeHead(
     return;
   }
 
-  const result = classifyHeadResult(initial.outcome);
+  const expectStatus = cfg.probe?.expect_status;
+  const result = classifyHeadResult(initial.outcome, expectStatus);
   // T-0141: surface the 429 fact in probe_log.detail / provider_status.state_reason
   // rather than a bare FAIL_TRANSIENT — incident-engine's RATE_LIMITED routing
   // (detect_from_provider_status) reads the recent probe_log http_status column
   // directly, but state_reason is what a human sees on the incident/dashboard.
   // T-0143: same treatment for outcomes that never got an HTTP status at all.
-  const detail = probeDetail(initial.outcome, timeoutMs);
+  const detail =
+    expectDetail(result, initial.outcome, expectStatus) ?? probeDetail(initial.outcome, timeoutMs);
   await recordProbeResult(db, redis, provider, initialMethod === 'GET' ? 'get' : 'head', result, {
     httpStatus: initial.httpStatus,
     latencyMs: initial.latencyMs,

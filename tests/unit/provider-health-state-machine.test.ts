@@ -209,6 +209,25 @@ describe('classifyHeadResult — achievability only, never authorization', () =>
   });
 });
 
+describe('classifyHeadResult with expect_status', () => {
+  const expect200 = [200];
+  it('200 is OK', () => {
+    expect(classifyHeadResult({ kind: 'status', status: 200 }, expect200)).toBe('OK');
+  });
+  it.each([403, 404])('status %d is FAIL_DETERMINISTIC', (status) => {
+    expect(classifyHeadResult({ kind: 'status', status }, expect200)).toBe('FAIL_DETERMINISTIC');
+  });
+  it.each([429, 503])('status %d is FAIL_TRANSIENT', (status) => {
+    expect(classifyHeadResult({ kind: 'status', status }, expect200)).toBe('FAIL_TRANSIENT');
+  });
+  it('timeout is FAIL_TRANSIENT', () => {
+    expect(classifyHeadResult({ kind: 'timeout' }, expect200)).toBe('FAIL_TRANSIENT');
+  });
+  it('without expect_status 403 stays OK', () => {
+    expect(classifyHeadResult({ kind: 'status', status: 403 })).toBe('OK');
+  });
+});
+
 describe("T-0141 mutation control — the 429 fix must actually change gdelt's outcome", () => {
   // Real gdelt probe_log, 2026-09-19 07:24 UTC -> 2026-09-21 06:40 UTC (31
   // rows, PROOF: taskloop/logs/0141-.../01-probe-log-48h.txt), reordered
