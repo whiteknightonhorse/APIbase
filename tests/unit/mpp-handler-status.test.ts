@@ -69,12 +69,30 @@ async function run(req: Request) {
   return { res, next };
 }
 
-function handlerReturns(status: number) {
-  mockCharge.mockImplementation(() => async () => ({
-    status,
-    withReceipt: (r: Response) => r,
-    challenge: new Response(null, { status: 402 }),
-  }));
+function handlerReturns(status: number, challengeStatus = 402) {
+  mockCharge.mockImplementation(() => async () => {
+    if (challengeStatus === 403) {
+      // Exactly what the mppx 0.13.5 catch returns for CredentialReplayedError: no withReceipt.
+      const challenge = new Response(
+        JSON.stringify({
+          type: 'https://paymentauth.org/problems/verification-failed',
+          title: 'Verification Failed',
+          status: 403,
+          detail: 'Payment verification failed: Credential has already been used.',
+        }),
+        {
+          status: 403,
+          headers: { 'Content-Type': 'application/problem+json', 'Cache-Control': 'no-store' },
+        },
+      );
+      return { status, challenge };
+    }
+    return {
+      status,
+      withReceipt: (r: Response) => r,
+      challenge: new Response(null, { status: challengeStatus }),
+    };
+  });
 }
 
 beforeEach(() => {
@@ -91,8 +109,8 @@ beforeEach(() => {
 });
 
 describe('mppx handler status mapping (T-0426)', () => {
-  it('403 -> 403 credential_replayed, charged:false, no req.mppPayment, pipeline not entered', async () => {
-    handlerReturns(403);
+  it('real replay shape {challenge: 403, status: 402} -> 403 credential_replayed, charged:false, no req.mppPayment, pipeline not entered', async () => {
+    handlerReturns(402, 403);
     const req = makeReq();
     const { res, next } = await run(req);
     expect(res.statusCode).toBe(403);
@@ -105,10 +123,21 @@ describe('mppx handler status mapping (T-0426)', () => {
     });
     expect(req.mppPayment).toBeUndefined();
     expect(next).not.toHaveBeenCalled();
+    expect(res.setHeader).not.toHaveBeenCalledWith('Payment-Receipt', expect.anything());
+  });
+
+  it('a direct status 403 result is still a final 403', async () => {
+    handlerReturns(403);
+    const req = makeReq();
+    const { res, next } = await run(req);
+    expect(res.statusCode).toBe(403);
+    expect(res.body).toMatchObject({ error_code: 'credential_replayed', charged: false });
+    expect(req.mppPayment).toBeUndefined();
+    expect(next).not.toHaveBeenCalled();
   });
 
   it('402 -> 400 with the mppx 0.6.16 upgrade hint', async () => {
-    handlerReturns(402);
+    handlerReturns(402, 402);
     const req = makeReq();
     const { next } = await run(req);
     const err = next.mock.calls[0][0] as AppError;

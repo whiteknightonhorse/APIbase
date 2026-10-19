@@ -411,6 +411,17 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   return true;
 }
 
+// mppx 0.13.5: a replayed credential is NOT a status-403 result. The charge handler catches its
+// own CredentialReplayedError (status 403) and returns { challenge: <403 problem-details
+// Response>, status: 402 } (dist/server/Mppx.js:856-874 -> Transport.respondChallenge,
+// dist/server/Transport.js:60-71). The final answer lives in result.challenge.status.
+function isReplayedCredential(result: {
+  status: number;
+  challenge?: globalThis.Response;
+}): boolean {
+  return result.status === 403 || result.challenge?.status === 403;
+}
+
 /**
  * T-0426: settlement whose outcome mppx could not confirm (broadcast confirmation timeout,
  * PaymentOutcomeUnknownError). The money may have moved: 503 + ONE `mpp_settle_unknown` outbox
@@ -518,10 +529,15 @@ async function chargeAndRecord(
       : await mppx.charge(params)(fetchReq);
 
     // T-0426: ONLY status 200 is a paid request. Everything else is NOT paid (never the paid path).
-    if (result.status === 403) {
+    if (isReplayedCredential(result)) {
       // mppx 0.13.4+: CredentialReplayedError, answered with a final 403 and no new challenge.
       log.warn(
-        { requestId: req.requestId, originalUrl: req.originalUrl, amount },
+        {
+          requestId: req.requestId,
+          originalUrl: req.originalUrl,
+          amount,
+          challengeStatus: result.challenge?.status,
+        },
         'mpp: credential replayed (403 from mppx)',
       );
       res.status(403).json({
@@ -586,17 +602,6 @@ async function chargeAndRecord(
     if (err instanceof AppError) throw err;
     if (isSettleUnknown(err)) {
       await recordSettleUnknown(req, res, params, err);
-      return false;
-    }
-    if (err instanceof Error && err.name === 'CredentialReplayedError') {
-      res.status(403).json({
-        error: 'forbidden',
-        error_code: 'credential_replayed',
-        message:
-          'This MPP credential was already settled. Request a new challenge (GET the same URL) and pay again.',
-        request_id: req.requestId,
-        charged: false,
-      });
       return false;
     }
     log.error(
