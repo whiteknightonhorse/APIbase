@@ -40,7 +40,7 @@ export function getX402Config(): X402Config {
       facilitatorUrl: config.X402_FACILITATOR_URL,
       priceLockSeconds: 60,
       receiptTtlSeconds: 86_400,
-      maxTimeoutSeconds: 30,
+      maxTimeoutSeconds: 120,
       testnet: net.testnet,
       facilitatorMode: config.X402_FACILITATOR_MODE,
       operatorPrivateKey: config.X402_OPERATOR_PRIVATE_KEY,

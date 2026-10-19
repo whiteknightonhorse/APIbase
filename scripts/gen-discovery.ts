@@ -374,12 +374,21 @@ async function main(): Promise<void> {
             pay_to: '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480',
             facilitator: 'self-hosted',
             scheme: 'exact',
+            transport: [
+              'X-Payment header',
+              'params._meta["x402/payment"] (x402 MCP transport v2; receipt in result _meta["x402/payment-response"])',
+            ],
+            max_timeout_seconds: 120,
           },
           mpp: {
             enabled: true,
             version: 'draft-ryan-httpauth-payment',
             network: 'tempo',
             asset: 'USDC',
+            credential_header: [
+              'Authorization: Payment <credential>',
+              'Payment-Authorization: Payment <credential>',
+            ],
           },
         },
         compatible_with: [
