@@ -734,6 +734,11 @@ lichess.user_profile	lichess	0.001
 listennotes.best	listennotes	0.002
 listennotes.podcast	listennotes	0.002
 listennotes.search	listennotes	0.003
+lmpr.boxed_beef_cutout	lmpr	0.001
+lmpr.cattle_slaughter_prices	lmpr	0.001
+lmpr.dairy_product_prices	lmpr	0.001
+lmpr.hog_slaughter_prices	lmpr	0.001
+lmpr.lamb_carcass_cutout	lmpr	0.001
 loc.collections	loc	0.001
 loc.item	loc	0.001
 loc.search	loc	0.002
@@ -1297,6 +1302,10 @@ upc.search	upcitemdb	0.002
 usajobs.code_lists	usajobs	0.001
 usajobs.position_detail	usajobs	0.001
 usajobs.search	usajobs	0.002
+usdamars.get_report	usdamars	0.001
+usdamars.list_corrected	usdamars	0.001
+usdamars.list_reports	usdamars	0.001
+usdamars.search_reports	usdamars	0.001
 usgs-epqs.elevation	usgs-epqs	0.001
 usgs-mrds.search_by_area	usgs-mrds	0.001
 usgs-nationalmap.list_datasets	usgs-nationalmap	0.001
