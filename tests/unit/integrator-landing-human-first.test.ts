@@ -40,7 +40,7 @@ describe('integrator human-first landing', () => {
       'Let AI agents buy from your store',
       'href="/integrator/connect"',
       'Connect my store',
-      'How it works',
+      'How agentic checkout works',
       'Frequently asked questions',
       'Ready when the agents are.',
       'id="developers"',

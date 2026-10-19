@@ -158,16 +158,16 @@ export function renderPage(
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Catalog — APIbase.pro</title>
+<title>MCP tool catalog — ${totalTools} tools, ${totalProviders} providers | APIbase</title>
 <meta property="og:image" content="https://apibase.pro/og-image.png?v=20260928">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="description" content="Every live provider behind APIbase's MCP gateway — ${totalTools} tools across ${totalProviders} providers, generated straight from the production database.">
+<meta name="description" content="MCP tool catalog: every live provider behind APIbase's MCP gateway — ${totalTools} tools across ${totalProviders} providers, generated straight from the production database.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="shortcut icon" href="/favicon.png">
 <link rel="canonical" href="https://apibase.pro/catalog">
-<meta property="og:title" content="Catalog — APIbase.pro">
-<meta property="og:description" content="${totalTools} tools across ${totalProviders} providers, live — the full list, generated from the production database.">
+<meta property="og:title" content="MCP tool catalog — ${totalTools} tools, ${totalProviders} providers | APIbase">
+<meta property="og:description" content="MCP tool catalog: every live provider behind APIbase's MCP gateway — ${totalTools} tools across ${totalProviders} providers, generated straight from the production database.">
 <meta property="og:url" content="https://apibase.pro/catalog">
 <style>
 ${NAV_CSS}
@@ -228,7 +228,7 @@ ${NAV_HTML}
 
 <section class="cat-hero">
 <div class="cat-hero-main">
-<h1>Catalog</h1>
+<h1>MCP tool catalog</h1>
 <p class="updated">Generated straight from the production database — never hand-edited, never rounded.</p>
 <div class="cat-ctas"><a class="m-btn m-btn--primary" href="/connect">Connect your agent ${ICON_ARROW}</a></div>
 </div>

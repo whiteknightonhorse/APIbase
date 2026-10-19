@@ -16,3 +16,10 @@ href: /guides/uscis-api-for-case-status
 href: /guides/viewmax-mcp-for-claude
 # T-0384: the htop-style prompt glyph before SYSTEM in The numbers is terminal decoration.
 >
+# T-0492: copy rephrased for hot keywords (APIBASE-SEO-1019 ruling-1 part 4, operator-1); old sequence:
+APIbase.pro
+Unified API Gateway,
+Pay Per Call
+Best unified
+REST endpoint
+AI payment

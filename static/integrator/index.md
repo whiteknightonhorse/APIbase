@@ -1,4 +1,4 @@
-# Integrator — AI payment
+# Integrator — agentic commerce (AI payment)
 
 ## Offer
 

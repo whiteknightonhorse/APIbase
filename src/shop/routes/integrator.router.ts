@@ -27,7 +27,7 @@ const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 const INDEX_DESCRIPTION =
-  'Sell to AI agents: one link on your site, a buyer agent places and pays the order, USDC settles to your wallet.';
+  "Agentic commerce for merchants: one link on your site, a buyer's AI agent places and pays the order, USDC settles to your wallet. Agentic checkout, any store.";
 const CONNECT_HEAD = '<meta name="robots" content="noindex, follow">';
 
 const mdPage = (md: string, path: string): string =>
@@ -95,7 +95,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
   router.get('/integrator', limiter, (req, res) =>
     send(req, res, 'index', (body, path) =>
       layout({
-        title: 'Integrator — AI payment for your shop | APIbase',
+        title: 'Agentic commerce for your shop — AI payment | APIbase',
         description: INDEX_DESCRIPTION,
         path,
         body,

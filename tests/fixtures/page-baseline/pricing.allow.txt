@@ -5,3 +5,7 @@ STATUS: ONLINE | PID: 1337 | TTY: pts/0 | USER: apibase
 BUILD: v1.0.0
 # T-0385: terminal prompt glyph before the stat strip.
 >
+# T-0492: copy rephrased for hot keywords (APIBASE-SEO-1019 ruling-1 part 4, operator-1); old sequence:
+APIbase.pro
+call.
+three rails,
