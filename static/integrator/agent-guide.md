@@ -117,6 +117,15 @@ A client that supports it signs two EIP-3009 `TransferWithAuthorization` message
 
 Base64-encode the JSON into the `X-Payment` header as usual. Any other amount, recipient or payer is refused with `payment_amount_mismatch` and nothing is claimed. Without `feeAuthorization` the single authorization for the full total still works and the fee is invoiced. Example client: `scripts/shop/examples/x402-fee-split-client.ts`.
 
+## x402 clients and the $1 default cap
+
+x402 clients on `@x402/fetch` >= 2.23 refuse amounts above $1 by default (`spendControls`); tools priced above $1 need `spendControls: false` or an explicit cap. API tools priced above $1 today (`config/tool_provider_config.yaml`, `price_usd` > 1):
+
+- `aipush.market_report` ($29.99)
+- `namesilo.domain_register` ($21.00)
+
+Shop orders are priced by the merchant quote; a `total_usd` above $1 needs the same setting.
+
 ## Error codes
 
 ### `quote_expired`

@@ -12,13 +12,18 @@ Q3) so integration detail lives with the rest of the docs, not in the ten-second
 | Token | USDC on Base |
 | Wallet | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
 | Price range | $0.001 – $1.00 per call |
+| SDK | `@x402/core`, `@x402/evm`, `@x402/extensions` 2.28 (spec v2, V1 payloads accepted) |
 | Settlement | **Self-hosted on-chain facilitator** — no third-party SaaS in the payment path. See [`x402-facilitator.md`](x402-facilitator.md). |
 
 APIbase runs its own x402 facilitator in-process: every successful payment is settled by
 submitting `transferWithAuthorization` directly on Base via [`viem`](https://viem.sh). There
 is no Coinbase CDP, no PayAI, no third-party intermediary in the critical path of a paid
 request. Implementation: [`src/payments/local-facilitator.ts`](../src/payments/local-facilitator.ts).
-PayAI HTTP facilitator stays wired as transparent in-client fallback.
+PayAI HTTP facilitator stays wired as transparent in-client fallback (30 s timeout per call).
+
+Order of events on a paid x402 call stays **verify before, deliver, settle after**: the payment is
+verified and bound to the tool price before the provider is called, the result is delivered, and the
+on-chain settle runs afterwards. Every 402 response carries `Cache-Control: no-store`.
 
 ## MPP (Machine Payments Protocol)
 

@@ -105,6 +105,8 @@ APIbase supports **dual-rail payments** — agents can pay using either protocol
 
 Free tools work without payment. Paid tools return HTTP 402 with payment instructions for both protocols. Use [mppx](https://www.npmjs.com/package/mppx) SDK or [Tempo CLI](https://tempo.xyz) for automatic payment handling.
 
+x402 clients on `@x402/fetch` >= 2.23 refuse amounts above $1 by default (`spendControls`); tools priced above $1 need `spendControls: false` or an explicit cap.
+
 ```bash
 # AgentCash — one-command setup
 npx agentcash add https://apibase.pro

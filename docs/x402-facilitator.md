@@ -4,7 +4,7 @@
 
 ## Why self-host
 
-The [x402 protocol](https://github.com/coinbase/x402) defines a peer-to-peer payment standard between an AI agent (payer) and a service (merchant). The agent signs an [EIP-3009](https://eips.ethereum.org/EIPS/eip-3009) `transferWithAuthorization` permit; somebody — the **facilitator** — submits that signed permit on-chain to actually move USDC.
+The [x402 protocol](https://github.com/x402-foundation/x402) defines a peer-to-peer payment standard between an AI agent (payer) and a service (merchant). The agent signs an [EIP-3009](https://eips.ethereum.org/EIPS/eip-3009) `transferWithAuthorization` permit; somebody — the **facilitator** — submits that signed permit on-chain to actually move USDC.
 
 Most x402 services delegate the facilitator role to a SaaS provider:
 
@@ -162,6 +162,15 @@ If you run an x402-priced API and want to remove your third-party facilitator de
 5. **Add a low-balance Prometheus alert.** Hot wallets must be monitored.
 
 That's the whole thing.
+
+## SDK version and verification limits
+
+- SDK: `@x402/core`, `@x402/evm` and `@x402/extensions` **2.28** (spec stays x402 v2; V1 payloads are still accepted). Source: [github.com/x402-foundation/x402](https://github.com/x402-foundation/x402).
+- **ERC-6492 (counterfactual smart-wallet signatures) stays disallowed.** The facilitator is registered with neither `deployERC4337WithEIP6492` (removed in 2.14) nor `eip6492AllowedFactories`, so no factory call is ever executed on behalf of a payer. Only EOA signatures and already-deployed ERC-1271 wallets verify. Do not add a factory allowlist without a new ruling.
+- The 2.14 factory-call injection fix and the 2.15/2.17/2.21 verify/settle hardening apply to this facilitator; 2.21 settle also verifies the Transfer event, so a settle never reports success without the transfer.
+- Every `HTTPFacilitatorClient` (PayAI fallback, CDP) is built with an explicit `timeoutMs: 30_000` (`FACILITATOR_TIMEOUT_MS`); a slower call raises `FacilitatorTimeoutError`, which the settle paths catch.
+- Every 402 APIbase emits carries `Cache-Control: no-store`.
+- Pinned by `tests/unit/x402-sdk-228-surface.test.ts` and `tests/integration/paywall-bypass-vectors.test.ts`.
 
 ## Security posture
 

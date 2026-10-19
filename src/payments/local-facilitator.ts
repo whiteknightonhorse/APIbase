@@ -18,6 +18,9 @@ import {
 } from 'viem';
 import { getOperatorWallet } from './operator-signer';
 import { withOperatorLock } from './operator-lock';
+
+/** SDK 2.21 default made explicit: remote facilitator calls abort after 30 s (FacilitatorTimeoutError). */
+export const FACILITATOR_TIMEOUT_MS = 30_000;
 import { getX402Config } from '../config/x402.config';
 import { logger } from '../config/logger';
 import { x402LocalSettleTotal, x402LocalSettleDurationSeconds } from '../services/metrics.service';
@@ -259,7 +262,10 @@ export function buildLocalFacilitatorClient(): LocalFacilitatorClient {
   });
 
   // PayAI fallback (existing X402_FACILITATOR_URL — defaults to facilitator.payai.network)
-  const remoteFallback = new HTTPFacilitatorClient({ url: cfg.facilitatorUrl });
+  const remoteFallback = new HTTPFacilitatorClient({
+    url: cfg.facilitatorUrl,
+    timeoutMs: FACILITATOR_TIMEOUT_MS,
+  });
 
   return new LocalFacilitatorClient(facilitator, wallet.address, remoteFallback);
 }

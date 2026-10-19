@@ -10,6 +10,7 @@ import { toolsRouter } from '../routes/tools.router';
 import { agentsRouter } from '../routes/agents.router';
 import { AppError, ErrorCode } from '../types/errors';
 import { createMcpRouter } from '../mcp/server';
+import { no402CacheMiddleware } from '../middleware/no-store-402.middleware';
 import { x402Middleware } from '../middleware/x402.middleware';
 import { mppMiddleware } from '../middleware/mpp.middleware';
 import { x402Router } from '../routes/x402.router';
@@ -58,6 +59,7 @@ export function createApp(): express.Express {
 
   // --- Pre-route middleware ---
   app.use(requestIdMiddleware);
+  app.use(no402CacheMiddleware);
   app.use(metricsMiddleware);
 
   // --- Operational routes (exempt from content-type enforcement) ---

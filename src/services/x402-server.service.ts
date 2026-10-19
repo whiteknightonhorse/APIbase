@@ -11,7 +11,7 @@ const bazaarResourceServerExtension = bazaarMod.bazaarResourceServerExtension;
 import { getX402Config } from '../config/x402.config';
 import { getCdpConfig } from '../config/cdp.config';
 import { buildCdpAuthHeadersFn } from './cdp-jwt.service';
-import { buildLocalFacilitatorClient } from '../payments/local-facilitator';
+import { buildLocalFacilitatorClient, FACILITATOR_TIMEOUT_MS } from '../payments/local-facilitator';
 import { logger } from '../config/logger';
 
 /**
@@ -51,6 +51,7 @@ export function getSharedResourceServer(): x402ResourceServer {
     if (cdpCfg.enabled) {
       const cdpClient = new HTTPFacilitatorClient({
         url: cdpCfg.facilitatorUrl,
+        timeoutMs: FACILITATOR_TIMEOUT_MS,
         createAuthHeaders: buildCdpAuthHeadersFn(cdpCfg.apiKeyId, cdpCfg.apiKeySecret),
       } as ConstructorParameters<typeof HTTPFacilitatorClient>[0]);
       clients.push(cdpClient);
@@ -61,7 +62,10 @@ export function getSharedResourceServer(): x402ResourceServer {
     }
 
     // PayAI — always present (primary when CDP disabled, decorative-fallback when CDP enabled)
-    const payaiClient = new HTTPFacilitatorClient({ url: x402Cfg.facilitatorUrl });
+    const payaiClient = new HTTPFacilitatorClient({
+      url: x402Cfg.facilitatorUrl,
+      timeoutMs: FACILITATOR_TIMEOUT_MS,
+    });
     clients.push(payaiClient);
 
     logger.info(

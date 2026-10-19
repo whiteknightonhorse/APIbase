@@ -1,6 +1,7 @@
 {
   "protocol": "x402",
   "version": "2",
+  "sdk": { "name": "@x402/*", "version": "2.28" },
   "network": "eip155:8453",
   "networkName": "base",
   "token": "USDC",
