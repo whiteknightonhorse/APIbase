@@ -14,6 +14,7 @@ const STREAM_LANE = [
   'src/shop/stream.service.ts',
   'src/shop/stream-merchant.service.ts',
   'scripts/shop/probe-tip1034-payee.ts',
+  'packages/stream-settler/src/settler.ts',
   'tests/unit/helpers/shop-stream-merchant-real-mppx.child.ts',
 ];
 

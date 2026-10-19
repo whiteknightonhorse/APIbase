@@ -158,7 +158,7 @@ const FEE_TOKEN: Record<number, string> = {
 
 /** mppx >= 0.7 keeps the contract-backed session under `SessionLegacy`; older versions had it as `Session` (T-0393). */
 async function legacySession(): Promise<{ Chain: any }> {
-  const mod = (await import('mppx/tempo')) as any;
+  const mod = (await import('mppx-legacy/tempo')) as any;
   return (mod.SessionLegacy?.Session ?? mod.Session) as { Chain: any };
 }
 

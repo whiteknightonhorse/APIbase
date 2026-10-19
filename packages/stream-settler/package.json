@@ -30,7 +30,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "mppx": "*",
+    "mppx-legacy": "npm:mppx@0.8.2",
     "viem": "*"
   }
 }

@@ -22,7 +22,7 @@ const calls = {
   ),
 };
 const onChain = { finalized: false };
-jest.mock('mppx/tempo', () => ({
+jest.mock('mppx-legacy/tempo', () => ({
   SessionLegacy: {
     Session: {
       Chain: {
