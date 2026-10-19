@@ -11,3 +11,4 @@ overpass 4
 # Providers dropped from the generated catalog by the cron sync since the baseline (not live in the current registry).
 lmpr 5
 usdamars 4
+# CI-RED-PP2-1019 ruling-1 (2026-10-19): lmpr/usdamars were demoted before the 03:24Z reconciler sync a2f177f0; one dropped row cascades through its whole count group (greedy token alignment in page-parity.py missing_runs), so the rows leave the baseline -- the page is right. Superseded by T-0487 (grid checked against scripts/discovery-snapshot.tsv).
