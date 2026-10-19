@@ -112,6 +112,9 @@ pre{overflow-x:auto}
 </div>
 <p class="note">Exact per-tool prices: <a href="/api/v1/tools">full JSON catalog</a> (filter with <code>?tier=micro|standard|premium</code> or <code>?max_price=N</code>) or the human-readable <a href="/catalog">catalog page</a>.</p>
 
+<h2>Per-audio-minute tools</h2>
+<p><code>transcribe.submit</code> (speech-to-text) is priced per audio minute: <code>max($0.01, ceil(minutes) &times; $0.005)</code>, rounded up to a cent &mdash; 1 minute $0.01, 10 minutes $0.05, 30 minutes $0.15, 61 minutes $0.31. You declare <code>duration_seconds</code> (required, up to 4 hours); the 402 quote shows the computed price and the job is cut at the declared duration.</p>
+
 <h2>Cache discount</h2>
 <p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit within that window costs <strong>10% of the listed price</strong> &mdash; billed via balance debit, no on-chain settlement needed for a hit.</p>
 <p class="note">The 10% discount applies on the <strong>Balance</strong> rail only. x402 and MPP payments are verified and settled against the full listed price before the call runs, so a cache hit on either of those rails is still billed at 100% &mdash; there is no on-chain equivalent of a post-hoc discount once a payment has already settled.</p>

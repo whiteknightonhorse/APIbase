@@ -1,5 +1,6 @@
 import type { PipelineError } from './types';
 import { toolSchemas } from '../schemas';
+import { schemaFailureStatus } from '../pricing/audio-minute';
 import { checkToolAvailability } from './stages/tool-status.stage';
 
 /**
@@ -48,7 +49,10 @@ export async function precheckToolCall(
   const failure = bodySchemaFailure(toolId, body);
   if (!failure) return null;
   return {
-    code: 400,
+    code: schemaFailureStatus(
+      toolId,
+      failure.issues.map((i) => i.path),
+    ),
     error: 'schema_validation_failed',
     message: `Request body validation failed. Expected params: ${failure.expected_params.join(', ')}`,
     extra: {

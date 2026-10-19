@@ -1,5 +1,6 @@
 import { type Stage, type PipelineContext, type PipelineError, ok, err } from '../types';
 import { toolSchemas } from '../../schemas';
+import { schemaFailureStatus } from '../../pricing/audio-minute';
 
 /**
  * SCHEMA_VALIDATION stage (§12.43 stage 4).
@@ -33,7 +34,10 @@ export const schemaValidationStage: Stage = {
       const expected_params = Object.keys(shape);
 
       return err<PipelineError>({
-        code: 400,
+        code: schemaFailureStatus(
+          ctx.toolId,
+          issues.map((i) => i.path),
+        ),
         error: 'schema_validation_failed',
         message: `Request body validation failed. Expected params: ${expected_params.join(', ')}`,
         extra: {

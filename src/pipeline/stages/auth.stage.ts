@@ -1,3 +1,4 @@
+import { resolveToolPriceUsd } from '../../pricing/audio-minute';
 import { type Stage, type PipelineContext, type PipelineError, ok, err } from '../types';
 import { createHash } from 'node:crypto';
 import { hashApiKey, isValidApiKeyFormat } from '../../services/api-key.service';
@@ -344,7 +345,11 @@ export const authStage: Stage = {
       const hasAnyCredentialHeader = Boolean(apiKeyFallback) || Boolean(rawPaymentHeader);
 
       if (!hasAnyCredentialHeader && ctx.toolId) {
-        const priceUsd = getToolPriceUsd(ctx.toolId);
+        const stickerUsd = getToolPriceUsd(ctx.toolId);
+        const priceUsd =
+          stickerUsd === undefined
+            ? undefined
+            : resolveToolPriceUsd(ctx.toolId, stickerUsd, ctx.body);
         const paid = priceUsd !== undefined && priceUsd > 0;
         // T-0338: never mint a 402 for a call that cannot be served (unknown tool, unavailable
         // tool, body failing the tool's zod schema) -- the payer would pay for nothing. An

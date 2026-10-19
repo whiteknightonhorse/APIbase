@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { getMppConfig } from '../config/mpp.config';
+import { resolveToolPriceUsd, schemaFailureStatus } from '../pricing/audio-minute';
 import { getToolPriceUsd } from '../pipeline/stages/tool-status.stage';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
@@ -97,7 +98,10 @@ const QUOTE_PAY_URL = new RegExp(`^/api/v1/shop/quotes/(${UUID})/pay/?$`, 'i');
  * URL, or unknown toolId): mppx settles on-chain inside charge() and cannot
  * undo it, so we must never call charge() without a known price (T-0256).
  */
-async function resolveAmountForUrl(originalUrl: string): Promise<ChargeParams | undefined> {
+async function resolveAmountForUrl(
+  originalUrl: string,
+  body?: unknown,
+): Promise<ChargeParams | undefined> {
   const quoteId = QUOTE_PAY_URL.exec(originalUrl.split('?')[0])?.[1];
   if (quoteId) return quoteChargeParams(await loadQuoteRow(quoteId));
   const toolId = toolIdFromUrl(originalUrl);
@@ -105,7 +109,10 @@ async function resolveAmountForUrl(originalUrl: string): Promise<ChargeParams | 
   const price = getToolPriceUsd(toolId);
   return price === undefined
     ? undefined
-    : { amount: String(price), chainId: assertChallengeChainId(getMppConfig()) };
+    : {
+        amount: String(resolveToolPriceUsd(toolId, price, body)),
+        chainId: assertChallengeChainId(getMppConfig()),
+      };
 }
 
 interface QuoteRow {
@@ -280,23 +287,30 @@ function rejectInvalidBody(req: Request, res: Response): boolean {
   const toolId = toolIdFromUrl(req.originalUrl);
   const failure = toolId ? bodySchemaFailure(toolId, req.body) : null;
   if (!toolId || !failure) return false;
-  res.status(400).json({
-    error: 'schema_validation_failed',
-    message: `Request body validation failed. Expected params: ${failure.expected_params.join(', ')}`,
-    tool_id: toolId,
-    issues: failure.issues,
-    expected_params: failure.expected_params,
-    received_params: failure.received_params,
-    hint: `Fetch schema: GET /api/v1/tools/${toolId}`,
-    request_id: req.requestId,
-    charged: false,
-  });
+  res
+    .status(
+      schemaFailureStatus(
+        toolId,
+        failure.issues.map((i) => i.path),
+      ),
+    )
+    .json({
+      error: 'schema_validation_failed',
+      message: `Request body validation failed. Expected params: ${failure.expected_params.join(', ')}`,
+      tool_id: toolId,
+      issues: failure.issues,
+      expected_params: failure.expected_params,
+      received_params: failure.received_params,
+      hint: `Fetch schema: GET /api/v1/tools/${toolId}`,
+      request_id: req.requestId,
+      charged: false,
+    });
   return true;
 }
 
 /** Resolves false when the response was already sent (409 quote_already_paying, 400 schema). */
 async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
-  const params = await resolveAmountForUrl(req.originalUrl);
+  const params = await resolveAmountForUrl(req.originalUrl, req.body);
   if (params === undefined) {
     throw new AppError(
       ErrorCode.BAD_REQUEST,

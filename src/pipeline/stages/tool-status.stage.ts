@@ -1,3 +1,4 @@
+import { resolveToolPriceUsd } from '../../pricing/audio-minute';
 import { type Stage, ok, err, type PipelineError } from '../types';
 import { getPrisma } from '../../services/prisma.service';
 import { logger } from '../../config/logger';
@@ -308,7 +309,7 @@ export const toolStatusStage: Stage = {
       });
     }
 
-    ctx.toolPrice = tool.price_usd;
+    ctx.toolPrice = resolveToolPriceUsd(tool.tool_id, tool.price_usd, ctx.body);
     ctx.toolCacheTtl = tool.cache_ttl;
 
     return ok(ctx);

@@ -2867,7 +2867,7 @@ tools:
     price_usd: "0.01"
     upstream_cost_status: NOT_MEASURED
     upstream_cost_model: metered
-    upstream_cost_note: "https://www.assemblyai.com/pricing — \"Universal-2 $0.15/hr\", \"Universal-3.5 Pro $0.21/hr\" (best routes to 3.5 Pro, nano to Universal-2) — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; formula: audio_hours x $0.15 (Universal-2) or $0.21 (3.5 Pro); a 1-hour file costs more than the $0.01 price"
+    upstream_cost_note: "https://www.assemblyai.com/pricing — \"Universal-2 $0.15/hr\", \"Universal-3.5 Pro $0.21/hr\" (best routes to 3.5 Pro, nano to Universal-2) — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; formula: audio_hours x $0.15 (Universal-2) or $0.21 (3.5 Pro) = at most $0.0035 per audio minute; T-0425: the price_usd below is only the $0.01 minimum, the charged price is max($0.01, ceil(minutes) x $0.005) from the required duration_seconds (src/pricing/audio-minute.ts) and the job is cut at that duration"
     upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: transcribe.status

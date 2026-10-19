@@ -27,6 +27,8 @@ export class AssemblyAIAdapter extends BaseAdapter {
         const payload: Record<string, unknown> = {
           audio_url: params.audio_url,
           speech_models: [String(params.model ?? 'universal-2')],
+          // T-0425: cut at the declared (and paid-for) duration; audio_end_at is milliseconds.
+          audio_end_at: Number(params.duration_seconds) * 1000,
         };
         if (params.language_code) payload.language_code = params.language_code;
         if (params.speaker_labels) payload.speaker_labels = true;

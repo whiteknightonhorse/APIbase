@@ -3570,7 +3570,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'audio.transcribe.submit',
     title: 'Submit Audio for Transcription',
     description:
-      'Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization (AssemblyAI)',
+      'Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization. Requires duration_seconds (max 4 h); priced per audio minute: max($0.01, ceil(minutes) x $0.005), and the job is cut at the declared duration (AssemblyAI)',
     category: 'media',
     annotations: READ_ONLY,
   },
