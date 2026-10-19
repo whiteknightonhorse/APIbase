@@ -99,7 +99,7 @@ describe('T-INT-05 legal documents', () => {
         .toString()
         .split(' ')[0];
       expect(e.sha256).toBe(sum);
-      expect(e.version).toBe('1.3');
+      expect(e.version).toBe(e.doc_id === 'merchant-agreement' ? '1.4' : '1.3');
       expect(e.url).toBe(`/legal/${e.doc_id}`);
       expect(Object.keys(e).sort()).toEqual([
         'doc_id',
@@ -199,9 +199,11 @@ describe('T-INT-05 legal documents', () => {
     }
     for (const id of LEGAL_DOC_IDS) {
       const t = read(join(ROOT, 'static/legal', `${id}.md`));
-      expect(t.split('\n')[0]).toMatch(
-        /^<!-- version: 1\.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->$/,
-      );
+      const head =
+        id === 'merchant-agreement'
+          ? /^<!-- version: 1\.4; effective_from: 2026-10-19; status: accepted by operator without legal review -->$/
+          : /^<!-- version: 1\.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->$/;
+      expect(t.split('\n')[0]).toMatch(head);
     }
     for (const id of LEGAL_DOC_IDS) {
       const lines = read(join(ROOT, 'static/legal', `${id}.md`)).split('\n');

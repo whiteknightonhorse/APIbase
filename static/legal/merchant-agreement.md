@@ -1,5 +1,5 @@
-<!-- version: 1.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->
-# Merchant Agreement v1.3
+<!-- version: 1.4; effective_from: 2026-10-19; status: accepted by operator without legal review -->
+# Merchant Agreement v1.4
 
 ## 1. Role of APIbase
 
@@ -55,7 +55,7 @@ The fee may be switched on or off by APIbase with 30 days' notice at the contact
 
 ## 10. Subscriptions and streams
 
-- A subscription product states its price per period, the period length, the renewal window and the grace period on its storefront page before the buyer subscribes. Renewal is charged only inside the renewal window, only for the stated amount, and only against an authorisation the buyer's agent signed; the merchant never charges beyond it. The buyer can cancel at any time; cancellation takes effect at the end of the paid period and no further charge is made. An unpaid renewal moves the subscription to past_due and then ends it; nothing is charged retroactively.
+- A subscription product states its price per period, the period length, the renewal window and the grace period on its storefront page before the buyer subscribes. Renewal is charged only inside the renewal window, only for the stated amount, and only against an authorisation the buyer's agent signed; the merchant never charges beyond it. The buyer can cancel at any time; cancellation takes effect at the end of the paid period and no further charge is made. An unpaid renewal moves the subscription to past_due and then ends it; nothing is charged retroactively. Where the buyer authorizes a periodic Tempo access key whose address belongs to APIbase, APIbase may renew each period under that authorization, up to the stated amount and period, and pays the network fee of each renewal; because that renewal is a single transfer to the merchant, the platform fee of the period is invoiced to the merchant.
 - A stream product states its rate per second and the minimum deposit before the buyer opens it. The buyer may close the stream at any time; only consumed seconds are settled to the merchant and the unconsumed deposit is returned through the payment channel. Consumed seconds are refundable only under the merchant's published refund policy.
 - A product sold this way is not a "negative option" under the Acceptable Use Policy when it meets this section.
 
