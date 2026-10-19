@@ -3920,7 +3920,11 @@
     "reset_period": "hourly",
     "docs_url": "https://rest.ensembl.org/documentation",
     "pricing_url": "https://github.com/Ensembl/ensembl-rest/wiki/Rate-Limits",
-    "limit_proof": "No API key or registration required (EMBL-EBI / Wellcome Sanger Institute, Apache 2.0). Live response headers confirm: x-ratelimit-limit: 55000, x-ratelimit-period: 3600 (i.e. 55,000 req/hour).",
+    "limit_proof": "No API key or registration required (EMBL-EBI / Wellcome Sanger Institute, Apache 2.0). Live response headers confirm: x-ratelimit-limit: 55000, x-ratelimit-period: 3600 (i.e. 55,000 req/hour). Health probe uses GET with a 25 s ceiling (2026-10-19, INC-WAITING-1018 ruling-1): rest.ensembl.org is cold-request-slow (adapter timeout is 15 s, see src/adapters/ensembl/index.ts), so the default HEAD 5 s / GET 12 s probe timed out and flapped INC-e1ea3c.",
+    "probe": {
+      "method": "GET",
+      "timeout_ms": 25000
+    },
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
