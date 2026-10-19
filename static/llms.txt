@@ -34,8 +34,7 @@ infrastructure, jobs, legal, location, logistics, marketing, media, messaging, m
 news, podcasts, search, social, space, travel, weather, world
 
 ## Payment
-- Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment, or Payment-Authorization: Payment next to a Bearer key)
-- x402 over MCP: X-Payment header OR params._meta["x402/payment"] (x402 MCP transport v2); the 402 tool result carries the payment requirements in _meta
+- Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
 - Token: USDC on Base mainnet (x402) or Tempo (MPP)
 - Prices: $0.0005–$29.99 per call (90% of tools <= $0.003)
 - Details: https://apibase.pro/.well-known/x402-payment.json

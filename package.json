@@ -55,7 +55,6 @@
     "@types/pg": "^8.18.0",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
-    "@x402/mcp": "^2.28.0",
     "defu": "^6.1.6",
     "eslint": "^9.22.0",
     "jest": "^29.7.0",

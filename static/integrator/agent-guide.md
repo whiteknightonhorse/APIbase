@@ -117,12 +117,6 @@ A client that supports it signs two EIP-3009 `TransferWithAuthorization` message
 
 Base64-encode the JSON into the `X-Payment` header as usual. Any other amount, recipient or payer is refused with `payment_amount_mismatch` and nothing is claimed. Without `feeAuthorization` the single authorization for the full total still works and the fee is invoiced. Example client: `scripts/shop/examples/x402-fee-split-client.ts`.
 
-## Payment transport on /mcp
-
-x402: send the payment as the `X-Payment` header, or as `params._meta["x402/payment"]` of the `tools/call` (x402 MCP transport v2, the key names of `@x402/mcp` 2.28). A tool call without payment returns `isError: true`, the JSON text as before, and the same payment-required object as the HTTP 402 body in `_meta["x402/payment-required"]` (also in `structuredContent`). After a settled call the result `_meta["x402/payment-response"]` carries the receipt. Header first, `_meta` second; both present with different payloads is a 400. Null optional fields are accepted. `maxTimeoutSeconds` is 120.
-
-MPP: send the credential as `Authorization: Payment <credential>` or, to keep `Authorization: Bearer <api key>`, as `Payment-Authorization: Payment <credential>`. A credential in both headers is a 400.
-
 ## x402 clients and the $1 default cap
 
 x402 clients on `@x402/fetch` >= 2.23 refuse amounts above $1 by default (`spendControls`); tools priced above $1 need `spendControls: false` or an explicit cap. API tools priced above $1 today (`config/tool_provider_config.yaml`, `price_usd` > 1):

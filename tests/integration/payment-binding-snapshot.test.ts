@@ -91,7 +91,7 @@ describe('PB1 tool:* snapshot', () => {
           amount: '250000',
           asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
           payTo: '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480',
-          maxTimeoutSeconds: 120,
+          maxTimeoutSeconds: 30,
           extra: { name: 'USD Coin', version: '2' },
         },
       ],
@@ -119,7 +119,7 @@ describe('PB1 tool:* snapshot', () => {
       asset: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
       amount: '250000',
       payTo: '0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480',
-      maxTimeoutSeconds: 120,
+      maxTimeoutSeconds: 30,
       extra: { name: 'USD Coin', version: '2' },
     });
     expect(mockClaim.mock.calls[0][0]).toBe('x402');

@@ -199,12 +199,6 @@ async function acquireQuoteLock(quoteId: string): Promise<(() => void) | null> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mppxInstance: any = null;
-// T-0429: same secret/realm/store, but its challenges say header="Payment-Authorization" (mppx
-// `requiresAuth`), so an agent keeps `Authorization: Bearer <api key>` and sends the credential
-// separately. Used ONLY for /mcp challenges; credentials are verified by mppxInstance (the
-// challenge id HMAC does not depend on the credential header).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let mppxMcpInstance: any = null;
 let initPromise: Promise<void> | null = null;
 let initFailed = false;
 
@@ -241,15 +235,9 @@ async function ensureMppx(): Promise<void> {
     secretKey: cfg.secretKey,
     realm: cfg.realm,
   });
-  mppxMcpInstance = Mppx.create({
-    methods: [tempo.charge(params)],
-    secretKey: cfg.secretKey,
-    realm: cfg.realm,
-    requiresAuth: true,
-  });
 }
 
-function getMppxInstance(variant: 'default' | 'mcp' = 'default') {
+function getMppxInstance() {
   if (initFailed) return Promise.resolve(null);
   if (!initPromise) {
     initPromise = ensureMppx().catch((err) => {
@@ -260,39 +248,11 @@ function getMppxInstance(variant: 'default' | 'mcp' = 'default') {
       );
     });
   }
-  return initPromise.then(() => (variant === 'mcp' ? mppxMcpInstance : mppxInstance));
-}
-
-/** T-0429: the alternate MPP credential header (mppx >= 0.9 `requiresAuth`). */
-export const PAYMENT_AUTHORIZATION = 'payment-authorization';
-
-function paymentSchemeValue(value: string | string[] | undefined): string | undefined {
-  const v = Array.isArray(value) ? value[0] : value;
-  return typeof v === 'string' && v.startsWith('Payment ') ? v : undefined;
+  return initPromise.then(() => mppxInstance);
 }
 
 /**
- * T-0429: the MPP credential (`Payment <cred>`), read from `Payment-Authorization` first, then
- * `Authorization` (mppx < 0.9 clients keep sending it there). A credential in BOTH is ambiguous
- * and refused with 400 before anything is charged. Undefined when there is no credential.
- */
-export function resolveMppCredentialHeader(
-  headers: Record<string, string | string[] | undefined>,
-): string | undefined {
-  const alt = paymentSchemeValue(headers[PAYMENT_AUTHORIZATION]);
-  const std = paymentSchemeValue(headers['authorization']);
-  if (alt !== undefined && std !== undefined) {
-    throw new AppError(
-      ErrorCode.BAD_REQUEST,
-      'MPP credential sent in both Authorization and Payment-Authorization; send it in exactly one header.',
-    );
-  }
-  return alt ?? std;
-}
-
-/**
- * Express middleware that intercepts `Payment-Authorization: Payment ...` or
- * `Authorization: Payment ...` header
+ * Express middleware that intercepts `Authorization: Payment ...` header
  * and verifies MPP (Tempo) payment credentials.
  *
  * Runs ALONGSIDE x402 middleware — they check different headers.
@@ -304,14 +264,8 @@ export function mppMiddleware(req: Request, res: Response, next: NextFunction): 
     return;
   }
 
-  let authHeader: string | undefined;
-  try {
-    authHeader = resolveMppCredentialHeader(req.headers);
-  } catch (err) {
-    next(err);
-    return;
-  }
-  if (authHeader === undefined) {
+  const authHeader = req.headers['authorization'] as string | undefined;
+  if (!authHeader || !authHeader.startsWith('Payment ')) {
     next();
     return;
   }
@@ -470,8 +424,7 @@ async function chargeAndRecord(
   params: ChargeParams,
 ): Promise<boolean> {
   const log = req.log ?? logger;
-  // Already validated by mppMiddleware (never throws here: the 400 for both headers came first).
-  const authHeader = resolveMppCredentialHeader(req.headers) as string;
+  const authHeader = req.headers['authorization'] as string;
   const { amount } = params;
   const mppx = await getMppxInstance();
 
@@ -485,10 +438,6 @@ async function chargeAndRecord(
   for (const [key, value] of Object.entries(req.headers)) {
     if (typeof value === 'string') headers.set(key, value);
   }
-  // The verifier reads Authorization; a credential that arrived in Payment-Authorization (the
-  // agent's Authorization carries its API key) is moved there on this INTERNAL request only.
-  headers.delete(PAYMENT_AUTHORIZATION);
-  headers.set('authorization', authHeader);
 
   // Include body if present
   let bodyStr: string | undefined;
@@ -626,14 +575,12 @@ export async function buildMppChallengeHeader(
   priceUsd: number,
   requestUrl: string,
   quoteParams?: Omit<ChargeParams, 'amount'>,
-  opts: { mcp?: boolean } = {},
 ): Promise<string | null> {
   const cfg = getMppConfig();
   if (!cfg.enabled) return null;
   assertChallengeChainId(cfg);
 
-  // T-0429: only the /mcp challenge names Payment-Authorization (header="..."); tool-call routes keep Authorization.
-  const mppx = await getMppxInstance(opts.mcp ? 'mcp' : 'default');
+  const mppx = await getMppxInstance();
   if (!mppx) return null;
 
   try {

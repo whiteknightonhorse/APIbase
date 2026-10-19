@@ -56,22 +56,13 @@
       "asset_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       "pay_to": "0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480",
       "facilitator": "self-hosted",
-      "scheme": "exact",
-      "transport": [
-        "X-Payment header",
-        "params._meta[\"x402/payment\"] (x402 MCP transport v2; receipt in result _meta[\"x402/payment-response\"])"
-      ],
-      "max_timeout_seconds": 120
+      "scheme": "exact"
     },
     "mpp": {
       "enabled": true,
       "version": "draft-ryan-httpauth-payment",
       "network": "tempo",
-      "asset": "USDC",
-      "credential_header": [
-        "Authorization: Payment <credential>",
-        "Payment-Authorization: Payment <credential>"
-      ]
+      "asset": "USDC"
     }
   },
   "compatible_with": [

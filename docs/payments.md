@@ -40,16 +40,6 @@ Law: unknown is resolved only by reading the chain, and nobody calls settle agai
 - **API tools** (`src/pipeline/stages/x402-settle.ts`): one outbox event `x402_settle_pending {request_id, execution_id, tool_id, payer, amount_usd, tx_hash?, network, nonce, valid_before}`, never `x402_settle_failed`; the ledger row gets `x402_settle_state='pending'` and `settle_tx_hash`. The worker job `x402-settle-pending` (every 60 s, owns that outbox type only) reads `receiptOk(tx_hash)`, then `authorizationUsed(payer, nonce)` plus the USDC transfer: settled closes the event and flips the ledger row to `settled`. An authorization that is still unused after `valid_before` writes `x402_settle_failed` with reason `pending_expired_unsettled` (the revenue-leak page). Otherwise the row waits for the next tick; an RPC failure leaves it untouched.
 - **Shop orders** (`src/pipeline/stages/shop-settle.ts`): both signals return `pending` (order stays `PAYING`, the hash is stored on the payment row). `shop-payment-reconcile` (every 60 s) checks that receipt first, then `authorizationState`/`Transfer`. Every other throw is still `PAYMENT_FAILED`.
 
-### MCP (T-0429)
-
-Transport on `/mcp`, same rules as REST: the x402 payment travels in the `X-Payment` header or in `params._meta["x402/payment"]` of a `tools/call` (x402 MCP transport v2; key names `x402/payment`, `x402/payment-response` from `@x402/mcp` 2.28, a dev dependency used only by tests). Header wins; both present with different payloads is a 400; explicit nulls on optional fields are dropped before parsing. `src/middleware/x402.middleware.ts` re-encodes a `_meta` payment as the X-Payment value, so ESCROW binds both the same way.
-
-A 402 tool result keeps `isError:true` and its JSON text and adds the PaymentRequired object of the HTTP 402 body in `_meta["x402/payment-required"]` and in `structuredContent` (the official transport reads `structuredContent`; the `_meta` key is our addition, the spec defines none for the challenge). A settled call adds `_meta["x402/payment-response"]` `{success, transaction, network, payer}`. `maxTimeoutSeconds` is 120 (the validBefore window; @x402/mcp clients derive their tool-call timeout from it).
-
-Difference from x402 2.24 ("withhold the result when the after-call settle fails"): APIbase verifies before the call and settles after; an unsettled call is reconciled (T-0428), the result is not withheld.
-
-MPP: the credential is read from `Payment-Authorization: Payment <cred>` first, then `Authorization: Payment <cred>` (mppx < 0.9 clients); both present is a 400. Only the `/mcp` challenge is created with mppx `requiresAuth` (`header="Payment-Authorization"`), so agents keep `Authorization: Bearer <api key>`; tool-call routes keep the default.
-
 ## MPP (Machine Payments Protocol)
 
 | Field | Value |

@@ -1,97 +1,12 @@
 import type { Request, Response, NextFunction } from 'express';
-import { decodePaymentSignatureHeader, encodePaymentSignatureHeader } from '@x402/core/http';
-import type { PaymentPayload } from '@x402/core/types';
+import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
 import { getX402Config, toMicroUsdc } from '../config/x402.config';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
-import { resolveX402PaymentHeader, X_PAYMENT } from '../config/http-headers';
-
-/**
- * x402 MCP transport v2 (specs/transports-v2): the payment payload rides in the JSON-RPC
- * `params._meta` of a tools/call under this key (constants of @x402/mcp 2.28, not imported at
- * runtime: dev dependency only). The settlement receipt comes back under the response key.
- */
-export const MCP_PAYMENT_META_KEY = 'x402/payment';
-export const MCP_PAYMENT_RESPONSE_META_KEY = 'x402/payment-response';
-export const MCP_PAYMENT_REQUIRED_META_KEY = 'x402/payment-required';
-
-function isRecord(v: unknown): v is Record<string, unknown> {
-  return typeof v === 'object' && v !== null && !Array.isArray(v);
-}
-
-/** Python/Go clients serialize unset optionals as explicit null (2.18): drop them before parsing. */
-function stripNulls(v: unknown): unknown {
-  if (Array.isArray(v)) return v.map(stripNulls);
-  if (!isRecord(v)) return v;
-  const out: Record<string, unknown> = {};
-  for (const [k, val] of Object.entries(v)) {
-    if (val !== null) out[k] = stripNulls(val);
-  }
-  return out;
-}
-
-function canonical(v: unknown): string {
-  if (Array.isArray(v)) return `[${v.map(canonical).join(',')}]`;
-  if (!isRecord(v)) return JSON.stringify(v) ?? 'null';
-  return `{${Object.keys(v)
-    .sort()
-    .map((k) => `${JSON.stringify(k)}:${canonical(v[k])}`)
-    .join(',')}}`;
-}
-
-/** The `_meta` x402 payment of the first tools/call in a JSON-RPC body (single or batch), if any. */
-function metaPaymentFromBody(body: unknown): unknown {
-  const messages: unknown[] = Array.isArray(body) ? body : [body];
-  for (const m of messages) {
-    if (!isRecord(m) || m.method !== 'tools/call' || !isRecord(m.params)) continue;
-    const meta = m.params._meta;
-    if (isRecord(meta) && meta[MCP_PAYMENT_META_KEY] !== undefined) {
-      return meta[MCP_PAYMENT_META_KEY];
-    }
-  }
-  return undefined;
-}
-
-/**
- * T-0429: header first, `_meta` second. With no header the `_meta` payload is re-encoded as the
- * X-Payment value so every downstream stage (ESCROW binding included) sees one representation.
- * Both present and different -> 400. Only POST /mcp and /messages carry JSON-RPC.
- */
-function reconcileMetaPayment(req: Request): void {
-  if (req.method !== 'POST' || (req.path !== '/mcp' && req.path !== '/messages')) return;
-  const raw = metaPaymentFromBody(req.body);
-  if (raw === undefined) return;
-  if (!isRecord(raw)) {
-    throw new AppError(ErrorCode.BAD_REQUEST, 'Invalid x402 payment in _meta');
-  }
-  const meta = stripNulls(raw);
-  const header = resolveX402PaymentHeader(req.headers);
-  if (header === undefined) {
-    req.headers[X_PAYMENT] = encodePaymentSignatureHeader(meta as unknown as PaymentPayload);
-    return;
-  }
-  let decoded: unknown;
-  try {
-    decoded = decodePaymentSignatureHeader(header);
-  } catch {
-    throw new AppError(ErrorCode.BAD_REQUEST, 'Invalid x402 payment header');
-  }
-  if (canonical(stripNulls(decoded)) !== canonical(meta)) {
-    throw new AppError(
-      ErrorCode.BAD_REQUEST,
-      'x402 payment sent in both the X-Payment header and params._meta with different payloads; send it in exactly one place.',
-    );
-  }
-}
+import { resolveX402PaymentHeader } from '../config/http-headers';
 
 export function x402Middleware(req: Request, _res: Response, next: NextFunction): void {
-  try {
-    reconcileMetaPayment(req);
-  } catch (err) {
-    next(err);
-    return;
-  }
   const paymentHeader = resolveX402PaymentHeader(req.headers);
 
   if (paymentHeader === undefined) {

@@ -51,13 +51,7 @@ declare module 'mppx/server' {
   };
 
   export const Mppx: {
-    create(options: {
-      methods: unknown[];
-      secretKey?: string;
-      realm?: string;
-      /** mppx >= 0.9: the credential travels in Payment-Authorization (T-0429). */
-      requiresAuth?: boolean;
-    }): {
+    create(options: { methods: unknown[]; secretKey?: string; realm?: string }): {
       session(options: { amount?: string }): (request: Request) => Promise<{
         status: number;
         challenge: Response;
