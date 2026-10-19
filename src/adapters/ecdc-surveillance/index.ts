@@ -1,3 +1,4 @@
+import https from 'https';
 import { BaseAdapter } from '../base.adapter';
 import {
   type ProviderRequest,
@@ -40,6 +41,12 @@ export class EcdcSurveillanceAdapter extends BaseAdapter {
       baseUrl: 'https://opendata.ecdc.europa.eu',
       timeoutMs: 15_000,
       maxResponseBytes: 6_500_000,
+    });
+  }
+
+  protected getHttpsAgent(): https.Agent {
+    return new https.Agent({
+      maxVersion: 'TLSv1.2',
     });
   }
 
