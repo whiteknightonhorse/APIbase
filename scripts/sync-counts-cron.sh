@@ -302,6 +302,19 @@ COUNTS_MSG="$(echo "$RUN_OUT" | grep -m1 'live active' || true)"
 TOOLS="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ tools' | grep -oE '[0-9]+')"
 PROV="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ providers' | grep -oE '[0-9]+')"
 
+# CI-RED-PP2-1019 (ruling-1): a cron commit must pass the same offline gates CI will run on it.
+# a2f177f0 was committed and pushed with "Lint + Typecheck + Test" red (page-parity PP2) because
+# the FILES allow-list was the only gate between the generators and ci-staging, and every later
+# task inherited the red parent. --render reads static/ only (app-rendered and DB pages print
+# PARITY_SKIP), so this needs no DB and no jest. On red nothing is committed; the EXIT trap
+# (cleanup_orphaned_dirt) reverts the generated files.
+PARITY_OUT="$(ROOT="$HERE" python3 -I scripts/page-parity.py --render 2>&1)" && PARITY_RC=0 || PARITY_RC=$?
+if [ "$PARITY_RC" != 0 ]; then
+  clog "ABORT -- page-parity --render is red on the regenerated tree, nothing committed: $(printf '%s\n' "$PARITY_OUT" | grep -m5 PARITY_FAIL | tr '\n' ';')"
+  calert "🔴 sync-counts-cron: page-parity (PP2) красный на перегенерированном дереве -- отказ прибора, ничего не закоммичено, see log." "page-parity-red"
+  exit 1
+fi
+
 POST_STATUS="$(git status --porcelain)"
 if [ "$PRE_STATUS" = "$POST_STATUS" ]; then
   clog "0 drift, nothing committed ($TOOLS tools / $PROV providers)"
@@ -325,7 +338,7 @@ for f in "${CHANGED[@]}"; do
   fi
 done
 
-git commit -m "counts: sync ${TOOLS:-?} tools / ${PROV:-?} providers (cron 05:00)" -- "${CHANGED[@]}"
+git commit -m "counts: sync ${TOOLS:-?} tools / ${PROV:-?} providers (sync-counts-cron $(date -u +%FT%H:%MZ))" -- "${CHANGED[@]}"
 # Committed -- these changes are safe now (tracked in git history, not just clean working tree),
 # so cleanup_orphaned_dirt must stop reverting anything on exit from here on. A push failure below
 # still exits nonzero, but the commit itself stays (see its own comment) -- nothing left to revert.
