@@ -707,21 +707,54 @@ def close_healthy_remediations(dry_run=False):
 
     out, rc = ap.psql(
         "SELECT i.incident_id, i.provider, i.state FROM incidents i WHERE i.kind = 'PROVIDER_DOWN' "
-        "AND i.state IN ('OPEN','WAITING_HUMAN') AND NOT EXISTS (SELECT 1 FROM tools t "
-        "WHERE t.provider = i.provider AND t.status <> 'unavailable') "
-        "AND EXISTS (SELECT 1 FROM tools t WHERE t.provider = i.provider) "
+        "AND i.state IN ('OPEN','WAITING_HUMAN') "
         "AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(i.attempts) e WHERE e->>'action' = 'retired-provider')"
     )
     for line in (out.splitlines() if rc == 0 and out else []):
         incident_id, provider, state = line.split(ap.SEP)
+        if not ap.provider_is_retired(provider):  # T-0482: one definition, in autopilot_common
+            continue
         n += 1
         if dry_run:
             print(f"WOULD NOTE retired provider {provider}: {incident_id} ({state}) -> WAITING_HUMAN")
             continue
         if state != "WAITING_HUMAN":
-            ap.transition_state(incident_id, "WAITING_HUMAN")
+            ap.transition_state(incident_id, "WAITING_HUMAN", reason=f"retired provider {provider}")
         ap.note_incident(incident_id, "incident-engine", "retired-provider",
                          "retired provider, operator decides")
+    return n
+
+
+# Attempt actions that set an incident's state; the LAST of these decides who parked it.
+_STATE_SETTING_ACTIONS = ("retired-provider", "FLAPPING", "wait", "close", "retire", "reopened", "escalated",
+                          "resolve-request", "un-parked", "operator", "auto-closed")
+
+
+def unpark_autopilot_retired(dry_run=False):
+    """T-0482 reconcile (idempotent): AUTO/MIXED incidents parked WAITING_HUMAN by the retired-provider
+    branch while the 'retirement' was only the engine's own demotion go back to OPEN, fleet_task_id
+    untouched. The 'un-parked' note becomes the last state-setting attempt, so this is a no-op afterwards."""
+    acts = ", ".join(ap.sql_literal(a) for a in _STATE_SETTING_ACTIONS)
+    out, rc = ap.psql(
+        "SELECT i.incident_id, i.provider, i.kind FROM incidents i WHERE i.state = 'WAITING_HUMAN' "
+        "AND i.operator_file IS NULL AND (SELECT e->>'action' FROM "
+        f"jsonb_array_elements(i.attempts) WITH ORDINALITY t(e, n) WHERE e->>'action' IN ({acts}) "
+        "ORDER BY n DESC LIMIT 1) = 'retired-provider'"
+    )
+    n = 0
+    for line in (out.splitlines() if rc == 0 and out else []):
+        incident_id, provider, kind = line.split(ap.SEP)
+        if ap.ROUTE_CLASS.get(kind) not in ("AUTO", "AUTO_NO_MODEL", "MIXED") or ap.provider_is_retired(provider):
+            continue
+        n += 1
+        if dry_run:
+            print(f"WOULD UN-PARK {incident_id} ({provider}): retired-provider note was an autopilot demotion")
+            continue
+        ap.transition_state(incident_id, "OPEN")
+        ap.note_incident(incident_id, "incident-engine", "un-parked",
+                         "un-parked: retired-provider note was an autopilot demotion, AUTO routing resumes")
+        ap.notice(f"incident-engine: {incident_id} ({provider}) WAITING_HUMAN -> OPEN, un-parked: "
+                  f"retired-provider note was an autopilot demotion")
     return n
 
 
@@ -1984,7 +2017,8 @@ def escalate_merchant_incidents():
             ap.notice(f"WARN: failed to write operator file for {incident_id}: {e}")
             continue
         ap.transition_state(incident_id, "WAITING_HUMAN",
-                            extra_set=f", operator_file = {ap.sql_literal(op_path)}")
+                            extra_set=f", operator_file = {ap.sql_literal(op_path)}",
+                            reason=f"{kind} escalated after {hours} h")
         ap.note_incident(incident_id, "incident-engine", "escalated",
                          f"{kind}: {hours} h without a resolution -> HUMAN_GENERIC, operator file {op_path}")
         if not ap.tg_send(ap.format_tg_message(inc)):
@@ -2083,6 +2117,7 @@ def run():
     # this branch now claims its slot(s) first; route_auto_incidents() gets
     # whatever the day's budget has left over.
     advance_waiting_human()
+    unpark_autopilot_retired()
     close_healthy_remediations()
     route_auto_incidents()
     bridge_key_incidents()
@@ -4438,6 +4473,41 @@ def selftest_db():
         assert rc == 1 and not any(a["action"] == "propose-fix" for a in ap.get_incident(id24e)["attempts"]), "world 24e"
         print("world 24b-e (wait / BLOCKED / stale / out-of-allowlist -> no phase B): OK")
         _w24_slots()
+
+        # World 25 (T-0482): "retired provider" never matches the engine's own demotion.
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source, price_usd) VALUES "
+            "('ap25a-t1', 'ap25a', 'unavailable', 'autopilot', 0.01), "
+            "('ap25b-t1', 'ap25b', 'unavailable', NULL, 0.01), "
+            "('ap25c-t1', 'ap25c', 'unavailable', 'autopilot', 0.01)"
+        )
+        assert not ap.provider_is_retired("ap25a"), "world 25a: autopilot-demoted tools are not retirement"
+        assert ap.provider_is_retired("ap25b"), "world 25b: NULL-source unavailable tools are retirement"
+        id25a, _ = ap.open_or_merge_incident(kind="PROVIDER_DOWN", provider="ap25a",
+                                             evidence={"probe": "down"}, detected_by="manual")
+        id25b, _ = ap.open_or_merge_incident(kind="PROVIDER_DOWN", provider="ap25b",
+                                             evidence={"probe": "down"}, detected_by="manual")
+        close_healthy_remediations()
+        assert ap.get_incident(id25a)["state"] == "OPEN", "world 25a: demoted provider's incident must stay OPEN"
+        assert ap.get_incident(id25b)["state"] == "WAITING_HUMAN", "world 25b: retired provider parks as before"
+        assert any(a["action"] == "retired-provider" for a in ap.get_incident(id25b)["attempts"]), "world 25b"
+        # (c) a wrongly parked incident (old behaviour) is un-parked exactly once.
+        id25c, _ = ap.open_or_merge_incident(kind="PROVIDER_DOWN", provider="ap25c",
+                                             evidence={"probe": "down"}, detected_by="manual")
+        ap.transition_state(id25c, "WAITING_HUMAN", reason="world 25c setup")
+        ap.note_incident(id25c, "incident-engine", "retired-provider", "retired provider, operator decides")
+        assert unpark_autopilot_retired() == 1, "world 25c: first reconcile must un-park exactly one"
+        assert ap.get_incident(id25c)["state"] == "OPEN", "world 25c: back to OPEN"
+        assert unpark_autopilot_retired() == 0, "world 25c: second reconcile is a no-op"
+        assert sum(a["action"] == "un-parked" for a in ap.get_incident(id25c)["attempts"]) == 1, "world 25c"
+        assert unpark_autopilot_retired() == 0 and ap.get_incident(id25b)["state"] == "WAITING_HUMAN", \
+            "world 25c: a genuinely retired provider's parking is not touched"
+        # (d) every WAITING_HUMAN transition leaves one notices.log line.
+        with open(ap.NOTICES_LOG, encoding="utf-8") as f:
+            n25 = f.read()
+        for _iid in (id25b, id25c):
+            assert n25.count(f"incident-engine: {_iid} -> WAITING_HUMAN") == 1, f"world 25d: notice for {_iid}"
+        print("world 25 (retired-provider excludes autopilot demotion; un-park once; WAITING_HUMAN notices): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0

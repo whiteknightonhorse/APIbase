@@ -981,7 +981,8 @@ def _reopen_resolved(dk, kind, provider, actor):
         note_incident(iid, actor, "FLAPPING",
                       f"kind FLAPPING: reopened {n} times in {FLAP_WINDOW_DAYS} d, "
                       f"no further fleet card, needs a human")
-        transition_state(iid, "WAITING_HUMAN")
+        transition_state(iid, "WAITING_HUMAN",
+                         reason=f"FLAPPING, reopened {n} times in {FLAP_WINDOW_DAYS} d")
         tg_send(f"[apibase] FLAPPING INC-{short_id(iid)} {kind} ({provider}) - reopened {n} times in "
                 f"{FLAP_WINDOW_DAYS} days, no new card filed, needs a human decision")
     return iid
@@ -1138,15 +1139,21 @@ def fleet_task_retire(fleet_task_id, incident_id, dry_run=False):
 
 def provider_is_retired(provider) -> bool:
     """T-0335: the provider has tool rows but none with status <> 'unavailable'. A provider with no
-    tool rows at all is NOT retired (unknown, e.g. a name mismatch) and a failed query is not either."""
+    tool rows at all is NOT retired (unknown, e.g. a name mismatch) and a failed query is not either.
+    T-0482 (INC-WAITING-1018 ruling-1): rows this engine demoted itself (status = 'unavailable' with
+    status_source = 'autopilot', written by sync_tool_status() for a DOWN provider) are never evidence
+    of retirement; counting them parked a merely-DOWN provider's own incident in WAITING_HUMAN
+    (INC-7ce77f, ibge). This is the ONE definition of "retired" for the engine."""
     out, rc = psql(
-        f"SELECT count(*) FILTER (WHERE status <> 'unavailable') || ',' || count(*) "
+        f"SELECT count(*) FILTER (WHERE status <> 'unavailable') || ',' || count(*) || ',' || "
+        f"count(*) FILTER (WHERE status = 'unavailable' AND status_source = 'autopilot') "
         f"FROM tools WHERE provider = {sql_literal(provider)}"
     )
-    if rc != 0 or not out or "," not in out:
+    parts = out.strip().split(",") if rc == 0 and out else []
+    if len(parts) != 3:
         return False
-    active, total = out.split(",", 1)
-    return total.strip() != "0" and active.strip() == "0"
+    active, total, demoted = (x.strip() for x in parts)
+    return total != "0" and active == "0" and demoted == "0"
 
 
 ATTEMPTS_CAP = 500        # T-0334: hard ceiling on incidents.attempts length
@@ -1213,7 +1220,7 @@ def note_incident(incident_id: str, actor: str, action: str, result: str):
         raise RuntimeError(f"note_incident: update failed for {incident_id}")
 
 
-def transition_state(incident_id: str, new_state: str, extra_set: str = ""):
+def transition_state(incident_id: str, new_state: str, extra_set: str = "", reason: str = ""):
     """NOTE: this repo's `@updatedAt` on Incident.updated_at is a Prisma-
     CLIENT convention, not a DB trigger -- migration 0009 (raw SQL, AP-1)
     only sets it as an INSERT default. Since this whole module talks to
@@ -1229,6 +1236,8 @@ def transition_state(incident_id: str, new_state: str, extra_set: str = ""):
     )
     if rc != 0:
         raise RuntimeError(f"transition_state: update failed for {incident_id} -> {new_state}")
+    if new_state == "WAITING_HUMAN":  # C0.5: a parked incident is a logged line, never silence
+        notice(f"incident-engine: {incident_id} -> WAITING_HUMAN ({reason or 'no reason given'})")
 
 
 def wait_incident(incident_id: str, actor: str, until_iso: str, result: str, from_states) -> bool:
