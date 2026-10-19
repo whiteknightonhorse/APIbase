@@ -39,7 +39,7 @@ export interface SubscriptionRow {
   plan: SubscriptionPlan;
   rail_pref: string | null;
   /** T-INT-47: `base_preauth` once the payer stored pre-signed authorizations (else `none`). */
-  pull_mode: 'none' | 'base_preauth' | 'tempo_keychain';
+  pull_mode: 'none' | 'base_preauth' | 'tempo_keychain' | 'mpp_subscription';
   next_charge_at: Date | null;
   expires_at: Date | null;
   max_periods: number | null;
@@ -220,6 +220,20 @@ export async function applySubscriptionPayment(
       b.plan.max_periods,
     );
     const subscription_id = rows[0].subscription_id;
+    // T-0431: period 1 was paid with the MPP subscription intent -> the platform renews it.
+    const linked = await tx.$executeRawUnsafe(
+      `UPDATE shop_subscription_mpp m SET subscription_id = $1::uuid
+         FROM shop_orders o
+        WHERE o.order_id = $2::uuid AND m.quote_id = o.quote_id AND m.subscription_id IS NULL`,
+      subscription_id,
+      a.order_id,
+    );
+    if (linked > 0) {
+      await tx.$executeRawUnsafe(
+        `UPDATE shop_subscriptions SET pull_mode = 'mpp_subscription' WHERE subscription_id = $1::uuid`,
+        subscription_id,
+      );
+    }
     await tx.$executeRawUnsafe(
       `INSERT INTO shop_subscription_periods (subscription_id, period_no, period_start, period_end, order_id, status)
        VALUES ($1::uuid, 1, $2::timestamptz, $3::timestamptz, $4::uuid, 'paid')`,

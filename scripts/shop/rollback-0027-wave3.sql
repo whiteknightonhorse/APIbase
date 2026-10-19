@@ -11,6 +11,9 @@ ALTER TABLE "incidents" ADD CONSTRAINT "incidents_kind_check" CHECK ("kind" IN (
     'DISPUTE_UNANSWERED', 'CATALOG_REJECTED', 'MODERATION_FLAG', 'PAYOUT_WALLET_SANCTIONED',
     'PAYER_SANCTIONED', 'PAYMENT_MISMATCH', 'FEE_INVOICE_OVERDUE', 'STOREFRONT_DOWN'
 ));
+-- T-0431: the tables of 0042_mpp_subscription reference shop_subscriptions; they go first (see rollback-0042).
+DROP TABLE IF EXISTS "shop_subscription_mpp_renewals";
+DROP TABLE IF EXISTS "shop_subscription_mpp";
 DROP TABLE "shop_payment_identifiers";
 DROP TABLE "shop_subscription_authorizations";
 DROP TABLE "shop_subscription_periods";

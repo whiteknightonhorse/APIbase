@@ -127,6 +127,8 @@ export interface PipelineContext {
   /** Order quotes: the recipient/splits the MPP charge was bound to (mppx HMAC-covered). */
   mppRecipient?: string;
   mppSplits?: Array<{ recipient: string; amount: string }>;
+  /** T-0431: `subscription` = one transfer to the merchant; the platform fee is invoiced (receivable). */
+  mppIntent?: 'subscription';
   mppRefundRecorded?: boolean;
   /** `quote:*` (shop.order.pay): binding.fee_usd, set by ESCROW; ESCROW_FINALIZE bills this, not the order total. */
   quoteFeeUsd?: number;

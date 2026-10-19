@@ -304,7 +304,7 @@ export function registerOrderTools(
     {
       title: 'Get a subscription',
       description:
-        "Status of a subscription you pay for: status (active | past_due | canceled | expired), period_no, current_period_end, next_charge_at. From 72 h before to 72 h after current_period_end the answer carries renew {quote_id, expires_at, total_usd, period_no, pay}: pay that quote with x402 (shop.order.pay) to buy the next period; the same quote is returned while it lives, a new one once it expired. Nothing is charged automatically: the buyer's agent renews by paying. Once the period is over unpaid the call fails with 402 subscription_renewal_due (same renew attached); 72 h later the subscription is canceled (status_reason unpaid). Another identity's subscription is 404.",
+        "Status of a subscription you pay for: status (active | past_due | canceled | expired), period_no, current_period_end, next_charge_at. From 72 h before to 72 h after current_period_end the answer carries renew {quote_id, expires_at, total_usd, period_no, pay}: pay that quote with x402 (shop.order.pay) to buy the next period; the same quote is returned while it lives, a new one once it expired. Nothing is charged automatically unless a pull is set up (pull_mode base_preauth, tempo_keychain or mpp_subscription): otherwise the buyer's agent renews by paying. pull_mode mpp_subscription (day/week plans paid on Tempo with the MPP subscription intent) shows renewal_key = the address of the key you authorized; the platform renews each period with it and pays the gas, and cancel never touches the chain (revoke the key yourself with accessKey.revoke). Once the period is over unpaid the call fails with 402 subscription_renewal_due (same renew attached); 72 h later the subscription is canceled (status_reason unpaid). Another identity's subscription is 404.",
       inputSchema: { subscription_id: z.string() },
       outputSchema: {
         subscription_id: z.string(),
@@ -316,6 +316,7 @@ export function registerOrderTools(
         next_charge_at: z.string().nullable(),
         max_periods: z.number().nullable(),
         pull_mode: z.string(),
+        renewal_key: z.string().optional(),
         preauthorized_periods: z.array(z.record(z.unknown())).optional(),
         pull_setup: z.record(z.unknown()).optional(),
         canceled_at: z.string().optional(),
@@ -367,6 +368,7 @@ export function registerOrderTools(
         next_charge_at: z.string().nullable(),
         max_periods: z.number().nullable(),
         pull_mode: z.string(),
+        renewal_key: z.string().optional(),
         preauthorized_periods: z.array(z.record(z.unknown())).optional(),
         canceled_at: z.string().optional(),
         access_until: z.string().optional(),
@@ -434,6 +436,7 @@ export function registerOrderTools(
       outputSchema: {
         subscription_id: z.string(),
         pull_mode: z.string(),
+        renewal_key: z.string().optional(),
         preauthorized_periods: z.array(z.record(z.unknown())),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
@@ -474,6 +477,7 @@ export function registerOrderTools(
         next_charge_at: z.string().nullable(),
         max_periods: z.number().nullable(),
         pull_mode: z.string(),
+        renewal_key: z.string().optional(),
         pull_setup: z.record(z.unknown()).optional(),
         canceled_at: z.string().optional(),
         access_until: z.string().optional(),

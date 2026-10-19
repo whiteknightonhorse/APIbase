@@ -63,6 +63,22 @@ export function computeFeeCents(
   return Math.max(pct, Math.ceil(cfg.fee_min_usd * 100 - 1e-9));
 }
 
+/**
+ * T-0431: the `mpp_subscription` pull mode is offered for day/week plans only (the MPP spec
+ * rejects month), and only while the platform fee is on and covers 10x the renewal gas (PAY-5):
+ * APIbase signs and pays the gas of every renewal, so with the fee off the mode is not offered.
+ */
+export function mppSubscriptionAllowed(
+  plan: Pick<SubscriptionPlan, 'period_unit' | 'amount_usd'>,
+  is_test: boolean,
+  cfg = integratorConfig(),
+): boolean {
+  if (plan.period_unit !== 'day' && plan.period_unit !== 'week') return false;
+  if (!cfg.fee_enabled || is_test) return false;
+  const feeCents = computeFeeCents(Math.round(plan.amount_usd * 100), false, cfg);
+  return feeCents >= Math.ceil(cfg.gas_estimate_usd * 10 * 100 - 1e-9);
+}
+
 export interface Buyer {
   /** `agent:<id>` | `wallet:<sha256>` | `ip:<addr>` -- the key of limits, ban counter and idempotency. */
   identity: string;
@@ -158,6 +174,12 @@ export interface QuoteResponse {
       extra: { quote_id: string; subscription?: { id: string; period_no: number } };
     };
     mpp?: { url: string };
+    /** T-0431: period 1 of a day/week plan can also be paid with the MPP `subscription` intent. */
+    mpp_subscription?: {
+      url: string;
+      period: { unit: 'day' | 'week'; count: number };
+      renewal: 'platform';
+    };
   };
   terms_update_pending?: { docs: unknown[] };
   /** T-INT-41: the quote is a subscription period (period 1 with `subscribe: true`, or a renewal). */
@@ -425,6 +447,19 @@ function buildResponse(
   }
   if (q.rails_offered.includes('tempo')) {
     pay.mpp = { url: `${cfg.public_url}/api/v1/shop/quotes/${q.quote_id}/pay` };
+    const plan = q.subscription?.plan;
+    if (
+      q.subscription?.subscribe &&
+      plan &&
+      (plan.period_unit === 'day' || plan.period_unit === 'week') &&
+      mppSubscriptionAllowed(plan, false, cfg)
+    ) {
+      pay.mpp_subscription = {
+        url: `${cfg.public_url}/api/v1/shop/quotes/${q.quote_id}/pay?intent=subscription`,
+        period: { unit: plan.period_unit, count: plan.period_count },
+        renewal: 'platform',
+      };
+    }
   }
   return {
     quote_id: q.quote_id,

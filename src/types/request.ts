@@ -40,6 +40,8 @@ export interface MppPaymentInfo {
   /** Order quotes only (T-INT-10): what the charge was bound to, compared by ESCROW. */
   recipient?: string;
   splits?: Array<{ recipient: string; amount: string }>;
+  /** T-0431: the credential answered an MPP `subscription` challenge (period 1 of a day/week plan). */
+  intent?: 'subscription';
 }
 
 // Extend Express Request type globally

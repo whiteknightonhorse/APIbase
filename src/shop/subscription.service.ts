@@ -53,8 +53,10 @@ export interface SubscriptionView {
   current_period_end: string | null;
   next_charge_at: string | null;
   max_periods: number | null;
-  /** `base_preauth` (T-INT-47) or `tempo_keychain` (T-INT-49) while a pull is set up, else `none`. */
+  /** `base_preauth` (T-INT-47), `tempo_keychain` (T-INT-49) or `mpp_subscription` (T-0431) while a pull is set up, else `none`. */
   pull_mode: string;
+  /** T-0431: `mpp_subscription` only: the address of the periodic key the payer authorized (APIbase's). */
+  renewal_key?: string;
   preauthorized_periods?: PreauthorizedPeriod[];
   /** T-INT-49: Tempo subscription of a merchant that registered a renewal key: what to authorize. */
   pull_setup?: PullSetup;
@@ -106,6 +108,14 @@ async function currentPeriod(db: ShopTx, id: string, at: number): Promise<Period
   return rows[0] ?? (await latestPeriod(db, id));
 }
 
+async function mppRenewalKey(db: ShopTx, subscription_id: string): Promise<string | undefined> {
+  const r = await db.$queryRawUnsafe<Array<{ access_key: string }>>(
+    `SELECT access_key FROM shop_subscription_mpp WHERE subscription_id = $1::uuid`,
+    subscription_id,
+  );
+  return r[0]?.access_key;
+}
+
 async function viewOf(db: ShopTx, sub: SubscriptionRow, at: number): Promise<SubscriptionView> {
   const cur = await currentPeriod(db, sub.subscription_id, at);
   const end = cur ? new Date(cur.period_end).toISOString() : null;
@@ -121,6 +131,9 @@ async function viewOf(db: ShopTx, sub: SubscriptionRow, at: number): Promise<Sub
     pull_mode: sub.pull_mode ?? 'none',
     ...(sub.pull_mode === 'base_preauth'
       ? { preauthorized_periods: await preauthorizedPeriods(db, sub.subscription_id) }
+      : {}),
+    ...(sub.pull_mode === 'mpp_subscription'
+      ? { renewal_key: await mppRenewalKey(db, sub.subscription_id) }
       : {}),
     ...(sub.canceled_at ? { canceled_at: new Date(sub.canceled_at).toISOString() } : {}),
     ...(sub.status === 'canceled' && sub.next_charge_at

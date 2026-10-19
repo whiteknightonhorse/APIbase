@@ -125,11 +125,17 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
       if (r.status === 402 && Array.isArray(r.body.accepts)) {
         res.setHeader('PAYMENT-REQUIRED', encodePaymentRequiredHeader(r.body as never));
         if ((r.body.pay as { mpp?: unknown } | undefined)?.mpp) {
-          const { quoteMppChallengeHeader } = await import('../../middleware/mpp.middleware');
-          const url = `https://${req.get('host') ?? ''}/api/v1/shop/quotes/${String(req.params.id)}/pay`;
-          const challenge = await quoteMppChallengeHeader(String(req.params.id), url).catch(
-            () => null,
-          );
+          const mw = await import('../../middleware/mpp.middleware');
+          const base = `https://${req.get('host') ?? ''}/api/v1/shop/quotes/${String(req.params.id)}/pay`;
+          // T-0431: ?intent=subscription answers with the subscription challenge instead.
+          const challenge = mw.isSubscriptionIntent(req.query['intent'])
+            ? await mw
+                .quoteMppSubscriptionChallengeHeader(
+                  String(req.params.id),
+                  `${base}?intent=subscription`,
+                )
+                .catch(() => null)
+            : await mw.quoteMppChallengeHeader(String(req.params.id), base).catch(() => null);
           if (challenge) res.setHeader('WWW-Authenticate', challenge);
         }
       }

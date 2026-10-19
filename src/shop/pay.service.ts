@@ -89,6 +89,7 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
           mppAsset: r.mpp.asset,
           mppRecipient: r.mpp.recipient,
           mppSplits: r.mpp.splits,
+          mppIntent: r.mpp.intent,
         }
       : {}),
   } as unknown as PipelineContext;

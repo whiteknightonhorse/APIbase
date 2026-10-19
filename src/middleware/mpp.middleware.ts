@@ -395,7 +395,10 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
       release();
       return conflict();
     }
-    if (!(await chargeAndRecord(req, res, params))) {
+    const subscription = isSubscriptionIntent(req.query?.['intent'])
+      ? await subscriptionCall(quoteId)
+      : undefined;
+    if (!(await chargeAndRecord(req, res, params, subscription))) {
       release();
       return false;
     }
@@ -468,14 +471,16 @@ async function chargeAndRecord(
   req: Request,
   res: Response,
   params: ChargeParams,
+  subscription?: SubscriptionCall,
 ): Promise<boolean> {
   const log = req.log ?? logger;
   // Already validated by mppMiddleware (never throws here: the 400 for both headers came first).
   const authHeader = resolveMppCredentialHeader(req.headers) as string;
   const { amount } = params;
-  const mppx = await getMppxInstance();
+  // T-0431: the subscription intent verifies through its own handler (built per quote).
+  const mppx = subscription ? null : await getMppxInstance();
 
-  if (!mppx) {
+  if (!subscription && !mppx) {
     throw new AppError(ErrorCode.BAD_GATEWAY, 'MPP payment system not available');
   }
 
@@ -508,8 +513,9 @@ async function chargeAndRecord(
     // crucially, the HMAC message includes `amount`, so we MUST pass the
     // tool's actual price (matching what the agent signed). Routes without a
     // known price were rejected above, before any on-chain settlement.
-    const chargeHandler = mppx.charge(params);
-    const result = await chargeHandler(fetchReq);
+    const result = subscription
+      ? await subscription.handler(fetchReq)
+      : await mppx.charge(params)(fetchReq);
 
     // T-0426: ONLY status 200 is a paid request. Everything else is NOT paid (never the paid path).
     if (result.status === 403) {
@@ -568,7 +574,10 @@ async function chargeAndRecord(
       asset,
       method: 'tempo',
       header: authHeader,
-      ...(params.recipient ? { recipient: params.recipient, splits: params.splits ?? [] } : {}),
+      ...(params.recipient
+        ? { recipient: params.recipient, splits: subscription ? [] : (params.splits ?? []) }
+        : {}),
+      ...(subscription ? { intent: 'subscription' as const } : {}),
     };
 
     log.info({ requestId: req.requestId, method: 'tempo', payer, txHash }, 'mpp: payment verified');
@@ -701,4 +710,194 @@ export async function quoteMppChallengeHeader(
   );
   if (won === 0) return (await loadQuoteRow(quoteId)).mpp_challenge_header ?? header;
   return header;
+}
+
+// ---------------------------------------------------------------------------
+// T-0431: the MPP `subscription` intent (Tempo, day/week plans, pull_mode `mpp_subscription`)
+// ---------------------------------------------------------------------------
+
+/** `?intent=subscription` on a quote pay URL selects the subscription challenge / credential. */
+export function isSubscriptionIntent(value: unknown): boolean {
+  return typeof value === 'string' && value === 'subscription';
+}
+
+interface SubscriptionCall {
+  handler: (request: globalThis.Request) => Promise<{
+    status: number;
+    challenge?: globalThis.Response;
+    withReceipt(response: globalThis.Response): globalThis.Response;
+  }>;
+}
+
+export interface MppSubscriptionRuntime {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mppx: any;
+  chainId: number | undefined;
+  /** mppx renewal (APIbase signs with the server-owned access key and pays the gas). */
+  renew(subscriptionId: string): Promise<{ reference: string } | null>;
+  /** Sandbox hook only (testnet): move the mppx billing anchor back so the next period is due. */
+  rewindAnchor(subscriptionId: string, ms: number): Promise<boolean>;
+}
+
+let subRuntime: Promise<MppSubscriptionRuntime | null> | null = null;
+
+/** `store` is injectable for tests (an in-memory atomic store); production uses the shared Redis. */
+export async function createMppSubscriptionRuntime(
+  testStore?: unknown,
+): Promise<MppSubscriptionRuntime | null> {
+  const cfg = getMppConfig();
+  if (!cfg.enabled) return null;
+  const { Mppx, tempo, Store } = await import('mppx/server');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const t = tempo as any;
+  if (typeof t.subscription !== 'function' || typeof t.renewSubscription !== 'function') {
+    return null;
+  }
+  const { privateKeyToAccount } = await import('viem/accounts');
+  const account = privateKeyToAccount(cfg.privateKey as `0x${string}`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let store: any = testStore;
+  if (!store) {
+    const { getSharedRedis } = await import('../services/redis.service');
+    const { atomicRedisAdapter } = await import('../services/mppx-redis-store');
+    store = Store.redis(atomicRedisAdapter(getSharedRedis()));
+  }
+  if (typeof store.update !== 'function') {
+    throw new Error('mppx store has no atomic update — refusing to start MPP subscriptions');
+  }
+  const chainId = assertChallengeChainId(cfg);
+  const mppx = Mppx.create({
+    methods: [
+      ...t.subscription({
+        account,
+        // APIbase pays the gas of the activation and of every renewal.
+        feePayer: true,
+        chainId,
+        currencies: [cfg.usdcAddress],
+        store,
+        // Every request needs a fresh credential bound to its payer; no free request-path reuse.
+        requireCredential: true,
+        resolve: async ({ input }: { input: globalThis.Request }) => {
+          const id = QUOTE_PAY_URL.exec(new URL(input.url).pathname)?.[1];
+          return id ? { key: `quote:${id.toLowerCase()}` } : null;
+        },
+        hooks: {
+          activated: async (a: {
+            receipt: { reference: string };
+            subscription: {
+              subscriptionId: string;
+              lookupKey: string;
+              recipient: string;
+              payer?: { address: string };
+              accessKey?: { accessKeyAddress: string };
+              subscriptionExpires: string;
+            };
+          }) => {
+            try {
+              const { recordActivation } = await import('../shop/subscription-mpp.service');
+              const { getPrisma } = await import('../services/prisma.service');
+              await recordActivation(getPrisma(), a);
+            } catch (err) {
+              // The money already moved: period 1 is still paid, the platform just cannot renew it.
+              logger.error(
+                { err: err instanceof Error ? err.message : String(err), tx: a.receipt.reference },
+                'mpp subscription: activation could not be recorded — renewals are off for it',
+              );
+            }
+          },
+        },
+      }),
+    ],
+    secretKey: cfg.secretKey,
+    realm: cfg.realm,
+  });
+  return {
+    mppx,
+    chainId,
+    async renew(subscriptionId) {
+      const out = await t.renewSubscription({
+        subscriptionId,
+        account,
+        feePayer: true,
+        chainId,
+        store,
+        waitForConfirmation: true,
+      });
+      return out ? { reference: out.receipt.reference } : null;
+    },
+    async rewindAnchor(subscriptionId, ms) {
+      if (cfg.testnet !== true) return false;
+      const key = `tempo:subscription:record:${subscriptionId}`;
+      const rec = (await store.get(key)) as { billingAnchor?: string } | null;
+      if (!rec?.billingAnchor) return false;
+      await store.put(key, {
+        ...rec,
+        billingAnchor: new Date(Date.parse(rec.billingAnchor) - ms).toISOString(),
+      });
+      return true;
+    },
+  };
+}
+
+export function getMppSubscriptionRuntime(): Promise<MppSubscriptionRuntime | null> {
+  if (!subRuntime) {
+    subRuntime = createMppSubscriptionRuntime().catch((err) => {
+      logger.error(
+        { err: err instanceof Error ? err.message : String(err) },
+        'mpp: failed to initialize the subscription intent — disabled until restart',
+      );
+      return null;
+    });
+  }
+  return subRuntime;
+}
+
+/** The mppx subscription handler of ONE quote, built from server data only (never the request). */
+async function subscriptionCall(quoteId: string): Promise<SubscriptionCall> {
+  const rt = await getMppSubscriptionRuntime();
+  const { mppSubscriptionTerms } = await import('../shop/subscription-mpp.service');
+  const terms = await mppSubscriptionTerms(quoteId);
+  if (!rt || !terms.ok) {
+    throw new AppError(
+      ErrorCode.BAD_REQUEST,
+      `The MPP subscription intent is not available for this quote: ${terms.ok ? 'MPP is not available' : terms.reason}.`,
+      undefined,
+      '/integrator/docs#mpp-subscriptions',
+    );
+  }
+  const t = terms.terms;
+  return {
+    handler: rt.mppx.subscription({
+      amount: String(t.amount_usd),
+      chainId: rt.chainId,
+      periodCount: String(t.plan.period_count),
+      periodUnit: t.plan.period_unit,
+      recipient: t.recipient,
+      subscriptionExpires: t.key_expires_at.toISOString(),
+      externalId: quoteId,
+    }),
+  };
+}
+
+/** The subscription-intent challenge of a quote (null when the quote does not qualify). */
+export async function quoteMppSubscriptionChallengeHeader(
+  quoteId: string,
+  requestUrl: string,
+): Promise<string | null> {
+  try {
+    const call = await subscriptionCall(quoteId);
+    const result = await call.handler(
+      new globalThis.Request(requestUrl.replace(/^http:/, 'https:'), { method: 'POST' }),
+    );
+    if (result.status === 402 && result.challenge) {
+      await countChallenge(getMppConfig().usdcAddress);
+      return result.challenge.headers.get('WWW-Authenticate');
+    }
+  } catch (err) {
+    logger.warn(
+      { err: err instanceof Error ? err.message : String(err), quoteId },
+      'mpp: subscription challenge could not be built',
+    );
+  }
+  return null;
 }

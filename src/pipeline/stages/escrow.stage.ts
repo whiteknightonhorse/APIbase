@@ -763,7 +763,9 @@ async function verifyMppQuoteBinding(
   if (ctx.mppRecipient?.toLowerCase() !== binding.pay_to.toLowerCase()) {
     return refuse('mpp_recipient_mismatch');
   }
-  const want = (binding.splits ?? []).map(
+  // T-0431: the subscription intent moves the whole period price to the merchant in ONE transfer
+  // (mppx has no splits there); the platform fee leg is invoiced as a receivable instead.
+  const want = (ctx.mppIntent === 'subscription' ? [] : (binding.splits ?? [])).map(
     (x) => `${x.wallet.toLowerCase()}:${mppAmountToMicro(String(x.amount_usd))}`,
   );
   const got = (ctx.mppSplits ?? []).map(
@@ -992,7 +994,9 @@ async function escrowQuotePaymentOnce(
                   nonce: feeSplit.fee_nonce,
                 },
               ]
-            : (binding.splits ?? []),
+            : ctx.mppIntent === 'subscription'
+              ? (binding.splits ?? []).map((x) => ({ ...x, mode: 'receivable' }))
+              : (binding.splits ?? []),
         ),
         binding.rail,
         mpp ? null : nonce,

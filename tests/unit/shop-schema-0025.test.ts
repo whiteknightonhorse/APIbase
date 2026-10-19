@@ -32,6 +32,9 @@ const TABLES_WAVE3 = [
   'shop_subscriptions',
 ];
 
+/** Added by migration 0042_mpp_subscription (T-0431). */
+const TABLES_MPP_SUBSCRIPTION = ['shop_subscription_mpp', 'shop_subscription_mpp_renewals'];
+
 const TABLES_5_1 = [
   'shop_acceptances',
   'shop_connect_events',
@@ -122,7 +125,7 @@ dbDescribe('0025 on a migrated database', () => {
           AND NOT c.relispartition ORDER BY 1`,
     );
     expect(rows.map((r) => r.tablename)).toEqual(
-      [...TABLES_5_1, ...TABLES_WAVE2, ...TABLES_WAVE3].sort(),
+      [...TABLES_5_1, ...TABLES_WAVE2, ...TABLES_WAVE3, ...TABLES_MPP_SUBSCRIPTION].sort(),
     );
     expect(TABLES_5_1).toHaveLength(18);
   });

@@ -90,6 +90,10 @@ A subscription paid on Tempo can be renewed by your shop with an access key that
 3. Run `apibase-merchant-renewer run --key-file ... --mk mk_live_... --interval 60`. Each pass reads `GET /api/v1/shop/merchants/me/subscriptions/renew-queue` (scope `orders:read`), sends `transferWithMemo` transfers from the payer's account with your key (`amount - fee` to your payout wallet and, when the platform fee is on, `fee` to the fee wallet) and reports them with `POST /api/v1/shop/merchants/me/subscriptions/:id/renewed {period_no, tx_hashes}` (scope `orders:write`). APIbase verifies recipient, amount, memo and payer on-chain; a wrong transfer is `400 renewal_not_proven`.
 4. A revoked key, an expired key or an exhausted limit raises `subscription.pull_failed` and the buyer's agent renews explicitly. A canceled subscription leaves nothing in the queue. Details: /integrator/docs#tempo-keychain-subscriptions.
 
+## Subscriptions: the three renewal modes
+
+`shop.subscription.get` shows `pull_mode`. `none`: the buyer's agent pays each period. `base_preauth`: the payer signed the next periods on Base ahead of time. `tempo_keychain`: your shop renews with the access key you keep (previous section). `mpp_subscription` (day and week plans only): period 1 is paid with the MPP `subscription` intent at `POST /api/v1/shop/quotes/:id/pay?intent=subscription`, and APIbase renews each period with the periodic key the payer granted, pays the gas and records it like any renewal (`subscription.renewed`); nothing to run on your side. With the platform fee on, the fee of those periods is invoiced to the shop. A revoked key, an exhausted limit or a changed payout wallet raises `subscription.pull_failed` and the buyer's agent renews explicitly. Monthly plans never use `mpp_subscription`. Details: /integrator/docs#mpp-subscriptions.
+
 ## Fee-split on Base: two signatures
 
 When the fee is on, the Base 402 of `POST /api/v1/shop/quotes/:id/pay` carries `accepts[0].extra.fee_split`:

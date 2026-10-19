@@ -48,6 +48,14 @@ On Tempo a shop can renew your subscription with an access key that it keeps its
 
 To stop it, cancel the subscription (`shop.subscription.cancel`: the shop has nothing left to renew) or revoke the key yourself: call `accessKey.revoke` for the key address from your paying account. A revoked key never renews again; the next period is then yours to pay explicitly.
 
+## Subscriptions: let the platform renew with a periodic key (Tempo, day and week plans)
+
+For a plan that renews every day or every week the quote of period 1 can carry `pay.mpp_subscription`. Pay it with an mppx client (0.9.3 or newer) at `POST /api/v1/shop/quotes/<id>/pay?intent=subscription`: the 402 challenge has intent `subscription`, and your client signs one periodic key authorization for a key address that belongs to APIbase. Period 1 is charged right away; each later period is renewed by the platform with that key, which also pays the gas. You never sign a renewal and no private key of yours is stored. `shop.subscription.get` shows `pull_mode: mpp_subscription` and `renewal_key`, the address you authorized.
+
+Which mode applies: `none` (you pay each period's quote), `base_preauth` (Base, signatures stored ahead), `tempo_keychain` (the shop renews with its own key) and `mpp_subscription` (this one, day and week plans only; monthly plans keep the other modes).
+
+To stop it, cancel the subscription (`shop.subscription.cancel` ends all renewals but does not touch the chain) and revoke the key yourself: call `accessKey.revoke` from viem/tempo for the `renewal_key` address from your paying account. If the key is revoked, expired or its limit no longer covers a period, the period stays unpaid and you pay the renewal quote explicitly before it is canceled unpaid.
+
 ## If a payment is slow
 
 The order stays in `PAYING` and the call answers 202 `payment_pending`. Do not pay twice: read the order with `shop.order.get` until its state changes.

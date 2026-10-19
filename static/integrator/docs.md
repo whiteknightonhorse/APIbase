@@ -323,6 +323,33 @@ The worker job `shop-subscription-pull` (hourly, at :00) takes every stored auth
 
 `shop.subscription.cancel` (and a subscription that ends or expires) turns every `pending` authorization into `canceled`: it is never executed. To revoke an authorization yourself, call `cancelAuthorization(authorizer, nonce, signature)` on the USDC contract. A working client that signs a batch with viem `signTypedData` (with the fee leg) is `scripts/shop/examples/preauthorize-base.ts`.
 
+## MPP subscription intent {#mpp-subscriptions}
+
+A third way to renew without the buyer's agent paying every period: the official MPP `subscription` intent on Tempo (`pull_mode: mpp_subscription`). The payer authorizes one **periodic access key** whose address belongs to APIbase; APIbase renews each period with it, signs with its own key and pays the gas. The buyer's agent never signs a renewal, and APIbase never receives or stores a payer's key.
+
+Which mode applies:
+
+| `pull_mode`        | Rail  | Plans                 | Who renews                              | Who pays the gas |
+| ------------------ | ----- | --------------------- | --------------------------------------- | ---------------- |
+| `none` (default)   | any   | any                   | the buyer's agent pays each period      | the payer        |
+| `base_preauth`     | Base  | any                   | APIbase, with signatures stored ahead   | APIbase          |
+| `tempo_keychain`   | Tempo | any                   | the shop, with its own key              | the shop         |
+| `mpp_subscription` | Tempo | `day` and `week` only | APIbase, with the key the payer granted | APIbase          |
+
+Monthly plans never get `mpp_subscription` (the MPP specification accepts day and week only) and keep their current modes. Nothing changes for an existing subscription.
+
+1. When the mode applies, the quote of period 1 (`shop.order.quote {..., subscribe: true}`) carries `pay.mpp_subscription {url, period {unit, count}, renewal: "platform"}` next to `pay.mpp`. The mode is offered only for a `day` or `week` plan, only when the platform fee is on and covers ten times the renewal gas (PAY-5), and only for a quote payable on Tempo. With the fee off the mode is not offered and `pay.mpp` is the way to pay.
+2. `GET /api/v1/shop/quotes/:id/pay?intent=subscription` answers `402` with one `WWW-Authenticate: Payment` challenge of method `tempo`, intent `subscription`: the amount (the plan price), the period (`periodUnit` `day` or `week`, `periodCount`), the recipient (the shop payout wallet), exactly one currency (USDC.e on mainnet), the key to authorize in `methodDetails.accessKey` and `subscriptionExpires` (the end of the plan term, or 365 days for a plan without `max_periods`). An mppx client (0.9.3 or newer, 0.13.5 recommended) signs a key authorization bound to that challenge and sends it as the credential with `POST /api/v1/shop/quotes/:id/pay?intent=subscription`. Any other value of `intent` is ignored and `pay.mpp` applies.
+3. APIbase activates the key and charges period 1 in one transfer of the whole plan price to the shop payout wallet; the response is the usual paid order and the receipt names the transaction. The subscription starts `active` with `pull_mode: mpp_subscription`. This intent has no fee split: with the platform fee on, the fee of each period is invoiced to the shop (`fee_settlement: receivable`) like a fee on Base.
+4. `shop.subscription.get` shows `pull_mode: mpp_subscription` and `renewal_key`, the address of the key the payer authorized (APIbase's key, never the payer's).
+5. The worker job `shop-subscription-sweep` (every 5 minutes) renews every due period of an `active` or `past_due` subscription exactly once, before it applies the `past_due` rules: it signs with the renewal key through mppx `renew`, pays the gas, and records the transaction through the period order exactly as the other modes do (rail `tempo`, `subscription.renewed`). A period is attempted once: a second worker or a repeated tick does nothing.
+6. The shop payout wallet is fixed when the key is granted. If the shop moves its payout wallet, the next renewal is not made (the money would go to the old wallet); the shop gets `subscription.pull_failed` with `reason: payout_wallet_changed` and the agent pays the renewal quote.
+7. Failure: a revoked or expired key, a spending limit that no longer covers a period, or any error before the transaction is sent leaves the period unpaid, `pull_mode` returns to `none`, the shop gets one `subscription.pull_failed` webhook (`reason`: `key_revoked`, `key_expired`, `limit_exceeded`, `payout_wallet_changed` or `renew_failed`) and the usual `past_due` rules apply: the agent can still pay the normal renewal quote.
+8. An unknown outcome (the transaction may have been mined, for example a confirmation timeout) is never sent again. The platform checks the chain: a transfer to the shop payout wallet for the plan price completes the period; a reverted transaction or one that never appears ends the attempt as a failure; an attempt with no transaction hash is given up after two hours and raised to the operator.
+9. `shop.subscription.cancel` (or the end of the term) stops all renewals. It does **not** touch the chain: the payer revokes the key from the paying account (`accessKey.revoke` from viem/tempo, for the address in `renewal_key`). A revoked key never renews again.
+
+The renewal key is generated and held by APIbase; the payer's authorization expires on its own at `subscriptionExpires`, after which the buyer subscribes again.
+
 ## Webhooks
 
 Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued`, `subscription.started`, `subscription.renewed`, `subscription.past_due`, `subscription.canceled`, `subscription.expired`, `subscription.pull_failed`, `stream.settle_due` (`shipped`, `delivered`, `refund.verified` and `dispute.opened` start flowing with the shipping/dispute waves). A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
