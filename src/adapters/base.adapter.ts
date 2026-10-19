@@ -1,5 +1,6 @@
 import https from 'https';
 import { logger } from '../config/logger';
+import { providerHttpsAgent } from '../utils/provider-tls';
 import {
   type AdapterConfig,
   type ProviderRequest,
@@ -113,12 +114,13 @@ export abstract class BaseAdapter {
   }
 
   /**
-   * Optional per-adapter HTTPS agent for TLS/SSL configuration.
-   * T-9642: undici (fetch) doesn't honor maxVersion on https.Agent, so this is
-   * kept for reference but not used. Use getUndiciDispatcher() instead.
+   * Per-provider HTTPS agent for TLS configuration (T-0480): the `tls` block of
+   * this provider's provider-limits.json entry, via providerHttpsAgent().
+   * T-9642: undici (fetch) doesn't honor maxVersion on https.Agent, so when an
+   * agent is defined the request goes through https.request instead of fetch.
    */
   protected getHttpsAgent(): https.Agent | undefined {
-    return undefined;
+    return providerHttpsAgent(this.provider);
   }
 
   /**
@@ -213,10 +215,11 @@ export abstract class BaseAdapter {
   ): Promise<ProviderRawResponse> {
     let response: Response;
     try {
-      // T-9642: undici (fetch) doesn't honor maxVersion on https.Agent. For ECDC,
-      // use https.request directly for TLS control. For other providers, use fetch.
-      if (this.provider === 'ecdc-surveillance' && built.url.startsWith('https://')) {
-        return await this.executeRequestWithHttpsRequest(built, req, start);
+      // T-9642/T-0480: undici (fetch) doesn't honor maxVersion on https.Agent. A
+      // provider with a `tls` block uses https.request directly; others use fetch.
+      const tlsAgent = built.url.startsWith('https://') ? this.getHttpsAgent() : undefined;
+      if (tlsAgent) {
+        return await this.executeRequestWithHttpsRequest(built, req, start, tlsAgent);
       }
 
       const fetchOptions: RequestInit & { dispatcher?: unknown } = {
@@ -377,14 +380,14 @@ export abstract class BaseAdapter {
 
   /**
    * T-9642: execute HTTPS request using Node's native https module for TLS control.
-   * Used for providers like ECDC that need specific TLS version limits.
+   * Used for providers with a per-provider `tls` block (provider-limits.json).
    */
   private async executeRequestWithHttpsRequest(
     built: { url: string; method: string; headers: Record<string, string>; body?: string },
     req: ProviderRequest,
     start: number,
+    agent: https.Agent,
   ): Promise<ProviderRawResponse> {
-    const agent = this.getHttpsAgent() || new https.Agent({ maxVersion: 'TLSv1.2' });
     const url = new URL(built.url);
 
     interface HttpsResponse {

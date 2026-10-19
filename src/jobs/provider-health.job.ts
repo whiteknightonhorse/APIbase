@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { logger } from '../config/logger';
 import { substituteEnvPlaceholders } from '../config/url-keys';
 import providerLimitsConfig from '../config/provider-limits.json';
+import { providerHttpsAgent, type ProviderTlsConfig } from '../utils/provider-tls';
 import {
   FAIL_THRESHOLD_DEGRADED,
   FAIL_THRESHOLD_DOWN,
@@ -162,6 +163,14 @@ interface ProviderLimitEntry {
   probe?: ProbeConfig;
   key_expiry?: Record<string, KeyExpiryFact>;
   retired?: RetiredFact;
+  /**
+   * T-0480: per-provider TLS settings, consumed by providerHttpsAgent()
+   * (src/utils/provider-tls.ts) for both adapter calls and health probes.
+   * Only `max_version` is supported (T-9642: ECDC breaks on TLS 1.3); an
+   * unknown key fails closed. No CA/trust overrides: a server that omits its
+   * intermediate is re-measured and handled by a new task, not pinned here.
+   */
+  tls?: ProviderTlsConfig;
 }
 
 const limitsConfig = providerLimitsConfig as Record<string, ProviderLimitEntry>;
@@ -440,18 +449,7 @@ function isTimeoutError(err: unknown): boolean {
   );
 }
 
-function getProviderHttpsAgent(provider: string): https.Agent | undefined {
-  // T-9642: ECDC server has a TLS 1.3 bug (ERR_SSL_DECRYPTION_FAILED_OR_BAD_RECORD_MAC);
-  // workaround by forcing TLS 1.2 for all requests to this provider.
-  if (provider === 'ecdc-surveillance') {
-    return new https.Agent({
-      maxVersion: 'TLSv1.2',
-    });
-  }
-  return undefined;
-}
-
-async function fetchOutcome(
+export async function fetchOutcome(
   url: string,
   method: 'HEAD' | 'GET',
   headers: Record<string, string>,
@@ -461,10 +459,10 @@ async function fetchOutcome(
   const start = performance.now();
   try {
     // T-9642: undici (Node's built-in fetch) doesn't honor maxVersion on https.Agent.
-    // For ECDC, use https.request directly. For testing compatibility, allow fallback to fetch.
-    if (provider === 'ecdc-surveillance') {
+    // T-0480: a provider with a `tls` block (provider-limits.json) uses https.request directly.
+    const agent = provider ? providerHttpsAgent(provider) : undefined;
+    if (agent) {
       const parsedUrl = new URL(url);
-      const agent = getProviderHttpsAgent(provider);
       const options: https.RequestOptions = {
         method,
         headers,
