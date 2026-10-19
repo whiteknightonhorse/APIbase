@@ -87,6 +87,12 @@ banxico.fx.rates	banxico	0.001
 banxico.inflation.cpi	banxico	0.001
 banxico.rates.target	banxico	0.001
 banxico.rates.tiie	banxico	0.001
+bcb.cdi	bcb	0.001
+bcb.eur_brl	bcb	0.001
+bcb.ipca	bcb	0.001
+bcb.selic	bcb	0.001
+bcb.selic_target	bcb	0.001
+bcb.usd_brl	bcb	0.001
 bdl.games	balldontlie	0.002
 bdl.players	balldontlie	0.002
 bdl.teams	balldontlie	0.001

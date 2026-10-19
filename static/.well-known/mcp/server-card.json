@@ -16,10 +16,6 @@
   "authentication": {
     "required": false
   },
-  "payment": {
-    "x402": "USDC on Base: X-Payment header, or params._meta[\"x402/payment\"] per x402 MCP transport v2 (receipt in result _meta[\"x402/payment-response\"])",
-    "mpp": "USDC.e on Tempo: Authorization: Payment <credential>, or Payment-Authorization: Payment <credential> next to Authorization: Bearer <api key>"
-  },
   "hasTools": false,
   "shop_tools": {
     "version": "10",
