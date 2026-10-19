@@ -100,8 +100,10 @@ APIbase supports **dual-rail payments** — agents can pay using either protocol
 
 | Protocol | Network | Token | How |
 |----------|---------|-------|-----|
-| **x402** | Base | USDC | `X-Payment` header |
-| **MPP** | Tempo (Stripe) | USDC | `Authorization: Payment` header |
+| **x402** | Base | USDC | `X-Payment` header, or `params._meta["x402/payment"]` (x402 MCP transport v2) |
+| **MPP** | Tempo (Stripe) | USDC | `Authorization: Payment` or `Payment-Authorization: Payment` header |
+
+A paid MCP tool call without payment returns `isError: true` with the payment requirements in `_meta["x402/payment-required"]` (the same object as the HTTP 402 body); after a settled call the result `_meta["x402/payment-response"]` holds the receipt. A payment in both the header and `_meta` with different payloads is a 400. Header users change nothing.
 
 Free tools work without payment. Paid tools return HTTP 402 with payment instructions for both protocols. Use [mppx](https://www.npmjs.com/package/mppx) SDK or [Tempo CLI](https://tempo.xyz) for automatic payment handling.
 

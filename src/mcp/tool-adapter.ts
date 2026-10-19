@@ -17,6 +17,12 @@ import { logger } from '../config/logger';
 import { TOOL_DEFINITIONS } from './tool-definitions';
 import { getActiveToolIds } from '../pipeline/stages/tool-status.stage';
 import { X_PAYMENT } from '../config/http-headers';
+import { getX402Config } from '../config/x402.config';
+import {
+  buildPaymentRequiredResponse,
+  MCP_PAYMENT_REQUIRED_META_KEY,
+  MCP_PAYMENT_RESPONSE_META_KEY,
+} from '../middleware/x402.middleware';
 
 // Re-export for backward compatibility
 export { TOOL_DEFINITIONS } from './tool-definitions';
@@ -61,6 +67,8 @@ export interface PaymentContext {
   /** On-chain tx hash of the MPP charge — see PipelineContext.mppTxHash. */
   mppTxHash: string | null;
   mppAsset?: string | null;
+  /** Host of the current HTTP request, for the absolute resource URL of a 402 body (T-0429). */
+  host?: string | null;
 }
 
 /**
@@ -144,6 +152,19 @@ export function registerTools(
         const result = await runPipeline(ctx);
 
         if (result.ok) {
+          // T-0429: x402 MCP transport v2 settlement receipt (verify -> deliver -> settle: the
+          // receipt exists only when the settle already succeeded; a pending one is reconciled).
+          const receipt =
+            ctx.x402Paid && ctx.x402SettleSucceeded === true
+              ? {
+                  [MCP_PAYMENT_RESPONSE_META_KEY]: {
+                    success: true,
+                    transaction: ctx.x402SettleTxHash ?? '',
+                    network: getX402Config().network,
+                    payer: ctx.x402Payer ?? '',
+                  },
+                }
+              : undefined;
           return {
             content: [
               {
@@ -160,6 +181,38 @@ export function registerTools(
             // makeFakeMcpServer() stubs registerTool and never exercises the real SDK's
             // validateToolOutput path.
             structuredContent: { result: result.value.responseBody },
+            ...(receipt ? { _meta: receipt } : {}),
+          };
+        }
+
+        // T-0429: x402 MCP transport v2. A 402 keeps isError + the JSON text as before and ALSO
+        // carries the PaymentRequired object (the same body the HTTP 402 returns) in `_meta`, plus
+        // in structuredContent where @x402/mcp clients look first.
+        if (result.error.code === 402 && typeof result.error.extra?.price_usd === 'number') {
+          const required = buildPaymentRequiredResponse(
+            toolId,
+            result.error.extra.price_usd,
+            typeof result.error.extra.price_version === 'number'
+              ? result.error.extra.price_version
+              : 1,
+            requestId,
+            paymentCtx?.host ?? '',
+          );
+          return {
+            isError: true,
+            content: [
+              {
+                type: 'text' as const,
+                text: JSON.stringify({
+                  error: result.error.error,
+                  message: result.error.message,
+                  request_id: requestId,
+                  ...(result.error.extra ?? {}),
+                }),
+              },
+            ],
+            structuredContent: required,
+            _meta: { [MCP_PAYMENT_REQUIRED_META_KEY]: required },
           };
         }
 

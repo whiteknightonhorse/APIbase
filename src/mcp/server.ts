@@ -216,6 +216,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
         txHash?: string;
         amount?: string;
         asset?: string;
+        header?: string;
       }
     | undefined;
   return {
@@ -225,10 +226,11 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
     mppPaid: !!mpp?.verified,
     mppPayer: mpp?.payer ?? null,
     mppMethod: mpp?.method ?? null,
-    mppPaymentHeader: (req.headers['authorization'] as string) ?? null,
+    mppPaymentHeader: mpp?.header ?? null,
     mppAmount: mpp?.amount ?? null,
     mppTxHash: mpp?.txHash ?? null,
     mppAsset: mpp?.asset ?? null,
+    host: req.get('host') ?? null,
   };
 }
 
