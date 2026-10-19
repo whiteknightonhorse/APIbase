@@ -39,6 +39,7 @@ jest.mock('../../src/services/redis.service', () => ({
   ensureRedisConnected: ensureRedisConnectedMock,
 }));
 
+import { TOOL_FINGERPRINTS } from '../../src/mcp/tool-fingerprint';
 import { getToolById, getToolsPaginated } from '../../src/services/tool-registry.service';
 
 function rowFor(toolId: string, provider = toolId.split('.')[0]) {
@@ -236,5 +237,15 @@ describe('T-0331: endpoint is the execution route, schema_url the metadata route
       expect(e.schema_url).toBe(`/api/v1/tools/${e.id}`);
       expect(e.method).toBe('POST');
     }
+  });
+});
+
+describe('T-0500: definition_sha256 on every entry', () => {
+  it('toEntry output carries the hash from the fingerprint map', async () => {
+    const id = [...TOOL_FINGERPRINTS.keys()][0];
+    findUniqueMock.mockResolvedValueOnce(rowFor(id));
+    const entry = await getToolById(id);
+    expect(entry?.definition_sha256).toBe(TOOL_FINGERPRINTS.get(id));
+    expect(entry?.definition_sha256).toMatch(/^[0-9a-f]{64}$/);
   });
 });

@@ -7,6 +7,7 @@ import {
 import { discover } from '../services/discovery.service';
 import { AppError, ErrorCode } from '../types/errors';
 import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
+import { getManifest } from '../mcp/tool-fingerprint';
 
 /**
  * Tool catalog routes (§6.15, §12.39, §12.114).
@@ -102,6 +103,20 @@ toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextF
   } catch (err) {
     next(err);
   }
+});
+
+// --- Definition manifest (T-0500) ---
+// Registered above /:toolId so it is not swallowed by the param route. Pure in-memory: the
+// handler touches no DB, fs or auth, so CodeQL rule 2 (rate limiter) does not apply.
+toolsRouter.get('/api/v1/tools/manifest', (req: Request, res: Response) => {
+  const manifest = getManifest();
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.setHeader('ETag', `"${manifest.manifest_sha256}"`);
+  if (req.fresh) {
+    res.status(304).end();
+    return;
+  }
+  res.status(200).json(manifest);
 });
 
 // --- Single tool details ---

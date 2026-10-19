@@ -15,6 +15,7 @@ import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { TOOL_DEFINITIONS } from './tool-definitions';
+import { getDefinitionSha256 } from './tool-fingerprint';
 import { getActiveToolIds } from '../pipeline/stages/tool-status.stage';
 import { X_PAYMENT } from '../config/http-headers';
 import { getX402Config } from '../config/x402.config';
@@ -119,6 +120,7 @@ export function registerTools(
         inputSchema: shape,
         outputSchema: DEFAULT_OUTPUT_SHAPE,
         annotations: def.annotations,
+        _meta: { 'apibase/definition_sha256': getDefinitionSha256(def.toolId) },
       },
       async (args: Record<string, unknown>) => {
         const headers: Record<string, string> = {

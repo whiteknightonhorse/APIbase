@@ -62,6 +62,15 @@ GET https://apibase.pro/api/v1/tools
 Returns all 1398 tools with full JSON Schemas. Use sparingly — the response is
 large.
 
+## Pin what you discovered
+
+Every tool carries a `definition_sha256` (REST field; MCP `_meta["apibase/definition_sha256"]` in `tools/list`).
+Recompute it as `sha256hex(stable_json({id, description, input_schema}))`, where `stable_json` is
+fast-json-stable-stringify (keys sorted recursively, no whitespace) and the three values are exactly what
+`GET /api/v1/tools/<id>` returns. `GET /api/v1/tools/manifest` returns every hash with an ETag you can poll
+with `If-None-Match`. A changed hash means the description or input schema changed: re-read the tool before
+calling it. Price is not part of the hash.
+
 ## Why this exists
 
 Agents that preload hundreds of tool schemas waste context and latency. Progressive

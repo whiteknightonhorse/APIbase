@@ -1,6 +1,9 @@
-import { toolSchemas } from '../schemas/index';
-import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
-import { zodToJsonSchema } from '../utils/zod-to-json-schema';
+import {
+  TOOL_SCHEMAS_JSON,
+  TOOL_DESCRIPTIONS,
+  TOOL_FINGERPRINTS,
+  MANIFEST_SHA256,
+} from '../mcp/tool-fingerprint';
 import { getPrisma } from './prisma.service';
 import { ensureRedisConnected } from './redis.service';
 import { buildToolQuality, type ToolQualityResult } from './tool-quality.service';
@@ -28,26 +31,6 @@ const QUALITY_METHOD = 'apibase-rs/1';
 // ---------------------------------------------------------------------------
 // Pre-computed lookup maps (built once at module load, not per-request)
 // ---------------------------------------------------------------------------
-
-const TOOL_SCHEMAS_JSON: ReadonlyMap<string, Record<string, unknown>> = (() => {
-  const map = new Map<string, Record<string, unknown>>();
-  for (const [toolId, schema] of Object.entries(toolSchemas)) {
-    try {
-      map.set(toolId, zodToJsonSchema(schema));
-    } catch {
-      // Skip tools with unconvertible schemas — they get empty {}
-    }
-  }
-  return map;
-})();
-
-const TOOL_DESCRIPTIONS: ReadonlyMap<string, string> = (() => {
-  const map = new Map<string, string>();
-  for (const def of TOOL_DEFINITIONS) {
-    map.set(def.toolId, def.description);
-  }
-  return map;
-})();
 
 // ---------------------------------------------------------------------------
 // Types
@@ -121,6 +104,8 @@ export interface ToolCatalogEntry {
    */
   min_balance_usd: number;
   input_schema: Record<string, unknown>;
+  /** T-0500: sha256 of stable_json({id, description, input_schema}); see GET /api/v1/tools/manifest. */
+  definition_sha256: string;
   status: string;
   /** ZZ-03-03: live provider- and tool-level quality. Additive — never breaks a pre-existing consumer. */
   quality: ToolQuality;
@@ -140,6 +125,8 @@ export interface PublicCatalog {
   platform: string;
   version: string;
   updated_at: string;
+  /** T-0500: manifest hash over every tool definition; same value as the manifest route ETag. */
+  manifest_sha256: string;
   total: number;
   tools: ToolCatalogEntry[];
 }
@@ -191,6 +178,7 @@ function toEntry(
     tier: priceTier(priceUsd),
     min_balance_usd: priceUsd,
     input_schema: TOOL_SCHEMAS_JSON.get(tool.tool_id) ?? {},
+    definition_sha256: TOOL_FINGERPRINTS.get(tool.tool_id) ?? '',
     status: tool.status,
     quality,
   };
@@ -304,6 +292,7 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
     platform: 'APIbase',
     version: '1.0',
     updated_at: new Date().toISOString(),
+    manifest_sha256: MANIFEST_SHA256,
     total: tools.length,
     tools: await toEntries(tools),
   };

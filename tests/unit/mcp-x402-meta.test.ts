@@ -28,6 +28,7 @@ const mockRun = jest.fn();
 jest.mock('../../src/pipeline/pipeline', () => ({ runPipeline: (c: unknown) => mockRun(c) }));
 
 import { x402Middleware, buildPaymentRequiredResponse } from '../../src/middleware/x402.middleware';
+import { getDefinitionSha256 } from '../../src/mcp/tool-fingerprint';
 import { registerTools, type PaymentContext } from '../../src/mcp/tool-adapter';
 import { TOOL_DEFINITIONS } from '../../src/mcp/tool-definitions';
 import { AppError } from '../../src/types/errors';
@@ -219,5 +220,25 @@ describe('x402 over MCP: tool results (T-0429)', () => {
     expect(
       (await call(ctx({ x402Paid: true, x402Payer: '0x1', x402PaymentHeader: 'h' })))._meta,
     ).toBeUndefined();
+  });
+});
+
+describe('T-0500: registerTool config carries definition_sha256 in _meta', () => {
+  it('every registered tool has _meta["apibase/definition_sha256"] equal to the map value', () => {
+    const configs = new Map<string, { _meta?: Record<string, unknown> }>();
+    registerTools(
+      {
+        registerTool: (n: string, c: { _meta?: Record<string, unknown> }) => configs.set(n, c),
+      } as never,
+      'apb_key',
+      'req-1',
+    );
+    expect(configs.size).toBeGreaterThan(0);
+    for (const def of TOOL_DEFINITIONS) {
+      const cfg = configs.get(def.mcpName || def.toolId);
+      if (!cfg) continue; // skipped at registration (no ZodObject schema)
+      expect(cfg._meta?.['apibase/definition_sha256']).toBe(getDefinitionSha256(def.toolId));
+      expect(cfg._meta?.['apibase/definition_sha256']).toMatch(/^[0-9a-f]{64}$/);
+    }
   });
 });

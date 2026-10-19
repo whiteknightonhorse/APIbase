@@ -7,6 +7,7 @@
   "url": "https://apibase.pro/mcp",
   "version": "2.2.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
+  "tools_manifest_url": "https://apibase.pro/api/v1/tools/manifest",
   "tools_count": 1398,
   "platform_tools_count": 29,
   "shop_tools_count": 25,
