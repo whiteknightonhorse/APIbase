@@ -14,6 +14,7 @@ Only decoration may be removed, and only through the allow-list tests/fixtures/p
   <word tokens>   a token sequence taken out of the baseline text (every occurrence)
   href: <value>   a baseline href that may disappear
   id: <value>     a baseline element id that may disappear
+The catalog provider grid is compared with scripts/discovery-snapshot.tsv of the same commit; the frozen baseline keeps only the page chrome.
 Output: PARITY_FAIL <page>: missing text|href|id|scripts <value>, then a summary line. Exit 1 on any failure.
 
 Usage: python3 -I scripts/page-parity.py [page ...] [--render [--rendered-dir DIR]] [--base URL] [--list]
@@ -173,6 +174,19 @@ def missing_runs(base, got):
     return runs
 
 
+def catalog_roster():
+    """provider -> tool count from scripts/discovery-snapshot.tsv (tool_id<TAB>provider<TAB>price)."""
+    path = os.path.join(ROOT, "scripts/discovery-snapshot.tsv")
+    roster = {}
+    if not os.path.isfile(path):
+        return roster
+    for line in read(path).split("\n"):
+        f = line.split("\t")
+        if len(f) > 1 and f[1]:
+            roster[f[1]] = roster.get(f[1], 0) + 1
+    return roster
+
+
 def compare(name, body):
     fails = []
     seqs, ah, ad = allow(name)
@@ -190,6 +204,13 @@ def compare(name, body):
     n = len(re.findall(r"<script\b", body, flags=re.I))
     if n < meta["scripts"]:
         fails.append("missing scripts %d < %d" % (n, meta["scripts"]))
+    if name == "catalog":
+        roster = catalog_roster()
+        if not roster:
+            fails.append("no roster in scripts/discovery-snapshot.tsv")
+        for provider, cnt in roster.items():
+            if not re.search(r"<h3>%s</h3>(?:(?!<h3>).)*?<b>%d</b> tools" % (re.escape(provider), cnt), body, re.S):
+                fails.append("missing provider %s %d" % (provider, cnt))
     return ["PARITY_FAIL %s: %s" % (name, f) for f in fails]
 
 

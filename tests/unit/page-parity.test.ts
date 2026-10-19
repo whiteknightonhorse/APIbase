@@ -89,6 +89,11 @@ describe('T-0383 page-parity gate', () => {
       cpSync(join(ROOT, 'static'), join(tmp, 'static'), { recursive: true });
       mkdirSync(join(tmp, 'tests/fixtures'), { recursive: true });
       cpSync(FIX, join(tmp, 'tests/fixtures/page-baseline'), { recursive: true });
+      mkdirSync(join(tmp, 'scripts'), { recursive: true });
+      cpSync(
+        join(ROOT, 'scripts/discovery-snapshot.tsv'),
+        join(tmp, 'scripts/discovery-snapshot.tsv'),
+      );
     });
     afterEach(() => rmSync(tmp, { recursive: true, force: true }));
     const mutate = (f: string, fn: (s: string) => string) => {
@@ -186,6 +191,38 @@ describe('T-0383 page-parity gate', () => {
       const r = parity(['about', '--render'], tmp);
       expect(r.status).toBe(1);
       expect(r.stdout).toContain('PARITY_FAIL about: missing text Merchants connected so far:');
+    });
+
+    const CARD = /<article class="cat-card"[\s\S]*?<\/article>\n?/g;
+    const cardOf = (s: string) => {
+      const card = s.match(CARD)![3];
+      return {
+        card,
+        name: /<h3>([^<]+)<\/h3>/.exec(card)![1],
+        n: Number(/<b>(\d+)<\/b> tools/.exec(card)![1]),
+      };
+    };
+
+    it('PP10: a catalog card missing from the grid fails with its name and count', () => {
+      const { card, name, n } = cardOf(readFileSync(join(tmp, 'static/catalog.html'), 'utf-8'));
+      mutate('static/catalog.html', (s) => s.replace(card, ''));
+      const r = parity(['catalog', '--render'], tmp);
+      expect(r.status).toBe(1);
+      expect(r.stdout).toContain(`PARITY_FAIL catalog: missing provider ${name} ${n}`);
+    });
+
+    it('PP11: a catalog card with a wrong tool count fails', () => {
+      const { card, name, n } = cardOf(readFileSync(join(tmp, 'static/catalog.html'), 'utf-8'));
+      mutate('static/catalog.html', (s) =>
+        s.replace(card, card.replace(`<b>${n}</b> tools`, `<b>${n + 1}</b> tools`)),
+      );
+      const r = parity(['catalog', '--render'], tmp);
+      expect(r.status).toBe(1);
+      expect(r.stdout).toContain(`PARITY_FAIL catalog: missing provider ${name} ${n}`);
+    });
+
+    it('PP12: the untouched catalog copy passes against its own snapshot', () => {
+      expect(parity(['catalog', '--render'], tmp).status).toBe(0);
     });
   });
 });
