@@ -338,7 +338,7 @@ _TG_REQUIRED_KEYS = frozenset([
     "need_from_you.HUMAN_KEY", "need_from_you.HUMAN_ONLY", "need_from_you.HUMAN_GENERIC",
     "after_you.HUMAN_KEY", "after_you.HUMAN_ONLY", "after_you.HUMAN_GENERIC",
     "need_from_you.NO_FILE", "after_you.NO_FILE", "line_parked_why", "parked_why_missing",
-    "line_variants", "line_handoff", "reminder_what", "merchant_suspended", "key_rotation",
+    "line_variants", "line_handoff", "reminder_what", "auto_closed_waiting", "merchant_suspended", "key_rotation",
     "job_stale",
 ])
 

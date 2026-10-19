@@ -758,6 +758,25 @@ def unpark_autopilot_retired(dry_run=False):
     return n
 
 
+def _waiting_provider_healthy_72h(provider):
+    """T-0484: provider_status HEALTHY + last probe OK, and the newest FAIL_* probe in probe_log is
+    older than WAITING_HUMAN_REMINDER_SECONDS (or there is none)."""
+    pv, rc = ap.psql(
+        f"SELECT state, last_probe_result FROM provider_status WHERE provider = {ap.sql_literal(provider)}"
+    )
+    if rc != 0 or not pv:
+        return False
+    state, last_result = (pv.split(ap.SEP) + [""])[:2]
+    if state != "HEALTHY" or last_result != "OK":
+        return False
+    recent, rc = ap.psql(
+        f"SELECT count(*) FROM probe_log WHERE provider = {ap.sql_literal(provider)} "
+        f"AND result IN ('FAIL_TRANSIENT', 'FAIL_DETERMINISTIC') "
+        f"AND ts > now() - interval '{ap.WAITING_HUMAN_REMINDER_SECONDS} seconds'"
+    )
+    return rc == 0 and recent.strip() == "0"
+
+
 def advance_waiting_human():
     out, rc = ap.psql(
         f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('created_at')}, attempts::text, "
@@ -923,6 +942,19 @@ def advance_waiting_human():
                 else:
                     ap.notice(f"silent: {incident_id} human-done file present but "
                               f"OPERATOR RESULT not filled yet")
+
+        # T-0484 (INC-WAITING-1018 ruling-1): an AUTO/MIXED incident parked with no operator file and
+        # no human-done file (FLAPPING, T-0336) has no other exit. It leaves on evidence: provider
+        # HEALTHY, last probe OK, and no failing probe inside the last 72 h -> RESOLVED.
+        if (route in ("AUTO", "MIXED") and not operator_file and not human_done_match
+                and _waiting_provider_healthy_72h(provider)):
+            ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
+            ap.note_incident(incident_id, "incident-engine", "auto-closed",
+                              "auto-closed: provider healthy for 72 h while WAITING_HUMAN (FLAPPING cooled)")
+            ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) WAITING_HUMAN -> RESOLVED, "
+                      f"auto-closed: provider healthy for 72 h")
+            ap.tg_send(ap.tg("auto_closed_waiting", kind=kind, provider=provider))
+            continue
 
         # 2. 72h reminder edge (F2: "reminder every 72h", C0.5: suppressed
         # reminder is a logged line, not silence).
@@ -4511,6 +4543,57 @@ def selftest_db():
         for _iid in (id25b, id25c):
             assert n25.count(f"incident-engine: {_iid} -> WAITING_HUMAN") == 1, f"world 25d: notice for {_iid}"
         print("world 25 (retired-provider excludes autopilot demotion; un-park once; WAITING_HUMAN notices): OK")
+
+        # World 26 (T-0484): WAITING_HUMAN exit for AUTO kinds on 72 h of provider health.
+        _sent26 = []
+        _orig_tg_send26 = ap.tg_send
+        ap.tg_send = lambda text: (_sent26.append(text) or True)
+        try:
+            for _sfx, _fail_h in (("a", 73), ("b", 10)):
+                _p = f"ap26{_sfx}"
+                ap.psql(
+                    "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                    "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+                    f"('{_p}', 'HEALTHY', now(), now(), 300, 'OK', now())"
+                )
+                ap.psql(
+                    "INSERT INTO probe_log (provider, ts, kind, result) VALUES "
+                    f"('{_p}', now() - interval '{_fail_h} hours', 'get', 'FAIL_TRANSIENT')"
+                )
+            id26a, _ = ap.open_or_merge_incident(kind="PROVIDER_DOWN", provider="ap26a",
+                                                 evidence={"probe": "down"}, detected_by="manual")
+            id26b, _ = ap.open_or_merge_incident(kind="PROVIDER_DOWN", provider="ap26b",
+                                                 evidence={"probe": "down"}, detected_by="manual")
+            for _iid in (id26a, id26b):
+                ap.transition_state(_iid, "WAITING_HUMAN", reason="world 26 setup (FLAPPING)")
+                ap.note_incident(_iid, "incident-engine", "FLAPPING", "kind FLAPPING: world 26 setup")
+            # (c) HUMAN_ONLY with an operator file and a healthy provider: untouched.
+            ap.psql(
+                "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+                "('ap26c', 'HEALTHY', now(), now(), 300, 'OK', now())"
+            )
+            id26c, _ = ap.open_or_merge_incident(kind="PAYMENT_REQUIRED", provider="ap26c",
+                                                 evidence={"probe": "402"}, detected_by="manual")
+            inc26c0 = ap.get_incident(id26c)
+            assert inc26c0["state"] == "WAITING_HUMAN" and inc26c0["operator_file"], \
+                f"world 26c setup: {inc26c0['state']} / {inc26c0['operator_file']}"
+            _sent26.clear()
+            advance_waiting_human()
+            assert ap.get_incident(id26a)["state"] == "RESOLVED", "world 26a: healthy 73 h -> RESOLVED"
+            assert ap.get_incident(id26b)["state"] == "WAITING_HUMAN", "world 26b: failure 10 h ago -> stays"
+            assert ap.get_incident(id26c)["state"] == "WAITING_HUMAN", "world 26c: HUMAN_ONLY untouched"
+            _closed26 = [t for t in _sent26 if "ap26a" in t]
+            assert len(_closed26) == 1 and len(_sent26) == 1, f"world 26a: exactly one TG, got {_sent26}"
+            with open(ap.NOTICES_LOG, encoding="utf-8") as f:
+                _n26 = f.read()
+            assert _n26.count(f"incident-engine: {id26a} (ap26a/PROVIDER_DOWN) WAITING_HUMAN -> RESOLVED") == 1, \
+                "world 26a: exactly one notice"
+            advance_waiting_human()
+            assert len(_sent26) == 1, "world 26a: second tick must not re-notify"
+        finally:
+            ap.tg_send = _orig_tg_send26
+        print("world 26 (WAITING_HUMAN exit for AUTO kinds: healthy 73 h resolves, 10 h stays, HUMAN_ONLY untouched): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
