@@ -13,7 +13,7 @@ You need a payout address on Base, on Tempo, or both. It receives the buyer's pa
 
 ## Buyer or buyer's agent
 
-Fund the wallet with USDC, then set a per-payment and a per-session limit in the wallet or the agent's client before the first purchase. See /integrator/buyers.
+Fund the wallet with USDC, then set a per-payment and a per-session limit in the wallet or the agent's client before the first purchase. See /integrator/buyers. Running several agents? See 'Several agents, one budget' on /integrator/buyers.
 
 ## Never share keys
 
