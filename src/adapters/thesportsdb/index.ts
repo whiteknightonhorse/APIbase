@@ -10,6 +10,10 @@ import type {
   TheSportsDbEventsResponse,
 } from './types';
 
+// Public test key, not a secret. Key "3" was disabled upstream 2026-10-16;
+// the 403 body names "123" as the new test key.
+export const THESPORTSDB_PUBLIC_KEY = '123';
+
 /**
  * TheSportsDB adapter (UC-586).
  *
@@ -19,14 +23,14 @@ import type {
  *   thesportsdb.events_past  → GET /eventspastleague.php?id={leagueId}
  *   thesportsdb.events_next  → GET /eventsnextleague.php?id={leagueId}
  *
- * Auth: None. Free public API key "3" baked into base URL.
- * Rate limit: Not documented; use conservatively.
+ * Auth: None. Free public test key "123" baked into base URL.
+ * Rate limit: see limit_proof in provider-limits.json.
  */
 export class TheSportsDbAdapter extends BaseAdapter {
   constructor() {
     super({
       provider: 'thesportsdb',
-      baseUrl: 'https://www.thesportsdb.com/api/v1/json/3',
+      baseUrl: `https://www.thesportsdb.com/api/v1/json/${THESPORTSDB_PUBLIC_KEY}`,
     });
   }
 

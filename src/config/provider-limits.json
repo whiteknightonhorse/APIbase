@@ -3648,7 +3648,7 @@
   },
   "thesportsdb": {
     "display_name": "TheSportsDB",
-    "health_url": "https://www.thesportsdb.com/api/v1/json/3/all_leagues.php",
+    "health_url": "https://www.thesportsdb.com/api/v1/json/123/all_leagues.php",
     "probe": {
       "expect_status": [200]
     },
@@ -3656,7 +3656,7 @@
     "free_limit": 30,
     "reset_period": "none",
     "docs_url": "https://www.thesportsdb.com/api.php",
-    "limit_proof": "Free Sports API $0/mo: 30 requests per minute (thesportsdb.com/pricing, 2026-10-14)",
+    "limit_proof": "Free test key 123: no per-key limit stated, 30 requests per minute on the Free plan (thesportsdb.com/pricing, 2026-10-19)",
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
