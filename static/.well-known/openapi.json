@@ -30639,7 +30639,7 @@
       "post": {
         "operationId": "transcribe_submit",
         "summary": "Submit Audio for Transcription",
-        "description": "Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization (AssemblyAI)",
+        "description": "Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization. Requires duration_seconds (max 4 h); priced per audio minute: max($0.01, ceil(minutes) x $0.005), and the job is cut at the declared duration (AssemblyAI)",
         "x-payment-info": {
           "amount": "10000",
           "currency": "0x20C000000000000000000000b9537d11c60E8b50",
@@ -30673,6 +30673,12 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "duration_seconds": {
+                    "type": "integer",
+                    "description": "Audio duration in seconds (required, max 14400 = 4 h). Billed per audio minute: max($0.01, ceil(minutes) x $0.005). The job is cut at this duration upstream, so audio longer than declared is transcribed only up to it",
+                    "minimum": 1,
+                    "maximum": 14400
+                  },
                   "audio_url": {
                     "type": "string",
                     "description": "Publicly accessible URL of the audio file to transcribe (MP3, WAV, M4A, FLAC, OGG, WebM)"
@@ -30695,6 +30701,7 @@
                   }
                 },
                 "required": [
+                  "duration_seconds",
                   "audio_url"
                 ]
               }
