@@ -6222,7 +6222,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'scb.tables.query',
     title: 'SCB Sweden Table Query',
     description:
-      "Run a statistical query against an SCB table — specify dimension filters to slice data by region, age, sex, year, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Always call scb.table_metadata first to discover valid dimension codes and value codes. Example: Sweden total population (Region='00', filter='vs:RegionRiket99'), latest year (Tid filter='top' values=['1']).",
+      "Run a statistical query against an SCB table — specify dimension filters to slice data by region, age, sex, year, etc. Returns JSON-stat2 format with labeled dimensions and numeric values. Call scb.table_metadata first to discover valid dimension codes and value codes. Example: Sweden total population (Region='00', filter='vs:RegionRiket99'), latest year (Tid filter='top' values=['1']).",
     category: 'world',
     annotations: READ_ONLY,
   },
@@ -8773,7 +8773,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Get the latest European Central Bank (ECB) reference exchange rates from Frankfurter.dev (api.frankfurter.dev/v1). ' +
       'Returns rates for 33 major currencies relative to a base currency (default EUR). ' +
       'Rates are updated each business day at ~16:00 CET by the ECB. ' +
-      'Supports optional base currency override, target currency filter, and amount scaling for instant conversion. ' +
+      'Supports an optional base currency, target currency filter, and amount scaling for instant conversion. ' +
       'No auth required; public domain ECB data. ' +
       'Ideal for FX dashboards, invoicing, and multi-currency apps.',
     category: 'finance',
@@ -10656,7 +10656,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Classify the sentiment of a text using a HuggingFace NLP model via the Inference API. ' +
       'Returns a predicted label (positive, negative, or neutral) with a confidence score, ' +
       'plus scores for all classes. Default model (cardiffnlp/twitter-roberta-base-sentiment-latest) ' +
-      'is optimized for social media and short-form text. Supports custom model override. ' +
+      'is optimized for social media and short-form text. Supports a custom model parameter. ' +
       'Useful for customer feedback analysis, social media monitoring, and review classification.',
     category: 'developer',
     annotations: READ_ONLY,
@@ -10819,7 +10819,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Summarize a long text into a shorter, coherent paragraph using the facebook/bart-large-cnn model ' +
       'via HuggingFace Inference API. Trained on CNN/DailyMail news articles; works well for factual prose. ' +
       'Control output length with max_length (token cap) and min_length (token floor) parameters. ' +
-      'Custom model override supported (e.g. google/pegasus-xsum for extreme single-sentence summaries). ' +
+      'A custom model can be supplied (e.g. google/pegasus-xsum for extreme single-sentence summaries). ' +
       'Useful for article digests, executive summaries, and reducing LLM context window usage.',
     category: 'developer',
     annotations: READ_ONLY,
@@ -16549,7 +16549,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Run a statistical query against a Latvia statistics table — specify dimension filters ' +
       'to slice data by indicator, time period, region, etc. Returns JSON-stat2 format with ' +
-      'labeled dimensions and numeric values. Always call latvia-statistics.table_metadata ' +
+      'labeled dimensions and numeric values. Call latvia-statistics.table_metadata ' +
       'first to discover valid dimension codes and value codes. Example: population at start ' +
       "of year (INDICATOR='POP_SY'), latest year (TIME filter='top' values=['1']). Data: " +
       'data.stat.gov.lv, no auth required, CC BY 4.0 (Central Statistical Bureau of Latvia).',
@@ -16594,7 +16594,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Run a statistical query against an Iceland statistics table — specify dimension filters ' +
       'to slice data by year, unit, and other indicators. Returns JSON-stat2 format with labeled ' +
-      'dimensions and numeric values. Always call iceland-statistics.table_metadata first to ' +
+      'dimensions and numeric values. Call iceland-statistics.table_metadata first to ' +
       "discover valid dimension codes and value codes (often Icelandic words, e.g. 'Ár' for " +
       "year). Example: population 1 January (Eining='0'), 3 most recent years (Ár filter='top' " +
       "values=['3']). Data: px.hagstofa.is, no auth required, CC BY 4.0 (Statistics Iceland).",
@@ -16639,7 +16639,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Run a statistical query against an Estonia statistics table — specify dimension filters ' +
       'to slice data by year and indicator. Returns JSON-stat2 format with labeled dimensions ' +
-      'and numeric values. Always call estonia-statistics.table_metadata first to discover ' +
+      'and numeric values. Call estonia-statistics.table_metadata first to discover ' +
       "valid dimension codes and value codes (often Estonian words, e.g. 'Aasta' for year). " +
       "Example: births/deaths/natural increase (Näitaja='1','2','3'), most recent year (Aasta " +
       "filter='top' values=['1']). Data: andmed.stat.ee, no auth required, CC BY-SA 4.0 " +
@@ -16683,7 +16683,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
       'Fetch time-series values for one or more e-Stat Statistics Dashboard indicator codes, ' +
       'optionally filtered by region and time range — population, labour, economy, trade, and ' +
       'other official Japanese government statistics (and comparable world figures for some ' +
-      'indicators). Always call estat-japan-dashboard.indicator_info first to confirm units and ' +
+      'indicators). Call estat-japan-dashboard.indicator_info first to confirm units and ' +
       'valid cycle for the indicator, and estat-japan-dashboard.region_info to confirm region ' +
       "codes. Example: total population (indicator_code='0201010000000010000'), Japan " +
       "(region_code='00000'), 2020-2022 (time_from='2020CY00', time_to='2022CY00'). Data: " +
@@ -16767,7 +16767,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Fetch time-series values for 1-2 UNESCO Institute for Statistics indicator codes, ' +
       'optionally filtered by geo unit and year range — official education, science, ' +
-      'culture, and demographic statistics reported by UN member states. Always call ' +
+      'culture, and demographic statistics reported by UN member states. Call ' +
       'unesco-data.indicator_search first to confirm a valid indicator code, and ' +
       'unesco-data.geounit_list to confirm geo_unit codes. Example: youth literacy rate ' +
       "(indicator='LR.AG15T24'), India (geo_unit='IND'), 2015-2022 (start=2015, end=2022). " +

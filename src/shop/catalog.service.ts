@@ -9,6 +9,7 @@ import { assertTermsAccepted } from './auth/terms.guard';
 import { ShopAuthError } from './auth/errors';
 import type { ShopTx } from './db';
 import type { ShopDeps } from './merchant-lifecycle.service';
+import { descriptionViolations, readsAsInstruction } from '../utils/description-policy';
 import { hasHiddenChars, moderateProduct, stripHidden } from './moderation/product-rules';
 
 export const TEST_SKU = '__apibase_test';
@@ -231,7 +232,7 @@ export interface CatalogItemError {
   index: number;
   sku: string | null;
   status: 422;
-  error_code: 'validation_failed';
+  error_code: 'validation_failed' | 'description_reads_as_instruction';
   message: string;
 }
 
@@ -405,12 +406,15 @@ export async function upsertCatalog(
     for (let index = 0; index < items.length; index++) {
       const raw = items[index] as Record<string, unknown> | null;
       const rawSku = typeof raw?.sku === 'string' ? raw.sku : null;
-      const bad = (message: string) =>
+      const bad = (
+        message: string,
+        error_code: CatalogItemError['error_code'] = 'validation_failed',
+      ) =>
         report.errors.push({
           index,
           sku: rawSku,
           status: 422,
-          error_code: 'validation_failed',
+          error_code,
           message,
         });
 
@@ -420,6 +424,14 @@ export async function upsertCatalog(
         continue;
       }
       const p = parsed.data;
+      // T-0430: a description tells a buyer's agent what the product is; it may not instruct the agent.
+      if (readsAsInstruction(p.description)) {
+        bad(
+          `description: reads as an instruction to the agent (${descriptionViolations(p.description).join(', ')}); describe the product instead`,
+          'description_reads_as_instruction',
+        );
+        continue;
+      }
       // The order ceiling bounds what a buyer commits at once: a stream's is its minimum deposit.
       const ceilingUsd = p.stream ? Number(p.stream.min_deposit_usd) : Number(p.price_usd);
       if (!p.is_test && Math.round(ceilingUsd * 100) > maxOrder * 100) {

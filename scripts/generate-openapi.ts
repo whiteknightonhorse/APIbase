@@ -15,7 +15,7 @@ import { PrismaClient } from '@prisma/client';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 import { toolSchemas } from '../src/schemas/index';
 import { zodToJsonSchema } from '../src/utils/zod-to-json-schema';
-import { toMicroUsdc } from '../src/config/x402.config';
+import { getX402Config, toMicroUsdc } from '../src/config/x402.config';
 import { getMppConfig } from '../src/config/mpp.config';
 import { parse } from 'yaml';
 
@@ -87,6 +87,10 @@ async function generate(): Promise<void> {
   const activeIds = await loadActiveToolIds();
   const activeDefs = TOOL_DEFINITIONS.filter((d) => activeIds.has(d.toolId));
   const mppUsdcAddress = getMppConfig().usdcAddress;
+  const mppChainId = getMppConfig().chainId;
+  const x402Cfg = getX402Config();
+  const baseUsdcAddress = x402Cfg.usdcAddress;
+  const baseChainId = Number(x402Cfg.network.split(':')[1]);
 
   const paths: Record<string, OpenApiPath | Record<string, unknown>> = {};
   // Compact per-tool paths for the root discovery document (task C,
@@ -222,8 +226,13 @@ async function generate(): Promise<void> {
     // validator — safe alongside the flat fields, but NOT alongside `offers`, which
     // is why this shape has no `offers` key at all (mixing flat spec fields with
     // `offers` is what's disallowed, not unknown extra fields).
+    //
+    // T-0430 (X402MPP-1015 ruling-1 §3): `offers[]` (mpp-specs #249) is now ADDED next to
+    // the flat fields, which stay for back-compat with the pre-offers readers above:
+    // one offer per rail (Tempo USDC.e, Base USDC), same amount as the flat form.
+    const amountMicro = toMicroUsdc(price);
     const xPaymentInfo: Record<string, unknown> = {
-      amount: toMicroUsdc(price),
+      amount: amountMicro,
       currency: mppUsdcAddress,
       intent: 'charge',
       method: 'tempo',
@@ -231,6 +240,22 @@ async function generate(): Promise<void> {
       protocols: ['x402', 'mpp'],
       pricingMode: 'fixed',
       price: priceStr,
+      offers: [
+        {
+          method: 'tempo',
+          intent: 'charge',
+          amount: amountMicro,
+          currency: mppUsdcAddress,
+          chainId: mppChainId,
+        },
+        {
+          method: 'evm',
+          intent: 'charge',
+          amount: amountMicro,
+          currency: baseUsdcAddress,
+          chainId: baseChainId,
+        },
+      ],
     };
 
     discoveryPaths[`/api/v1/tools/${def.toolId}/call`] = {
@@ -245,7 +270,12 @@ async function generate(): Promise<void> {
           },
         },
         responses: {
-          '200': { description: 'Tool execution result' },
+          '200': {
+            description: 'Tool execution result',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/ToolResponse' } },
+            },
+          },
           '402': { description: 'Payment Required' },
         },
       },
@@ -353,6 +383,14 @@ async function generate(): Promise<void> {
     components: {
       schemas: {
         ToolRequest: { type: 'object', additionalProperties: true },
+        // Mirrors DEFAULT_OUTPUT_SHAPE (src/mcp/tool-adapter.ts): every tool returns this envelope (mpp-specs #326).
+        ToolResponse: {
+          type: 'object',
+          properties: {
+            result: { description: 'Tool response payload; shape varies per tool.' },
+            error: { description: 'Present only when the call failed.' },
+          },
+        },
       },
     },
     paths: discoveryPaths,

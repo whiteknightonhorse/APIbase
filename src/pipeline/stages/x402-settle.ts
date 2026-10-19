@@ -13,6 +13,10 @@ const declareDiscoveryExtension = bazaarMod.declareDiscoveryExtension as (opts: 
   // 'inputSchema'". Inert on the V1 settle path today (bazaarResourceServerExtension
   // has no enrichSettlementResponse hook), but kept valid for V2 clients.
   inputSchema: Record<string, unknown>;
+  // T-0430: Bazaar service metadata (printable ASCII, name/tags <= 32 chars, absolute https icon).
+  serviceName?: string;
+  tags?: string[];
+  iconUrl?: string;
 }) => Record<string, unknown>;
 const bazaarValidateDiscoveryExtension = bazaarMod.validateDiscoveryExtension as (extension: {
   info: unknown;
@@ -106,6 +110,34 @@ export async function recordSettlePending(
       'x402 settle: FAILED TO RECORD settle-pending outbox event — nothing will reconcile this one',
     );
   }
+}
+
+export const BAZAAR_SERVICE_NAME = 'APIbase';
+export const BAZAAR_ICON_URL = 'https://apibase.pro/icon.png';
+export const bazaarTags = (category?: string): string[] => [
+  ...(category ? [category] : []),
+  'mcp',
+  'api',
+];
+
+/**
+ * Bazaar discovery extension for one tool (T-0430): the tool's own description plus
+ * service metadata (name, tags = [category, 'mcp', 'api'], icon). Exported for tests.
+ */
+export function buildBazaarExtensions(
+  toolId: string,
+  inputSchema: Record<string, unknown>,
+): Record<string, unknown> {
+  const toolDef = TOOL_DEFINITIONS.find((d) => d.toolId === toolId);
+  return declareDiscoveryExtension({
+    toolName: toolId,
+    description: lookupToolDescription(toolId),
+    serviceName: BAZAAR_SERVICE_NAME,
+    tags: bazaarTags(toolDef?.category),
+    iconUrl: BAZAAR_ICON_URL,
+    transport: 'streamable-http',
+    inputSchema,
+  });
 }
 
 /**
@@ -216,12 +248,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
     if (getCdpConfig().enabled && ctx.toolId) {
       const toolZodSchema = toolSchemas[ctx.toolId];
       const inputSchema = toolZodSchema ? zodToJsonSchema(toolZodSchema) : { type: 'object' };
-      bazaarExtensions = declareDiscoveryExtension({
-        toolName: ctx.toolId,
-        description: `Tool invocation: ${ctx.toolId}`,
-        transport: 'streamable-http',
-        inputSchema,
-      });
+      bazaarExtensions = buildBazaarExtensions(ctx.toolId, inputSchema);
       const bazaarExt = bazaarExtensions[bazaarMod.BAZAAR.key] as
         | { info: unknown; schema: unknown }
         | undefined;

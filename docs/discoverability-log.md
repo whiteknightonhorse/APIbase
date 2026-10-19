@@ -60,3 +60,13 @@ Not yet due. Re-run all nine queries verbatim, record here in the same table sha
 
 Not yet due. Re-run all nine queries verbatim. If score is <3/9, stop the track and hand the
 result to Fable per the rule above instead of continuing unilaterally.
+
+## T-0430 — Bazaar content policy and MPP discovery offers (2026-10-19)
+
+What the Coinbase Bazaar needs from a seller (docs.cdp.coinbase.com/x402/seller/get-discovered, metadata content policy):
+
+- Tool descriptions, service metadata and discovery strings must read as plain descriptions, never as instructions to the agent. Gate: `src/utils/description-policy.ts` (phrase list), `tests/unit/description-content-policy.test.ts`, CLI `npx ts-node scripts/check-description-policy.ts`. The same rule rejects merchant catalog descriptions with `422 description_reads_as_instruction`.
+- Service metadata on the discovery extension: `serviceName: 'APIbase'`, `tags: [<tool category>, 'mcp', 'api']`, `iconUrl: https://apibase.pro/icon.png`; the description is the tool's own description. Note: `declareDiscoveryExtension` (@x402/extensions 2.28, MCP transport) does not currently copy these three fields into the extension body; they are passed so a future SDK picks them up.
+- Indexing happens ONLY through CDP-facilitated settles. Production runs `X402_FACILITATOR_MODE=local`, so the catalog is not indexed by design; switching a CDP facilitator on is an operator decision (money: 1000 free tx/month, then $0.001).
+
+MPP discovery: `static/.well-known/openapi-discovery.json` and `openapi.json` keep the flat `x-payment-info` fields (back-compat) and add `offers[]` (mpp-specs #249): one `tempo` offer (USDC.e, chainId 4217) and one `evm` offer (Base USDC, chainId 8453) per paid route; the 200 response references `#/components/schemas/ToolResponse` (mpp-specs #326).
