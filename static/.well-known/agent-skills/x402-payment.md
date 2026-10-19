@@ -12,11 +12,21 @@ one per request based on which wallet it controls.
 
 | Rail | Standard | Token | Network | Request header |
 |---|---|---|---|---|
-| x402 | HTTP 402 (Coinbase) | USDC | Base mainnet, chain 8453 | `X-PAYMENT: <base64>` |
+| x402 | HTTP 402 (x402 Foundation) | USDC | Base mainnet, chain 8453 | `X-PAYMENT: <base64>` |
 | MPP | Machine Payments Protocol (Stripe/Tempo) | USDC.e | Tempo mainnet, chain 4217 | `Authorization: Payment <base64url>` |
 
-**Do not send both headers on the same request.** The server will reject the
-second one.
+**Do not send both rail headers on the same request.** The server will reject the
+second one. Each rail has one currency: x402 pays USDC on Base, MPP pays USDC.e on
+Tempo (pathUSD on the testnet). Other Tempo tokens are not accepted.
+
+## Transports
+
+Both rails work on two transports, with the same 402 challenge and the same price:
+
+- **HTTP header:** `X-PAYMENT` (x402), `Authorization: Payment` (MPP).
+- **MCP `/mcp`:** x402 in `params._meta["x402/payment"]` (receipt in result
+  `_meta["x402/payment-response"]`); MPP in `Authorization: Payment` or, next to a
+  Bearer API key, in `Payment-Authorization: Payment`.
 
 Full metadata: <https://apibase.pro/.well-known/x402-payment.json>
 
@@ -30,12 +40,15 @@ Full metadata: <https://apibase.pro/.well-known/x402-payment.json>
    ```
 
 2. **Server responds `402 Payment Required`** with a challenge describing
-   accepted rails, recipient address, amount (USDC, 6 decimals), and nonce.
+   accepted rails, recipient address, amount (6 decimals; USDC on Base, USDC.e on
+   Tempo), and nonce. Over `/mcp` the same challenge also arrives in the tool result
+   `_meta` (`isError: true`). Challenges are valid for 120 seconds
+   (`maxTimeoutSeconds`) and are never cached (`Cache-Control: no-store`).
 
 3. **Agent signs a payment voucher** for one of the accepted rails using its
    wallet SDK. See `x402` or `mppx` npm packages for ready-made helpers.
 
-4. **Agent retries the same request with the payment header attached.** The
+4. **Agent retries the same request with the payment attached** (header or `_meta`). The
    server verifies on-chain (x402 via PayAI / CDP facilitator; MPP via direct
    RPC), escrows the charge in PostgreSQL, calls the provider, then finalizes
    the escrow into a ledger entry.

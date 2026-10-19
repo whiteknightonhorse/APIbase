@@ -1,2 +1,5 @@
 # T-0383: terminal decoration removed by the design-M migration (fake titlebar).
 apibase@prod:~$ cat /srv/apibase/integrator/why-base-tempo | render
+# T-0432: x402 governance sentence rewritten (x402 Foundation); the Coinbase attribution is dropped.
+Coinbase
+USDC;

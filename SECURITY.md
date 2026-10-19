@@ -40,7 +40,7 @@ APIbase implements a 5-layer defense model:
 ## Payment Security
 
 - **x402 (USDC on Base):** Escrow locked before provider call, auto-refund on failure, facilitator-verified settlements
-- **MPP (USDC on Tempo):** Direct on-chain verification, HMAC-bound challenges, replay prevention via Redis
+- **MPP (USDC.e on Tempo):** Direct on-chain verification, HMAC-bound challenges, replay prevention via Redis
 - **No double charges:** Idempotency key enforced at pipeline stage 2
 - **Append-only ledger:** Financial records are never modified or deleted
 

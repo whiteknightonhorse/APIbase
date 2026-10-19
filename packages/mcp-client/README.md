@@ -1,6 +1,6 @@
 # APIbase MCP Client
 
-MCP client for [APIbase.pro](https://apibase.pro) — connect AI agents to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt) via the Model Context Protocol. Dual-rail payments: x402 (USDC on Base) + MPP (USDC on Tempo/Stripe).
+MCP client for [APIbase.pro](https://apibase.pro) — connect AI agents to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt) via the Model Context Protocol. Dual-rail payments: x402 (USDC on Base) + MPP (USDC.e on Tempo/Stripe).
 
 Available as two identical packages:
 

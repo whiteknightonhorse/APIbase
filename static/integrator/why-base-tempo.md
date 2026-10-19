@@ -1,6 +1,6 @@
 # Why Base and Tempo
 
-Base: USDC is native; x402 is an open Coinbase protocol for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP).
+Base: USDC is native; x402 is an open protocol for paying HTTP requests in USDC, governed by the x402 Foundation (Linux Foundation) since 2026-07-14; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP). OUSD also exists on Tempo; APIbase accepts USDC.e today.
 
 ## Fee on each rail
 

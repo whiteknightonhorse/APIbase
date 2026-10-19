@@ -326,7 +326,7 @@ async function generate(): Promise<void> {
       title: 'APIbase — Universal API Hub for AI Agents',
       version: PACKAGE_VERSION,
       description:
-        'APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint. Supports dual-rail payments: x402 (USDC on Base) and MPP (USDC on Tempo).',
+        'APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint. Supports dual-rail payments: x402 (USDC on Base) and MPP (USDC.e on Tempo).',
       'x-guidance':
         'Use POST /api/v1/tools/{tool_id}/call to invoke any tool. Send Authorization: Bearer <api_key> header. Tool catalog at GET /api/v1/tools. MCP endpoint at /mcp. Payment: 402 responses include both x402 body and WWW-Authenticate: Payment header (MPP). Agent auto-registers on first request.',
       contact: {

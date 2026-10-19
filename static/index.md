@@ -48,7 +48,7 @@ their wallet.
 
 | Rail | Standard | Token | Network | Header |
 |---|---|---|---|---|
-| x402 | HTTP 402 (Coinbase) | USDC | Base mainnet | `X-PAYMENT` |
+| x402 | HTTP 402 (x402 Foundation) | USDC | Base mainnet | `X-PAYMENT` |
 | MPP | Machine Payments Protocol (Stripe/Tempo) | USDC.e | Tempo mainnet | `Authorization: Payment` |
 
 Tool prices: **$0.0005–$29.99 per call (90% of tools <= $0.003)**, depending on upstream cost.

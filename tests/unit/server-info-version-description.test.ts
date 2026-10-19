@@ -63,6 +63,6 @@ describe('SERVER_INFO version + description (T-ZZ-03-04)', () => {
   });
 
   it('package.json version was bumped off the stale 1.0.0 baseline (not to be reverted)', () => {
-    expect(pkg.version).toBe('2.1.0');
+    expect(pkg.version).toBe('2.2.0');
   });
 });

@@ -267,7 +267,7 @@ ${cards}
 <a class="add" href="/integrator">${ICON_PLUS}<strong>Your store here</strong><span>Let AI agents order and pay in USDC.</span></a>
 </div>
 
-<p class="cat-foot-line">${totalTools} tools &middot; ${totalProviders} providers &middot; x402 USDC on Base + MPP USDC on Tempo</p>
+<p class="cat-foot-line">${totalTools} tools &middot; ${totalProviders} providers &middot; x402 USDC on Base + MPP USDC.e on Tempo</p>
 
 </div>
 </div>

@@ -94,7 +94,7 @@ Fee: {{INTEGRATOR_FEE_PCT}}. Minimum order: {{INTEGRATOR_MIN_ORDER}}. The test i
 
 While the fee is off, nothing is recorded or charged on either rail.
 
-Why Base and Tempo: Base: USDC is native; x402 is an open Coinbase protocol for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP). Full text: /integrator/why-base-tempo.
+Why Base and Tempo: Base: USDC is native; x402 is an open protocol (x402 Foundation, Linux Foundation) for paying HTTP requests in USDC; our facilitator settles. Tempo: settlement and network fees in a stablecoin; native splits and sessions (MPP). Full text: /integrator/why-base-tempo.
 
 ## Security: what you can verify
 

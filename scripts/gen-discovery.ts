@@ -384,7 +384,7 @@ async function main(): Promise<void> {
             enabled: true,
             version: 'draft-ryan-httpauth-payment',
             network: 'tempo',
-            asset: 'USDC',
+            asset: 'USDC.e',
             credential_header: [
               'Authorization: Payment <credential>',
               'Payment-Authorization: Payment <credential>',

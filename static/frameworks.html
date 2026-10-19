@@ -370,7 +370,7 @@ Agent: "AAPL is trading at $187.42 (+0.34%) as of 14:23 ET."</pre>
 <p>APIbase settles paid tool calls on <strong>two rails</strong> &mdash; pick either per request:</p>
 <ul>
 <li><strong>x402 &mdash; Base mainnet</strong>: USDC via EIP-3009 <code>transferWithAuthorization</code>, signed by your Base Account / wallet, settled by our facilitator.</li>
-<li><strong>MPP &mdash; Tempo (chain 4217)</strong>: USDC on Tempo via the <code>mppx</code> SDK (<code>npm i mppx</code>) &mdash; lightweight agent micropayments (Bearer + X-API-Key). RPC <code>https://rpc.tempo.xyz</code>.</li>
+<li><strong>MPP &mdash; Tempo (chain 4217)</strong>: USDC.e on Tempo via the <code>mppx</code> SDK (<code>npm i mppx</code>) &mdash; lightweight agent micropayments (Bearer + X-API-Key). RPC <code>https://rpc.tempo.xyz</code>.</li>
 </ul>
 <p>Payment transport per client: x402 via the <code>X-Payment</code> header or, per the x402 MCP transport v2, <code>params._meta["x402/payment"]</code> of a <code>tools/call</code> (receipt in result <code>_meta["x402/payment-response"]</code>); MPP via <code>Authorization: Payment</code> or <code>Payment-Authorization: Payment</code>. Claude Desktop, Cursor, Windsurf, OpenAI Agents SDK, LangChain, Google ADK, CrewAI, Copilot Studio and REST/curl users who pay by header: nothing changes.</p>
 <p class="note">Free tools (price 0) need no payment. Paid tools enforce payment server-side and fail closed &mdash; no free bypass.</p>

@@ -44,7 +44,7 @@ exact price and rail options. Two independent rails are accepted on the same end
 | Rail | Network / asset | Header |
 |---|---|---|
 | x402 | USDC on Base mainnet | `X-PAYMENT` |
-| MPP | USDC on Tempo mainnet | `Authorization: Payment` |
+| MPP | USDC.e on Tempo mainnet | `Authorization: Payment` |
 
 Neither rail requires a prior signup step — a correctly signed first payment is enough to
 create agent credentials. Full mechanics: <https://apibase.pro/connect>.

@@ -276,6 +276,8 @@ describe('T-INT-05 legal documents', () => {
           .replace(/STATUS: ONLINE\s*\|\s*PID: 1337\s*\|\s*TTY: pts\/0\s*\|\s*USER: apibase/g, '')
           .replace(/Uptime: \d+m \d+s/g, '')
           .replace(/BUILD: v1\.0\.0/g, '')
+          // T-0432: the Tempo token is named USDC.e.
+          .replace(/USDC\.e on Tempo/g, 'USDC on Tempo')
           .replace(/\s+/g, ' ')
           .replace(/(PRV:\s*)\d+/g, '$1N')
           .replace(/(TOOLS:\s*)\d+/g, '$1N')

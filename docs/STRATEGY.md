@@ -45,6 +45,10 @@ Selection rule stays as `resort` defines it: pay-per-use pricing, cacheable, no 
 - **Volume commitments for repeat wallet-bots** — the 7 external bots are the first real customers; offer a prepaid balance discount (already have balance-based billing) to convert per-call into committed spend.
 - **Facilitator independence (already in flight per flywheel 2026-05-01)** — self-hosted x402 facilitator removes Coinbase-CDP dependency and the KYC block; finish it, it's a revenue-continuity fix.
 
+### Coinbase Business Checkouts (x402_url, 2026-08-06)
+
+Coinbase Business offers an agent-payable checkout link (`x402_url`). Compared with APIbase Integrator: it settles USDC on Base only (no MPP, no Tempo), and it has no catalog, no moderation, no refunds and no MCP storefront. It is a payment link, not a storefront. Re-compare at the next protocol scan.
+
 ## 6. Developer / agent UX
 
 - **Self-correcting errors as a feature** — the pipeline already returns `expected_params`/`hint` on 400 and fault-classified 422/503 (flywheel 2026-04-05, 2026-06-06). Extend to every error path; an agent that fixes itself churns less.

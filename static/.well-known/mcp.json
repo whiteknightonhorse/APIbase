@@ -5,7 +5,7 @@
   "protocolVersion": "2025-03-26",
   "transport": "streamable-http",
   "url": "https://apibase.pro/mcp",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
   "tools_count": 1392,
   "platform_tools_count": 29,
@@ -67,7 +67,7 @@
       "enabled": true,
       "version": "draft-ryan-httpauth-payment",
       "network": "tempo",
-      "asset": "USDC",
+      "asset": "USDC.e",
       "credential_header": [
         "Authorization: Payment <credential>",
         "Payment-Authorization: Payment <credential>"

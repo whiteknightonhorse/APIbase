@@ -19,7 +19,7 @@
       "type": "skill",
       "description": "How to pay for APIbase tools using x402 (USDC on Base) or MPP (USDC.e on Tempo). Covers the 402 challenge, payment construction, and the Payment-Required retry.",
       "url": "https://apibase.pro/.well-known/agent-skills/x402-payment.md",
-      "sha256": "18002076f3fd109eeb1dcffc7e872312037ea9b5f12adf5d9237c2e7e39e3f8d"
+      "sha256": "2ac3906419442070ff6690a38bc420e6560f56c8b096ea3d77e9344236c8d682"
     },
     {
       "name": "auto-register",

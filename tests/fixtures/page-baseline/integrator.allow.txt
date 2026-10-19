@@ -24,3 +24,5 @@ illustration, not a real shop
 Integrator
 for your shop
 it
+# T-0432: x402 is no longer called a Coinbase protocol (x402 Foundation governance).
+Coinbase
