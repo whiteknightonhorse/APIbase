@@ -24,3 +24,5 @@ day\|week\|month,
 ``
 # T-0428: the reconcile tick is now 60 seconds (was 5 minutes).
 5 minutes,
+# T-0430: the Moderation paragraph no longer lists "ignore previous"; the description rule refuses it with 422 before moderation.
+ignore previous ,
