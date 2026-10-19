@@ -337,6 +337,7 @@ _TG_REQUIRED_KEYS = frozenset([
     "why_not_auto.AUTO",
     "need_from_you.HUMAN_KEY", "need_from_you.HUMAN_ONLY", "need_from_you.HUMAN_GENERIC",
     "after_you.HUMAN_KEY", "after_you.HUMAN_ONLY", "after_you.HUMAN_GENERIC",
+    "need_from_you.NO_FILE", "after_you.NO_FILE", "line_parked_why", "parked_why_missing",
     "line_variants", "line_handoff", "reminder_what", "merchant_suspended", "key_rotation",
     "job_stale",
 ])
@@ -682,10 +683,28 @@ _SEVERITY_EMOJI = {"SEV1": "\U0001F534", "SEV2": "\U0001F7E0", "SEV3": "\U0001F7
 # The Telegram text itself lives in config/autopilot/tg-strings.ru.json (read via tg()).
 _HUMAN_KINDS_TG = ("HUMAN_KEY", "HUMAN_ONLY", "HUMAN_GENERIC")
 _WHY_NOT_AUTO = {k: tg(f"why_not_auto.{k}") for k in _HUMAN_KINDS_TG}
-_NEED_FROM_YOU = {k: tg(f"need_from_you.{k}", operator_dir=OPERATOR_DIR) if k != "HUMAN_KEY"
-                  else tg(f"need_from_you.{k}") for k in _HUMAN_KINDS_TG}
-_AFTER_YOU = {k: tg(f"after_you.{k}", human_done_dir=HUMAN_DONE_DIR) if k != "HUMAN_KEY"
-              else tg(f"after_you.{k}") for k in _HUMAN_KINDS_TG}
+_PARKED_WHY_ACTIONS = ("retired-provider", "FLAPPING", "escalated")
+
+
+def parked_reason(incident: dict) -> str:
+    """Result text of the last attempt that parked the incident for a human."""
+    for a in reversed(incident.get("attempts") or []):
+        act = str(a.get("action", ""))
+        if act in _PARKED_WHY_ACTIONS or act.startswith("human-done-"):
+            return str(a.get("result", ""))
+    return tg("parked_why_missing")
+
+
+def human_ask(incident: dict, route: str) -> tuple:
+    """(need_from_you, after_you) text derived from what actually exists: the operator_file
+    column (the real path), the HUMAN_KEY route, else NO_FILE. Never a template path (T-0483)."""
+    of = incident.get("operator_file")
+    if isinstance(of, str) and of:
+        return (tg("need_from_you.HUMAN_ONLY", operator_file=of),
+                tg("after_you.HUMAN_ONLY", human_done_dir=HUMAN_DONE_DIR))
+    if route == "HUMAN_KEY":
+        return tg("need_from_you.HUMAN_KEY"), tg("after_you.HUMAN_KEY")
+    return tg("need_from_you.NO_FILE", sid=short_id(incident["incident_id"])), tg("after_you.NO_FILE")
 
 
 def merchant_variant_lines(kind: str) -> list:
@@ -708,8 +727,7 @@ def format_tg_message(incident: dict) -> str:
     (optional), revenue_pct (optional), what (str, human summary), system_did
     (str, what the engine already did)."""
     route = incident.get("route") or ROUTE_CLASS[incident["kind"]]
-    if incident.get("state") == "WAITING_HUMAN" and route not in HUMAN_ROUTE_CLASSES:
-        route = "HUMAN_GENERIC"  # an AUTO_NO_MODEL kind escalated to a human (T-INT-13)
+    parked = incident.get("state") == "WAITING_HUMAN" and route not in HUMAN_ROUTE_CLASSES
     emoji = _SEVERITY_EMOJI.get(incident["severity"], "⚪")
     sid = short_id(incident["incident_id"])
     provider_line = f"Provider: {incident['provider']}"
@@ -725,10 +743,14 @@ def format_tg_message(incident: dict) -> str:
         tg("line_when", created_at=incident.get("created_at", utc_now_str())),
         tg("line_system_did", system_did=incident.get("system_did", tg("system_did_default"))),
     ]
-    if route in HUMAN_ROUTE_CLASSES:
-        lines.append(tg("line_why_not_auto", text=_WHY_NOT_AUTO[route]))
-        lines.append(tg("line_need_from_you", text=_NEED_FROM_YOU[route].replace("<id>", sid)))
-        lines.append(tg("line_after_you", text=_AFTER_YOU[route]))
+    if route in HUMAN_ROUTE_CLASSES or parked:
+        if parked:
+            lines.append(tg("line_parked_why", reason=parked_reason(incident)))
+        else:
+            lines.append(tg("line_why_not_auto", text=_WHY_NOT_AUTO[route]))
+        need, after = human_ask(incident, route)
+        lines.append(tg("line_need_from_you", text=need))
+        lines.append(tg("line_after_you", text=after))
     else:
         lines.append(tg("line_why_not_auto", text=tg("why_not_auto.AUTO", route=route)))
     if incident["kind"] == "JOB_STALE":
@@ -983,8 +1005,11 @@ def _reopen_resolved(dk, kind, provider, actor):
                       f"no further fleet card, needs a human")
         transition_state(iid, "WAITING_HUMAN",
                          reason=f"FLAPPING, reopened {n} times in {FLAP_WINDOW_DAYS} d")
-        tg_send(f"[apibase] FLAPPING INC-{short_id(iid)} {kind} ({provider}) - reopened {n} times in "
-                f"{FLAP_WINDOW_DAYS} days, no new card filed, needs a human decision")
+        full = get_incident(iid)
+        if full:
+            tg_send(format_tg_message({
+                **full, "what": f"FLAPPING: reopened {n} times in {FLAP_WINDOW_DAYS} days, no new card filed",
+                "system_did": "stopped filing cards, parked for a human decision"}))
     return iid
 
 
@@ -1081,6 +1106,7 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
                 f.write(build_operator_file(incident, docs_url=docs_url))
             psql(f"UPDATE incidents SET operator_file = {sql_literal(op_path)} "
                  f"WHERE incident_id = {sql_literal(out)}")
+            incident["operator_file"] = op_path
         except Exception as e:
             notice(f"WARN: failed to write operator file for {out}: {e}")
     if route in HUMAN_ROUTE_CLASSES or severity == "SEV1" or kind == "JOB_STALE":

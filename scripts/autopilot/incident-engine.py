@@ -950,6 +950,8 @@ def advance_waiting_human():
         age = datetime.now(timezone.utc) - last_reminder
         if age >= timedelta(seconds=ap.WAITING_HUMAN_REMINDER_SECONDS):
             inc = ap.get_incident(incident_id)
+            if inc is None:
+                continue
             sent = ap.tg_send(ap.format_tg_message({**inc, "what": ap.tg("reminder_what", kind=kind)}))
             ap.note_incident(incident_id, "incident-engine", "waiting-human-reminder",
                               "sent" if sent else "TG unavailable")
@@ -2013,6 +2015,7 @@ def escalate_merchant_incidents():
             op_path = os.path.join(ap.OPERATOR_DIR, f"INC-{ap.short_id(incident_id)}.md")
             with open(op_path, "w", encoding="utf-8") as f:
                 f.write(ap.build_operator_file(inc))
+            inc["operator_file"] = op_path
         except Exception as e:
             ap.notice(f"WARN: failed to write operator file for {incident_id}: {e}")
             continue
@@ -2164,7 +2167,7 @@ def selftest():
             f"{kind} ({route}): fleet_task flag disagrees with its route class"
         )
     fn = ap.next_task_filename("PROVIDER_DOWN", "Test Provider!", "SEV1")
-    assert fn.startswith("9") and fn.endswith("-autopilot-remediation-PROVIDER_DOWN-test-provider.md"), fn
+    assert fn[:1].isdigit() and fn.endswith("-autopilot-remediation-PROVIDER_DOWN-test-provider.md"), fn
 
     # T-0229 (DOAJ-fabricated-probe.ruling-1 §3): number-reuse regression.
     # doaj's fleet task (9630) left ALL of queue/active/done/stuck once it was

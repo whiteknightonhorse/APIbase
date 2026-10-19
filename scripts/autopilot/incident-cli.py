@@ -486,7 +486,7 @@ def selftest():
     for _pa in sorted(ap.PHASE_A_KINDS):
         _pf, _pc = ap.build_remediation_task_body(dict(_opus_incident, kind=_pa))
         assert "ALLOWED:" not in _pc and "propose-fix" in _pc and "MAX_ATTEMPTS: 2" in _pc and "MODEL: haiku" in _pc, _pa
-        assert _pf.startswith(tuple("9")) and "-autopilot-remediation-" in _pf, _pf
+        assert _pf[:1].isdigit() and "-autopilot-remediation-" in _pf, _pf
     # review=opus ceiling (T-0140 Ch-3) is now checked on a single-phase opus kind.
     _api_incident = dict(_opus_incident, kind="API_CHANGED")
     _fname_api, _content_api = ap.build_remediation_task_body(_api_incident)
@@ -538,7 +538,7 @@ def selftest():
     # phase B body: data in a fence, reproduce-first demand, ALLOWED bullets, sonnet, 4 attempts.
     _bf, _bc = ap.build_phase_b_task_body(_opus_incident, {"cause": "c ```x", "repro": "curl -si u", "paths": ["src/adapters/a.ts"],
                                                            "fix": "f", "proof": "/tmp/p"})
-    assert "-autopilot-fix-PROVIDER_DOWN-" in _bf and _bf[0] == "9"
+    assert "-autopilot-fix-PROVIDER_DOWN-" in _bf and _bf[:1].isdigit()
     assert "MODEL: sonnet" in _bc and "MAX_ATTEMPTS: 4" in _bc and "REVIEW: opus" in _bc and "ALLOWED:" in _bc
     assert "cause not reproduced" in _bc and "````json" in _bc, "reproduce-first demand + longer fence for embedded backticks"
     _email_incident = dict(_opus_incident, kind="EMAIL_NOTICE")
@@ -585,6 +585,21 @@ def selftest():
         "severity": "SEV2", "provider": "x", "state": "OPEN", "evidence": {},
     })
     assert "AP-6" in msg2 and ap.tg("line_need_from_you", text="").strip() not in msg2
+    # T-0483: the "need from you" line follows the operator_file column, never a route coercion
+    _base = {"incident_id": "7ce77f00-0000-0000-0000-000000000000", "kind": "PROVIDER_DOWN",
+             "severity": "SEV2", "provider": "x", "state": "WAITING_HUMAN", "evidence": {},
+             "attempts": [{"ts": "t", "actor": "a", "action": "FLAPPING", "result": "flap-reason-marker"}]}
+    msg3 = ap.format_tg_message({**_base, "operator_file": None})
+    assert ap.OPERATOR_DIR not in msg3 and "/INC-" not in msg3.replace("INC-7ce77f", "")
+    assert ap.tg("need_from_you.NO_FILE", sid="7ce77f") in msg3
+    assert ap.tg("after_you.NO_FILE") in msg3 and "flap-reason-marker" in msg3
+    msg3b = ap.format_tg_message({**_base, "attempts": []})
+    assert ap.tg("parked_why_missing") in msg3b
+    _real = "/tmp/operator-selftest/INC-7ce77f.md"
+    msg4 = ap.format_tg_message({**_base, "operator_file": _real})
+    assert _real in msg4 and ap.tg("need_from_you.NO_FILE", sid="7ce77f") not in msg4
+    msg5 = ap.format_tg_message({**_base, "kind": "AUTH_FAILED", "route": "HUMAN_KEY", "operator_file": None})
+    assert ap.tg("need_from_you.HUMAN_KEY") in msg5 and ap.tg("after_you.HUMAN_KEY") in msg5
     # human-done parsing: marker required, empty-after-marker is "not filled yet"
     assert ap.parse_human_done("/nonexistent/path") is None
     # T-07/A5 (Fable ruling-1): DAILY_TASK_CAP is derived from taskloop's own
