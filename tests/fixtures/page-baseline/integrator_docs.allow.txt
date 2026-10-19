@@ -22,3 +22,5 @@ apibase@prod:~$ cat /srv/apibase/integrator/docs | render
 day\|week\|month,
 # T-0386 attempt 2: the signed-message templates are real code blocks now; the fence markers were decoration.
 ``
+# T-0428: the reconcile tick is now 60 seconds (was 5 minutes).
+5 minutes,

@@ -28,6 +28,12 @@ import { zodToJsonSchema } from '../../utils/zod-to-json-schema';
 import { logger } from '../../config/logger';
 import { getPrisma } from '../../services/prisma.service';
 import type { PipelineContext } from '../types';
+import {
+  extractAuthorization,
+  isFacilitatorTimeout,
+  isSettlementPending,
+  settleTxHash,
+} from '../../payments/settle-outcome';
 
 /**
  * F1/C-7 (2026-09-01): a failed settle here means the client already has the
@@ -61,6 +67,43 @@ export async function recordSettleFailure(ctx: PipelineContext, reason: string):
     logger.error(
       { requestId: ctx.requestId, err: e },
       'x402 settle: FAILED TO RECORD settle-failure outbox event — revenue-leak alert will miss this one',
+    );
+  }
+}
+
+/**
+ * T-0428: a settle whose outcome is UNKNOWN (settlement_pending with a broadcast hash, or a
+ * facilitator timeout). One `x402_settle_pending` outbox event, never `x402_settle_failed`; the
+ * x402-settle-pending job resolves it by reading the chain and nobody settles again. Never throws.
+ */
+export async function recordSettlePending(
+  ctx: PipelineContext,
+  info: { txHash?: string; nonce?: string; validBefore?: string },
+): Promise<void> {
+  ctx.x402SettleSucceeded = undefined;
+  ctx.x402SettleState = 'pending';
+  ctx.x402SettleTxHash = info.txHash;
+  try {
+    await getPrisma().outbox.create({
+      data: {
+        event_type: 'x402_settle_pending',
+        payload: {
+          request_id: ctx.requestId,
+          execution_id: ctx.executionId,
+          tool_id: ctx.toolId,
+          payer: ctx.x402Payer,
+          amount_usd: ctx.toolPrice,
+          ...(info.txHash ? { tx_hash: info.txHash } : {}),
+          network: getX402Config().network,
+          nonce: info.nonce,
+          valid_before: info.validBefore,
+        },
+      },
+    });
+  } catch (e) {
+    logger.error(
+      { requestId: ctx.requestId, err: e },
+      'x402 settle: FAILED TO RECORD settle-pending outbox event — nothing will reconcile this one',
     );
   }
 }
@@ -101,6 +144,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
 
     const payload = parsed.data;
     const cfg = getX402Config();
+    const auth = extractAuthorization(payload);
 
     let requirements: {
       scheme: string;
@@ -192,11 +236,35 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       }
     }
 
-    const result = await server.settlePayment(
-      payload as never,
-      requirements as never,
-      bazaarExtensions as never,
-    );
+    let result: Awaited<ReturnType<typeof server.settlePayment>>;
+    try {
+      result = await server.settlePayment(
+        payload as never,
+        requirements as never,
+        bazaarExtensions as never,
+      );
+    } catch (e) {
+      if (!isFacilitatorTimeout(e)) throw e;
+      logger.warn(
+        { requestId: ctx.requestId, error: (e as Error).message },
+        'x402 settle: facilitator timed out — outcome unknown, chain reconcile decides',
+      );
+      await recordSettlePending(ctx, { nonce: auth?.nonce, validBefore: auth?.validBefore });
+      return;
+    }
+
+    if (isSettlementPending(result)) {
+      logger.warn(
+        { requestId: ctx.requestId, txHash: settleTxHash(result) },
+        'x402 settle: settlement_pending — broadcast, receipt not seen; chain reconcile decides',
+      );
+      await recordSettlePending(ctx, {
+        txHash: settleTxHash(result),
+        nonce: auth?.nonce,
+        validBefore: auth?.validBefore,
+      });
+      return;
+    }
 
     ctx.x402SettleSucceeded = result.success;
 

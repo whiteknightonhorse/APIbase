@@ -19,6 +19,7 @@ import {
   run as runShopPaymentReconcile,
   runDailySample as runShopPaymentSample,
 } from '../jobs/shop-payment-reconcile.job';
+import { run as runX402SettlePending } from '../jobs/x402-settle-pending.job';
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
@@ -254,13 +255,21 @@ setTimeout(
   20_000,
 );
 
-// Order payments (INT-09, §7.2): pending/failed shop_payments are re-read on-chain every 5 min;
+// Order payments (INT-09, §7.2): pending/failed shop_payments are re-read on-chain every 60 s (T-0428);
 // a daily sample of confirmed ones is re-checked against the receipt (PAYMENT_MISMATCH source).
 registerJob({
   name: 'shop-payment-reconcile',
-  cron: '*/5 * * * *',
-  expect_every_s: 300,
+  cron: '* * * * *',
+  expect_every_s: 60,
   run: () => runShopPaymentReconcile(),
+});
+// T-0428: unknown x402 settle outcomes (settlement_pending / facilitator timeout) are resolved by
+// reading the chain every 60 s; this job never settles.
+registerJob({
+  name: 'x402-settle-pending',
+  cron: '* * * * *',
+  expect_every_s: 60,
+  run: () => runX402SettlePending(),
 });
 // Order SLA sweeper (INT-12, §5.3): expired quotes, confirm_overdue, close_after, refund due_at,
 // payout_pending, connect_events TTL, PII purge, fee overdue, payment identifiers.

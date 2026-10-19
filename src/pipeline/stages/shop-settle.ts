@@ -7,6 +7,11 @@ import type {
   Eip3009Authorization,
   LocalFacilitatorClient,
 } from '../../payments/local-facilitator';
+import {
+  isFacilitatorTimeout,
+  isSettlementPending,
+  settleTxHash,
+} from '../../payments/settle-outcome';
 import type { ShopDeps } from '../../shop/merchant-lifecycle.service';
 import { fulfillPaidOrder } from '../../shop/adapters/shop-order.adapter';
 import {
@@ -152,11 +157,34 @@ export async function settleAndFinalize(
     }
     result = first;
   } catch (e) {
+    if (isFacilitatorTimeout(e)) {
+      // T-0428: the outcome is indeterminate — the transfer may still be mined. Unknown is not
+      // failed: the order stays PAYING and the reconcile job reads the chain. No second settle.
+      logger.warn(
+        { requestId: p.request_id, orderId: p.order_id },
+        'shop settle: facilitator timed out — order stays PAYING, reconcile decides',
+      );
+      return { kind: 'pending', order_id: p.order_id };
+    }
     logger.warn(
       { requestId: p.request_id, err: e instanceof Error ? e.message : String(e) },
       'shop settle: facilitators threw — PAYMENT_FAILED, reconcile will still look on-chain',
     );
     return fail('settle_threw');
+  }
+  if (isSettlementPending(result)) {
+    // T-0428: broadcast but receipt not seen. Keep the hash on the payment row so reconcile
+    // checks the receipt first; the order stays PAYING (never failed while the chain may confirm).
+    await deps.db.$executeRawUnsafe(
+      `UPDATE shop_payments SET tx_hash = $2 WHERE payment_id = $1::uuid AND tx_hash IS NULL`,
+      p.payment_id,
+      settleTxHash(result),
+    );
+    logger.warn(
+      { requestId: p.request_id, orderId: p.order_id, txHash: settleTxHash(result) },
+      'shop settle: settlement_pending — order stays PAYING, reconcile decides',
+    );
+    return { kind: 'pending', order_id: p.order_id };
   }
   if (!result.success) {
     logger.warn(

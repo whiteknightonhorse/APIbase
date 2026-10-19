@@ -93,6 +93,10 @@ model ExecutionLedger {
   // events, which the 7-day partition retention has already dropped for
   // anything older than ~2026-09-16.
   x402_onchain_settled   Boolean?
+  // T-0428: 'pending' while a settlement_pending / facilitator-timeout outcome is unresolved, then
+  // 'settled' (x402-settle-pending job read the chain). NULL = not applicable / resolved at write.
+  x402_settle_state      String?   @db.VarChar(16)
+  settle_tx_hash         String?   @db.VarChar(80)
   created_at         DateTime  @default(now()) @db.Timestamptz()
   updated_at         DateTime? @db.Timestamptz()
 

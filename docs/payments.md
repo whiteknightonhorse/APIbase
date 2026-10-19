@@ -25,6 +25,21 @@ Order of events on a paid x402 call stays **verify before, deliver, settle after
 verified and bound to the tool price before the provider is called, the result is delivered, and the
 on-chain settle runs afterwards. Every 402 response carries `Cache-Control: no-store`.
 
+### Unknown settlement outcome (T-0428)
+
+A settle has three outcomes, not two:
+
+| Outcome | Signal | Who resolves it | When |
+|---|---|---|---|
+| settled | `success:true` | nobody, done | immediately |
+| failed | `success:false` with any other `errorReason`, or any other throw | operator pages (`x402_settle_failed`) | immediately |
+| unknown | `success:false, errorReason:'settlement_pending', transaction:<hash>` (broadcast, receipt not seen) or `FacilitatorTimeoutError` (30 s, outcome indeterminate) | the chain reconcile, by reading the chain | within 60 s per tick |
+
+Law: unknown is resolved only by reading the chain, and nobody calls settle again for the same authorization.
+
+- **API tools** (`src/pipeline/stages/x402-settle.ts`): one outbox event `x402_settle_pending {request_id, execution_id, tool_id, payer, amount_usd, tx_hash?, network, nonce, valid_before}`, never `x402_settle_failed`; the ledger row gets `x402_settle_state='pending'` and `settle_tx_hash`. The worker job `x402-settle-pending` (every 60 s, owns that outbox type only) reads `receiptOk(tx_hash)`, then `authorizationUsed(payer, nonce)` plus the USDC transfer: settled closes the event and flips the ledger row to `settled`. An authorization that is still unused after `valid_before` writes `x402_settle_failed` with reason `pending_expired_unsettled` (the revenue-leak page). Otherwise the row waits for the next tick; an RPC failure leaves it untouched.
+- **Shop orders** (`src/pipeline/stages/shop-settle.ts`): both signals return `pending` (order stays `PAYING`, the hash is stored on the payment row). `shop-payment-reconcile` (every 60 s) checks that receipt first, then `authorizationState`/`Transfer`. Every other throw is still `PAYMENT_FAILED`.
+
 ## MPP (Machine Payments Protocol)
 
 | Field | Value |

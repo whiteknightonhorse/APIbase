@@ -55,6 +55,8 @@ export const ledgerWriteStage: Stage = {
           // T-0177: only x402 has a facilitator settle outcome to report;
           // MPP settles differently (at verification, no facilitator here).
           settleSucceeded: ctx.x402Paid ? ctx.x402SettleSucceeded : undefined,
+          settleState: ctx.x402Paid ? ctx.x402SettleState : undefined,
+          settleTxHash: ctx.x402Paid ? ctx.x402SettleTxHash : undefined,
           notChargedReason: ctx.billingStatus === 'NOT_CHARGED' ? ctx.notChargedReason : undefined,
           moderation: ctx.moderationBlocked
             ? {

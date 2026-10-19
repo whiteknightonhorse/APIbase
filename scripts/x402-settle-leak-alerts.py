@@ -12,6 +12,7 @@ every 5 minutes (see crontab), not hourly.
 Idempotent: marks each row `processed=true` after a successful send so it is never
 paged twice; a send failure leaves it unprocessed for the next tick.
 """
+import datetime as _dt
 import json
 import subprocess
 import os
@@ -41,6 +42,15 @@ def psql(sql):
     )
     return out.stdout.strip(), out.returncode
 
+
+# T-0428: read-only daily line; selection below is unchanged (x402_settle_failed only).
+pend_raw, pend_rc = psql(
+    "SELECT count(*) FROM outbox WHERE event_type = 'x402_settle_pending' "
+    "AND processed = false AND created_at < now() - interval '1 hour'"
+)
+# The script runs every 5 minutes; the pending line is emitted once a day (06:00-06:04 UTC).
+if pend_rc == 0 and pend_raw and _dt.datetime.utcnow().strftime('%H%M') < '0605' and _dt.datetime.utcnow().strftime('%H%M') >= '0600':
+    print(f"x402-settle-leak-alerts: {pend_raw.strip()} settles pending > 1 h")
 
 rows_raw, rc = psql(
     """

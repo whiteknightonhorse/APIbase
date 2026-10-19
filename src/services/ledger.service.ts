@@ -84,6 +84,10 @@ export interface X402Entry extends LedgerEntryBase {
    *  facilitator path. billing_status stays 'PAID' either way (§8.9); this
    *  is the field a report joins on to tell "PAID" from "actually collected". */
   settleSucceeded?: boolean;
+  /** T-0428: 'pending' = unknown settle outcome (settlement_pending / facilitator timeout);
+   *  x402_onchain_settled stays NULL until the x402-settle-pending job reads the chain. */
+  settleState?: 'pending';
+  settleTxHash?: string;
   /** T-0338: payer not charged (e.g. 'provider_input_rejected'): row is NOT_CHARGED, cost 0. */
   notChargedReason?: string;
 }
@@ -269,6 +273,8 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       upstream_cost_usd: isCacheHit || blocked ? null : (entry.upstreamCostUsd ?? null),
       // NOT_CHARGED: no settle attempted -> NULL (not applicable), see prisma/schema.prisma x402_onchain_settled contract and ruling q-16
       x402_onchain_settled: notCharged ? null : (entry.settleSucceeded ?? null),
+      x402_settle_state: notCharged ? null : (entry.settleState ?? null),
+      settle_tx_hash: notCharged ? null : (entry.settleTxHash ?? null),
     },
   });
 

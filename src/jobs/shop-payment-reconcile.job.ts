@@ -77,12 +77,13 @@ interface PendingRow {
   pay_to: string;
   amount_usd: string;
   splits: Array<{ mode?: string; nonce?: string; fee?: number }> | null;
+  tx_hash: string | null;
   created_at: Date;
   expired: boolean;
 }
 
 /**
- * §7.2 shop-payment-reconcile (worker, every 5 min). Only `shop_payments` rows that are
+ * §7.2 shop-payment-reconcile (worker, every 60 s). Only `shop_payments` rows that are
  * `pending`, or `failed` inside the 24 h window (never wallets): read `authorizationState` and the
  * USDC Transfer on-chain; confirmed -> PAID + delivery; still nothing once `reconcile_until` has
  * passed -> PAYMENT_FAILED for good, the quote expires and its reservation is released.
@@ -92,7 +93,7 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
   const deps = opts?.deps ?? defaultShopDeps();
   const rows = await deps.db.$queryRawUnsafe<PendingRow[]>(
     `SELECT p.payment_id, p.order_id, o.quote_id, o.merchant_id, p.payer, p.eip3009_nonce, p.pay_to,
-            p.amount_usd::text AS amount_usd, p.splits, p.created_at, (p.reconcile_until <= now()) AS expired
+            p.amount_usd::text AS amount_usd, p.splits, p.tx_hash, p.created_at, (p.reconcile_until <= now()) AS expired
        FROM shop_payments p JOIN shop_orders o ON o.order_id = p.order_id
       WHERE p.rail = 'base' AND o.state IN ('PAYING', 'PAYMENT_FAILED')
         AND (p.chain_status = 'pending' OR (p.chain_status = 'failed' AND p.reconcile_until > now()))
@@ -105,6 +106,19 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
     try {
       chain ??= await viemChain();
       let tx: string | undefined;
+      // T-0428: a settlement_pending row carries the broadcast hash: its receipt is the cheapest,
+      // most direct proof. Missing/reverted falls through to the authorization/transfer lookup.
+      if (r.tx_hash && (await chain.receiptOk(r.tx_hash))) {
+        await finalizeConfirmed(deps, {
+          order_id: r.order_id,
+          payment_id: r.payment_id,
+          tx_hash: r.tx_hash,
+          payer: r.payer,
+          request_id: 'shop-payment-reconcile',
+        });
+        logger.info({ job: 'shop-payment-reconcile', orderId: r.order_id }, 'payment confirmed');
+        continue;
+      }
       // T-INT-42: a fee-split payment is two authorizations in one Multicall3 call; the seller leg
       // is total - fee. Both nonces are read: one used and one not cannot happen with
       // allowFailure=false, and if seen it is a PAYMENT_MISMATCH for a human, never a PAID.

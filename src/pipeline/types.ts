@@ -139,6 +139,11 @@ export interface PipelineContext {
    *  every x402 row silently claiming success. See
    *  project_x402_operator_gas_wallet_empty_since_20260616 memory. */
   x402SettleSucceeded?: boolean;
+  /** T-0428: 'pending' = settlement_pending / facilitator timeout (unknown outcome, resolved by
+   *  chain reconcile, never a second settle). x402SettleSucceeded stays undefined. */
+  x402SettleState?: 'pending';
+  /** T-0428: broadcast tx hash of a pending settle, when the facilitator reported one. */
+  x402SettleTxHash?: string;
 
   // MODERATION stage (F2/C-2/C-3, 2026-09-01)
   /** Set when MODERATION blocked this request. Read by ESCROW_FINALIZE

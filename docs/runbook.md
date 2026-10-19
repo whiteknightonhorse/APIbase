@@ -708,3 +708,15 @@ either a targeted unit/selftest or design-only):
 ### 10.7 Provider keys in scripts/ (T-0353)
 
 `scripts/test-*.sh` must never carry a key default. Read provider keys with `: "${PROVIDER_KEY_X:?set PROVIDER_KEY_X}"` (fail loud, no fallback). The gate `tests/unit/no-key-literals-in-scripts.test.ts` fails on fallback or assigned literals of 16+ characters in tracked `scripts/` files; the documented `ak_live_0000...`, `ak_live_PLACEHOLDER` and `ak_live_test_...` placeholders are exempt. The values formerly committed in the FBI, BEA and BHL scripts: rotation pending operator; history purge is an operator decision.
+
+
+## Pending x402 settles (T-0428)
+
+`x402_settle_pending` outbox rows are settles whose outcome is unknown (`settlement_pending` or a facilitator timeout). The `x402-settle-pending` worker job closes them every 60 s by reading the chain; the daily leak digest (`scripts/x402-settle-leak-alerts.py`) prints "N settles pending > 1 h". Expected: 0-2 per day.
+
+When the count grows:
+
+1. Check the Base RPC (`X402_BASE_RPC_URL`): the job leaves rows untouched on RPC failure and logs once per row (`chain unavailable — pending settle left untouched`).
+2. Check the operator wallet ETH balance per `/x402` (an empty gas wallet stalls broadcasts and receipts).
+3. Check the facilitator (`docs/x402-facilitator.md`): sustained 30 s timeouts mean it is slow or down.
+4. Never settle by hand: the authorization may already be mined. A row older than the authorization `valid_before` with an unused nonce becomes `x402_settle_failed` (`pending_expired_unsettled`) on its own.
