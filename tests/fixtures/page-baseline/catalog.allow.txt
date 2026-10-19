@@ -8,3 +8,6 @@ Provider Tools
 # Providers dropped from the generated catalog by the daily cron sync (status flapped to unavailable); the baseline predates the drop.
 ibge 5
 overpass 4
+# Providers dropped from the generated catalog by the cron sync since the baseline (not live in the current registry).
+lmpr 5
+usdamars 4
