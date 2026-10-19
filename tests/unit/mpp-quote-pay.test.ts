@@ -11,11 +11,7 @@ import type { Request, Response } from 'express';
 import { createQuote } from '../../src/shop/quote.service';
 import { payQuote } from '../../src/shop/pay.service';
 import { registerOrderTools } from '../../src/shop/tools/order.tools';
-import {
-  mppMiddleware,
-  quoteMppChallengeHeader,
-  quoteMemo,
-} from '../../src/middleware/mpp.middleware';
+import { mppMiddleware, quoteMppChallengeHeader } from '../../src/middleware/mpp.middleware';
 import { AppError } from '../../src/types/errors';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
@@ -121,7 +117,7 @@ jest.mock('mppx/server', () => ({
       },
     }),
   },
-  tempo: { charge: () => ({}), sessionLegacy: () => ({}) },
+  tempo: { charge: () => ({}) },
 }));
 jest.mock('viem/accounts', () => ({ privateKeyToAccount: () => ({}) }));
 jest.mock('mppx', () => ({ Receipt: { fromResponse: () => ({ reference: TX_HASH }) } }));
@@ -268,7 +264,7 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
     `/api/v1/shop/quotes/${f.quote.quote_id}/pay`;
   const finish = (o: Outcome) => o.res.emit('close');
 
-  it('MP1: two GETs -> the same challenge id; +6 min -> a new id, the same memo', async () => {
+  it('MP1: two GETs -> the same challenge id; +6 min -> a new id, no memo', async () => {
     const f = await fixture(5);
     const a = await quoteMppChallengeHeader(f.quote.quote_id, url(f.quote.quote_id));
     const b = await quoteMppChallengeHeader(f.quote.quote_id, url(f.quote.quote_id));
@@ -288,8 +284,7 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
     const c = await quoteMppChallengeHeader(f.quote.quote_id, url(f.quote.quote_id));
     expect(idOf(c)).toBeDefined();
     expect(idOf(c)).not.toBe(idOf(a));
-    const memos = mockCharge.mock.calls.map((x) => x[0].memo);
-    expect(memos).toEqual([quoteMemo(f.quote.quote_id), quoteMemo(f.quote.quote_id)]);
+    expect(mockCharge.mock.calls.map((x) => 'memo' in x[0])).toEqual([false, false]);
   });
 
   it('MP2: two parallel credentials on one quote -> charge once, the other 409 quote_already_paying', async () => {
@@ -320,7 +315,7 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
     expect(mockCharge).not.toHaveBeenCalled();
   });
 
-  it('MP4: fee off -> no `splits` key; fee on, $89 -> amount 89, splits [{fee wallet, 1.34}], recipient = payout_wallet_tempo, memo = quoteMemo(quote_id)', async () => {
+  it('MP4: fee off -> no `splits` key; fee on, $89 -> amount 89, splits [{fee wallet, 1.34}], recipient = payout_wallet_tempo, no memo', async () => {
     E['INTEGRATOR_FEE_ENABLED'] = 'false';
     const off = await fixture(89);
     const o1 = await run(quotePath(off), credential());
@@ -330,8 +325,8 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
     expect(offParams).toMatchObject({
       amount: '89',
       recipient: PAYOUT_TEMPO,
-      memo: quoteMemo(off.quote.quote_id),
     });
+    expect('memo' in offParams).toBe(false);
 
     mockCharge.mockClear();
     E['INTEGRATOR_FEE_ENABLED'] = 'true';
@@ -341,7 +336,6 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
     expect(mockCharge).toHaveBeenCalledWith({
       amount: '89',
       recipient: PAYOUT_TEMPO,
-      memo: quoteMemo(on.quote.quote_id),
       splits: [{ recipient: FEE_WALLET, amount: '1.34' }],
     });
   });
@@ -385,7 +379,6 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
     expect(mockCharge).toHaveBeenCalledWith({
       amount: '89',
       recipient: PAYOUT_TEMPO,
-      memo: quoteMemo(renewal.quote_id),
       splits: [{ recipient: FEE_WALLET, amount: '1.34' }],
     });
     const r = await payQuote(deps, {
@@ -499,56 +492,41 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
   });
 });
 
-describe('T-INT-50: Tempo memo is bytes32', () => {
-  const id = '0b8e3a52-7c1d-4f6a-9e20-5d4c3b2a1f09';
-
-  it('MP10: quoteMemo(id) is 0x + 64 lowercase hex and reversible to the quote id', () => {
-    const memo = quoteMemo(id.toUpperCase());
-    expect(memo).toMatch(/^0x[0-9a-f]{64}$/);
-    const h = memo.slice(2 + 32);
-    expect(memo.slice(2, 2 + 32)).toBe('0'.repeat(32));
-    expect(
-      `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`,
-    ).toBe(id);
-  });
-
-  it('MP11: the real mppx schema accepts quoteMemo(id) and rejects the raw UUID, no network', () => {
+describe('T-0426: the real mppx takes per-call recipient + splits without a custom memo', () => {
+  it('MP11: a challenge built with currencies, recipient and splits carries no memo and needs no expectedRecipients, no network', () => {
     // mppx is ESM-only and this jest setup is CJS, so the real SDK runs in a tsx child process.
     const script = `
 import { Mppx, Store, tempo } from 'mppx/server';
 import { privateKeyToAccount } from 'viem/accounts';
-const [id, memo] = process.argv.slice(1);
 globalThis.fetch = () => { throw new Error('network call in MP11'); };
 const recipient = '0x00000000000000000000000000000000000a11ce';
+const fee = '0x00000000000000000000000000000000000fee01';
 const mppx = Mppx.create({
   methods: [tempo.charge({
     account: privateKeyToAccount('0x' + '11'.repeat(32)),
-    currency: '0x20c0000000000000000000000000000000000000',
-    recipient,
+    currencies: ['0x20c0000000000000000000000000000000000000'],
+    recipient: '0x00000000000000000000000000000000000dead0',
     store: Store.memory(),
   })],
   secretKey: 's'.repeat(32),
   realm: 'r',
 });
-const req = () => new Request('https://x/api/v1/shop/quotes/' + id + '/pay', { method: 'POST' });
-const ok = await mppx.charge({ amount: '1', decimals: 6, recipient, memo })(req());
-let rawError = null;
-try { await mppx.charge({ amount: '1', decimals: 6, recipient, memo: id })(req()); }
-catch (e) { rawError = String(e && e.message || e); }
-console.log('RESULT' + JSON.stringify({ status: ok.status, www: ok.challenge.headers.get('WWW-Authenticate'), rawError }));
+const req = new Request('https://x/api/v1/shop/quotes/q/pay', { method: 'POST' });
+const ok = await mppx.charge({ amount: '1', decimals: 6, recipient, splits: [{ recipient: fee, amount: '0.1' }] })(req);
+console.log('RESULT' + JSON.stringify({ status: ok.status, www: ok.challenge.headers.get('WWW-Authenticate') }));
 `;
     const root = path.resolve(__dirname, '../..');
     const stdout = execFileSync(
       path.join(root, 'node_modules/.bin/tsx'),
-      ['--input-type=module', '-e', script, id, quoteMemo(id)],
+      ['--input-type=module', '-e', script],
       { cwd: root, encoding: 'utf8', timeout: 60000 },
     );
     const r = JSON.parse(stdout.split('RESULT')[1]);
     expect(r.status).toBe(402);
-    expect(r.www).toContain('id="');
     const request = /request="([^"]+)"/.exec(r.www)?.[1] ?? '';
     const decoded = JSON.parse(Buffer.from(request, 'base64url').toString('utf8'));
-    expect(decoded.methodDetails.memo).toBe(quoteMemo(id));
-    expect(r.rawError).toMatch(/Invalid hash/);
+    expect(decoded.recipient.toLowerCase()).toBe('0x00000000000000000000000000000000000a11ce');
+    expect(decoded.methodDetails.memo).toBeUndefined();
+    expect(decoded.methodDetails.splits).toHaveLength(1);
   }, 70000);
 });

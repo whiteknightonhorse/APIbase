@@ -62,6 +62,8 @@ export interface SharedEntry extends LedgerEntryBase {
 export interface X402Entry extends LedgerEntryBase {
   cost: number;
   payer: string;
+  /** T-0426: token address an MPP payment moved; undefined for x402 rows. */
+  asset?: string;
   providerLatencyMs?: number;
   /**
    * True when the payment rail covered a cache-hit (no provider call happened).
@@ -253,6 +255,7 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       billing_status: notCharged ? 'NOT_CHARGED' : 'PAID',
       cost_usd: notCharged ? 0 : entry.cost,
       payer: entry.payer,
+      asset: entry.asset ?? null,
       // Cache-hit path: provider was NOT called, served from cache.
       // Cache-miss path: provider was called, filled cache for future hits.
       // Moderation-blocked path: provider was never called either.

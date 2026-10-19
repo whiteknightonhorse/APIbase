@@ -162,7 +162,7 @@ function mockSessionHandler(params: any, opts: { amount: string }) {
   };
 }
 
-jest.mock('mppx/server', () => ({
+jest.mock('mppx-legacy/server', () => ({
   Store: { redis: () => ({ update: async () => undefined }) },
   tempo: Object.assign(jest.fn(), {
     sessionLegacy: Object.assign(
@@ -190,7 +190,7 @@ jest.mock('../../src/shop/mppx-legacy', () => ({
     },
   }),
 }));
-jest.mock('mppx/tempo', () => ({
+jest.mock('mppx-legacy/tempo', () => ({
   SessionLegacy: {
     Session: {
       Chain: {

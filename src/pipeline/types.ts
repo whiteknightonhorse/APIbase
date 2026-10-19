@@ -121,6 +121,8 @@ export interface PipelineContext {
    *  (escrow-finalize.stage.ts) can name the original transaction — without
    *  it, a human resolving the refund has to re-derive it from logs. */
   mppTxHash?: string;
+  /** T-0426: TIP-20 token address the MPP transfer moved (persisted as execution_ledger.asset). */
+  mppAsset?: string;
   /** Set once an mpp_refund_owed row was written (or attempted) for this request. */
   /** Order quotes: the recipient/splits the MPP charge was bound to (mppx HMAC-covered). */
   mppRecipient?: string;

@@ -40,6 +40,14 @@ export const httpRequestDurationSeconds = new client.Histogram({
 // Cache metrics
 // ---------------------------------------------------------------------------
 
+/** T-0426: MPP challenges issued, by the one currency (token address) the challenge advertises. */
+export const mppChallengesTotal = new client.Counter({
+  name: 'mpp_challenges_total',
+  help: 'MPP challenges built, by advertised currency',
+  labelNames: ['currency'] as const,
+  registers: [register],
+});
+
 export const cacheHitsTotal = new client.Counter({
   name: 'cache_hits_total',
   help: 'Total cache hits',

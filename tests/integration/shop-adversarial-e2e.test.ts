@@ -159,7 +159,7 @@ jest.mock('mppx/server', () => ({
       },
     }),
   },
-  tempo: { charge: () => ({}), sessionLegacy: () => ({}) },
+  tempo: { charge: () => ({}) },
 }));
 jest.mock('viem/accounts', () => {
   const actual = jest.requireActual('viem/accounts');

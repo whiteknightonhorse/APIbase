@@ -66,8 +66,8 @@ async function run(
   setMerchant: (id: string) => void,
   setApi: (s: Server) => void,
 ): Promise<Record<string, unknown>> {
-  const { Challenge, Credential } = await import('mppx');
-  const { SessionLegacy } = (await import('mppx/tempo')) as any;
+  const { Challenge, Credential } = await import('mppx-legacy');
+  const { SessionLegacy } = (await import('mppx-legacy/tempo')) as any;
   const Session = SessionLegacy.Session;
   const escrowAbi = await loadEscrowAbi();
 
@@ -253,7 +253,7 @@ async function run(
 async function loadEscrowAbi(): Promise<unknown> {
   const file = require('node:path').resolve(
     __dirname,
-    '../../../node_modules/mppx/dist/tempo/legacy/session/escrow.abi.js',
+    '../../../node_modules/mppx-legacy/dist/tempo/legacy/session/escrow.abi.js',
   );
   return (await import(file)).escrowAbi;
 }

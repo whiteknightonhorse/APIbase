@@ -110,7 +110,7 @@ describe('Payment-Receipt header (T-SHOP-B)', () => {
             }),
           }),
         },
-        tempo: { charge: () => ({}), sessionLegacy: () => ({}) },
+        tempo: { charge: () => ({}) },
       }));
       jest.doMock('mppx', () => ({ Receipt: { fromResponse: () => ({ reference: 'none' }) } }));
       // eslint-disable-next-line @typescript-eslint/no-require-imports

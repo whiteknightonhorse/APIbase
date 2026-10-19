@@ -44,7 +44,7 @@ async function main(): Promise<void> {
   const { tempoModerato } = await import('viem/chains');
   const { readContract, writeContract, waitForTransactionReceipt } = await import('viem/actions');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { SessionLegacy } = (await import('mppx/tempo')) as any;
+  const { SessionLegacy } = (await import('mppx-legacy/tempo')) as any;
   const Session = SessionLegacy.Session;
   if (tempoModerato.id !== TESTNET_CHAIN_ID) throw new Error('unexpected testnet chain id');
 

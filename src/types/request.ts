@@ -31,6 +31,8 @@ export interface MppPaymentInfo {
   payer: string;
   amount: string;
   txHash: string;
+  /** T-0426: TIP-20 token the transfer moved (on-chain `to`, fallback cfg.usdcAddress). */
+  asset?: string;
   method: string;
   /** Raw `Authorization: Payment ...` header value — needed by ESCROW to
    *  derive the replay-guard nonce (the HMAC-bound challenge id, §A-01). */

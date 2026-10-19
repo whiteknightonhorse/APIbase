@@ -234,7 +234,7 @@ export async function resolveStreamAccount(
 
 /** Store backend over the shared Redis with the `stream:` prefix (CAS update from T-0268). */
 async function streamStore() {
-  const { Store } = await import('mppx/server');
+  const { Store } = await import('mppx-legacy/server');
   const { getSharedRedis } = await import('../services/redis.service');
   const { atomicRedisAdapter } = await import('../services/mppx-redis-store');
   const base = atomicRedisAdapter(getSharedRedis());
@@ -302,7 +302,7 @@ export async function getStreamMethod(
     return hit;
   }
 
-  const { Mppx, tempo } = await import('mppx/server');
+  const { Mppx, tempo } = await import('mppx-legacy/server');
   const { legacyChannelStore } = await import('./mppx-legacy');
   const store = await streamStore();
   const method = tempo.sessionLegacy({

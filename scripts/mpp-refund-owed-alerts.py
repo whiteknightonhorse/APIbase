@@ -120,7 +120,7 @@ def send_tg(text):
 
 def usd(payload):
     try:
-        return Decimal(str(payload.get("amount_usd")))
+        return Decimal(str(payload.get("amount_usd", payload.get("amount"))))
     except (InvalidOperation, TypeError):
         return Decimal(0)
 
@@ -181,7 +181,7 @@ def fetch_open_rows():
         SELECT json_build_object('id', id,
                  'created_at', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
                  'alerted', payload->>'alerted_at' IS NOT NULL, 'payload', payload)
-        FROM outbox WHERE event_type = 'mpp_refund_owed' AND processed = false
+        FROM outbox WHERE event_type IN ('mpp_refund_owed', 'mpp_settle_unknown') AND processed = false
         """
     )
     if rc != 0:
@@ -279,7 +279,7 @@ def mark_alerted(ids):
         return 0
     _, rc = psql(
         "UPDATE outbox SET payload = payload || jsonb_build_object('alerted_at', now()::text) "
-        f"WHERE event_type = 'mpp_refund_owed' AND id IN ({','.join(str(i) for i in ids)})"
+        f"WHERE event_type IN ('mpp_refund_owed', 'mpp_settle_unknown') AND id IN ({','.join(str(i) for i in ids)})"
     )
     return rc
 
@@ -293,7 +293,7 @@ def fetch_rows():
                  'created_at', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
                  'alerted', payload->>'alerted_at' IS NOT NULL, 'payload', payload)
         FROM outbox
-        WHERE event_type = 'mpp_refund_owed'
+        WHERE event_type IN ('mpp_refund_owed', 'mpp_settle_unknown')
           AND (payload->>'alerted_at' IS NULL OR created_at > now() - interval '24 hours')
         ORDER BY created_at
         """

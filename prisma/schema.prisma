@@ -64,6 +64,8 @@ model ExecutionLedger {
   // per-tool estimate feeding the margin gate) -- this is per-execution, real, measured.
   upstream_cost_usd  Decimal?  @db.Decimal(18, 8)
   payer              String?   @db.VarChar(64) // on-chain payer wallet (x402/MPP); null for free/cache/escrow (T6 2026-06-29)
+  // T-0426: TIP-20 token address an MPP payment moved (on-chain `to`); NULL for x402/free/old rows.
+  asset              String?   @db.VarChar(64)
   latency_ms         Int?
   provider_called    Boolean   @default(false)
   cache_status       String?   // HIT|MISS|SHARED

@@ -14,7 +14,7 @@ export interface LegacyChannelStore {
 
 export async function legacyChannelStore(store: unknown): Promise<LegacyChannelStore> {
   // `mppx/server` resolves to <pkg>/dist/server/index.js
-  const dist = path.dirname(path.dirname(require.resolve('mppx/server')));
+  const dist = path.dirname(path.dirname(require.resolve('mppx-legacy/server')));
   const mod = await import(path.join(dist, 'tempo/session/server/ChannelStore.js'));
   return mod.fromStore(store) as LegacyChannelStore;
 }

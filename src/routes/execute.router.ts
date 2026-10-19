@@ -62,6 +62,7 @@ executeRouter.post(
         // without the original tx hash a human resolving the refund has to
         // re-derive it from logs before they can act.
         ctx.mppTxHash = req.mppPayment.txHash;
+        ctx.mppAsset = req.mppPayment.asset;
       }
 
       const result = await runPipeline(ctx);

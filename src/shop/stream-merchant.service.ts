@@ -239,7 +239,7 @@ export const mppxSettleReader: SettleReader = {
   async read(s, tx_hash) {
     const { getTransaction, getTransactionReceipt } = await import('viem/actions');
     const { parseEventLogs } = await import('viem');
-    const { SessionLegacy } = await import('mppx/tempo');
+    const { SessionLegacy } = await import('mppx-legacy/tempo');
     const client = await createStreamClient(getMppConfig());
     let from: string | null = null;
     let success = false;

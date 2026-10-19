@@ -26,7 +26,7 @@ jest.mock('../../src/services/redis.service', () => ({ getSharedRedis: () => moc
 jest.mock('mppx/server', () => ({
   Store: { redis: (c: unknown) => mockStoreRedis(c) },
   Mppx: { create: jest.fn(() => ({ charge: (opts: unknown) => mockCharge(opts) })) },
-  tempo: { charge: jest.fn(() => ({})), sessionLegacy: jest.fn(() => ({})) },
+  tempo: { charge: jest.fn(() => ({})) },
 }));
 jest.mock('viem/accounts', () => ({ privateKeyToAccount: jest.fn(() => ({})) }));
 jest.mock('mppx', () => ({
@@ -72,13 +72,13 @@ beforeEach(() => {
 });
 
 describe('mppMiddleware route/price gating (T-0256)', () => {
-  it('T-0257: charge and session receive a Redis-backed store with get/put', async () => {
+  it('T-0257: charge receives a Redis-backed store with get/put', async () => {
     await run(makeReq('/api/v1/tools/known.tool/call', 'Payment x'));
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { tempo } = require('mppx/server');
     const adapterArg = mockStoreRedis.mock.calls[0][0] as { update: unknown };
     expect(typeof adapterArg.update).toBe('function');
-    for (const fn of [tempo.charge, tempo.sessionLegacy]) {
+    for (const fn of [tempo.charge]) {
       const store = fn.mock.calls[0][0].store;
       expect(typeof store.get).toBe('function');
       expect(typeof store.put).toBe('function');

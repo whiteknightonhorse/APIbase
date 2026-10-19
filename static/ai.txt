@@ -40,6 +40,8 @@ Protocol: x402 (HTTP 402 Payment Required) or MPP (Authorization: Payment)
 Token: USDC on Base mainnet (x402) or USDC.e on Tempo (MPP)
 Prices: $0.0005–$29.99 per call (90% of tools <= $0.003)
 Details: https://apibase.pro/.well-known/x402-payment.json
+MPP client: mppx >= 0.6.16 (0.4 clients are not supported); one currency in the challenge: USDC.e on Tempo mainnet (pathUSD on the testnet)
+A replayed MPP credential gets 403 credential_replayed
 
 ## Agent Integration Guide
 Match price to wallet — fetch only tools you can afford:

@@ -8,6 +8,7 @@ For a merchant's agent. Read this page (or its Markdown form, `Accept: text/mark
 2. A shop with a public https site and a category from the allowed list (it is the drop-down in the form at /integrator/connect; a refused category returns the nearest allowed ones in `alternatives[]`).
 3. A https webhook URL that resolves to public addresses (optional; the check skips `webhook_ping` without it).
 4. Where to put the link afterwards: /integrator#options (variants A to D).
+5. MPP client: mppx >= 0.6.16 (0.4 clients are not supported); the challenge lists one currency: USDC.e on Tempo mainnet (pathUSD on the testnet); a replayed credential gets 403 credential_replayed.
 
 ## Step 1. nonce
 

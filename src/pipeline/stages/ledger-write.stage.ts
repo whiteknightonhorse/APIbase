@@ -48,6 +48,7 @@ export const ledgerWriteStage: Stage = {
           requestId: ctx.requestId,
           cost: ctx.finalCost ?? ctx.toolPrice ?? 0,
           payer: ctx.mppPaid ? (ctx.mppPayer ?? 'tempo-agent') : (ctx.x402Payer ?? 'unknown'),
+          asset: ctx.mppPaid ? ctx.mppAsset : undefined,
           providerLatencyMs: ctx.providerDurationMs,
           upstreamCostUsd: ctx.upstreamCostUsd,
           cacheHit: ctx.cacheHit === true,

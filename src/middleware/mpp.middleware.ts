@@ -20,8 +20,9 @@ import { bodySchemaFailure } from '../pipeline/precheck';
 export async function resolveRealPayer(chargeResult: {
   status: number;
   withReceipt(response: globalThis.Response): globalThis.Response;
-}): Promise<{ payer: string; txHash: string }> {
-  const FALLBACK = { payer: 'unknown-mpp-payer', txHash: 'unknown' };
+}): Promise<{ payer: string; txHash: string; asset: string }> {
+  const cfgAsset = getMppConfig().usdcAddress;
+  const FALLBACK = { payer: 'unknown-mpp-payer', txHash: 'unknown', asset: cfgAsset };
   try {
     const { Receipt } = await import('mppx');
     // The mppx handler result is NOT a Response: the receipt header lives on
@@ -34,7 +35,13 @@ export async function resolveRealPayer(chargeResult: {
     const cfg = getMppConfig();
     const client = createPublicClient({ transport: http(cfg.rpcUrl) });
     const tx = await client.getTransaction({ hash: txHash as `0x${string}` });
-    return { payer: tx.from, txHash };
+    // T-0426: the token the transfer actually moved (a Tempo tx carries its TIP-20 call in `calls`).
+    const target =
+      (tx as { to?: unknown; calls?: Array<{ to?: unknown }> }).to ??
+      (tx as { calls?: Array<{ to?: unknown }> }).calls?.[0]?.to;
+    const asset =
+      typeof target === 'string' && /^0x[0-9a-fA-F]{40}$/.test(target) ? target : cfgAsset;
+    return { payer: tx.from, txHash, asset };
   } catch (err) {
     logger.warn(
       { err: err instanceof Error ? err.message : String(err) },
@@ -56,12 +63,11 @@ function toolIdFromUrl(originalUrl: string): string | undefined {
   return m?.[1];
 }
 
-/** What `mppx.charge()` is called with (T-INT-10: an order quote adds recipient/memo/splits). */
+/** What `mppx.charge()` is called with (T-INT-10: an order quote adds recipient/splits). */
 interface ChargeParams {
   amount: string;
   chainId?: number;
   recipient?: string;
-  memo?: string;
   splits?: Array<{ recipient: string; amount: string }>;
 }
 
@@ -93,7 +99,7 @@ const QUOTE_PAY_URL = new RegExp(`^/api/v1/shop/quotes/(${UUID})/pay/?$`, 'i');
 /**
  * Resolve what the MPP HMAC was signed over. Agents sign over the tool
  * price — server must reconstruct the same value. A quote pay URL takes
- * amount/recipient/splits/memo from the quote row in PG (server data only, F-5).
+ * amount/recipient/splits from the quote row in PG (server data only, F-5).
  * Returns undefined when the URL has no MPP price (not a tool-call/quote-pay
  * URL, or unknown toolId): mppx settles on-chain inside charge() and cannot
  * undo it, so we must never call charge() without a known price (T-0256).
@@ -151,11 +157,6 @@ async function loadQuoteRow(quoteId: string): Promise<QuoteRow> {
   return rows[0];
 }
 
-/** Tempo memo is bytes32: 16 zero bytes + the 16 bytes of the quote UUID (reversible). */
-export function quoteMemo(quoteId: string): `0x${string}` {
-  return `0x${'0'.repeat(32)}${quoteId.replace(/-/g, '').toLowerCase()}`;
-}
-
 /** F-5: recipient = payout_wallet_tempo, amount = total, splits only with the integrator fee on. */
 async function quoteChargeParams(q: QuoteRow): Promise<ChargeParams> {
   if (!q.rails_offered.includes('tempo')) {
@@ -169,7 +170,6 @@ async function quoteChargeParams(q: QuoteRow): Promise<ChargeParams> {
     amount: String(q.total_usd),
     chainId: assertChallengeChainId(getMppConfig()),
     recipient: currentPayout(q, 'tempo'),
-    memo: quoteMemo(q.quote_id),
     ...(withFee && feeWallet
       ? { splits: [{ recipient: feeWallet, amount: String(q.fee_usd) }] }
       : {}),
@@ -219,7 +219,8 @@ async function ensureMppx(): Promise<void> {
   const params = {
     account,
     chainId: assertChallengeChainId(cfg),
-    currency: cfg.usdcAddress,
+    // T-0426: the challenge advertises exactly ONE currency (never OUSD or another Tempo token).
+    currencies: [cfg.usdcAddress],
     recipient: cfg.walletAddress as `0x${string}`,
     // T-0257: replay store shared across processes and surviving restarts
     // (default is Store.memory()). Failure mode: if Redis is unavailable,
@@ -230,7 +231,7 @@ async function ensureMppx(): Promise<void> {
   };
 
   mppxInstance = Mppx.create({
-    methods: [tempo.charge(params), tempo.sessionLegacy(params)],
+    methods: [tempo.charge(params)],
     secretKey: cfg.secretKey,
     realm: cfg.realm,
   });
@@ -325,8 +326,7 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
     // T-0282: charge() settles on-chain and cannot be undone, so reject a body our own
     // schema would refuse (400) BEFORE any money moves. Provider-side 422s are out of scope.
     if (rejectInvalidBody(req, res)) return false;
-    await chargeAndRecord(req, res, params);
-    return true;
+    return chargeAndRecord(req, res, params);
   }
   // GET /quotes/:id/pay only ever returns the challenge (§6.3): a credential is not settled here.
   if (req.method === 'GET') return true;
@@ -349,7 +349,10 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
       release();
       return conflict();
     }
-    await chargeAndRecord(req, res, params);
+    if (!(await chargeAndRecord(req, res, params))) {
+      release();
+      return false;
+    }
   } catch (err) {
     release();
     throw err;
@@ -359,7 +362,67 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   return true;
 }
 
-async function chargeAndRecord(req: Request, res: Response, params: ChargeParams): Promise<void> {
+/**
+ * T-0426: settlement whose outcome mppx could not confirm (broadcast confirmation timeout,
+ * PaymentOutcomeUnknownError). The money may have moved: 503 + ONE `mpp_settle_unknown` outbox
+ * event for the operator digest (scripts/mpp-refund-owed-alerts.py); the outbox worker ignores it.
+ */
+function isSettleUnknown(err: unknown): boolean {
+  if (!(err instanceof Error)) return false;
+  if (err.name === 'PaymentOutcomeUnknownError') return true;
+  return /confirmation timeout|timed out waiting for .*receipt|receipt.*timed out/i.test(
+    err.message,
+  );
+}
+
+async function recordSettleUnknown(
+  req: Request,
+  res: Response,
+  params: ChargeParams,
+  err: unknown,
+): Promise<void> {
+  const log = req.log ?? logger;
+  const rawHash = (err as { transactionHash?: unknown } | null)?.transactionHash;
+  const txHash = typeof rawHash === 'string' && rawHash.startsWith('0x') ? rawHash : undefined;
+  log.error(
+    { requestId: req.requestId, txHash, err: err instanceof Error ? err.message : String(err) },
+    'mpp: settlement outcome unknown',
+  );
+  try {
+    const { getPrisma } = await import('../services/prisma.service');
+    await getPrisma().outbox.create({
+      data: {
+        event_type: 'mpp_settle_unknown',
+        payload: {
+          request_id: req.requestId,
+          url: req.originalUrl,
+          amount: params.amount,
+          ...(txHash ? { tx_hash: txHash } : {}),
+        },
+      },
+    });
+  } catch (e) {
+    log.error(
+      { requestId: req.requestId, err: e instanceof Error ? e.message : String(e) },
+      'mpp_settle_unknown event FAILED to write — check this payment on-chain manually',
+    );
+  }
+  res.status(503).json({
+    error: 'service_unavailable',
+    error_code: 'mpp_settlement_unknown',
+    retry_after: 30,
+    ...(txHash ? { tx_hash: txHash } : {}),
+    request_id: req.requestId,
+    charged: false,
+  });
+}
+
+/** Resolves true when the request is paid and may proceed; false when the reply was already sent. */
+async function chargeAndRecord(
+  req: Request,
+  res: Response,
+  params: ChargeParams,
+): Promise<boolean> {
   const log = req.log ?? logger;
   const authHeader = req.headers['authorization'] as string;
   const { amount } = params;
@@ -397,10 +460,37 @@ async function chargeAndRecord(req: Request, res: Response, params: ChargeParams
     const chargeHandler = mppx.charge(params);
     const result = await chargeHandler(fetchReq);
 
+    // T-0426: ONLY status 200 is a paid request. Everything else is NOT paid (never the paid path).
+    if (result.status === 403) {
+      // mppx 0.13.4+: CredentialReplayedError, answered with a final 403 and no new challenge.
+      log.warn(
+        { requestId: req.requestId, originalUrl: req.originalUrl, amount },
+        'mpp: credential replayed (403 from mppx)',
+      );
+      res.status(403).json({
+        error: 'forbidden',
+        error_code: 'credential_replayed',
+        message:
+          'This MPP credential was already settled. Request a new challenge (GET the same URL) and pay again.',
+        request_id: req.requestId,
+        charged: false,
+      });
+      return false;
+    }
     if (result.status === 402) {
       log.warn(
         { requestId: req.requestId, originalUrl: req.originalUrl, amount },
         'mpp: credential HMAC verification failed',
+      );
+      throw new AppError(
+        ErrorCode.BAD_REQUEST,
+        'MPP payment verification failed. If your client library is older than mppx 0.6.16, upgrade it: older credentials fail the HMAC binding.',
+      );
+    }
+    if (result.status !== 200) {
+      log.warn(
+        { requestId: req.requestId, originalUrl: req.originalUrl, amount, status: result.status },
+        'mpp: unexpected non-200 handler status — treated as NOT paid',
       );
       throw new AppError(ErrorCode.BAD_REQUEST, 'MPP payment verification failed');
     }
@@ -418,20 +508,37 @@ async function chargeAndRecord(req: Request, res: Response, params: ChargeParams
     }
 
     // Payment verified — resolve who actually paid (on-chain truth, not a stub).
-    const { payer, txHash } = await resolveRealPayer(result);
+    const { payer, txHash, asset } = await resolveRealPayer(result);
     req.mppPayment = {
       verified: true,
       payer,
       amount,
       txHash,
+      asset,
       method: 'tempo',
       header: authHeader,
       ...(params.recipient ? { recipient: params.recipient, splits: params.splits ?? [] } : {}),
     };
 
     log.info({ requestId: req.requestId, method: 'tempo', payer, txHash }, 'mpp: payment verified');
+    return true;
   } catch (err) {
     if (err instanceof AppError) throw err;
+    if (isSettleUnknown(err)) {
+      await recordSettleUnknown(req, res, params, err);
+      return false;
+    }
+    if (err instanceof Error && err.name === 'CredentialReplayedError') {
+      res.status(403).json({
+        error: 'forbidden',
+        error_code: 'credential_replayed',
+        message:
+          'This MPP credential was already settled. Request a new challenge (GET the same URL) and pay again.',
+        request_id: req.requestId,
+        charged: false,
+      });
+      return false;
+    }
     log.error(
       { requestId: req.requestId, err: err instanceof Error ? err.message : String(err) },
       'mpp: payment verification threw exception',
@@ -442,6 +549,19 @@ async function chargeAndRecord(req: Request, res: Response, params: ChargeParams
         ? 'MPP payment failed: insufficient Tempo USDC balance. Fund your Tempo wallet and retry.'
         : `MPP payment verification failed: ${errMsg.slice(0, 100)}`;
     throw new AppError(ErrorCode.BAD_REQUEST, userMessage);
+  }
+}
+
+/** T-0426: a metrics failure must never cost a challenge. */
+async function countChallenge(currency: string): Promise<void> {
+  try {
+    const { mppChallengesTotal } = await import('../services/metrics.service');
+    mppChallengesTotal.inc({ currency });
+  } catch (err) {
+    logger.warn(
+      { err: err instanceof Error ? err.message : String(err) },
+      'mpp: challenge counter unavailable',
+    );
   }
 }
 
@@ -474,6 +594,7 @@ export async function buildMppChallengeHeader(
     })(fetchReq);
 
     if (result.status === 402) {
+      await countChallenge(cfg.usdcAddress);
       return result.challenge.headers.get('WWW-Authenticate');
     }
   } catch (err) {
@@ -490,7 +611,7 @@ const CHALLENGE_TTL_MS = 5 * 60_000; // mppx default challenge lifetime
 /**
  * §8.1 item 7(a): ONE challenge per quote. While the stored one is unexpired it is returned
  * byte for byte (a repeated 402 / GET must not mint a second payable challenge); afterwards a
- * new one is built with the same memo. Returns null when MPP is off / the quote is not payable.
+ * new one is built for the same quote. Returns null when MPP is off / the quote is not payable.
  */
 export async function quoteMppChallengeHeader(
   quoteId: string,

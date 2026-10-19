@@ -91,3 +91,40 @@ describe('atomicRedisAdapter with real mppx Store (T-0268)', () => {
     expect(r.exhaustedEvals).toBe(8);
   });
 });
+
+describe('Mppx.create with the Redis store (T-0426)', () => {
+  it('emits no "in-memory store" warning and the adapter satisfies the store interface', () => {
+    const script = `
+import { Mppx, Store, tempo } from 'mppx/server';
+import { privateKeyToAccount } from 'viem/accounts';
+import { atomicRedisAdapter } from './src/services/mppx-redis-store';
+const captured: string[] = [];
+for (const k of ['log', 'warn', 'error', 'info'] as const) {
+  (console as any)[k] = (...a: unknown[]) => captured.push(a.map(String).join(' '));
+}
+const client: any = { get: async () => null, set: async () => 'OK', del: async () => 1, eval: async () => 1 };
+const store: any = Store.redis(atomicRedisAdapter(client));
+const mppx = Mppx.create({
+  methods: [tempo.charge({
+    account: privateKeyToAccount('0x' + '11'.repeat(32)),
+    currencies: ['0x20c0000000000000000000000000000000000000'],
+    recipient: '0x00000000000000000000000000000000000a11ce',
+    store,
+  })],
+  secretKey: 's'.repeat(32),
+  realm: 'r',
+});
+const res = await mppx.charge({ amount: '1' })(new Request('https://x/y', { method: 'POST' }));
+process.stdout.write('RESULT' + JSON.stringify({ captured, update: typeof store.update, status: res.status }));
+`;
+    const stdout = execFileSync(
+      path.join(root, 'node_modules/.bin/tsx'),
+      ['--input-type=module', '-e', script],
+      { cwd: root, encoding: 'utf8', timeout: 60000 },
+    );
+    const r = JSON.parse(stdout.split('RESULT')[1]);
+    expect(r.update).toBe('function');
+    expect(r.status).toBe(402);
+    expect(r.captured.filter((l: string) => /in-?memory|memory store/i.test(l))).toEqual([]);
+  }, 70000);
+});

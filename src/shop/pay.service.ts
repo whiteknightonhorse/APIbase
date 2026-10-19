@@ -86,6 +86,7 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
           mppPaymentHeader: r.mpp.header,
           mppAmount: r.mpp.amount,
           mppTxHash: r.mpp.txHash,
+          mppAsset: r.mpp.asset,
           mppRecipient: r.mpp.recipient,
           mppSplits: r.mpp.splits,
         }

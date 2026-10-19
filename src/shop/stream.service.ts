@@ -459,7 +459,7 @@ export interface StreamChain {
 
 export const mppxChain: StreamChain = {
   async readChannel(m, s) {
-    const { SessionLegacy } = await import('mppx/tempo');
+    const { SessionLegacy } = await import('mppx-legacy/tempo');
     const client = await createStreamClient(getMppConfig());
     const onChain = await SessionLegacy.Session.Chain.getOnChainChannel(
       client as never,
@@ -469,7 +469,7 @@ export const mppxChain: StreamChain = {
     return { closeRequestedAt: onChain.closeRequestedAt, finalized: onChain.finalized === true };
   },
   async settle(m, s) {
-    const { tempo } = await import('mppx/server');
+    const { tempo } = await import('mppx-legacy/server');
     const client = await createStreamClient(getMppConfig());
     return tempo.sessionLegacy.settle(m.channels, client as never, s.channel_id as `0x${string}`, {
       account: m.account as never,
