@@ -26,6 +26,7 @@ import {
 
 type Redis = NonceRedis & {
   incr(key: string): Promise<number>;
+  get(key: string): Promise<string | null>;
   expire(key: string, seconds: number): Promise<unknown>;
 };
 

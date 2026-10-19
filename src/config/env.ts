@@ -29,6 +29,11 @@ export const shopEnvShape = {
   INTEGRATOR_FEE_ENABLED: z.string().optional().default('false'),
   INTEGRATOR_FEE_BPS: numOr(150),
   INTEGRATOR_MIN_ORDER_USD: numOr(1),
+  // Per-IP registration limit per hour (created merchants only); positive integer, max 1000.
+  INTEGRATOR_REGISTER_PER_HOUR: z.preprocess(
+    (v) => (v === '' || v === undefined ? undefined : v),
+    z.coerce.number().int().min(1).max(1000).default(5).catch(5),
+  ),
 };
 
 export const shopEnvSchema = z.object(shopEnvShape);

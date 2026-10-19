@@ -26,6 +26,10 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
   const buyerOf = (req: Request) => resolveBuyer({ apiKey: bearer(req), ip: req.ip });
   const send = (res: Response, err: unknown) => {
     const { status, body } = toApiError(err, res.req.requestId);
+    const ra = (body as { retry_after?: unknown }).retry_after;
+    if (status === 429 && typeof ra === 'number' && Number.isFinite(ra)) {
+      res.setHeader('Retry-After', String(Math.ceil(ra)));
+    }
     res.status(status).json(body);
   };
 

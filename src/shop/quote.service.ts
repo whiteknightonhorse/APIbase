@@ -232,6 +232,26 @@ export async function countPaidTestOrders24h(
   return Number(rows[0]?.c ?? 0);
 }
 
+/** Seconds until the oldest counted paid test order leaves the 24 h window (fallback 86400). */
+async function testCapRetryAfter(db: ShopTx, merchant_id: string, at: number): Promise<number> {
+  try {
+    const rows = await db.$queryRawUnsafe<Array<{ t: Date | string | null }>>(
+      `SELECT min(COALESCE(o.settled_at, o.created_at)) AS t
+         FROM shop_orders o JOIN shop_quotes q ON q.quote_id = o.quote_id
+        WHERE o.merchant_id = $1::uuid AND q.is_test
+          AND o.state NOT IN ('QUOTED', 'EXPIRED', 'CANCELLED', 'PAYING', 'PAYMENT_FAILED')
+          AND COALESCE(o.settled_at, o.created_at) > $2::timestamptz - interval '24 hours'`,
+      merchant_id,
+      new Date(at).toISOString(),
+    );
+    const oldest = rows[0]?.t ? new Date(rows[0].t).getTime() : NaN;
+    if (!Number.isFinite(oldest)) return 86_400;
+    return Math.max(1, Math.ceil((oldest + 86_400_000 - at) / 1000));
+  } catch {
+    return 86_400;
+  }
+}
+
 type RateRedis = NonNullable<ShopDeps['redis']>;
 
 /** §8.4: 30 quotes/min and 300/hour per buyer identity. Fail-open if Redis is down. */
@@ -677,7 +697,7 @@ export async function createQuote(
         'test_sku_daily_cap',
         `test SKU: ${cfg.test_sku_daily_cap} paid orders per 24 hours reached`,
         'retry_after_delay',
-        { documentation_url: DOCS },
+        { retry_after: await testCapRetryAfter(d.db, merchant_id, t), documentation_url: DOCS },
       );
     }
   }

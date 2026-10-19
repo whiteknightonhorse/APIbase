@@ -1,4 +1,5 @@
 import { Router, type Request, type Response } from 'express';
+import { getShopEnv } from '../../config/env';
 import { geoOf } from '../geo-headers';
 import { limiter, PROBE_LIMIT_PER_MIN } from './address-limiter';
 import { ShopAuthError } from '../auth/errors';
@@ -70,6 +71,10 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   const probeLimiter = limiter(60_000, PROBE_LIMIT_PER_MIN, { skipSuccessfulRequests: true });
   const send = (res: Response, err: unknown) => {
     const { status, body } = toApiError(err, res.req.requestId);
+    const ra = (body as { retry_after?: unknown }).retry_after;
+    if (status === 429 && typeof ra === 'number' && Number.isFinite(ra)) {
+      res.setHeader('Retry-After', String(Math.ceil(ra)));
+    }
     res.status(status).json(body);
   };
   const ctxOf = (req: Request) => ({
@@ -114,7 +119,9 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
 
   router.post(
     '/api/v1/shop/merchants',
-    limiter(3_600_000, 5),
+    probeLimiter,
+    // Counts created merchants only (201); 401/422/403 attempts do not burn a slot.
+    limiter(3_600_000, getShopEnv().INTEGRATOR_REGISTER_PER_HOUR, { skipFailedRequests: true }),
     async (req: Request, res: Response) => {
       try {
         const { message, signature, ...rest } = (req.body ?? {}) as Record<string, unknown>;

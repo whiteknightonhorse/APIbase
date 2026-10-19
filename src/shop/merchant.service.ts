@@ -9,12 +9,14 @@ import { ShopAuthError } from './auth/errors';
 import { verifyWalletSignature, type NonceRedis } from './auth/nonce.service';
 import { verifyWalletSignature as checkWalletSignature } from './wallet-signature';
 import { isCategoryAllowed, nearestAllowed } from './moderation/categories';
+import { getShopEnv } from '../config/env';
 import { moderateTexts } from './moderation/product-rules';
 import { isRestrictedEntityCountry, isRestrictedIp } from './moderation/countries';
 import { isSanctioned } from './moderation/sanctions';
 import { isPlatformWallet, PAYOUT_WALLET_PLATFORM_MSG } from './platform-wallets';
 
 export const REGISTRATIONS_PER_IP_PER_HOUR = 5;
+const registerLimit = () => getShopEnv().INTEGRATOR_REGISTER_PER_HOUR;
 const SLUG_RE = /^[a-z0-9-]{3,40}$/;
 const ADDR_RE = /^0x[0-9a-fA-F]{40}$/;
 const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/;
@@ -72,6 +74,7 @@ export interface RegisterCtx {
   db: ShopTx;
   redis?: NonceRedis & {
     incr(key: string): Promise<number>;
+    get(key: string): Promise<string | null>;
     expire(key: string, seconds: number): Promise<unknown>;
   };
   now?: () => number;
@@ -164,22 +167,29 @@ async function emitConnectEvent(ctx: RegisterCtx, wallet: string, error_code: st
   }
 }
 
+type RegRedis = NonNullable<RegisterCtx['redis']>;
+const ipKey = (ip: string) => `shop:reg:ip:${sha(ip).slice(0, 16)}`;
+
+async function regRedis(ctx: RegisterCtx): Promise<RegRedis> {
+  return (
+    ctx.redis ??
+    ((await (
+      await import('../services/redis.service')
+    ).ensureRedisConnected()) as never as RegRedis)
+  );
+}
+
+/** Pre-check only reads the counter; it is incremented after the merchant row exists (201s only). */
 async function checkIpRate(ctx: RegisterCtx): Promise<void> {
   if (!ctx.ip) return;
   let n = 0;
   try {
-    const r =
-      ctx.redis ??
-      ((await (
-        await import('../services/redis.service')
-      ).ensureRedisConnected()) as never as NonNullable<RegisterCtx['redis']>);
-    const key = `shop:reg:ip:${sha(ctx.ip).slice(0, 16)}`;
-    n = await r.incr(key);
-    if (n === 1) await r.expire(key, 3600);
+    const r = await regRedis(ctx);
+    n = Number((await r.get(ipKey(ctx.ip))) ?? 0) || 0;
   } catch {
     return; // fail-open, like the moderation ban
   }
-  if (n > REGISTRATIONS_PER_IP_PER_HOUR) {
+  if (n >= registerLimit()) {
     throw fail(
       429,
       'rate_limited',
@@ -189,6 +199,17 @@ async function checkIpRate(ctx: RegisterCtx): Promise<void> {
       undefined,
       3600,
     );
+  }
+}
+
+async function countIpRegistration(ctx: RegisterCtx): Promise<void> {
+  if (!ctx.ip) return;
+  try {
+    const r = await regRedis(ctx);
+    const key = ipKey(ctx.ip);
+    if ((await r.incr(key)) === 1) await r.expire(key, 3600);
+  } catch {
+    // fail-open
   }
 }
 
@@ -441,6 +462,7 @@ export async function registerMerchant(
        VALUES ($1::uuid, 'merchant', 'rules', 'ok')`,
       merchant_id,
     );
+    await countIpRegistration(ctx);
     logger.info({ merchant_id, slug: input.slug, signer_kind }, 'merchant registered (pending)');
     return { merchant_id, status: 'pending', agent_id: agent[0].agent_id };
   } catch (err) {

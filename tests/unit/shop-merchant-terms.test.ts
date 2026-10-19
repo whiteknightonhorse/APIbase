@@ -44,6 +44,9 @@ class FakeRedis {
     return e && e.exp > now() ? e.v : null;
   }
   c = new Map<string, number>();
+  async get(k: string) {
+    return this.c.has(k) ? String(this.c.get(k)) : null;
+  }
   async incr(k: string) {
     this.c.set(k, (this.c.get(k) ?? 0) + 1);
     return this.c.get(k)!;
@@ -471,7 +474,7 @@ describe('TA6 tools/list', () => {
 });
 
 describe('TA7 REST', () => {
-  it('POST /merchants without signature -> 401; 6th from one IP/hour -> 429; nonce+accept flow works', async () => {
+  it('POST /merchants without signature -> 401, never burns a registration slot; nonce+accept flow works', async () => {
     const env = build();
     const app = express();
     app.use(express.json());
@@ -487,7 +490,7 @@ describe('TA7 REST', () => {
         });
       const codes: number[] = [];
       for (let i = 0; i < 6; i++) codes.push((await post('/merchants', { slug: 'x' })).status);
-      expect(codes).toEqual([401, 401, 401, 401, 401, 429]);
+      expect(codes).toEqual([401, 401, 401, 401, 401, 401]);
 
       // full flow through the nonce endpoint (separate router => fresh limiter)
       const app2 = express();

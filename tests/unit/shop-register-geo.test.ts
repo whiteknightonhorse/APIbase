@@ -49,6 +49,9 @@ class FakeRedis {
     return v;
   }
   c = new Map<string, number>();
+  async get(k: string) {
+    return this.c.has(k) ? String(this.c.get(k)) : null;
+  }
   async incr(k: string) {
     this.c.set(k, (this.c.get(k) ?? 0) + 1);
     return this.c.get(k)!;
