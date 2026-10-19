@@ -2090,7 +2090,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'phone.telnyx.sms_na',
     title: 'Send SMS — NANP / North America (Telnyx)',
     description:
-      '⚡ ACTION: Send SMS to North America (NANP +1 — US, Canada, Caribbean). $0.012/message — cheapest tier. Returns 400 if destination is outside +1. Use telnyx.estimate_price first if unsure (Telnyx)',
+      '⚡ ACTION: Send SMS to North America (NANP +1 — US, Canada, Caribbean). $0.016/message — cheapest tier. Returns 400 if destination is outside +1. Use telnyx.estimate_price first if unsure (Telnyx)',
     category: 'messaging',
     annotations: {
       readOnlyHint: false,

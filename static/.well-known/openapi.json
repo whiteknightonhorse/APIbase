@@ -17669,17 +17669,17 @@
         "summary": "Send SMS (Twilio)",
         "description": "⚡ ACTION: Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)",
         "x-payment-info": {
-          "amount": "15000",
+          "amount": "20000",
           "currency": "0x20C000000000000000000000b9537d11c60E8b50",
           "intent": "charge",
           "method": "tempo",
-          "description": "$0.015000 USD per call",
+          "description": "$0.020000 USD per call",
           "protocols": [
             "x402",
             "mpp"
           ],
           "pricingMode": "fixed",
-          "price": "0.015000"
+          "price": "0.020000"
         },
         "parameters": [
           {
@@ -17764,19 +17764,19 @@
       "post": {
         "operationId": "telnyx_send_sms_na",
         "summary": "Send SMS — NANP / North America (Telnyx)",
-        "description": "⚡ ACTION: Send SMS to North America (NANP +1 — US, Canada, Caribbean). $0.012/message — cheapest tier. Returns 400 if destination is outside +1. Use telnyx.estimate_price first if unsure (Telnyx)",
+        "description": "⚡ ACTION: Send SMS to North America (NANP +1 — US, Canada, Caribbean). $0.016/message — cheapest tier. Returns 400 if destination is outside +1. Use telnyx.estimate_price first if unsure (Telnyx)",
         "x-payment-info": {
-          "amount": "12000",
+          "amount": "16000",
           "currency": "0x20C000000000000000000000b9537d11c60E8b50",
           "intent": "charge",
           "method": "tempo",
-          "description": "$0.012000 USD per call",
+          "description": "$0.016000 USD per call",
           "protocols": [
             "x402",
             "mpp"
           ],
           "pricingMode": "fixed",
-          "price": "0.012000"
+          "price": "0.016000"
         },
         "parameters": [
           {

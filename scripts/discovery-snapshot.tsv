@@ -1195,7 +1195,7 @@ telnyx.balance	telnyx	0.001
 telnyx.estimate_price	telnyx	0.001
 telnyx.list_messages	telnyx	0.002
 telnyx.message_status	telnyx	0.001
-telnyx.send_sms_na	telnyx	0.012
+telnyx.send_sms_na	telnyx	0.016
 telnyx.send_sms_premium	telnyx	0.25
 telnyx.send_sms_world	telnyx	0.1
 tfl.arrivals	tfl	0.001
@@ -1248,7 +1248,7 @@ tvmaze.show_details	tvmaze	0.001
 tvmaze.show_episodes	tvmaze	0.001
 tvmaze.show_search	tvmaze	0.001
 twilio.lookup	twilio	0.005
-twilio.send_sms	twilio	0.015
+twilio.send_sms	twilio	0.020
 twitter.followers	twitterapi	0.003
 twitter.search	twitterapi	0.002
 twitter.trending	twitterapi	0.002

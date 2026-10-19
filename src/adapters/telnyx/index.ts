@@ -12,7 +12,7 @@ import {
  * APIbase pipeline charges a fixed price per tool_id, so we expose THREE send
  * tools mapped to three price tiers — each with a guaranteed >=33% margin.
  *
- * Tier 1  send_sms_na       NANP (+1)               cost ~$0.009  →  $0.012  (33% margin)
+ * Tier 1  send_sms_na       NANP (+1)               cost ~$0.0085 max →  $0.016  (>=1.3x floor)
  * Tier 2  send_sms_world    EU + APAC core + LATAM  cost ~$0.04-0.07 → $0.10  (43-150% margin)
  * Tier 3  send_sms_premium  CIS + CN + MENA + AF +  cost ~$0.10-0.18 → $0.25  (39-150% margin)
  *                           default for unknown
@@ -151,7 +151,7 @@ function classifyDestination(to: string): Tier {
 }
 
 const TIER_TOOL_PRICE: Record<Tier, { tool: string; price: string }> = {
-  na: { tool: 'telnyx.send_sms_na', price: '$0.012' },
+  na: { tool: 'telnyx.send_sms_na', price: '$0.016' },
   world: { tool: 'telnyx.send_sms_world', price: '$0.10' },
   premium: { tool: 'telnyx.send_sms_premium', price: '$0.25' },
 };
@@ -197,7 +197,7 @@ export class TelnyxAdapter extends BaseAdapter {
         throw {
           code: ProviderErrorCode.INVALID_RESPONSE,
           httpStatus: 400,
-          message: `Destination ${to} is in '${actualTier}' tier — use ${correct.tool} (${correct.price}/SMS) instead. Tiers: na=NANP +1 ($0.012); world=EU/APAC/LATAM core ($0.10); premium=CIS/CN/MENA/Africa/unknown ($0.25).`,
+          message: `Destination ${to} is in '${actualTier}' tier — use ${correct.tool} (${correct.price}/SMS) instead. Tiers: na=NANP +1 ($0.016); world=EU/APAC/LATAM core ($0.10); premium=CIS/CN/MENA/Africa/unknown ($0.25).`,
           provider: this.provider,
           toolId: req.toolId,
           durationMs: 0,
@@ -359,7 +359,7 @@ export class TelnyxAdapter extends BaseAdapter {
           tiers: {
             na: {
               tool: 'telnyx.send_sms_na',
-              price_usd: '0.012',
+              price_usd: '0.016',
               covers: 'NANP (+1) — US, Canada, Caribbean',
             },
             world: {

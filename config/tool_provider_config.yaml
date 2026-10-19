@@ -1743,7 +1743,7 @@ tools:
   - tool_id: twilio.send_sms
     name: Send SMS
     provider: twilio
-    price_usd: "0.015"
+    price_usd: "0.020"
     upstream_cost_status: NOT_MEASURED
     upstream_cost_model: metered
     upstream_cost_note: "https://www.twilio.com/en-us/sms/pricing/us — \"$0.0083 per outbound SMS segment\" plus carrier fee (AT&T $0.0035 ... Verizon $0.005; example AT&T $0.0118); failed messages \"$0.001\" processing fee — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: segments x ($0.0083 + carrier fee), max US long code $0.0133 per segment; non-US destinations priced separately and can exceed the fixed price"
@@ -1754,7 +1754,7 @@ tools:
   - tool_id: telnyx.send_sms_na
     name: Send SMS — NANP (Telnyx)
     provider: telnyx
-    price_usd: "0.012"
+    price_usd: "0.016"
     upstream_cost_status: NOT_MEASURED
     upstream_cost_model: metered
     upstream_cost_note: "https://telnyx.com/pricing/messaging — \"$0.004 per message part + carrier fee\" (AT&T $0.0035, T-Mobile/Verizon $0.0045 per part) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: parts x ($0.004 + carrier fee), roughly $0.0075-$0.0085 per part; multi-part messages scale linearly"
