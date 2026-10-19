@@ -70,6 +70,10 @@ fast-json-stable-stringify (keys sorted recursively, no whitespace) and the thre
 `GET /api/v1/tools/<id>` returns. `GET /api/v1/tools/manifest` returns every hash with an ETag you can poll
 with `If-None-Match`. A changed hash means the description or input schema changed: re-read the tool before
 calling it. Price is not part of the hash.
+The manifest covers exactly the tools `tools/list` serves right now, including the `shop.*` platform tools, so a
+tool marked unavailable drops out of both and `manifest_sha256` moves when the served set changes, while a
+`definition_sha256` moves only when that tool's description or input schema changes.
+`GET /api/v1/tools/shop.<name>` returns the fields a shop hash is computed over.
 
 ## Why this exists
 

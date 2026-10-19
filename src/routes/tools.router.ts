@@ -124,10 +124,30 @@ toolsRouter.get(
   '/api/v1/tools/:toolId',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const toolId = req.params.toolId as string;
-      const tool = await getToolById(toolId);
+      const toolId: unknown = req.params.toolId;
+      // shop.* branch: in-memory map only, touches no DB, fs or auth (CodeQL rule 2 not engaged).
+      if (typeof toolId === 'string' && toolId.startsWith('shop.')) {
+        // Lazy: the shop fingerprint module pulls the shop services (config, DB clients).
+        /* eslint-disable @typescript-eslint/no-require-imports */
+        const { getShopToolDefinitions } =
+          require('../shop/tool-fingerprint') as typeof import('../shop/tool-fingerprint');
+        /* eslint-enable @typescript-eslint/no-require-imports */
+        const shop = getShopToolDefinitions().get(toolId);
+        if (shop) {
+          res.setHeader('Cache-Control', 'public, max-age=300');
+          res.status(200).json({
+            id: shop.id,
+            name: shop.name,
+            description: shop.description,
+            input_schema: shop.input_schema,
+            definition_sha256: shop.definition_sha256,
+          });
+          return;
+        }
+      }
+      const tool = await getToolById(toolId as string);
       if (!tool) {
-        throw new AppError(ErrorCode.NOT_FOUND, `Tool not found: ${toolId}`);
+        throw new AppError(ErrorCode.NOT_FOUND, `Tool not found: ${String(toolId)}`);
       }
       // ZZ-03-03: this response now carries live quality.tool/quality.provider
       // data (provider_status + Redis, both far fresher than an hour) — the

@@ -33,6 +33,7 @@ import { registerOrderTools } from '../shop/tools/order.tools';
 import { geoOf } from '../shop/geo-headers';
 import type { RegisterCtx } from '../shop/merchant.service';
 import { registerMerchantTools } from '../shop/tools/merchant.tools';
+import { withDefinitionSha256 } from '../shop/tool-fingerprint';
 import { createMerchantMcpServer, loadStorefront } from '../shop/merchant-mcp-server';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
 import { StorefrontError } from '../shop/storefront/storefront.service';
@@ -194,9 +195,10 @@ export function createMcpServer(
 ): McpServer {
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
-  registerMerchantTools(mcpServer, apiKey, requestId, undefined, clientCtx);
-  registerCatalogTools(mcpServer, apiKey, requestId);
-  registerOrderTools(mcpServer, apiKey, requestId, undefined, paymentCtxRef, sessionId);
+  const shopServer = withDefinitionSha256(mcpServer);
+  registerMerchantTools(shopServer, apiKey, requestId, undefined, clientCtx);
+  registerCatalogTools(shopServer, apiKey, requestId);
+  registerOrderTools(shopServer, apiKey, requestId, undefined, paymentCtxRef, sessionId);
   registerPrompts(mcpServer);
   return mcpServer;
 }

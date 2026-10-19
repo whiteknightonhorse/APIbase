@@ -2,7 +2,7 @@ import {
   TOOL_SCHEMAS_JSON,
   TOOL_DESCRIPTIONS,
   TOOL_FINGERPRINTS,
-  MANIFEST_SHA256,
+  getManifestSha256,
 } from '../mcp/tool-fingerprint';
 import { getPrisma } from './prisma.service';
 import { ensureRedisConnected } from './redis.service';
@@ -292,7 +292,7 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
     platform: 'APIbase',
     version: '1.0',
     updated_at: new Date().toISOString(),
-    manifest_sha256: MANIFEST_SHA256,
+    manifest_sha256: getManifestSha256(),
     total: tools.length,
     tools: await toEntries(tools),
   };

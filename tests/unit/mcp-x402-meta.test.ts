@@ -24,6 +24,9 @@ jest.mock('../../src/config/x402.config', () => ({
     maxTimeoutSeconds: 120,
   }),
 }));
+jest.mock('../../src/config/index', () => ({
+  config: { ENCRYPTION_KEY: 'k'.repeat(40), X402_NETWORK: 'base' },
+}));
 const mockRun = jest.fn();
 jest.mock('../../src/pipeline/pipeline', () => ({ runPipeline: (c: unknown) => mockRun(c) }));
 
@@ -240,5 +243,60 @@ describe('T-0500: registerTool config carries definition_sha256 in _meta', () =>
       expect(cfg._meta?.['apibase/definition_sha256']).toBe(getDefinitionSha256(def.toolId));
       expect(cfg._meta?.['apibase/definition_sha256']).toMatch(/^[0-9a-f]{64}$/);
     }
+  });
+});
+
+describe('definition_sha256 on every served tool, shop.* included (T-0502)', () => {
+  it('createMcpServer: every registered tool carries the hash and the set equals the manifest', async () => {
+    const { McpServer } = await import('@modelcontextprotocol/sdk/server/mcp.js');
+    const { createMcpServer } = await import('../../src/mcp/server');
+    const { getManifest } = await import('../../src/mcp/tool-fingerprint');
+    const { getShopToolDefinitions } = await import('../../src/shop/tool-fingerprint');
+    const captured = new Map<string, { config: Record<string, unknown>; cb: unknown }>();
+    const spy = jest.spyOn(McpServer.prototype, 'registerTool').mockImplementation(((
+      name: string,
+      config: Record<string, unknown>,
+      cb: unknown,
+    ) => {
+      captured.set(name, { config, cb });
+      return undefined;
+    }) as never);
+    try {
+      createMcpServer('k', 'r', {} as never);
+    } finally {
+      spy.mockRestore();
+    }
+    const shops = getShopToolDefinitions();
+    expect(shops.size).toBeGreaterThan(0);
+    for (const [name, { config }] of captured) {
+      const sha = (config._meta as Record<string, unknown>)['apibase/definition_sha256'];
+      expect(sha).toMatch(/^[0-9a-f]{64}$/);
+      if (name.startsWith('shop.')) expect(sha).toBe(shops.get(name)?.definition_sha256);
+    }
+    expect([...captured.keys()].sort()).toEqual(
+      getManifest()
+        .tools.map((t) => t.name)
+        .sort(),
+    );
+  });
+
+  it('the shim passes the original callback through (same identity)', async () => {
+    const { withDefinitionSha256 } = await import('../../src/shop/tool-fingerprint');
+    const { z } = await import('zod');
+    let got: { name: string; cb: unknown; config: Record<string, unknown> } | undefined;
+    const fake = {
+      registerTool: (name: string, config: Record<string, unknown>, cb: unknown) => {
+        got = { name, cb, config };
+      },
+    };
+    const original = async () => ({ content: [] });
+    (withDefinitionSha256(fake as never).registerTool as unknown as (...a: unknown[]) => void)(
+      'shop.x.y',
+      { description: 'd', inputSchema: { a: z.string() }, title: 'T' },
+      original,
+    );
+    expect(got?.cb).toBe(original);
+    expect(got?.name).toBe('shop.x.y');
+    expect(got?.config.title).toBe('T');
   });
 });

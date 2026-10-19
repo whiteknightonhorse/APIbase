@@ -73,16 +73,6 @@ export function getDefinitionSha256(toolId: string): string | undefined {
   return TOOL_FINGERPRINTS.get(toolId);
 }
 
-const MANIFEST_TOOLS = TOOL_DEFINITIONS.map((def) => ({
-  id: def.toolId,
-  name: def.mcpName || def.toolId,
-  definition_sha256: TOOL_FINGERPRINTS.get(def.toolId) as string,
-})).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-
-export const MANIFEST_SHA256: string = sha256Hex(
-  stringify(MANIFEST_TOOLS.map((t) => [t.id, t.definition_sha256])),
-);
-
 // Same runtime read as src/mcp/server.ts (package.json sits outside tsconfig rootDir).
 const { version: PACKAGE_VERSION } = JSON.parse(
   readFileSync(join(__dirname, '../../package.json'), 'utf8'),
@@ -96,12 +86,42 @@ export interface ToolManifest {
   tools: Array<{ id: string; name: string; definition_sha256: string }>;
 }
 
+function buildManifestTools(): ToolManifest['tools'] {
+  // Required lazily, synchronously: served-tools pulls the tool-status stage and the shop
+  // fingerprint pulls the shop services (config, DB clients). A top-level import would load
+  // them into every importer of this module (tool-registry.service, scripts, unit tests).
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const { servedToolDefinitions } = require('./served-tools') as typeof import('./served-tools');
+  const { getShopToolDefinitions } =
+    require('../shop/tool-fingerprint') as typeof import('../shop/tool-fingerprint');
+  /* eslint-enable @typescript-eslint/no-require-imports */
+  // Both sources read the in-memory active-id cache or static maps: no DB query, timer or async.
+  const tools: ToolManifest['tools'] = servedToolDefinitions().map((def) => ({
+    id: def.toolId,
+    name: def.mcpName || def.toolId,
+    definition_sha256: TOOL_FINGERPRINTS.get(def.toolId) as string,
+  }));
+  for (const d of getShopToolDefinitions().values()) {
+    tools.push({ id: d.name, name: d.name, definition_sha256: d.definition_sha256 });
+  }
+  return tools.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+
+function manifestShaOf(tools: ToolManifest['tools']): string {
+  return sha256Hex(stringify(tools.map((t) => [t.id, t.definition_sha256])));
+}
+
 export function getManifest(): ToolManifest {
+  const tools = buildManifestTools();
   return {
     algorithm: FINGERPRINT_ALGORITHM,
-    manifest_sha256: MANIFEST_SHA256,
-    total: MANIFEST_TOOLS.length,
+    manifest_sha256: manifestShaOf(tools),
+    total: tools.length,
     package_version: PACKAGE_VERSION,
-    tools: MANIFEST_TOOLS,
+    tools,
   };
+}
+
+export function getManifestSha256(): string {
+  return manifestShaOf(buildManifestTools());
 }

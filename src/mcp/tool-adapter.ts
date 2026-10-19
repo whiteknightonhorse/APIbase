@@ -13,10 +13,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { toolSchemas } from '../schemas/index';
 import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
-import { logger } from '../config/logger';
-import { TOOL_DEFINITIONS } from './tool-definitions';
 import { getDefinitionSha256 } from './tool-fingerprint';
-import { getActiveToolIds } from '../pipeline/stages/tool-status.stage';
+import { servedToolDefinitions } from './served-tools';
 import { X_PAYMENT } from '../config/http-headers';
 import { getX402Config } from '../config/x402.config';
 import {
@@ -86,27 +84,11 @@ export function registerTools(
   requestId: string,
   paymentCtx?: PaymentContext,
 ): void {
-  const activeIds = getActiveToolIds();
-
-  for (const def of TOOL_DEFINITIONS) {
-    // Skip tools marked unavailable in DB (e.g. foursquare without API key)
-    if (activeIds.size > 0 && !activeIds.has(def.toolId)) {
-      continue;
-    }
+  for (const def of servedToolDefinitions()) {
+    // Predicate (active ids, schema present and a ZodObject) lives in served-tools.ts; the
+    // manifest uses the same one.
     const schema = toolSchemas[def.toolId];
-    if (!schema) {
-      logger.warn({ tool_id: def.toolId }, 'No schema found for tool, skipping MCP registration');
-      continue;
-    }
-
-    // Extract raw shape from ZodObject for MCP SDK registerTool
-    const shape =
-      schema instanceof z.ZodObject ? (schema.shape as Record<string, z.ZodTypeAny>) : undefined;
-
-    if (!shape) {
-      logger.warn({ tool_id: def.toolId }, 'Schema is not a ZodObject, skipping MCP registration');
-      continue;
-    }
+    const shape = (schema as z.ZodObject<z.ZodRawShape>).shape as Record<string, z.ZodTypeAny>;
 
     const mcpName = def.mcpName || def.toolId;
     const toolId = def.toolId;

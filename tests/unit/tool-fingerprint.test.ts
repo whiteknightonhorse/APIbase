@@ -4,12 +4,29 @@ import {
   computeDefinitionSha256,
   getDefinitionSha256,
   getManifest,
-  MANIFEST_SHA256,
+  getManifestSha256,
   TOOL_FINGERPRINTS,
   TOOL_DESCRIPTIONS,
   TOOL_SCHEMAS_JSON,
 } from '../../src/mcp/tool-fingerprint';
 import { TOOL_DEFINITIONS } from '../../src/mcp/tool-definitions';
+import { getShopToolDefinitions } from '../../src/shop/tool-fingerprint';
+import { zodToJsonSchema } from '../../src/utils/zod-to-json-schema';
+import { z } from 'zod';
+import { servedToolDefinitions } from '../../src/mcp/served-tools';
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { registerMerchantTools } from '../../src/shop/tools/merchant.tools';
+
+jest.mock('../../src/config/index', () => ({
+  config: { ENCRYPTION_KEY: 'k'.repeat(40), X402_NETWORK: 'base' },
+}));
+jest.mock('../../src/config/logger', () => ({
+  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
+}));
+let mockActive = new Set<string>();
+jest.mock('../../src/pipeline/stages/tool-status.stage', () => ({
+  getActiveToolIds: () => mockActive,
+}));
 
 const base = {
   id: 'crypto.trending',
@@ -72,19 +89,86 @@ describe('T-0500 definition_sha256', () => {
 });
 
 describe('T-0500 manifest', () => {
-  it('manifest_sha256 equals sha256 over the sorted [id, hash] pairs', () => {
-    const pairs = [...TOOL_FINGERPRINTS.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1));
-    const expected = createHash('sha256').update(stringify(pairs)).digest('hex');
-    expect(MANIFEST_SHA256).toBe(expected);
-    expect(getManifest().manifest_sha256).toBe(expected);
+  beforeEach(() => {
+    mockActive = new Set<string>();
   });
 
-  it('lists every TOOL_DEFINITIONS id exactly once, sorted by id', () => {
+  const shopNames = () => [...getShopToolDefinitions().keys()];
+  // Ids that are served with an empty active set (a def without a ZodObject schema never is).
+  const subsetIds = () => {
+    const shop = new Set(shopNames());
+    return getManifest()
+      .tools.map((t) => t.id)
+      .filter((id) => !shop.has(id))
+      .filter((_, i) => i % 3 === 0);
+  };
+
+  it('manifest_sha256 equals sha256 over the sorted [id, hash] pairs of the served set', () => {
+    const m = getManifest();
+    const pairs = m.tools.map((t) => [t.id, t.definition_sha256]);
+    const expected = createHash('sha256').update(stringify(pairs)).digest('hex');
+    expect(m.manifest_sha256).toBe(expected);
+    expect(getManifestSha256()).toBe(expected);
+    expect(m.tools.map((t) => t.id)).toEqual([...m.tools.map((t) => t.id)].sort());
+  });
+
+  it('size-0 guard: an empty active set serves every TOOL_DEFINITIONS id, plus the shop tools', () => {
+    mockActive = new Set<string>();
     const m = getManifest();
     const ids = m.tools.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toEqual([...new Set(TOOL_DEFINITIONS.map((d) => d.toolId))].sort());
+    const served = new Set(servedToolDefinitions().map((d) => d.toolId));
+    expect(served.size).toBeGreaterThan(TOOL_DEFINITIONS.length - 20);
+    for (const id of served) expect(ids).toContain(id);
     expect(m.total).toBe(ids.length);
+  });
+
+  it('lists every shop tool exactly once with the hash of the shop map', () => {
+    const m = getManifest();
+    expect(shopNames().length).toBeGreaterThan(0);
+    for (const [name, def] of getShopToolDefinitions()) {
+      const hits = m.tools.filter((t) => t.id === name);
+      expect(hits).toHaveLength(1);
+      expect(hits[0].definition_sha256).toBe(def.definition_sha256);
+    }
+  });
+
+  it('a shop hash equals an independent recompute from the live registerTool config', () => {
+    let seen: { description: string; inputSchema: Record<string, z.ZodTypeAny> } | undefined;
+    const fake = {
+      registerTool: (name: string, config: never) => {
+        if (name === 'shop.merchant.register') seen = config;
+      },
+    } as unknown as McpServer;
+    registerMerchantTools(fake, '', 'x');
+    expect(seen).toBeDefined();
+    const expected = createHash('sha256')
+      .update(
+        stringify({
+          id: 'shop.merchant.register',
+          description: seen!.description,
+          input_schema: zodToJsonSchema(z.object(seen!.inputSchema)),
+        }),
+      )
+      .digest('hex');
+    expect(getShopToolDefinitions().get('shop.merchant.register')?.definition_sha256).toBe(
+      expected,
+    );
+  });
+
+  it('with a strict subset active the manifest is exactly that subset plus the shop names', () => {
+    const unmocked = getManifest();
+    const subset = subsetIds();
+    mockActive = new Set(subset);
+    const m = getManifest();
+    expect(m.tools.map((t) => t.id).sort()).toEqual([...subset, ...shopNames()].sort());
+    expect(m.total).toBe(m.tools.length);
+    expect(m.manifest_sha256).not.toBe(unmocked.manifest_sha256);
+    expect(getManifestSha256()).toBe(m.manifest_sha256);
+  });
+
+  it('metadata', () => {
+    const m = getManifest();
     expect(m.algorithm).toContain('definition_sha256 = sha256hex');
     expect(m.package_version).toMatch(/^\d+\.\d+\.\d+/);
   });

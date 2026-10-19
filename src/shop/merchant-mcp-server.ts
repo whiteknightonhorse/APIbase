@@ -181,6 +181,7 @@ export function createMerchantMcpServer(
       };
     },
   });
+  // Not wrapped with withDefinitionSha256: the storefront strips `merchant` from the shape, so the hash would be wrong here and the storefront publishes no manifest.
   registerCatalogTools(shim, apiKey, requestId, deps);
   registerOrderTools(shim, apiKey, requestId, deps, paymentCtx, sessionId);
   return server;
