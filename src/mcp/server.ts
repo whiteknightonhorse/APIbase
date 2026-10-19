@@ -398,6 +398,14 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
   router.get('/mcp', async (req: express.Request, res: express.Response) => {
     try {
       const sessionId = req.headers['mcp-session-id'] as string | undefined;
+      // Browsers (humans following backlinks) send text/html first; MCP clients send text/event-stream.
+      if (
+        !sessionId &&
+        req.accepts(['text/event-stream', 'application/json', 'text/html']) === 'text/html'
+      ) {
+        res.redirect(302, '/connect');
+        return;
+      }
       if (!sessionId) {
         res.status(400).json({
           error: 'bad_request',
