@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>stage</title>
+<style>
+:root{--bg:#0e100f;--surf:#151816;--surf-2:#1b1f1c;--line:#272c29;--line-2:#3e4541;--ink:#eef1ed;--ink-2:#b7beb8;--ink-3:#9ca59e;--accent:#4fd283;--on-accent:#04170c;--warn:#f0a640;--info:#7fb2ff;
+--sans:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;--mono:ui-monospace,'Cascadia Code','Source Code Pro',Menlo,Consolas,'DejaVu Sans Mono',monospace;--ease:cubic-bezier(.2,.7,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+body{font-family:var(--sans);color:var(--ink)}
+#stage{position:relative;width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+.scene{position:absolute;inset:0;overflow:hidden;display:none}
+.cam{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.cam img{display:block;width:1920px;height:auto}
+.layer{position:absolute;inset:0}
+.cover{position:absolute;background:#0e100f}
+.caret{position:absolute;width:2px;height:24px;background:var(--ink)}
+/* lower third */
+#cap{position:absolute;left:120px;bottom:84px;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:22px 34px;font-size:40px;line-height:1.2;color:var(--ink);opacity:0;white-space:nowrap}
+#cap b{color:var(--accent);font-weight:700}
+/* pointer + ripple */
+#ptr{position:absolute;left:0;top:0;width:40px;height:48px;opacity:0;z-index:50;pointer-events:none;transform-origin:3px 3px}
+#rip{position:absolute;width:20px;height:20px;border-radius:50%;border:4px solid var(--accent);opacity:0;z-index:49;pointer-events:none;transform:translate(-50%,-50%)}
+/* drawn scenes */
+.mono{font-family:var(--mono)}
+.panel{position:absolute;background:var(--surf);border:1px solid var(--line);border-radius:14px}
+.bar{display:flex;align-items:center;gap:10px;height:56px;padding:0 22px;border-bottom:1px solid var(--line);color:var(--ink-3);font-family:var(--mono);font-size:22px}
+.bar i{width:14px;height:14px;border-radius:50%;background:var(--line-2);display:inline-block}
+.code{font-family:var(--mono);font-size:27px;line-height:1.55;color:var(--ink);white-space:pre-wrap;word-break:break-all;padding:28px 30px}
+.code .t{color:var(--info)}.code .s{color:var(--accent)}
+.blink{display:inline-block;width:.6em;height:1.1em;background:var(--accent);vertical-align:-.18em}
+.btn-ai{display:inline-block;border:1.5px solid var(--accent);color:var(--accent);border-radius:8px;padding:16px 28px;font-weight:700;font-size:28px}
+.bubble{border-radius:12px;padding:20px 26px;font-size:34px;line-height:1.3;border:1px solid var(--line);background:var(--surf-2);color:var(--ink)}
+.lbl{font-family:var(--mono);font-size:22px;letter-spacing:.08em;color:var(--ink-3)}
+.card{position:absolute;top:300px;width:520px;height:340px;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:44px 40px}
+.card .big{font-size:96px;font-weight:700;color:var(--accent);letter-spacing:-.02em;line-height:1}
+.card p{font-size:40px;line-height:1.25;color:var(--ink);margin-top:28px}
+.cta{display:inline-block;background:var(--accent);color:var(--on-accent);border-radius:12px;padding:26px 54px;font-size:44px;font-weight:700}
+</style></head><body>
+<div id="stage">
+ <!-- S1 -->
+ <div class="scene" id="sc1"><div class="layer" id="s1c">
+   <div class="mono" id="s1t" style="position:absolute;left:0;right:0;top:420px;text-align:center;font-size:76px;color:var(--accent)"></div></div></div>
+ <!-- shot scenes -->
+ <div class="scene" id="sc2"><div class="cam" id="cam2"><img id="img2" src="s2.png"></div></div>
+ <div class="scene" id="sc3"><div class="cam" id="cam3"><img src="s3_filled.png"><div id="covers3"></div></div></div>
+ <div class="scene" id="sc4"><div class="cam" id="cam4"><img id="img4a" src="s4_unticked.png"><img id="img4b" src="s4_ticked.png" style="position:absolute;left:0;top:0;opacity:0"></div></div>
+ <div class="scene" id="sc5"><div class="cam" id="cam5"><img src="s5.png"></div></div>
+ <!-- S6 -->
+ <div class="scene" id="sc6"><div class="layer" id="s6c">
+   <div class="panel" style="left:110px;top:120px;width:860px;height:580px">
+     <div class="bar"><i></i><i></i><i></i><span style="margin-left:14px">your-store.example</span></div>
+     <div style="padding:34px 44px">
+       <div style="display:flex;justify-content:space-between;align-items:center;color:var(--ink-2);font-size:28px"><b style="color:var(--ink);font-size:32px">Your Store</b><span>Shop &nbsp; New &nbsp; Sale</span></div>
+       <div style="margin-top:34px;display:flex;gap:36px">
+         <div style="width:300px;height:300px;border-radius:12px;background:var(--surf-2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center"><svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="#9ca59e" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15l4-6 4 3 3-5 3 5 4 1v4H3z"/></svg></div>
+         <div style="flex:1"><div style="font-size:46px;font-weight:700">Trail Runner 2</div><div style="font-size:38px;color:var(--ink-2);margin-top:12px">$89</div>
+           <div id="s6btn" style="margin-top:40px;opacity:0"><span class="btn-ai">Buy with your AI agent</span></div></div>
+       </div></div></div>
+   <div class="panel" style="left:1010px;top:120px;width:800px;height:580px;background:var(--surf-2)">
+     <div class="bar"><span>product-page.html</span></div><div class="code" id="s6code"></div></div>
+ </div></div>
+ <!-- S7 -->
+ <div class="scene" id="sc7"><div class="cam" id="cam7"><img id="img7a" src="s7_closed.png"><img id="img7b" src="s7.png" style="position:absolute;left:0;top:0;opacity:0"><img id="img7c" src="s7_copied.png" style="position:absolute;left:0;top:0;opacity:0"></div></div>
+ <!-- S8 -->
+ <div class="scene" id="sc8"><div class="layer" id="s8c">
+   <div class="panel" style="left:300px;top:90px;width:1320px;height:620px;padding:36px 44px">
+     <div class="lbl">SHOPPER'S AI ASSISTANT</div>
+     <div class="bubble" id="b1" style="margin:28px 0 0 220px;opacity:0">Buy APIbase agent commerce guide from apibase.pro/m/apibase-demo</div>
+     <div class="bubble" id="b2" style="margin:26px 400px 0 0;opacity:0">Quote: $1.00 USDC on Base</div>
+     <div class="bubble" id="b3" style="margin:26px 600px 0 0;opacity:0">Paying<span id="dots">…</span></div>
+     <div class="bubble" id="b4" style="margin:26px 400px 0 0;opacity:0;border-color:var(--accent);background:rgba(79,210,131,.10);color:var(--accent);font-weight:700">✓ Order paid</div>
+   </div></div></div>
+ <!-- S9 -->
+ <div class="scene" id="sc9"><div class="layer" id="s9c">
+   <div class="card" id="k1" style="left:120px"><div class="big">USDC</div><p>straight to your wallet — Base or Tempo</p></div>
+   <div class="card" id="k2" style="left:700px"><div class="big">0%</div><p>fee during pilot</p></div>
+   <div class="card" id="k3" style="left:1280px"><div class="big">$1</div><p>minimum order</p></div>
+ </div></div>
+ <!-- S10 -->
+ <div class="scene" id="sc10"><div class="layer" id="s10c">
+   <img src="logo.png" style="position:absolute;left:850px;top:110px;width:220px;height:220px;border-radius:14px;border:1px solid var(--line)">
+   <div class="mono" id="s10u" style="position:absolute;left:0;right:0;top:390px;text-align:center;font-size:66px;color:var(--accent)"></div>
+   <div style="position:absolute;left:0;right:0;top:540px;text-align:center"><span class="cta" id="s10b">Connect my store</span></div>
+ </div></div>
+ <div id="cap"></div>
+ <div id="rip"></div>
+ <svg id="ptr" viewBox="0 0 40 48"><path d="M3 3 L3 36 L12 28 L18 42 L25 39 L19 26 L31 26 Z" fill="#fff" stroke="#0e100f" stroke-width="1.5" stroke-linejoin="round"/></svg>
+</div>
+<script>
+function bez(x1,y1,x2,y2){return function(t){if(t<=0)return 0;if(t>=1)return 1;var lo=0,hi=1,m=0.5,x;for(var i=0;i<32;i++){m=(lo+hi)/2;x=3*(1-m)*(1-m)*m*x1+3*(1-m)*m*m*x2+m*m*m;if(x<t)lo=m;else hi=m;}return 3*(1-m)*(1-m)*m*y1+3*(1-m)*m*m*y2+m*m*m;}}
+var E=bez(.2,.7,.2,1), clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function zr(r,frac,maxz){frac=frac||.58;maxz=maxz||2.6;return [r.x+r.w/2,r.y+r.h/2,Math.min(1920*frac/r.w,1080*.5/r.h,maxz)];}
+var R=__RECTS__;
+var $=id=>document.getElementById(id);
+function camAt(cam,t){ // cam: [[t,cx,cy,z],...]
+  if(t<=cam[0][0])return cam[0].slice(1);
+  for(var i=0;i<cam.length-1;i++){var a=cam[i],b=cam[i+1];
+    if(t<=b[0]){var p=E((t-a[0])/(b[0]-a[0]));return [a[1]+(b[1]-a[1])*p,a[2]+(b[2]-a[2])*p,a[3]*Math.pow(b[3]/a[3],p)];}}
+  return cam[cam.length-1].slice(1);}
+function ptrAt(pp,t){ if(!pp||t<pp[0][0])return null;
+  for(var i=0;i<pp.length-1;i++){var a=pp[i],b=pp[i+1];if(t<=b[0]){var p=E((t-a[0])/(b[0]-a[0]));return [a[1]+(b[1]-a[1])*p,a[2]+(b[2]-a[2])*p];}}
+  var l=pp[pp.length-1];return [l[1],l[2]];}
+function typeP(t,a,b,n){return clamp((t-a)/(b-a),0,1)}
+function stepP(t,a,b,n){return Math.floor(typeP(t,a,b)*n)/n}
+
+// ---------------- scenes ----------------
+var f=R; // rect shorthand
+function fld(r){return {x:r.x+2,y:r.y+2,w:r.w-4,h:r.h-4}}
+var tgtPage=zr(R.c_page_f,.6,2.0), tgtAccept=zr(R.c_accept,.6,1.9), tgtSign=zr(R.c_sign,.62,1.85), tgtChat=[1250,433,1.95];
+var tgtCard=[R.m_card.x+R.m_card.w/2,R.m_card.y+R.m_card.h/2-10,1.8];
+var SNIP='<a href="https://apibase.pro/m/<slug>/p/<sku>" rel="alternate payment" class="apibase-ai-buy">Buy with your AI agent</a>';
+var S=[
+ {id:1,start:0,dur:6,cap:'A new kind of <b>shopper</b>'},
+ {id:2,start:6,dur:8,cap:'Let AI agents <b>buy</b> from your store',cam:'cam2',H:1080,
+  camk:[[0,960,540,1],[3.4,780,420,1.25],[4.2,tgtChat[0],tgtChat[1],tgtChat[2]],[8,tgtChat[0],tgtChat[1],2.1]],
+  ptr:[[4.6,1750,230],[6.0,1400,612]],clicks:[[6.4,1400,612]]},
+ {id:3,start:14,dur:7,cap:'Step 1 — <b>Your store</b>',cam:'cam3',H:2076,
+  camk:[[0,960,540,1],[1.0,700,700,1.2],[5.3,700,700,1.24],[6.1,tgtPage[0],tgtPage[1],tgtPage[2]],[7,tgtPage[0],tgtPage[1],tgtPage[2]*1.06]],
+  ptr:[[0.2,1500,420],[0.9,520,527],[2.2,520,641],[3.7,520,868],[4.3,520,1075]],
+  clicks:[[0.9,520,527],[2.2,520,641],[3.8,520,868],[4.3,520,1075]]},
+ {id:4,start:21,dur:6,cap:'Step 2 — <b>Agreements</b>',cam:'cam4',H:1572,
+  camk:[[0,960,540,1],[1.4,700,560,1.25],[2.9,tgtAccept[0],tgtAccept[1],tgtAccept[2]],[6,tgtAccept[0],tgtAccept[1],tgtAccept[2]*1.08]],
+  ptr:[[0.4,1300,300],[1.9,R.c_box.x+11,R.c_box.y+11],[3.4,900,520]],clicks:[[2.0,R.c_box.x+11,R.c_box.y+11]]},
+ {id:5,start:27,dur:8,cap:'Step 3 — <b>Connect wallet</b>',cam:'cam5',H:1524,
+  camk:[[0,960,540,1],[2.0,700,520,1.25],[3.0,tgtSign[0],tgtSign[1],tgtSign[2]],[8,tgtSign[0],tgtSign[1],tgtSign[2]*1.1]]},
+ {id:6,start:35,dur:10,cap:'Paste <b>one link</b> on your site'},
+ {id:7,start:45,dur:8,cap:'Your AI storefront: <b>apibase.pro/m/…</b>',cam:'cam7',H:2119,
+  camk:[[0,960,700,1],[1.6,tgtCard[0]-120,tgtCard[1]-90,1.3],[2.6,tgtCard[0]-330,tgtCard[1],tgtCard[2]],[8,tgtCard[0]-330,tgtCard[1]+20,tgtCard[2]*1.08]],
+  ptr:[[0.5,1500,520],[1.6,R.m_sum.x+R.m_sum.w/2,R.m_sum.y+24],[4.4,R.m_copy.x+30,R.m_copy.y+22]],
+  clicks:[[2.0,R.m_sum.x+R.m_sum.w/2,R.m_sum.y+24],[5.0,R.m_copy.x+30,R.m_copy.y+22]]},
+ {id:8,start:53,dur:9,cap:'The agent quotes and pays in <b>USDC</b>'},
+ {id:9,start:62,dur:8,cap:'Paid <b>straight</b> to your wallet'},
+ {id:10,start:70,dur:9,cap:'Ready when you are — <b>connect</b> your store'}
+];
+var TOTAL=79;
+
+// drawn-scene push
+var _pz=1;function push(id,lt,dur,z1){var z=1+(z1-1)*E(lt/dur);_pz=z;var el=$(id);el.style.transformOrigin='50% 45%';el.style.transform='scale('+z+')';}
+function hl(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/(&lt;\/?[a-z]+)|("[^"]*")/g,function(m,a,b){return a?'<span class="t">'+a+'</span>':'<span class="s">'+b+'</span>';});}
+function setOpacity(el,v){el.style.opacity=v;}
+
+function coverRect(parent,r,fn){}
+// S3 covers
+var CV=[
+ {r:fld(R.c_name_f),x0:R.c_name_f.x+14,tw:124,a:1.0,b:1.9,n:15,type:1},
+ {r:fld(R.c_site_url_f),x0:R.c_site_url_f.x+14,tw:250,a:2.3,b:3.5,n:31,type:1},
+ {r:{x:R.c_category_f.x+2,y:R.c_category_f.y+2,w:R.c_category_f.w-48,h:R.c_category_f.h-4},x0:0,tw:0,a:3.8,b:3.8,n:1,type:0},
+ {r:fld(R.c_slug_f),x0:R.c_slug_f.x+14,tw:122,a:4.4,b:5.3,n:15,type:1},
+ {r:{x:R.c_pv_f.x-1,y:R.c_pv_f.y-4,w:R.c_pv_f.w+8,h:R.c_pv_f.h+8},x0:R.c_pv_f.x,tw:R.c_pv_f.w,a:4.4,b:5.3,n:15,type:2}
+];
+CV.forEach(function(c,i){var d=document.createElement('div');d.className='cover';d.id='cv'+i;$('covers3').appendChild(d);
+  if(c.type==1){var k=document.createElement('div');k.className='caret';k.id='cr'+i;$('covers3').appendChild(k);}});
+function drawS3(lt){
+  CV.forEach(function(c,i){var d=$('cv'+i),k=$('cr'+i);
+    if(c.type==0){var on=lt<c.a;d.style.cssText='left:'+c.r.x+'px;top:'+c.r.y+'px;width:'+c.r.w+'px;height:'+c.r.h+'px;display:'+(on?'block':'none');return;}
+    var p=stepP(lt,c.a,c.b,c.n), edge=c.x0+p*(c.tw+6);
+    var left=c.type==2?edge:edge, right=c.r.x+c.r.w;
+    if(c.type==2){left=c.x0+p*(c.tw+6);right=c.r.x+c.r.w;}
+    d.style.cssText='left:'+left+'px;top:'+c.r.y+'px;width:'+Math.max(0,right-left)+'px;height:'+c.r.h+'px;display:'+(p>=1?'none':'block');
+    if(k){var typing=lt>c.a-0.6&&lt<c.b+0.5; k.style.cssText='left:'+(edge-1)+'px;top:'+(c.r.y+c.r.h/2-12)+'px;display:'+(typing&&Math.floor(lt*2.4)%2==0?'block':'none');}
+  });}
+function drawScene(i,lt){
+  var s=S[i];
+  if(s.id==1){var txt='Your next customer is an AI agent.';var n=Math.floor(typeP(lt,0.6,4.2)*txt.length);
+    $('s1t').innerHTML='<span style="color:var(--ink-3)">&gt; </span>'+txt.slice(0,n)+(Math.floor(lt*1.9)%2==0||n<txt.length&&n>0?'<span class="blink"></span>':'<span class="blink" style="opacity:0"></span>');push('s1c',lt,s.dur,1.12);}
+  if(s.id==2||s.id==3||s.id==4||s.id==5||s.id==7){}
+  if(s.id==3)drawS3(lt);
+  if(s.id==4){var o=clamp((lt-2.0)/0.12,0,1);$('img4b').style.opacity=o;}
+  if(s.id==7){var o1=clamp((lt-2.0)/0.12,0,1),o2=clamp((lt-5.0)/0.12,0,1);$('img7b').style.opacity=o1;$('img7c').style.opacity=o2;}
+  if(s.id==6){var snip=SNIP;var n=Math.floor(typeP(lt,0.5,5.4)*snip.length);var done=n>=snip.length;
+    $('s6code').innerHTML=hl(snip.slice(0,n))+(done&&Math.floor(lt*1.9)%2?'':'<span class="blink" style="width:.55em"></span>');
+    var bo=E(clamp((lt-6.2)/0.5,0,1));var b=$('s6btn');b.style.opacity=bo;b.style.transform='scale('+(0.92+0.08*bo)+')';
+    push('s6c',lt,s.dur,1.1);}
+  if(s.id==8){var seq=[['b1',0.5],['b2',2.4],['b3',4.4],['b4',6.4]];
+    seq.forEach(function(q){var e=E(clamp((lt-q[1])/0.4,0,1));var el=$(q[0]);el.style.opacity=e;el.style.transform='translateY('+(18*(1-e))+'px)';});
+    $('b3').style.display=lt>=6.4?'none':'block';
+    $('dots').textContent='.'.repeat(1+Math.floor(lt*3)%3);
+    push('s8c',lt,s.dur,1.1);}
+  if(s.id==9){[['k1',0.5],['k2',1.4],['k3',2.3]].forEach(function(q){var e=E(clamp((lt-q[1])/0.6,0,1));var el=$(q[0]);el.style.opacity=e;el.style.transform='translateY('+(40*(1-e))+'px)';});push('s9c',lt,s.dur,1.12);}
+  if(s.id==10){var u='apibase.pro/integrator';var n=Math.floor(typeP(lt,0.8,2.6)*u.length);$('s10u').innerHTML=u.slice(0,n)+(n<u.length||Math.floor(lt*1.9)%2==0?'<span class="blink" style="width:.5em"></span>':'');
+    var bt=$('s10b');var hv=E(clamp((lt-4.2)/0.3,0,1));bt.style.boxShadow='0 0 0 '+(8*hv)+'px rgba(79,210,131,.25)';push('s10c',lt,s.dur,1.1);}
+  // camera for shot scenes
+  var view=[960,540,1];
+  if(s.cam){var c=camAt(s.camk,lt);var z=c[2],vw=960/z,vh=540/z;var cx=clamp(c[0],vw,1920-vw),cy=clamp(c[1],vh,s.H-vh);
+    $(s.cam).style.transform='translate('+(960-cx*z)+'px,'+(540-cy*z)+'px) scale('+z+')';view=[cx,cy,z];}
+  // pointer: shot scenes use image coords, drawn scenes use stage coords
+  var P=null,CK=s.clicks||[],pp=s.ptr;
+  if(s.id==6){pp=[[6.6,1300,700],[7.6,700,400]];CK=[[8.1,700,400]];}  // stage coords (no camera)
+  if(s.id==10){pp=[[3.0,1300,800],[4.0,1000,595]];CK=[[4.4,1000,595]];}
+  var scr=function(x,y){return !s.cam?[960+(x-960)*_pz,486+(y-486)*_pz]:[960+(x-view[0])*view[2],540+(y-view[1])*view[2]];};
+  var pt=ptrAt(pp,lt),ptr=$('ptr'),rip=$('rip');
+  if(pt){var sp=scr(pt[0],pt[1]);var near=0;CK.forEach(function(c){var d=lt-c[0];if(d>=0&&d<0.25)near=1-Math.abs(d-0.12)/0.12;});
+    ptr.style.opacity=1;ptr.style.transform='translate('+(sp[0]-3)+'px,'+(sp[1]-3)+'px) scale('+(1-0.12*near)+')';}else ptr.style.opacity=0;
+  rip.style.opacity=0;
+  CK.forEach(function(c){var d=lt-c[0];if(d>=0&&d<0.7){var sp=scr(c[1],c[2]);var p=E(d/0.7);rip.style.opacity=(1-p)*0.9;rip.style.left=sp[0]+'px';rip.style.top=sp[1]+'px';var r=16+60*p;rip.style.width=rip.style.height=r+'px';}});
+}
+function setT(t){
+  var idx=-1;for(var i=0;i<S.length;i++){if(t>=S[i].start&&t<S[i].start+S[i].dur){idx=i;}}
+  if(idx<0)idx=S.length-1;
+  for(var i=0;i<S.length;i++)$('sc'+S[i].id).style.display=i==idx?'block':'none';
+  var s=S[idx],lt=Math.min(t-s.start,s.dur);
+  var op=Math.min(1,lt/0.3,(s.dur-lt)/0.3);$('sc'+s.id).style.opacity=clamp(op,0,1);
+  var cap=$('cap');cap.innerHTML=s.cap;var ce=Math.min(E(clamp((lt-0.5)/0.45,0,1)),clamp((s.dur-lt)/0.3,0,1));cap.style.opacity=ce;cap.style.transform='translateY('+(24*(1-ce))+'px)';
+  drawScene(idx,lt);
+}
+window.setT=setT;window.TOTAL=TOTAL;setT(0);
+</script></body></html>

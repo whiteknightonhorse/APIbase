@@ -1,0 +1,12 @@
+Music
+  Title:    Beautiful Emotional Atmosheric Soundtrack
+  Author:   MusicByMisterbates
+  Source:   https://freesound.org/people/MusicByMisterbates/sounds/720980/
+  License:  Creative Commons 0 (CC0 1.0 Universal Public Domain Dedication), http://creativecommons.org/publicdomain/zero/1.0/
+  Downloaded: 2026-10-20 (Freesound HQ MP3 preview)
+
+Voice-over
+  Synthesized with ElevenLabs text-to-speech (voice "Eric", model eleven_multilingual_v2) from the script in this video's captions.
+
+Visuals
+  Screenshots of apibase.pro and panels drawn with the apibase.pro design tokens.

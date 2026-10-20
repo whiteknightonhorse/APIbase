@@ -5,45 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
-<title>APIbase.pro — Product Slideshow</title>
-<meta name="description" content="Twelve-slide product tour of APIbase.pro: connect an agent, discover tools, pay per call in USDC over x402 or MPP.">
+<title>APIbase Integrator — sell to AI agents</title>
+<meta name="description" content="A 79-second narrated demo: connect your store in three quick steps, paste one link, and a shopper's AI agent buys and pays in USDC.">
 <link rel="canonical" href="https://apibase.pro/video/">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:title" content="APIbase.pro — Product Slideshow">
-<meta property="og:description" content="The API Hub for AI Agents. MCP gateway with x402 USDC micropayments.">
-<meta property="og:image" content="https://apibase.pro/og-image.png?v=20260928">
+<meta property="og:title" content="APIbase Integrator — sell to AI agents">
+<meta property="og:description" content="Connect your store, paste one link, and an AI agent buys and pays in USDC.">
+<meta property="og:image" content="https://apibase.pro/video/poster.jpg">
 <meta property="og:url" content="https://apibase.pro/video/">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#0e100f;color:#4fd283;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;min-height:100vh}
-.header,.slideshow,.progress-wrap{margin-left:auto;margin-right:auto}
-.header{padding:24px;text-align:center;max-width:900px;width:100%}
-h1{font-size:20px;color:#4fd283;margin-bottom:8px;font-weight:normal}
-.subtitle{font-size:14px;color:#9ca59e;margin-bottom:16px}
-.slideshow{position:relative;width:100%;max-width:900px;padding:0 16px;margin-bottom:8px;min-height:563px}
-.slideshow img{width:100%;border-radius:8px;border:1px solid #222;position:absolute;top:0;left:16px;right:16px;opacity:0;transition:opacity 0.6s ease}
-.slideshow img:first-child{position:relative;left:0}
-.slideshow img.active{opacity:1;z-index:1}
-.controls{display:flex;justify-content:center;gap:12px;margin-top:12px;align-items:center}
-.controls button{background:#151816;color:#4fd283;border:1px solid #272c29;padding:8px 20px;font-family:inherit;font-size:13px;cursor:pointer;border-radius:4px;transition:all 0.2s}
-.controls button:hover{background:#151816;border-color:#4fd283}
-.controls button.active{background:#4fd283;color:#04170c}
-.counter{color:#9ca59e;font-size:13px;min-width:70px;text-align:center}
-
-.dots{display:flex;gap:6px;justify-content:center;margin-top:10px}
-.dot{width:8px;height:8px;border-radius:50%;background:#3e4541;cursor:pointer;transition:background 0.3s}
-.dot.active{background:#4fd283}
-.caption{text-align:center;color:#9ca59e;font-size:13px;margin-top:10px;min-height:20px;padding:0 16px}
-.progress-wrap{width:100%;max-width:900px;padding:0 16px;margin-top:6px}
-.progress{height:5px;background:#151816;border-radius:3px;overflow:hidden}
-.progress-bar{height:100%;background:#4fd283;border-radius:3px;transition:width 0.05s linear;width:0}
-.recorded{font-size:11px;color:#9ca59e}
-.video-link{text-align:center;margin-top:14px}
-.video-link a{color:#9ca59e;font-size:12px}
-.links{margin-top:20px;padding:20px;text-align:center;font-size:13px}
-a{color:#4fd283;text-decoration:none}
-a:hover{text-decoration:underline}
-.sep{color:#9ca59e;margin:0 12px}
+body{background:var(--bg,#0e100f);color:var(--ink,#eef1ed);font-family:var(--sans,sans-serif);min-height:100vh}
+.vp{max-width:960px;margin:0 auto;padding:40px 20px 56px}
+.vp h1{font-size:clamp(28px,5vw,44px);line-height:1.1;letter-spacing:-.02em;margin-bottom:20px}
+.vp video{display:block;width:100%;aspect-ratio:16/9;background:var(--surf,#151816);border:1px solid var(--line,#272c29);border-radius:12px}
+.vp p{color:var(--ink-2,#b7beb8);font-size:18px;line-height:1.55;margin-top:20px}
+.vp .vp-cta{display:inline-flex;align-items:center;min-height:48px;margin-top:24px;padding:0 26px;border-radius:8px;background:var(--accent,#4fd283);color:var(--on-accent,#04170c);font-weight:700;font-size:17px;text-decoration:none}
+.vp .vp-lic{font-size:14px;color:var(--ink-3,#9ca59e);margin-top:28px}
+.vp .vp-lic a{color:var(--ink-2,#b7beb8)}
 /*site-nav*/
 .site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
 .site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
@@ -107,61 +86,16 @@ a:hover{text-decoration:underline}
 </div></header>
 <script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
 <!--/site-nav-->
-<div class="header">
-<h1>> APIbase.pro — Product Slideshow</h1>
-<div class="subtitle">The API Hub for AI Agents — x402 USDC micropayments, one MCP endpoint</div>
-<div class="recorded">Recorded 2026-09-24 UTC — live counts: <a href="https://apibase.pro/api/v1/tools">apibase.pro/api/v1/tools</a></div>
-</div>
-<div class="slideshow" id="slideshow">
-<img src="/video/slide_01_homepage-hero.png?v=5" alt="Homepage" class="active" data-caption="Homepage — live tool catalog, dual-rail payments">
-<img src="/video/slide_02_connect.png?v=5" alt="Connect" loading="lazy" data-caption="Connect in 30 seconds — one line of JSON config">
-<img src="/video/slide_03_discover.png?v=5" alt="Discover" loading="lazy" data-caption="Progressive disclosure — agents discover tools by category, not all at once">
-<img src="/video/slide_04_categories.png?v=5" alt="Categories" loading="lazy" data-caption="Tools across every category — travel, finance, crypto, weather, health, logistics, entertainment">
-<img src="/video/slide_05_pipeline.png?v=5" alt="Pipeline" loading="lazy" data-caption="Multi-stage pipeline — auth, content-neg, schema, cache, escrow, provider call, ledger">
-<img src="/video/slide_06_payment.png?v=5" alt="Payment" loading="lazy" data-caption="Dual-rail micropayments — x402 (Circle USDC on Base) + MPP (USDC.e on Tempo)">
-<img src="/video/slide_07_dashboard.png?v=5" alt="Dashboard" loading="lazy" data-caption="Provider dashboard — real-time health, limits, and tool counts per provider">
-<img src="/video/slide_08_features.png?v=5" alt="Features" loading="lazy" data-caption="Why agents choose APIbase — one endpoint replaces separate integrations">
-<img src="/video/slide_09_analytics.png?v=5" alt="Analytics" loading="lazy" data-caption="Built-in usage analytics — track calls, costs, cache rate per tool (free)">
-<img src="/video/slide_10_github.png?v=5" alt="GitHub" loading="lazy" data-caption="Open source on GitHub — MIT license, multi-container Docker stack">
-<img src="/video/slide_11_smithery.png?v=5" alt="Smithery" loading="lazy" data-caption="Listed on Smithery MCP Registry — quality score verified">
-<img src="/video/slide_12_comparison.png?v=5" alt="Comparison" loading="lazy" data-caption="vs alternatives — unified MCP access vs managing separate provider integrations">
-</div>
-<div class="progress-wrap"><div class="progress"><div class="progress-bar" id="progress"></div></div></div>
-<div class="controls">
-<button id="prev">◀ Prev</button>
-<button id="play" class="active">⏸ Pause</button>
-<span class="counter" id="counter">1 / 12</span>
-<button id="next">Next ▶</button>
-</div>
-<div class="dots" id="dots"></div>
-<div class="caption" id="caption"></div>
-<div class="video-link"><a href="/video/product-demo.mp4">Download MP4 (1.4 MB)</a></div>
-<div class="links">
-<a href="https://apibase.pro">apibase.pro</a>
-<span class="sep">|</span>
-<a href="https://apibase.pro/api/v1/tools">Tool Catalog</a>
-<span class="sep">|</span>
-<a href="https://apibase.pro/dashboard">Dashboard</a>
-<span class="sep">|</span>
-<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
-<a href="https://x.com/apibase_pro">X</a>
-</div>
-<script>
-const images=document.querySelectorAll('#slideshow img'),counter=document.getElementById('counter'),caption=document.getElementById('caption'),progress=document.getElementById('progress'),dotsDiv=document.getElementById('dots');
-const durations=[6,10,10,8,10,10,8,10,8,8,8,10];
-let current=0,playing=true,elapsed=0,tickInterval=null,touchStartX=0;
-images.forEach((_,i)=>{const d=document.createElement('div');d.className='dot'+(i===0?' active':'');d.onclick=()=>{goTo(i);elapsed=0};dotsDiv.appendChild(d)});
-function goTo(i){images[current].classList.remove('active');dotsDiv.children[current].classList.remove('active');current=i;images[current].classList.add('active');dotsDiv.children[current].classList.add('active');counter.textContent=(current+1)+' / '+images.length;caption.textContent=images[current].dataset.caption||'';elapsed=0}
-function next(){goTo((current+1)%images.length)}function prev(){goTo((current-1+images.length)%images.length)}
-function startAuto(){playing=true;document.getElementById('play').classList.add('active');document.getElementById('play').textContent='⏸ Pause';elapsed=0;clearInterval(tickInterval);tickInterval=setInterval(()=>{elapsed+=50;progress.style.width=Math.min((elapsed/(durations[current]*1000))*100,100)+'%';if(elapsed>=durations[current]*1000)next()},50)}
-function stopAuto(){playing=false;document.getElementById('play').classList.remove('active');document.getElementById('play').textContent='▶ Auto';clearInterval(tickInterval)}
-document.getElementById('next').onclick=()=>{next();if(playing)elapsed=0};
-document.getElementById('prev').onclick=()=>{prev();if(playing)elapsed=0};
-document.getElementById('play').onclick=()=>{playing?stopAuto():startAuto()};
-document.addEventListener('keydown',(e)=>{if(e.key==='ArrowRight'){next();if(playing)elapsed=0}if(e.key==='ArrowLeft'){prev();if(playing)elapsed=0}if(e.key===' '){e.preventDefault();playing?stopAuto():startAuto()}});
-const ss=document.getElementById('slideshow');ss.addEventListener('touchstart',(e)=>{touchStartX=e.changedTouches[0].screenX});ss.addEventListener('touchend',(e)=>{const d=e.changedTouches[0].screenX-touchStartX;if(Math.abs(d)>50){d>0?prev():next();if(playing)elapsed=0}});
-caption.textContent=images[0].dataset.caption||'';startAuto();
-</script>
+<main class="vp">
+<h1>APIbase Integrator — sell to AI agents</h1>
+<video controls preload="metadata" poster="/video/poster.jpg" src="/video/apibase-integrator-demo.mp4" playsinline>
+<track kind="captions" srclang="en" label="English" src="/video/apibase-integrator-demo.en.vtt" default>
+Your browser does not support the video tag. <a href="/video/apibase-integrator-demo.mp4">Download the MP4</a>.
+</video>
+<p>Connect your shop in three quick steps (your store, the agreements, and your wallet; no payment, no gas), paste one link on your site, and a shopper's AI agent finds your product, gets a quote, and pays in USDC straight to your wallet on Base or Tempo. 0% fee during the pilot.</p>
+<a class="vp-cta" href="/integrator/connect">Connect my store</a>
+<p class="vp-lic">Music: “Beautiful Emotional Atmosheric Soundtrack” by MusicByMisterbates, CC0. Voice-over synthesized. <a href="/video/LICENSES.txt">Licenses</a></p>
+</main>
 
 <footer class="site-footer"><div class="sf-in">
 <div class="sf-cols">

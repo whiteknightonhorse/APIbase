@@ -1,0 +1,1 @@
+T-0503 build sources for static/video/apibase-integrator-demo.mp4 (paths point at /tmp/v0503; run order: capture.py, tts.py, fs_search.py, fs_get.py, render.py, audio.py, then ffmpeg mux). Keys are read from the tenant media env file by envload.py and never printed.
