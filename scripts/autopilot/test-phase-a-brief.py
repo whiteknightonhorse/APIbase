@@ -49,6 +49,36 @@ class PhaseABrief(unittest.TestCase):
             self.assertNotIn('--reason "<why>"', t)
             self.assertIn("is not a proof (T-11)", t)
 
+    def test_pa5_proof_shape_t11_and_gate(self):
+        import subprocess, tempfile
+        stamp = "Tue Oct 20 06:35:00 UTC 2026"
+        new = "$ curl -si https://example.test/health\n%s\nHTTP/1.1 200 OK\n" % stamp
+        old = "%s\n$ curl -si https://example.test/health\nHTTP/1.1 200 OK\n" % stamp
+        nodate = "$ curl -si https://example.test/health\nHTTP/1.1 200 OK\n"
+        self.assertTrue(ap.proof_t11_ok(new))
+        self.assertFalse(ap.proof_t11_ok(nodate))
+        self.assertFalse(ap.proof_t11_ok(None))
+        gate = os.path.expanduser("~/taskloop/lib/evidence-gate.sh")
+        if not os.path.exists(gate):
+            self.skipTest("evidence-gate.sh not present")
+        def gate_ok(body):
+            with tempfile.TemporaryDirectory() as d:
+                open(d + "/p.txt", "w").write(body)
+                open(d + "/brief.md", "w").write("## Acceptance criteria\n")
+                open(d + "/out.md", "w").write("PROOF: %s/p.txt\nVERDICT: DONE\n" % d)
+                r = subprocess.run(["bash", "-c", 'source "$1"; evidence_gate_check "$2" "$3" "$4" 1; echo $EGATE_OK',
+                                    "x", gate, d + "/brief.md", d + "/out.md", d],
+                                   capture_output=True, text=True)
+                return r.stdout.strip().endswith("1")
+        self.assertTrue(gate_ok(new))
+        self.assertFalse(gate_ok(old))
+
+    def test_pa6_command_echo_first(self):
+        for ln in measurement(render("PROVIDER_DOWN", True)).splitlines():
+            if " | tee " in ln:
+                self.assertTrue(ln.startswith("{ echo '$ "), ln)
+                self.assertLess(ln.index("echo '$ "), ln.index("date -u"), ln)
+
     def test_pa3_health_url_substituted(self):
         self.assertIn('curl -si "https://example.test/health"', render("PROVIDER_DOWN", True))
         self.assertIn("<health_url from evidence/provider-limits>", render("PROVIDER_DOWN", False))

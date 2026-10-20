@@ -1647,7 +1647,7 @@ The active probe for `{provider}` (probe_log/provider_status) is `OK`/`HEALTHY` 
 `python3 scripts/autopilot/incident-cli.py wait --id {incident_id} --actor fleet --until <ISO-8601 UTC> --reason "<why>"`
 (a term of 1 to 72 h; the only legitimate "waiting for the provider"), and then `VERDICT: DONE` with no commits.
 Any claim about the provider or the DB is accompanied by the RAW command output (`curl -si`, `psql`
-etc.) with `date -u` in the SAME block — a paraphrase in your own words without raw output counts as
+etc.) with `date -u` in the SAME block (proof line 1 = `$ <command>`, line 2 = the `date -u` output) — a paraphrase in your own words without raw output counts as
 unproven and equals REJECT (T-11, ruling-1 §D: three gdelt DONEs passed review on a paraphrase,
 a post-hoc check found invented timestamps and facts contradicting the DB). Additionally save this raw output
 via `tee` to a file under the attempt directory and name it with a `PROOF: <path>` line (path on the same
@@ -1692,12 +1692,12 @@ This is phase A: a MEASUREMENT and a conclusion, no code edits. Any work on the 
 created by the engine as a separate task — only for a reproduced cause from outcome (b).{health}
 
 ### Measurement (per the evidence above)
-Run each command below VERBATIM, one block each: `date -u` first, `tee` last (the proof is the file, not the console).
-{{ date -u; curl -si "{health_arg}"; }} 2>&1 | tee {proof_dir}/01-curl-health.txt
-{{ date -u; docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT ts, kind, http_status, result, detail FROM probe_log WHERE provider='{provider}' ORDER BY ts DESC LIMIT 10"; }} 2>&1 | tee {proof_dir}/02-probe-log.txt
-{{ date -u; docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT provider, state, state_reason, last_ok_at, last_probe_at, last_probe_result FROM provider_status WHERE provider='{provider}'"; }} 2>&1 | tee {proof_dir}/03-provider-status.txt
-{{ date -u; getent hosts <host>; dig +short <host>; }} 2>&1 | tee {proof_dir}/04-dns.txt   (only for DNS/connection failures, FROM THE HOST)
-Name every file as a `PROOF: <abs. path>` line. A proof file whose first line is not the `date -u` output is not a proof (T-11).
+Run each command below VERBATIM, one block each: the `$ <command>` echo first (line 1 of the proof, T-0464), then `date -u` (line 2), `tee` last (the proof is the file, not the console).
+{{ echo '$ curl -si "{health_arg}"'; date -u; curl -si "{health_arg}"; }} 2>&1 | tee {proof_dir}/01-curl-health.txt
+{{ echo '$ docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT ts, kind, http_status, result, detail FROM probe_log WHERE provider='"'"'{provider}'"'"' ORDER BY ts DESC LIMIT 10"'; date -u; docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT ts, kind, http_status, result, detail FROM probe_log WHERE provider='{provider}' ORDER BY ts DESC LIMIT 10"; }} 2>&1 | tee {proof_dir}/02-probe-log.txt
+{{ echo '$ docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT provider, state, state_reason, last_ok_at, last_probe_at, last_probe_result FROM provider_status WHERE provider='"'"'{provider}'"'"'"'; date -u; docker exec apibase-postgres-1 psql -U fleet_ro -d apibase -c "SELECT provider, state, state_reason, last_ok_at, last_probe_at, last_probe_result FROM provider_status WHERE provider='{provider}'"; }} 2>&1 | tee {proof_dir}/03-provider-status.txt
+{{ echo '$ getent hosts <host>; dig +short <host>'; date -u; getent hosts <host>; dig +short <host>; }} 2>&1 | tee {proof_dir}/04-dns.txt   (only for DNS/connection failures, FROM THE HOST)
+Name every file as a `PROOF: <abs. path>` line. A proof file whose line 1 is not `$ <the exact command>` (T-0464), or that has no `date -u` output on line 2, is not a proof (T-11).
 
 ### Cause
 State a cause ONLY as `cause: <one sentence> (PROOF: <file>:<line>)` where the cited line is raw
@@ -1715,6 +1715,19 @@ Knowledge section.
 (c) Neither of the above (payment, someone else's zone, does not reproduce, a human is needed): `VERDICT: BLOCKED <reason>`, no CLI."""
 
 
+def proof_t11_ok(text: object) -> bool:
+    """T-11 x T-0464 (T-0513): a proof carries a `date -u` stamp. Line 1 is `$ <command>` (the
+    evidence-gate rule); the stamp is then line 2. A stamp on line 1 (legacy shape) also satisfies
+    T-11 here, but lib/evidence-gate.sh rejects that shape on its own rule. No stamp = no proof."""
+    if not isinstance(text, str):
+        return False
+    lines = text.split("\n")
+    stamp = re.compile(r"^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d{1,2} \d\d:\d\d:\d\d [A-Z]{2,5} \d{4}$")
+    if lines and lines[0].startswith("$ "):
+        return len(lines) > 1 and bool(stamp.match(lines[1].strip()))
+    return bool(lines) and bool(stamp.match(lines[0].strip()))
+
+
 def _phase_a_boundaries_and_footer(provider: str, incident_id: str, task_id: str) -> str:
     """T-0265: phase-A boundaries — deliberately NO fix.md ALLOWED/FORBIDDEN bullets (nothing in
     this task is allowed to be edited), and the KNOWLEDGE anchor as the last line like every task."""
@@ -1728,7 +1741,7 @@ def _phase_a_boundaries_and_footer(provider: str, incident_id: str, task_id: str
 
 ## Acceptance criteria
 One of the three outcomes above. Any claim about the provider or the DB is accompanied by the RAW command output
-(`curl -si`, `psql`, `getent`) with `date -u` in the SAME block — a paraphrase without raw output equals REJECT (T-11).
+(`curl -si`, `psql`, `getent`) with `date -u` in the SAME block (proof line 1 = `$ <command>`, line 2 = the `date -u` output) — a paraphrase without raw output equals REJECT (T-11).
 Save the raw output via `tee` to a file under the attempt directory and name it with a `PROOF: <path>` line before `VERDICT:`.
 Cause only per ### Cause above; `cause: unknown` is an accepted answer.
 
