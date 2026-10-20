@@ -1,0 +1,11 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "APIbase",
+  "description": "MCP gateway for AI agents: about 1400 tools from about 400 providers, paid per call in USDC via x402 on Base and MPP on Tempo, no account needed. Every paid call gets a public receipt that GenLayer validators can attest.",
+  "image": "https://apibase.pro/brand/apibase-logo.png",
+  "endpoints": [
+    { "name": "MCP", "endpoint": "https://apibase.pro/mcp" },
+    { "name": "OpenAPI", "endpoint": "https://apibase.pro/.well-known/openapi.json" },
+    { "name": "web", "endpoint": "https://apibase.pro" }
+  ]
+}
