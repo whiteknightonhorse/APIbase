@@ -296,6 +296,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
     ctx.x402SettleSucceeded = result.success;
 
     if (result.success) {
+      ctx.x402SettleTxHash = settleTxHash(result);
       logger.info(
         { requestId: ctx.requestId, payer: ctx.x402Payer },
         'x402 settle: payment settled successfully',

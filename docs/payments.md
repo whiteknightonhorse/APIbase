@@ -111,6 +111,7 @@ Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets on
 
 - **Where to find it.** REST: response header `X-APIbase-Receipt: https://apibase.pro/r/<receipt_id>.json`. MCP: the tool result `_meta` carries `"apibase/receipt_url": "https://apibase.pro/r/<receipt_id>.json"`.
 - **Fetch.** `GET https://apibase.pro/r/<receipt_id>.json` is public: `Content-Type: application/json`, `Cache-Control: public, max-age=31536000, immutable`, `Access-Control-Allow-Origin: *`. An unknown id answers `404` with `{"error":"no such receipt"}`. The receipt is written just after the response, so a fetch in the first moments can still 404; retry.
+- **Pending settlements.** Calls whose x402 settlement ends in `settlement_pending` (facilitator timeout or broadcast without receipt) get no receipt in v0, even if chain reconcile later confirms them; the receipt is written only in the response path of a confirmed settle.
 - **Immutable.** Receipts are write-once; there is no update or delete path. The served bytes are exactly the stored bytes.
 - **Body.** Canonical JSON (sorted keys, no whitespace), schema `apibase-receipt/1`:
   `schema`, `receipt_id` (32 hex chars), `issued_at` (ISO 8601 UTC), `tool`, `upstream_status`, `response_sha256` (sha256 of the exact response body sent), `billed` (always `true`), `rail` (`x402-base` or `mpp-tempo`), `chain_id`, `asset` (`USDC`), `amount_atomic` (integer string, 6 decimals), `payer`, `payee`, `payment_tx` (lowercase hex).

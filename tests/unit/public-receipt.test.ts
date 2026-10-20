@@ -139,7 +139,7 @@ describe('receipt body schema', () => {
     }
   });
 
-  it('fails if a forbidden key sneaks into the body', () => {
+  it('buildReceiptBody output has only allow-listed keys', () => {
     const body = buildReceiptBody(billedX402(), {
       receiptId: 'a'.repeat(32),
       issuedAt: NOW,
@@ -149,10 +149,14 @@ describe('receipt body schema', () => {
       mppPayee: '',
       mppChainId: 4217,
     });
-    const tampered = { ...body, api_key: 'secret' };
-    expect(
-      Object.keys(tampered).every((k) => (RECEIPT_ALLOWED_KEYS as readonly string[]).includes(k)),
-    ).toBe(false);
+    expect(body).not.toBeNull();
+    expect(Object.keys(body!).sort()).toEqual([...RECEIPT_ALLOWED_KEYS].sort());
+  });
+
+  it('upstream_status follows ctx.responseStatus', async () => {
+    const ctx = billedX402();
+    ctx.responseStatus = 207;
+    expect(JSON.parse((await planReceipt(ctx, 'x', NOW))!.body).upstream_status).toBe(207);
   });
 });
 

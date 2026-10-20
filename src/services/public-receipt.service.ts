@@ -153,7 +153,7 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
     receipt_id: inp.receiptId,
     issued_at: inp.issuedAt.toISOString(),
     tool: ctx.toolId,
-    upstream_status: 200,
+    upstream_status: ctx.responseStatus ?? 200,
     response_sha256: sha256Hex(inp.responseText),
     billed: true,
     rail,
