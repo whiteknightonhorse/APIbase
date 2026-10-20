@@ -194,7 +194,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/.well-known/mcp/server-card.json</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -254,7 +254,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/integrator/buyers</loc>
-    <lastmod>2026-10-12</lastmod>
+    <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -266,7 +266,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/integrator/wallet</loc>
-    <lastmod>2026-10-05</lastmod>
+    <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -326,7 +326,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/legal/merchant-agreement</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -338,7 +338,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/video/</loc>
-    <lastmod>2026-10-13</lastmod>
+    <lastmod>2026-10-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
