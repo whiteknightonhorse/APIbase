@@ -5,7 +5,7 @@ Without it, static/ is served locally over TLS under the apibase.pro hostname (s
 $TLS_DIR/c.pem + $TLS_DIR/k.pem, mapped in the browser) with the /attest/ CSP, and /r/<id>.json is
 proxied from production. The page fetches the absolute https://apibase.pro/r/..., so 'self' only
 holds if the origin really is https://apibase.pro.
-CHROMIUM_PATH selects the browser binary (default: Playwright's own)."""
+CHROMIUM_PATH selects the browser binary (default: the newest Chromium under the Playwright cache, else Playwright's own)."""
 import http.server, os, re, ssl, sys, threading, urllib.request
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -53,7 +53,8 @@ if base is None:
 
 with sync_playwright() as p:
     args = ["--no-sandbox"] + ([f"--host-resolver-rules={rules}"] if rules else [])
-    b = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH"), args=args)
+    cached = sorted(Path.home().glob(".cache/ms-playwright/chromium-*/chrome-linux64/chrome"))
+    b = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH") or (str(cached[-1]) if cached else None), args=args)
     page = b.new_context(ignore_https_errors=bool(rules)).new_page()
     msgs, reqs = [], []
     page.on("console", lambda m: msgs.append(f"{m.type}: {m.text}"))

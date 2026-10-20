@@ -16,17 +16,19 @@ function directives(csp: string): Record<string, string[]> {
 const cspLines = [...CONF.matchAll(/add_header Content-Security-Policy "([^"]+)" always;/g)];
 const attestStart = CONF.indexOf('location ^~ /attest/ {');
 const attestBlock = CONF.slice(attestStart, CONF.indexOf('\n    }\n', attestStart));
-const siteCsp = directives(cspLines[0][1]);
-const attestCsp = directives(/Content-Security-Policy "([^"]+)"/.exec(attestBlock)![1]);
+const attestMatch = /Content-Security-Policy "([^"]+)"/.exec(attestBlock);
+const siteCsp = directives(cspLines.length > 0 ? cspLines[0][1] : '');
+const attestCsp = directives(attestMatch ? attestMatch[1] : '');
 
 describe('host nginx CSP (T-0510z)', () => {
   it('has exactly one site-wide CSP and one /attest/ CSP', () => {
     expect(attestStart).toBeGreaterThan(0);
+    expect(attestMatch).not.toBeNull();
     expect(cspLines).toHaveLength(2);
   });
 
   it('site-wide CSP is unchanged', () => {
-    expect(cspLines[0][1]).toBe(
+    expect(cspLines[0]?.[1]).toBe(
       "default-src 'none'; script-src 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; media-src 'self'; frame-ancestors 'none'",
     );
     expect(siteCsp['script-src']).not.toContain("'self'");
