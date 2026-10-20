@@ -74,7 +74,21 @@ describe('/video/ page (T-0503)', () => {
   });
 });
 
-describe('demo MP4 (T-0503)', () => {
+// ffprobe is absent on the GitHub CI runner; a thrown spawn Error would crash the jest worker, so skip with a reason.
+function hasFfprobe(): boolean {
+  try {
+    execFileSync('ffprobe', ['-version'], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+const FFPROBE = hasFfprobe();
+if (!FFPROBE) {
+  console.warn('demo MP4 assertions skipped: ffprobe is not on PATH');
+}
+
+(FFPROBE ? describe : describe.skip)('demo MP4 (T-0503)', () => {
   it('is 75-90 s with one video and one audio stream, <= 40 MB', () => {
     const out = JSON.parse(
       execFileSync('ffprobe', [
