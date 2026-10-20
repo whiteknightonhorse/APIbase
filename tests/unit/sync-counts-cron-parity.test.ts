@@ -22,7 +22,8 @@ function setup(mutate: boolean) {
   const dir = mkdtempSync(join(tmpdir(), 'scc-parity-'));
   const work = join(dir, 'work');
   const bare = join(dir, 'origin.git');
-  mkdirSync(join(work, 'scripts'), { recursive: true });
+  mkdirSync(join(work, 'scripts/lib'), { recursive: true });
+  cpSync(join(ROOT, 'scripts/lib/counts-ledger.sh'), join(work, 'scripts/lib/counts-ledger.sh'));
   mkdirSync(join(work, 'static'), { recursive: true });
   mkdirSync(join(work, 'tests/fixtures'), { recursive: true });
   for (const f of ['sync-counts-cron.sh', 'page-parity.py', 'discovery-snapshot.tsv']) {

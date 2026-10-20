@@ -39,6 +39,8 @@
 set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE"
+# shellcheck source=lib/counts-ledger.sh
+. "$HERE/scripts/lib/counts-ledger.sh"
 
 # Durable logging + alerting, independent of whatever the crontab line redirects stdout to.
 # T-75 update (2026-09-03): the crontab's own redirect target
@@ -349,4 +351,7 @@ trap - EXIT ERR INT TERM
 # next successful push carries it along.
 timeout 300 git push origin HEAD:ci-staging \
   || { clog "ABORT -- git push origin HEAD:ci-staging timed out or failed (300s bound); commit $(git rev-parse --short HEAD) stays local, will push next run"; calert "🔴 sync-counts-cron: git push упал/завис (300s) -- коммит остался локальным, попробует снова следующим запуском." "push-failed"; exit 1; }
+# T-0467: the push succeeded (the || branch above exits) -- record the pushed SHA so promote_staging
+# (T-0461 accepted-prefix) promotes this code-generated commit. Never reached on no-op or push failure.
+counts_ledger_append "$(git rev-parse HEAD)" || clog "WARN -- could not write COUNTS ledger line for $(git rev-parse --short HEAD); promotion will wait"
 clog "committed and pushed $(git rev-parse --short HEAD) (${#CHANGED[@]} file(s): ${CHANGED[*]})"
