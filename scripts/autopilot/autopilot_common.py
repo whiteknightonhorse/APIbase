@@ -1722,7 +1722,7 @@ def proof_t11_ok(text: object) -> bool:
     if not isinstance(text, str):
         return False
     lines = text.split("\n")
-    stamp = re.compile(r"^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d{1,2} \d\d:\d\d:\d\d [A-Z]{2,5} \d{4}$")
+    stamp = re.compile(r"^[A-Z][a-z]{2} [A-Z][a-z]{2} +\d{1,2} \d\d:\d\d:\d\d( [AP]M)? [A-Z]{2,5} \d{4}$")
     if lines and lines[0].startswith("$ "):
         return len(lines) > 1 and bool(stamp.match(lines[1].strip()))
     return bool(lines) and bool(stamp.match(lines[0].strip()))

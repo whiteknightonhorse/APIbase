@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """test-phase-a-brief.py — T-0291. Plain unittest, no DB, no model call.
-Checks the phase-A brief: every Measurement command is ONE block with `date -u` first and
+Checks the phase-A brief: every Measurement command is ONE block with `echo '$ <cmd>'`, then `date -u`, and
 `| tee <proof_dir>` last; the cause section demands evidence or `cause: unknown`.
 
 Run: python3 scripts/autopilot/test-phase-a-brief.py
@@ -51,7 +51,11 @@ class PhaseABrief(unittest.TestCase):
 
     def test_pa5_proof_shape_t11_and_gate(self):
         import subprocess, tempfile
-        stamp = "Tue Oct 20 06:35:00 UTC 2026"
+        stamp = subprocess.run(["date", "-u"], capture_output=True, text=True).stdout.strip()
+        for loc in ("C", "en_US.UTF-8"):
+            st = subprocess.run(["date", "-u"], capture_output=True, text=True,
+                                env=dict(os.environ, LC_ALL=loc)).stdout.strip()
+            self.assertTrue(ap.proof_t11_ok("$ x\n%s\n" % st), st)
         new = "$ curl -si https://example.test/health\n%s\nHTTP/1.1 200 OK\n" % stamp
         old = "%s\n$ curl -si https://example.test/health\nHTTP/1.1 200 OK\n" % stamp
         nodate = "$ curl -si https://example.test/health\nHTTP/1.1 200 OK\n"
@@ -63,9 +67,10 @@ class PhaseABrief(unittest.TestCase):
             self.skipTest("evidence-gate.sh not present")
         def gate_ok(body):
             with tempfile.TemporaryDirectory() as d:
-                open(d + "/p.txt", "w").write(body)
-                open(d + "/brief.md", "w").write("## Acceptance criteria\n")
-                open(d + "/out.md", "w").write("PROOF: %s/p.txt\nVERDICT: DONE\n" % d)
+                for name, txt in (("p.txt", body), ("brief.md", "## Acceptance criteria\n"),
+                                  ("out.md", "PROOF: %s/p.txt\nVERDICT: DONE\n" % d)):
+                    with open(d + "/" + name, "w") as fh:
+                        fh.write(txt)
                 r = subprocess.run(["bash", "-c", 'source "$1"; evidence_gate_check "$2" "$3" "$4" 1; echo $EGATE_OK',
                                     "x", gate, d + "/brief.md", d + "/out.md", d],
                                    capture_output=True, text=True)
