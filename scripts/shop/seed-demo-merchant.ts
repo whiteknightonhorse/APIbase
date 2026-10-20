@@ -121,6 +121,17 @@ export const DEMO_CATALOG = [
     refund_window_days: REFUND_WINDOW_DAYS,
   },
   {
+    // T-0505: the weekly plan the T-0431 prod acceptance probe subscribes to; max_periods 2 bounds the probe to $2.00.
+    sku: 'demo-weekly',
+    title: 'APIbase weekly brief (subscription)',
+    description: 'A weekly demo brief, billed every 7 days for at most 2 periods.',
+    price_usd: 1.0,
+    fulfillment_mode: 'instant',
+    fulfillment: { instant: { payload: 'APIbase weekly brief: this period is paid.' } },
+    subscription: { period_unit: 'week', period_count: 1, max_periods: 2, trial: 'none' },
+    category: DEMO_CATEGORY,
+  },
+  {
     // T-INT-40 (UC-7 / F-9): a per-second stream over an MPP session channel. price_usd = the rate.
     sku: 'demo-stream',
     title: 'APIbase demo text stream',
