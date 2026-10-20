@@ -105,6 +105,18 @@ MPP credential and retries — invalid for an x402 request, so the server return
 payments; use plain `fetch()` for x402. Do not send both `X-Payment` and `Authorization:
 Payment` headers on the same request — both middlewares activate and one fails.
 
+## Public receipts (A-GA-01)
+
+Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets one immutable public receipt, written after billing and after the response is sent. Calls that were not billed get **no** receipt in v0 (nothing to attest), and neither do calls paid from a prepaid balance (no on-chain payment transaction).
+
+- **Where to find it.** REST: response header `X-APIbase-Receipt: https://apibase.pro/r/<receipt_id>.json`. MCP: the tool result `_meta` carries `"apibase/receipt_url": "https://apibase.pro/r/<receipt_id>.json"`.
+- **Fetch.** `GET https://apibase.pro/r/<receipt_id>.json` is public: `Content-Type: application/json`, `Cache-Control: public, max-age=31536000, immutable`, `Access-Control-Allow-Origin: *`. An unknown id answers `404` with `{"error":"no such receipt"}`. The receipt is written just after the response, so a fetch in the first moments can still 404; retry.
+- **Immutable.** Receipts are write-once; there is no update or delete path. The served bytes are exactly the stored bytes.
+- **Body.** Canonical JSON (sorted keys, no whitespace), schema `apibase-receipt/1`:
+  `schema`, `receipt_id` (32 hex chars), `issued_at` (ISO 8601 UTC), `tool`, `upstream_status`, `response_sha256` (sha256 of the exact response body sent), `billed` (always `true`), `rail` (`x402-base` or `mpp-tempo`), `chain_id`, `asset` (`USDC`), `amount_atomic` (integer string, 6 decimals), `payer`, `payee`, `payment_tx` (lowercase hex).
+- **Never included.** Request body, response body, headers, IP, user agent, API keys.
+- **Load note for validators.** Validators fetch each receipt several times within one minute. This is expected load, served from cache.
+
 ## Authentication
 
 | Method | Header | Format |

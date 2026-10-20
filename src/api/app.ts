@@ -27,6 +27,7 @@ import { createStreamRouter } from '../shop/routes/stream.router';
 import { createCheckRouter } from '../shop/routes/check.router';
 import { createModerationInternalRouter } from '../shop/routes/moderation-internal.router';
 import { executeRouter } from '../routes/execute.router';
+import { createReceiptRouter } from '../routes/receipt.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
 import { incidentsRouter } from '../routes/incidents.router';
@@ -75,6 +76,9 @@ export function createApp(): express.Express {
   // payment and would swallow an anonymous probe's X-PAYMENT/Payment-Signature
   // header instead of this router's honest "not a payable resource" 400.
   app.use(apiEntryRouter);
+
+  // --- Public immutable call receipts: GET /r/<id>.json (A-GA-01, own rate limit) ---
+  app.use(createReceiptRouter());
 
   // --- Public legal documents (GET only, own rate limit) ---
   app.use(createLegalRouter());

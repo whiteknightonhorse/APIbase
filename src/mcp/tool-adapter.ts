@@ -13,6 +13,11 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { toolSchemas } from '../schemas/index';
 import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
+import {
+  MCP_RECEIPT_URL_META_KEY,
+  planReceipt,
+  writeReceiptSafe,
+} from '../services/public-receipt.service';
 import { getDefinitionSha256 } from './tool-fingerprint';
 import { servedToolDefinitions } from './served-tools';
 import { X_PAYMENT } from '../config/http-headers';
@@ -149,11 +154,21 @@ export function registerTools(
                   },
                 }
               : undefined;
+          const responseText = JSON.stringify(result.value.responseBody);
+          // A-GA-01: public receipt of a billed on-chain call. Planned here (id + canonical body),
+          // announced in `_meta`, written on the next tick -- decoupled from the returned result;
+          // a failed write is only logged.
+          const publicReceipt = await planReceipt(result.value, responseText);
+          if (publicReceipt) setImmediate(() => void writeReceiptSafe(publicReceipt));
+          const resultMeta = {
+            ...(receipt ?? {}),
+            ...(publicReceipt ? { [MCP_RECEIPT_URL_META_KEY]: publicReceipt.url } : {}),
+          };
           return {
             content: [
               {
                 type: 'text' as const,
-                text: JSON.stringify(result.value.responseBody),
+                text: responseText,
               },
             ],
             // Every tool registers with DEFAULT_OUTPUT_SHAPE ({ result, error? }) below.
@@ -165,7 +180,7 @@ export function registerTools(
             // makeFakeMcpServer() stubs registerTool and never exercises the real SDK's
             // validateToolOutput path.
             structuredContent: { result: result.value.responseBody },
-            ...(receipt ? { _meta: receipt } : {}),
+            ...(Object.keys(resultMeta).length > 0 ? { _meta: resultMeta } : {}),
           };
         }
 

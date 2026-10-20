@@ -22,6 +22,8 @@ export const X_PAYMENT = 'x-payment';
 export const X_API_KEY = 'x-api-key';
 export const X_AGENT_NAME = 'x-agent-name';
 export const X_CACHE = 'x-cache';
+/** A-GA-01: URL of the public receipt of a billed call. */
+export const X_APIBASE_RECEIPT = 'x-apibase-receipt';
 export const X_ROBOTS_TAG = 'x-robots-tag';
 export const X_ORCHESTRA_KEY = 'x-orchestra-key';
 export const X_POWERED_BY = 'x-powered-by';

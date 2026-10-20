@@ -30,3 +30,6 @@ Gotchas:
   run daily.
 - The selftest asserts that internal-wallets.json holds exactly 14 addresses. Update that
   number when the allowlist changes.
+
+## T-A-GA-01-public-receipts
+A-GA-01: every on-chain-billed call (x402 settle confirmed with tx hash, or MPP with tx hash) gets one write-once receipt `apibase-receipt/1` in table `public_receipts` (migration 0043, UPDATE/DELETE blocked by trigger), served at `GET /r/<32hex>.json` (`src/routes/receipt.router.ts`). `src/services/public-receipt.service.ts` plans it from the finished PipelineContext (read-only: no price, verify or settle code touched); REST sets `X-APIbase-Receipt` and writes after `res.json`, MCP puts `apibase/receipt_url` in result `_meta` and writes on `setImmediate`. Write failures are logged only. Prepaid-balance and unbilled calls get no receipt; batch endpoints are not covered in v0. The write is post-response, so a fetch in the first ms can 404 (404 is `no-store`). Deploy needs migration 0043 applied and the `/r/` nginx location (nginx.conf, apibase-host.conf, sandbox conf); the operator makes the first live receipt.

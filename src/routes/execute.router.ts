@@ -7,6 +7,7 @@ import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
 import { buildMppChallengeHeader } from '../middleware/mpp.middleware';
+import { planReceipt, writeReceiptSafe } from '../services/public-receipt.service';
 import { finalizePipelineIdempotency } from '../services/idempotency.service';
 import {
   X_REQUEST_ID,
@@ -14,6 +15,7 @@ import {
   X_PAYMENT,
   X_API_KEY,
   X_CACHE,
+  X_APIBASE_RECEIPT,
   resolveX402PaymentHeader,
 } from '../config/http-headers';
 
@@ -78,7 +80,16 @@ executeRouter.post(
           successStatus,
           JSON.stringify(result.value.responseBody),
         );
+        // A-GA-01: public receipt for a billed on-chain call. Planned (id + canonical body) from the
+        // finished context, announced in a header, written only after the response was sent.
+        // planReceipt never throws and never alters the body; a failed write is only logged.
+        const receipt = await planReceipt(
+          result.value,
+          JSON.stringify(result.value.responseBody) ?? '',
+        );
+        if (receipt) res.setHeader(X_APIBASE_RECEIPT, receipt.url);
         res.status(successStatus).json(result.value.responseBody);
+        void writeReceiptSafe(receipt);
         return;
       }
 
