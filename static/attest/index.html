@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<title>Attest an APIbase receipt on GenLayer</title>
+<meta name="description" content="Open a public APIbase call receipt, ask GenLayer validators to check it against the USDC transfer on Base, and watch the attestation reach FINALIZED.">
+<link rel="canonical" href="https://apibase.pro/attest/">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:title" content="Attest an APIbase receipt on GenLayer">
+<meta property="og:description" content="GenLayer validators independently check an APIbase receipt and its USDC transfer on Base.">
+<meta property="og:image" content="https://apibase.pro/og-image.png">
+<meta property="og:url" content="https://apibase.pro/attest/">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg,#0e100f);color:var(--ink,#eef1ed);min-height:100vh}
+.at{max-width:860px;margin:0 auto;padding:40px 20px 56px}
+.at h1{font-size:clamp(26px,5vw,40px);line-height:1.1;letter-spacing:-.02em;margin-bottom:16px}
+.at h2{font-size:20px;margin:32px 0 10px}
+.at h3{font-size:16px;margin-bottom:8px}
+.at p,.at li{color:var(--ink-2,#b7beb8);font-size:16px;line-height:1.55;margin-top:10px}
+.at a{color:var(--accent,#4fd283)}
+.at .kv{display:grid;grid-template-columns:11rem 1fr;gap:6px 14px;font-size:14px}
+.at .kv dt{color:var(--ink-3,#9ca59e)}
+.at .kv dd{word-break:break-all;font-family:monospace;font-size:13px}
+.at .card{border:1px solid var(--line,#272c29);border-radius:10px;background:var(--surf,#151816);padding:14px;margin-top:12px}
+.at .note{border-left:3px solid var(--accent,#4fd283);padding:6px 10px;margin-top:10px;font-size:14px}
+.at .note.warn{border-left-color:#e0a030}
+.at .badge{display:inline-block;border:1px solid var(--line,#272c29);border-radius:6px;padding:2px 8px;font-family:monospace;font-size:13px}
+.at .badge.PASS{background:#14301f}.at .badge.FAIL{background:#3a1a1a}
+.at button{min-height:48px;margin-top:14px;padding:0 24px;border:0;border-radius:8px;background:var(--accent,#4fd283);color:var(--on-accent,#04170c);font-weight:700;font-size:16px;cursor:pointer}
+.at button:disabled{opacity:.45;cursor:not-allowed}
+.at ol.lifecycle{margin:10px 0 0 22px;font-family:monospace;font-size:13px}
+/*site-nav*/
+.site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
+.site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-header a{text-decoration:none}
+.site-header .brand{display:flex;align-items:center;gap:9px;min-height:44px;color:#eef1ed;font-weight:700;font-size:18px;letter-spacing:-.02em;flex:none}
+.site-header .brand::before{content:'';width:10px;height:10px;border-radius:3px;background:#4fd283}
+.site-header .nav-full{display:none;align-items:center;gap:2px}
+.site-header .nav-full a{color:#b7beb8;font-size:14.5px;white-space:nowrap;padding:12px 5px;transition:color 120ms cubic-bezier(.2,.7,.2,1)}
+.site-header .nav-full a:hover{color:#eef1ed}
+.site-header nav a[aria-current="page"]{color:#eef1ed;box-shadow:inset 0 -2px 0 #4fd283}
+.site-header .nav-burger summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:1px solid #3e4541;border-radius:8px;color:#eef1ed;font-size:15px}
+.site-header .nav-burger summary::-webkit-details-marker{display:none}
+.site-header .nav-burger summary::before{content:'';width:18px;height:2px;background:#eef1ed;box-shadow:0 -6px 0 #eef1ed,0 6px 0 #eef1ed}
+.site-header .nav-burger[open] summary::before{content:'\00d7';width:auto;height:auto;background:none;box-shadow:none;font-size:26px;line-height:1}
+.site-header .burger-links{position:absolute;left:0;right:0;top:60px;background:#0e100f;border-bottom:1px solid #272c29;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:12px 20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;max-height:calc(100vh - 60px);overflow:auto}
+.site-header .burger-links a{display:flex;align-items:center;min-height:48px;padding:0 12px;border-radius:6px;color:#b7beb8;font-size:16px}
+.site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
+@media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
+/*/site-nav*/
+</style>
+</head>
+<body>
+<!--site-nav-->
+<link rel="stylesheet" href="/assets/site-m.css?v=ac2f148d">
+<header class="site-header"><div class="sh-in">
+<a class="brand" href="/">APIbase.pro</a>
+<nav class="nav-full" aria-label="Main">
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/policy/moderation">Moderation</a>
+<a href="/frameworks">Frameworks</a>
+<a href="/partners">Partners</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+<a href="https://x.com/apibase_pro">X</a>
+</nav>
+<details class="nav-burger">
+<summary>Menu</summary>
+<nav class="burger-links" aria-label="Main menu">
+<a href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/policy/moderation">Moderation</a>
+<a href="/frameworks">Frameworks</a>
+<a href="/partners">Partners</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+<a href="https://x.com/apibase_pro">X</a>
+</nav>
+</details>
+</div></header>
+<script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
+<!--/site-nav-->
+<main class="at">
+<h1>Attest an APIbase receipt on GenLayer</h1>
+<p>Attestations are produced by GenLayer validators, each of which fetches this receipt and the USDC transfer on Base independently; APIbase cannot alter the result.</p>
+<p>v0 limits: only x402 calls settled on Base, and only billed calls, have a receipt that can be attested. Calls paid from a prepaid balance or on Tempo are not covered yet.</p>
+<noscript><p class="note warn">This page needs JavaScript to read the receipt and the GenLayer contract.</p></noscript>
+
+<h2>Receipt</h2>
+<p id="receipt-error" class="note warn" hidden></p>
+<div id="receipt"><p class="note info">Open this page as <code>/attest/?r=&lt;receipt id&gt;</code>, using the receipt URL <code>https://apibase.pro/r/&lt;receipt id&gt;.json</code> returned with a paid call.</p></div>
+
+<h2>Attestations on GenLayer</h2>
+<p>Contract <span id="contract-link"></span> on GenLayer testnet Bradbury (chain 4221). Existing attestations are read directly from the Bradbury RPC; no wallet is needed to read them.</p>
+<div id="attestations"></div>
+
+<h2>Attest this receipt</h2>
+<p>Connect your wallet on Bradbury (chain 4221) and call <code>attest(receipt_id)</code>. You need GEN for gas: get it from the <a href="https://testnet-faucet.genlayer.foundation/" rel="noopener noreferrer">GenLayer faucet</a>. The transaction is signed in your own wallet; this page holds no key.</p>
+<button id="attest-btn" type="button" disabled>Attest on GenLayer</button>
+<p id="attest-reason" class="note info">Loading...</p>
+<div id="tracker" aria-live="polite"></div>
+</main>
+<script type="module" src="/attest/attest.js"></script>
+
+<footer class="site-footer"><div class="sf-in">
+<div class="sf-cols">
+<div><a class="sf-brand" href="/">APIbase.pro</a><p class="sf-tag">Unified API gateway for AI agents, and for the shops they buy from.</p></div>
+<nav aria-label="For agents"><div class="sf-h">For agents</div><a href="/catalog">Catalog</a><a href="/pricing">Pricing</a><a href="/connect">Connect</a><a href="/frameworks">Frameworks</a><a href="/dashboard">Dashboard</a></nav>
+<nav aria-label="For merchants"><div class="sf-h">For merchants</div><a href="/integrator">Integrator</a><a href="/shops">Shops</a><a href="/m/apibase-demo">Demo store</a><a href="/integrator/docs">Docs</a></nav>
+<nav aria-label="Company"><div class="sf-h">Company</div><a href="/about">About</a><a href="/why">Why APIbase</a><a href="/partners">Partners</a><a href="/contact">Contact</a><a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a><a href="https://x.com/apibase_pro">X</a></nav>
+<nav aria-label="Legal"><div class="sf-h"><a href="/legal">Legal</a></div><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/policy/moderation">Moderation</a><a href="/legal/aup">Acceptable use</a><a href="/legal/dpa">DPA</a><a href="/legal/merchant-agreement">Merchant agreement</a><a href="/legal/refund-framework">Refund framework</a></nav>
+</div>
+<div class="sf-agents"><span class="sf-h">For AI agents</span><a href="/index.md">/index.md</a><a href="/llms.txt">/llms.txt</a><a href="/ai.txt">/ai.txt</a><a href="https://apibase.pro/mcp">https://apibase.pro/mcp</a></div>
+<div class="sf-note"><span>&copy; 2026 APIbase</span><span>USDC via x402 on Base and MPP on Tempo</span></div>
+</div></footer>
+</body>
+</html>
