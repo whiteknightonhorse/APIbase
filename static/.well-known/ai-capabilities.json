@@ -2,13 +2,13 @@
   "platform": "APIbase",
   "version": "2.2.0",
   "updated_at": "2026-10-21T00:00:00Z",
-  "tools_count": 1381,
-  "providers_count": 400,
+  "tools_count": 1377,
+  "providers_count": 399,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1381 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1377 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -55,8 +55,8 @@
     },
     {
       "name": "weather",
-      "tools": 103,
-      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
+      "tools": 99,
+      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
       "examples": "Call discover_tools with category=\"weather\" for the current tool list and descriptions."
     },
     {
