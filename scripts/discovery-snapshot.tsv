@@ -51,10 +51,6 @@ aster.exchange_info	asterdex	0.001
 aster.klines	asterdex	0.003
 aster.market_data	asterdex	0.002
 aster.order_book	asterdex	0.003
-au-data-gov.dataset_detail	au-data-gov	0.002
-au-data-gov.dataset_search	au-data-gov	0.002
-au-data-gov.organization_search	au-data-gov	0.001
-au-data-gov.subject_list	au-data-gov	0.001
 audd.lyrics	audd	0.003
 audd.recognize	audd	0.007
 autodev.vin_decode	autodev	0.003
