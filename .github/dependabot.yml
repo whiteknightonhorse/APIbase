@@ -29,6 +29,10 @@ updates:
       timezone: UTC
     open-pull-requests-limit: 3
     versioning-strategy: increase
+    ignore:
+      # tsx 4.23.x breaks tests/unit/mppx-redis-store.test.ts; held at 4.21.0 (T-0518)
+      - dependency-name: "tsx"
+        versions: [">=4.23.0"]
     groups:
       minor-and-patch:
         applies-to: version-updates
