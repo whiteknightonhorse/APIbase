@@ -985,6 +985,10 @@ platform.tool_quality	platform	0
 platform.tool_rankings	platform	0
 plos-search.article_detail	plos-search	0.001
 plos-search.search	plos-search	0.002
+podcast.by_feed	podcastindex	0.001
+podcast.episodes	podcastindex	0.001
+podcast.search	podcastindex	0.001
+podcast.trending	podcastindex	0.001
 pokeapi.move	pokeapi	0.001
 pokeapi.pokemon	pokeapi	0.001
 pokeapi.species	pokeapi	0.001
