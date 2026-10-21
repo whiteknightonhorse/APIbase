@@ -1139,10 +1139,6 @@ statcan.series_data	statcan	0.002
 statcan.series_info	statcan	0.001
 statcan.table_data	statcan	0.002
 statcan.table_metadata	statcan	0.001
-statfin.consumer_price_index	statfin	0.001
-statfin.population	statfin	0.001
-statfin.table_search	statfin	0.001
-statfin.unemployment	statfin	0.001
 statistics-denmark.data	statistics-denmark	0.002
 statistics-denmark.subjects	statistics-denmark	0.001
 statistics-denmark.table_info	statistics-denmark	0.001
