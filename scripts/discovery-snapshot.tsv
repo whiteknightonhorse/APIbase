@@ -330,10 +330,6 @@ disease.covid_country	disease	0.001
 disease.covid_global	disease	0.001
 disease.covid_history	disease	0.001
 disease.influenza	disease	0.001
-doaj.article_detail	doaj	0.001
-doaj.article_search	doaj	0.001
-doaj.journal_detail	doaj	0.001
-doaj.journal_search	doaj	0.001
 dogceo.breeds_list	dogceo	0.001
 dogceo.random_image	dogceo	0.001
 dogceo.sub_breeds	dogceo	0.001
