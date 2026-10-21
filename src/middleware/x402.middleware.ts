@@ -20,15 +20,19 @@ function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-/** Python/Go clients serialize unset optionals as explicit null (2.18): drop them before parsing. */
-function stripNulls(v: unknown): unknown {
+/**
+ * Python/Go clients serialize unset optionals as explicit null (2.18): drop them before parsing.
+ * Object.fromEntries defines own data properties (CreateDataProperty), so a client-supplied
+ * `__proto__` / `constructor` key never reaches the prototype setter (CodeQL js/remote-property-injection).
+ */
+export function stripNulls(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(stripNulls);
   if (!isRecord(v)) return v;
-  const out: Record<string, unknown> = {};
-  for (const [k, val] of Object.entries(v)) {
-    if (val !== null) out[k] = stripNulls(val);
-  }
-  return out;
+  return Object.fromEntries(
+    Object.entries(v)
+      .filter(([, val]) => val !== null)
+      .map(([k, val]) => [k, stripNulls(val)]),
+  );
 }
 
 function canonical(v: unknown): string {
