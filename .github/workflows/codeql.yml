@@ -51,6 +51,6 @@ jobs:
         run: npx tsc --skipLibCheck || true
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@9f759ee644a3e7c15c1390abf49868036c00067b # v3.38.3
+        uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0
         with:
           category: "/language:${{ matrix.language }}"
