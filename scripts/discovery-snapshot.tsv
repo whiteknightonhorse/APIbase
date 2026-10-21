@@ -808,11 +808,6 @@ myvariant.batch_variants	myvariant	0.002
 myvariant.metadata	myvariant	0.001
 myvariant.search	myvariant	0.001
 myvariant.variant_info	myvariant	0.001
-namesilo.domain_check	namesilo	0.001
-namesilo.domain_info	namesilo	0.001
-namesilo.domain_list	namesilo	0.001
-namesilo.domain_register	namesilo	21
-namesilo.get_prices	namesilo	0.001
 nasa-cmr.collection_detail	nasa-cmr	0.001
 nasa-cmr.list_providers	nasa-cmr	0.001
 nasa-cmr.search_collections	nasa-cmr	0.002
