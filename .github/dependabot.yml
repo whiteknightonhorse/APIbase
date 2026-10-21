@@ -30,9 +30,18 @@ updates:
     open-pull-requests-limit: 3
     versioning-strategy: increase
     ignore:
-      # tsx 4.23.x breaks tests/unit/mppx-redis-store.test.ts; held at 4.21.0 (T-0518)
+      # tsx 4.22.5 and 4.23.x break tests/unit/mppx-redis-store.test.ts; held at 4.21.0.
+      # Remove when a tsx release passes that test (T-0518, T-0519).
       - dependency-name: "tsx"
-        versions: [">=4.23.0"]
+        versions: [">=4.22.0"]
+      # zod 4 migration is not planned; T-0517 measured 60 tsc errors in 8 files (T-0519).
+      - dependency-name: "zod"
+        update-types: ["version-update:semver-major"]
+      # prisma 7 is a migration, not a bump; checks fail on #394 (T-0519).
+      - dependency-name: "prisma"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
     groups:
       minor-and-patch:
         applies-to: version-updates
