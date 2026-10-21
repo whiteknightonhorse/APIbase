@@ -1700,7 +1700,8 @@ Run each command below VERBATIM, one block each: the `$ <command>` echo first (l
 Name every file as a `PROOF: <abs. path>` line. A proof file whose line 1 is not `$ <the exact command>` (T-0464), or that has no `date -u` output on line 2, is not a proof (T-11).
 
 ### Cause
-State a cause ONLY as `cause: <one sentence> (PROOF: <file>:<line>)` where the cited line is raw
+State a cause ONLY as `cause: <one sentence> (PROOF: <file>:<line>)` where <file> is the FULL absolute path
+(never abbreviated with `...` or `…`) and <line> a line number that exists in it, and the cited line is raw
 output that shows it (status page body, `retry-after`, `x-ratelimit-*`, DNS failure, probe config).
 With no such line write exactly `cause: unknown`. Words like maintenance, rate limit, load shedding,
 outage window without a cited line = REJECT. This applies to `--reason`, the incident note and the

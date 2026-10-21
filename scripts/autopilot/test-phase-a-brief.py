@@ -46,6 +46,7 @@ class PhaseABrief(unittest.TestCase):
             t = render(kind, True)
             self.assertIn("cause: unknown", t)
             self.assertIn("(PROOF: <file>:<line>)", t)
+            self.assertIn("FULL absolute path", t)
             self.assertNotIn('--reason "<why>"', t)
             self.assertIn("is not a proof (T-11)", t)
 
