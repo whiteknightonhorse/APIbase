@@ -1092,9 +1092,6 @@ shipengine.rates	shipengine	0.003
 shipengine.validate	shipengine	0.002
 shorturl.create	shortio	0.002
 shorturl.stats	shortio	0.001
-slovakia-statistics.dataset_data	slovakia-statistics	0.002
-slovakia-statistics.dataset_metadata	slovakia-statistics	0.001
-slovakia-statistics.dataset_search	slovakia-statistics	0.001
 smhi.fire_risk	smhi	0.001
 smhi.forecast	smhi	0.001
 smhi.observations	smhi	0.001
