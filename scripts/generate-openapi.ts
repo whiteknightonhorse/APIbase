@@ -18,6 +18,7 @@ import { zodToJsonSchema } from '../src/utils/zod-to-json-schema';
 import { getX402Config, toMicroUsdc } from '../src/config/x402.config';
 import { getMppConfig } from '../src/config/mpp.config';
 import { parse } from 'yaml';
+import { assertDiscoverySize } from './discovery-size-gate';
 
 // Load tool prices from config
 const yamlContent = readFileSync(
@@ -227,19 +228,28 @@ async function generate(): Promise<void> {
     // is why this shape has no `offers` key at all (mixing flat spec fields with
     // `offers` is what's disallowed, not unknown extra fields).
     //
-    // T-0430 (X402MPP-1015 ruling-1 §3): `offers[]` (mpp-specs #249) is now ADDED next to
-    // the flat fields, which stay for back-compat with the pre-offers readers above:
-    // one offer per rail (Tempo USDC.e, Base USDC), same amount as the flat form.
+    // T-0520 (ruling-1): the flat form and `offers[]` are NEVER emitted together --
+    // mppx Discovery.js refines 'Cannot mix offers with flat payment info fields'
+    // (mixed form fails `mppx discover validate` on >= 0.11). So two objects from the
+    // same amounts: the ROOT discovery doc keeps the flat 0187C form, the FULL doc
+    // carries only `offers[]` (mpp-specs #249; one offer per rail: Tempo USDC.e, Base
+    // USDC). Both quote byte-identical amounts, equal to the 402 challenge.
     const amountMicro = toMicroUsdc(price);
-    const xPaymentInfo: Record<string, unknown> = {
+    const extras = {
+      protocols: ['x402', 'mpp'],
+      pricingMode: 'fixed',
+      price: priceStr,
+    };
+    const flatPaymentInfo: Record<string, unknown> = {
       amount: amountMicro,
       currency: mppUsdcAddress,
       intent: 'charge',
       method: 'tempo',
       description: `$${priceStr} USD per call`,
-      protocols: ['x402', 'mpp'],
-      pricingMode: 'fixed',
-      price: priceStr,
+      ...extras,
+    };
+    const xPaymentInfo: Record<string, unknown> = {
+      ...extras,
       offers: [
         {
           method: 'tempo',
@@ -262,21 +272,11 @@ async function generate(): Promise<void> {
       post: {
         operationId: def.toolId.replace(/\./g, '_'),
         summary: def.title || def.description,
-        'x-payment-info': xPaymentInfo,
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': { schema: { $ref: '#/components/schemas/ToolRequest' } },
-          },
-        },
+        'x-payment-info': flatPaymentInfo,
+        requestBody: { $ref: '#/components/requestBodies/ToolRequest' },
         responses: {
-          '200': {
-            description: 'Tool execution result',
-            content: {
-              'application/json': { schema: { $ref: '#/components/schemas/ToolResponse' } },
-            },
-          },
-          '402': { description: 'Payment Required' },
+          '200': { $ref: '#/components/responses/ToolResult' },
+          '402': { $ref: '#/components/responses/PaymentRequired' },
         },
       },
     };
@@ -381,6 +381,23 @@ async function generate(): Promise<void> {
     },
     servers: doc.servers,
     components: {
+      requestBodies: {
+        ToolRequest: {
+          required: true,
+          content: {
+            'application/json': { schema: { $ref: '#/components/schemas/ToolRequest' } },
+          },
+        },
+      },
+      responses: {
+        ToolResult: {
+          description: 'Tool execution result',
+          content: {
+            'application/json': { schema: { $ref: '#/components/schemas/ToolResponse' } },
+          },
+        },
+        PaymentRequired: { description: 'Payment Required' },
+      },
       schemas: {
         ToolRequest: { type: 'object', additionalProperties: true },
         // Mirrors DEFAULT_OUTPUT_SHAPE (src/mcp/tool-adapter.ts): every tool returns this envelope (mpp-specs #326).
@@ -417,6 +434,9 @@ async function generate(): Promise<void> {
   );
   const discoverySerialized = JSON.stringify(discoveryDoc) + '\n';
   const discoveryPathCount = Object.keys(discoveryPaths).length;
+  const discoveryBytes = Buffer.byteLength(discoverySerialized);
+  const sizeWarning = assertDiscoverySize(discoveryBytes);
+  if (sizeWarning) console.warn(sizeWarning);
 
   // ZZ-03-06 attempt-3 (Fable REJECT item 6): same byte-for-byte "generated vs committed"
   // comparison as gen-discovery.ts --check, applied to openapi.json — a hand/sed edit anywhere
@@ -445,7 +465,7 @@ async function generate(): Promise<void> {
       return;
     }
     console.log(
-      `generate-openapi --check: OK, 0 drift (${pathCount} paths, ${toolCount} tools + 3 platform; discovery doc ${discoveryPathCount} tool paths)`,
+      `generate-openapi --check: OK, 0 drift (${pathCount} paths, ${toolCount} tools + 3 platform; discovery doc ${discoveryPathCount} tool paths, ${discoveryBytes} bytes)`,
     );
     return;
   }
@@ -454,9 +474,7 @@ async function generate(): Promise<void> {
   writeFileSync(discoveryOutPath, discoverySerialized, 'utf-8');
   console.log(`OpenAPI spec generated: ${pathCount} paths (${toolCount} tools + 3 platform)`);
   console.log(`Output: ${outPath}`);
-  console.log(
-    `Discovery doc generated: ${discoveryPathCount} tool paths, ${discoverySerialized.length} bytes`,
-  );
+  console.log(`Discovery doc generated: ${discoveryPathCount} tool paths, ${discoveryBytes} bytes`);
   console.log(`Output: ${discoveryOutPath}`);
 }
 

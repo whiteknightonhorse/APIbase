@@ -3,8 +3,9 @@
  * useful; it may not instruct the agent. The phrase list lives in src/utils/description-policy.ts
  * (same rules as scripts/check-description-policy.ts and the merchant catalog gate).
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import { assertDiscoverySize, DISCOVERY_SIZE_LIMIT } from '../../scripts/discovery-size-gate';
 
 jest.mock('../../src/services/prisma.service', () => ({ getPrisma: () => ({}) }));
 jest.mock('../../src/config/logger', () => ({
@@ -101,36 +102,81 @@ describe('T-0430 description content policy', () => {
   });
 });
 
-describe('T-0430 MPP offers[] in discovery', () => {
-  const doc = JSON.parse(
-    readFileSync(join(ROOT, 'static/.well-known/openapi-discovery.json'), 'utf8'),
-  );
-  const ops = Object.entries(doc.paths as Record<string, { post: Record<string, any> }>) // eslint-disable-line @typescript-eslint/no-explicit-any
-    .filter(([p]) => p.startsWith('/api/v1/tools/'));
+type Op = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+const FLAT = new Set(['amount', 'currency', 'description', 'intent', 'method']);
+const toolOps = (doc: { paths: Record<string, { post: Op }> }) =>
+  Object.entries(doc.paths).filter(([p]) => p.startsWith('/api/v1/tools/'));
+const rootDoc = JSON.parse(
+  readFileSync(join(ROOT, 'static/.well-known/openapi-discovery.json'), 'utf8'),
+);
+const fullDoc = JSON.parse(readFileSync(join(ROOT, 'static/.well-known/openapi.json'), 'utf8'));
 
-  it('every paid route keeps flat fields and adds tempo + evm offers', () => {
+// T-0520 ruling-1: mppx forbids mixing flat fields with offers[], so the two docs differ.
+describe('T-0520 root discovery doc: flat x-payment-info, no offers[]', () => {
+  const ops = toolOps(rootDoc);
+
+  it('every paid route has the flat fields plus extras and no offers', () => {
     expect(ops.length).toBeGreaterThan(0);
     for (const [, { post }] of ops) {
       const x = post['x-payment-info'];
       expect(x.method).toBe('tempo');
-      expect(x.offers).toHaveLength(2);
-      expect(x.offers[0]).toMatchObject({ method: 'tempo', intent: 'charge', amount: x.amount });
-      expect(x.offers[0].chainId).toBe(4217);
-      expect(x.offers[1]).toMatchObject({
-        method: 'evm',
-        intent: 'charge',
-        amount: x.amount,
-        currency: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
-        chainId: 8453,
-      });
+      expect(x.intent).toBe('charge');
+      expect(x.offers).toBeUndefined();
+      expect(x.protocols).toEqual(['x402', 'mpp']);
+      expect(x.pricingMode).toBe('fixed');
+      expect(x.amount).toBe(String(Math.round(parseFloat(x.price) * 1_000_000)));
+      expect(typeof x.currency).toBe('string');
+      expect(typeof x.description).toBe('string');
     }
   });
 
-  it('200 response references the response schema', () => {
+  it('200 response resolves to the response schema via components', () => {
     const [, { post }] = ops[0];
-    expect(post.responses['200'].content['application/json'].schema.$ref).toBe(
+    expect(post.responses['200'].$ref).toBe('#/components/responses/ToolResult');
+    expect(rootDoc.components.responses.ToolResult.content['application/json'].schema.$ref).toBe(
       '#/components/schemas/ToolResponse',
     );
-    expect(doc.components.schemas.ToolResponse).toBeDefined();
+    expect(rootDoc.components.schemas.ToolResponse).toBeDefined();
+  });
+});
+
+describe('T-0520 full doc: offers[] only, same amounts as the root doc', () => {
+  const ops = toolOps(fullDoc);
+
+  it('every paid route has tempo + evm offers and no flat spec keys', () => {
+    expect(ops.length).toBe(toolOps(rootDoc).length);
+    for (const [path, { post }] of ops) {
+      const x = post['x-payment-info'];
+      expect(Object.keys(x).some((k) => FLAT.has(k))).toBe(false);
+      expect(x.offers).toHaveLength(2);
+      expect(x.offers[0]).toMatchObject({ method: 'tempo', intent: 'charge', chainId: 4217 });
+      expect(x.offers[1]).toMatchObject({
+        method: 'evm',
+        intent: 'charge',
+        currency: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+        chainId: 8453,
+      });
+      expect(x.offers[0].amount).toBe(rootDoc.paths[path].post['x-payment-info'].amount);
+      expect(x.offers[1].amount).toBe(x.offers[0].amount);
+    }
+  });
+});
+
+describe('T-0520 discovery doc size gate', () => {
+  it('passes at the limit and throws above it', () => {
+    expect(assertDiscoverySize(799_999)).toBeNull();
+    expect(() => assertDiscoverySize(899_999)).not.toThrow();
+    expect(() => assertDiscoverySize(900_000)).not.toThrow();
+    expect(() => assertDiscoverySize(900_001)).toThrow(/limit 900000/);
+  });
+
+  it('warns between 800000 and the limit', () => {
+    expect(assertDiscoverySize(800_000)).toBeNull();
+    expect(assertDiscoverySize(800_001)).toMatch(/WARNING/);
+  });
+
+  it('committed root doc is under the limit', () => {
+    const bytes = statSync(join(ROOT, 'static/.well-known/openapi-discovery.json')).size;
+    expect(bytes).toBeLessThanOrEqual(DISCOVERY_SIZE_LIMIT);
   });
 });

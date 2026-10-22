@@ -309,7 +309,7 @@ else
     # Regenerated here so it can never drift from the same DB truth as the other six.
     # T-0187C (disputes/0187-scanner-commerce-x402-mpp-not-detected.ruling-1.md task
     # C): generate-openapi.ts now also writes static/.well-known/openapi-discovery.json
-    # (compact root-alias document, offers[] pricing) from the SAME pass over
+    # (compact root-alias document, flat x-payment-info pricing, size-gated at 900000 B) from the SAME pass over
     # TOOL_DEFINITIONS -- hashed before/after alongside the full doc so drift in
     # either is caught, not just the full one.
     b=$(md5sum static/.well-known/openapi.json 2>/dev/null | cut -d" " -f1 || echo "")

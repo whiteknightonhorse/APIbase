@@ -70,3 +70,17 @@ What the Coinbase Bazaar needs from a seller (docs.cdp.coinbase.com/x402/seller/
 - Indexing happens ONLY through CDP-facilitated settles. Production runs `X402_FACILITATOR_MODE=local`, so the catalog is not indexed by design; switching a CDP facilitator on is an operator decision (money: 1000 free tx/month, then $0.001).
 
 MPP discovery: `static/.well-known/openapi-discovery.json` and `openapi.json` keep the flat `x-payment-info` fields (back-compat) and add `offers[]` (mpp-specs #249): one `tempo` offer (USDC.e, chainId 4217) and one `evm` offer (Base USDC, chainId 8453) per paid route; the 200 response references `#/components/schemas/ToolResponse` (mpp-specs #326).
+Superseded by T-0520: the mixed form fails mppx >= 0.11 validation.
+
+## T-0520 — root discovery doc under 1 MiB, offers[] only in the full doc (2026-10-22)
+
+isitagentready.com reads at most 1 MiB of the decoded `/openapi.json`; the root doc had grown to 1,284,909 bytes and was cut mid-string ("not valid JSON"). mppx `Discovery.js` refuses to mix `offers` with the flat fields (`Cannot mix offers with flat payment info fields`), so the two documents now differ:
+
+| document | x-payment-info on a paid operation |
+|---|---|
+| `static/.well-known/openapi-discovery.json` (served at `/openapi.json`) | flat single-offer form: `amount`, `currency`, `intent: charge`, `method: tempo`, `description`, plus `protocols`, `pricingMode`, `price`; no `offers` |
+| `static/.well-known/openapi.json` (full) | `offers[]` only (tempo chainId 4217 + evm chainId 8453) plus `protocols`, `pricingMode`, `price`; no flat spec keys |
+
+Both are built from the same `amountMicro`, so amounts equal the 402 challenge. Root doc: `requestBody` and responses are `$ref`s into `components`; 1,284,909 -> 761,334 bytes (~549 B per operation). Gate: `scripts/discovery-size-gate.ts` fails `generate-openapi.ts` (and so `--check` and `sync-counts.sh --check`) above 900,000 bytes and warns above 800,000.
+
+Ceiling: ~1640 tools at 900,000 B. The target of headroom for 2000 tools is unreachable with the flat contract (even dropping `protocols`/`pricingMode`/`price` gives ~962 KB at 2000). Next cut: drop those three extras (+~230 tools) or shorten `summary`. Open that task when `--check` first prints the 800 KB warning (~1460 tools).
