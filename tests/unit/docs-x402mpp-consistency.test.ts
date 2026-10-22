@@ -159,4 +159,27 @@ describe('T-0432 docs x402/MPP consistency gate', () => {
     const bad = files.filter((f) => /USDC on Tempo/i.test(read(f)));
     expect(bad).toEqual([]);
   });
+
+  it('G6: x402-payment.json facilitators agree with mcp.json and the code (T-0522)', () => {
+    const doc = JSON.parse(read('static/.well-known/x402-payment.json')) as {
+      facilitators: Array<{ name: string; url: string; role: string }>;
+    };
+    const mcp = JSON.parse(read('static/.well-known/mcp.json')) as {
+      payment: { x402: { facilitator: string } };
+    };
+    expect(mcp.payment.x402.facilitator).toBe('self-hosted');
+    const primary = doc.facilitators.filter((f) => f.role === 'primary');
+    expect(primary.map((f) => f.name)).toEqual([mcp.payment.x402.facilitator]);
+    // The only external facilitator in the local path is the PayAI fallback of buildLocalFacilitatorClient().
+    const envSrc = read('src/config/env.ts');
+    const payaiDefault = (envSrc.match(
+      /X402_FACILITATOR_URL: z\.string\(\)\.url\(\)\.default\('([^']+)'\)/,
+    ) ?? [])[1];
+    expect(payaiDefault).toBeDefined();
+    expect(doc.facilitators.filter((f) => f.role !== 'primary')).toEqual([
+      { name: 'PayAI', url: payaiDefault, role: 'fallback' },
+    ]);
+    expect(read('src/pay' + 'ments/local-facilitator.ts')).toContain('remoteFallback');
+    expect(JSON.stringify(doc)).not.toMatch(/cdp|coinbase/i);
+  });
 });

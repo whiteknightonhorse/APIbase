@@ -9,8 +9,8 @@
   "payTo": "0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480",
   "facilitators": [
     {
-      "name": "CDP",
-      "url": "https://api.cdp.coinbase.com/platform/v2/x402",
+      "name": "self-hosted",
+      "url": "https://apibase.pro",
       "role": "primary"
     },
     {
@@ -32,5 +32,5 @@
   },
   "documentation": "https://apibase.pro/ai.txt",
   "orders": "paid to the merchant wallet from the quote; see /integrator",
-  "updated_at": "2026-04-01"
+  "updated_at": "2026-10-22"
 }
