@@ -515,9 +515,6 @@ gbif.occurrence_count	gbif	0.001
 gbif.occurrences	gbif	0.001
 gbif.species_details	gbif	0.001
 gbif.species_search	gbif	0.001
-gdacs.alerts	gdacs	0.001
-gdacs.events	gdacs	0.001
-gdacs.history	gdacs	0.001
 gebco.elevation_point	gebco	0.001
 gebco.elevation_profile	gebco	0.002
 geo.autocomplete	geo	0.002
