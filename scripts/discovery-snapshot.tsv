@@ -733,6 +733,10 @@ lmpr.lamb_carcass_cutout	lmpr	0.001
 loc.collections	loc	0.001
 loc.item	loc	0.001
 loc.search	loc	0.002
+macrostrat.columns_search	macrostrat	0.002
+macrostrat.fossils_search	macrostrat	0.002
+macrostrat.geologic_map_units	macrostrat	0.001
+macrostrat.units_search	macrostrat	0.002
 malaria-atlas.case_estimates	malaria-atlas	0.002
 malaria-atlas.country_list	malaria-atlas	0.001
 malaria-atlas.parasite_rate_survey	malaria-atlas	0.002
