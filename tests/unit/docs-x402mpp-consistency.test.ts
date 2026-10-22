@@ -129,7 +129,7 @@ describe('T-0432 docs x402/MPP consistency gate', () => {
     const bad: string[] = [];
     for (const f of files) {
       const t = read(f);
-      for (const m of t.matchAll(/memo/gi)) {
+      for (const m of t.matchAll(/memo(?!ry)/gi)) {
         const i = m.index ?? 0;
         const around = t.slice(Math.max(0, i - 200), i + 200);
         if (!/MPP|Tempo|quote/i.test(around)) continue;
