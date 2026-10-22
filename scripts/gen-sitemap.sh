@@ -58,7 +58,7 @@ priority_for() {
     /robots.txt) echo 0.3 ;;
     /.well-known/mcp.json|/.well-known/mcp/server-card.json|/.well-known/api-catalog|/.well-known/openapi.json|/.well-known/ai-catalog.json) echo 1.0 ;;
     /.well-known/agent.json|/.well-known/ai-capabilities.json|/.well-known/oauth-authorization-server|/.well-known/oauth-protected-resource) echo 0.9 ;;
-    /.well-known/x402-payment.json|/.well-known/agent-skills/index.json|/.well-known/ucp|/.well-known/acp.json) echo 0.8 ;;
+    /.well-known/x402-payment.json|/.well-known/agent-skills/index.json|/.well-known/ucp|/.well-known/acp.json|/.well-known/poppy.json) echo 0.8 ;;
     /.well-known/kya-policy.json) echo 0.6 ;;
     /.well-known/openid-configuration) echo 0.7 ;;
     *) echo 0.5 ;;
@@ -74,7 +74,7 @@ freq_for() {
     /robots.txt) echo monthly ;;
     /.well-known/*)
       case "$1" in
-        /.well-known/x402-payment.json|/.well-known/kya-policy.json|/.well-known/agent-skills/index.json|/.well-known/oauth-authorization-server|/.well-known/oauth-protected-resource|/.well-known/openid-configuration|/.well-known/ucp|/.well-known/acp.json) echo monthly ;;
+        /.well-known/x402-payment.json|/.well-known/kya-policy.json|/.well-known/agent-skills/index.json|/.well-known/oauth-authorization-server|/.well-known/oauth-protected-resource|/.well-known/openid-configuration|/.well-known/ucp|/.well-known/acp.json|/.well-known/poppy.json) echo monthly ;;
         *) echo daily ;;
       esac
       ;;

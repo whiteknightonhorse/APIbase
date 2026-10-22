@@ -42,7 +42,7 @@ Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
 # AI-specific: https://apibase.pro/ai.txt
 # LLM instructions: https://apibase.pro/llms.txt
-# Agent Card (A2A): https://apibase.pro/.well-known/agent.json
+# Agent manifest (APIbase, not A2A): https://apibase.pro/.well-known/agent.json
 # MCP Server: https://apibase.pro/.well-known/mcp.json
 # OpenAPI Spec: https://apibase.pro/.well-known/openapi.json
 # API Catalog (RFC 9727): https://apibase.pro/.well-known/api-catalog

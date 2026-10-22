@@ -64,7 +64,7 @@ news, podcasts, search, social, space, travel, weather, world.
 ## Discovery artifacts
 
 - MCP manifest: <https://apibase.pro/.well-known/mcp.json>
-- A2A Agent Card: <https://apibase.pro/.well-known/agent.json>
+- Agent manifest (not A2A): <https://apibase.pro/.well-known/agent.json>
 - MCP server card (SEP-2127, no tool list — full catalog via openapi.json): <https://apibase.pro/.well-known/mcp/server-card.json>
 - AI capabilities: <https://apibase.pro/.well-known/ai-capabilities.json>
 - API Catalog (RFC 9727): <https://apibase.pro/.well-known/api-catalog>

@@ -47,7 +47,12 @@
         {
           "href": "https://apibase.pro/.well-known/agent.json",
           "type": "application/json",
-          "title": "A2A Agent Card"
+          "title": "APIbase agent manifest (not an A2A Agent Card)"
+        },
+        {
+          "href": "https://apibase.pro/.well-known/poppy.json",
+          "type": "application/json",
+          "title": "Personal Agent Protocol (Poppy) manifest, website-only declaration"
         },
         {
           "href": "https://apibase.pro/.well-known/ai-capabilities.json",
