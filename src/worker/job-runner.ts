@@ -14,6 +14,8 @@ export interface JobSpec {
   /** Expected seconds between runs; an audit flags a job whose last_finished_at is older than 2x this. */
   expect_every_s: number;
   run: () => Promise<unknown>;
+  /** Hard ceiling for one tick; a hung run is abandoned so the overlap guard cannot stay stuck. Default: max(2x expect_every_s, 5 min). */
+  timeout_ms?: number;
 }
 
 const LEGACY_JOBS =
@@ -62,6 +64,7 @@ async function safeRecord(job: string, write: () => Promise<void>): Promise<void
 export function registerJob(spec: JobSpec): ScheduledTask {
   const { name, expect_every_s } = spec;
   names.push(name);
+  const timeoutMs = spec.timeout_ms ?? Math.max(expect_every_s * 2000, 300_000);
   let running = false;
 
   const tick = async (): Promise<void> => {
@@ -69,8 +72,30 @@ export function registerJob(spec: JobSpec): ScheduledTask {
       return;
     }
     running = true;
-    const t0 = Date.now();
+    let timer: NodeJS.Timeout | undefined;
+    const timedOut = new Promise<'timeout'>((resolve) => {
+      timer = setTimeout(() => resolve('timeout'), timeoutMs);
+    });
     try {
+      const outcome = await Promise.race([execute(Date.now()), timedOut]);
+      if (outcome === 'timeout') {
+        logger.error(
+          { job: name, timeout_ms: timeoutMs },
+          'job timed out; releasing overlap guard',
+        );
+        // Best effort and not awaited: the DB that hung the run may still be hanging.
+        void safeRecord(name, () =>
+          recordFinish(name, expect_every_s, false, {}, `timed out after ${timeoutMs} ms`),
+        );
+      }
+    } finally {
+      clearTimeout(timer);
+      running = false;
+    }
+  };
+
+  const execute = async (t0: number): Promise<void> => {
+    {
       await safeRecord(name, () => recordStart(name, expect_every_s));
       let ok = true;
       let result: object = {};
@@ -85,8 +110,6 @@ export function registerJob(spec: JobSpec): ScheduledTask {
       }
       await safeRecord(name, () => recordFinish(name, expect_every_s, ok, result, error));
       logger.info({ job: name, ms: Date.now() - t0, ok, ...result }, 'job run');
-    } finally {
-      running = false;
     }
   };
 

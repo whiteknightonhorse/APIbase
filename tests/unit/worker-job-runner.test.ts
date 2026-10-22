@@ -90,6 +90,30 @@ describe('worker job runner', () => {
     expect(logWarn.mock.calls.filter((c) => c[1] === 'job run record failed').length).toBe(2);
   });
 
+  it('J6: a hung run is abandoned after timeout_ms and the next tick runs again', async () => {
+    jest.useFakeTimers();
+    try {
+      const run = jest.fn(() => new Promise<void>(() => {}));
+      registerJob({ name: 'j6', cron: '* * * * *', expect_every_s: 60, timeout_ms: 1000, run });
+      tick();
+      await flush();
+      tick();
+      await flush();
+      expect(run).toHaveBeenCalledTimes(1);
+      jest.advanceTimersByTime(1000);
+      await flush();
+      expect(logError.mock.calls.some((c) => String(c[1]).includes('job timed out'))).toBe(true);
+      const finish = valuesOf(executeRaw.mock.calls[executeRaw.mock.calls.length - 1]);
+      expect(finish[2]).toBe(false);
+      expect(String(finish[4])).toContain('timed out');
+      tick();
+      await flush();
+      expect(run).toHaveBeenCalledTimes(2);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('J5: started message lists every registered job', () => {
     const msg = workerStartedMessage();
     for (const n of registeredJobs()) expect(msg).toContain(n);
