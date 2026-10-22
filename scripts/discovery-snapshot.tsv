@@ -51,6 +51,10 @@ aster.exchange_info	asterdex	0.001
 aster.klines	asterdex	0.003
 aster.market_data	asterdex	0.002
 aster.order_book	asterdex	0.003
+au-data-gov.dataset_detail	au-data-gov	0.002
+au-data-gov.dataset_search	au-data-gov	0.002
+au-data-gov.organization_search	au-data-gov	0.001
+au-data-gov.subject_list	au-data-gov	0.001
 audd.lyrics	audd	0.003
 audd.recognize	audd	0.007
 autodev.vin_decode	autodev	0.003
@@ -804,6 +808,11 @@ myvariant.batch_variants	myvariant	0.002
 myvariant.metadata	myvariant	0.001
 myvariant.search	myvariant	0.001
 myvariant.variant_info	myvariant	0.001
+namesilo.domain_check	namesilo	0.001
+namesilo.domain_info	namesilo	0.001
+namesilo.domain_list	namesilo	0.001
+namesilo.domain_register	namesilo	21
+namesilo.get_prices	namesilo	0.001
 nasa-cmr.collection_detail	nasa-cmr	0.001
 nasa-cmr.list_providers	nasa-cmr	0.001
 nasa-cmr.search_collections	nasa-cmr	0.002
