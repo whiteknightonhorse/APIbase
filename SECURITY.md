@@ -69,7 +69,6 @@ We follow coordinated disclosure. Vulnerabilities will be patched before public 
   force-push to a public shared branch, which is a destructive, hard-to-reverse action gated on
   explicit operator authorization per repo policy. The operator was not reachable at execution
   time.
-  **Decision (as of 2026-10-26): history retained as published; operator decision pending, see
-  AUDIT-OPUS-1028 ruling-1 question 5.** The choice is between accepting the historical exposure
-  permanently and a manual history rewrite (BFG/filter-repo + coordinated force-push, contributors
-  must re-clone). Internal documents of this kind now live in a private repository.
+  **Decision (operator, 2026-10-26): the published history is accepted as published; no
+  force-push and no history rewrite.** The margin figures were removed from this disclosure text.
+  Internal documents of this kind now live in a private repository.
