@@ -45,7 +45,8 @@ NEW_KINDS = ["CONNECT_FAILED", "WEBHOOK_FAILED", "MERCHANT_UNRESPONSIVE", "REFUN
 WAVE3_KINDS = ["STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED"]
 # T-0322 (migration 0036): a fleet-task kind read from worker_job_runs.
 JOB_KINDS = ["JOB_STALE"]
-HUMAN_ONLY_FOUR = ["PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE"]
+SANCTIONS_KINDS = ["SANCTIONS_HIT"]  # T-0570
+HUMAN_ONLY_FOUR = ["SANCTIONS_HIT", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE"]
 ROUTE_CLASSES = {"AUTO", "AUTO_NO_MODEL", "MIXED", "HUMAN_KEY", "HUMAN_ONLY", "HUMAN_GENERIC"}
 
 warnings.simplefilter("ignore", ResourceWarning)
@@ -106,8 +107,8 @@ class RoutingSchema(unittest.TestCase):
         self.routing = {k: v for k, v in raw.items() if not k.startswith("_")}
 
     def test_ap1_26_kinds_and_schema(self):
-        self.assertEqual(len(self.routing), 27)
-        self.assertEqual(set(self.routing), set(OLD_KINDS) | set(NEW_KINDS) | set(WAVE3_KINDS) | set(JOB_KINDS))
+        self.assertEqual(len(self.routing), 28)
+        self.assertEqual(set(self.routing), set(OLD_KINDS) | set(NEW_KINDS) | set(WAVE3_KINDS) | set(JOB_KINDS) | set(SANCTIONS_KINDS))
         for kind, cfg in self.routing.items():
             self.assertIn(cfg["route_class"], ROUTE_CLASSES, kind)
             self.assertIsInstance(cfg["fleet_task"], bool, kind)

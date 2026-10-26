@@ -1564,7 +1564,7 @@ EMAIL_OUT_FAILED_MIN = 24
 UNRESPONSIVE_SUSPEND_AT = 3         # §12.2: 3 overdue orders -> quotes suspended
 _TG_ON_OPEN = frozenset({"CONNECT_FAILED", "REFUND_OVERDUE", "DISPUTE_UNANSWERED"})
 _EVENT_LIKE = frozenset({"CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED",
-                         "PAYER_SANCTIONED", "PAYMENT_MISMATCH"})
+                         "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "SANCTIONS_HIT"})
 
 
 def _rows(sql):
@@ -1801,6 +1801,8 @@ def _src_moderation():
             kind = "PAYER_SANCTIONED" if payer else "PAYOUT_WALLET_SANCTIONED"
             what = ("payer address matched a sanctions list (OFAC)" if payer
                     else "merchant payout wallet matched a sanctions list (OFAC) at registration")
+        elif cat == "sanctions_hit":
+            kind, what = "SANCTIONS_HIT", "an active merchant wallet matched the OFAC list after a list update; merchant suspended"
         elif cat == "payment_mismatch":
             kind, what = "PAYMENT_MISMATCH", "payment reconciliation does not match the order"
         elif verdict == "reject":
@@ -1829,7 +1831,7 @@ _MERCHANT_SOURCES = [
     (("SUBSCRIPTION_PULL_FAILED",), ("shop_subscription_authorizations", "shop_subscriptions"),
      _src_subscription_pull_failed),
     (("CATALOG_REJECTED", "MODERATION_FLAG", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED",
-      "PAYMENT_MISMATCH"), ("shop_moderation_reviews",), _src_moderation),
+      "PAYMENT_MISMATCH", "SANCTIONS_HIT"), ("shop_moderation_reviews",), _src_moderation),
 ]
 
 

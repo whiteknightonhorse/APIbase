@@ -1,2 +1,4 @@
 # T-0567: AUP bumped to v1.4 (IP country checked at registration).
 v1.3
+# T-0570: the OFAC sentence is widened to identity, payout and recovery wallets plus the daily re-screen.
+Payout wallets on the OFAC SDN list are refused.

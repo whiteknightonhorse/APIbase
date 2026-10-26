@@ -4,7 +4,7 @@ import {
   verifyEncryptionKeySignature,
   type EncryptionKey,
 } from '../merchant.service';
-import { isPlatformWallet } from '../platform-wallets';
+import { screenWallet } from '../moderation/wallet-screen';
 import { flagUndeliverable } from '../pii/pii.service';
 import { QuoteError } from '../quote.errors';
 import { ShopAuthError } from './errors';
@@ -161,6 +161,11 @@ export async function changeIdentity(
   }
   const next = a.new_wallet.toLowerCase();
   await verifyOwner(d, m.recovery_wallet, a.sig_by_recovery, 'owner');
+  const verdict = await screenWallet(d.db, next, 'identity');
+  if (verdict === 'platform') throw payoutWalletPlatform();
+  if (verdict === 'sanctioned') {
+    throw new ShopAuthError(403, 'identity wallet blocked by sanctions screening');
+  }
   await verifyOwner(d, next, a.sig_by_new, 'owner');
   await d.db.$executeRawUnsafe(
     `UPDATE shop_merchants SET wallet_address = $2 WHERE merchant_id = $1::uuid`,
@@ -169,14 +174,6 @@ export async function changeIdentity(
   );
   await revokeAll(d.db, merchant_id);
   await emit(d.db, 'shop.merchant.identity_changed', { merchant_id });
-}
-
-export async function isSanctioned(db: ShopTx, address: string): Promise<boolean> {
-  const rows = await db.$queryRawUnsafe<unknown[]>(
-    `SELECT 1 FROM shop_sanctioned_addresses WHERE address = $1`,
-    address.toLowerCase(),
-  );
-  return rows.length > 0;
 }
 
 /** Current wallet signs; OFAC check on the new one; takes effect after 24 h (sweeper: INT-12). */
@@ -189,8 +186,9 @@ export async function requestPayoutChange(
   if (!m) throw new ShopAuthError(401, 'unknown merchant');
   await verifyOwner(d, m.wallet_address, a.signature, 'payout_change');
   const wallet = a.new_wallet.toLowerCase();
-  if (isPlatformWallet(wallet)) throw payoutWalletPlatform();
-  if (await isSanctioned(d.db, wallet)) {
+  const verdict = await screenWallet(d.db, wallet, 'payout');
+  if (verdict === 'platform') throw payoutWalletPlatform();
+  if (verdict === 'sanctioned') {
     throw new ShopAuthError(403, 'payout wallet blocked by sanctions screening');
   }
   const effective_at = new Date((d.now ?? Date.now)() + PAYOUT_DELAY_MS).toISOString();

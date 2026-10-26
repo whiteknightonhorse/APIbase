@@ -318,6 +318,22 @@ describe('ID4-ID6 identity', () => {
     expect(f.merchant.wallet_address).toBe(nw.address.toLowerCase());
     expect(f.keys.find((k) => k.key_hash === hashApiKey(old))!.revoked_at).not.toBeNull();
   });
+  it('ID5b changeIdentity refuses a sanctioned new wallet (T-0570)', async () => {
+    const rec = acct();
+    const nw = acct();
+    const f = fakeDb({
+      merchant: mk({ recovery_wallet: rec.address.toLowerCase() }),
+      sanctioned: [nw.address.toLowerCase()],
+    });
+    await expect(
+      changeIdentity({ db: f.db, redis, now }, 'm1', {
+        new_wallet: nw.address,
+        sig_by_recovery: await sign(rec, redis, 'owner'),
+        sig_by_new: await sign(nw, redis, 'owner'),
+      }),
+    ).rejects.toMatchObject({ status: 403 });
+    expect(f.merchant.wallet_address).not.toBe(nw.address.toLowerCase());
+  });
   it('ID6 payout change: 24h delay, old wallet until then, sanctions block', async () => {
     const f = fakeDb({ merchant: mk(), sanctioned: ['0xbad'] });
     const r = await requestPayoutChange({ db: f.db, redis, now }, 'm1', {

@@ -12,7 +12,7 @@ import { isCategoryAllowed, nearestAllowed } from './moderation/categories';
 import { getShopEnv } from '../config/env';
 import { moderateTexts } from './moderation/product-rules';
 import { isRestrictedEntityCountry, isRestrictedIp } from './moderation/countries';
-import { isSanctioned } from './moderation/sanctions';
+import { screenWallet } from './moderation/wallet-screen';
 import { isPlatformWallet, PAYOUT_WALLET_PLATFORM_MSG } from './platform-wallets';
 
 export const REGISTRATIONS_PER_IP_PER_HOUR = 5;
@@ -397,10 +397,15 @@ export async function registerMerchant(
       input.payout_wallet_base ?? input.payout_wallet ?? wallet,
       input.payout_wallet_tempo ?? input.payout_wallet ?? wallet,
     ].map((a) => a.toLowerCase());
-    const screened = [...payouts, wallet];
-    if (input.recovery_wallet) screened.push(input.recovery_wallet.toLowerCase());
-    for (const p of screened) {
-      if (await isSanctioned(ctx.db, p)) {
+    const screened: Array<[string, 'identity' | 'payout' | 'recovery']> = [
+      ...payouts.map((a): [string, 'payout'] => [a, 'payout']),
+      [wallet, 'identity'],
+    ];
+    if (input.recovery_wallet) screened.push([input.recovery_wallet.toLowerCase(), 'recovery']);
+    for (const [addr, role] of screened) {
+      const verdict = await screenWallet(ctx.db, addr, role);
+      if (verdict === 'platform') throw payoutWalletPlatform();
+      if (verdict === 'sanctioned') {
         await recordSanctionedPayout(ctx, input, wallet);
         await recordBlock(`merchant:${wallet}`);
         throw fail(

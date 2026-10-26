@@ -281,6 +281,8 @@ KINDS = frozenset([
     "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED",
     # T-0322 (migration 0036 incidents_kind_check): a worker job that stopped finishing.
     "JOB_STALE",
+    # T-0570 (migration 0046 incidents_kind_check): active merchant wallet matched the OFAC list.
+    "SANCTIONS_HIT",
 ])
 MERCHANT_KINDS = frozenset([
     "CONNECT_FAILED", "WEBHOOK_FAILED", "MERCHANT_UNRESPONSIVE", "REFUND_OVERDUE",
@@ -290,6 +292,7 @@ MERCHANT_KINDS = frozenset([
     "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED",
     # T-0322 (migration 0036 incidents_kind_check): a worker job that stopped finishing.
     "JOB_STALE",
+    "SANCTIONS_HIT",
 ])
 SEVERITIES = frozenset(["SEV1", "SEV2", "SEV3"])
 STATES = frozenset(["OPEN", "REMEDIATION_QUEUED", "WAITING_HUMAN", "VERIFYING", "RESOLVED", "STUCK"])
@@ -304,7 +307,7 @@ DETECTED_BY = frozenset(["probe", "passive", "limits", "email", "tester", "manua
 # T-INT-13 (§12.2, C0.6): the four merchant money/compliance kinds join PAYMENT_REQUIRED —
 # none may ever load with an auto route, a fleet task or a model.
 _MONEY_KINDS = frozenset(["PAYMENT_REQUIRED", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED",
-                          "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE"])
+                          "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE", "SANCTIONS_HIT"])
 
 
 def _load_routing(path=None):
@@ -661,7 +664,7 @@ def tg_send(text: str) -> bool:
 # for is not "worth $0", it's unmeasured).
 # ---------------------------------------------------------------------------
 def classify_severity(kind: str, tool_count: int | None = None, revenue_pct: float | None = None) -> str:
-    if kind in ("PAYMENT_REQUIRED", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH"):
+    if kind in ("PAYMENT_REQUIRED", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "SANCTIONS_HIT"):
         return "SEV1"
     if kind in ("FEE_INVOICE_OVERDUE", "STOREFRONT_DOWN", "MERCHANT_UNRESPONSIVE",
                 "STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED", "JOB_STALE"):

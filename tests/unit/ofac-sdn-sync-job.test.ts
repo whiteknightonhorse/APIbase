@@ -13,6 +13,7 @@ describe('ofac-sdn-sync job skipIfFresh', () => {
   let fetchMock: jest.Mock;
   beforeEach(() => {
     query.mockReset();
+    query.mockResolvedValue([]);
     exec.mockReset();
     fetchMock = jest.fn(async () => ({ ok: true, text: async () => SDN }));
     (global as unknown as { fetch: unknown }).fetch = fetchMock;

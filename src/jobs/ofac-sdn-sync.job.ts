@@ -1,6 +1,7 @@
 import { logger } from '../config/logger';
 import { getPrisma } from '../services/prisma.service';
 import { syncOfacSdn } from '../shop/moderation/sanctions';
+import { rescreenMerchants } from '../shop/moderation/wallet-screen';
 
 /**
  * Daily OFAC SDN -> shop_sanctioned_addresses (cron + startup wiring in worker/server.ts).
@@ -17,5 +18,13 @@ export async function run(opts?: { skipIfFresh?: boolean }): Promise<void> {
       return;
     }
   }
-  await syncOfacSdn(db);
+  const synced = await syncOfacSdn(db);
+  if (synced) {
+    // Only after a successful list update: a stale list says nothing new about existing wallets.
+    const suspended = await rescreenMerchants(db);
+    logger.info(
+      { job: 'ofac-sdn-sync', rescreen_suspended: suspended },
+      'merchant wallets re-screened',
+    );
+  }
 }

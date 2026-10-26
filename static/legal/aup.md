@@ -27,4 +27,4 @@ A merchant whose entity is registered in one of these countries is not onboarded
 CU, IR, KP, RU, BY, CN, DZ, BD, EG, IQ, MA, NP, QA, TN, TR, ID, VN, KW, SY, SA, OM, MK, VE, MM, AF
 <!-- countries:end -->
 
-Sign-ups from some IP addresses, countries and regions may be refused. IP country is checked at registration (country-level, monthly database). Payout wallets on the OFAC SDN list are refused.
+Sign-ups from some IP addresses, countries and regions may be refused. IP country is checked at registration (country-level, monthly database). Merchant identity, payout and recovery wallets on the OFAC SDN list are refused at registration and on every wallet change, and wallets are re-screened daily against the OFAC SDN list; a merchant with a match is suspended and a person reviews it.

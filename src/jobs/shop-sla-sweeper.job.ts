@@ -8,6 +8,7 @@ import { transition } from '../shop/order-state';
 import { purgePii } from '../shop/pii/pii.service';
 import { releaseReservation } from '../shop/repository';
 import { refreshReputations } from '../shop/reputation.service';
+import { screenWallet, suspendForSanctions } from '../shop/moderation/wallet-screen';
 
 /** §5.3 / §12.2: a second `confirm_overdue` for the same order only after this long. */
 export const OVERDUE_REPEAT_MS = 24 * 3_600_000;
@@ -298,6 +299,23 @@ async function overdueRefunds(d: ShopDeps, now: Date): Promise<number> {
 /** (e) F-1: payout_pending whose effective_at has passed becomes the merchant's wallet for its rail. */
 async function applyPayouts(d: ShopDeps, now: Date): Promise<number> {
   return d.transaction(async (tx) => {
+    // Screen at apply time: the list or the platform wallet set may have changed during the 24 h delay.
+    const due = await tx.$queryRawUnsafe<Array<{ merchant_id: string; wallet: string }>>(
+      `SELECT merchant_id::text, payout_pending->>'wallet' AS wallet FROM shop_merchants
+        WHERE payout_pending IS NOT NULL AND payout_pending->>'rail' IN ('base', 'tempo')
+          AND (payout_pending->>'effective_at')::timestamptz < $1::timestamptz`,
+      now,
+    );
+    for (const p of due) {
+      const verdict = await screenWallet(tx, p.wallet, 'payout');
+      if (verdict === 'sanctioned') await suspendForSanctions(tx, p.merchant_id, p.wallet);
+      else if (verdict === 'platform') {
+        await tx.$executeRawUnsafe(
+          `UPDATE shop_merchants SET payout_pending = NULL WHERE merchant_id = $1::uuid`,
+          p.merchant_id,
+        );
+      }
+    }
     const rows = await tx.$queryRawUnsafe<Array<{ merchant_id: string; rail: string }>>(
       `UPDATE shop_merchants
           SET payout_wallet_base = CASE WHEN payout_pending->>'rail' = 'base'
