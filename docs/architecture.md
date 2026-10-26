@@ -3,7 +3,7 @@
 APIbase is a single Node.js/TypeScript API server in front of a 16-container Docker stack
 (API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail,
 Alertmanager, exporters) on a single Hetzner server, with automated health checks, graceful
-shutdown, and Prometheus alerting <!--alert-rules-->(30 alert rules)<!--/alert-rules-->. PostgreSQL is the append-only source of truth for
+shutdown, and Prometheus alerting <!--alert-rules-->(31 alert rules)<!--/alert-rules-->. PostgreSQL is the append-only source of truth for
 every financial record; Redis is cache, rate limiting, and single-flight deduplication only —
 it holds nothing that would need to survive a restart. Every tool call passes through the same
 14-stage pipeline in a fixed order:
@@ -22,6 +22,7 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
   exists before a block is decided — enables settle-on-block: a blocked paid request keeps
   the charge and returns an `appeal_url` instead of silently keeping the money with no
   recourse) and before the provider call.
+- **Sign-up IP country (UC-22)**: merchant registration looks up the caller's IP country in-process in a monthly-refreshed DB-IP Country Lite database (country level, refreshed by the worker job `geo-db-refresh`); a trusted edge header overrides it, and a missing database means the IP rule is not applied.
 
 ## Documentation sync
 

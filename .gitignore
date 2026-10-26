@@ -117,3 +117,7 @@ scripts/integrator/state/
 
 # Docker compose secret files (T-0357) — never commit
 secrets/
+
+# UC-22 IP country database (DB-IP Country Lite): downloaded monthly by scripts/geo-db-refresh.sh
+data/geo/*.mmdb
+data/geo/.geo-refresh.*

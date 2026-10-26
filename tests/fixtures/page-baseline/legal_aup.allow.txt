@@ -1,0 +1,2 @@
+# T-0567: AUP bumped to v1.4 (IP country checked at registration).
+v1.3

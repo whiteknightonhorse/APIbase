@@ -2,7 +2,7 @@
   "absent_endpoints": [
     "/api/v1/agents/rotate"
   ],
-  "alert_rules_count": 30,
+  "alert_rules_count": 31,
   "cache_ttl_seconds": {
     "max": 2592000,
     "max_days": 30,
@@ -1136,9 +1136,9 @@
       "version": "1.4"
     },
     {
-      "effective_from": "2026-10-12",
+      "effective_from": "2026-10-26",
       "id": "aup",
-      "version": "1.3"
+      "version": "1.4"
     },
     {
       "effective_from": "2026-10-12",

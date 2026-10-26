@@ -336,3 +336,16 @@ groups:
           severity: warning
         annotations:
           summary: "payment-identifier conflict — tool misconfig or quote drift; see MARKET-SIGNALS-1021 S7"
+
+      # -----------------------------------------------------------------------
+      # 31. GeoDbMissing — warning (T-0567, UC-22)
+      # The IP country database is not loaded, so the sign-up IP country rule is not applied.
+      # Fix: run scripts/geo-db-refresh.sh (the monthly worker job geo-db-refresh failed or never ran).
+      # -----------------------------------------------------------------------
+      - alert: GeoDbMissing
+        expr: geo_db_loaded == 0
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "IP country database (geo_db_loaded) missing for 1h — UC-22 IP rule not applied; run scripts/geo-db-refresh.sh"

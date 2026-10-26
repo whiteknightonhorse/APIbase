@@ -88,6 +88,9 @@ services:
       - .env
     environment:
       - SERVICE_NAME=api
+    volumes:
+      # UC-22 IP country database, written monthly by the worker (geo-db-refresh job)
+      - ./data/geo:/app/data/geo:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -135,6 +138,9 @@ services:
     environment:
       - SERVICE_NAME=worker
       - DATABASE_URL=${DATABASE_URL_WORKER}
+    volumes:
+      # UC-22 IP country database: the geo-db-refresh job writes here (host dir owned by uid 1001)
+      - ./data/geo:/app/data/geo
     depends_on:
       api:
         condition: service_healthy

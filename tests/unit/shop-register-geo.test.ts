@@ -3,6 +3,9 @@
  * /mcp caller address reaches the per-IP rate limit. Real routers and handlers; in-memory DB/Redis.
  */
 import express from 'express';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
@@ -13,6 +16,8 @@ import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
 import { setSignaturePublicClient } from '../../src/shop/wallet-signature';
 import { createMcpRouter } from '../../src/mcp/server';
+import { buildCountryMmdb } from '../fixtures/mmdb-fixture';
+import { resetGeoLookupForTests } from '../../src/shop/geo-lookup';
 
 jest.mock('../../src/config/index', () => ({
   config: { ENCRYPTION_KEY: 'k'.repeat(40), X402_NETWORK: 'base' },
@@ -64,6 +69,7 @@ class FakeRedis {
 function build() {
   const merchants: Row[] = [];
   const events: Row[] = [];
+  const outbox: Row[] = [];
   const redis = new FakeRedis();
   const db = {
     async $queryRawUnsafe(sql: string, ...v: unknown[]): Promise<any> {
@@ -86,12 +92,14 @@ function build() {
     },
     async $executeRawUnsafe(sql: string, ...v: unknown[]) {
       if (sql.includes('INTO shop_connect_events')) events.push({ error_code: v[5] });
+      else if (sql.includes('INTO outbox'))
+        outbox.push({ event_type: v[0], payload: JSON.parse(v[1] as string) });
       else if (!sql.includes('INTO shop_moderation_reviews')) throw new Error('unexpected ' + sql);
       return 1;
     },
   };
   const deps: ShopDeps = { db, transaction: (fn) => fn(db), redis: redis as never };
-  return { deps, merchants, events, redis };
+  return { deps, merchants, events, outbox, redis };
 }
 
 async function regBody(env: ReturnType<typeof build>, over: Row = {}) {
@@ -197,6 +205,76 @@ describe('REST POST /api/v1/shop/merchants (G1-G4)', () => {
     const r = await post(env, { 'X-APIbase-Geo-Country': 'iran' });
     expect(r.status).toBe(201);
     expect(env.merchants[0].registration_ip_country).toBeNull();
+  });
+});
+
+describe('REST registration, IP country from the database (G7-G10)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'geo-reg-'));
+  const mmdb = join(dir, 'fixture.mmdb');
+  writeFileSync(
+    mmdb,
+    buildCountryMmdb([
+      { cidr: '203.0.113.0/24', country: 'CU' },
+      { cidr: '198.51.100.0/24', country: 'DE' },
+    ]),
+  );
+  beforeEach(() => {
+    resetGeoLookupForTests();
+    process.env.GEO_MMDB_PATH = mmdb;
+  });
+  afterEach(() => {
+    delete process.env.GEO_MMDB_PATH;
+    resetGeoLookupForTests();
+  });
+
+  const post = async (env: ReturnType<typeof build>, ip: string, headers = {}) => {
+    const app = express();
+    app.use(express.json());
+    app.use((req, _res, next) => {
+      Object.defineProperty(req, 'ip', { value: ip });
+      next();
+    });
+    app.use(createMerchantRouter(env.deps));
+    const r = await fetch(serve(app) + '/api/v1/shop/merchants', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...headers },
+      body: JSON.stringify(await regBody(env)),
+    });
+    return { status: r.status, body: (await r.json()) as Row };
+  };
+
+  it('G7 CU address -> 403 country_not_supported and one geo_refused outbox event without the IP', async () => {
+    const env = build();
+    const r = await post(env, '203.0.113.7');
+    expect(r.status).toBe(403);
+    expect(r.body.error_code).toBe('country_not_supported');
+    expect(env.merchants).toHaveLength(0);
+    expect(env.outbox).toEqual([
+      { event_type: 'shop.merchant.geo_refused', payload: { country: 'CU', region: null } },
+    ]);
+    expect(JSON.stringify(env.outbox)).not.toContain('203.0.113');
+  });
+
+  it('G8 DE address registers with registration_ip_country DE; no outbox event', async () => {
+    const env = build();
+    expect((await post(env, '198.51.100.9')).status).toBe(201);
+    expect(env.merchants[0].registration_ip_country).toBe('DE');
+    expect(env.outbox).toHaveLength(0);
+  });
+
+  it('G9 lookup has no answer (database missing) -> rule not applied, registration proceeds', async () => {
+    process.env.GEO_MMDB_PATH = join(dir, 'absent.mmdb');
+    const env = build();
+    const r = await post(env, '203.0.113.7');
+    expect(r.status).toBe(201);
+    expect(env.merchants[0].registration_ip_country).toBeNull();
+  });
+
+  it('G10 trusted edge header wins over the database answer', async () => {
+    process.env.INTEGRATOR_GEO_HEADERS = 'trusted';
+    const env = build();
+    expect((await post(env, '203.0.113.7', { 'X-APIbase-Geo-Country': 'DE' })).status).toBe(201);
+    expect(env.merchants[0].registration_ip_country).toBe('DE');
   });
 });
 

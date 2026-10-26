@@ -36,6 +36,7 @@
     "express-rate-limit": "^8.7.1",
     "fast-json-stable-stringify": "^2.1.0",
     "ioredis": "^5.4.2",
+    "mmdb-lib": "3.0.3",
     "mppx": "^0.13.5",
     "mppx-legacy": "npm:mppx@0.8.2",
     "node-cron": "^3.0.3",

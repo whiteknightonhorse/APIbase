@@ -215,6 +215,7 @@ export function indexPage(docs: ReadonlyArray<object>): string {
     '<h1>Legal documents</h1>' +
     '<p>Current version of each document. The same list as JSON: <a href="/legal/index.json">/legal/index.json</a>.</p>' +
     `<div class="table-wrap"><table><thead><tr><th>Document</th><th>Version</th><th>Effective</th><th>SHA-256</th></tr></thead><tbody>${rows}</tbody></table></div>` +
+    '<p class="attribution"><a href="https://db-ip.com">IP geolocation by DB-IP</a> (IP to Country Lite, CC BY 4.0).</p>' +
     '</main></div>' +
     SITE_FOOTER +
     '</body></html>\n'

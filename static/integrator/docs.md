@@ -63,7 +63,7 @@ Every error carries `error_code`, `message`, `suggested_action`, `documentation_
 
 <a id="country_not_supported"></a>
 
-**`country_not_supported`** (403) — the entity country or the sign-up IP's country/region is not served.
+**`country_not_supported`** (403) — the entity country or the sign-up IP's country (looked up at registration in a monthly country-level database) or the declared region is not served. When the lookup has no answer the IP rule is not applied.
 See `/legal/aup`.
 
 <a id="category_prohibited"></a>

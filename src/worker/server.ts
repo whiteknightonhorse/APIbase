@@ -23,6 +23,7 @@ import { run as runX402SettlePending } from '../jobs/x402-settle-pending.job';
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
+import { run as runGeoDbRefresh } from '../jobs/geo-db-refresh.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
 import { runShopProvekRegistrySync } from '../jobs/shop-provek-registry-sync.job';
 import { runShopStorefrontProbe } from '../jobs/shop-storefront-probe.job';
@@ -285,6 +286,13 @@ registerJob({
   cron: '10 3 1 * *',
   expect_every_s: 2678400,
   run: () => runShopFeeInvoice(),
+});
+// UC-22 IP country database (DB-IP Country Lite, published monthly): the 3rd of each month, 03:40 UTC.
+registerJob({
+  name: 'geo-db-refresh',
+  cron: '40 3 3 * *',
+  expect_every_s: 32 * 86400,
+  run: () => runGeoDbRefresh(),
 });
 // Merchant domain proof (INT-15, UC-17): .well-known file or DNS TXT, once a day.
 registerJob({

@@ -99,7 +99,7 @@ describe('T-INT-05 legal documents', () => {
         .toString()
         .split(' ')[0];
       expect(e.sha256).toBe(sum);
-      expect(e.version).toBe(e.doc_id === 'merchant-agreement' ? '1.4' : '1.3');
+      expect(e.version).toBe(['merchant-agreement', 'aup'].includes(e.doc_id) ? '1.4' : '1.3');
       expect(e.url).toBe(`/legal/${e.doc_id}`);
       expect(Object.keys(e).sort()).toEqual([
         'doc_id',
@@ -111,19 +111,19 @@ describe('T-INT-05 legal documents', () => {
     }
   });
 
-  it('LG2 text change without a version change fails sync; 1.4 appends and index shows 1.4', async () => {
+  it('LG2 text change without a version change fails sync; 1.5 appends and index shows 1.5', async () => {
     const dir = tmpLegalDir();
     const db = fakeDb();
     await syncLegalDocs(db, dir);
     const aup = join(dir, 'aup.md');
     writeFileSync(aup, read(aup) + 'x');
     await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalDocChangedError);
-    const bumped = read(aup).replace('version: 1.3;', 'version: 1.4;');
+    const bumped = read(aup).replace('version: 1.4;', 'version: 1.5;');
     writeFileSync(aup, bumped);
     await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalEffectiveFromError);
     writeFileSync(
       aup,
-      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-10-14'),
+      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-10-27'),
     );
     await syncLegalDocs(db, dir);
     expect(
@@ -131,11 +131,11 @@ describe('T-INT-05 legal documents', () => {
         .filter((r) => r.doc_id === 'aup')
         .map((r) => r.version)
         .sort(),
-    ).toEqual(['1.3', '1.4']);
+    ).toEqual(['1.4', '1.5']);
     const s = await serve({ db, dir, now: () => Date.parse('2030-01-01') });
     const idx = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Row[];
     await s.close();
-    expect(idx.find((e) => e.doc_id === 'aup')!.version).toBe('1.4');
+    expect(idx.find((e) => e.doc_id === 'aup')!.version).toBe('1.5');
   });
 
   it('LG3 DRAFT banner + noindex until legal-published.json exists; .md never has the banner', async () => {
@@ -202,7 +202,9 @@ describe('T-INT-05 legal documents', () => {
       const head =
         id === 'merchant-agreement'
           ? /^<!-- version: 1\.4; effective_from: 2026-10-19; status: accepted by operator without legal review -->$/
-          : /^<!-- version: 1\.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->$/;
+          : id === 'aup'
+            ? /^<!-- version: 1\.4; effective_from: 2026-10-26; status: accepted by operator without legal review -->$/
+            : /^<!-- version: 1\.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->$/;
       expect(t.split('\n')[0]).toMatch(head);
     }
     for (const id of LEGAL_DOC_IDS) {

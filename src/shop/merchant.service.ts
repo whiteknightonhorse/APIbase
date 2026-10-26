@@ -167,6 +167,19 @@ async function emitConnectEvent(ctx: RegisterCtx, wallet: string, error_code: st
   }
 }
 
+/** UC-22: outbox event for the incident engine when the sign-up IP country is refused (country only, never the IP). */
+async function emitGeoRefused(ctx: RegisterCtx) {
+  try {
+    await ctx.db.$executeRawUnsafe(
+      `INSERT INTO outbox (event_type, payload) VALUES ($1, $2::jsonb)`,
+      'shop.merchant.geo_refused',
+      JSON.stringify({ country: ctx.ip_country, region: ctx.ip_region ?? null }),
+    );
+  } catch (err) {
+    logger.warn({ err }, 'shop.merchant.geo_refused outbox insert failed');
+  }
+}
+
 type RegRedis = NonNullable<RegisterCtx['redis']>;
 const ipKey = (ip: string) => `shop:reg:ip:${sha(ip).slice(0, 16)}`;
 
@@ -322,7 +335,9 @@ export async function registerMerchant(
     }
 
     // 3. countries (form entity country OR IP country/region)
-    if (isRestrictedEntityCountry(input.country) || isRestrictedIp(ctx.ip_country, ctx.ip_region)) {
+    const ipRefused = isRestrictedIp(ctx.ip_country, ctx.ip_region);
+    if (isRestrictedEntityCountry(input.country) || ipRefused) {
+      if (ipRefused) await emitGeoRefused(ctx);
       throw fail(
         403,
         'country_not_supported',

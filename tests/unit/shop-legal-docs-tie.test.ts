@@ -20,7 +20,7 @@ dbDescribe('legal current version tie-break on real Postgres (T-0369)', () => {
   const db = client();
   const tx = db as unknown as ShopTx;
   const same = '2026-10-12T00:00:00Z';
-  const NOW = Date.parse('2026-10-20T00:00:00Z');
+  const NOW = Date.parse('2026-10-28T00:00:00Z');
 
   const insert = (doc_id: string, version: string, effective_from: string) =>
     db.$executeRawUnsafe(
@@ -60,7 +60,7 @@ dbDescribe('legal current version tie-break on real Postgres (T-0369)', () => {
       `SELECT count(*) AS n FROM shop_legal_docs`,
     );
     const aup = join(dir, 'aup.md');
-    const bumped = readFileSync(aup, 'utf-8').replace('version: 1.3;', 'version: 1.4;');
+    const bumped = readFileSync(aup, 'utf-8').replace('version: 1.4;', 'version: 1.5;');
     writeFileSync(aup, bumped);
     await expect(syncLegalDocs(tx, dir)).rejects.toBeInstanceOf(LegalEffectiveFromError);
     const after = await db.$queryRawUnsafe<Array<{ n: bigint }>>(
@@ -70,11 +70,11 @@ dbDescribe('legal current version tie-break on real Postgres (T-0369)', () => {
 
     writeFileSync(
       aup,
-      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-10-14'),
+      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-10-27'),
     );
     await syncLegalDocs(tx, dir);
-    const later = Date.parse('2026-10-20T00:00:00Z');
-    expect((await currentDocs(tx, later)).find((d) => d.doc_id === 'aup')!.version).toBe('1.4');
-    expect((await legalIndex(tx, later)).find((d) => d.doc_id === 'aup')!.version).toBe('1.4');
+    const later = Date.parse('2026-10-28T00:00:00Z');
+    expect((await currentDocs(tx, later)).find((d) => d.doc_id === 'aup')!.version).toBe('1.5');
+    expect((await legalIndex(tx, later)).find((d) => d.doc_id === 'aup')!.version).toBe('1.5');
   });
 });

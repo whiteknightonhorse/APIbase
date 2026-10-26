@@ -33,3 +33,5 @@ Published on <ISO-DATE>; the hashes are in
 tracking (null in wave 1),
 ( shipped , delivered , refund.verified and dispute.opened start flowing with the shipping/dispute waves).
 ,
+# T-0567: the IP-country sentence now says the lookup source (monthly country-level database).
+country/region

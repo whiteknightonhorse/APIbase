@@ -201,6 +201,13 @@ export const storefrontProbeCoverage = new client.Gauge({
   registers: [register],
 });
 
+/** UC-22: 1 when the DB-IP Country Lite database is loaded in this process, 0 when it is missing. */
+export const geoDbLoaded = new client.Gauge({
+  name: 'geo_db_loaded',
+  help: 'IP country database loaded for the UC-22 registration rule (1) or missing (0)',
+  registers: [register],
+});
+
 // ---------------------------------------------------------------------------
 // x402 self-hosted facilitator metrics (X402_FACILITATOR_MODE=local)
 // ---------------------------------------------------------------------------

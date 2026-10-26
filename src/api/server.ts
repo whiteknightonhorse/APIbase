@@ -6,6 +6,7 @@ import { shutdownRedis } from '../services/redis.service';
 import { initToolCache, stopToolCacheRefresh } from '../pipeline/stages/tool-status.stage';
 import { shutdownMcpSessions } from '../mcp/server';
 import { syncLegalDocs } from '../shop/legal/legal-docs';
+import { warmGeoDb } from '../shop/geo-lookup';
 import { defaultShopDeps } from '../shop/merchant-lifecycle.service';
 
 /**
@@ -33,6 +34,9 @@ const app = createApp();
 
   // T-INT-05: register static/legal/*.md; a text change without a version bump aborts startup.
   await syncLegalDocs(defaultShopDeps().db);
+
+  // UC-22: open the IP country database now so geo_db_loaded is exported from the first scrape.
+  warmGeoDb();
 
   const server = app.listen(config.PORT, () => {
     logger.info({ port: config.PORT, env: config.NODE_ENV }, 'API server started');
