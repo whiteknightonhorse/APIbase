@@ -338,6 +338,10 @@ const catalogRemoderateTask = cron.schedule('17 * * * *', () => {
       catalogRemoderateRunning = false;
     });
 });
+// T-0568: backfill content hashes once at start so reject memory is live right after deploy, not an hour later.
+backfillContentHashes().catch((err) =>
+  logger.error({ err, job: 'catalog-remoderate' }, 'content hash backfill at start failed'),
+);
 // Stream channel settlement (INT-40, F-9): $0.50 / hourly / payer-requested close, every minute.
 registerJob({
   name: 'shop-stream-settle',
