@@ -31,7 +31,7 @@ const INE_SPAIN_BASE = 'https://servicios.ine.es/wstempus/js';
  * dynamically generated codes) so it is NOT enum-constrained; an unrecognized code
  * still returns an empty 200 body, which base.adapter.ts's JSON.parse('') failure
  * surfaces as INVALID_RESPONSE/502 — documented, not fixable without a base.adapter
- * change (out of scope, see CLAUDE.md §0).
+ * change (out of scope, see ~/taskloop/knowledge/apibase-autopilot.md#AP-3).
  *
  * QUIRK: DATOS_TABLA has no server-side cap on series count per table — some tables
  * (e.g. EPA labour-force tables) bundle 200+ series. `periods` is capped to 1-6 in

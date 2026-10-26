@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """deploy-tree-dirty-alert.py — T-20 addendum (2026-09-07): page once if the
-DEPLOY tree (/home/apibase/apibase) sits dirty (`git status --porcelain`
+DEPLOY tree (/home/apibase/apibase) sits dirty (T-0578: and likewise ~/apibase-fleet and ~/apibase-orchestra, one marker pair per tree) (`git status --porcelain`
 non-empty) longer than DIRTY_GRACE_MINUTES, because that state means the
 next `deploy.sh` run is guaranteed to abort at its own F2 gate (see
 `scripts/deploy.sh`'s "ABORT: working tree has uncommitted changes").
@@ -62,10 +62,25 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "aut
 from autopilot_common import tg_send  # noqa: E402
 
 DEPLOY_TREE = "/home/apibase/apibase"
+# T-0578: every tree a cron or the deploy path runs from. Dirt in any of them blocks that writer
+# (deploy F2 gate, taskloop dirty-tree ABORT, sync-counts-cron), so each gets its own marker pair.
+HOME = os.path.expanduser("~")
+TREES = [f"{HOME}/apibase", f"{HOME}/apibase-fleet", f"{HOME}/apibase-orchestra"]
 STATE_DIR = f"{DEPLOY_TREE}/scripts/night-orchestra/state"
-STATE_FILE = f"{STATE_DIR}/deploy-tree-dirty-since.txt"
-ALERTED_FILE = f"{STATE_DIR}/deploy-tree-dirty-alerted.txt"
 DIRTY_GRACE_MINUTES = 30
+
+
+def _key(tree: str) -> str:
+    return os.path.basename(tree.rstrip("/"))
+
+
+def state_file(tree: str) -> str:
+    # The deploy tree keeps the pre-T-0578 file names so an episode already in flight is not reset.
+    return f"{STATE_DIR}/deploy-tree-dirty-since.txt" if tree == DEPLOY_TREE else f"{STATE_DIR}/tree-dirty-since-{_key(tree)}.txt"
+
+
+def alerted_file(tree: str) -> str:
+    return f"{STATE_DIR}/deploy-tree-dirty-alerted.txt" if tree == DEPLOY_TREE else f"{STATE_DIR}/tree-dirty-alerted-{_key(tree)}.txt"
 
 
 def _ts() -> str:
@@ -76,61 +91,74 @@ def _ts() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def porcelain_status() -> str:
+def porcelain_status(tree: str) -> str:
     out = subprocess.run(
-        ["git", "-C", DEPLOY_TREE, "status", "--porcelain"],
+        ["git", "-C", tree, "status", "--porcelain"],
         capture_output=True, text=True,
     )
     return out.stdout
 
 
-def main():
-    os.makedirs(STATE_DIR, exist_ok=True)
-    status = porcelain_status()
+def check_tree(tree: str):
+    tag = f"deploy-tree-dirty-alert[{_key(tree)}]"
+    if not os.path.exists(os.path.join(tree, ".git")):
+        print(f"{_ts()} {tag}: not a git tree, skipped")
+        return
+    sf, af = state_file(tree), alerted_file(tree)
+    status = porcelain_status(tree)
 
     if not status.strip():
         # Clean: reset both markers so the next dirty episode starts fresh.
         removed = False
-        for f in (STATE_FILE, ALERTED_FILE):
+        for f in (sf, af):
             if os.path.exists(f):
                 os.remove(f)
                 removed = True
-        print(f"{_ts()} deploy-tree-dirty-alert: clean" + (" (reset markers)" if removed else ""))
+        print(f"{_ts()} {tag}: clean" + (" (reset markers)" if removed else ""))
         return
 
     now = time.time()
-    if not os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "w") as f:
+    if not os.path.exists(sf):
+        with open(sf, "w") as f:
             f.write(str(now))
-        print(f"{_ts()} deploy-tree-dirty-alert: dirty, first seen now -- grace period started ({DIRTY_GRACE_MINUTES}min)")
+        print(f"{_ts()} {tag}: dirty, first seen now -- grace period started ({DIRTY_GRACE_MINUTES}min)")
         return
 
-    first_seen = float(open(STATE_FILE).read().strip())
+    first_seen = float(open(sf).read().strip())
     elapsed_min = (now - first_seen) / 60
 
     if elapsed_min < DIRTY_GRACE_MINUTES:
-        print(f"{_ts()} deploy-tree-dirty-alert: dirty for {elapsed_min:.1f}min, within grace period, not yet alerting")
+        print(f"{_ts()} {tag}: dirty for {elapsed_min:.1f}min, within grace period, not yet alerting")
         return
 
-    if os.path.exists(ALERTED_FILE):
-        print(f"{_ts()} deploy-tree-dirty-alert: dirty for {elapsed_min:.1f}min, already alerted this episode, staying quiet")
+    if os.path.exists(af):
+        print(f"{_ts()} {tag}: dirty for {elapsed_min:.1f}min, already alerted this episode, staying quiet")
         return
 
     files = "\n".join(f"  {line}" for line in status.strip().splitlines())
+    consequence = (
+        "next deploy.sh run WILL abort at the F2 gate" if tree == DEPLOY_TREE
+        else "the next cron or taskloop tick that runs from it will abort on the dirty tree"
+    )
     text = (
-        f"[apibase] ⚠️ deploy tree ({DEPLOY_TREE}) dirty for {elapsed_min:.0f}min -- "
-        f"next deploy.sh run WILL abort at the F2 gate.\n{files}\n\n"
+        f"[apibase] ⚠️ tree ({tree}) dirty for {elapsed_min:.0f}min -- {consequence}.\n{files}\n\n"
         f"Do not `git checkout -- <file>` blindly if it's a live hotfix (e.g. nginx.conf is "
         f"bind-mounted into the running container) -- land it as a proper commit in "
         f"apibase-fleet (ci-staging) first, THEN clean this tree."
     )
     ok = tg_send(text)
     if ok:
-        with open(ALERTED_FILE, "w") as f:
+        with open(af, "w") as f:
             f.write(str(now))
-        print(f"{_ts()} deploy-tree-dirty-alert: ALERTED (dirty {elapsed_min:.0f}min)")
+        print(f"{_ts()} {tag}: ALERTED (dirty {elapsed_min:.0f}min)")
     else:
-        print(f"{_ts()} deploy-tree-dirty-alert: dirty {elapsed_min:.0f}min, alert send FAILED -- will retry next tick")
+        print(f"{_ts()} {tag}: dirty {elapsed_min:.0f}min, alert send FAILED -- will retry next tick")
+
+
+def main():
+    os.makedirs(STATE_DIR, exist_ok=True)
+    for tree in TREES:
+        check_tree(tree)
 
 
 if __name__ == "__main__":

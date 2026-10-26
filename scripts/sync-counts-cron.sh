@@ -41,6 +41,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$HERE"
 # shellcheck source=lib/counts-ledger.sh
 . "$HERE/scripts/lib/counts-ledger.sh"
+. "$HERE/scripts/lib/tree-hygiene.sh"   # T-0578
 
 # Durable logging + alerting, independent of whatever the crontab line redirects stdout to.
 # T-75 update (2026-09-03): the crontab's own redirect target
@@ -172,10 +173,25 @@ timeout 300 git fetch origin ci-staging --quiet \
   || { clog "ABORT -- git fetch origin ci-staging timed out or failed (300s bound)"; calert "🔴 sync-counts-cron: git fetch origin ci-staging упал/завис (300s) -- отказ прибора." "fetch-failed"; exit 1; }
 LOCAL_SHA="$(git rev-parse HEAD)"
 REMOTE_SHA="$(git rev-parse origin/ci-staging)"
-if [ "$LOCAL_SHA" != "$REMOTE_SHA" ] && ! git merge-base --is-ancestor "$REMOTE_SHA" "$LOCAL_SHA"; then
-  clog "ABORT -- HEAD ($LOCAL_SHA) has diverged from origin/ci-staging ($REMOTE_SHA), refusing to commit on a stale/diverged base"
-  calert "🔴 sync-counts-cron: HEAD разошёлся с origin/ci-staging -- отказ прибора, коммит на устаревшей базе запрещён." "diverged"
-  exit 1
+if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+  if git merge-base --is-ancestor "$LOCAL_SHA" "$REMOTE_SHA"; then
+    # T-0578: HEAD is strictly behind origin/ci-staging -- not a divergence. Fast-forward when the
+    # tree is clean (or holds only formatter MM pairs with an empty net diff), then proceed.
+    BEHIND_N="$(git rev-list --count "$LOCAL_SHA..$REMOTE_SHA")"
+    tree_clear_mm_pairs clog
+    if [ -n "$(git status --porcelain)" ]; then
+      clog "ABORT -- HEAD is behind origin/ci-staging by $BEHIND_N but the tree is dirty, cannot fast-forward"
+      calert "🔴 sync-counts-cron: HEAD отстаёт от origin/ci-staging на $BEHIND_N, но дерево грязное -- fast-forward невозможен, отказ прибора." "behind-dirty"
+      exit 1
+    fi
+    git merge --ff-only origin/ci-staging --quiet \
+      || { clog "ABORT -- behind by $BEHIND_N but git merge --ff-only failed"; calert "🔴 sync-counts-cron: отстаём на $BEHIND_N, fast-forward не удался -- отказ прибора." "ff-failed"; exit 1; }
+    clog "behind by $BEHIND_N, fast-forwarded to $(git rev-parse --short HEAD)"
+  else
+    clog "ABORT -- HEAD ($LOCAL_SHA) has diverged from origin/ci-staging ($REMOTE_SHA), refusing to commit on a stale/diverged base"
+    calert "🔴 sync-counts-cron: HEAD разошёлся с origin/ci-staging (diverged, есть локальные коммиты, которых нет на origin) -- отказ прибора, коммит на устаревшей базе запрещён." "diverged"
+    exit 1
+  fi
 fi
 
 # Every path sync-counts.sh's self-heal pass is known to write (kept in sync with its own
