@@ -1,5 +1,11 @@
 /** T-0315 RM1-RM6: layer-1 re-moderation when the rule files change (TEST_DATABASE_URL, disposable). */
-import { computeRulesHash, run, type RulesHashStore } from '../../src/jobs/catalog-remoderate.job';
+import * as rules from '../../src/shop/moderation/product-rules';
+import {
+  backfillContentHashes,
+  computeRulesHash,
+  run,
+  type RulesHashStore,
+} from '../../src/jobs/catalog-remoderate.job';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import type { ShopTx } from '../../src/shop/db';
 import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
@@ -109,6 +115,43 @@ dbDescribe('catalog-remoderate job (T-0315)', () => {
     );
     expect(ob).toHaveLength(1);
     expect(stored).toBe(computeRulesHash());
+  });
+
+  it('RM8 (T-0568) remoderate scans the texts moderationTexts() returns, instant payload included', async () => {
+    const { encryptSecret } = await import('../../src/services/secret-crypto.service');
+    const id = await mk('pay', 'Skates');
+    await db.$executeRawUnsafe(
+      `UPDATE shop_products SET fulfillment_payload_encrypted = $2 WHERE product_id = $1::uuid`,
+      id,
+      encryptSecret('Premium cocaine kit', 'k'.repeat(40)),
+    );
+    const spy = jest.spyOn(rules, 'moderationTexts');
+    try {
+      const res = await run(deps(), { store });
+      expect(res.rejected).toBe(1);
+      expect(spy).toHaveBeenCalledWith(
+        expect.objectContaining({ title: 'Skates', instant_payload: 'Premium cocaine kit' }),
+      );
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it('RM9 (T-0568) backfill fills content_hash on products and their reviews', async () => {
+    const id = await mk('bf', 'Skates');
+    await db.$executeRawUnsafe(
+      `INSERT INTO shop_moderation_reviews (merchant_id, scope, product_id, layer, verdict)
+       VALUES ($1::uuid, 'product', $2::uuid, 'llm', 'reject')`,
+      merchant,
+      id,
+    );
+    expect(await backfillContentHashes(deps())).toBe(1);
+    const r = await db.$queryRawUnsafe<Array<{ a: string; b: string }>>(
+      `SELECT p.content_hash a, r.content_hash b FROM shop_products p, shop_moderation_reviews r WHERE p.product_id = $1::uuid`,
+      id,
+    );
+    expect(r[0].a).toMatch(/^[0-9a-f]{64}$/);
+    expect(r[0].b).toBe(r[0].a);
   });
 
   it('RM3 flagged item with now-clean text stays flagged', async () => {

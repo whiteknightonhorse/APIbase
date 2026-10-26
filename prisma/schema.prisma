@@ -622,6 +622,7 @@ model ShopProduct {
   search                        Unsupported("tsvector")? // GENERATED ... STORED, GIN-indexed
   created_at                    DateTime                 @default(now()) @db.Timestamptz()
   updated_at                    DateTime                 @default(now()) @db.Timestamptz()
+  content_hash                  String?
 
   @@unique([merchant_id, sku])
   @@index([merchant_id])
@@ -916,8 +917,11 @@ model ShopModerationReview {
   verdict       String
   category      String?
   evidence_hash String?
+  // T-0568: sha256 of the normalised title+description+instant payload; product_id is not an FK on purpose
+  content_hash  String?
   at            DateTime @default(now()) @db.Timestamptz()
 
+  @@index([merchant_id, content_hash, at], map: "shop_moderation_reviews_merchant_content_idx")
   @@index([merchant_id])
   @@map("shop_moderation_reviews")
 }

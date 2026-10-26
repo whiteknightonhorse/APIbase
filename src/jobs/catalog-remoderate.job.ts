@@ -7,7 +7,9 @@ import { review } from '../shop/catalog.service';
 import type { ShopTx } from '../shop/db';
 import type { ShopDeps } from '../shop/merchant-lifecycle.service';
 import { defaultShopDeps } from '../shop/merchant-lifecycle.service';
-import { moderateProduct } from '../shop/moderation/product-rules';
+import { config } from '../config';
+import { decryptSecret } from '../services/secret-crypto.service';
+import { contentHash, moderateProduct, moderationTexts } from '../shop/moderation/product-rules';
 
 /**
  * F-13(1) layer 1 "on every catalog change": a change of the layer-1 rule files counts as a change
@@ -52,20 +54,65 @@ interface Row {
   shipping_options: unknown;
   delivery_slots: unknown;
   stream: { content_ref?: unknown } | null;
+  fulfillment_payload_encrypted: string | null;
 }
 
-const labels = (v: unknown): string[] =>
-  Array.isArray(v)
-    ? v
-        .map((x) => (x as { label?: unknown } | null)?.label)
-        .filter((l): l is string => typeof l === 'string')
-    : [];
+/** The instant payload is stored encrypted; an unreadable one is scanned as absent, never fatal. */
+function instantPayload(r: Row): string | null {
+  if (!r.fulfillment_payload_encrypted || !config.ENCRYPTION_KEY) return null;
+  try {
+    return decryptSecret(r.fulfillment_payload_encrypted, config.ENCRYPTION_KEY);
+  } catch {
+    return null;
+  }
+}
 
 export interface RemoderateResult {
   skipped: boolean;
   scanned: number;
   rejected: number;
   flagged: number;
+}
+
+/**
+ * T-0568 backfill: products without a content_hash (rows older than migration 0045, any status) get
+ * one, then their review rows inherit it. Idempotent; the worker runs it hourly ahead of `run`.
+ * Reviews of products that were already deleted before the migration stay NULL (no content left).
+ */
+export async function backfillContentHashes(
+  d: ShopDeps = defaultShopDeps(),
+  batch = BATCH,
+): Promise<number> {
+  let done = 0;
+  for (;;) {
+    const rows = await d.db.$queryRawUnsafe<
+      Array<Pick<Row, 'product_id' | 'title' | 'description' | 'fulfillment_payload_encrypted'>>
+    >(
+      `SELECT product_id, title, description, fulfillment_payload_encrypted FROM shop_products
+        WHERE content_hash IS NULL ORDER BY product_id LIMIT $1::int`,
+      batch,
+    );
+    if (rows.length === 0) break;
+    for (const r of rows) {
+      await d.db.$executeRawUnsafe(
+        `UPDATE shop_products SET content_hash = $2 WHERE product_id = $1::uuid`,
+        r.product_id,
+        contentHash({
+          title: r.title,
+          description: r.description,
+          instant_payload: instantPayload(r as Row),
+        }),
+      );
+    }
+    done += rows.length;
+  }
+  await d.db.$executeRawUnsafe(
+    `UPDATE shop_moderation_reviews r SET content_hash = p.content_hash
+       FROM shop_products p
+      WHERE r.product_id = p.product_id AND r.scope = 'product'
+        AND r.content_hash IS NULL AND p.content_hash IS NOT NULL`,
+  );
+  return done;
 }
 
 export async function run(
@@ -83,7 +130,7 @@ export async function run(
   for (;;) {
     const rows = await d.db.$queryRawUnsafe<Row[]>(
       `SELECT product_id, merchant_id, sku, title, description, category, moderation_status,
-              tax_note, shipping_options, delivery_slots, stream
+              tax_note, shipping_options, delivery_slots, stream, fulfillment_payload_encrypted
          FROM shop_products
         WHERE moderation_status IN ('ok', 'flagged') AND product_id > $1::uuid
         ORDER BY product_id LIMIT $2::int`,
@@ -98,15 +145,13 @@ export async function run(
       `SELECT product_id, title, attributes FROM shop_product_variants WHERE product_id = ANY($1::uuid[])`,
       rows.map((r) => r.product_id),
     );
-    const extra = new Map<string, string[]>();
+    const extra = new Map<
+      string,
+      Array<{ title: string; attributes: Record<string, unknown> | null }>
+    >();
     for (const v of variants) {
       const list = extra.get(v.product_id) ?? [];
-      list.push(
-        v.title,
-        ...Object.entries(v.attributes ?? {})
-          .flat()
-          .filter((x): x is string => typeof x === 'string'),
-      );
+      list.push({ title: v.title, attributes: v.attributes });
       extra.set(v.product_id, list);
     }
 
@@ -116,18 +161,25 @@ export async function run(
         Array<{ sku: string; category: string; sku_hash: string }>
       >();
       for (const r of rows) {
+        const payload = instantPayload(r);
         const verdict = moderateProduct({
           sku: r.sku,
+          category: r.category,
+          ...moderationTexts({
+            title: r.title,
+            description: r.description,
+            tax_note: r.tax_note,
+            content_ref: r.stream?.content_ref,
+            variants: extra.get(r.product_id),
+            shipping_options: r.shipping_options,
+            delivery_slots: r.delivery_slots,
+            instant_payload: payload,
+          }),
+        });
+        const hash = contentHash({
           title: r.title,
           description: r.description,
-          category: r.category,
-          extra_texts: [
-            ...(extra.get(r.product_id) ?? []),
-            ...labels(r.shipping_options),
-            ...labels(r.delivery_slots),
-            r.tax_note ?? '',
-            typeof r.stream?.content_ref === 'string' ? r.stream.content_ref : '',
-          ].filter(Boolean),
+          instant_payload: payload,
         });
         if (verdict.verdict === 'rejected') {
           await tx.$executeRawUnsafe(
@@ -141,6 +193,7 @@ export async function run(
             'reject',
             verdict.category,
             verdict.evidence_hash,
+            hash,
           );
           const list = rejectedBy.get(r.merchant_id) ?? [];
           list.push({
@@ -155,7 +208,15 @@ export async function run(
             `UPDATE shop_products SET moderation_status = 'flagged', updated_at = now() WHERE product_id = $1::uuid`,
             r.product_id,
           );
-          await review(tx, r.merchant_id, r.product_id, 'flag', r.category, verdict.evidence_hash);
+          await review(
+            tx,
+            r.merchant_id,
+            r.product_id,
+            'flag',
+            r.category,
+            verdict.evidence_hash,
+            hash,
+          );
           out.flagged++;
         }
         // ok -> ok, flagged -> flagged, flagged -> (rules clean): untouched; lifting is layer 3 / human.

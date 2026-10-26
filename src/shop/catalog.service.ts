@@ -11,7 +11,14 @@ import type { ShopTx } from './db';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import { descriptionViolations, readsAsInstruction } from '../utils/description-policy';
 import { findPriceClaimMismatch, priceClaimMessage } from './moderation/price-claims';
-import { hasHiddenChars, moderateProduct, stripHidden } from './moderation/product-rules';
+import {
+  contentHash,
+  hasHiddenChars,
+  moderateProduct,
+  moderationTexts,
+  normalizeForScan,
+  stripHidden,
+} from './moderation/product-rules';
 
 export const TEST_SKU = '__apibase_test';
 export const TEST_PRICE_CENTS = 1;
@@ -294,37 +301,29 @@ export async function review(
   verdict: 'pass' | 'flag' | 'reject',
   category: string | null,
   evidence_hash: string,
+  content_hash: string | null = null,
 ) {
   await tx.$executeRawUnsafe(
-    `INSERT INTO shop_moderation_reviews (merchant_id, scope, product_id, layer, verdict, category, evidence_hash)
-     VALUES ($1::uuid, 'product', $2::uuid, 'rules', $3, $4, $5)`,
+    `INSERT INTO shop_moderation_reviews (merchant_id, scope, product_id, layer, verdict, category, evidence_hash, content_hash)
+     VALUES ($1::uuid, 'product', $2::uuid, 'rules', $3, $4, $5, $6)`,
     merchant_id,
     product_id,
     verdict,
     category,
     evidence_hash,
+    content_hash,
   );
 }
 
-/** Every seller-supplied string that `catalog.get`/`search` hands to a buyer's agent besides title/description. */
-function extraTexts(p: CatalogItem): string[] {
-  return [
-    ...(p.variants ?? []).map((v) => v.title),
-    ...(p.variants ?? []).flatMap((v) => Object.entries(v.attributes ?? {}).flat()),
-    ...p.shipping_options.map((o) => o.label),
-    ...p.delivery_slots.map((s) => s.label),
-    p.tax_note ?? '',
-    p.stream?.content_ref ?? '',
-  ].filter(Boolean);
-}
-
-/** The same fields as `extraTexts`, raw (before `clean()`), plus title/description: hidden-character check. */
+/** The fields `moderationTexts` reads, raw (before `clean()`): hidden-character check. */
 function rawHasHidden(raw: Record<string, unknown> | null): boolean {
   const arr = (v: unknown): Array<Record<string, unknown>> =>
     Array.isArray(v)
       ? v.filter((x): x is Record<string, unknown> => !!x && typeof x === 'object')
       : [];
   const strs: unknown[] = [raw?.title, raw?.description, raw?.tax_note];
+  const instant = (raw?.fulfillment as { instant?: { payload?: unknown } } | undefined)?.instant;
+  if (instant && typeof instant === 'object') strs.push(instant.payload);
   const stream = raw?.stream as Record<string, unknown> | undefined;
   if (stream && typeof stream === 'object') strs.push(stream.content_ref);
   for (const v of arr(raw?.variants)) {
@@ -339,31 +338,26 @@ function rawHasHidden(raw: Record<string, unknown> | null): boolean {
 }
 
 /**
- * Re-upsert after a layer-3/human product reject (T-0312): rules-clean text must not clear a reject
- * that a non-rules layer issued after the last rules pass. Such an item goes back to review.
+ * Re-upsert after a layer-3/human product reject (T-0312, T-0568): rules-clean text must not clear a
+ * reject that a non-rules layer issued after the last rules pass. The memory is keyed by the
+ * merchant and the normalised content hash, not by SKU or product row: renaming the SKU or
+ * deleting and recreating the product does not shed it, and reviews of deleted products still count.
  */
-async function reviewedRejectStillStands(tx: ShopTx, merchant_id: string, sku: string) {
-  const prev = await tx.$queryRawUnsafe<Array<{ product_id: string; moderation_status: string }>>(
-    `SELECT product_id, moderation_status FROM shop_products WHERE merchant_id = $1::uuid AND sku = $2`,
-    merchant_id,
-    sku,
-  );
-  const row = prev[0];
-  if (!row || (row.moderation_status !== 'rejected' && row.moderation_status !== 'flagged')) {
-    return false;
-  }
+async function reviewedRejectStillStands(tx: ShopTx, merchant_id: string, content_hash: string) {
   const last = await tx.$queryRawUnsafe<Array<{ verdict: string; at: Date }>>(
     `SELECT verdict, at FROM shop_moderation_reviews
-      WHERE product_id = $1::uuid AND scope = 'product' AND layer IN ('llm', 'human')
+      WHERE merchant_id = $1::uuid AND content_hash = $2 AND scope = 'product' AND layer IN ('llm', 'human')
       ORDER BY at DESC LIMIT 1`,
-    row.product_id,
+    merchant_id,
+    content_hash,
   );
   if (!last[0] || last[0].verdict !== 'reject') return false;
   const rulesPass = await tx.$queryRawUnsafe<Array<{ at: Date }>>(
     `SELECT at FROM shop_moderation_reviews
-      WHERE product_id = $1::uuid AND scope = 'product' AND layer = 'rules' AND verdict = 'pass'
+      WHERE merchant_id = $1::uuid AND content_hash = $2 AND scope = 'product' AND layer = 'rules' AND verdict = 'pass'
       ORDER BY at DESC LIMIT 1`,
-    row.product_id,
+    merchant_id,
+    content_hash,
   );
   return !rulesPass[0] || last[0].at.getTime() > rulesPass[0].at.getTime();
 }
@@ -426,9 +420,13 @@ export async function upsertCatalog(
       }
       const p = parsed.data;
       // T-0430: a description tells a buyer's agent what the product is; it may not instruct the agent.
-      if (readsAsInstruction(p.description)) {
+      const descNorm = [normalizeForScan(p.description, 'l'), normalizeForScan(p.description, 'i')];
+      if (readsAsInstruction(p.description) || descNorm.some(readsAsInstruction)) {
         bad(
-          `description: reads as an instruction to the agent (${descriptionViolations(p.description).join(', ')}); describe the product instead`,
+          `description: reads as an instruction to the agent (${[p.description, ...descNorm]
+            .flatMap(descriptionViolations)
+            .filter((v, i, a) => a.indexOf(v) === i)
+            .join(', ')}); describe the product instead`,
           'description_reads_as_instruction',
         );
         continue;
@@ -456,13 +454,27 @@ export async function upsertCatalog(
       }
       seen.add(p.sku);
 
-      const verdict = moderateProduct({
-        sku: p.sku,
+      const payload = p.fulfillment?.instant?.payload;
+      const texts = moderationTexts({
         title: p.title,
         description: p.description,
+        tax_note: p.tax_note,
+        content_ref: p.stream?.content_ref,
+        variants: p.variants,
+        shipping_options: p.shipping_options,
+        delivery_slots: p.delivery_slots,
+        instant_payload: payload,
+      });
+      const hash = contentHash({
+        title: p.title,
+        description: p.description,
+        instant_payload: payload,
+      });
+      const verdict = moderateProduct({
+        sku: p.sku,
         category: p.category,
         hidden_chars: rawHasHidden(raw),
-        extra_texts: extraTexts(p),
+        ...texts,
       });
 
       if (verdict.verdict === 'rejected') {
@@ -481,6 +493,7 @@ export async function upsertCatalog(
           'reject',
           verdict.category,
           verdict.evidence_hash,
+          hash,
         );
         report.rejected.push({
           sku: p.sku,
@@ -493,18 +506,17 @@ export async function upsertCatalog(
 
       // Rules say ok, but a layer-3/human reject of this item stands: back to review, not on the shelf.
       const held =
-        verdict.verdict === 'ok' && (await reviewedRejectStillStands(tx, merchant_id, p.sku));
+        verdict.verdict === 'ok' && (await reviewedRejectStillStands(tx, merchant_id, hash));
       const status = verdict.verdict === 'flagged' || held ? 'flagged' : 'ok';
 
-      const payload = p.fulfillment?.instant?.payload;
       const rows = await tx.$queryRawUnsafe<Array<{ product_id: string }>>(
         `INSERT INTO shop_products
            (merchant_id, sku, title, description, price_usd, is_test, currency_display, available,
             fulfillment_mode, fulfillment_payload_encrypted, tax_included, tax_note, shipping_options,
             delivery_slots, requires_pii, refund_window_days, returns_accepted, category, images,
-            moderation_status, stream, subscription)
+            moderation_status, stream, subscription, content_hash)
          VALUES ($1::uuid, $2, $3, $4, $5::numeric, $6, $7, $8::int, $9, $10, $11, $12, $13::jsonb,
-                 $14::jsonb, $15::text[], $16::int, $17, $18, $19::text[], $20, $21::jsonb, $22::jsonb)
+                 $14::jsonb, $15::text[], $16::int, $17, $18, $19::text[], $20, $21::jsonb, $22::jsonb, $23)
          ON CONFLICT (merchant_id, sku) DO UPDATE SET
            title = EXCLUDED.title, description = EXCLUDED.description, price_usd = EXCLUDED.price_usd,
            is_test = EXCLUDED.is_test, currency_display = EXCLUDED.currency_display,
@@ -515,7 +527,8 @@ export async function upsertCatalog(
            requires_pii = EXCLUDED.requires_pii, refund_window_days = EXCLUDED.refund_window_days,
            returns_accepted = EXCLUDED.returns_accepted, category = EXCLUDED.category,
            images = EXCLUDED.images, moderation_status = EXCLUDED.moderation_status,
-           stream = EXCLUDED.stream, subscription = EXCLUDED.subscription, updated_at = now()
+           stream = EXCLUDED.stream, subscription = EXCLUDED.subscription, content_hash = EXCLUDED.content_hash,
+           updated_at = now()
          RETURNING product_id`,
         merchant_id,
         p.sku,
@@ -539,6 +552,7 @@ export async function upsertCatalog(
         status,
         p.stream ? JSON.stringify(p.stream) : null,
         p.subscription ? JSON.stringify(p.subscription) : null,
+        hash,
       );
       const product_id = rows[0].product_id;
 
@@ -572,6 +586,7 @@ export async function upsertCatalog(
         status === 'flagged' ? 'flag' : 'pass',
         p.category,
         verdict.evidence_hash,
+        hash,
       );
       if (verdict.verdict === 'flagged')
         report.flagged.push({ sku: p.sku, reason: verdict.reason });

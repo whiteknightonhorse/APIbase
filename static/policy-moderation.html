@@ -131,7 +131,7 @@ pre{overflow-x:auto}
 <h2 id="merchant-catalogs">Merchant catalogs (Integrator)</h2>
 <p>Merchants who list products through the Integrator are moderated separately from tool calls. Three layers apply, in order, and we do not disclose the individual rules:</p>
 <ul>
-<li><strong>Deterministic checks</strong> run at registration and on every catalog write.</li>
+<li><strong>Deterministic checks</strong> run at registration and on every catalog write. They read a product's title, description, variants, labels and notes, and the instant-delivery payload (the digital good itself). A model or human rejection is remembered for the same content under the same merchant, even if the SKU changes or the product is deleted and listed again.</li>
 <li><strong>A nightly model review</strong> looks at catalog items again.</li>
 <li><strong>A human decision</strong> settles anything the earlier layers could not.</li>
 </ul>

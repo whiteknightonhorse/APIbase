@@ -169,8 +169,9 @@ export async function applyVerdict(
   }
 
   await tx.$executeRawUnsafe(
-    `INSERT INTO shop_moderation_reviews (merchant_id, scope, product_id, layer, verdict, category, evidence_hash)
-     VALUES ($1::uuid, $2, $3::uuid, $4, $5, $6, $7)`,
+    `INSERT INTO shop_moderation_reviews (merchant_id, scope, product_id, layer, verdict, category, evidence_hash, content_hash)
+     VALUES ($1::uuid, $2, $3::uuid, $4, $5, $6, $7,
+             (SELECT content_hash FROM shop_products WHERE product_id = $3::uuid))`,
     merchantId,
     scope,
     pid,

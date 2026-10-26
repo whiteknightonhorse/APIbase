@@ -21,7 +21,7 @@ import {
 } from '../jobs/shop-payment-reconcile.job';
 import { run as runX402SettlePending } from '../jobs/x402-settle-pending.job';
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
-import { run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
+import { backfillContentHashes, run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
 import { run as runGeoDbRefresh } from '../jobs/geo-db-refresh.job';
 import { runShopDomainVerify } from '../jobs/shop-domain-verify.job';
@@ -329,7 +329,8 @@ const catalogRemoderateTask = cron.schedule('17 * * * *', () => {
     return;
   }
   catalogRemoderateRunning = true;
-  runCatalogRemoderate()
+  backfillContentHashes()
+    .then(() => runCatalogRemoderate())
     .catch((err) =>
       logger.error({ err, job: 'catalog-remoderate' }, 'catalog remoderate job failed'),
     )

@@ -187,7 +187,10 @@ export function moderateProduct(p: ProductForModeration): ProductVerdict {
       evidence_hash: evidence('hidden_characters'),
     };
   }
-  for (const t of texts) {
+  // Raw text first, then both readings of the normalised text: `Y0u mu5t` and Cyrillic lookalikes
+  // must not slip past a rule that only knows plain Latin.
+  const scanned = texts.flatMap((t) => [t, normalizeForScan(t, 'l'), normalizeForScan(t, 'i')]);
+  for (const t of scanned) {
     for (const r of INSTRUCTION_RULES) {
       const m = r.re.exec(t);
       if (m) {
@@ -196,6 +199,67 @@ export function moderateProduct(p: ProductForModeration): ProductVerdict {
     }
   }
   return { verdict: 'ok', evidence_hash: evidence(`${p.sku}\n${text}`) };
+}
+
+/** Everything a seller supplies about a product that moderation reads (T-0568). */
+export interface ModerationFields {
+  title: string;
+  description: string;
+  tax_note?: string | null;
+  content_ref?: unknown;
+  variants?: Array<{ title: string; attributes?: Record<string, unknown> | null }> | null;
+  /** Shipping options / delivery slots: only the `label` of each entry is text. */
+  shipping_options?: unknown;
+  delivery_slots?: unknown;
+  /** `fulfillment.instant.payload`: the digital good itself, plaintext. */
+  instant_payload?: string | null;
+}
+
+const labelsOf = (v: unknown): string[] =>
+  Array.isArray(v)
+    ? v
+        .map((x) => (x as { label?: unknown } | null)?.label)
+        .filter((l): l is string => typeof l === 'string')
+    : [];
+
+/**
+ * The ONE list of texts layer 1 scans for a product, used by catalog upsert and by the rules-change
+ * re-moderation job: title and description, plus every other seller string and the instant payload.
+ */
+export function moderationTexts(f: ModerationFields): {
+  title: string;
+  description: string;
+  extra_texts: string[];
+} {
+  const extra = [
+    ...(f.variants ?? []).map((v) => v.title),
+    ...(f.variants ?? []).flatMap((v) => Object.entries(v.attributes ?? {}).flat()),
+    ...labelsOf(f.shipping_options),
+    ...labelsOf(f.delivery_slots),
+    f.tax_note ?? '',
+    typeof f.content_ref === 'string' ? f.content_ref : '',
+    f.instant_payload ?? '',
+  ];
+  return {
+    title: f.title,
+    description: f.description,
+    extra_texts: extra.filter((t): t is string => typeof t === 'string' && t !== ''),
+  };
+}
+
+/**
+ * Identity of a product's content for reject memory (T-0568): sha256 of the normalised
+ * title + description + instant payload. Independent of SKU, so a rename or delete+recreate of the
+ * same content keeps its history.
+ */
+export function contentHash(f: {
+  title: string;
+  description: string;
+  instant_payload?: string | null;
+}): string {
+  return createHash('sha256')
+    .update(normalizeForScan(`${f.title}\n${f.description}\n${f.instant_payload ?? ''}`))
+    .digest('hex');
 }
 
 /**
