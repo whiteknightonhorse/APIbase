@@ -41,9 +41,10 @@ done
 # Self-heal now runs from the fleet worktree via scripts/sync-counts-cron.sh, which commits
 # and pushes through the normal gated path -- same shape as .husky/pre-push's own refusal.
 # T-SITE-A: release tag for the footer BUILD label (both modes).
-TAG="$(git describe --tags --match 'v*' --abbrev=0 2>/dev/null || true)"
+# T-0539: the label follows package.json "version" (the tag is cut from it after merge), not the last tag.
+TAG="v$(node -p "require('./package.json').version" 2>/dev/null || true)"
 if ! printf '%s' "$TAG" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
-  echo "sync-counts: no v* release tag reachable from HEAD"; exit 1
+  echo "sync-counts: package.json has no x.y.z version"; exit 1
 fi
 BUILD_LINK="<a href=\"https://github.com/whiteknightonhorse/APIbase/releases/tag/${TAG}\">${TAG}</a>"
 
@@ -207,7 +208,7 @@ else
     [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f (footer TOOLS: N)"; CHANGED=$((CHANGED+1)); }
   done
 
-  # T-SITE-A: the footer BUILD label is the latest v* release tag reachable from HEAD, linked to its GitHub release.
+  # T-SITE-A: the footer BUILD label is the package.json version (T-0539), linked to its GitHub release.
   for f in static/index.html static/dashboard.html; do
     [ -f "$f" ] || continue
     b=$(md5sum "$f" | cut -d" " -f1)
@@ -415,8 +416,32 @@ STALE_README_PROSE=$(grep -oE "[0-9]{2,4}\+? real-world API tools|[0-9]{2,4}\+? 
 # Fixed in README itself by removing the numbers ("multi-stage pipeline", "Docker stack",
 # exact counts pushed to docs/architecture.md instead) -- this check is the guardrail
 # against either number quietly coming back.
-STALE_README_NUMBERS=$(grep -ohE '[0-9]{2,4}\+?[ -]?(tool|provider|schema|categor|integration|registr|stage|container)[a-zA-Z]*' README.md 2>/dev/null \
-  | grep -vE "^${TOOLS} tools$|^${PROV} providers$" | sort -u || true)
+# T-0539: widened from README.md alone to every GitHub-side doc surface: provek.json, SECURITY.md,
+# docs/*.md and packages/*/README.md. README keeps the full word list; the other files are held to the
+# tool/provider count class only (stage/container counts live in docs/architecture.md and the ops
+# runbooks by design). docs/releases/* is append-only history and is never scanned. The exempt files
+# are dated analyses, a design note, a dated log and the roadmap, whose numbers are historical or
+# thresholds, not live claims; the "As of <date>" snapshots are labelled in place.
+README_NUM_EXEMPT=(
+  "docs/STRATEGY.md"
+  "docs/OPERATOR-ACTION-registry-listings.md"
+  "docs/OPERATOR-ACTION-smithery-listing-description.md"
+  "docs/09-device-mcp-layer.md"
+  "docs/demand-audit-svc2-s0.md"
+  "docs/discoverability-log.md"
+  "docs/ROADMAP.md"
+)
+README_NUM_FILES=()
+for f in provek.json SECURITY.md docs/*.md packages/*/README.md; do
+  [ -f "$f" ] || continue
+  skip=0
+  for ex in "${README_NUM_EXEMPT[@]}"; do [ "$f" = "$ex" ] && { skip=1; break; }; done
+  [ "$skip" = "0" ] && README_NUM_FILES+=("$f")
+done
+STALE_README_NUMBERS=$( {
+  grep -ohE '[0-9]{2,4}\+?[ -]?(tool|provider|schema|categor|integration|registr|stage|container)[a-zA-Z]*' README.md 2>/dev/null
+  grep -ohE '[0-9]{2,4}\+?[ -]?(tool|provider)[a-zA-Z]*' "${README_NUM_FILES[@]}" 2>/dev/null | grep -vE '^402 tool'
+  } | grep -vE "^${TOOLS} tools$|^${PROV} providers$" | sort -u || true)
 # T-40: the MCP Registry badge hardcoded a version number ("MCP_Registry-v1.0.2-blue")
 # that no drift check ever read -- same class of defect as the two above, just inside a
 # shields.io badge URL instead of prose. Every OTHER badge in README (Security Audit,
@@ -628,10 +653,10 @@ FAIL=0
 [ -n "$STALE_AI_TXT" ] && { echo "sync-counts: STALE ai.txt 'Tools: N across' remains: $STALE_AI_TXT"; FAIL=1; }
 [ -n "$STALE_CATALOG" ] && { echo "sync-counts: STALE api-catalog remains:"; echo "$STALE_CATALOG"; FAIL=1; }
 [ -n "$STALE_SYSMON" ] && { echo "sync-counts: STALE sys-monitor bar(s) remain:"; echo "$STALE_SYSMON"; FAIL=1; }
-[ -n "$STALE_BUILD" ] && { echo "sync-counts: STALE_BUILD — footer BUILD label is not the linked latest release tag ${TAG}:"; echo "$STALE_BUILD"; FAIL=1; }
+[ -n "$STALE_BUILD" ] && { echo "sync-counts: STALE_BUILD — footer BUILD label is not the linked package.json version ${TAG}:"; echo "$STALE_BUILD"; FAIL=1; }
 [ -n "$STALE_FOOTER_TOOLS" ] && { echo "sync-counts: STALE footer 'TOOLS: N' remain:"; echo "$STALE_FOOTER_TOOLS"; FAIL=1; }
 [ -n "$STALE_README_PROSE" ] && { echo "sync-counts: STALE README prose remains:"; echo "$STALE_README_PROSE"; FAIL=1; }
-[ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
+[ -n "$STALE_README_NUMBERS" ] && { echo "sync-counts: README.md, provek.json, SECURITY.md, docs/*.md or packages/*/README.md has a number+tool/provider/schema/categor/integration/registr/stage/container phrase that isn't the two covered forms:"; echo "$STALE_README_NUMBERS"; FAIL=1; }
 [ -n "$STALE_README_BADGE_NUM" ] && { echo "sync-counts: README.md has a shields.io badge with a hand-typed number remaining:"; echo "$STALE_README_BADGE_NUM"; FAIL=1; }
 [ -n "$STALE_STAGE_COUNT" ] && { echo "sync-counts: STALE stage-count number in static/*.md or agent-skills/*.md (remove the number, don't update it):"; echo "$STALE_STAGE_COUNT"; FAIL=1; }
 # T-0342: coverage regression guard + every robots.txt Sitemap: URL must answer 200.

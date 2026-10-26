@@ -2,13 +2,13 @@
 
 _Author: Fable (systems architect audit, 2026-08-24). Executable directions only — no aspirations without an owner-facing "done when"._
 
-Current state: 1108 tools / 307 providers, single Hetzner box, x402 (Base) + MPP (Tempo), MCP endpoint `/mcp`. This document assumes the audit fixes A-01…A-14 are landing in parallel; strategy below is what to build once the platform is safe to grow.
+As of 2026-08-24 — 1108 tools / 307 providers (current: https://apibase.pro/llms.txt), single Hetzner box, x402 (Base) + MPP (Tempo), MCP endpoint `/mcp`. This document assumes the audit fixes A-01…A-14 are landing in parallel; strategy below is what to build once the platform is safe to grow.
 
 ## 1. Product direction
 
 The moat is not tool count — competitors can wrap APIs too. The moat is **one payment-native endpoint an agent can discover, trust, and pay without a human**. Everything below defends that.
 
-- **Reliability as the product.** At 1108 tools the buyer's real question is "will call N+1 work". Publish a live per-tool health/success-rate surface (already have Prometheus + provider dashboard) as an agent-readable discovery field, not just a human page. A tool that is green 99% beats ten tools that are amber.
+- **Reliability as the product.** As of 2026-08-24 (1108 tools) the buyer's real question is "will call N+1 work". Publish a live per-tool health/success-rate surface (already have Prometheus + provider dashboard) as an agent-readable discovery field, not just a human page. A tool that is green 99% beats ten tools that are amber.
 - **Tool discovery, not tool dumping.** `tools/list` returning everything (A-13) is the wrong primitive at scale. Ship a **search/filter tool** (`apibase.catalog.search` by category/price/freshness) so agents pull the 5 tools they need, not 3000. This is also the single biggest MCP-client context saver.
 - **Outcome tools over primitive tools.** AP-7 says "1 tool = 1 request". Keep that as the base, but add a thin **compose layer**: a few high-value multi-provider tools (e.g. "enrich this company: registry + jobs + tech-stack + news") priced as a bundle. Agents pay more for one call than for orchestrating four — this raises revenue per call without breaking the atomic base.
 

@@ -9,6 +9,8 @@ One MCP + REST endpoint to 1387 tools from 401 providers. No signup, no subscrip
 [![Smithery](https://img.shields.io/badge/Smithery-Live-brightgreen)](https://smithery.ai/servers/apibase-pro/api-hub)
 [![MPPScan](https://img.shields.io/badge/MPPScan-Listed-purple)](https://www.mppscan.com/server/2ce70c5f97be51cfcabe13aad9b5f4beae6dc77be586357e04db17644729303d)
 
+Latest release: see the tag that equals package.json `version`; release notes in docs/releases/.
+
 ---
 
 ## Quick Start
@@ -45,7 +47,7 @@ AI payment for merchants: a merchant gets its own MCP storefront, and a buyer's 
 - **[Agent guide](https://apibase.pro/integrator/agent-guide)** — step-by-step connection for a merchant's agent
 - **[WooCommerce plugin](https://apibase.pro/integrator/platforms/woocommerce)** — catalog sync and paid-order webhook
 - **[Demo shop](https://apibase.pro/m/apibase-demo)** — a live storefront
-- **[Docs](docs/integrator.md)** — operator and developer reference
+- **[Integrator guide](https://apibase.pro/integrator/docs)** (source: static/integrator/docs.md); operator notes: docs/integrator.md
 
 ---
 

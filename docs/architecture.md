@@ -3,14 +3,14 @@
 APIbase is a single Node.js/TypeScript API server in front of a 16-container Docker stack
 (API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail,
 Alertmanager, exporters) on a single Hetzner server, with automated health checks, graceful
-shutdown, and 27+ Prometheus alert rules. PostgreSQL is the append-only source of truth for
+shutdown, and Prometheus alerting <!--alert-rules-->(30 alert rules)<!--/alert-rules-->. PostgreSQL is the append-only source of truth for
 every financial record; Redis is cache, rate limiting, and single-flight deduplication only —
 it holds nothing that would need to survive a restart. Every tool call passes through the same
 14-stage pipeline in a fixed order:
 
 ```
 AUTH → IDEMPOTENCY → CONTENT_NEG → SCHEMA_VALIDATION → TOOL_STATUS →
-CACHE → RATE_LIMIT → ESCROW → MODERATION → PROVIDER_CALL →
+CACHE_OR_SINGLE_FLIGHT → RATE_LIMIT → ESCROW → MODERATION → PROVIDER_CALL →
 ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 ```
 

@@ -47,7 +47,7 @@ downstream registry re-reads a still-stale upstream source and the fix has to be
      python3 -m json.tool | grep -A2 '"isLatest": true'
    ```
    The latest entry's `description` must be the new no-number text, not
-   `327 tools, 92 providers...`.
+   `327 tools, 92 providers...` (as of 2026-09-22; current counts: https://apibase.pro/llms.txt).
 
 ### Step 3 — Glama (declined by operator, 2026-09-23)
 
@@ -125,7 +125,7 @@ Two more listings with stale, account-bound descriptions, lower priority than R4
 only when picked up as their own dispatched task; nothing here is queued yet.
 
 - **mcp.so** (`mcp.so/servers/APIbase`) — listed, HTTP 200, meta description reads
-  "1108 tools, 307 providers" against the live count. No submission/edit flow has been
+  "1108 tools, 307 providers" (as of 2026-09-22) against the live count. No submission/edit flow has been
   confirmed yet (02-RESEARCH.md §2.12/§2.16.1 marks the correction path UNKNOWN, not
   established) — first step for whoever picks this up is finding out whether mcp.so
   even offers a self-serve edit, before drafting anything.

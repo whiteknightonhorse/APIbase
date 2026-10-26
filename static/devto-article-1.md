@@ -1,3 +1,5 @@
+Archived draft (March 2026). Numbers and payment rails are historical; current facts: https://apibase.pro/llms.txt
+
 Your AI agent needs to search flights. It needs real-time stock prices. It needs to OCR a receipt image. Each of these requires a different API, a different auth flow, a different billing account.
 
 What if the agent just... paid for each call itself? No subscriptions. No API key management. No human in the loop.

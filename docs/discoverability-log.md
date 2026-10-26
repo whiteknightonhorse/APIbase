@@ -69,8 +69,7 @@ What the Coinbase Bazaar needs from a seller (docs.cdp.coinbase.com/x402/seller/
 - Service metadata on the discovery extension: `serviceName: 'APIbase'`, `tags: [<tool category>, 'mcp', 'api']`, `iconUrl: https://apibase.pro/icon.png`; the description is the tool's own description. Note: `declareDiscoveryExtension` (@x402/extensions 2.28, MCP transport) does not currently copy these three fields into the extension body; they are passed so a future SDK picks them up.
 - Indexing happens ONLY through CDP-facilitated settles. Production runs `X402_FACILITATOR_MODE=local`, so the catalog is not indexed by design; switching a CDP facilitator on is an operator decision (money: 1000 free tx/month, then $0.001).
 
-MPP discovery: `static/.well-known/openapi-discovery.json` and `openapi.json` keep the flat `x-payment-info` fields (back-compat) and add `offers[]` (mpp-specs #249): one `tempo` offer (USDC.e, chainId 4217) and one `evm` offer (Base USDC, chainId 8453) per paid route; the 200 response references `#/components/schemas/ToolResponse` (mpp-specs #326).
-Superseded by T-0520: the mixed form fails mppx >= 0.11 validation.
+MPP discovery offers: superseded by T-0520 — root document carries no offers; see below.
 
 ## T-0520 — root discovery doc under 1 MiB, offers[] only in the full doc (2026-10-22)
 

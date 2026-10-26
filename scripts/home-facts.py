@@ -21,7 +21,7 @@ import sys
 MCP = "static/.well-known/mcp.json"
 SITE_FACTS = "static/.well-known/site-facts.json"
 FILES = [
-    "static/connect.html", "docs/payments.md",
+    "static/connect.html", "docs/payments.md", "SECURITY.md", "docs/architecture.md",
     "static/index.html", "static/index.md", "static/ai.txt", "static/llms.txt", "static/pricing.html",
     "static/privacy.html", "static/terms.html", "static/policy-moderation.html",
     "static/.well-known/x402-payment.json",
@@ -92,6 +92,9 @@ def token_values():
         "rate-limits": limits,
         "free-tools": str(int(d["free_tools_count"])),
     }
+    # T-0539: the alert-rule count, written as "(N alert rules)" so the site-claims regex still reads it.
+    if d.get("alert_rules_count") is not None:
+        vals["alert-rules"] = "(%d alert rules)" % int(d["alert_rules_count"])
     # T-0534: cache TTL range, appeal window and the legal pages' "Last updated" dates.
     c = d.get("cache_ttl_seconds")
     if c:
@@ -106,8 +109,8 @@ def token_values():
 
 
 TOKEN_RE = re.compile(
-    r"<!--(tiers(?::premium)?|rate-limits|free-tools|cache-ttl|appeal-days|doc-date:[a-z]+)-->.*?"
-    r"<!--/(?:tiers|rate-limits|free-tools|cache-ttl|appeal-days|doc-date)-->",
+    r"<!--(tiers(?::premium)?|alert-rules|rate-limits|free-tools|cache-ttl|appeal-days|doc-date:[a-z]+)-->.*?"
+    r"<!--/(?:tiers|alert-rules|rate-limits|free-tools|cache-ttl|appeal-days|doc-date)-->",
     re.S,
 )
 

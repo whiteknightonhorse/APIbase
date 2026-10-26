@@ -35,7 +35,7 @@ APIbase implements a 5-layer defense model:
 2. **Application** — API key auth, rate limiting (3-layer), input validation (Zod), CORS, security headers
 3. **Infrastructure** — Docker containers (read-only, non-root, cap_drop ALL), named volumes, secrets in .env only
 4. **Payment** — Escrow-first model, atomic settlement, append-only ledger, idempotency keys
-5. **Monitoring** — Prometheus (27 alert rules), Grafana dashboards, Loki log aggregation, daily automated testing
+5. **Monitoring** — Prometheus <!--alert-rules-->(30 alert rules)<!--/alert-rules-->, Grafana dashboards, Loki log aggregation, daily automated testing
 
 ## Payment Security
 
