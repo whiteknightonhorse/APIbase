@@ -57,7 +57,7 @@ We follow coordinated disclosure. Vulnerabilities will be patched before public 
 ## Known Historical Disclosures
 
 - **2026-08-24 (P-01):** `scripts/night-orchestra/` (16 files, including `roles/pricing-audit.md`
-  which states the 30–50%/~100% margin policy) was tracked in this public repo's index from
+  which states the pricing policy) was tracked in this public repo's index from
   commit `3235dbf` (2026-08-24) through `c745604`/`d179744` despite the directory having a
   private mirror (github.com/whiteknightonhorse/night-orchestra) and a `.gitignore` entry added
   in `c745604`. That `.gitignore` entry only stopped *future* staging — it did not untrack the
@@ -65,10 +65,11 @@ We follow coordinated disclosure. Vulnerabilities will be patched before public 
   Fixed by `git rm -r --cached scripts/night-orchestra/` (files remain on disk and in the private
   mirror; only the public working tree stopped tracking them).
   **The already-published git history (commits `3235dbf`..`d179744` on `origin/main`) still
-  contains the margin-policy text and was NOT rewritten** — a history rewrite requires a
+  contains the pricing-policy text and was NOT rewritten** — a history rewrite requires a
   force-push to a public shared branch, which is a destructive, hard-to-reverse action gated on
   explicit operator authorization per repo policy. The operator was not reachable at execution
   time.
-  **Decision: accepted as-is, escalated** — pending operator
-  choice between "accept the historical exposure permanently" or "manual history rewrite
-  (BFG/filter-repo + coordinated force-push, contributors must re-clone)".
+  **Decision (as of 2026-10-26): history retained as published; operator decision pending, see
+  AUDIT-OPUS-1028 ruling-1 question 5.** The choice is between accepting the historical exposure
+  permanently and a manual history rewrite (BFG/filter-repo + coordinated force-push, contributors
+  must re-clone). Internal documents of this kind now live in a private repository.

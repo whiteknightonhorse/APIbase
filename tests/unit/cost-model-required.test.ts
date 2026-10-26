@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { parse } from 'yaml';
 
-// T-SITE-E: no paid tool enters the catalog without a cost model. See docs/margin/COST-MODELS.md.
+// T-SITE-E: no paid tool enters the catalog without a cost model. Cost model notes live in the private repository apibase-internal.
 const ROOT = join(__dirname, '../..');
 const MODELS = ['free', 'free_tier', 'flat', 'subscription', 'metered'];
 
@@ -48,13 +48,13 @@ export function costModelViolations(tools: Tool[], listed: Set<string>): string[
       note !== '';
     if (metered || listed.has(t.provider)) continue;
     out.push(
-      `${where}: rule "cost-model-required" — paid tool has no upstream_cost_usd, no NOT_MEASURED+metered+note block, and provider has no section in docs/margin/unknown-cost-providers.md`,
+      `${where}: rule "cost-model-required" — paid tool has no upstream_cost_usd, no NOT_MEASURED+metered+note block, and provider has no section in config/unknown-cost-providers.md`,
     );
   }
   for (const p of listed) {
     if (costSet.has(p)) {
       out.push(
-        `provider ${p}: rule "list-only-shrinks" — a tool has upstream_cost_usd but docs/margin/unknown-cost-providers.md still has "## ${p}"`,
+        `provider ${p}: rule "list-only-shrinks" — a tool has upstream_cost_usd but config/unknown-cost-providers.md still has "## ${p}"`,
       );
     }
   }
@@ -66,7 +66,7 @@ describe('T-SITE-E cost-model-required gate', () => {
     parse(readFileSync(join(ROOT, 'config/tool_provider_config.yaml'), 'utf8')) as { tools: Tool[] }
   ).tools;
   const listed = unknownProviders(
-    readFileSync(join(ROOT, 'docs/margin/unknown-cost-providers.md'), 'utf8'),
+    readFileSync(join(ROOT, 'config/unknown-cost-providers.md'), 'utf8'),
   );
 
   it('every paid tool has a cost, a metered block, or a listed provider', () => {
