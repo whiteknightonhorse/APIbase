@@ -31,5 +31,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          bash scripts/woo/build-zip.sh dist/woocommerce-apibase.zip
+          bash scripts/woo/build-zip.sh "$PWD/dist/woocommerce-apibase.zip"
           gh release upload "$GITHUB_REF_NAME" dist/woocommerce-apibase.zip --clobber
