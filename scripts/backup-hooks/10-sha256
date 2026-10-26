@@ -1,0 +1,10 @@
+#!/bin/sh
+# T-0571: postgres_backup post-backup hook (run-parts /hooks). Records a .sha256 next to every dump in
+# daily/ at dump time, so backup-verify.sh compares against a hash written before anything else touches the file.
+[ "${1:-}" = "post-backup" ] || exit 0
+umask 027
+cd "${BACKUP_DIR:-/backups}/daily" || exit 1
+for f in *-[0-9]*.sql.gz; do
+  [ -e "$f" ] || continue
+  [ -s "$f.sha256" ] || sha256sum "$f" > "$f.sha256" || exit 1
+done

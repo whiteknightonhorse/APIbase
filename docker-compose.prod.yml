@@ -308,6 +308,7 @@ services:
       - postgres_password
     volumes:
       - ./backups:/backups
+      - ./scripts/backup-hooks/10-sha256:/hooks/10-sha256:ro
     depends_on:
       postgres:
         condition: service_healthy

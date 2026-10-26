@@ -41,7 +41,8 @@ case "$RECIPIENT" in
 esac
 [ -d "$DUMPS" ] || fail "dumps dir missing: $DUMPS"
 
-mkdir -p -m 750 "$STAGING" || fail "cannot create staging dir"
+mkdir -p "$STAGING" || fail "cannot create staging dir"
+chmod 750 "$STAGING" || fail "cannot chmod staging dir"
 
 DOCKER="${DOCKER_BIN:-docker}"
 STAMP="$(date -u +%Y%m%d)"
@@ -54,30 +55,37 @@ for d in json.load(open(sys.argv[1])).get("extra_dumps", []):
     print("\t".join(d[k] for k in ("family", "container", "user", "db")))' "$CONFIG")" \
   || fail "cannot parse extra_dumps"
 FAMILIES="apibase"
+WARN=()
 while IFS=$'\t' read -r fam container duser ddb; do
   [ -n "$fam" ] || continue
   FAMILIES="$FAMILIES $fam"
   out="$DUMPS/$fam-$STAMP.sql.gz"
   [ -e "$out" ] && continue
   rm -f "$out.tmp"
+  # A secondary family must never block the primary apibase dump: record a warning and carry on.
   if ! { "$DOCKER" exec "$container" pg_dump -U "$duser" -d "$ddb" | gzip > "$out.tmp"; } 2>"$STAGING/.dump.err" \
      || ! gzip -t "$out.tmp"; then
     rm -f "$out.tmp"
-    fail "pg_dump failed for $fam: $(tr '\n' ' ' < "$STAGING/.dump.err")"
+    WARN+=("pg_dump failed for $fam: $(tr '\n' ' ' < "$STAGING/.dump.err")")
+    echo "ENCRYPT WARN ${WARN[-1]}" >&2
+    continue
   fi
   mv -f "$out.tmp" "$out"
+  (cd "$DUMPS" && sha256sum "$fam-$STAMP.sql.gz" > "$fam-$STAMP.sql.gz.sha256") \
+    || WARN+=("sha256sum failed for $fam")
 done <<< "$DUMP_SPECS"
 rm -f "$STAGING/.dump.err"
 
 shopt -s nullglob
-# sha256 is recorded at first sight, before encryption; backup-verify.sh compares against it on schedule.
+# The apibase producer records its own .sha256 at dump time (hook scripts/backup-hooks/10-sha256).
+# Dumps written here get theirs now; anything still without one is recorded at first sight as a fallback.
 for f in "$DUMPS"/*-[0-9]*.sql.gz; do
   [ -e "$f.sha256" ] || (cd "$DUMPS" && sha256sum "$(basename "$f")" > "$(basename "$f").sha256")
 done
 
 NEW=0
 for fam in $FAMILIES; do
-  for f in "$DUMPS"/$fam-[0-9]*.sql.gz; do
+  for f in "$DUMPS/$fam"-[0-9]*.sql.gz; do
     name="$(basename "$f")"
     [ -e "$STAGING/$name.age" ] && continue
     rm -f "$STAGING/$name.age.tmp"
@@ -119,6 +127,16 @@ if [ -n "$DEPLOY" ]; then
 fi
 rm -f "$STAGING/.age.err"
 
+# The postgres_backup image rotates only apibase-* dumps; rotate the extra families the same way (newest $KEEP).
+for fam in $FAMILIES; do
+  [ "$fam" = apibase ] && continue
+  i=0
+  for d in $(printf '%s\n' "$DUMPS/$fam"-[0-9]*.sql.gz | sort -r); do
+    i=$((i + 1))
+    [ "$i" -le "$KEEP" ] || rm -f "$d" "$d.sha256"
+  done
+done
+
 # Mirror the server-side rotation: drop staged files whose source dump is gone.
 for a in "$STAGING"/*-[0-9]*.sql.gz.age; do
   base="$(basename "$a" .age)"
@@ -135,11 +153,13 @@ for s in "$DUMPS"/*-[0-9]*.sql.gz.sha256; do
   [ -e "${s%.sha256}" ] || rm -f "$s"
 done
 
-chmod 640 "$STAGING"/*-[0-9]*.age"$STAGING"/*-[0-9]*.age.sha256 2>/dev/null || true
+chmod 640 "$STAGING"/*-[0-9]*.age "$STAGING"/*-[0-9]*.age.sha256 2>/dev/null || true
 # Dump dir hygiene (A4-02): only the owner writes, group reads.
 chmod 750 "$DUMPS" 2>/dev/null || true
 chmod 640 "$DUMPS"/*-[0-9]*.sql.gz "$DUMPS"/*-[0-9]*.sql.gz.sha256 2>/dev/null || true
 
 STAGED=0
 for a in "$STAGING"/*-[0-9]*.age; do STAGED=$((STAGED + 1)); done
-echo "ENCRYPT OK new=$NEW staged=$STAGED seconds=$((SECONDS - START))"
+SUFFIX=""
+[ "${#WARN[@]}" -eq 0 ] || SUFFIX=" warnings=${#WARN[@]}"
+echo "ENCRYPT OK new=$NEW staged=$STAGED seconds=$((SECONDS - START))$SUFFIX"

@@ -4,7 +4,7 @@ Decision: APIBASE-AUDIT-1012 ruling-6 B. The laptop pulls; the server never hold
 
 ## 1. What is staged where
 - `backups/daily/apibase-YYYYMMDD.sql.gz` is written by `postgres_backup` at 03:00 UTC (7 days kept). `apibase-latest.sql.gz` is never staged.
-- `scripts/backup-encrypt.sh` (03:40 UTC) encrypts each daily dump with the public age recipient from `config/backup/offsite.json` into `backups/offsite-staging/` (mode 750, files 640):
+- `scripts/backup-encrypt.sh` (schedule and full family list: [self-hosting.md](self-hosting.md#backups)) encrypts each daily dump with the public age recipient from `config/backup/offsite.json` into `backups/offsite-staging/` (mode 750, files 640):
   `apibase-YYYYMMDD.sql.gz.age` plus `apibase-YYYYMMDD.sql.gz.age.sha256` (lists the bare file name).
   Staged files whose source dump has rotated away are deleted. The last stdout line is `ENCRYPT OK new=<n> staged=<m> seconds=<s>` or `ENCRYPT FAIL <reason>` (exit 1).
 - The recipient is a public key and is safe to commit. `age1REPLACEME` is a placeholder until the laptop key exists; the script refuses to run with it.

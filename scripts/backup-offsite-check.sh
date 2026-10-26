@@ -28,13 +28,13 @@ if [ -z "$STAGING" ]; then
   REL="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["staging_dir"])' "$CONFIG")"
   case "$REL" in /*) STAGING="$REL" ;; *) STAGING="$ROOT/$REL" ;; esac
 fi
-mkdir -p -m 750 "$STAGING"
+mkdir -p "$STAGING" && chmod 750 "$STAGING"
 
 if [ "$FAMILIES" = 1 ]; then
   shopt -s nullglob
   line="FAMILIES"; zero=0
   for fam in apibase fleet orchestra; do
-    n=("$STAGING"/$fam-[0-9]*.sql.gz.age); line="$line $fam=${#n[@]}"; [ "${#n[@]}" -gt 0 ] || zero=1
+    n=("$STAGING/$fam"-[0-9]*.sql.gz.age); line="$line $fam=${#n[@]}"; [ "${#n[@]}" -gt 0 ] || zero=1
   done
   n=("$STAGING"/env-[0-9]*.tar.age); line="$line env=${#n[@]}"; [ "${#n[@]}" -gt 0 ] || zero=1
   echo "$line"

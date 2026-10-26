@@ -46,7 +46,7 @@ chk --now $NOW --verbose; [ "$rc" = 0 ] && [[ "$out" == "OFFSITE-PULL OK last=ap
 chk --now 2026-10-16T11:00:00Z; [ "$rc" = 1 ] && [[ "$out" == "OFFSITE-PULL STALE age=72h last=apibase-20261013.sql.gz.age" ]] || fail "(e) 72h stale"
 # T-0571: fleet + orchestra dumps via a fake docker, env snapshot, verify, families.
 mkdir -p "$T/dep/secrets" "$T/bin"; echo "K=v" > "$T/dep/.env"; echo pw > "$T/dep/secrets/pg"
-printf '#!/bin/bash\necho "-- dump of $3 $6"\n' > "$T/bin/docker"; chmod +x "$T/bin/docker"
+printf "%s\n" "#!/bin/bash" "echo \"-- dump of \$3\"" > "$T/bin/docker"; chmod +x "$T/bin/docker"
 printf '{"age_recipient":"%s","staging_dir":"x","keep_server_copies":2,"extra_dumps":[{"family":"fleet","container":"cf","user":"u","db":"d"},{"family":"orchestra","container":"co","user":"u","db":"d"}],"env_snapshot":{"deploy_dir":"%s"}}\n' "$REC" "$T/dep" > "$T/root/config/backup/offsite.json"
 S3="$T/stg3"; D3="$T/d3"; mkdir -p "$D3"; echo "dump" | gzip > "$D3/apibase-20261013.sql.gz"
 o="$(DOCKER_BIN="$T/bin/docker" bash "$E" --dumps-dir "$D3" --staging "$S3")"; echo "$o"
@@ -60,5 +60,20 @@ v="$(bash "$T/root/scripts/backup-verify.sh" --dumps-dir "$D3" --outbox "$T/ob")
 [[ "$v" == "BACKUP-VERIFY OK checked=3" ]] || fail "(g) verify ok"
 echo corrupt >> "$D3/apibase-20261013.sql.gz"
 set +e; v="$(bash "$T/root/scripts/backup-verify.sh" --dumps-dir "$D3" --outbox "$T/ob")"; rc=$?; set -e
-echo "$v"; [ "$rc" = 1 ] && grep -q backup_verify_failed "$T/ob" || fail "(g) verify fail"
+echo "$v"; { [ "$rc" = 1 ] && grep -q backup_verify_failed "$T/ob"; } || fail "(g) verify fail"
+# R2: failing fleet dump (fake docker exits 1) must not block apibase staging
+printf '%s\n' '#!/bin/bash' 'echo boom >&2' 'exit 1' > "$T/bin/docker-bad"; chmod +x "$T/bin/docker-bad"
+S4="$T/stg4"; D4="$T/d4"; mkdir -p "$D4"; echo "dump" | gzip > "$D4/apibase-20261013.sql.gz"
+o="$(DOCKER_BIN="$T/bin/docker-bad" bash "$E" --dumps-dir "$D4" --staging "$S4" 2>/dev/null)"; echo "$o"
+[[ "$(last "$o")" == "ENCRYPT OK new=2 staged=2 "*"warnings=2" ]] || fail "(h) secondary failure blocked primary"
+[ -e "$S4/apibase-20261013.sql.gz.age" ] || fail "(h) apibase not staged"
+# R3: extra families rotate to keep_server_copies (2)
+D5="$T/d5"; mkdir -p "$D5"; echo "d" | gzip > "$D5/apibase-20261013.sql.gz"
+for d in 20261001 20261002 20261003; do echo "f" | gzip > "$D5/fleet-$d.sql.gz"; done
+DOCKER_BIN="$T/bin/docker" bash "$E" --dumps-dir "$D5" --staging "$T/stg5" >/dev/null
+[ ! -e "$D5/fleet-20261001.sql.gz" ] && [ ! -e "$D5/fleet-20261002.sql.gz" ] && [ -e "$D5/fleet-20261003.sql.gz" ] || fail "(i) fleet rotation"
+# R4: post-backup hook writes sha256 at dump time
+D6="$T/d6"; mkdir -p "$D6/daily"; echo "d" | gzip > "$D6/daily/apibase-20261013.sql.gz"
+BACKUP_DIR="$D6" sh "$ROOT/scripts/backup-hooks/10-sha256" post-backup
+(cd "$D6/daily" && sha256sum -c --status apibase-20261013.sql.gz.sha256) || fail "(j) hook sha"
 echo "PASS"
