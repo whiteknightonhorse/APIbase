@@ -8368,705 +8368,6 @@
         ]
       }
     },
-    "/api/v1/tools/jobs.salary_data/call": {
-      "post": {
-        "operationId": "jobs_salary_data",
-        "summary": "Get Salary Data",
-        "description": "Get US salary and employment timeseries data from BLS — wage estimates, employment counts, occupational statistics by SOC code and geography",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.003000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "jobs.salary_data"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "series_ids": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "description": "BLS series ID (e.g. \"OEUM0000000000000151252004\")",
-                      "minLength": 1
-                    },
-                    "description": "BLS timeseries IDs (e.g. [\"OEUM0000000000000151252004\"] for Software Developers mean salary). Encodes occupation code + geography + data type.",
-                    "minItems": 1,
-                    "maxItems": 50
-                  },
-                  "start_year": {
-                    "type": "string",
-                    "description": "Start year (e.g. \"2020\"). Omit for latest available."
-                  },
-                  "end_year": {
-                    "type": "string",
-                    "description": "End year (e.g. \"2024\"). Omit for latest available."
-                  }
-                },
-                "required": [
-                  "series_ids"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/jobs.occupation_search/call": {
-      "post": {
-        "operationId": "jobs_occupation_search",
-        "summary": "Search Occupations",
-        "description": "Search O*NET occupation taxonomy by keyword — 1,000+ occupations with SOC codes, titles, and relevance scores",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.003000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "jobs.occupation_search"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "keyword": {
-                    "type": "string",
-                    "description": "Search keyword for occupations (e.g. \"software developer\", \"nurse\", \"data analyst\").",
-                    "minLength": 1,
-                    "maxLength": 200
-                  },
-                  "start": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Starting index for pagination (1-based). Omit for first page."
-                  },
-                  "end": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "description": "Ending index for pagination. Omit for default page size."
-                  }
-                },
-                "required": [
-                  "keyword"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/jobs.occupation_details/call": {
-      "post": {
-        "operationId": "jobs_occupation_details",
-        "summary": "Get Occupation Details",
-        "description": "Get detailed occupation info from O*NET by SOC code — overview, skills, knowledge, abilities, technology skills, tasks",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.003000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "jobs.occupation_details"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "code": {
-                    "type": "string",
-                    "description": "O*NET SOC occupation code (e.g. \"15-1252.00\" for Software Developers). Get codes from occupation_search.",
-                    "minLength": 1,
-                    "maxLength": 20
-                  },
-                  "section": {
-                    "type": "string",
-                    "enum": [
-                      "skills",
-                      "knowledge",
-                      "abilities",
-                      "technology_skills",
-                      "tasks"
-                    ],
-                    "description": "Specific section to retrieve. Omit for general overview (title, description, sample titles)."
-                  }
-                },
-                "required": [
-                  "code"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/jobs.esco_search/call": {
-      "post": {
-        "operationId": "jobs_esco_search",
-        "summary": "Search EU Skills & Occupations",
-        "description": "Search ESCO (European Skills/Competences/Occupations) taxonomy — occupations and skills in 27 EU languages",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.003000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "jobs.esco_search"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "text": {
-                    "type": "string",
-                    "description": "Search text for EU occupations or skills (e.g. \"software developer\", \"project management\").",
-                    "minLength": 1,
-                    "maxLength": 500
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "occupation",
-                      "skill"
-                    ],
-                    "description": "Resource type to search. Default: \"occupation\"."
-                  },
-                  "language": {
-                    "type": "string",
-                    "minLength": 2,
-                    "maxLength": 5,
-                    "description": "ISO 639-1 language code (e.g. \"en\", \"de\", \"fr\"). Default: \"en\". ESCO supports 27 EU languages."
-                  },
-                  "limit": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 100,
-                    "description": "Results per page (default 25, max 100)."
-                  },
-                  "offset": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "description": "Offset for pagination. Omit for first page."
-                  }
-                },
-                "required": [
-                  "text"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/jobs.esco_details/call": {
-      "post": {
-        "operationId": "jobs_esco_details",
-        "summary": "Get EU Skill/Occupation Details",
-        "description": "Get ESCO resource details by URI — occupation descriptions, essential/optional skills, ISCO codes, skill relationships",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.003000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "jobs.esco_details"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "uri": {
-                    "type": "string",
-                    "description": "ESCO resource URI (e.g. \"http://data.europa.eu/esco/occupation/...\"). Get URIs from esco_search.",
-                    "minLength": 1
-                  },
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "occupation",
-                      "skill"
-                    ],
-                    "description": "Resource type: \"occupation\" or \"skill\". Default: \"occupation\"."
-                  },
-                  "language": {
-                    "type": "string",
-                    "minLength": 2,
-                    "maxLength": 5,
-                    "description": "ISO 639-1 language code. Default: \"en\"."
-                  }
-                },
-                "required": [
-                  "uri"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/jobs.job_search/call": {
-      "post": {
-        "operationId": "jobs_job_search",
-        "summary": "Search Job Listings",
-        "description": "Search global job listings via CareerJet — title, company, salary, location, contract type across 90+ countries",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.003000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "3000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "jobs.job_search"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "keywords": {
-                    "type": "string",
-                    "description": "Job search keywords (e.g. \"software engineer\", \"marketing manager remote\").",
-                    "minLength": 1,
-                    "maxLength": 500
-                  },
-                  "location": {
-                    "type": "string",
-                    "maxLength": 200,
-                    "description": "Location filter (e.g. \"New York\", \"London\", \"Berlin\"). Omit for worldwide."
-                  },
-                  "locale_code": {
-                    "type": "string",
-                    "minLength": 2,
-                    "maxLength": 10,
-                    "description": "Locale code for results (e.g. \"en_US\", \"en_GB\", \"de_DE\"). Default: \"en_US\"."
-                  },
-                  "contract_type": {
-                    "type": "string",
-                    "enum": [
-                      "permanent",
-                      "contract",
-                      "temporary",
-                      "internship",
-                      "volunteering"
-                    ],
-                    "description": "Filter by contract type."
-                  },
-                  "work_hours": {
-                    "type": "string",
-                    "enum": [
-                      "full_time",
-                      "part_time"
-                    ],
-                    "description": "Filter by work hours: full_time or part_time"
-                  },
-                  "sort": {
-                    "type": "string",
-                    "enum": [
-                      "relevance",
-                      "date",
-                      "salary"
-                    ],
-                    "description": "Sort order for results. Default: \"relevance\"."
-                  },
-                  "page": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 10,
-                    "description": "Page number (1-10). Default: 1."
-                  },
-                  "page_size": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 100,
-                    "description": "Results per page (1-100). Default: 20."
-                  }
-                },
-                "required": [
-                  "keywords"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
     "/api/v1/tools/education.paper_search/call": {
       "post": {
         "operationId": "education_paper_search",
@@ -74473,6 +73774,331 @@
         ]
       }
     },
+    "/api/v1/tools/opensensemap.box_search/call": {
+      "post": {
+        "operationId": "opensensemap_box_search",
+        "summary": "OpenSenseMap Station Search",
+        "description": "Search OpenSenseMap crowdsourced environmental sensor stations by location, name, group tag, exposure type, or measured phenomenon. Returns up to 100 stations with their sensors and latest measurement values. OpenSenseMap hosts 15,000+ community-operated senseBox stations worldwide measuring PM2.5, temperature, humidity, UV, pressure, CO₂, and more. Location search: provide latitude+longitude to find stations within max_distance meters (default 5 km). Name search: pass name to filter by station name substring (e.g. \"berlin\", \"school\"). Phenomenon filter: use \"Temperatur\", \"PM2.5\", \"rel. Luftfeuchte\", \"Luftdruck\", or \"UV-Intensität\" to find stations measuring a specific sensor type. Exposure filter: \"outdoor\" for weather/air-quality monitors, \"indoor\" for home sensors. Each result includes station ID (use with box_detail or sensors_latest), coordinates, sensor list, and last measurement values. Data is PDDL 1.0 public domain, no attribution required. Source: https://opensensemap.org",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.box_search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "latitude": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90,
+                    "description": "Latitude of the search center point (WGS84, e.g. 52.52 for Berlin). Required when longitude is provided."
+                  },
+                  "longitude": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180,
+                    "description": "Longitude of the search center point (WGS84, e.g. 13.40 for Berlin). Required when latitude is provided."
+                  },
+                  "max_distance": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Maximum search radius in meters when using lat/lng search (default 5000, i.e. 5 km).",
+                    "default": 5000
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Filter stations by name substring (case-insensitive). Example: \"berlin\" returns all stations with \"berlin\" in their name."
+                  },
+                  "grouptag": {
+                    "type": "string",
+                    "description": "Filter stations by group tag. Tags are set by station owners to identify communities or projects (e.g. \"luftdaten\", \"sensebox\", \"airrohr\")."
+                  },
+                  "exposure": {
+                    "type": "string",
+                    "enum": [
+                      "indoor",
+                      "outdoor",
+                      "mobile",
+                      "unknown"
+                    ],
+                    "description": "Filter stations by sensor placement: \"outdoor\" for weather/air-quality monitors, \"indoor\" for home environment sensors, \"mobile\" for moving sensors."
+                  },
+                  "phenomenon": {
+                    "type": "string",
+                    "description": "Filter stations that measure a specific phenomenon by sensor title (e.g. \"Temperatur\", \"PM2.5\", \"rel. Luftfeuchte\", \"Luftdruck\", \"UV\"). Case-insensitive."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of stations to return (1–100, default 20).",
+                    "default": 20
+                  }
+                },
+                "description": "Search parameters for OpenSenseMap station lookup"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opensensemap.box_detail/call": {
+      "post": {
+        "operationId": "opensensemap_box_detail",
+        "summary": "OpenSenseMap Station Detail",
+        "description": "Get full metadata and sensor list for a specific OpenSenseMap sensor station by its box ID. Returns station name, coordinates, exposure type, hardware model, creation date, and a complete list of all sensors with their IDs, titles, units, sensor types, and latest measurement values. Use this to discover the sensor IDs needed for sensor_timeseries calls. A station typically has 3–12 sensors covering combinations of: temperature (°C), relative humidity (%), air pressure (hPa), PM2.5 (µg/m³), PM10 (µg/m³), UV intensity (µW/cm²), illuminance (lx), CO₂ (ppm), and more. Obtain the box_id from box_search results. Source: OpenSenseMap, PDDL 1.0 public domain.",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.box_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "box_id": {
+                    "type": "string",
+                    "description": "OpenSenseMap station (box) ID — the 24-character MongoDB ObjectId from box_search results (e.g. \"578207d56fea661300861f3b\")."
+                  }
+                },
+                "required": [
+                  "box_id"
+                ],
+                "description": "Station ID to fetch details for"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opensensemap.sensors_latest/call": {
+      "post": {
+        "operationId": "opensensemap_sensors_latest",
+        "summary": "OpenSenseMap Latest Sensor Readings",
+        "description": "Get the latest measurement value for every sensor on an OpenSenseMap station in a single call. Returns all sensor readings simultaneously: temperature, humidity, pressure, PM2.5, PM10, UV, CO₂, and any other sensors installed on the station. Each reading includes sensor ID, title, unit, sensor type, current value, and timestamp of measurement. Sensors with no recent data show last_value: null. Use box_search or box_detail to find the box_id first, then use sensor IDs from results with sensor_timeseries for historical data. Ideal for real-time environmental monitoring dashboards. Source: OpenSenseMap, PDDL 1.0 public domain.",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.sensors_latest"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "box_id": {
+                    "type": "string",
+                    "description": "OpenSenseMap station (box) ID — the 24-character MongoDB ObjectId from box_search results. Returns the latest measurement value for every sensor on this station."
+                  }
+                },
+                "required": [
+                  "box_id"
+                ],
+                "description": "Station ID to fetch latest sensor readings for"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/openfda_devices.recalls/call": {
       "post": {
         "operationId": "openfda_devices_recalls",
@@ -75157,6 +74783,121 @@
                   }
                 },
                 "description": "Search the FDA CAERS database of food and dietary supplement adverse event reports. Useful fields: products.name_brand, products.industry_name, reactions, outcomes, date_created. Distinct from food recall enforcement (health.food_enforcement) — this covers consumer-reported illness/injury events, not manufacturer recalls."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/opensensemap.sensor_timeseries/call": {
+      "post": {
+        "operationId": "opensensemap_sensor_timeseries",
+        "summary": "OpenSenseMap Sensor Time-Series Data",
+        "description": "Retrieve historical time-series measurements for a specific sensor on an OpenSenseMap station. Returns up to 10,000 measurement points (value + ISO 8601 timestamp) in reverse-chronological order (newest first). Specify box_id and sensor_id (both from box_search or sensors_latest), and optionally narrow the window with from_date/to_date in ISO 8601 format. Sensors on active stations record every 1–10 minutes, so a 24-hour window for a station with 5-min intervals yields ~288 data points. Useful for charting pollution spikes, computing daily averages, building climate datasets, or triggering alerts on threshold crossings. Supports any sensor type: PM2.5 (µg/m³), temperature (°C), relative humidity (%), air pressure (hPa), UV intensity, CO₂ (ppm), and more. Source: OpenSenseMap, PDDL 1.0 public domain.",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "opensensemap.sensor_timeseries"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "box_id": {
+                    "type": "string",
+                    "description": "OpenSenseMap station (box) ID — the 24-character MongoDB ObjectId from box_search or box_detail results (e.g. \"578207d56fea661300861f3b\")."
+                  },
+                  "sensor_id": {
+                    "type": "string",
+                    "description": "Sensor ID within the station — the 24-character MongoDB ObjectId found in sensors_latest or box_detail sensor list (e.g. \"578207d56fea661300861f3d\")."
+                  },
+                  "from_date": {
+                    "type": "string",
+                    "description": "Start of time range in ISO 8601 format (e.g. \"2024-01-01T00:00:00.000Z\"). Defaults to 2 days ago."
+                  },
+                  "to_date": {
+                    "type": "string",
+                    "description": "End of time range in ISO 8601 format (e.g. \"2024-01-02T00:00:00.000Z\"). Defaults to now."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10000,
+                    "description": "Maximum number of measurements to return, newest first (1–10000, default 100).",
+                    "default": 100
+                  }
+                },
+                "required": [
+                  "box_id",
+                  "sensor_id"
+                ],
+                "description": "Sensor ID and time range for time-series data retrieval"
               }
             }
           }
@@ -76451,444 +76192,6 @@
                     "minimum": 1,
                     "maximum": 100,
                     "description": "Maximum number of service area records to return (1–100, default 20)"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bls-macro.series/call": {
-      "post": {
-        "operationId": "bls-macro_series",
-        "summary": "BLS Time Series Lookup",
-        "description": "Fetch one or more U.S. Bureau of Labor Statistics (BLS) time series by series ID. Accepts up to 5 comma-separated series IDs and an optional year range (up to 10 years with a registered key). Returns chronological data points with year, period, period name, and numeric value. Common series IDs: CUUR0000SA0 (CPI All Items), LNS14000000 (Unemployment Rate), CES0000000001 (Total Nonfarm Payrolls), PRS85006092 (Nonfarm Business Productivity), CIU1010000000000A (Employment Cost Index). Find additional series IDs at bls.gov/data/. US Gov public domain, no upstream cost.",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.002000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "2000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "2000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bls-macro.series"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "series_ids": {
-                    "type": "string",
-                    "description": "Comma-separated BLS series ID(s), up to 5 (e.g. \"CUUR0000SA0,LNS14000000\"). Find IDs at bls.gov/data."
-                  },
-                  "start_year": {
-                    "type": "integer",
-                    "minimum": 1913,
-                    "maximum": 2030,
-                    "description": "First year of data to retrieve (default: current year - 2)."
-                  },
-                  "end_year": {
-                    "type": "integer",
-                    "minimum": 1913,
-                    "maximum": 2030,
-                    "description": "Last year of data to retrieve (default: current year). Max 10-year span per BLS limits."
-                  }
-                },
-                "required": [
-                  "series_ids"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bls-macro.cpi/call": {
-      "post": {
-        "operationId": "bls-macro_cpi",
-        "summary": "Consumer Price Index (Inflation)",
-        "description": "Get U.S. Consumer Price Index (CPI-U) data by item category and year range. Returns monthly values, year-over-year percentage change, and a full data series. Categories: \"all\" = All Items (headline inflation), \"food\", \"energy\", \"shelter\", \"core\" = All Items Less Food and Energy. Covers data from 1913 (All Items) through the most recently released month. Ideal for inflation analysis, cost-of-living calculations, real-return adjustments, and economic research. Data source: BLS Consumer Expenditure Survey, CPI-U series (urban consumers).",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bls-macro.cpi"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "item": {
-                    "type": "string",
-                    "enum": [
-                      "all",
-                      "food",
-                      "energy",
-                      "shelter",
-                      "core"
-                    ],
-                    "description": "CPI category: \"all\" = All Items CPI-U (default), \"food\" = Food, \"energy\" = Energy, \"shelter\" = Shelter, \"core\" = All Items Less Food and Energy."
-                  },
-                  "start_year": {
-                    "type": "integer",
-                    "minimum": 1913,
-                    "maximum": 2030,
-                    "description": "First year of CPI data (default: current year - 4)."
-                  },
-                  "end_year": {
-                    "type": "integer",
-                    "minimum": 1913,
-                    "maximum": 2030,
-                    "description": "Last year of CPI data (default: current year)."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bls-macro.unemployment/call": {
-      "post": {
-        "operationId": "bls-macro_unemployment",
-        "summary": "U.S. Unemployment Rate",
-        "description": "Get U.S. national labor market data from the BLS Current Population Survey. Measures: \"rate\" = Unemployment Rate % (U-3, official), \"participation\" = Labor Force Participation Rate %, \"employment_ratio\" = Employment-Population Ratio %, \"long_term\" = Long-term Unemployed (27+ weeks, in thousands). Returns monthly data series with latest value and full history up to 10 years. Data goes back to 1948 for the unemployment rate. Use for macroeconomic research, labor market trend analysis, and policy evaluation.",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bls-macro.unemployment"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "measure": {
-                    "type": "string",
-                    "enum": [
-                      "rate",
-                      "participation",
-                      "employment_ratio",
-                      "long_term"
-                    ],
-                    "description": "Labor market measure: \"rate\" = Unemployment Rate % (default), \"participation\" = Labor Force Participation Rate %, \"employment_ratio\" = Employment-Population Ratio %, \"long_term\" = Long-term Unemployed 27+ weeks (thousands)."
-                  },
-                  "start_year": {
-                    "type": "integer",
-                    "minimum": 1948,
-                    "maximum": 2030,
-                    "description": "First year of data (default: current year - 4)."
-                  },
-                  "end_year": {
-                    "type": "integer",
-                    "minimum": 1948,
-                    "maximum": 2030,
-                    "description": "Last year of data (default: current year)."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/bls-macro.payrolls/call": {
-      "post": {
-        "operationId": "bls-macro_payrolls",
-        "summary": "U.S. Nonfarm Payroll Employment",
-        "description": "Get U.S. nonfarm payroll employment data from the BLS Current Employment Statistics (CES) survey. Returns seasonally adjusted monthly payroll counts in thousands of jobs. Industries: \"total\" = Total Nonfarm, \"private\" = Total Private, \"manufacturing\", \"construction\", \"professional\" = Professional & Business Services, \"healthcare\" = Healthcare & Social Assistance, \"retail\" = Retail Trade, \"finance\" = Financial Activities. Monthly jobs report data — the most closely watched U.S. economic indicator. Use for labor market analysis, sector employment trends, and economic research.",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "bls-macro.payrolls"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "industry": {
-                    "type": "string",
-                    "enum": [
-                      "total",
-                      "private",
-                      "manufacturing",
-                      "construction",
-                      "professional",
-                      "healthcare",
-                      "retail",
-                      "finance"
-                    ],
-                    "description": "Industry sector: \"total\" = Total Nonfarm (default), \"private\" = Total Private, \"manufacturing\", \"construction\", \"professional\" = Professional & Business Services, \"healthcare\" = Healthcare & Social Assistance, \"retail\" = Retail Trade, \"finance\" = Financial Activities."
-                  },
-                  "start_year": {
-                    "type": "integer",
-                    "minimum": 1939,
-                    "maximum": 2030,
-                    "description": "First year of payroll data (default: current year - 4)."
-                  },
-                  "end_year": {
-                    "type": "integer",
-                    "minimum": 1939,
-                    "maximum": 2030,
-                    "description": "Last year of payroll data (default: current year)."
                   }
                 }
               }
@@ -135358,309 +134661,6 @@
                 },
                 "required": [
                   "datasource_id"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/istat.dataflows/call": {
-      "post": {
-        "operationId": "istat_dataflows",
-        "summary": "ISTAT Dataflows",
-        "description": "Search or list ISTAT economic/social-statistics dataflows — ~4900 official series from the Italian National Institute of Statistics covering population, prices, labour, agriculture, trade, and national accounts. Filter by name/id with query, or omit to list all (capped to 200 results). Use the returned dataflow_id with istat.structure and istat.data. Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "istat.dataflows"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string",
-                    "description": "Filter dataflows by name or id substring, case-insensitive (e.g. \"population\", \"inflation\", \"employment\", \"crops\"). Omit to list all ~4900 available dataflows (capped to 200 results)."
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/istat.structure/call": {
-      "post": {
-        "operationId": "istat_structure",
-        "summary": "ISTAT Dataflow Structure",
-        "description": "Get the dimensions and valid codes for an ISTAT dataflow (dataflow_id from istat.dataflows, e.g. \"101_1015_DF_DCSP_COLTIVAZIONI_1\" for crop areas and production) — frequency, territory, and measure dimensions each with their code list (capped to 200 codes per dimension, with a total_codes count). Use this to interpret the dimension labels returned by istat.data, or to build a narrower key filter. Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.001000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "1000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "istat.structure"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "dataflow_id": {
-                    "type": "string",
-                    "description": "ISTAT dataflow id, from istat.dataflows (e.g. \"101_1015_DF_DCSP_COLTIVAZIONI_1\" for crop areas and production). Returns the dimension list (e.g. FREQ, REF_AREA, DATA_TYPE) with each dimension's valid codes (capped to 200 per dimension, with a total_codes count) — needed to interpret istat.data results and build a key filter.",
-                    "minLength": 1
-                  },
-                  "version": {
-                    "type": "string",
-                    "description": "Dataflow version, from istat.dataflows (e.g. \"1.0\"). Omit to use the latest version."
-                  }
-                },
-                "required": [
-                  "dataflow_id"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Tool execution result"
-          },
-          "400": {
-            "description": "Validation error"
-          },
-          "401": {
-            "description": "Unauthorized — missing or invalid API key"
-          },
-          "402": {
-            "description": "Payment Required"
-          },
-          "404": {
-            "description": "Tool not found"
-          },
-          "429": {
-            "description": "Rate limit exceeded"
-          },
-          "500": {
-            "description": "Internal server error"
-          },
-          "502": {
-            "description": "Provider unavailable"
-          }
-        },
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ]
-      }
-    },
-    "/api/v1/tools/istat.data/call": {
-      "post": {
-        "operationId": "istat_data",
-        "summary": "ISTAT Dataflow Data",
-        "description": "Get observation values for an ISTAT dataflow (dataflow_id from istat.dataflows). Use key (from istat.structure) to filter by frequency/territory/measure, e.g. \"A.IT....\" for Italy annual data, all other dimensions unfiltered — an unscoped key can match thousands of series. Control the time range with start_period/end_period or last_n_observations (max 20). Data: esploradati.istat.it (ISTAT SDMX public REST API), no auth required.",
-        "x-payment-info": {
-          "protocols": [
-            "x402",
-            "mpp"
-          ],
-          "pricingMode": "fixed",
-          "price": "0.002000",
-          "offers": [
-            {
-              "method": "tempo",
-              "intent": "charge",
-              "amount": "2000",
-              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
-              "chainId": 4217
-            },
-            {
-              "method": "evm",
-              "intent": "charge",
-              "amount": "2000",
-              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-              "chainId": 8453
-            }
-          ]
-        },
-        "parameters": [
-          {
-            "name": "toolId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "istat.data"
-              ]
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "dataflow_id": {
-                    "type": "string",
-                    "description": "ISTAT dataflow id, from istat.dataflows (e.g. \"101_1015_DF_DCSP_COLTIVAZIONI_1\" for crop areas and production).",
-                    "minLength": 1
-                  },
-                  "key": {
-                    "type": "string",
-                    "description": "SDMX dot-separated dimension filter key in dimension position order (e.g. \"A.IT....\" for annual national-level data, all other dimensions unfiltered). Use istat.structure first to see each dimension's position and codes — an unscoped \"all\" key (default) can match thousands of series and return an oversized response."
-                  },
-                  "start_period": {
-                    "type": "string",
-                    "description": "Start of period range, e.g. \"2020\" (annual) or \"2020-01\" (monthly). Takes precedence over last_n_observations when set."
-                  },
-                  "end_period": {
-                    "type": "string",
-                    "description": "End of period range, e.g. \"2024\" (annual) or \"2024-12\" (monthly). Takes precedence over last_n_observations when set."
-                  },
-                  "last_n_observations": {
-                    "type": "integer",
-                    "minimum": 1,
-                    "maximum": 20,
-                    "description": "Return only the most recent N observations per series (max 20, default 5). Ignored if start_period or end_period is set. Kept low because a wide key can already match hundreds of series."
-                  }
-                },
-                "required": [
-                  "dataflow_id"
                 ]
               }
             }

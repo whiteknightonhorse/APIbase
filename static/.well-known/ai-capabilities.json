@@ -1,14 +1,14 @@
 {
   "platform": "APIbase",
   "version": "2.2.0",
-  "updated_at": "2026-10-22T00:00:00Z",
-  "tools_count": 1386,
-  "providers_count": 401,
+  "updated_at": "2026-10-26T00:00:00Z",
+  "tools_count": 1377,
+  "providers_count": 399,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP prompt",
     "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1386 tools by category or task instead of loading all schemas into context.",
+    "description": "Call discover_tools to browse 1377 tools by category or task instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -37,8 +37,8 @@
     },
     {
       "name": "finance",
-      "tools": 191,
-      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Indec Argentina, Ine, Ine Chile, Ine Spain, Istat, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Wits Trade, Worldbank, Wto",
+      "tools": 184,
+      "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Indec Argentina, Ine, Ine Chile, Ine Spain, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Wits Trade, Worldbank, Wto",
       "examples": "Call discover_tools with category=\"finance\" for the current tool list and descriptions."
     },
     {
@@ -55,8 +55,8 @@
     },
     {
       "name": "weather",
-      "tools": 99,
-      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
+      "tools": 103,
+      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
       "examples": "Call discover_tools with category=\"weather\" for the current tool list and descriptions."
     },
     {
@@ -108,12 +108,6 @@
       "examples": "Call discover_tools with category=\"crypto\" for the current tool list and descriptions."
     },
     {
-      "name": "jobs",
-      "tools": 22,
-      "providers": "Adzuna, Arbeitnow, Ilostat, Jobs, Jooble, Reed, Remotive, Theirstack, Usajobs",
-      "examples": "Call discover_tools with category=\"jobs\" for the current tool list and descriptions."
-    },
-    {
       "name": "business",
       "tools": 20,
       "providers": "Abr, Brasilapi, Brreg, Companieshouse, GLEIF, Hunter, Insee, Sam",
@@ -136,6 +130,12 @@
       "tools": 16,
       "providers": "Currents, Hackernews, Hnalgolia, Newsdata",
       "examples": "Call discover_tools with category=\"news\" for the current tool list and descriptions."
+    },
+    {
+      "name": "jobs",
+      "tools": 16,
+      "providers": "Adzuna, Arbeitnow, Ilostat, Jooble, Reed, Remotive, Theirstack, Usajobs",
+      "examples": "Call discover_tools with category=\"jobs\" for the current tool list and descriptions."
     },
     {
       "name": "marketing",

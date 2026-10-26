@@ -120,10 +120,6 @@ biomodels.model.search	biomodels	0.001
 bis-stats.exchange_rates	bis-stats	0.002
 bis-stats.policy_rates	bis-stats	0.002
 bis-stats.property_prices	bis-stats	0.002
-bls-macro.cpi	bls-macro	0.001
-bls-macro.payrolls	bls-macro	0.001
-bls-macro.series	bls-macro	0.002
-bls-macro.unemployment	bls-macro	0.001
 bluesky.feed	bluesky	0.001
 bluesky.profile	bluesky	0.001
 bluesky.search_posts	bluesky	0.001
@@ -686,9 +682,6 @@ irena.generation_country	irena	0.002
 irena.share_renewables	irena	0.001
 iss.position	iss	0.001
 iss.tle	iss	0.001
-istat.data	istat	0.002
-istat.dataflows	istat	0.001
-istat.structure	istat	0.001
 itistaxonomy.get_full_record	itistaxonomy	0.002
 itistaxonomy.search_common_name	itistaxonomy	0.001
 itistaxonomy.search_scientific_name	itistaxonomy	0.001
@@ -697,12 +690,6 @@ jma-bosai.earthquakes	jma-bosai	0.001
 jma-bosai.forecast	jma-bosai	0.001
 jma-bosai.overview	jma-bosai	0.001
 jma-bosai.warnings	jma-bosai	0.001
-jobs.esco_details	jobs	0.003
-jobs.esco_search	jobs	0.003
-jobs.job_search	jobs	0.003
-jobs.occupation_details	jobs	0.003
-jobs.occupation_search	jobs	0.003
-jobs.salary_data	jobs	0.003
 jooble.search	jooble	0.001
 jpl.close_approaches	jpl	0.001
 jpl.fireballs	jpl	0.001
@@ -938,6 +925,10 @@ openmeteoaq.current	openmeteoaq	0.001
 openmeteoaq.forecast	openmeteoaq	0.002
 openmeteoaq.historical	openmeteoaq	0.002
 openmeteoaq.pollen	openmeteoaq	0.001
+opensensemap.box_detail	opensensemap	0.001
+opensensemap.box_search	opensensemap	0.002
+opensensemap.sensor_timeseries	opensensemap	0.002
+opensensemap.sensors_latest	opensensemap	0.001
 opensky.aircraft_state	opensky	0.001
 opensky.aircraft_track	opensky	0.002
 opensky.states_bbox	opensky	0.001
