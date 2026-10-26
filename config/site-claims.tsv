@@ -9,8 +9,8 @@ static/index.html	https://apibase.pro/	must-not-contain	never billed	-	APIBASE-0
 static/index.html	https://apibase.pro/	must-not-contain	auto-refunded	-	APIBASE-001
 static/terms.html	https://apibase.pro/terms	must-not-contain	never billed	-	APIBASE-001
 static/terms.html	https://apibase.pro/terms	must-not-contain	auto-refunded	-	APIBASE-001
-static/policy-moderation.html	https://apibase.pro/policy-moderation	must-not-contain	never billed	-	APIBASE-001
-static/policy-moderation.html	https://apibase.pro/policy-moderation	must-not-contain	auto-refunded	-	APIBASE-001
+static/policy-moderation.html	https://apibase.pro/policy/moderation	must-not-contain	never billed	-	APIBASE-001
+static/policy-moderation.html	https://apibase.pro/policy/moderation	must-not-contain	auto-refunded	-	APIBASE-001
 docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-not-contain	auto-refunded	-	APIBASE-001
 docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-not-contain	refunded on failure	-	APIBASE-001
 docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/architecture.md	must-not-contain	auto-refunded	-	APIBASE-001
@@ -57,7 +57,7 @@ static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/
 static/.well-known/agent-skills/discover-tools.md	https://apibase.pro/.well-known/agent-skills/discover-tools.md	tool-ids-healthy	-	-	APIBASE-017
 docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	tool-ids-healthy	-	-	APIBASE-017
 README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	tool-ids-healthy	-	-	APIBASE-017
-static/policy-moderation.html	https://apibase.pro/policy-moderation	regex-equals	You may appeal within <strong><!--appeal-days-->(\d+)<!--/appeal-days--> days	{{moderation.appeal_window_days}}	APIBASE-023
+static/policy-moderation.html	https://apibase.pro/policy/moderation	regex-equals	You may appeal within <strong><!--appeal-days-->(\d+)<!--/appeal-days--> days	{{moderation.appeal_window_days}}	APIBASE-023
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	definition_sha256	-	APIBASE-024
 docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/architecture.md	must-not-contain	Redis down = reject all requests	-	APIBASE-025
 README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	must-not-contain	Redis down = reject all requests	-	APIBASE-025
@@ -77,9 +77,9 @@ README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/
 gh:provek/llms.txt	https://provek.dev/llms.txt	must-not-contain	re:Phase 3[^\n]*\(https://provek\.dev/phase-2/?\)	-	F-34
 static/terms.html	https://apibase.pro/terms	regex-equals	Last updated: <!--doc-date:terms-->([^<]*)<!--/doc-date-->	{{doc_register.terms.updated_text}}	APIBASE-021
 static/privacy.html	https://apibase.pro/privacy	regex-equals	Last updated: <!--doc-date:privacy-->([^<]*)<!--/doc-date-->	{{doc_register.privacy.updated_text}}	APIBASE-021
-static/policy-moderation.html	https://apibase.pro/policy-moderation	regex-equals	Last updated: <!--doc-date:moderation-->([^<]*)<!--/doc-date-->	{{doc_register.moderation.updated_text}}	APIBASE-021
+static/policy-moderation.html	https://apibase.pro/policy/moderation	regex-equals	Last updated: <!--doc-date:moderation-->([^<]*)<!--/doc-date-->	{{doc_register.moderation.updated_text}}	APIBASE-021
 static/privacy.html	https://apibase.pro/privacy	must-not-contain	5 seconds to 5 minutes	-	APIBASE-004
 static/terms.html	https://apibase.pro/terms	must-not-contain	upon first request	-	APIBASE-004
-static/policy-moderation.html	https://apibase.pro/policy-moderation	must-not-contain	7 days	-	APIBASE-023
+static/policy-moderation.html	https://apibase.pro/policy/moderation	must-not-contain	7 days	-	APIBASE-023
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	price_claim_mismatch	-	T-0536
 static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	once your domain is verified	-	T-0536
