@@ -417,9 +417,8 @@ STALE_README_PROSE=$(grep -oE "[0-9]{2,4}\+? real-world API tools|[0-9]{2,4}\+? 
 # exact counts pushed to docs/architecture.md instead) -- this check is the guardrail
 # against either number quietly coming back.
 # T-0539: widened from README.md alone to every GitHub-side doc surface: provek.json, SECURITY.md,
-# docs/*.md and packages/*/README.md. README keeps the full word list; the other files are held to the
-# tool/provider count class only (stage/container counts live in docs/architecture.md and the ops
-# runbooks by design). docs/releases/* is append-only history and is never scanned. The exempt files
+# docs/*.md and packages/*/README.md. every file is held to the full word list (an optional "API"
+# before the noun is covered, so "1300+ API tools" is caught). docs/releases/* is append-only history and is never scanned. The exempt files
 # are dated analyses, a design note, a dated log and the roadmap, whose numbers are historical or
 # thresholds, not live claims; the "As of <date>" snapshots are labelled in place.
 README_NUM_EXEMPT=(
@@ -431,16 +430,29 @@ README_NUM_EXEMPT=(
   "docs/discoverability-log.md"
   "docs/ROADMAP.md"
 )
+# Ops docs that state the stack shape by design (README points here for exact stage/container
+# counts): held to the tool/provider/schema/... classes, but not to stage/container counts.
+README_NUM_OPS=(
+  "docs/architecture.md"
+  "docs/runbook.md"
+  "docs/self-hosting.md"
+  "docs/x402-facilitator.md"
+)
 README_NUM_FILES=()
+README_NUM_OPS_FILES=()
 for f in provek.json SECURITY.md docs/*.md packages/*/README.md; do
   [ -f "$f" ] || continue
   skip=0
   for ex in "${README_NUM_EXEMPT[@]}"; do [ "$f" = "$ex" ] && { skip=1; break; }; done
-  [ "$skip" = "0" ] && README_NUM_FILES+=("$f")
+  [ "$skip" = "1" ] && continue
+  ops=0
+  for ex in "${README_NUM_OPS[@]}"; do [ "$f" = "$ex" ] && { ops=1; break; }; done
+  if [ "$ops" = "1" ]; then README_NUM_OPS_FILES+=("$f"); else README_NUM_FILES+=("$f"); fi
 done
 STALE_README_NUMBERS=$( {
-  grep -ohE '[0-9]{2,4}\+?[ -]?(tool|provider|schema|categor|integration|registr|stage|container)[a-zA-Z]*' README.md 2>/dev/null
-  grep -ohE '[0-9]{2,4}\+?[ -]?(tool|provider)[a-zA-Z]*' "${README_NUM_FILES[@]}" 2>/dev/null | grep -vE '^402 tool'
+  grep -ohE '[0-9]{2,4}\+?[ -]?(API[ -])?(tool|provider|schema|categor|integration|registr|stage|container)[a-zA-Z]*' README.md 2>/dev/null
+  grep -ohE '[0-9]{2,4}\+?[ -]?(API[ -])?(tool|provider|schema|categor|integration|registr|stage|container)[a-zA-Z]*' "${README_NUM_FILES[@]}" 2>/dev/null | grep -vE '^402 tool'
+  grep -ohE '[0-9]{2,4}\+?[ -]?(API[ -])?(tool|provider|schema|categor|integration|registr)[a-zA-Z]*' "${README_NUM_OPS_FILES[@]}" 2>/dev/null | grep -vE '^402 tool'
   } | grep -vE "^${TOOLS} tools$|^${PROV} providers$" | sort -u || true)
 # T-40: the MCP Registry badge hardcoded a version number ("MCP_Registry-v1.0.2-blue")
 # that no drift check ever read -- same class of defect as the two above, just inside a
