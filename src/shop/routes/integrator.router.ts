@@ -140,8 +140,26 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
   for (const g of GUIDES) {
     router.get(`/integrator/${g}`, limiter, (req, res) => send(req, res, g, mdPage));
   }
+  // T-0535: explicit `.md` path twins, byte-identical to the `Accept: text/markdown` answer.
+  const sendMdTwin = (res: Response, file: string, htmlPath: string, tokens = true) => {
+    const md = read(file);
+    res
+      .set('Cache-Control', 'public, max-age=300')
+      .set('Link', `<https://apibase.pro${htmlPath}>; rel="canonical"`)
+      .type('text/markdown; charset=utf-8')
+      .send(tokens ? renderTokens(md) : md);
+  };
+  router.get(['/integrator.md', '/integrator/index.md'], limiter, (_req, res) =>
+    sendMdTwin(res, 'index.md', '/integrator'),
+  );
+  for (const n of ['docs', 'connect', ...GUIDES]) {
+    router.get(`/integrator/${n}.md`, limiter, (_req, res) =>
+      sendMdTwin(res, `${n}.md`, `/integrator/${n}`, n !== 'connect'),
+    );
+  }
   router.get('/integrator/platforms/:name', limiter, (req, res) => {
-    const name = String(req.params.name);
+    const isMd = String(req.params.name).endsWith('.md');
+    const name = String(req.params.name).replace(/\.md$/, '');
     if (!(PLATFORMS as readonly string[]).includes(name)) {
       res.status(404).json({
         error: 'not_found',
@@ -150,6 +168,10 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         suggested_action: 'fix_request',
         documentation_url: '/integrator',
       });
+      return;
+    }
+    if (isMd) {
+      sendMdTwin(res, `platforms/${name}.md`, `/integrator/platforms/${name}`);
       return;
     }
     send(req, res, `platforms/${name}`, mdPage);

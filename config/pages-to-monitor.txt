@@ -76,6 +76,11 @@ https://apibase.pro/integrator/buyers.md
 https://apibase.pro/integrator/connect.md
 https://apibase.pro/integrator/docs.md
 https://apibase.pro/integrator/index.md
+https://apibase.pro/integrator/platforms/custom.md
+https://apibase.pro/integrator/platforms/shopify.md
+https://apibase.pro/integrator/platforms/tilda.md
+https://apibase.pro/integrator/platforms/wix.md
+https://apibase.pro/integrator/platforms/woocommerce.md
 https://apibase.pro/integrator/llms.txt
 https://apibase.pro/integrator/wallet.md
 https://apibase.pro/integrator/why-base-tempo.md

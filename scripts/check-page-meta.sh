@@ -16,7 +16,7 @@ APPLY=0
 for a in "$@"; do [ "$a" = "--no-fetch" ] && NO_FETCH=1; [ "$a" = "--apply" ] && APPLY=1; done
 export ROOT NO_FETCH APPLY
 export PAGE_META_BASE="${PAGE_META_BASE:-http://127.0.0.1:8880}"
-export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal/aup /integrator /integrator/buyers}"
+export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal /legal/aup /integrator /integrator/buyers}"
 exec python3 -I - <<'PY'
 import glob, html, os, re, subprocess, sys, time
 

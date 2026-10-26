@@ -86,6 +86,28 @@ describe('contact router', () => {
     expect(ev.data.payload).toEqual({ message_id: j.message_id, name: valid.name });
   });
 
+  it('Accept text/html: 200 HTML page with the message id; JSON path unchanged', async () => {
+    const r = await fetch(`${base}/api/v1/contact`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'text/html' },
+      body: JSON.stringify(valid),
+    });
+    expect(r.status).toBe(200);
+    expect(r.headers.get('content-type')).toMatch(/text\/html/);
+    expect(await r.text()).toMatch(/Message recorded, id <code>cm_[0-9a-f]{12}<\/code>/);
+    expect((await (await post(valid)).json()).status).toBe('accepted');
+  });
+
+  it('Accept text/html: 422 renders the field errors as HTML', async () => {
+    const r = await fetch(`${base}/api/v1/contact`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'text/html' },
+      body: JSON.stringify({ ...valid, email: 'nope' }),
+    });
+    expect(r.status).toBe(422);
+    expect(await r.text()).toContain('<li>email:');
+  });
+
   it('500 when the transaction fails', async () => {
     transaction.mockRejectedValueOnce(new Error('db down'));
     const r = await post(valid);

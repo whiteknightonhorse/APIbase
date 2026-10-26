@@ -181,6 +181,46 @@ export function staticPageEntries(staticDir: string): Array<Record<string, unkno
   });
 }
 
+/** Browser view of the /legal index: same chrome as the /legal/<doc> pages, one row per document. */
+export function indexPage(docs: ReadonlyArray<object>): string {
+  const str = (v: unknown): string => (typeof v === 'string' ? v : '');
+  const rows = (docs as Array<Record<string, unknown>>)
+    .map((d) => {
+      const id = esc(str(d.doc_id));
+      const url = esc(str(d.url));
+      const title = esc(DOC_TITLES[str(d.doc_id)] ?? str(d.doc_id));
+      const md = d.registry === false ? '' : ` · <a href="${url}.md">.md</a>`;
+      return (
+        `<tr><td><a href="${url}">${title}</a>${md}<br><code>${id}</code></td>` +
+        `<td>${esc(str(d.version)) || '—'}</td>` +
+        `<td>${esc(str(d.effective_from).slice(0, 10)) || '—'}</td>` +
+        `<td><code>${esc(str(d.sha256))}</code></td></tr>`
+      );
+    })
+    .join('');
+  const title = fitTitle('Legal documents — APIbase legal');
+  return (
+    '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">' +
+    '<meta name="viewport" content="width=device-width, initial-scale=1">' +
+    metaTags({
+      title,
+      description:
+        'Every APIbase legal document with its current version, effective date and SHA-256, as HTML and Markdown.',
+      path: '/legal',
+    }) +
+    `<title>${esc(title)}</title><style>${STYLE}\n${SITE_NAV_CSS}</style></head><body>` +
+    SITE_NAV +
+    '<div class="page-shell"><main class="container lg" id="main-content">' +
+    '<div class="lg-crumb"><ol class="m-breadcrumb"><li><a href="/">Home</a></li><li aria-current="page">Legal</li></ol></div>' +
+    '<h1>Legal documents</h1>' +
+    '<p>Current version of each document. The same list as JSON: <a href="/legal/index.json">/legal/index.json</a>.</p>' +
+    `<div class="table-wrap"><table><thead><tr><th>Document</th><th>Version</th><th>Effective</th><th>SHA-256</th></tr></thead><tbody>${rows}</tbody></table></div>` +
+    '</main></div>' +
+    SITE_FOOTER +
+    '</body></html>\n'
+  );
+}
+
 /** §11 / §15 public legal documents: /legal, /legal/index.json, /legal/:doc_id[.md]. */
 export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
   const dir = opts.dir ?? LEGAL_DIR;
@@ -212,10 +252,12 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
 
   const isPublished = (): boolean => isLegalPublished(publishedFile).published;
 
-  const sendIndex = async (res: Response) => {
+  const sendIndex = async (req: Request, res: Response, html = false) => {
     try {
-      const docs = await legalIndex(db(), now());
-      res.set('Cache-Control', 'no-cache').json([...docs, ...staticPageEntries(staticDir)]);
+      const docs = [...(await legalIndex(db(), now())), ...staticPageEntries(staticDir)];
+      res.set('Cache-Control', 'no-cache').set('Vary', 'Accept');
+      if (html && req.accepts(['json', 'html']) === 'html') res.type('html').send(indexPage(docs));
+      else res.json(docs);
     } catch {
       res.status(503).json({
         error: 'unavailable',
@@ -227,8 +269,8 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
     }
   };
 
-  router.get('/legal', (_req, res) => sendIndex(res));
-  router.get('/legal/index.json', (_req, res) => sendIndex(res));
+  router.get('/legal', (req, res) => sendIndex(req, res, true));
+  router.get('/legal/index.json', (req, res) => sendIndex(req, res));
 
   const prohibitedLimiter = rateLimit({
     windowMs: 60_000,

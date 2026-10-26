@@ -4,7 +4,7 @@ For a WooCommerce store. The GPL-2.0-or-later plugin "APIbase AI payment for Woo
 
 ## Install
 
-1. Download `woocommerce-apibase.zip`.
+1. Get the plugin: download `woocommerce-apibase.zip` from the latest GitHub release (https://github.com/whiteknightonhorse/APIbase/releases/latest) or build it with `scripts/woo/build-zip.sh` from packages/woocommerce-apibase.
 2. In WordPress open Plugins, Add New, Upload Plugin, choose the zip, install and activate.
 3. Open WooCommerce, Settings, AI payment.
 

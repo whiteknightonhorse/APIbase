@@ -27,3 +27,9 @@ jobs:
               --title "$GITHUB_REF_NAME" \
               --notes-file "docs/releases/$GITHUB_REF_NAME.md"
           fi
+      - name: Build and attach the WooCommerce plugin zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          bash scripts/woo/build-zip.sh dist/woocommerce-apibase.zip
+          gh release upload "$GITHUB_REF_NAME" dist/woocommerce-apibase.zip --clobber

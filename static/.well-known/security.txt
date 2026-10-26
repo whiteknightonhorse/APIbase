@@ -1,0 +1,5 @@
+Contact: mailto:security@apibase.pro
+Expires: 2027-10-26T00:00:00.000Z
+Preferred-Languages: en
+Policy: https://github.com/whiteknightonhorse/APIbase/blob/main/SECURITY.md
+Canonical: https://apibase.pro/.well-known/security.txt

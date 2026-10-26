@@ -29,3 +29,7 @@ ignore previous ,
 # T-0534: published sentence now reads "Current versions and hashes: /legal/index.json (latest effective ...)" (LEGAL_LATEST_EFFECTIVE).
 Published on <ISO-DATE>; the hashes are in
 .
+# T-0535: wave wording removed from the integrator guide (nothing is staged by waves any more).
+tracking (null in wave 1),
+( shipped , delivered , refund.verified and dispute.opened start flowing with the shipping/dispute waves).
+,
