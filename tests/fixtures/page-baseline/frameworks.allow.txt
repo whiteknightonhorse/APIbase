@@ -1,2 +1,6 @@
 # T-0383: terminal decoration removed by the design-M migration (fake titlebar, boot sequence).
 apibase@prod ~ /srv/apibase/frameworks
+# T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
+Cache hits
+the same tool within TTL skip the on-chain settle entirely — 10% of
+price billed via balance debit.

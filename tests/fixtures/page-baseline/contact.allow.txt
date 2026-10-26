@@ -19,3 +19,5 @@ Uptime: 0m 0s
 BUILD: v1.0.0
 id: gen-time
 id: uptime-counter
+# T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
+(90% of tools <=

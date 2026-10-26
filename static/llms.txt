@@ -39,7 +39,7 @@ news, podcasts, search, social, space, travel, weather, world
 - x402 over MCP: X-Payment header OR params._meta["x402/payment"] (x402 MCP transport v2); the 402 tool result carries the payment requirements in _meta
 - Dedup window (x402): an identical repeated lookup of a cacheable tool by the same wallet within 2 minutes is answered from cache and not charged; the response carries X-APIbase-Charged: false and the original receipt. Not applied to MPP, balance or shop.* tools
 - Token: USDC on Base mainnet (x402) or Tempo (MPP)
-- Prices: $0.0005–$29.99 per call (90% of tools <= $0.003)
+- Prices: $0.0005–$29.99 per call (p90 $0.003)
 - Details: https://apibase.pro/.well-known/x402-payment.json
 - Receipts: https://apibase.pro/r/<receipt_id>.json, a public immutable receipt for each on-chain billed call
 - Payment identifier / idempotency: https://apibase.pro/integrator/agent-guide, persist the intent before you send; re-send the same id, never re-sign
@@ -55,7 +55,7 @@ news, podcasts, search, social, space, travel, weather, world
      GET /api/v1/tools?max_price=0.01     # only tools ≤ $0.01
      GET /api/v1/tools?tier=micro         # < $0.01
      GET /api/v1/tools?tier=standard      # $0.01–$0.99
-     GET /api/v1/tools?tier=premium       # $1+ (only 3 tools: domain reg, ad spend)
+     GET /api/v1/tools?tier=premium       # <!--tiers:premium-->$1+ (3 tools)<!--/tiers-->
 2. Each tool entry includes:
      pricing.price_usd       — sticker price per call
      pricing.cache_hit_price_usd — balance tier only; balances are credited by refunds

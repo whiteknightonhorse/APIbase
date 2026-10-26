@@ -145,7 +145,7 @@ const SERVER_INFO = {
   version: PACKAGE_VERSION,
   title: 'APIbase — The API Hub for AI Agents',
   description:
-    'Unified MCP gateway to hundreds of API providers. Pay-per-call via on-chain USDC micropayments (Base and Tempo networks) — self-hosted settlement, no third-party facilitator. Compatible side-by-side with Base MCP — pay APIbase calls directly from your Base Account in Claude, ChatGPT, or Cursor.',
+    'Unified MCP gateway to hundreds of API providers. Pay-per-call via on-chain USDC micropayments (Base and Tempo networks) — self-hosted facilitator, PayAI fallback. Compatible side-by-side with Base MCP — pay APIbase calls directly from your Base Account in Claude, ChatGPT, or Cursor.',
   websiteUrl: 'https://apibase.pro',
   icons: [
     {

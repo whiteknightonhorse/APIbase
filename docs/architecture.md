@@ -14,10 +14,10 @@ CACHE → RATE_LIMIT → ESCROW → MODERATION → PROVIDER_CALL →
 ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 ```
 
-- **Escrow-first**: funds locked before the provider call, refunded on failure.
+- **Escrow-first**: funds are reserved before the provider call. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->x402: not settled on failure; MPP: refund owed, paid by the operator ([details](https://apibase.pro/pricing#refunds)).
 - **Idempotent**: same request + same key = same result, no double charges.
 - **Cache**: per-tool TTL (as short as 5s for stock prices, days for slow-changing data).
-- **Fail-closed**: Redis down = reject all requests, never silently degrade.
+- **Fail-closed**: Redis down: payment, cache and rate-limit stages reject; the idempotency stage lets the request through (payment nonces still prevent a double charge).
 - **Content-moderated**: MODERATION runs after escrow (so a paid request's payment already
   exists before a block is decided — enables settle-on-block: a blocked paid request keeps
   the charge and returns an `appeal_url` instead of silently keeping the money with no

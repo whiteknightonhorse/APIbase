@@ -23,3 +23,6 @@ Pay Per Call
 Best unified
 REST endpoint
 AI payment
+# T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
+(90% of tools <=
+standard

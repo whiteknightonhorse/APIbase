@@ -33,6 +33,6 @@ export function buildPriceRange(snapshotText: string): PriceRange {
   prices.sort((a, b) => a - b);
   const min = prices[0];
   const p90 = prices[Math.ceil(prices.length * 0.9) - 1];
-  const text = `$${formatUsd(min)}–$${formatUsd(max)} per call (90% of tools <= $${formatUsd(p90)})`;
+  const text = `$${formatUsd(min)}–$${formatUsd(max)} per call (p90 $${formatUsd(p90)})`;
   return { min, max, p90, text };
 }

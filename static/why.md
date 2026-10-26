@@ -52,8 +52,8 @@ create agent credentials. Full mechanics: <https://apibase.pro/connect>.
 ## 4. EXECUTE
 
 `tools/call` (MCP) or the equivalent REST call runs the request against the upstream
-provider. Payment is escrow-first and the call is idempotent by design; a failed provider
-call is never billed — only a delivered response is charged.
+provider. Payment is escrow-first and the call is idempotent by design; x402: not settled on failure; MPP: refund owed, paid by the operator
+([details](/pricing#refunds)). <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->
 
 ## How this compares by class
 

@@ -19,7 +19,9 @@ import re
 import sys
 
 MCP = "static/.well-known/mcp.json"
+SITE_FACTS = "static/.well-known/site-facts.json"
 FILES = [
+    "static/connect.html", "docs/payments.md",
     "static/index.html", "static/index.md", "static/ai.txt", "static/llms.txt", "static/pricing.html",
     "static/.well-known/x402-payment.json",
     "static/.well-known/agent-skills/x402-payment.md",
@@ -56,6 +58,57 @@ def facts():
     }
 
 
+def _site_facts():
+    try:
+        return json.load(open(SITE_FACTS))
+    except OSError:
+        return None
+
+
+def _num(n):
+    return "{:,}".format(int(n))
+
+
+def token_values():
+    """T-0532: {{tiers}}, {{rate_limits}}, {{free_tools_count}} rendered between comment markers."""
+    d = _site_facts()
+    if not d:
+        return {}
+    t, rl = d["tiers"], d["rate_limits"]
+    tiers = (
+        "<strong>Micro</strong> (%d tools, under $0.01). <strong>Standard</strong> (%d tools, $0.01\u2013$0.99). "
+        "<strong>Premium</strong> (%d tools, $1 and above: domain registration and two AIpush reports)."
+        % (t["micro"]["count"], t["standard"]["count"], t["premium"]["count"])
+    )
+    limits = "; ".join(
+        "%s: %d requests per second, %s per day" % (k, rl[k]["requests_per_second"], _num(rl[k]["daily_limit"]))
+        for k in ("free", "paid", "enterprise")
+    )
+    return {
+        "tiers": tiers,
+        "tiers:premium": "$1+ (%d tools)" % t["premium"]["count"],
+        "rate-limits": limits,
+        "free-tools": str(int(d["free_tools_count"])),
+    }
+
+
+TOKEN_RE = re.compile(r"<!--(tiers(?::premium)?|rate-limits|free-tools)-->.*?<!--/(?:tiers|rate-limits|free-tools)-->", re.S)
+
+
+def render_tokens(s, path):
+    vals = token_values()
+    if not vals:
+        return s
+
+    def sub(m):
+        v = vals[m.group(1)]
+        if path.endswith((".txt", ".md")):
+            v = re.sub(r"</?strong>", "", v)
+        return "<!--%s-->%s<!--/%s-->" % (m.group(1), v, m.group(1).split(":")[0])
+
+    return TOKEN_RE.sub(sub, s)
+
+
 def html_range(f):
     return f["range"].replace("<", "&lt;")
 
@@ -83,7 +136,7 @@ def _price(f, m):
 # "$a–$b per call" with its optional parenthetical (p90 clause, or the retired "most tools" one).
 RANGE_FULL = (
     r"\$0\.\d+–\$\d+(?:\.\d+)? per call"
-    r"(?: \((?:90% of tools (?:<=|&lt;=) \$\d+(?:\.\d+)?|most tools \$\d+(?:\.\d+)?–\$\d+(?:\.\d+)?)\))?"
+    r"(?: \((?:(?:90% of tools (?:<=|&lt;=)|p90) \$\d+(?:\.\d+)?|most tools \$\d+(?:\.\d+)?–\$\d+(?:\.\d+)?)\))?"
 )
 
 
@@ -117,6 +170,7 @@ COUNT_RULES = [
 def rendered(s, f, path=""):
     for rx, fn in RULES:
         s = rx.sub(lambda m, fn=fn: fn(f, m), s)
+    s = render_tokens(s, path)
     if path in BAR_PAGES:
         s = BAR_RE.sub(lambda m: canonical_bar(f), s)
     if path in BAR_PRICE_ONLY:
@@ -147,7 +201,7 @@ def check():
         if not os.path.exists(path):
             continue
         s = open(path).read()
-        if rendered(s, f) != s:
+        if rendered(s, f, path) != s:
             problems.append("%s: categories/price/provider-integration numbers differ from mcp.json" % path)
     if problems:
         print("\n".join(problems))

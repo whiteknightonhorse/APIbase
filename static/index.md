@@ -51,7 +51,7 @@ their wallet.
 | x402 | HTTP 402 (x402 Foundation) | USDC | Base mainnet | `X-PAYMENT` |
 | MPP | Machine Payments Protocol (Stripe/Tempo) | USDC.e | Tempo mainnet | `Authorization: Payment` |
 
-Tool prices: **$0.0005–$29.99 per call (90% of tools <= $0.003)**, depending on upstream cost.
+Tool prices: **$0.0005–$29.99 per call (p90 $0.003)**, depending on upstream cost.
 
 Full payment metadata: <https://apibase.pro/.well-known/x402-payment.json>
 

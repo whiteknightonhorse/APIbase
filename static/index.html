@@ -388,7 +388,7 @@ details p{color:#b7beb8;margin:0.3rem 0 1rem}
 <section id="numbers" class="hm-sec hm-numbers">
 <h2>The numbers</h2>
 <div class="sys-monitor">
-<span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>400</strong>  <span class="label">TOOLS:</span><strong>1385</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (90% of tools &lt;= $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
+<span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>400</strong>  <span class="label">TOOLS:</span><strong>1385</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (p90 $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
 </div>
 <p>Every figure on this page comes from the same generated baseline as the <a href="/catalog">catalog</a> and <a href="/pricing">pricing</a> pages. Prices range from $0.0005 to $29.99 per call depending on upstream cost.</p>
 </section>
@@ -402,11 +402,11 @@ details p{color:#b7beb8;margin:0.3rem 0 1rem}
 </details>
 <details>
 <summary>How do x402 payments work?</summary>
-<p>x402 is a machine-native payment protocol using USDC stablecoins on the Base network. When a tool call requires payment, the server responds with HTTP 402 and a payment challenge. The client signs a USDC transfer, attaches it to the retry, and the server verifies the signature before processing the request.</p>
+<p>x402 is a machine-native payment protocol using USDC stablecoins on the Base network. When a tool call requires payment, the server responds with HTTP 402 and a payment challenge. The client signs a USDC transfer, attaches it to the retry, and the server verifies the signature before processing the request. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->x402: not settled on failure; MPP: refund owed, paid by the operator (<a href="/pricing#refunds">details</a>).</p>
 </details>
 <details>
 <summary>What is MPP and how does it work?</summary>
-<p>MPP (Machine Payments Protocol) is an IETF standard (draft-ryan-httpauth-payment) developed by Stripe and Tempo. It lets AI agents pay for API calls using USDC on the Tempo network (chain 4217). Agents set up a wallet once at <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> and can then pay any MPP-compatible service, including APIbase. The <code>mppx</code> npm SDK handles the payment flow automatically.</p>
+<p>MPP (Machine Payments Protocol) is an IETF Internet-Draft (draft-ryan-httpauth-payment) developed by Stripe and Tempo. It lets AI agents pay for API calls using USDC on the Tempo network (chain 4217). Agents set up a wallet once at <a href="https://wallet.tempo.xyz">wallet.tempo.xyz</a> and can then pay any MPP-compatible service, including APIbase. The <code>mppx</code> npm SDK handles the payment flow automatically.</p>
 </details>
 <details>
 <summary>How do I connect?</summary>

@@ -6,13 +6,13 @@
 <title>Pricing — pay per call: x402 protocol, MPP, balance | APIbase</title>
 <meta property="og:image" content="https://apibase.pro/og-image.png?v=20260928">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="description" content="APIbase.pro pricing: pay-per-call from $0.001, no subscription, no monthly minimum. Pay over the x402 protocol (Base), MPP (Tempo) or a prepaid balance.">
+<meta name="description" content="APIbase.pro pricing: pay-per-call from $0.001, no subscription, no monthly minimum. Pay over x402 (Base) or MPP (Tempo).">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="shortcut icon" href="/favicon.png">
 <link rel="canonical" href="https://apibase.pro/pricing">
 <meta property="og:title" content="Pricing — pay per call: x402 protocol, MPP, balance | APIbase">
-<meta property="og:description" content="APIbase.pro pricing: pay-per-call from $0.001, no subscription, no monthly minimum. Pay over the x402 protocol (Base), MPP (Tempo) or a prepaid balance.">
+<meta property="og:description" content="APIbase.pro pricing: pay-per-call from $0.001, no subscription, no monthly minimum. Pay over x402 (Base) or MPP (Tempo).">
 <meta property="og:url" content="https://apibase.pro/pricing">
 <style>
 /*site-nav*/
@@ -89,12 +89,12 @@ pre{overflow-x:auto}
 <header class="mk-hero">
 <span class="m-caption">Pricing</span>
 <h1>Pricing</h1>
-<p class="mk-lead">Pay per call over the x402 protocol, MPP or a prepaid balance. No subscription, no seat fees, no monthly minimum.</p>
+<p class="mk-lead">Pay per call over the x402 protocol or MPP. No subscription, no seat fees, no monthly minimum.</p>
 </header>
 
 <div class="mk-stats" aria-label="Pricing at a glance">
-<div class="m-card m-card--stat"><span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (90% of tools &lt;= $0.003)</strong></div>
-<div class="m-card m-card--stat"><span class="label">RAILS:</span><strong>x402 / MPP / balance</strong></div>
+<div class="m-card m-card--stat"><span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (p90 $0.003)</strong></div>
+<div class="m-card m-card--stat"><span class="label">RAILS:</span><strong>x402 / MPP (balance: refund credit)</strong></div>
 <div class="m-card m-card--stat"><span class="label">MINIMUM:</span><strong>$0</strong></div>
 </div>
 
@@ -104,32 +104,34 @@ pre{overflow-x:auto}
 <table class="m-table">
 <thead><tr><th>Tier</th><th>Price</th><th>Typical tools</th></tr></thead>
 <tbody>
-<tr><td><strong>Micro</strong></td><td>&lt; $0.01</td><td>Free-upstream data &mdash; public government datasets, open-source lookups, simple reference data</td></tr>
-<tr><td><strong>Standard</strong></td><td>$0.01 &ndash; $1.00</td><td>Most tools &mdash; weather, finance, geocoding, entertainment, e-commerce lookups</td></tr>
-<tr><td><strong>Premium</strong></td><td>&ge; $1.00</td><td>Data-rich or rate-limited upstreams &mdash; flight search, structured e-commerce product data</td></tr>
+<tr><td><strong>Micro</strong></td><td>under $0.01</td><td>Free-upstream data &mdash; public government datasets, open-source lookups, simple reference data</td></tr>
+<tr><td><strong>Standard</strong></td><td>$0.01 &ndash; $0.99</td><td>Most tools &mdash; weather, finance, geocoding, entertainment, e-commerce lookups</td></tr>
+<tr><td><strong>Premium</strong></td><td>$1 and above</td><td>Domain registration and two AIpush reports</td></tr>
 </tbody>
 </table>
 </div>
+<p class="note" id="tiers"><!--tiers--><strong>Micro</strong> (1358 tools, under $0.01). <strong>Standard</strong> (24 tools, $0.01–$0.99). <strong>Premium</strong> (3 tools, $1 and above: domain registration and two AIpush reports).<!--/tiers--></p>
 <p class="note">Exact per-tool prices: <a href="/api/v1/tools">full JSON catalog</a> (filter with <code>?tier=micro|standard|premium</code> or <code>?max_price=N</code>) or the human-readable <a href="/catalog">catalog page</a>.</p>
 
 <h2>Per-audio-minute tools</h2>
 <p><code>transcribe.submit</code> (speech-to-text) is priced per audio minute: <code>max($0.01, ceil(minutes) &times; $0.005)</code>, rounded up to a cent &mdash; 1 minute $0.01, 10 minutes $0.05, 30 minutes $0.15, 61 minutes $0.31. You declare <code>duration_seconds</code> (required, up to 4 hours); the 402 quote shows the computed price and the job is cut at the declared duration.</p>
 
-<h2>Cache discount</h2>
-<p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit within that window costs <strong>10% of the listed price</strong> &mdash; billed via balance debit, no on-chain settlement needed for a hit.</p>
-<p class="note">The 10% discount applies on the <strong>Balance</strong> rail only. x402 and MPP payments are verified and settled against the full listed price before the call runs, so a cache hit on either of those rails is still billed at 100% &mdash; there is no on-chain equivalent of a post-hoc discount once a payment has already settled. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged at all; the response carries <code>X-APIbase-Charged: false</code> and the original receipt.</p>
+<h2 id="cache">Cache discount</h2>
+<p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit on x402 or MPP is still billed at 100%; the 10% price exists only on the credit-balance rail.</p>
+<p class="note">x402 and MPP payments are verified against the full listed price before the call runs, so there is no post-hoc discount on those rails. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged at all; the response carries <code>X-APIbase-Charged: false</code> and the original receipt.</p>
 
-<h2>How you pay &mdash; x402 protocol, MPP or balance, pick per request</h2>
+<h2>How you pay &mdash; x402 protocol or MPP, pick per request</h2>
 <div class="table-wrap m-table-wrap">
 <table class="m-table">
 <thead><tr><th>Rail</th><th>Network / asset</th><th>How it works</th><th>Best for</th></tr></thead>
 <tbody>
 <tr><td><strong>x402</strong></td><td>USDC on Base mainnet</td><td>Server replies HTTP 402 with a payment challenge; your wallet signs an EIP-3009 <code>transferWithAuthorization</code>; our self-hosted facilitator settles on-chain. A payment alone can bootstrap a brand-new agent identity too, same as MPP &mdash; no prior signup needed.</td><td>Base Account / Base MCP users, on-chain-native agents</td></tr>
 <tr><td><strong>MPP</strong></td><td>USDC.e on Tempo (chain 4217)</td><td>The <code>mppx</code> SDK signs a lightweight off-chain-style payment against your Tempo wallet. A payment alone can bootstrap a brand-new agent identity &mdash; no prior signup at all.</td><td>Agents that want to pay from a fresh wallet with zero prior registration</td></tr>
-<tr><td><strong>Balance</strong></td><td>Prepaid, debited per call</td><td>Top up once, then every call (including cache hits) debits your balance instantly &mdash; no per-call signature.</td><td>High-frequency callers who don't want to sign every request</td></tr>
+<tr><td><strong>Balance</strong></td><td>Refund credit, debited per call</td><td>Balance &mdash; a credit created by refunds (or by the operator). There is no self-service top-up; x402 and MPP are the two ways to pay. Cache hits on the balance rail are billed at 10%.</td><td>Callers holding a refund credit</td></tr>
 </tbody>
 </table>
 </div>
+<p class="note" id="rate-limits">Rate limits: <!--rate-limits-->free: 10 requests per second, 100 per day; paid: 50 requests per second, 10,000 per day; enterprise: 200 requests per second, 100,000 per day<!--/rate-limits-->.</p>
 <p class="note">Free tools (price $0) need no payment on any rail. Paid tools enforce payment server-side and fail closed &mdash; there is no unpaid fallback.</p>
 
 <h2>Integrator orders</h2>
@@ -142,7 +144,7 @@ pre{overflow-x:auto}
 <li>No subscription tier, no seat count, no annual contract.</li>
 <li>No overage fee &mdash; the price per call is the price per call at any volume.</li>
 <li>No markup surprise at settlement &mdash; the price is locked at the moment of the HTTP 402 challenge, not renegotiated after the call runs.</li>
-<li>A failed provider call is never billed &mdash; only a delivered response is charged.</li>
+<li id="refunds"><!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled: nothing leaves your wallet. On MPP the payment is already settled when the call runs; if the provider fails, a refund is owed to you and is paid out by the operator (automatic refunds are being designed, see REFUND-WALLET). Calls paid from the credit balance are credited back.</li>
 </ul>
 
 <h2>Why we publish this page</h2>

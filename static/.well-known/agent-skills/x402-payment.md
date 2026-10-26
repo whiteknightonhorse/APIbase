@@ -70,8 +70,8 @@ Exact price per tool: `x-payment-info` in the OpenAPI spec
 
 ## Free tier
 
-Tools that wrap free upstream APIs (government data, CC0 datasets) still charge
-$0.001/call to cover infrastructure. There is currently no free-trial credit
+Tools that wrap free upstream APIs (government data, CC0 datasets) are priced
+from $0.0005 per call; <!--free-tools-->8<!--/free-tools--> platform tools are free ($0). There is currently no free-trial credit
 for new agents; agents must arrive with funded wallets.
 
 ## SDK hints

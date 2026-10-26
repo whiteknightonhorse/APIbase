@@ -280,6 +280,18 @@ describe('T-INT-05 legal documents', () => {
           .replace(/BUILD: v1\.0\.0/g, '')
           // T-0432: the Tempo token is named USDC.e.
           .replace(/USDC\.e on Tempo/g, 'USDC on Tempo')
+          // T-0532: money-truth rewording, mapped back to the pre-T-INT-05 wording.
+          .replace(/\(p90 (\$[\d.]+)\)/g, '(90% of tools &lt;= $1)')
+          .replace(/a refund credit balance \(no top-up\)/g, 'a prepaid balance')
+          .replace(/debit refund credit balances/g, 'debit prepaid balances')
+          .replace(
+            /Escrow model \(platform tool calls only\)\. x402: USDC is settled only after a delivered response\. MPP: payment settles before the call; on provider failure a refund is owed and paid by the operator\. Balance: credited back\./g,
+            'Escrow model (platform tool calls only): USDC is locked before the provider call. On failure, USDC is auto-refunded.',
+          )
+          .replace(
+            /Refunds for provider failure are owed on every rail; on x402 they take the form of no settlement\./g,
+            'Refunds are automatic on provider failure only.',
+          )
           .replace(/\s+/g, ' ')
           .replace(/(PRV:\s*)\d+/g, '$1N')
           .replace(/(TOOLS:\s*)\d+/g, '$1N')

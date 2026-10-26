@@ -156,7 +156,9 @@ describe('T-0432 docs x402/MPP consistency gate', () => {
   });
 
   it('G5: the Tempo token is always written USDC.e', () => {
-    const bad = files.filter((f) => /USDC on Tempo/i.test(read(f)));
+    const bad = files.filter((f) =>
+      /USDC on Tempo|\|\s*(?:MPP|\*\*MPP\*\*)\s*\|[^|\n]*Tempo[^|\n]*\|\s*USDC\s*\|/i.test(read(f)),
+    );
     expect(bad).toEqual([]);
   });
 

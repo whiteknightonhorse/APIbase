@@ -130,7 +130,7 @@ pre{overflow-x:auto}
 
 <h2>4. EXECUTE</h2>
 <div class="step">
-<p><code>tools/call</code> (MCP) or the equivalent REST call runs the request against the upstream provider. Payment is escrow-first and the call is idempotent by design; a failed provider call is never billed &mdash; only a delivered response is charged. If the call fails outright, the error response is the signal an agent needs to decide whether to retry or fall back to reading a different tool's docs &mdash; APIbase does not silently substitute a different provider's response for the one that was requested.</p>
+<p><code>tools/call</code> (MCP) or the equivalent REST call runs the request against the upstream provider. Payment is escrow-first and the call is idempotent by design; <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->x402: not settled on failure; MPP: refund owed, paid by the operator (<a href="/pricing#refunds">details</a>). If the call fails outright, the error response is the signal an agent needs to decide whether to retry or fall back to reading a different tool's docs &mdash; APIbase does not silently substitute a different provider's response for the one that was requested.</p>
 </div>
 
 <h2>How this compares by class</h2>

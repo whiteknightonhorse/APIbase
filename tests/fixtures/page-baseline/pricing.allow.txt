@@ -9,3 +9,26 @@ BUILD: v1.0.0
 APIbase.pro
 call.
 three rails,
+# T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
+(90% of tools <=
+/ balance
+<
+$1.00
+≥ $1.00 Data-rich or rate-limited upstreams — flight search, structured e-commerce product data
+within that window costs
+of the listed
+— billed via balance debit, no on-chain settlement needed for a hit. The 10%
+Balance rail only.
+and settled
+a cache hit on either of those rails is still billed at 100% —
+on-chain equivalent of a
+once a payment has already settled.
+Prepaid,
+Top up once, then every call (including cache hits) debits your
+instantly — no per-call signature. High-frequency callers who don't want to sign every request
+A
+never billed — only
+delivered response
+charged.
+# T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
+discount applies

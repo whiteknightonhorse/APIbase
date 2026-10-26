@@ -1181,7 +1181,7 @@
     "max": 29.99,
     "min": 0.0005,
     "p90": 0.003,
-    "text": "$0.0005–$29.99 per call (90% of tools <= $0.003)"
+    "text": "$0.0005–$29.99 per call (p90 $0.003)"
   },
   "protocol_versions": [
     "2025-11-25",
@@ -1190,7 +1190,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 401,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1224,7 +1224,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1360,
+      "count": 1358,
       "max_usd": 0.008
     },
     "premium": {
@@ -1238,6 +1238,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1387,
+  "tools_count": 1385,
   "version": "2.2.0"
 }

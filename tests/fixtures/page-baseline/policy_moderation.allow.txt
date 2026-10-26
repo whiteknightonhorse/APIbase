@@ -9,3 +9,6 @@ SYSTEM READY. apibase@prod:~$
 id: boot-screen
 # T-0387: terminal status dot label removed by the design-M migration.
 ● operational
+# T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
+(90% of tools <=
+appeal.

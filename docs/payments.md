@@ -11,15 +11,15 @@ Q3) so integration detail lives with the rest of the docs, not in the ten-second
 | Protocol | **x402** (HTTP 402 Payment Required) |
 | Token | USDC on Base |
 | Wallet | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
-| Price range | $0.001 – $1.00 per call |
+| Price range | $0.0005 – $29.99 per call (p90 $0.003) |
 | SDK | `@x402/core`, `@x402/evm`, `@x402/extensions` 2.28 (spec v2, V1 payloads accepted) |
-| Settlement | **Self-hosted on-chain facilitator** — no third-party SaaS in the payment path. See [`x402-facilitator.md`](x402-facilitator.md). |
+| Settlement | **Self-hosted on-chain facilitator** is the primary path; PayAI is a fallback only (below). See [`x402-facilitator.md`](x402-facilitator.md). |
 
 APIbase runs its own x402 facilitator in-process: every successful payment is settled by
 submitting `transferWithAuthorization` directly on Base via [`viem`](https://viem.sh). There
-is no Coinbase CDP, no PayAI, no third-party intermediary in the critical path of a paid
-request. Implementation: [`src/payments/local-facilitator.ts`](../src/payments/local-facilitator.ts).
-PayAI HTTP facilitator stays wired as transparent in-client fallback (30 s timeout per call).
+is no Coinbase CDP and no third-party intermediary on the primary path. Implementation:
+[`src/payments/local-facilitator.ts`](../src/payments/local-facilitator.ts).
+Primary path: the self-hosted facilitator. PayAI is wired as a fallback used only when the local facilitator returns an error or times out (30 s); it never sees a payment that the local path settled.
 
 Order of events on a paid x402 call stays **verify before, deliver, settle after**: the payment is
 verified and bound to the tool price before the provider is called, the result is delivered, and the
@@ -72,10 +72,9 @@ MPP: the credential is read from `Payment-Authorization: Payment <cred>` first, 
 | SDK | `mppx` (npm) |
 | Agent setup | [wallet.tempo.xyz](https://wallet.tempo.xyz) |
 | Discovery | [mpp.dev/services](https://mpp.dev/services) |
-| Price range | $0.001 – $1.00 per call |
+| Price range | $0.0005 – $29.99 per call (p90 $0.003) |
 
-No subscriptions, no minimums. Agent pays only for successful calls; failed provider calls
-are auto-refunded.
+No subscriptions, no minimums. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled; on MPP the payment is already settled when the call runs, so a failure leaves a refund owed to you, paid out by the operator (see [pricing](https://apibase.pro/pricing#refunds)).
 
 ### MPP Payment Flow
 
@@ -120,7 +119,7 @@ Payment` headers on the same request — both middlewares activate and one fails
 
 ## Public receipts (A-GA-01)
 
-Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets one immutable public receipt, written after billing and after the response is sent. Calls that were not billed get **no** receipt in v0 (nothing to attest), and neither do calls paid from a prepaid balance (no on-chain payment transaction).
+Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets one immutable public receipt, written after billing and after the response is sent. Calls that were not billed get **no** receipt in v0 (nothing to attest), and neither do calls paid from the refund credit balance (no on-chain payment transaction).
 
 - **Where to find it.** REST: response header `X-APIbase-Receipt: https://apibase.pro/r/<receipt_id>.json`. MCP: the tool result `_meta` carries `"apibase/receipt_url": "https://apibase.pro/r/<receipt_id>.json"`.
 - **Fetch.** `GET https://apibase.pro/r/<receipt_id>.json` is public: `Content-Type: application/json`, `Cache-Control: public, max-age=31536000, immutable`, `Access-Control-Allow-Origin: *`. An unknown id answers `404` with `{"error":"no such receipt"}`. The receipt is written just after the response, so a fetch in the first moments can still 404; retry.
@@ -136,8 +135,8 @@ Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets on
 | Method | Header | Format |
 |--------|--------|--------|
 | API Key | `Authorization` | `Bearer ak_live_<32hex>` |
-| x402 Payment | `X-Payment` | Base64 payment receipt |
-| MPP Payment | `Authorization` | `Payment <credential>` (via `mppx` SDK) |
+| x402 Payment | `X-Payment` | signed payment payload |
+| MPP Payment | `Payment-Authorization` | `Payment <credential>` (via `mppx` SDK; `Authorization: Payment <credential>` is also read when no Bearer key is sent) |
 
 Auto-registration: agents get API keys instantly on first request. No forms, no approval.
 

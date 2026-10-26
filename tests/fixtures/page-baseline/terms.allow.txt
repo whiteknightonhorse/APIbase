@@ -10,3 +10,13 @@ id: boot-screen
 # T-0387: terminal status line and build tag removed by the design-M migration.
 STATUS: ONLINE | PID: 1337 | TTY: pts/0 | USER: apibase
 BUILD: v1.0.0
+# T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
+(90% of tools <=
+prepaid balance,
+prepaid balance,
+only):
+locked
+call. On failure, USDC
+auto-refunded.
+are automatic on
+only.

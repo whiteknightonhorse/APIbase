@@ -355,7 +355,7 @@ Agent: [calls APIbase finnhub.quote — gets 402 with x402 challenge]
 Agent: [hands payment challenge to Base MCP — user approves in Base Account popup]
 Agent: [retries with X-Payment header — APIbase settles on-chain via local facilitator]
 Agent: "AAPL is trading at $187.42 (+0.34%) as of 14:23 ET."</pre>
-<p class="note">First paid call may take 2&ndash;3s longer than free tools (Base mainnet finality). Cache hits on the same tool within TTL skip the on-chain settle entirely &mdash; 10% of full price billed via balance debit.</p>
+<p class="note">First paid call may take 2&ndash;3s longer than free tools (Base mainnet finality). A cache hit on x402 or MPP is still billed in full (see <a href="/pricing#cache">/pricing#cache</a>).</p>
 
 <h3>LangChain (multi-server)</h3>
 <pre>async with MultiServerMCPClient({

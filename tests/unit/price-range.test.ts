@@ -27,7 +27,7 @@ describe('buildPriceRange', () => {
     expect(r.min).toBe(0.0005);
     expect(r.max).toBe(29.99);
     expect(r.p90).toBe(0.005); // 10 priced tools, rank ceil(9) = 9
-    expect(r.text).toBe('$0.0005–$29.99 per call (90% of tools <= $0.005)');
+    expect(r.text).toBe('$0.0005–$29.99 per call (p90 $0.005)');
   });
   it('formats with at least two decimals and no trailing zeros', () => {
     expect(formatUsd(1)).toBe('1.00');

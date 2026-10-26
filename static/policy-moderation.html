@@ -85,7 +85,7 @@ pre{overflow-x:auto}
 <div class="container lg" id="main-content">
 <!--lg-chrome--><nav class="lg-crumb" aria-label="Breadcrumb"><ol class="m-breadcrumb"><li><a href="/">Home</a></li><li>Legal</li><li aria-current="page">Moderation Policy</li></ol></nav><!--/lg-chrome-->
 <div class="sys-monitor">
-<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>400</strong>  <span class="label">TOOLS:</span><strong>1385</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (90% of tools &lt;= $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
+<span class="prompt">></span> <span class="label">SYSTEM</span>  <span class="label">PRV:</span><strong>400</strong>  <span class="label">TOOLS:</span><strong>1385</strong>  <span class="label">PRICE:</span><strong>$0.0005–$29.99 per call (p90 $0.003)</strong>  <span class="label">PAY:</span><strong>x402+MPP</strong><span class="sys-cursor"></span>
 </div>
 
 <h1>Moderation Policy</h1>
@@ -118,7 +118,7 @@ pre{overflow-x:auto}
 <p>We keep the full field, not a short excerpt, on purpose: a few words pulled out of context (e.g. "cr<strong>isis</strong> support") can look identical to a genuine violation and identical to a false positive. Reviewing the full field is what lets a human tell the difference.</p>
 <p>Access to retained content is limited to the appeal page itself (you already sent it — this is what lets you and a human reviewer see exactly what was flagged) and an operator-only review tool. It is never written to application logs or sent to any messaging/alerting channel.</p>
 
-<p>Our failures are different. If your payment succeeds but the upstream provider fails to deliver, that is not a moderation block — a refund is owed without any appeal. Don't confuse the two: a moderation block names its appeal ID; a provider failure does not.</p>
+<p>Our failures are different. If your payment succeeds but the upstream provider fails to deliver, that is not a moderation block — a refund is owed without any appeal (see <a href="/pricing#refunds">/pricing#refunds</a>). <!-- refund-truth: re-word when REFUND-WALLET-1026 lands --> Don't confuse the two: a moderation block names its appeal ID; a provider failure does not.</p>
 
 <h2 id="appeals">Appeals</h2>
 <ul>
