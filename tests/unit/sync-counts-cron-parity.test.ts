@@ -24,6 +24,7 @@ function setup(mutate: boolean) {
   const bare = join(dir, 'origin.git');
   mkdirSync(join(work, 'scripts/lib'), { recursive: true });
   cpSync(join(ROOT, 'scripts/lib/counts-ledger.sh'), join(work, 'scripts/lib/counts-ledger.sh'));
+  cpSync(join(ROOT, 'scripts/lib/tree-hygiene.sh'), join(work, 'scripts/lib/tree-hygiene.sh'));
   mkdirSync(join(work, 'static'), { recursive: true });
   mkdirSync(join(work, 'tests/fixtures'), { recursive: true });
   for (const f of ['sync-counts-cron.sh', 'page-parity.py', 'discovery-snapshot.tsv']) {
