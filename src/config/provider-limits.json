@@ -2111,6 +2111,11 @@
     "limit_type": "unlimited",
     "free_limit": 0,
     "reset_period": "none",
+    "retired": {
+      "since": "2026-10-26",
+      "task": "T-0560",
+      "reason": "operator decision 2026-10-26: provider down for days, retired from catalog"
+    },
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
@@ -4478,6 +4483,11 @@
     "reset_period": "none",
     "docs_url": "https://esploradati.istat.it/SDMXWS/rest",
     "limit_proof": "Public ISTAT (Italian National Institute of Statistics) SDMX 2.1 REST API (esploradati.istat.it/SDMXWS/rest); no authentication or API key required for any endpoint, no rate-limit headers returned in observed responses, no documented request quota found.",
+    "retired": {
+      "since": "2026-10-26",
+      "task": "T-0560",
+      "reason": "operator decision 2026-10-26: provider down for days, retired from catalog"
+    },
     "moderation_class": "data",
     "moderation_class_reviewed": true
   },
