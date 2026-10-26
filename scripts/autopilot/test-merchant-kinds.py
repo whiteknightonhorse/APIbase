@@ -46,7 +46,7 @@ WAVE3_KINDS = ["STREAM_SETTLE_OVERDUE", "SUBSCRIPTION_PULL_FAILED"]
 # T-0322 (migration 0036): a fleet-task kind read from worker_job_runs.
 JOB_KINDS = ["JOB_STALE"]
 SANCTIONS_KINDS = ["SANCTIONS_HIT"]  # T-0570
-HUMAN_ONLY_FOUR = ["SANCTIONS_HIT", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE"]
+HUMAN_ONLY_KINDS = ["SANCTIONS_HIT", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED", "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE"]
 ROUTE_CLASSES = {"AUTO", "AUTO_NO_MODEL", "MIXED", "HUMAN_KEY", "HUMAN_ONLY", "HUMAN_GENERIC"}
 
 warnings.simplefilter("ignore", ResourceWarning)
@@ -138,7 +138,7 @@ class RoutingSchema(unittest.TestCase):
             self.assertEqual(self.routing[kind], cfg, kind)
 
     def test_ap1_human_only_four(self):
-        for kind in HUMAN_ONLY_FOUR:
+        for kind in HUMAN_ONLY_KINDS:
             cfg = self.routing[kind]
             self.assertEqual(cfg["route_class"], "HUMAN_ONLY")
             self.assertIs(cfg["fleet_task"], False)

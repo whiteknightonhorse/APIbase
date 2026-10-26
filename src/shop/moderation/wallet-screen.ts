@@ -8,7 +8,7 @@ export type WalletVerdict = 'ok' | 'platform' | 'sanctioned';
 
 /**
  * The one screen for every wallet APIbase stores for a merchant: OFAC SDN list plus the platform's own
- * wallets (identity and payout roles only; a recovery wallet never receives money). Call it from every
+ * wallets (identity and payout roles only: a recovery wallet never receives money, and the registration check it replaces already exempted it). Call it from every
  * write path that stores a merchant wallet.
  */
 export async function screenWallet(

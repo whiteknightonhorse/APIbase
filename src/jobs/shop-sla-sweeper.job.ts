@@ -297,7 +297,7 @@ async function overdueRefunds(d: ShopDeps, now: Date): Promise<number> {
 }
 
 /** (e) F-1: payout_pending whose effective_at has passed becomes the merchant's wallet for its rail. */
-async function applyPayouts(d: ShopDeps, now: Date): Promise<number> {
+export async function applyPayouts(d: ShopDeps, now: Date): Promise<number> {
   return d.transaction(async (tx) => {
     // Screen at apply time: the list or the platform wallet set may have changed during the 24 h delay.
     const due = await tx.$queryRawUnsafe<Array<{ merchant_id: string; wallet: string }>>(
@@ -308,13 +308,14 @@ async function applyPayouts(d: ShopDeps, now: Date): Promise<number> {
     );
     for (const p of due) {
       const verdict = await screenWallet(tx, p.wallet, 'payout');
+      if (verdict === 'ok') continue;
+      // Any refusal drops the pending change unconditionally, even when the merchant is already
+      // suspended for sanctions (suspendForSanctions is idempotent and would then change nothing).
+      await tx.$executeRawUnsafe(
+        `UPDATE shop_merchants SET payout_pending = NULL WHERE merchant_id = $1::uuid`,
+        p.merchant_id,
+      );
       if (verdict === 'sanctioned') await suspendForSanctions(tx, p.merchant_id, p.wallet);
-      else if (verdict === 'platform') {
-        await tx.$executeRawUnsafe(
-          `UPDATE shop_merchants SET payout_pending = NULL WHERE merchant_id = $1::uuid`,
-          p.merchant_id,
-        );
-      }
     }
     const rows = await tx.$queryRawUnsafe<Array<{ merchant_id: string; rail: string }>>(
       `UPDATE shop_merchants

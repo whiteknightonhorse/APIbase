@@ -7,6 +7,14 @@ import {
 } from '../../src/shop/moderation/wallet-screen';
 import type { ShopTx } from '../../src/shop/db';
 
+jest.mock('../../src/config/index', () => ({ config: { ENCRYPTION_KEY: 'k'.repeat(40) } }));
+jest.mock('../../src/config/logger', () => ({
+  logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
+}));
+jest.mock('../../src/services/moderation-ban.service', () => ({
+  checkBan: jest.fn(async () => ({ banned: false, retryAfterSecs: 0 })),
+}));
+
 const BAD = '0x00000000000000000000000000000000000bad01';
 const SIGNER_ENV = 'X402_OPERATOR_PRIVATE_' + 'KEY';
 
@@ -92,5 +100,31 @@ describe('T-0570 rescreenMerchants', () => {
     const { db, executed } = fakeDb([], []);
     expect(await rescreenMerchants(db)).toBe(0);
     expect(executed).toHaveLength(0);
+  });
+});
+
+describe('T-0570 applyPayouts on an already sanctions-suspended merchant', () => {
+  it('clears payout_pending even though the idempotent suspend changes nothing', async () => {
+    const { applyPayouts } = await import('../../src/jobs/shop-sla-sweeper.job');
+    const executed: string[] = [];
+    const tx = {
+      async $queryRawUnsafe(sql: string, ...v: unknown[]) {
+        if (sql.includes('WHERE address = $1')) return v[0] === BAD ? [{ x: 1 }] : [];
+        if (sql.includes("payout_pending->>'wallet' AS wallet"))
+          return [{ merchant_id: 'm-9', wallet: BAD }];
+        // the apply UPDATE must find no pending row left
+        return [];
+      },
+      async $executeRawUnsafe(sql: string) {
+        executed.push(sql);
+        return sql.includes("status = 'suspended'") ? 0 : 1;
+      },
+    } as unknown as ShopTx;
+    const n = await applyPayouts(
+      { transaction: async (fn: (t: ShopTx) => Promise<number>) => fn(tx) } as never,
+      new Date(),
+    );
+    expect(n).toBe(0);
+    expect(executed.some((s) => s.includes('SET payout_pending = NULL'))).toBe(true);
   });
 });
