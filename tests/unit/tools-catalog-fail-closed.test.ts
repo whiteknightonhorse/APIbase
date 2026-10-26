@@ -1,5 +1,5 @@
 /**
- * Regression test for G-01 (CLAUDE.md §7 — "never return empty tool list
+ * Regression test for G-01 (rule: "never return empty tool list
  * silently, 503 instead"). Live reproduction on 2026-08-24 (two controlled
  * `docker compose up -d --force-recreate --no-deps api` runs, 0.2s and 1s
  * polling of GET /api/v1/tools during the restart window) found zero 200

@@ -96,5 +96,5 @@ assert not os.path.exists(m.state_file(a)) and not os.path.exists(m.alerted_file
 PY
 
 # 7. no dangling CLAUDE.md AP-/section references
-if (cd "$REPO" && git grep -nE 'CLAUDE\.md (AP-|§0)|apibase-autopilot\.md#AP-3' -- . ':!tests/bash/tree-hygiene.test.sh' | grep -q .); then bad "dangling CLAUDE.md AP-/§0 refs"; else ok "no dangling CLAUDE.md AP-/§0 refs"; fi
+if (cd "$REPO" && git grep -nE 'CLAUDE\.md (AP-|§)|apibase-autopilot\.md#AP-3' -- . ':!tests/bash/tree-hygiene.test.sh' | grep -q .); then bad "dangling CLAUDE.md AP-/section refs"; else ok "no dangling CLAUDE.md AP-/section refs"; fi
 exit $FAIL

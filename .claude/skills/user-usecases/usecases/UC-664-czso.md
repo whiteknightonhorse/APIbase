@@ -103,7 +103,7 @@ testing: `filter_column: "vuzemi_txt"` was rejected as unknown because the real 
 Older-vintage datasets (e.g. `290038r19`, a 2018 foreign-nationals table) publish only a
 `.zip`-wrapped CSV. This project has no unzip/inflate-a-ZIP-container dependency available (Node's
 `zlib` handles raw gzip/deflate streams but not the ZIP container format), and adding one is a new
-dependency outside this batch role's authority (CLAUDE.md §7: "Introduce new dependencies without
+dependency outside this batch role's authority (operating rule: "Introduce new dependencies without
 explicit approval"). `czso.dataset_data` detects a non-CSV primary resource and returns a 422
 pointing at the raw download URL (from `czso.dataset_metadata`) instead of silently failing or
 returning garbage.
