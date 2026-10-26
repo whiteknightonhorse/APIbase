@@ -325,3 +325,14 @@ groups:
           severity: warning
         annotations:
           summary: "x402 local settle error rate > 5% over 10m — investigate RPC / operator signer"
+
+      # -----------------------------------------------------------------------
+      # 30. ShopPaymentIdentifierConflict — warning (T-0525, MARKET-SIGNALS-1021 S7)
+      # A payment identifier was reused for another payer or another request.
+      # -----------------------------------------------------------------------
+      - alert: ShopPaymentIdentifierConflict
+        expr: increase(shop_payment_identifier_conflicts_total[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "payment-identifier conflict — tool misconfig or quote drift; see MARKET-SIGNALS-1021 S7"

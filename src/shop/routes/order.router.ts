@@ -24,12 +24,16 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
   const probeLimiter = limiter(60_000, PROBE_LIMIT_PER_MIN, { skipSuccessfulRequests: true });
   const bearer = (req: Request) => /^Bearer (\S+)$/.exec(req.headers.authorization ?? '')?.[1];
   const buyerOf = (req: Request) => resolveBuyer({ apiKey: bearer(req), ip: req.ip });
-  const send = (res: Response, err: unknown) => {
-    const { status, body } = toApiError(err, res.req.requestId);
-    const ra = (body as { retry_after?: unknown }).retry_after;
-    if (status === 429 && typeof ra === 'number' && Number.isFinite(ra)) {
+  // Retry-After for a 429 and, since T-0525, for the 409 payment_in_flight (body.retry_after seconds).
+  const setRetryAfter = (res: Response, status: number, body: unknown) => {
+    const ra = (body as { retry_after?: unknown } | null)?.retry_after;
+    if ((status === 429 || status === 409) && typeof ra === 'number' && Number.isFinite(ra)) {
       res.setHeader('Retry-After', String(Math.ceil(ra)));
     }
+  };
+  const send = (res: Response, err: unknown) => {
+    const { status, body } = toApiError(err, res.req.requestId);
+    setRetryAfter(res, status, body);
     res.status(status).json(body);
   };
 
@@ -139,6 +143,7 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
           if (challenge) res.setHeader('WWW-Authenticate', challenge);
         }
       }
+      setRetryAfter(res, r.status, r.body);
       res.status(r.status).json(r.body);
     } catch (err) {
       send(res, err);

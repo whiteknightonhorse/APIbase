@@ -342,6 +342,7 @@ export function payResponseBody(v: {
   state: string;
   tx_hash?: string | null;
   fulfillment?: string;
+  replayed?: boolean;
 }): { status: number; body: Record<string, unknown> } {
   if (v.state === 'PAYING') {
     return {
@@ -355,5 +356,14 @@ export function payResponseBody(v: {
     tx_hash: v.tx_hash ?? null,
     ...(v.fulfillment !== undefined ? { fulfillment: v.fulfillment } : {}),
   };
-  return { status: 200, body: { status: 'paid', order_id: v.order_id, state: v.state, order } };
+  return {
+    status: 200,
+    body: {
+      status: 'paid',
+      order_id: v.order_id,
+      state: v.state,
+      order,
+      ...(v.replayed ? { replayed: true } : {}),
+    },
+  };
 }

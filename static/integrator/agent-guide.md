@@ -59,7 +59,7 @@ Errors: `merchant_unavailable` (410).
 With the wallet from the preconditions, act as a buyer of your own shop:
 
 1. `POST /api/v1/shop/quotes` with `{merchant: "<slug>", items: [{sku: "__apibase_test", qty: 1}]}`. The reply carries `quote_id`, `total_usd` and `pay`.
-2. Pay by x402: sign the authorization described in `pay.x402` and send it as `X-Payment` to `POST /api/v1/shop/quotes/<quote_id>/pay` (on the storefront MCP endpoint `/mcp/m/<slug>` the tool is `shop.order.pay`). On Tempo use the MPP challenge from the same URL.
+2. Pay by x402: sign the authorization described in `pay.x402` and send it as `X-Payment` to `POST /api/v1/shop/quotes/<quote_id>/pay` (on the storefront MCP endpoint `/mcp/m/<slug>` the tool is `shop.order.pay`). On Tempo use the MPP challenge from the same URL. Mint the payment identifier once per logical payment step, before the first send, and keep it with the signed payload.
 3. A `200` with `state` of `FULFILLED` or `CLOSED` and fulfillment text `test ok` means the order is paid. At most three paid test orders per day are allowed.
 4. To make a retry safe, add `extensions["payment-identifier"].info.id` (16-128 characters, listed in the 402 `extensions`) to the payment payload. The same id with the same payment returns the stored answer (`order_id`, `state`, `tx_hash`; read the fulfillment with `GET /api/v1/shop/orders/<order_id>`) without a second verify or settle for 24 hours. Without an id nothing changes.
 
@@ -164,11 +164,11 @@ HTTP 409. An MPP payment for this quote is already in progress. Wait and read th
 
 ### `payment_identifier_conflict`
 
-HTTP 409. The `payment-identifier` id was already used with a different quote, amount, recipient or payer. Use a fresh id for each distinct payment.
+HTTP 409. The `payment-identifier` id was already used with a different quote, amount, recipient or payer. `reason` is `payer` (another wallet used this id) or `request` (same wallet, another quote, amount or recipient); the other party's data is never echoed. Use a fresh id for each distinct payment. One identifier = one payment, globally: use at least 16 random characters and never reuse an id across payers or quotes.
 
 ### `payment_in_flight`
 
-HTTP 409. A request with this `payment-identifier` id is still running. Wait, then retry with the same id to get the stored answer, or read the order.
+HTTP 409. A request with this `payment-identifier` id is still running. Wait, then retry with the same id to get the stored answer, or read the order. The body carries `retry_after` (seconds; also the `Retry-After` header on REST), `poll: "shop.order.get"` and `order_id` when the order is known: wait `retry_after` seconds, then re-send the SAME id, or read `shop.order.get` with `order_id`. A 409 is not final: do not mint a new id. An attempt that crashed is resolved from the order after 3 minutes; the same id then returns the order (`replayed: true`) or lets you pay again. A supervising worker takes over by re-presenting the same identifier, not by re-signing.
 
 ### `pii_required`
 

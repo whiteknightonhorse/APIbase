@@ -194,6 +194,7 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
       body: {
         ...buildPaymentRequiredResponse(binding, { requestId: r.requestId, host: r.host }),
         ...base,
+        ...(e.extra?.replayed === true ? { replayed: true } : {}),
         ...(pay ? { pay } : {}),
       },
     };

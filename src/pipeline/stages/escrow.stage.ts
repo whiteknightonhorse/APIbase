@@ -86,8 +86,7 @@ function extractX402Nonce(payload: unknown): { nonce: string; validBefore: numbe
   const raw = (payload as { payload?: Record<string, unknown> } | undefined)?.payload;
   if (!raw || typeof raw !== 'object') return null;
   const auth = (raw.authorization ?? raw.permit2Authorization) as
-    | Record<string, unknown>
-    | undefined;
+    Record<string, unknown> | undefined;
   if (!auth || typeof auth !== 'object') return null;
   const nonce = auth.nonce;
   const validBeforeRaw = auth.validBefore ?? auth.deadline;
@@ -406,8 +405,7 @@ interface FeeSplitLeg {
 }
 
 type FeeSplitCheck =
-  | { ok: true; leg: FeeSplitLeg }
-  | { ok: false; reason: string; message: string };
+  { ok: true; leg: FeeSplitLeg } | { ok: false; reason: string; message: string };
 
 /**
  * T-INT-42: structural checks of a two-authorization payment against the SERVER binding. Strict:
@@ -793,7 +791,13 @@ async function verifyMppQuoteBinding(
 }
 
 export type QuotePayResult = Result<
-  { order_id: string; state: string; tx_hash?: string | null; fulfillment?: string },
+  {
+    order_id: string;
+    state: string;
+    tx_hash?: string | null;
+    fulfillment?: string;
+    replayed?: boolean;
+  },
   PipelineError
 >;
 

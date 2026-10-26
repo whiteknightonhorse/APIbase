@@ -40,6 +40,14 @@ export const httpRequestDurationSeconds = new client.Histogram({
 // Cache metrics
 // ---------------------------------------------------------------------------
 
+/** T-0525: a payment identifier reused for another payer ("payer") or another request ("request"). */
+export const shopPaymentIdentifierConflictsTotal = new client.Counter({
+  name: 'shop_payment_identifier_conflicts_total',
+  help: 'shop.order.pay payment-identifier conflicts, by reason',
+  labelNames: ['reason'] as const,
+  registers: [register],
+});
+
 /** T-0426: MPP challenges issued, by the one currency (token address) the challenge advertises. */
 export const mppChallengesTotal = new client.Counter({
   name: 'mpp_challenges_total',

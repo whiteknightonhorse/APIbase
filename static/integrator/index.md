@@ -114,6 +114,7 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 - Which wallet do I need? One that receives USDC on Base or Tempo. APIbase issues no wallets: see /integrator/wallet.
 - Which countries are served? The list is in the AUP. Others get `country_not_supported` (403).
 - What if a payment is slow? The order stays `PAYING` (202 `payment_pending`) and a job reconciles it against the chain.
+- What if the buyer's agent pays twice or retries? One order accepts one payment; a retry with the same payment identifier gets the same answer; a stuck attempt resolves itself within minutes; you do nothing.
 - Who is APIbase in this deal? Read /legal/merchant-agreement: APIbase is a technology intermediary, and the fee is charged to the seller.
 
 ## Legal documents
