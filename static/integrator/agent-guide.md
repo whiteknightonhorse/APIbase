@@ -127,6 +127,8 @@ x402: send the payment as the `X-Payment` header, or as `params._meta["x402/paym
 
 MPP: send the credential as `Authorization: Payment <credential>` or, to keep `Authorization: Bearer <api key>`, as `Payment-Authorization: Payment <credential>`. A credential in both headers is a 400.
 
+Idempotency on /mcp: put a string of 16-128 characters in `params._meta["apibase/idempotency_key"]` and the call is handled exactly like REST `X-Idempotency-Key`: 10 minutes, per authenticated agent or paying wallet where known (an unidentified caller is not covered), a duplicate while the first is running returns 409 with `retry_after` (see the error-code anchors below). A shorter or longer key is ignored. `shop.order.pay` keeps the x402 payment-identifier.
+
 ## x402 clients and the $1 default cap
 
 x402 clients on `@x402/fetch` >= 2.23 refuse amounts above $1 by default (`spendControls`); tools priced above $1 need `spendControls: false` or an explicit cap. API tools priced above $1 today (`config/tool_provider_config.yaml`, `price_usd` > 1):

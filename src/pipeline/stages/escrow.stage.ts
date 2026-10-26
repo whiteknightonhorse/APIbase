@@ -1,3 +1,4 @@
+import { isDedupEligible, readDedup } from '../../services/cache.service';
 import {
   type Stage,
   type PipelineError,
@@ -357,6 +358,8 @@ interface VerifiedX402 {
   nonce: string;
   /** Set when the payer paid with two authorizations (T-INT-42); both nonces are claimed. */
   feeSplit?: { fee_to: string; fee_usd: number; fee_nonce: string };
+  /** T-0526: the verified payer was already charged for this exact cached read; nonce NOT claimed. */
+  dedup?: { receiptId: string };
 }
 
 /** Micro-USDC legs of a fee-split: merchant = total - fee, exact integer arithmetic. */
@@ -672,6 +675,25 @@ export async function verifyX402Binding(
   if (afterVerify) {
     const screened = await afterVerify({ payer: payer ?? 'unknown', nonce: nonceInfo.nonce });
     if (!screened.ok) return screened;
+  }
+  // T-0526: dedup window. The payer here is the facilitator-verified `result.payer`, never the
+  // unverified authorization.from. A hit skips the nonce claim (the signed authorization stays
+  // unconsumed) and, in ESCROW_FINALIZE, the settle. Shop tools are never dedup'ed.
+  if (
+    !quote &&
+    !feeSplitLeg &&
+    ctx.cacheHit === true &&
+    ctx.cacheKey &&
+    result.payer &&
+    ctx.toolId !== undefined &&
+    !ctx.toolId.startsWith('shop.') &&
+    isDedupEligible(ctx.toolId, ctx.toolCacheTtl)
+  ) {
+    const earlier = await readDedup(result.payer, ctx.cacheKey);
+    if (earlier !== null) {
+      ctx.x402Payer = result.payer;
+      return ok({ payer: result.payer, nonce: nonceInfo.nonce, dedup: { receiptId: earlier } });
+    }
   }
   const ttlSeconds = nonceInfo.validBefore - Math.floor(Date.now() / 1000);
   const claim = await claimOrReject('x402', nonceInfo.nonce, ttlSeconds, priceUsd, {
@@ -1245,6 +1267,10 @@ export const escrowStage: Stage = {
         if (!built.ok) return built;
         const bound = await verifyX402Binding(ctx, built.value.binding);
         if (!bound.ok) return bound;
+        if (bound.value.dedup) {
+          ctx.dedupHit = bound.value.dedup;
+          ctx.charged = false;
+        }
       }
       return ok(ctx);
     }

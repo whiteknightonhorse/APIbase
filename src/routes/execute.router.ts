@@ -7,7 +7,8 @@ import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
 import { buildMppChallengeHeader } from '../middleware/mpp.middleware';
-import { planReceipt, writeReceiptSafe } from '../services/public-receipt.service';
+import { planReceipt, writeReceiptSafe, receiptUrl } from '../services/public-receipt.service';
+import { NO_RECEIPT, recordDedupAfterCharge } from '../services/cache.service';
 import { finalizePipelineIdempotency } from '../services/idempotency.service';
 import {
   X_REQUEST_ID,
@@ -16,6 +17,7 @@ import {
   X_API_KEY,
   X_CACHE,
   X_APIBASE_RECEIPT,
+  X_APIBASE_CHARGED,
   resolveX402PaymentHeader,
 } from '../config/http-headers';
 
@@ -88,6 +90,15 @@ executeRouter.post(
           JSON.stringify(result.value.responseBody) ?? '',
         );
         if (receipt) res.setHeader(X_APIBASE_RECEIPT, receipt.url);
+        // T-0526: dedup hit -> answered, not charged, original receipt. A charged call opens the window.
+        if (result.value.dedupHit) {
+          res.setHeader(X_APIBASE_CHARGED, 'false');
+          if (result.value.dedupHit.receiptId !== NO_RECEIPT) {
+            res.setHeader(X_APIBASE_RECEIPT, receiptUrl(result.value.dedupHit.receiptId));
+          }
+        } else {
+          await recordDedupAfterCharge(result.value, receipt?.receiptId);
+        }
         res.status(successStatus).json(result.value.responseBody);
         void writeReceiptSafe(receipt);
         return;

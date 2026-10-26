@@ -117,7 +117,7 @@ pre{overflow-x:auto}
 
 <h2>Cache discount</h2>
 <p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit within that window costs <strong>10% of the listed price</strong> &mdash; billed via balance debit, no on-chain settlement needed for a hit.</p>
-<p class="note">The 10% discount applies on the <strong>Balance</strong> rail only. x402 and MPP payments are verified and settled against the full listed price before the call runs, so a cache hit on either of those rails is still billed at 100% &mdash; there is no on-chain equivalent of a post-hoc discount once a payment has already settled.</p>
+<p class="note">The 10% discount applies on the <strong>Balance</strong> rail only. x402 and MPP payments are verified and settled against the full listed price before the call runs, so a cache hit on either of those rails is still billed at 100% &mdash; there is no on-chain equivalent of a post-hoc discount once a payment has already settled. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged at all; the response carries <code>X-APIbase-Charged: false</code> and the original receipt.</p>
 
 <h2>How you pay &mdash; x402 protocol, MPP or balance, pick per request</h2>
 <div class="table-wrap m-table-wrap">

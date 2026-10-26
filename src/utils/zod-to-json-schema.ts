@@ -8,7 +8,7 @@
 
 import { z } from 'zod';
 
-export function zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
+function convertZod(schema: z.ZodTypeAny): Record<string, unknown> {
   // Unwrap ZodOptional (preserve description from wrapper)
   if (schema instanceof z.ZodOptional) {
     const inner = zodToJsonSchema(schema.unwrap());
@@ -138,4 +138,28 @@ export function zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
 
   // Fallback
   return { type: 'object' };
+}
+
+/**
+ * T-0526: schema extension keyword. A property carrying it does not take part in the cache key
+ * or the dedup key. Default: nobody annotates anything.
+ */
+// eslint-disable-next-line no-restricted-syntax -- JSON-schema keyword, not an HTTP header
+export const VOLATILE_KEYWORD = 'x-apibase-volatile';
+
+/**
+ * Marks a zod field as volatile; zodToJsonSchema emits `"x-apibase-volatile": true` for it.
+ * The hand-written converter drops unknown keywords, so the mark rides on the zod definition.
+ */
+export function markVolatile<T extends z.ZodTypeAny>(schema: T): T {
+  (schema._def as Record<string, unknown>)[VOLATILE_KEYWORD] = true;
+  return schema;
+}
+
+export function zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
+  const out = convertZod(schema);
+  if ((schema._def as Record<string, unknown>)[VOLATILE_KEYWORD] === true) {
+    out[VOLATILE_KEYWORD] = true;
+  }
+  return out;
 }

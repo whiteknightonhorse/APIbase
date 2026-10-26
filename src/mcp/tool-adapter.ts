@@ -18,9 +18,11 @@ import {
   planReceipt,
   writeReceiptSafe,
 } from '../services/public-receipt.service';
+import { NO_RECEIPT, recordDedupAfterCharge } from '../services/cache.service';
+import { receiptUrl } from '../services/public-receipt.service';
 import { getDefinitionSha256 } from './tool-fingerprint';
 import { servedToolDefinitions } from './served-tools';
-import { X_PAYMENT } from '../config/http-headers';
+import { X_PAYMENT, X_IDEMPOTENCY_KEY } from '../config/http-headers';
 import { getX402Config } from '../config/x402.config';
 import {
   buildPaymentRequiredResponse,
@@ -30,6 +32,9 @@ import {
 
 // Re-export for backward compatibility
 export { TOOL_DEFINITIONS } from './tool-definitions';
+
+const MCP_IDEMPOTENCY_KEY_META_KEY = 'apibase/idempotency_key';
+const MCP_CHARGED_META_KEY = 'apibase/charged';
 
 /**
  * Default outputSchema applied to every tool that doesn't declare its own.
@@ -109,13 +114,18 @@ export function registerTools(
         annotations: def.annotations,
         _meta: { 'apibase/definition_sha256': getDefinitionSha256(def.toolId) },
       },
-      async (args: Record<string, unknown>) => {
+      async (args: Record<string, unknown>, extra?: { _meta?: Record<string, unknown> }) => {
         const headers: Record<string, string> = {
           authorization: `Bearer ${apiKey}`,
         };
         // Forward payment headers so pipeline recognizes them
         if (paymentCtx?.x402PaymentHeader) {
           headers[X_PAYMENT] = paymentCtx.x402PaymentHeader;
+        }
+        // T-0526: request-level idempotency key, 16-128 chars, so idempotencyStage covers MCP like REST.
+        const metaKey = extra?._meta?.[MCP_IDEMPOTENCY_KEY_META_KEY];
+        if (typeof metaKey === 'string' && metaKey.length >= 16 && metaKey.length <= 128) {
+          headers[X_IDEMPOTENCY_KEY] = metaKey;
         }
         const ctx = createPipelineContext(requestId, 'POST', '/mcp', args, headers);
         ctx.toolId = toolId;
@@ -160,9 +170,20 @@ export function registerTools(
           // a failed write is only logged.
           const publicReceipt = await planReceipt(result.value, responseText);
           if (publicReceipt) setImmediate(() => void writeReceiptSafe(publicReceipt));
+          // T-0526: dedup hit -> not charged, original receipt. A charged call opens the window.
+          const dedup = result.value.dedupHit;
+          if (!dedup) await recordDedupAfterCharge(result.value, publicReceipt?.receiptId);
           const resultMeta = {
             ...(receipt ?? {}),
             ...(publicReceipt ? { [MCP_RECEIPT_URL_META_KEY]: publicReceipt.url } : {}),
+            ...(dedup
+              ? {
+                  [MCP_CHARGED_META_KEY]: false,
+                  ...(dedup.receiptId !== NO_RECEIPT
+                    ? { [MCP_RECEIPT_URL_META_KEY]: receiptUrl(dedup.receiptId) }
+                    : {}),
+                }
+              : {}),
           };
           return {
             content: [

@@ -176,6 +176,10 @@ export interface PipelineContext {
   providerInputRejected?: boolean;
   /** T-0338: why billingStatus is NOT_CHARGED. */
   notChargedReason?: string;
+  /** T-0526: x402 dedup hit. receiptId = public receipt id of the earlier charged call, or '-'. */
+  dedupHit?: { receiptId: string };
+  /** T-0526: false when the request was answered without a charge (dedup hit). */
+  charged?: boolean;
   finalCost?: number;
 
   // LEDGER_WRITE stage

@@ -24,6 +24,8 @@ export const X_AGENT_NAME = 'x-agent-name';
 export const X_CACHE = 'x-cache';
 /** A-GA-01: URL of the public receipt of a billed call. */
 export const X_APIBASE_RECEIPT = 'x-apibase-receipt';
+/** T-0526: 'false' when the answer was served inside the dedup window without a charge. */
+export const X_APIBASE_CHARGED = 'x-apibase-charged';
 export const X_ROBOTS_TAG = 'x-robots-tag';
 export const X_ORCHESTRA_KEY = 'x-orchestra-key';
 export const X_POWERED_BY = 'x-powered-by';

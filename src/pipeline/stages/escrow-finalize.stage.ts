@@ -2,6 +2,7 @@ import { type Stage, ok } from '../types';
 import { finalize, refund } from '../../services/escrow.service';
 import { logger } from '../../config/logger';
 import { settleX402 } from './x402-settle';
+import { createHash } from 'node:crypto';
 import { getPrisma } from '../../services/prisma.service';
 import { isInternalWallet } from '../../config/internal-wallets';
 
@@ -141,6 +142,27 @@ export const escrowFinalizeStage: Stage = {
       ctx.billingStatus = 'NOT_CHARGED';
       ctx.finalCost = 0;
       ctx.notChargedReason = 'provider_input_rejected';
+      return ok(ctx);
+    }
+
+    // T-0526: dedup hit -- the payer was already charged for this exact cached read inside the
+    // window. No settle (the signed authorization was never consumed), no receipt, no billed row.
+    if (ctx.x402Paid && ctx.dedupHit) {
+      ctx.billingStatus = 'NOT_CHARGED';
+      ctx.finalCost = 0;
+      ctx.notChargedReason = 'dedup_hit';
+      logger.info(
+        {
+          requestId: ctx.requestId,
+          toolId: ctx.toolId,
+          rail: 'x402',
+          payer: createHash('sha256')
+            .update((ctx.x402Payer ?? '').toLowerCase())
+            .digest('hex')
+            .slice(0, 12),
+        },
+        'dedup_hit',
+      );
       return ok(ctx);
     }
 

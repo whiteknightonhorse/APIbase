@@ -25,6 +25,15 @@ Order of events on a paid x402 call stays **verify before, deliver, settle after
 verified and bound to the tool price before the provider is called, the result is delivered, and the
 on-chain settle runs afterwards. Every 402 response carries `Cache-Control: no-store`.
 
+### Dedup window (T-0526)
+
+- Dedup window: `DEDUP_WINDOW_SECONDS = 120` (= x402 maxTimeoutSeconds). Scope: **x402 rail only**, cacheable tools only (cache TTL > 0 and the request is a cache hit), tool id not starting with `shop.`. MPP: no dedup, because mppx settles inside the middleware before the tool runs; a repeated MPP read is charged as today. Balance rail: unchanged (10 % on a cache hit).
+- Key: Redis `dedup:x402:{payer}:{cacheKey}`, payer = the facilitator-verified payer (`result.payer`, lowercase), cacheKey = the existing cache key. Value = the public receipt id of the charged call or `-`. TTL 120 s. Set only after a charged x402 call completes (settled or settlement_pending), once the public receipt id is known (response surface, after the pipeline).
+- Position of the read: inside `verifyX402Binding`, after `result.isValid` and the afterVerify screen, before `claimOrReject`. On a hit the nonce claim and the settle are skipped; the signed authorization is not consumed. Verify is still paid once per repeated read; that is the cost of an authenticated payer.
+- Response on a hit: cached answer, `X-APIbase-Charged: false`, `X-APIbase-Receipt` = original receipt URL when the value is a receipt id; MCP `_meta["apibase/charged"]: false` and original `_meta["apibase/receipt_url"]`. No new receipt, no billed ledger row (a `NOT_CHARGED` row with reason `dedup_hit`), one `dedup_hit` log line with tool id and rail.
+- Different payer, same arguments: charged. Window expired: charged. Redis unreachable: charged, logged once. Exact resend of the same signed payload within the window: dedup hit (before: a nonce 402); after the window it hits the nonce guard as today.
+- Volatile fields: a property in a tool's `input_schema` may carry `"x-apibase-volatile": true`; it is removed from params before hashing the cache key and the dedup key. No tool annotates anything by default; the annotation is part of `definition_sha256`.
+
 ### Unknown settlement outcome (T-0428)
 
 A settle has three outcomes, not two:
@@ -45,6 +54,8 @@ Law: unknown is resolved only by reading the chain, and nobody calls settle agai
 Transport on `/mcp`, same rules as REST: the x402 payment travels in the `X-Payment` header or in `params._meta["x402/payment"]` of a `tools/call` (x402 MCP transport v2; key names `x402/payment`, `x402/payment-response` from `@x402/mcp` 2.28, a dev dependency used only by tests). Header wins; both present with different payloads is a 400; explicit nulls on optional fields are dropped before parsing. `src/middleware/x402.middleware.ts` re-encodes a `_meta` payment as the X-Payment value, so ESCROW binds both the same way.
 
 A 402 tool result keeps `isError:true` and its JSON text and adds the PaymentRequired object of the HTTP 402 body in `_meta["x402/payment-required"]` and in `structuredContent` (the official transport reads `structuredContent`; the `_meta` key is our addition, the spec defines none for the challenge). A settled call adds `_meta["x402/payment-response"]` `{success, transaction, network, payer}`. `maxTimeoutSeconds` is 120 (the validBefore window; @x402/mcp clients derive their tool-call timeout from it).
+
+Idempotency key on `/mcp` (T-0526): `params._meta["apibase/idempotency_key"]`, a string of 16-128 characters, becomes the `X-Idempotency-Key` of the call, so the idempotency stage (10 minutes, per authenticated agent or paying wallet where known, 409 with `retry_after` on a concurrent duplicate) applies as on REST; other lengths are ignored. A dedup hit answers with `_meta["apibase/charged"]: false` and the original `_meta["apibase/receipt_url"]`; `shop.order.pay` keeps the x402 payment-identifier.
 
 Difference from x402 2.24 ("withhold the result when the after-call settle fails"): APIbase verifies before the call and settles after; an unsettled call is reconciled (T-0428), the result is not withheld.
 
