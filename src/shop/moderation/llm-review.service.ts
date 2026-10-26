@@ -3,8 +3,8 @@ import { resolve } from 'node:path';
 import type { ShopTx } from '../db';
 
 /**
- * F-13 layer 3 (T-INT-33): the nightly LLM catalog review. The model call lives in the private
- * orchestra tree; this side only lists what is due and records a validated verdict. Registration,
+ * F-13 layer 3 (T-INT-33): the nightly LLM catalog review. The model call lives in the nightly runner
+ * scripts/moderation/layer3_review.py (T-0569); this side lists merchants due and records a validated verdict. Registration,
  * `check` and quotes never read these rows, so a paused or dead orchestra leaves merchants `active`.
  */
 

@@ -15,3 +15,7 @@ appeal.
 # T-0534: appeal window is 14 days (APPEAL_WINDOW_DAYS); Last updated date is rendered from config/site-docs-register.json.
 12,
 7
+# T-0569: the nightly model review sentence now states the cap, the order and the dashboard time of the last review.
+nightly
+review looks at
+again.

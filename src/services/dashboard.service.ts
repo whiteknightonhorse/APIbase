@@ -141,6 +141,8 @@ interface DashboardResponse {
     calls_24h: number;
   };
   payment_system: PaymentSystemStatus;
+  // T-0569: layer-3 (model) catalog review. null = no review recorded yet (never fabricated).
+  moderation: { last_llm_review_at: string | null };
 }
 
 const limitsConfig = providerLimitsConfig as Record<
@@ -190,6 +192,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     probe_interval_s: number | null;
     last_probe_at: Date | null;
     open_incidents: bigint;
+    last_llm_review_at: Date | null;
   }> = await prisma.$queryRawUnsafe(`
     SELECT
       t.provider,
@@ -215,7 +218,9 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       ps.reliability_calculated_at AS reliability_calculated_at,
       ps.probe_interval_s AS probe_interval_s,
       ps.last_probe_at AS last_probe_at,
-      COALESCE(inc.open_incidents, 0) AS open_incidents
+      COALESCE(inc.open_incidents, 0) AS open_incidents,
+      -- T-0569: same value on every row (uncorrelated), read from the first; keeps this one round trip.
+      (SELECT max(r.at) FROM shop_moderation_reviews r WHERE r.layer = 'llm') AS last_llm_review_at
     FROM tools t
     LEFT JOIN execution_ledger el
       ON el.tool_id = t.tool_id
@@ -495,6 +500,11 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       calls_24h: totalCalls,
     },
     payment_system: paymentSystem,
+    moderation: {
+      last_llm_review_at: providerStats[0]?.last_llm_review_at
+        ? new Date(providerStats[0].last_llm_review_at).toISOString()
+        : null,
+    },
   };
 
   // Cache in Redis
@@ -639,8 +649,7 @@ async function fetchProviderBalance(
 
 async function fetchBalanceUpstream(providerName: string): Promise<ProviderBalance | null> {
   const cfg = limitsConfig[providerName as keyof typeof limitsConfig] as
-    | Record<string, unknown>
-    | undefined;
+    Record<string, unknown> | undefined;
   if (!cfg) return null;
 
   switch (providerName) {

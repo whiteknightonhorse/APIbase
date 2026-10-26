@@ -132,7 +132,7 @@ pre{overflow-x:auto}
 <p>Merchants who list products through the Integrator are moderated separately from tool calls. Three layers apply, in order, and we do not disclose the individual rules:</p>
 <ul>
 <li><strong>Deterministic checks</strong> run at registration and on every catalog write. They read a product's title, description, variants, labels and notes, and the instant-delivery payload (the digital good itself). A model or human rejection is remembered for the same content under the same merchant, even if the SKU changes or the product is deleted and listed again.</li>
-<li><strong>A nightly model review</strong> looks at catalog items again.</li>
+<li><strong>A model re-reviews</strong> catalog items nightly, up to 60 items per night, oldest first; the time of the last review is published on <a href="/api/v1/dashboard">/api/v1/dashboard</a>.</li>
 <li><strong>A human decision</strong> settles anything the earlier layers could not.</li>
 </ul>
 <p>What a seller sees: a rejected write returns the <strong>category only</strong>, never the rule that matched. An item that is <strong>flagged</strong> stays hidden until it has been reviewed.</p>

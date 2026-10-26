@@ -13,6 +13,8 @@ This is the single list of prohibited categories for merchant storefronts. The m
 anything illegal; drugs and analogues; counterfeit goods and IP infringement; stolen goods, forged documents; hate and violence propaganda; dangerous, explosive or radioactive materials; pyramid schemes, MLM, get-rich-quick; gambling and games of chance for a prize; alcohol, tobacco, vapes; pharma, prescription, telemedicine, pseudo-pharma and supplements with medical claims; weapons and weapon parts; cannabis and CBD; adult content and services; financial services (loans, brokers, BNPL, transfers, currency and crypto exchange, wallets, stored value, gift cards); insurance; dating; commercial airlines, cruises, timeshares; charity, crowdfunding, politics; precious metals and high-value jewelry; marketplaces, aggregators, payment intermediaries; negative options and unclear trial periods; telemarketing; remote tech support; credit repair and debt services; traffic and engagement trading; resale without added value; dropshipping 'advice'.
 <!-- prohibited:end -->
 
+Catalog items are re-reviewed by a model every night; how that works is described once in the [Moderation Policy](/policy/moderation#merchant-catalogs).
+
 ## 3. Deceptive practices
 
 Forbidden: false or misleading product descriptions or prices; fake reviews or statistics; listing goods the merchant does not have or cannot deliver; changing price or terms after a quote is paid; collecting data beyond what the order needs; misleading buyers about who the seller is.
