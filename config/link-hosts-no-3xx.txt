@@ -1,0 +1,3 @@
+# Hosts that must never answer a redirect (3xx) to a link on a monitored page or in README/docs.
+# One hostname per line. Seeded after the GenLayer Bradbury reset (SITE-AUDIT-1026 F-06).
+genlayer.com

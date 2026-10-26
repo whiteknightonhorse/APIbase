@@ -27,6 +27,7 @@ apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - intent="search flights" → amadeus, aviasales, sabre tools ranked by relevance
 All tools remain callable via tools/call regardless of discovery. The discover_tools prompt
 still works (kept for backward compatibility) — it now renders apibase.discover's own JSON.
+/.well-known/site-facts.json — machine-readable facts the pages are checked against.
 
 ## Categories (25)
 business, crypto, developer, device, education, entertainment, finance, health,

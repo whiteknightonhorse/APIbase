@@ -1,0 +1,60 @@
+{
+  "_comment": "Facts with no code constant. gen-site-facts.ts fails if an anchor is missing from its source: whoever changes the code must re-state the fact here (T-0542).",
+  "balance_rail": {
+    "value": "refund-only, no self-service top-up",
+    "source": "src/pipeline/stages/idempotency.stage.ts",
+    "anchor": "refund-only",
+    "ruling": "operator decision 2026-09-15 (idempotency.stage.ts header)"
+  },
+  "cache_hit_price": {
+    "balance": {
+      "value": "10%",
+      "source": "src/services/tool-registry.service.ts",
+      "anchor": "cache discount is balance-tier only",
+      "ruling": "ROADMAP SVC-1 2026-09-22"
+    },
+    "mpp": {
+      "value": "100%",
+      "source": "src/services/tool-registry.service.ts",
+      "anchor": "cache discount is balance-tier only",
+      "ruling": "ROADMAP SVC-1 2026-09-22"
+    },
+    "x402": {
+      "value": "100%",
+      "source": "src/services/tool-registry.service.ts",
+      "anchor": "cache discount is balance-tier only",
+      "ruling": "ROADMAP SVC-1 2026-09-22"
+    }
+  },
+  "idempotency_on_redis_failure": {
+    "value": "fail-open",
+    "source": "src/pipeline/stages/idempotency.stage.ts",
+    "anchor": "Fail-open policy",
+    "ruling": "operator decision 2026-09-15 (idempotency.stage.ts header)"
+  },
+  "refund_on_provider_failure": {
+    "mpp": {
+      "value": "refund owed, paid manually by the operator",
+      "source": "src/pipeline/stages/escrow-finalize.stage.ts",
+      "anchor": "MANUALLY by the operator",
+      "ruling": "operator standing decision 2026-09-01 (escrow-finalize.stage.ts header)"
+    },
+    "x402": {
+      "value": "not settled",
+      "source": "src/pipeline/stages/escrow-finalize.stage.ts",
+      "anchor": "no settle call, the signed authorization is never submitted",
+      "ruling": "T-0338"
+    }
+  },
+  "receipts": {
+    "rails_covered": {
+      "value": [
+        "x402-base",
+        "mpp-tempo"
+      ],
+      "source": "src/services/public-receipt.service.ts",
+      "anchor": "rail: 'x402-base' | 'mpp-tempo';",
+      "ruling": "A-GA-01 (public receipts)"
+    }
+  }
+}

@@ -24,6 +24,9 @@ import {
   withPaymentIdentifier,
 } from '../../shop/payment-identifier.service';
 
+/** The payment rails a request can be billed on; scripts/gen-site-facts.ts publishes this list. */
+export const PAYMENT_RAILS = ['x402', 'mpp', 'balance'] as const;
+
 /** Fallback replay-guard TTL (seconds) when a signed payment carries no
  *  discoverable expiry — bounds Redis memory without depending on the rail. */
 const NONCE_FALLBACK_TTL_SECONDS = 120;

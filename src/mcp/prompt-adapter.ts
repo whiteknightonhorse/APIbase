@@ -130,6 +130,14 @@ async function discoverTools(args: { task?: string; category?: string }): Promis
 
 /* ------------------------------------------------------------------ */
 
+/** Names of the prompts registerPrompts() registers; scripts/gen-site-facts.ts publishes them. */
+export const PROMPT_NAMES = {
+  find_cheapest_flight: 'find_cheapest_flight',
+  crypto_market_overview: 'crypto_market_overview',
+  prediction_market_research: 'prediction_market_research',
+  discover_tools: 'discover_tools',
+} as const;
+
 /**
  * Register all workflow prompts on an McpServer instance.
  */
@@ -139,7 +147,7 @@ export function registerPrompts(server: McpServer): void {
 
   // --- Flight search workflow ---
   srv.prompt(
-    'find_cheapest_flight',
+    PROMPT_NAMES.find_cheapest_flight,
     'Search for the cheapest flights between two airports and confirm pricing',
     {
       origin: z.string().describe('Origin airport IATA code (e.g. JFK)'),
@@ -169,7 +177,7 @@ export function registerPrompts(server: McpServer): void {
 
   // --- Crypto market overview workflow ---
   srv.prompt(
-    'crypto_market_overview',
+    PROMPT_NAMES.crypto_market_overview,
     'Get a comprehensive overview of the cryptocurrency market',
     () => ({
       messages: [
@@ -194,7 +202,7 @@ export function registerPrompts(server: McpServer): void {
 
   // --- Prediction market research workflow ---
   srv.prompt(
-    'prediction_market_research',
+    PROMPT_NAMES.prediction_market_research,
     'Research a topic on Polymarket prediction markets',
     {
       topic: z.string().describe('Topic to research (e.g. US election, Bitcoin price)'),
@@ -222,7 +230,7 @@ export function registerPrompts(server: McpServer): void {
 
   // --- Tool discovery (progressive disclosure) ---
   srv.prompt(
-    'discover_tools',
+    PROMPT_NAMES.discover_tools,
     `Browse ${TOOL_DEFINITIONS.length} tools by category or task description. Returns relevant tools without loading all definitions into context.`,
     {
       task: z

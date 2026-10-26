@@ -71,7 +71,7 @@ function collectStrings(body: unknown): Array<{ field: string; value: string }> 
 
 const APPEAL_WINDOW_MS = 72 * 60 * 60 * 1000;
 // STEP 2 retention: unappealed content is wiped 14 days after the block.
-const CONTENT_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
+export const CONTENT_RETENTION_MS = 14 * 24 * 60 * 60 * 1000;
 
 // STEP 2 (2026-09-02): what the appeal record keeps of the content that
 // tripped a rule -- and what it never does. See moderation-policy text /

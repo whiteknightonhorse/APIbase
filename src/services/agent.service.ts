@@ -46,7 +46,10 @@ export interface AutoRegisterResult {
 // Rate limit defaults per tier (§12.172)
 // ---------------------------------------------------------------------------
 
-const TIER_RATE_LIMITS: Record<string, { requests_per_second: number; daily_limit: number }> = {
+export const TIER_RATE_LIMITS: Record<
+  string,
+  { requests_per_second: number; daily_limit: number }
+> = {
   free: { requests_per_second: 10, daily_limit: 100 },
   paid: { requests_per_second: 50, daily_limit: 10000 },
   enterprise: { requests_per_second: 200, daily_limit: 100000 },

@@ -1,0 +1,161 @@
+# T-0542: pages crawled by scripts/site-facts.py check-live (copied from site-audit-1024/pages-to-monitor.md).
+# Line shapes: `<url> [expect_status]` or `family <pattern> <count> <sample-url>...`. Default expected status is 200.
+# Machine endpoints are fetched for status and response time only; title/description/canonical/og/h1 apply to HTML pages.
+https://apibase.pro/
+https://apibase.pro/about
+https://apibase.pro/attest/
+https://apibase.pro/autopilot-incident
+https://apibase.pro/catalog
+https://apibase.pro/company-research-intent
+https://apibase.pro/connect
+https://apibase.pro/contact
+https://apibase.pro/dashboard
+https://apibase.pro/flight-search-intent
+https://apibase.pro/frameworks
+https://apibase.pro/guides/
+https://apibase.pro/image-generation-intent
+https://apibase.pro/integrator
+https://apibase.pro/integrator/agent-guide
+https://apibase.pro/integrator/buyers
+https://apibase.pro/integrator/connect
+https://apibase.pro/integrator/docs
+https://apibase.pro/integrator/wallet
+https://apibase.pro/integrator/why-base-tempo
+https://apibase.pro/integrator?utm_source=demo_store&utm_medium=banner
+https://apibase.pro/legal/aup
+https://apibase.pro/legal/dpa
+https://apibase.pro/legal/merchant-agreement
+https://apibase.pro/legal/refund-framework
+https://apibase.pro/onboard
+https://apibase.pro/partners
+https://apibase.pro/policy-moderation
+https://apibase.pro/policy/moderation
+https://apibase.pro/pricing
+https://apibase.pro/privacy
+https://apibase.pro/shops
+https://apibase.pro/terms
+https://apibase.pro/video/
+https://apibase.pro/why
+https://apibase.pro/.well-known/acp.json
+https://apibase.pro/.well-known/agent-registration.json
+https://apibase.pro/.well-known/agent-skills/auto-register.md
+https://apibase.pro/.well-known/agent-skills/discover-tools.md
+https://apibase.pro/.well-known/agent-skills/index.json
+https://apibase.pro/.well-known/agent-skills/x402-payment.md
+https://apibase.pro/.well-known/agent.json
+https://apibase.pro/.well-known/ai-capabilities.json
+https://apibase.pro/.well-known/ai-catalog.json
+https://apibase.pro/.well-known/api-catalog
+https://apibase.pro/.well-known/kya-policy.json
+https://apibase.pro/.well-known/mcp.json
+https://apibase.pro/.well-known/mcp/server-card.json
+https://apibase.pro/.well-known/oauth-authorization-server
+https://apibase.pro/.well-known/oauth-protected-resource
+https://apibase.pro/.well-known/openapi-discovery.json
+https://apibase.pro/.well-known/openapi.json
+https://apibase.pro/.well-known/openid-configuration
+https://apibase.pro/.well-known/poppy.json
+https://apibase.pro/.well-known/ucp
+https://apibase.pro/.well-known/x402-payment.json
+https://apibase.pro/BingSiteAuth.xml
+https://apibase.pro/ai.txt
+https://apibase.pro/api/tools
+https://apibase.pro/api/v1/discover?intent=&category=&max_price_usd=&limit= 400
+https://apibase.pro/api/v1/fleet/sea
+https://apibase.pro/api/v1/tools
+https://apibase.pro/attest/attest.js
+https://apibase.pro/auth.md
+https://apibase.pro/devto-article-1.md
+https://apibase.pro/favicon.svg
+https://apibase.pro/guides/sitemap-guides.xml
+https://apibase.pro/health/ready
+https://apibase.pro/icon.png
+https://apibase.pro/index.md
+https://apibase.pro/integrator/agent-guide.md
+https://apibase.pro/integrator/buyers.md
+https://apibase.pro/integrator/connect.md
+https://apibase.pro/integrator/docs.md
+https://apibase.pro/integrator/index.md
+https://apibase.pro/integrator/llms.txt
+https://apibase.pro/integrator/wallet.md
+https://apibase.pro/integrator/why-base-tempo.md
+https://apibase.pro/legal
+https://apibase.pro/legal/aup.md
+https://apibase.pro/legal/dpa.md
+https://apibase.pro/legal/index.json
+https://apibase.pro/legal/merchant-agreement.md
+https://apibase.pro/legal/prohibited-categories.json
+https://apibase.pro/legal/refund-framework.md
+https://apibase.pro/llms.txt
+https://apibase.pro/logo.png
+https://apibase.pro/logo.svg
+https://apibase.pro/mcp 400
+https://apibase.pro/robots.txt
+https://apibase.pro/sitemap.xml
+https://apibase.pro/video/LICENSES.txt
+https://apibase.pro/video/apibase-integrator-demo.en.vtt
+https://apibase.pro/video/apibase-integrator-demo.mp4
+https://apibase.pro/video/poster.jpg
+https://apibase.pro/video/product-demo.mp4
+https://apibase.pro/video/templates/slide_analytics.html
+https://apibase.pro/video/templates/slide_categories.html
+https://apibase.pro/video/templates/slide_connect.html
+https://apibase.pro/video/templates/slide_discover.html
+https://apibase.pro/video/templates/slide_payment.html
+https://apibase.pro/video/templates/slide_pipeline.html
+https://apibase.pro/why.md
+family /guides/<slug> 48 https://apibase.pro/guides/accept-payments-from-ai-agents https://apibase.pro/guides/mcp-servers https://apibase.pro/guides/uc-health-api
+family /guides/<YYYY-MM>/ 2 https://apibase.pro/guides/2026-09/index https://apibase.pro/guides/2026-10/index
+family /integrator/check/<shop-slug> 7 https://apibase.pro/integrator/check/aegis-verifier https://apibase.pro/integrator/check/assay-verifier https://apibase.pro/integrator/check/imperium-workflows
+family /integrator/platforms/<platform> 10 https://apibase.pro/integrator/platforms/custom https://apibase.pro/integrator/platforms/tilda.md https://apibase.pro/integrator/platforms/woocommerce
+family /m/<shop-slug>/{agent.json,llms.txt,provek.json} 20 https://apibase.pro/m/aegis-verifier/agent.json https://apibase.pro/m/assay-verifier/provek.json https://apibase.pro/m/imperium-workflows/provek.json
+family /m/<shop-slug>/p/<product-slug> 30 https://apibase.pro/m/aegis-verifier/p/aegis-bounty-radar https://apibase.pro/m/apibase-demo/p/demo-tour https://apibase.pro/m/aegis-verifier/p/aegis-wallet-forensics
+family /m/<shop-slug> 7 https://apibase.pro/m/aegis-verifier https://apibase.pro/m/assay-verifier https://apibase.pro/m/x402broker
+https://provek.dev/
+https://provek.dev/404 404
+https://provek.dev/apply/
+https://provek.dev/apply/?via=challenge
+https://provek.dev/apply/status/
+https://provek.dev/build/
+https://provek.dev/challenge/
+https://provek.dev/method/
+https://provek.dev/method/notes/
+https://provek.dev/phase-2/
+https://provek.dev/registry/
+https://provek.dev/registry/corrections/
+https://provek.dev/witness/
+https://provek.dev/.well-known/agent-registration.json
+https://provek.dev/.well-known/ai-catalog.json
+https://provek.dev/.well-known/api-catalog
+https://provek.dev/.well-known/security.txt
+https://provek.dev/BingSiteAuth.xml
+https://provek.dev/api/apply 405
+https://provek.dev/apply/index.md
+https://provek.dev/apply/status/index.md
+https://provek.dev/build/index.md
+https://provek.dev/challenge/index.md
+https://provek.dev/data/registry.json
+https://provek.dev/data/shorts_map.json
+https://provek.dev/data/templates.json
+https://provek.dev/index.md
+https://provek.dev/llms-full.txt
+https://provek.dev/llms.txt
+https://provek.dev/method/index.md
+https://provek.dev/method/notes/index.md
+https://provek.dev/phase-2/index.md
+https://provek.dev/registry/corrections/index.md
+https://provek.dev/registry/index.md
+https://provek.dev/robots.txt
+https://provek.dev/sitemap.xml
+https://provek.dev/witness/index.md
+family /build/<template>/index.md 7 https://provek.dev/build/content-production-agent/index.md https://provek.dev/build/finance-operations-agent/index.md https://provek.dev/build/youtube-channel-operations-agent/index.md
+family /build/<template>/ 7 https://provek.dev/build/content-production-agent/ https://provek.dev/build/finance-operations-agent/ https://provek.dev/build/youtube-channel-operations-agent/
+family /build/<template>/SKILL.md 7 https://provek.dev/build/content-production-agent/SKILL.md https://provek.dev/build/finance-operations-agent/SKILL.md https://provek.dev/build/youtube-channel-operations-agent/SKILL.md
+family /data/templates/<template>.json 7 https://provek.dev/data/templates/content-production-agent.json https://provek.dev/data/templates/finance-operations-agent.json https://provek.dev/data/templates/youtube-channel-operations-agent.json
+family /method/notes/<slug>/index.md 3 https://provek.dev/method/notes/autonomy-levels-l0-l5/index.md https://provek.dev/method/notes/not-measured-is-not-zero/index.md https://provek.dev/method/notes/what-erc-8004-provides-and-what-it-does-not/index.md
+family /method/notes/<slug>/ 3 https://provek.dev/method/notes/autonomy-levels-l0-l5/ https://provek.dev/method/notes/not-measured-is-not-zero/ https://provek.dev/method/notes/what-erc-8004-provides-and-what-it-does-not/
+family /badge/<passport-id>.svg 10 https://provek.dev/badge/git_whiteknightonhorse_AI-Property-Sales-Platform.svg https://provek.dev/badge/git_whiteknightonhorse_cryptocardhub-public.svg https://provek.dev/badge/git_whiteknightonhorse_provek.svg
+family /p/<passport-id>/brief 10 https://provek.dev/p/git_whiteknightonhorse_AI-Property-Sales-Platform/brief https://provek.dev/p/git_whiteknightonhorse_cryptocardhub-public/brief https://provek.dev/p/git_whiteknightonhorse_provek/brief
+family /data/passports/<passport-id>.json 10 https://provek.dev/data/passports/git_whiteknightonhorse_AI-Property-Sales-Platform.json https://provek.dev/data/passports/git_whiteknightonhorse_cryptocardhub-public.json https://provek.dev/data/passports/git_whiteknightonhorse_provek.json
+family /p/<passport-id>/index.md 10 https://provek.dev/p/git_whiteknightonhorse_AI-Property-Sales-Platform/index.md https://provek.dev/p/git_whiteknightonhorse_cryptocardhub-public/index.md https://provek.dev/p/git_whiteknightonhorse_provek/index.md
+family /p/<passport-id>/ 10 https://provek.dev/p/git_whiteknightonhorse_AI-Property-Sales-Platform/ https://provek.dev/p/git_whiteknightonhorse_cryptocardhub-public/ https://provek.dev/p/git_whiteknightonhorse_APIbase/

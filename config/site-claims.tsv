@@ -1,0 +1,77 @@
+surface	url	kind	pattern	expect	finding
+static/pricing.html	https://apibase.pro/pricing	must-not-contain	never billed	-	APIBASE-001
+static/pricing.html	https://apibase.pro/pricing	must-not-contain	auto-refunded	-	APIBASE-001
+static/why.html	https://apibase.pro/why	must-not-contain	never billed	-	APIBASE-001
+static/why.html	https://apibase.pro/why	must-not-contain	auto-refunded	-	APIBASE-001
+static/why.md	https://apibase.pro/why.md	must-not-contain	never billed	-	APIBASE-001
+static/why.md	https://apibase.pro/why.md	must-not-contain	auto-refunded	-	APIBASE-001
+static/index.html	https://apibase.pro/	must-not-contain	never billed	-	APIBASE-001
+static/index.html	https://apibase.pro/	must-not-contain	auto-refunded	-	APIBASE-001
+static/terms.html	https://apibase.pro/terms	must-not-contain	never billed	-	APIBASE-001
+static/terms.html	https://apibase.pro/terms	must-not-contain	auto-refunded	-	APIBASE-001
+static/policy-moderation.html	https://apibase.pro/policy-moderation	must-not-contain	never billed	-	APIBASE-001
+static/policy-moderation.html	https://apibase.pro/policy-moderation	must-not-contain	auto-refunded	-	APIBASE-001
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-not-contain	auto-refunded	-	APIBASE-001
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-not-contain	refunded on failure	-	APIBASE-001
+docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/architecture.md	must-not-contain	auto-refunded	-	APIBASE-001
+docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/architecture.md	must-not-contain	refunded on failure	-	APIBASE-001
+static/pricing.html	https://apibase.pro/pricing	must-not-contain	Top up once	-	APIBASE-002
+static/pricing.html	https://apibase.pro/pricing	must-not-contain	or a prepaid balance	-	APIBASE-002
+static/terms.html	https://apibase.pro/terms	must-not-contain	or a prepaid balance	-	APIBASE-002
+static/privacy.html	https://apibase.pro/privacy	must-not-contain	or a prepaid balance	-	APIBASE-002
+static/frameworks.html	https://apibase.pro/frameworks	must-not-contain	10% of full price billed via balance	-	APIBASE-003
+static/pricing.html	https://apibase.pro/pricing	regex-equals	up to (\d+) days	{{cache_ttl_seconds.max_days}}	APIBASE-004
+static/privacy.html	https://apibase.pro/privacy	regex-equals	TTL-based \([^)]*? to (\d+) days	{{cache_ttl_seconds.max_days}}	APIBASE-004
+static/privacy.html	https://apibase.pro/privacy	must-not-contain	tracking pixels.	-	APIBASE-005
+static/privacy.html	https://apibase.pro/privacy	must-contain	public receipt	-	APIBASE-006
+static/.well-known/agent-registration.json	https://apibase.pro/.well-known/agent-registration.json	must-not-contain	Every paid call gets a public receipt	-	APIBASE-007
+static/connect.html	https://apibase.pro/connect	must-not-contain	re:-d\s+\'\{"params"	-	APIBASE-008
+static/flight-search-intent.html	https://apibase.pro/flight-search-intent	must-not-contain	re:-d\s+\'\{"params"	-	APIBASE-008
+static/image-generation-intent.html	https://apibase.pro/image-generation-intent	must-not-contain	re:-d\s+\'\{"params"	-	APIBASE-008
+static/company-research-intent.html	https://apibase.pro/company-research-intent	must-not-contain	re:-d\s+\'\{"params"	-	APIBASE-008
+static/.well-known/agent-skills/auto-register.md	https://apibase.pro/.well-known/agent-skills/auto-register.md	must-not-contain	/agents/rotate	-	APIBASE-009
+static/.well-known/agent-skills/auto-register.md	https://apibase.pro/.well-known/agent-skills/auto-register.md	must-not-contain	60 req/min	-	APIBASE-009
+static/.well-known/agent-skills/auto-register.md	https://apibase.pro/.well-known/agent-skills/auto-register.md	must-not-contain	X-Agent-Id	-	APIBASE-009
+static/.well-known/agent-skills/auto-register.md	https://apibase.pro/.well-known/agent-skills/auto-register.md	must-contain	{{rate_limits|keys}}	-	APIBASE-009
+static/connect.html	https://apibase.pro/connect	must-not-contain	auto-issues an	-	APIBASE-010
+static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/agent-skills/x402-payment.md	must-not-contain	Idempotency-Replay	-	APIBASE-011
+static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/agent-skills/x402-payment.md	must-not-contain	X-Receipt-Id	-	APIBASE-011
+static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/agent-skills/x402-payment.md	must-contain	{{headers.X_APIBASE_RECEIPT}}	-	APIBASE-011
+static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/agent-skills/x402-payment.md	must-contain	{{headers.X_IDEMPOTENCY_KEY}}	-	APIBASE-011
+static/index.md	https://apibase.pro/index.md	must-contain	apibase.discover	-	APIBASE-012
+static/index.md	https://apibase.pro/index.md	must-contain	apibase.discover	-	F-16
+static/ai.txt	https://apibase.pro/ai.txt	must-contain	apibase.discover	-	APIBASE-012
+static/.well-known/ai-capabilities.json	https://apibase.pro/.well-known/ai-capabilities.json	must-contain	apibase.discover	-	APIBASE-012
+static/.well-known/mcp.json	https://apibase.pro/.well-known/mcp.json	must-contain	apibase.discover	-	APIBASE-012
+static/.well-known/mcp/server-card.json	https://apibase.pro/.well-known/mcp/server-card.json	must-contain	{{mcp_prompts}}	-	APIBASE-013
+static/llms.txt	https://apibase.pro/llms.txt	regex-equals	all (\d+) tools	{{tools_count}}	APIBASE-014
+static/catalog.html	https://apibase.pro/catalog	must-not-contain	and the MCP <code>tools/list</code> served	-	APIBASE-014
+static/pricing.html	https://apibase.pro/pricing	regex-equals	Standard</strong>[^\n]*?\((\d+) tools	{{tiers.standard.count}}	APIBASE-015
+static/pricing.html	https://apibase.pro/pricing	regex-equals	Premium</strong>[^\n]*?\((\d+) tools	{{tiers.premium.count}}	APIBASE-015
+static/llms.txt	https://apibase.pro/llms.txt	must-not-contain	ad spend	-	APIBASE-015
+static/pricing.html	https://apibase.pro/pricing	must-not-contain	(90% of tools	-	APIBASE-016
+static/llms.txt	https://apibase.pro/llms.txt	must-not-contain	(90% of tools	-	APIBASE-016
+static/llms.txt	https://apibase.pro/llms.txt	tool-ids-healthy	-	-	APIBASE-017
+static/ai.txt	https://apibase.pro/ai.txt	tool-ids-healthy	-	-	APIBASE-017
+static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/agent-skills/x402-payment.md	tool-ids-healthy	-	-	APIBASE-017
+static/.well-known/agent-skills/discover-tools.md	https://apibase.pro/.well-known/agent-skills/discover-tools.md	tool-ids-healthy	-	-	APIBASE-017
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	tool-ids-healthy	-	-	APIBASE-017
+README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	tool-ids-healthy	-	-	APIBASE-017
+static/policy-moderation.html	https://apibase.pro/policy-moderation	regex-equals	appeal within <strong>(\d+) days	{{moderation.appeal_window_days}}	APIBASE-023
+static/llms.txt	https://apibase.pro/llms.txt	must-contain	definition_sha256	-	APIBASE-024
+docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/architecture.md	must-not-contain	Redis down = reject all requests	-	APIBASE-025
+README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	must-not-contain	Redis down = reject all requests	-	APIBASE-025
+static/index.html	https://apibase.pro/	regex-equals	BUILD: <a [^>]*>v([0-9.]+)</a>	{{version}}	APIBASE-028
+static/dashboard.html	https://apibase.pro/dashboard	regex-equals	BUILD: <a [^>]*>v([0-9.]+)</a>	{{version}}	APIBASE-028
+static/index.html	https://apibase.pro/	must-not-contain	is an IETF standard	-	APIBASE-028
+static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/agent-skills/x402-payment.md	must-not-contain	still charge $0.001/call	-	APIBASE-029
+static/connect.html	https://apibase.pro/connect	regex-equals	(\d+) requests per second	{{rate_limits.free.requests_per_second}}	APIBASE-030
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	regex-equals	Price range \| (\$[0-9.]+ – \$[0-9.]+) per call	${{price_range_usd.min}} – ${{price_range_usd.max}}	F-03
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-not-contain	no PayAI	-	F-04
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-contain	fallback	-	F-04
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-not-contain	| MPP Payment | `Authorization` |	-	F-21
+SECURITY.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/SECURITY.md	regex-equals	\((\d+) alert rules\)	{{alert_rules_count}}	F-19
+docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/architecture.md	must-contain	{{pipeline_stages}}	-	F-19
+packages/mcp-client/README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/packages/mcp-client/README.md	regex-equals	\| \*\*MPP\*\* \| Tempo \(Stripe\) \| ([^|]*?) \|	USDC.e	F-20
+README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	must-not-contain	(docs/integrator.md)	-	F-25
+gh:provek/llms.txt	https://provek.dev/llms.txt	must-not-contain	re:Phase 3[^\n]*\(https://provek\.dev/phase-2/?\)	-	F-34

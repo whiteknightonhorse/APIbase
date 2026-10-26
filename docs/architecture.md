@@ -23,6 +23,16 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
   the charge and returns an `appeal_url` instead of silently keeping the money with no
   recourse) and before the provider call.
 
+## Documentation sync
+
+Every fact a page, the README or `llms.txt` states beyond the counts is read from one generated file,
+`/.well-known/site-facts.json` (`scripts/gen-site-facts.ts`: values imported from the code, plus
+anchored manual facts in `config/site-facts.manual.json`). `config/site-claims.tsv` lists what each
+surface says about those facts; `scripts/site-facts.py check` compares them offline, and the daily job
+`scripts/site-sync-check.sh` runs `check-live` against production (claims, page metadata crawl, link and
+GenLayer probes, agent-ready checks). A mismatch reaches the operator through fleet-check and opens a
+docs-drift card.
+
 Payment settlement (self-hosted x402 facilitator, MPP dual-rail, auth, error codes): see
 [`payments.md`](payments.md). Day-2 operations (container management, restarts, backups,
 monitoring): see [`runbook.md`](runbook.md). Self-hosting your own instance: see
