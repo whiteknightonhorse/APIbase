@@ -75,6 +75,9 @@ tool marked unavailable drops out of both and `manifest_sha256` moves when the s
 `definition_sha256` moves only when that tool's description or input schema changes.
 `GET /api/v1/tools/shop.<name>` returns the fields a shop hash is computed over.
 
+A tool input property may carry `"x-apibase-volatile": true` in its `input_schema`: that field does not take part in the cache key or the x402 dedup key (a request id or timestamp there no longer defeats a cache hit).
+The annotation lives in `input_schema`, so it is part of `definition_sha256`.
+
 ## Why this exists
 
 Agents that preload hundreds of tool schemas waste context and latency. Progressive
