@@ -28,8 +28,8 @@ Sell to AI agents. One link on your site, and a buyer's agent places and pays th
 
 1. **Connect** — POST to `/mcp` using any MCP-compatible client (Claude Desktop,
    Cursor, Windsurf, OpenAI SDK, LangChain, CrewAI, Google ADK, Copilot Studio).
-2. **Discover** — call the `discover_tools` prompt with a `category` or `task`
-   argument. Instead of loading every tool schema into context, fetch only
+2. **Discover** — call the `apibase.discover` tool (REST: `GET /api/v1/discover`) with an `intent` or
+   `category` argument; the `discover_tools` prompt is kept for backward compatibility. Instead of loading every tool schema into context, fetch only
    the tools relevant to the current agent goal.
 3. **Call** — `tools/call` with any tool name. The multi-stage pipeline handles
    authentication, idempotency, schema validation, caching, rate limiting,

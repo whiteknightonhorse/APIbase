@@ -26,3 +26,5 @@ AI payment
 # T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
 (90% of tools <=
 standard
+# T-0533: identity comes from the first payment, reusable key from /api/v1/agents/auto; old sequence:
+The system auto-registers your software on first request and returns an api_key . Use that key for all subsequent calls.

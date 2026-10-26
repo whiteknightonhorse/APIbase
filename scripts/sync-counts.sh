@@ -174,7 +174,7 @@ else
            static/llms.txt static/ai.txt static/index.md README.md; do
     [ -f "$f" ] || continue
     b=$(md5sum "$f" | cut -d" " -f1)
-    sed -i -E "s/[0-9]{3,}\+?( [A-Za-z]+)? tools/${TOOLS} tools/g; s/[0-9]{3,}\+?( [A-Za-z]+)? providers/${PROV} providers/g; s/Tools: [0-9]{3,} across/Tools: ${TOOLS} across/g" "$f"
+    sed -i -E "s/[0-9]{3,}\+?( [A-Za-z]+)? tools/${TOOLS}\1 tools/g; s/[0-9]{3,}\+?( [A-Za-z]+)? providers/${PROV}\1 providers/g; s/Tools: [0-9]{3,} across/Tools: ${TOOLS} across/g" "$f"
     [ "$(md5sum "$f" | cut -d" " -f1)" != "$b" ] && { echo "  updated $f"; CHANGED=$((CHANGED+1)); }
   done
 
@@ -601,6 +601,9 @@ PY
 STALE_INTEGRATOR=$(python3 scripts/integrator-facts.py check 2>&1 || true)
 # T-INT-27: homepage / ai.txt / index.md numbers vs the same baseline, both modes.
 STALE_HOME=$(python3 scripts/home-facts.py check 2>&1 || true)
+# T-0533: every example tool the docs name must be healthy (a row of discovery-snapshot.tsv); a provider
+# going DOWN turns the docs red at the next cron, which is the intended signal. Both modes.
+STALE_EXAMPLE_TOOLS=$(npx tsx scripts/check-static-tool-refs.ts 2>&1 >/dev/null || true)
 # T-0341: one price range and one header bar, both generated from the committed snapshot via
 # mcp.json (scripts/price-range.ts -> gen-discovery.ts -> home-facts.py), both modes.
 STALE_PRICE_RANGE=$(python3 scripts/home-facts.py check-range 2>&1 || true)
@@ -618,6 +621,7 @@ FAIL=0
 [ -n "$STALE_MCP_COUNT" ] && { echo "sync-counts: STALE_MCP_COUNT:"; echo "$STALE_MCP_COUNT"; FAIL=1; }
 [ -n "$STALE_PRICE_RANGE" ] && { echo "sync-counts: STALE_PRICE_RANGE — a static/ price range differs from the generated one:"; echo "$STALE_PRICE_RANGE"; FAIL=1; }
 [ -n "$STALE_HEADER_BAR" ] && { echo "sync-counts: STALE_HEADER_BAR — a header bar differs from the generated one:"; echo "$STALE_HEADER_BAR"; FAIL=1; }
+[ -n "$STALE_EXAMPLE_TOOLS" ] && { echo "sync-counts: STALE_EXAMPLE_TOOLS — a doc names a tool that is not healthy:"; echo "$STALE_EXAMPLE_TOOLS"; FAIL=1; }
 [ -n "$STALE_HOME" ] && { echo "sync-counts: STALE homepage facts:"; echo "$STALE_HOME"; FAIL=1; }
 [ -n "$STALE_INTEGRATOR" ] && { echo "sync-counts: STALE integrator facts:"; echo "$STALE_INTEGRATOR"; FAIL=1; }
 [ -n "$STALE" ] && { echo "sync-counts: STALE text surfaces remain:"; echo "$STALE"; FAIL=1; }

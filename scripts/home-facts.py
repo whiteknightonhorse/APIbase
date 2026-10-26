@@ -25,6 +25,7 @@ FILES = [
     "static/index.html", "static/index.md", "static/ai.txt", "static/llms.txt", "static/pricing.html",
     "static/.well-known/x402-payment.json",
     "static/.well-known/agent-skills/x402-payment.md",
+    "static/.well-known/agent-skills/auto-register.md",
 ]
 # T-0341: pages whose header sys-monitor bar is generated (SYSTEM ... sys-cursor), and the pages
 # where only the PRICE value of a hand-laid-out bar is generated.

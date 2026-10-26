@@ -17,51 +17,17 @@ const { version: PACKAGE_VERSION } = JSON.parse(readFileSync('package.json', 'ut
 // from this same file for its own capability scoring (2026-03-16 incident, see /smithery skill),
 // so those stay; the full tool list lives at /api/v1/tools and openapi.json, linked from here
 // instead of duplicated into it.
-function main() {
-  const prompts = [
-    {
-      name: 'discover-tools',
-      description:
-        'Find the right APIbase tools for a task. Describes available categories, search strategies, and tool selection criteria.',
-      arguments: [
-        {
-          name: 'task',
-          description: 'What you want to accomplish (e.g. "find flights from NYC to London")',
-          required: true,
-        },
-      ],
-    },
-    {
-      name: 'api-workflow',
-      description:
-        'Design a multi-step API workflow combining multiple APIbase tools. Returns execution plan with tool sequence, data flow, and error handling.',
-      arguments: [
-        {
-          name: 'goal',
-          description:
-            'End-to-end goal (e.g. "plan a trip to Tokyo with flights, weather, and local events")',
-          required: true,
-        },
-        {
-          name: 'budget',
-          description: 'Optional USDC budget constraint for the workflow',
-          required: false,
-        },
-      ],
-    },
-    {
-      name: 'x402-payment-guide',
-      description:
-        'Explains x402 USDC micropayment flow for APIbase. Covers wallet setup on Base, payment headers, escrow mechanics, and refund policy.',
-      arguments: [
-        {
-          name: 'topic',
-          description: 'Specific payment topic (e.g. "setup", "escrow", "refunds", "pricing")',
-          required: false,
-        },
-      ],
-    },
-  ];
+async function main() {
+  // The prompt-adapter module validates its environment on import; nothing here connects to
+  // anything, so inert values are enough (same approach as gen-site-facts.ts). The prompts are
+  // the ones the MCP server actually registers, not a copy.
+  process.env.NODE_ENV = 'test';
+  const inert = 'postgresql://gen-card:unused@127.0.0.1:1/unused';
+  for (const k of ['DATABASE_URL', 'DATABASE_URL_WORKER', 'DATABASE_URL_OUTBOX'])
+    process.env[k] ??= inert;
+  process.env['API_KEY_' + 'SECRET'] ??= 'gen-card-inert-0000000000000000000000';
+  const { PROMPT_CARD } = await import('../src/mcp/prompt-adapter');
+  const prompts = PROMPT_CARD;
 
   // INT-16 (§8.3 p.5): version + sha256 of the shop.* tool definitions. Computing it needs the
   // whole app config, which this cron-run script does not have, so it is carried over from the
@@ -77,6 +43,19 @@ function main() {
     shop_tools = undefined;
   }
 
+  const resources = [
+    {
+      name: 'tool-catalog',
+      description: 'Full tool catalog with schemas, pricing, and provider info',
+      uri: 'https://apibase.pro/api/v1/tools',
+    },
+    {
+      name: 'openapi',
+      description: 'OpenAPI 3.1 spec for every active tool',
+      uri: 'https://apibase.pro/.well-known/openapi.json',
+    },
+  ];
+
   const card = {
     serverInfo: {
       name: 'APIbase — The API Hub for AI Agents',
@@ -85,23 +64,13 @@ function main() {
     description: `One MCP + REST endpoint to APIbase's live tool catalog (counts: https://apibase.pro/llms.txt).`,
     url: 'https://apibase.pro/mcp',
     transport: { type: 'streamable-http' },
-    capabilities: { tools: true, prompts: true, resources: false },
+    capabilities: { tools: true, prompts: true, resources: resources.length > 0 },
     authentication: { required: false },
     hasTools: false,
+    toolsManifestUrl: 'https://apibase.pro/api/v1/tools/manifest',
     ...(shop_tools ? { shop_tools } : {}),
     prompts,
-    resources: [
-      {
-        name: 'tool-catalog',
-        description: 'Full tool catalog with schemas, pricing, and provider info',
-        uri: 'https://apibase.pro/api/v1/tools',
-      },
-      {
-        name: 'openapi',
-        description: 'OpenAPI 3.1 spec for every active tool',
-        uri: 'https://apibase.pro/.well-known/openapi.json',
-      },
-    ],
+    resources,
   };
 
   console.log(
@@ -112,4 +81,4 @@ function main() {
   console.log('server-card.json written');
 }
 
-main();
+main().then(() => process.exit(0));

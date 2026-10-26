@@ -138,6 +138,52 @@ export const PROMPT_NAMES = {
   discover_tools: 'discover_tools',
 } as const;
 
+/** What scripts/gen-card.ts publishes in the server-card; keyed by PROMPT_NAMES so the list cannot drift. */
+export const PROMPT_CARD = [
+  {
+    name: PROMPT_NAMES.find_cheapest_flight,
+    description: 'Search for the cheapest flights between two airports and confirm pricing',
+    arguments: [
+      { name: 'origin', description: 'Origin airport IATA code (e.g. JFK)', required: true },
+      {
+        name: 'destination',
+        description: 'Destination airport IATA code (e.g. CDG)',
+        required: true,
+      },
+      { name: 'date', description: 'Departure date in YYYY-MM-DD format', required: true },
+    ],
+  },
+  {
+    name: PROMPT_NAMES.crypto_market_overview,
+    description: 'Get a comprehensive overview of the cryptocurrency market',
+    arguments: [],
+  },
+  {
+    name: PROMPT_NAMES.prediction_market_research,
+    description: 'Research a topic on Polymarket prediction markets',
+    arguments: [
+      {
+        name: 'topic',
+        description: 'Topic to research (e.g. US election, Bitcoin price)',
+        required: true,
+      },
+    ],
+  },
+  {
+    name: PROMPT_NAMES.discover_tools,
+    description:
+      'Kept for backward compatibility; the primary path is the apibase.discover tool (GET /api/v1/discover). Browse tools by category or task description.',
+    arguments: [
+      {
+        name: 'task',
+        description: 'Describe what you want to do (e.g. "search flights from NYC to London")',
+        required: false,
+      },
+      { name: 'category', description: 'Filter by category', required: false },
+    ],
+  },
+];
+
 /**
  * Register all workflow prompts on an McpServer instance.
  */

@@ -15,7 +15,7 @@ https://apibase.pro/company-research-intent.
   intent/category/max_price_usd — free ($0), ranked by relevance then quality then price,
   returns pricing/payment rails/availability/quality per match (ZZ-03-05)
 - Discover tools (REST, no auth): GET https://apibase.pro/api/v1/discover?intent=&category=&max_price_usd=&limit=
-- Full catalog: GET https://apibase.pro/api/v1/tools (all 1385 tools, JSON schemas)
+- Full catalog: GET https://apibase.pro/api/v1/tools (1385 healthy tools; degraded ones are listed with status; JSON schemas)
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
@@ -24,7 +24,7 @@ shared by MCP apibase.discover, the REST ?category= filter, and this file, ZZ-03
 apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - No args → best/most-relevant matches across the whole catalog
 - category="finance" → finance tools only
-- intent="search flights" → amadeus, aviasales, sabre tools ranked by relevance
+- intent="search flights" → aviasales, sabre tools ranked by relevance
 All tools remain callable via tools/call regardless of discovery. The discover_tools prompt
 still works (kept for backward compatibility) — it now renders apibase.discover's own JSON.
 /.well-known/site-facts.json — machine-readable facts the pages are checked against.

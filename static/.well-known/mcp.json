@@ -100,7 +100,7 @@
     "crypto_market_overview",
     "prediction_market_research"
   ],
-  "discovery_hint": "Call prompt 'discover_tools' to browse tools by category or task instead of loading all schemas into context.",
+  "discovery_hint": "Call the apibase.discover tool (or GET /api/v1/discover) to find tools by intent or category instead of loading all schemas into context; the discover_tools prompt is kept for backward compatibility.",
   "documentation": "https://apibase.pro/ai.txt",
   "openapi": "https://apibase.pro/.well-known/openapi.json",
   "server_card": "https://apibase.pro/.well-known/mcp/server-card.json",

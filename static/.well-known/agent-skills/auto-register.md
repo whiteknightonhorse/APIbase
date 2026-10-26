@@ -1,76 +1,47 @@
 ---
 name: auto-register
-description: How APIbase auto-registers new agents on first contact — no signup form, no human in the loop. Credentials are issued at request time and returned in the response.
+description: How an agent gets an APIbase identity and a reusable API key — no signup form, no human in the loop. Your first payment creates the identity; three register endpoints return a key ahead of payment.
 ---
 
-# Skill: Auto-register as an agent on APIbase
+# Skill: Get an agent identity on APIbase
 
-APIbase treats the first unauthenticated request as an implicit registration.
-No human touches the signup flow. Credentials are minted server-side and
-returned to the caller.
+Canonical reference: <https://apibase.pro/auth.md>. This skill is the short form.
 
-## Flow
+## Identity from the first payment
 
-1. **Agent sends its first request without an API key.**
+Your first payment (x402 or MPP) creates your agent identity, keyed to the paying
+wallet. No key and no registration call are needed for paid tools.
 
-   ```
-   POST https://apibase.pro/mcp
-   Content-Type: application/json
+## A reusable key ahead of payment
 
-   { "method": "initialize", "params": { "clientInfo": { "name": "my-agent" } } }
-   ```
+Pick one endpoint; all return the same kind of credential.
 
-2. **Server auto-registers the agent.** A new `agent_id` is allocated, a fresh
-   256-bit API key (`ak_live_<32 hex>`) is generated, the hashed key is
-   persisted, and the raw key is returned exactly once.
-
-3. **Response headers include** `X-Agent-Id` and `X-API-Key` (raw key, returned
-   once only). The agent must persist the raw key — the server stores only the
-   hash and cannot recover it.
-
-4. **Subsequent requests** include `Authorization: Bearer <ak_live_...>`. The
-   same `agent_id` is attached to every call for rate limiting, ledger entries,
-   and receipts.
-
-## Explicit registration
-
-For agents that prefer an explicit handshake:
+| Endpoint | Body | Returns |
+|---|---|---|
+| `POST /api/v1/agents/auto` | none (fingerprint of IP + `X-Agent-Name` or `User-Agent`) | `{agent_id, api_key, tier}` |
+| `POST /api/v1/agents/register` | `{"agent_name": "...", "agent_version": "..."}` (explicit-name variant) | `{agent_id, api_key, tier}` |
+| `POST /oauth/register` | optional `{"client_name": "..."}` (RFC 7591) | `{client_id, client_secret, ...}` where `client_id` is the `agent_id` and `client_secret` is the `api_key` |
 
 ```
-POST https://apibase.pro/api/v1/agents/auto
-Content-Type: application/json
-
-{ "name": "my-agent", "homepage": "https://example.com" }
+curl -X POST https://apibase.pro/api/v1/agents/auto
 ```
 
-Response:
+The raw `api_key` (`ak_live_...`) is returned once; the server stores only a hash and
+cannot recover it. Calling `/agents/auto` again with the same fingerprint returns the
+existing `agent_id` without a new key.
 
-```json
-{
-  "agent_id": "agt_...",
-  "api_key": "ak_live_...",
-  "rate_limits": { "per_minute": 60, "per_hour": 1000 }
-}
-```
+Use the key on every later call: `Authorization: Bearer <api_key>`.
 
-The raw `api_key` is returned once; store it securely.
+## Tiers and limits
 
-## KYA levels
+Tiers are `free`, `paid` and `enterprise`; a new registration starts on `free`.
+Limits: <!--rate-limits-->free: 10 requests per second, 100 per day; paid: 50 requests per second, 10,000 per day; enterprise: 200 requests per second, 100,000 per day<!--/rate-limits-->.
 
-APIbase supports three Know-Your-Agent tiers with escalating limits:
-
-- **basic** — auto-registration default. 60 req/min, 1,000 req/hr.
-- **verified** — submit a Web Bot Auth JWKS URL. Higher limits.
-- **enterprise** — manual review for high-volume partners.
-
-Full policy: <https://apibase.pro/.well-known/kya-policy.json>
+Policy: <https://apibase.pro/.well-known/kya-policy.json>
 
 ## Security notes
 
-- Never embed the API key in client-side code. Agents that serve end-users
-  should proxy requests through a backend that holds the key.
-- Key rotation is client-initiated: call `POST /api/v1/agents/rotate` with the
-  current key in the Authorization header. The old key is invalidated
-  immediately.
-- Keys are revocable by platform operators if abuse is detected. Expect a
-  `401 Unauthorized` with body `{"error":"key_revoked"}` if so.
+- Never embed the API key in client-side code. Agents that serve end-users should
+  proxy requests through a backend that holds the key.
+- There is no rotation endpoint and no revocation webhook. Rotation means registering
+  a new identity; cutting off access is an operator action on the account.

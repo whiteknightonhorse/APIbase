@@ -413,7 +413,7 @@ async function main(): Promise<void> {
           'prediction_market_research',
         ],
         discovery_hint:
-          "Call prompt 'discover_tools' to browse tools by category or task instead of loading all schemas into context.",
+          'Call the apibase.discover tool (or GET /api/v1/discover) to find tools by intent or category instead of loading all schemas into context; the discover_tools prompt is kept for backward compatibility.',
         documentation: 'https://apibase.pro/ai.txt',
         openapi: 'https://apibase.pro/.well-known/openapi.json',
         server_card: 'https://apibase.pro/.well-known/mcp/server-card.json',
@@ -491,14 +491,16 @@ async function main(): Promise<void> {
         providers_count: PROV,
         mcp_endpoint: 'https://apibase.pro/mcp',
         discovery: {
-          method: 'MCP prompt',
-          prompt_name: 'discover_tools',
-          description: `Call discover_tools to browse ${TOOLS} tools by category or task instead of loading all schemas into context.`,
+          method: 'MCP tool apibase.discover / GET /api/v1/discover',
+          tool_name: 'apibase.discover',
+          rest_endpoint: 'https://apibase.pro/api/v1/discover',
+          legacy_prompt: 'discover_tools (kept for backward compatibility)',
+          description: `Call apibase.discover to find tools by intent or category across ${TOOLS} tools instead of loading all schemas into context.`,
           examples: [
-            { args: {}, result: `${CATS} categories with tool counts` },
+            { args: {}, result: 'best-ranked matches across the catalog' },
             { args: { category: 'travel' }, result: travelLine },
             {
-              args: { task: 'search flights from NYC' },
+              args: { intent: 'search flights from NYC' },
               result: 'top matching tools ranked by relevance',
             },
           ],
@@ -507,7 +509,7 @@ async function main(): Promise<void> {
           name: s.category,
           tools: s.tools,
           providers: s.providers.map(displayName).join(', '),
-          examples: `Call discover_tools with category="${s.category}" for the current tool list and descriptions.`,
+          examples: `Call apibase.discover with category="${s.category}" for the current tool list and descriptions.`,
         })),
       }),
     )
@@ -640,8 +642,9 @@ description: Progressive-disclosure workflow for finding relevant tools in APIba
 # Skill: Discover tools on APIbase
 
 APIbase exposes ${TOOLS} tools across ${CATS} categories. Loading all schemas into context
-costs hundreds of thousands of tokens, which is wasteful. Use the \`discover_tools\` prompt to
-find only the tools relevant to the current task.
+costs hundreds of thousands of tokens, which is wasteful. Use the \`apibase.discover\` tool (or
+\`GET /api/v1/discover\`) to find only the tools relevant to the current task. The
+\`discover_tools\` prompt is kept for backward compatibility.
 
 ## When to use
 
@@ -659,26 +662,26 @@ find only the tools relevant to the current task.
    Authorization: Bearer <ak_live_...>   # optional — auto-registration on first call
    \`\`\`
 
-2. **Call the \`discover_tools\` prompt.** Three usage modes:
+2. **Call the \`apibase.discover\` tool** (REST: \`GET /api/v1/discover\`). Three usage modes:
 
    | Call | Returns |
    |---|---|
-   | \`discover_tools\` (no args) | ${CATS} categories with tool counts |
-   | \`discover_tools category="travel"\` | ${travel?.tools ?? 0} travel tools with descriptions |
-   | \`discover_tools task="find flights from NYC to Tokyo"\` | Top tools ranked by keyword relevance |
+   | \`apibase.discover\` (no args) | Best-ranked matches across the whole catalog (${CATS} categories) |
+   | \`apibase.discover category="travel"\` | Top travel tools (${travel?.tools ?? 0} in the category) with descriptions |
+   | \`apibase.discover intent="find flights from NYC to Tokyo"\` | Top tools ranked by relevance |
 
 3. **Inspect the returned tool names and descriptions.** Pick the 1–3 tools that
    match the agent's goal.
 
 4. **Call the chosen tool via \`tools/call\`.** All ${TOOLS} tools are always callable —
-   the \`discover_tools\` prompt is advisory, not a gate.
+   discovery is advisory, not a gate.
 
    \`\`\`json
    {
      "jsonrpc": "2.0",
      "id": 1,
      "method": "tools/call",
-     "params": { "name": "amadeus.flight_search", "arguments": { "...": "..." } }
+     "params": { "name": "sabre.search_flights", "arguments": { "...": "..." } }
    }
    \`\`\`
 

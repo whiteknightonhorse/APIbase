@@ -79,7 +79,7 @@ This is where it gets interesting. Before calling the upstream provider, we lock
 |------|-------|-------------|
 | `finnhub.quote` | $0.001 | Escrow $0.001 USDC |
 | `serper.web_search` | $0.002 | Escrow $0.002 USDC |
-| `amadeus.flight_search` | $0.035 | Escrow $0.035 USDC |
+| `sabre.search_flights` | $0.01 | Escrow $0.01 USDC |
 | `stability.generate` | $0.070 | Escrow $0.070 USDC |
 
 The USDC is reserved from the agent's balance in a PostgreSQL transaction. If the provider call fails, Stage 10 automatically refunds.
@@ -126,7 +126,7 @@ Here's a sample of what agents can do through this single MCP endpoint:
 
 | Category | Tools | Example |
 |----------|-------|---------|
-| Flights | amadeus.flight_search | Search JFK to LHR, real prices |
+| Flights | sabre.search_flights | Search JFK to LHR, real prices |
 | Stocks | finnhub.quote, finnhub.candles | AAPL $249.94, OHLCV charts |
 | Web Search | serper.web_search | Google results as JSON |
 | AI Search | tavily.search | AI-synthesized answers + sources |

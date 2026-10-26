@@ -6,13 +6,15 @@
   "providers_count": 400,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
-    "method": "MCP prompt",
-    "prompt_name": "discover_tools",
-    "description": "Call discover_tools to browse 1385 tools by category or task instead of loading all schemas into context.",
+    "method": "MCP tool apibase.discover / GET /api/v1/discover",
+    "tool_name": "apibase.discover",
+    "rest_endpoint": "https://apibase.pro/api/v1/discover",
+    "legacy_prompt": "discover_tools (kept for backward compatibility)",
+    "description": "Call apibase.discover to find tools by intent or category across 1385 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
-        "result": "25 categories with tool counts"
+        "result": "best-ranked matches across the catalog"
       },
       {
         "args": {
@@ -22,7 +24,7 @@
       },
       {
         "args": {
-          "task": "search flights from NYC"
+          "intent": "search flights from NYC"
         },
         "result": "top matching tools ranked by relevance"
       }
@@ -33,151 +35,151 @@
       "name": "world",
       "tools": 253,
       "providers": "Abs, Africa, Au Data Gov, Bgs Ogcapi, Brasilapi, Bts Transport, Calendarific, Carbon Intensity Uk, Cbs, Census, Censusmapper, Col, Comtrade, Cpsc, Data Europa, Datagovsg, Dogceo, Echo, Emsc, Enviroatlas, Eonet, EPA, EPA Aqs, Eurostat, Eurostat2, Faostat, Fema, GDACS, Gebco, Geodiva, Geonet Nz, Gfw, Gus Poland, Hdx, Hdx Hapi, Inaturalist, Irena, Lmpr, Macrostrat, Malaysiagov, Mbta Transit, Nagerdate, Ncbi Eutils, NOAA Fisheries Stats, NOAA Tides, Nrc, NREL, Oecd Stats, Ons Uk Stats, Open Canada, Openfoodfacts, Opentopography, P2pquake, Randomuser, Restcountries, Samuni, SCB, Socrata, Soil, Spending, Ssbnorway, Statbel, Statcan, Statfin, Statistics Denmark, Swissfso, Unhabitat, Unhcr, Unsdg, Usdamars, USGS Earthquake, USGS Hans Volcano, USGS Mrds, USGS Nwis, USGS Water, VATCOMPLY, Wikimedia Analytics, Wikimedia Rest",
-      "examples": "Call discover_tools with category=\"world\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"world\" for the current tool list and descriptions."
     },
     {
       "name": "finance",
       "tools": 188,
       "providers": "Abs, Adbkidb, Africa, Bank Of England, Bankofcanada, Banxico, Bcb, Bea, Bis Stats, BLS Macro, Brasilapi, Bundesbank Timeseries, Cfpb Complaints, Czso, Data Usa, Dbnomics, Denmark Energidataservice, ECB Rates, Edgar, Eia, Estat Japan Dashboard, Estonia Statistics, Eurostat, Exchangerate, FDIC, Figi, Finance, Finnhub, Frankfurter, Hungary Ksh, Ibanapi, Iceland Statistics, Imf, Indec Argentina, Ine, Ine Chile, Ine Spain, Latvia Statistics, Mfapi, Norgesbank, Oecd Data, Oecd Stats, Ons Uk Stats, Rateapi, Razorpayifsc, SEC Edgar, Statfin, Statistik Austria, Swissfso, Swissnbm, Treasurydirect, Treasuryfiscal, Wits Trade, Worldbank, Wto",
-      "examples": "Call discover_tools with category=\"finance\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"finance\" for the current tool list and descriptions."
     },
     {
       "name": "health",
       "tools": 154,
       "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
-      "examples": "Call discover_tools with category=\"health\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"health\" for the current tool list and descriptions."
     },
     {
       "name": "education",
       "tools": 108,
       "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
-      "examples": "Call discover_tools with category=\"education\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"education\" for the current tool list and descriptions."
     },
     {
       "name": "weather",
       "tools": 103,
       "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
-      "examples": "Call discover_tools with category=\"weather\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"weather\" for the current tool list and descriptions."
     },
     {
       "name": "entertainment",
       "tools": 90,
       "providers": "Apisports, Balldontlie, Canopy, Chesscom, Cocktaildb, F1, Freetogame, Igdb, Lichess, Met Museum, Music, Opendota, Opentdb, Podcastindex, Pokeapi, Rawg, Rijksmuseum, Smithsonian, Thesportsdb, Ticketmaster, Tmdb, Tvmaze",
-      "examples": "Call discover_tools with category=\"entertainment\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"entertainment\" for the current tool list and descriptions."
     },
     {
       "name": "developer",
       "tools": 82,
       "providers": "Account, Apibase, Autodev, Chart, Convertapi, Cve Mitre, Depsdev, Github Api, Hf, Hf Inference, Ipapi, Ipqs, Judge0, Langbly, Marketcheck, NHTSA, NHTSA Safety, Npm, NVD, Osv, Platform, Postcodes Io, Pypi, Qrserver, Shortio, Timeapi, Upcitemdb, Weatherapi, Whoisjson, Whoisxml, Zippopotamus",
-      "examples": "Call discover_tools with category=\"developer\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"developer\" for the current tool list and descriptions."
     },
     {
       "name": "location",
       "tools": 56,
       "providers": "Brasilapi, FCC, Geo, Geoboundaries, Geocodio, Geonames, Indec Georef, Netherlands Pdok Kadaster, Nominatim Osm, Norway Kartverket Stedsnavn, Openbrewery, Openchargemap, Opentopodata, Postcode Japan, Uk Landregistry Pricepaid, USGS Epqs, USGS Nationalmap, Usrealestate, Walkscore",
-      "examples": "Call discover_tools with category=\"location\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"location\" for the current tool list and descriptions."
     },
     {
       "name": "legal",
       "tools": 55,
       "providers": "Congress, Courtlistener, Eu Parliament, Eurlex, Fbi, Fbiwanted, FCC, Fec, Federalregister, Fedregister, Govuk, Ofac, Openstates, Regulations, Ukleg, Ukpolice",
-      "examples": "Call discover_tools with category=\"legal\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"legal\" for the current tool list and descriptions."
     },
     {
       "name": "space",
       "tools": 47,
       "providers": "Celestrak, Cernopendata, Copernicus Sentinel, Firms, Iss, Jpl, Launch Library 2, NASA Cmr, Nasaexoplanet, Nasantrs, Solar, Sunrisesunset, Swpc, Usno",
-      "examples": "Call discover_tools with category=\"space\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"space\" for the current tool list and descriptions."
     },
     {
       "name": "travel",
       "tools": 37,
       "providers": "Adsbdb, Aviasales, Irail, IRCTC, Nps, Opensky, Sabre, Tfl, Transport Rest",
-      "examples": "Call discover_tools with category=\"travel\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"travel\" for the current tool list and descriptions."
     },
     {
       "name": "media",
       "tools": 37,
       "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Dpla, Europeana, Hathitrust Digital, Imgflip, Loc, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
-      "examples": "Call discover_tools with category=\"media\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"media\" for the current tool list and descriptions."
     },
     {
       "name": "crypto",
       "tools": 30,
       "providers": "Asterdex, Coingecko, Hyperliquid, Polymarket",
-      "examples": "Call discover_tools with category=\"crypto\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"crypto\" for the current tool list and descriptions."
     },
     {
       "name": "jobs",
       "tools": 22,
       "providers": "Adzuna, Arbeitnow, Ilostat, Jobs, Jooble, Reed, Remotive, Theirstack, Usajobs",
-      "examples": "Call discover_tools with category=\"jobs\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"jobs\" for the current tool list and descriptions."
     },
     {
       "name": "business",
       "tools": 20,
       "providers": "Abr, Brasilapi, Brreg, Companieshouse, GLEIF, Hunter, Insee, Sam",
-      "examples": "Call discover_tools with category=\"business\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"business\" for the current tool list and descriptions."
     },
     {
       "name": "infrastructure",
       "tools": 19,
       "providers": "Browserbase, Cloudflare, Namesilo, NBI",
-      "examples": "Call discover_tools with category=\"infrastructure\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"infrastructure\" for the current tool list and descriptions."
     },
     {
       "name": "messaging",
       "tools": 18,
       "providers": "Email Verify, Resend, Telegram, Telnyx, Twilio, Zerobounce",
-      "examples": "Call discover_tools with category=\"messaging\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"messaging\" for the current tool list and descriptions."
     },
     {
       "name": "news",
       "tools": 16,
       "providers": "Currents, Hackernews, Hnalgolia, Newsdata",
-      "examples": "Call discover_tools with category=\"news\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"news\" for the current tool list and descriptions."
     },
     {
       "name": "marketing",
       "tools": 13,
       "providers": "Aipush, Diffbot",
-      "examples": "Call discover_tools with category=\"marketing\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"marketing\" for the current tool list and descriptions."
     },
     {
       "name": "search",
       "tools": 13,
       "providers": "Duckduckgo, Exa, Serper, Spider, Tavily",
-      "examples": "Call discover_tools with category=\"search\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"search\" for the current tool list and descriptions."
     },
     {
       "name": "social",
       "tools": 9,
       "providers": "Bluesky, Mastodon, Twitterapi",
-      "examples": "Call discover_tools with category=\"social\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"social\" for the current tool list and descriptions."
     },
     {
       "name": "logistics",
       "tools": 7,
       "providers": "17track, Dhl, Shipengine",
-      "examples": "Call discover_tools with category=\"logistics\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"logistics\" for the current tool list and descriptions."
     },
     {
       "name": "podcasts",
       "tools": 3,
       "providers": "Listennotes",
-      "examples": "Call discover_tools with category=\"podcasts\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"podcasts\" for the current tool list and descriptions."
     },
     {
       "name": "device",
       "tools": 3,
       "providers": "Device",
-      "examples": "Call discover_tools with category=\"device\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"device\" for the current tool list and descriptions."
     },
     {
       "name": "music",
       "tools": 2,
       "providers": "Audd",
-      "examples": "Call discover_tools with category=\"music\" for the current tool list and descriptions."
+      "examples": "Call apibase.discover with category=\"music\" for the current tool list and descriptions."
     }
   ]
 }

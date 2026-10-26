@@ -94,7 +94,7 @@ pre{overflow-x:auto}
 
 <div class="path">
 <h2 style="margin-top:0">Path 1 &mdash; MCP address <span class="badge">no form, ever</span> <span class="badge badge-go">recommended</span></h2>
-<p>Point any MCP-compatible client at one URL. The first tool call auto-issues an <code>ak_live_...</code> key behind the scenes &mdash; there is no dashboard signup, no email, no approval queue.</p>
+<p>Point any MCP-compatible client at one URL. Your first payment (x402 or MPP) creates your agent identity; for a reusable key, <code>POST /api/v1/agents/auto</code> (see <a href="/auth.md">/auth.md</a>). There is no dashboard signup, no email, no approval queue.</p>
 <pre>{
   "mcpServers": {
     "apibase": {
@@ -116,7 +116,7 @@ pre{overflow-x:auto}
 <pre>curl https://apibase.pro/api/v1/tools/crypto.get_price/call \
   -H "Authorization: Bearer ak_live_..." \
   -H "Content-Type: application/json" \
-  -d '{"params": {"coins": ["bitcoin"]}}'</pre>
+  -d '{"coins": ["bitcoin"]}'</pre>
 <p class="note">Free tools respond immediately. A priced tool without a payment header replies HTTP 402 with a challenge &mdash; sign it with either rail below and retry.</p>
 </div>
 

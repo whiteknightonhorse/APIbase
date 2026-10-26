@@ -93,14 +93,14 @@ Each 402 challenge is unique: its `id` is an HMAC over realm, method, intent, th
 import { Mppx, tempo } from 'mppx/client'
 
 const mppx = Mppx.create({ methods: [tempo({ account: myTempoWallet })] })
-const response = await fetch('https://apibase.pro/api/v1/tools/nasa.apod/call', {
+const response = await fetch('https://apibase.pro/api/v1/tools/crypto.get_price/call', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ak_live_<your_key>',
     'X-API-Key': 'ak_live_<your_key>',  // preserved when mppx replaces Authorization
   },
-  body: JSON.stringify({}),
+  body: JSON.stringify({ coins: ['bitcoin'] }),
 })
 ```
 

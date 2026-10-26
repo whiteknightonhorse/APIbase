@@ -11,12 +11,13 @@
   "capabilities": {
     "tools": true,
     "prompts": true,
-    "resources": false
+    "resources": true
   },
   "authentication": {
     "required": false
   },
   "hasTools": false,
+  "toolsManifestUrl": "https://apibase.pro/api/v1/tools/manifest",
   "shop_tools": {
     "version": "11",
     "count": 25,
@@ -24,39 +25,54 @@
   },
   "prompts": [
     {
-      "name": "discover-tools",
-      "description": "Find the right APIbase tools for a task. Describes available categories, search strategies, and tool selection criteria.",
+      "name": "find_cheapest_flight",
+      "description": "Search for the cheapest flights between two airports and confirm pricing",
       "arguments": [
         {
-          "name": "task",
-          "description": "What you want to accomplish (e.g. \"find flights from NYC to London\")",
-          "required": true
-        }
-      ]
-    },
-    {
-      "name": "api-workflow",
-      "description": "Design a multi-step API workflow combining multiple APIbase tools. Returns execution plan with tool sequence, data flow, and error handling.",
-      "arguments": [
-        {
-          "name": "goal",
-          "description": "End-to-end goal (e.g. \"plan a trip to Tokyo with flights, weather, and local events\")",
+          "name": "origin",
+          "description": "Origin airport IATA code (e.g. JFK)",
           "required": true
         },
         {
-          "name": "budget",
-          "description": "Optional USDC budget constraint for the workflow",
-          "required": false
+          "name": "destination",
+          "description": "Destination airport IATA code (e.g. CDG)",
+          "required": true
+        },
+        {
+          "name": "date",
+          "description": "Departure date in YYYY-MM-DD format",
+          "required": true
         }
       ]
     },
     {
-      "name": "x402-payment-guide",
-      "description": "Explains x402 USDC micropayment flow for APIbase. Covers wallet setup on Base, payment headers, escrow mechanics, and refund policy.",
+      "name": "crypto_market_overview",
+      "description": "Get a comprehensive overview of the cryptocurrency market",
+      "arguments": []
+    },
+    {
+      "name": "prediction_market_research",
+      "description": "Research a topic on Polymarket prediction markets",
       "arguments": [
         {
           "name": "topic",
-          "description": "Specific payment topic (e.g. \"setup\", \"escrow\", \"refunds\", \"pricing\")",
+          "description": "Topic to research (e.g. US election, Bitcoin price)",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "discover_tools",
+      "description": "Kept for backward compatibility; the primary path is the apibase.discover tool (GET /api/v1/discover). Browse tools by category or task description.",
+      "arguments": [
+        {
+          "name": "task",
+          "description": "Describe what you want to do (e.g. \"search flights from NYC to London\")",
+          "required": false
+        },
+        {
+          "name": "category",
+          "description": "Filter by category",
           "required": false
         }
       ]

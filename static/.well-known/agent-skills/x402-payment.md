@@ -36,7 +36,7 @@ Full metadata: <https://apibase.pro/.well-known/x402-payment.json>
 
    ```
    POST https://apibase.pro/mcp
-   { "method": "tools/call", "params": { "name": "amadeus.flight_search", ... } }
+   { "method": "tools/call", "params": { "name": "sabre.search_flights", ... } }
    ```
 
 2. **Server responds `402 Payment Required`** with a challenge describing
@@ -49,18 +49,20 @@ Full metadata: <https://apibase.pro/.well-known/x402-payment.json>
    wallet SDK. See `x402` or `mppx` npm packages for ready-made helpers.
 
 4. **Agent retries the same request with the payment attached** (header or `_meta`). The
-   server verifies on-chain (x402 via PayAI / CDP facilitator; MPP via direct
-   RPC), escrows the charge in PostgreSQL, calls the provider, then finalizes
+   server verifies on-chain (x402 via the self-hosted facilitator on Base, PayAI
+   as fallback; MPP via direct RPC), escrows the charge in PostgreSQL, calls the provider, then finalizes
    the escrow into a ledger entry.
 
-5. **Response includes** the tool output plus `X-Receipt-Id`. Agent can retrieve
-   a verifiable receipt at `GET /x402/retrieve/<receipt-id>`.
+5. **Response includes** the tool output plus `X-APIbase-Receipt: https://apibase.pro/r/<id>.json`,
+   an immutable public receipt (payer, payee, payment_tx, response_sha256). A response
+   served from the dedup cache carries `X-APIbase-Charged: false` instead; see
+   <https://github.com/whiteknightonhorse/APIbase/blob/main/docs/payments.md>.
 
 ## Idempotency
 
-Include an `Idempotency-Key: <uuid>` header on retries so the server does not
-double-charge when a client re-sends after a timeout. The ledger is
-append-only; duplicate keys return the original response with `Idempotency-Replay: true`.
+Calls are idempotent when you send `X-Idempotency-Key: <uuid>` (optional; 10 minutes,
+per wallet), so the server does not double-charge when a client re-sends after a
+timeout. Without it only the payment nonce protects you. The ledger is append-only.
 
 ## Prices
 
@@ -71,8 +73,8 @@ Exact price per tool: `x-payment-info` in the OpenAPI spec
 ## Free tier
 
 Tools that wrap free upstream APIs (government data, CC0 datasets) are priced
-from $0.0005 per call; <!--free-tools-->8<!--/free-tools--> platform tools are free ($0). There is currently no free-trial credit
-for new agents; agents must arrive with funded wallets.
+from $0.0005 per call; <!--free-tools-->8<!--/free-tools--> platform tools are free ($0). Paid tools are paid per call with x402 or MPP;
+there is no self-service top-up and no free-trial credit (see <https://apibase.pro/pricing>).
 
 ## SDK hints
 

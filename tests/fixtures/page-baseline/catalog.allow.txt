@@ -7,3 +7,6 @@ BUILD: v1.0.0
 # T-0492: copy rephrased for hot keywords (APIBASE-SEO-1019 ruling-1 part 4, operator-1); old sequence:
 Catalog
 APIbase.pro
+# T-0533: count sentence names three counts as three (healthy tools / degraded / platform and shop); old sequence:
+<COUNT> tools across <COUNT> providers ,
+/api/v1/tools and the MCP tools/list

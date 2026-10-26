@@ -6,8 +6,9 @@ description: Progressive-disclosure workflow for finding relevant tools in APIba
 # Skill: Discover tools on APIbase
 
 APIbase exposes 1385 tools across 25 categories. Loading all schemas into context
-costs hundreds of thousands of tokens, which is wasteful. Use the `discover_tools` prompt to
-find only the tools relevant to the current task.
+costs hundreds of thousands of tokens, which is wasteful. Use the `apibase.discover` tool (or
+`GET /api/v1/discover`) to find only the tools relevant to the current task. The
+`discover_tools` prompt is kept for backward compatibility.
 
 ## When to use
 
@@ -25,26 +26,26 @@ find only the tools relevant to the current task.
    Authorization: Bearer <ak_live_...>   # optional — auto-registration on first call
    ```
 
-2. **Call the `discover_tools` prompt.** Three usage modes:
+2. **Call the `apibase.discover` tool** (REST: `GET /api/v1/discover`). Three usage modes:
 
    | Call | Returns |
    |---|---|
-   | `discover_tools` (no args) | 25 categories with tool counts |
-   | `discover_tools category="travel"` | 37 travel tools with descriptions |
-   | `discover_tools task="find flights from NYC to Tokyo"` | Top tools ranked by keyword relevance |
+   | `apibase.discover` (no args) | Best-ranked matches across the whole catalog (25 categories) |
+   | `apibase.discover category="travel"` | Top travel tools (37 in the category) with descriptions |
+   | `apibase.discover intent="find flights from NYC to Tokyo"` | Top tools ranked by relevance |
 
 3. **Inspect the returned tool names and descriptions.** Pick the 1–3 tools that
    match the agent's goal.
 
 4. **Call the chosen tool via `tools/call`.** All 1385 tools are always callable —
-   the `discover_tools` prompt is advisory, not a gate.
+   discovery is advisory, not a gate.
 
    ```json
    {
      "jsonrpc": "2.0",
      "id": 1,
      "method": "tools/call",
-     "params": { "name": "amadeus.flight_search", "arguments": { "...": "..." } }
+     "params": { "name": "sabre.search_flights", "arguments": { "...": "..." } }
    }
    ```
 

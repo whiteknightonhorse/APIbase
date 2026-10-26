@@ -239,7 +239,7 @@ ${NAV_HTML}
 </section>
 
 <h2>Every live provider</h2>
-<p><strong>${totalTools} tools</strong> across <strong>${totalProviders} providers</strong>, sorted by tool count. This is not a marketing figure &mdash; it is what <a href="/api/v1/tools">/api/v1/tools</a> and the MCP <code>tools/list</code> served as of ${generatedAt} UTC, regenerated when provider availability changes and daily at 05:00 UTC.</p>
+<p><strong>${totalTools} healthy tools</strong> from <strong>${totalProviders} providers</strong> (what <a href="/api/v1/tools">/api/v1/tools</a> serves as healthy; the endpoint also lists tools currently marked degraded; the MCP <code>tools/list</code> and <a href="/api/v1/tools/manifest">/api/v1/tools/manifest</a> additionally carry the platform and shop tools), sorted by tool count. This is not a marketing figure &mdash; it is what the catalog served as of ${generatedAt} UTC, regenerated when provider availability changes and daily at 05:00 UTC.</p>
 
 <div class="cat-controls" id="cat-controls" hidden>
 <label class="cat-field q"><span class="m-label">Search tools and providers</span><span class="box">${ICON_SEARCH}<input class="m-input" id="cat-q" type="search" placeholder="e.g. flight search" autocomplete="off"></span></label>

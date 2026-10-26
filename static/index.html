@@ -410,7 +410,7 @@ details p{color:#b7beb8;margin:0.3rem 0 1rem}
 </details>
 <details>
 <summary>How do I connect?</summary>
-<p>Point your MCP-compatible client at <code>https://apibase.pro/mcp</code>. The system auto-registers your software on first request and returns an <code>api_key</code>. Use that key for all subsequent calls. No forms, no approval process. Three concrete ways in (MCP address, REST + key, or a bare wallet with zero registration): <a href="/connect">/connect</a>.</p>
+<p>Point your MCP-compatible client at <code>https://apibase.pro/mcp</code>. Your first payment (x402 or MPP) creates your agent identity; for a reusable key, <code>POST /api/v1/agents/auto</code> (see <a href="/auth.md">/auth.md</a>). No forms, no approval process. Three concrete ways in (MCP address, REST + key, or a bare wallet with zero registration): <a href="/connect">/connect</a>.</p>
 </details>
 <details>
 <summary>What API categories are available?</summary>
@@ -472,7 +472,7 @@ details p{color:#b7beb8;margin:0.3rem 0 1rem}
       execute: function(){ return load().then(function(t){ return { count: t.length, tools: t }; }); } },
     { name: 'get_tool_pricing',
       description: 'Return pricing (USD per call) for one tool by tool_id, or for all tools if tool_id is omitted.',
-      inputSchema: { type: 'object', properties: { tool_id: { type: 'string', description: 'For example amadeus.flight_search' } }, additionalProperties: false },
+      inputSchema: { type: 'object', properties: { tool_id: { type: 'string', description: 'For example sabre.search_flights' } }, additionalProperties: false },
       execute: function(i){ return load().then(function(t){
         var id = i && i.tool_id;
         if (!id) return { count: t.length, pricing: t.map(function(x){ return { tool_id: x.id, pricing: x.pricing }; }) };
