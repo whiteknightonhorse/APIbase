@@ -14,7 +14,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/company-research-intent</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -38,7 +38,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/flight-search-intent</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -50,7 +50,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/image-generation-intent</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -92,7 +92,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/why</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -140,13 +140,13 @@
   </url>
   <url>
     <loc>https://apibase.pro/.well-known/agent-registration.json</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://apibase.pro/.well-known/agent-skills/auto-register.md</loc>
-    <lastmod>2026-04-22</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
@@ -164,7 +164,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/.well-known/agent-skills/x402-payment.md</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
@@ -188,7 +188,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/.well-known/kya-policy.json</loc>
-    <lastmod>2026-03-09</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -200,7 +200,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/.well-known/mcp/server-card.json</loc>
-    <lastmod>2026-10-20</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -239,6 +239,12 @@
     <lastmod>2026-10-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://apibase.pro/.well-known/security.txt</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://apibase.pro/.well-known/site-facts.json</loc>
@@ -320,7 +326,7 @@
   </url>
   <url>
     <loc>https://apibase.pro/integrator/platforms/woocommerce</loc>
-    <lastmod>2026-10-12</lastmod>
+    <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
