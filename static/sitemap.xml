@@ -241,6 +241,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://apibase.pro/.well-known/site-facts.json</loc>
+    <lastmod>2026-10-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://apibase.pro/.well-known/ucp</loc>
     <lastmod>2026-10-26</lastmod>
     <changefreq>monthly</changefreq>
