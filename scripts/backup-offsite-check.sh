@@ -2,7 +2,8 @@
 # T-0355: stale-pull check for the laptop-initiated offsite backup pull.
 # Reads $STAGING/.last-pull ("<name> <ISO-8601 UTC>"), keeps state in $STAGING/.stale-state (ok|stale).
 # Prints one line only on a state transition (or with --verbose while ok). Exit 1 while stale.
-# Usage: backup-offsite-check.sh [--staging <dir>] [--now <ISO>] [--verbose]
+# --families prints "FAMILIES apibase=<n> fleet=<n> orchestra=<n> env=<n>" (staged file counts) and exits 1 if any is 0.
+# Usage: backup-offsite-check.sh [--staging <dir>] [--now <ISO>] [--verbose] [--families]
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -10,6 +11,7 @@ CONFIG="$ROOT/config/backup/offsite.json"
 STAGING=""
 NOW_ARG=""
 VERBOSE=0
+FAMILIES=0
 MAX_HOURS=48
 
 while [ $# -gt 0 ]; do
@@ -17,6 +19,7 @@ while [ $# -gt 0 ]; do
     --staging) STAGING="$2"; shift 2 ;;
     --now) NOW_ARG="$2"; shift 2 ;;
     --verbose) VERBOSE=1; shift ;;
+    --families) FAMILIES=1; shift ;;
     *) echo "unknown argument $1" >&2; exit 2 ;;
   esac
 done
@@ -26,6 +29,17 @@ if [ -z "$STAGING" ]; then
   case "$REL" in /*) STAGING="$REL" ;; *) STAGING="$ROOT/$REL" ;; esac
 fi
 mkdir -p -m 750 "$STAGING"
+
+if [ "$FAMILIES" = 1 ]; then
+  shopt -s nullglob
+  line="FAMILIES"; zero=0
+  for fam in apibase fleet orchestra; do
+    n=("$STAGING"/$fam-[0-9]*.sql.gz.age); line="$line $fam=${#n[@]}"; [ "${#n[@]}" -gt 0 ] || zero=1
+  done
+  n=("$STAGING"/env-[0-9]*.tar.age); line="$line env=${#n[@]}"; [ "${#n[@]}" -gt 0 ] || zero=1
+  echo "$line"
+  exit "$zero"
+fi
 
 if [ -n "$NOW_ARG" ]; then NOW=$(date -u -d "$NOW_ARG" +%s); else NOW=$(date -u +%s); fi
 

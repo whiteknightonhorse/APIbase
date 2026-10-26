@@ -9,6 +9,8 @@ Decision: APIBASE-AUDIT-1012 ruling-6 B. The laptop pulls; the server never hold
   Staged files whose source dump has rotated away are deleted. The last stdout line is `ENCRYPT OK new=<n> staged=<m> seconds=<s>` or `ENCRYPT FAIL <reason>` (exit 1).
 - The recipient is a public key and is safe to commit. `age1REPLACEME` is a placeholder until the laptop key exists; the script refuses to run with it.
 
+T-0571 adds the `fleet-` and `orchestra-` dump families and `env-YYYYMMDD.tar.age`; see [self-hosting.md](self-hosting.md#backups) for the canonical list and permissions.
+
 ## 2. Laptop side
 - Pull script `~/bin/apibase-backup-pull.sh`, run by launchd at 12:00 Asia/Bangkok.
 - It downloads new `.age` and `.sha256` files over ssh as user `apibase`, verifies `sha256sum -c` and `age -d | gzip -t`, keeps the newest 3 copies and deletes older ones.

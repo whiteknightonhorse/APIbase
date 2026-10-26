@@ -32,3 +32,10 @@ docker compose logs api --tail 20
 See `.env.example` for all configuration options. Never commit `.env` to git.
 
 For day-2 operations (container management, restarts, backups, monitoring), see [`runbook.md`](runbook.md).
+
+## Backups
+
+- The `postgres_backup` container (03:00 UTC, runs as uid 1003 `apibase`) writes `backups/{daily,last,weekly,monthly}/apibase-YYYYMMDD.sql.gz`. These directories are mode 750 owned by `apibase:apibase`; chown them once after upgrading from a root-owned install.
+- `scripts/backup-encrypt.sh` (03:40 UTC) also dumps the `fleet` and `orchestra` databases (`fleet-YYYYMMDD.sql.gz`, `orchestra-YYYYMMDD.sql.gz`, `pg_dump` inside their containers, set by `extra_dumps` in `config/backup/offsite.json`), records a `.sha256` for each dump, and encrypts every dump with the age recipient into `backups/offsite-staging/`. It also writes `env-YYYYMMDD.tar.age`: `.env`, the secrets directory and `offsite.json` piped from `tar` into `age`, with no plaintext copy.
+- `scripts/backup-verify.sh` runs `gzip -t` and the `.sha256` check on every dump in `daily/`; a failure appends a `backup_verify_failed` line to `backups/verify-outbox.jsonl`. `scripts/backup-offsite-check.sh --families` counts the staged files per family (apibase, fleet, orchestra, env).
+- Laptop pull and restore: [`backup-offsite.md`](backup-offsite.md).

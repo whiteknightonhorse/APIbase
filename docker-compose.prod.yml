@@ -292,6 +292,8 @@ services:
   postgres_backup:
     image: prodrigestivill/postgres-backup-local:16
     restart: unless-stopped
+    # T-0571: dumps are written as the host user apibase, not root (backups/ dirs are 750 apibase:apibase)
+    user: "1003:1003"
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_DB: ${POSTGRES_DB:-apibase}
