@@ -63,11 +63,17 @@ jest.mock('../../src/services/prisma.service', () => ({
   }),
 }));
 
-/** mpp_refund_owed rows written during the current test (T-0259). */
+// T-0551: refunds owed are refund_ledger rows now (never outbox rows); the service is the seam.
+const mockRecordRefund = jest.fn();
+jest.mock('../../src/services/refund-ledger.service', () => ({
+  recordRefundOwed: (...a: unknown[]) => mockRecordRefund(...a),
+}));
+
+/** Refund-owed ledger rows written during the current test (T-0259), in the old payload shape. */
 function refundRows(): Array<{ payload: Record<string, unknown> }> {
-  return mockOutboxCreate.mock.calls
-    .map((c) => c[0].data)
-    .filter((d: { event_type: string }) => d.event_type === 'mpp_refund_owed');
+  return mockRecordRefund.mock.calls.map((c) => ({
+    payload: { reason: c[0].reason, amount_usd: c[0].amount_usd },
+  }));
 }
 
 // --- Redis: a real in-memory fake (GET/SET EX/NX/DEL) backing the REAL
@@ -261,6 +267,7 @@ afterAll(() => {
 beforeEach(() => {
   fakeRedis.__reset();
   mockOutboxCreate.mockReset();
+  mockRecordRefund.mockReset();
   mockOutboxCreate.mockResolvedValue({ id: 1n });
   mockAdapterCall.mockReset();
   mockAdapterCall.mockResolvedValue({

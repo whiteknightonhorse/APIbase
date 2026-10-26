@@ -9,6 +9,11 @@ import { QuoteError } from './quote.errors';
 import { loadPiiSummary } from './pii/pii.service';
 import { refundPolicy, type RefundPolicy } from './order-lifecycle.service';
 import { applySubscriptionPayment } from './subscription-core';
+import {
+  recordRefundOwed,
+  refundForOrder,
+  type PublicRefund,
+} from '../services/refund-ledger.service';
 
 /** §8.4: client/version (MCP initialize) or user agent (REST); the wallet is only a hash prefix. */
 export interface BuyerAgent {
@@ -42,6 +47,8 @@ export interface OrderView {
   pii?: { kinds: string[]; sha256: Record<string, string> };
   /** T-INT-41: set when this order is a period of a subscription. */
   subscription?: { id: string; period_no: number };
+  /** T-0551: the refund APIbase owes the payer (refund_ledger), distinct from merchant refunds. */
+  refund?: PublicRefund;
 }
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
@@ -74,7 +81,11 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
       p.order_id,
     );
     const o = rows[0];
-    if (!o || (o.state !== 'PAYING' && o.state !== 'PAYMENT_FAILED')) return false;
+    if (!o) return false;
+    if (o.state !== 'PAYING' && o.state !== 'PAYMENT_FAILED') {
+      await bookPaidAfterTerminal(tx, p);
+      return false;
+    }
     const rail = p.rail ?? 'base';
     await tx.$executeRawUnsafe(
       `UPDATE shop_payments SET chain_status = 'confirmed', tx_hash = $2, confirmed_at = now()
@@ -193,6 +204,39 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
   });
 }
 
+/**
+ * T-0551: money moved for an order that no longer accepts PAID (EXPIRED, CANCELLED, already PAID by
+ * another payment, ...). The payment row is marked confirmed (it is) and the debt is booked in
+ * refund_ledger as `paid_after_terminal`. The order is never transitioned and nothing is delivered.
+ * A payment row that was already confirmed (a replay of the same confirmation) books nothing.
+ */
+async function bookPaidAfterTerminal(tx: ShopTx, p: PaidInput): Promise<void> {
+  const rows = await tx.$queryRawUnsafe<Array<{ rail: string; payer: string; amount_usd: string }>>(
+    `UPDATE shop_payments SET chain_status = 'confirmed', tx_hash = $2, confirmed_at = now()
+      WHERE payment_id = $1::uuid AND order_id = $3::uuid AND chain_status <> 'confirmed'
+      RETURNING rail, payer, amount_usd::text AS amount_usd`,
+    p.payment_id,
+    p.tx_hash,
+    p.order_id,
+  );
+  const pay = rows[0];
+  if (!pay) return;
+  await recordRefundOwed(
+    {
+      rail: pay.rail === 'tempo' ? 'tempo' : 'base',
+      payer: pay.payer || p.payer,
+      amount_usd: pay.amount_usd,
+      reason: 'paid_after_terminal',
+      source_kind: 'order',
+      source_id: p.payment_id,
+      order_id: p.order_id,
+      payment_id: p.payment_id,
+      original_tx: p.tx_hash,
+    },
+    tx,
+  );
+}
+
 /** Settle refused / threw: the row is `failed` (still reconciled for 24 h), the order PAYMENT_FAILED. */
 export async function failPayment(
   deps: ShopDeps,
@@ -294,6 +338,8 @@ export async function getOrderView(
   view.tracking = (shipped[0]?.tracking as OrderView['tracking']) ?? null;
   view.delivery_eta = r.delivery_eta;
   view.refund_policy = await refundPolicy(db, order_id);
+  const owed = await refundForOrder(order_id, db).catch(() => null);
+  if (owed) view.refund = owed;
   const pii = await loadPiiSummary(db, order_id);
   if (pii && payer) view.pii = pii;
   const period = await db.$queryRawUnsafe<Array<{ subscription_id: string; period_no: number }>>(

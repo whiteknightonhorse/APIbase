@@ -42,11 +42,10 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
  *   - form_submission / contact_message      → scripts/inbound-messages-alerts.py (processed=true there means "paged")
  *   - x402_settle_failed                     → scripts/x402-settle-leak-alerts.py
  *       (processed=true there means "paged")
- *   - mpp_refund_owed                        → scripts/mpp-refund-owed-alerts.py,
- *       closed only by scripts/mpp-refund-resolve.py. processed=false means
- *       "refund still owed" (standing operator decision 2026-09-01, see
+ *   - mpp_refund_owed                        → legacy rows only; refunds owed are rows of
+ *       refund_ledger since T-0551 (REFUND-WALLET-1026 ruling-1, see
  *       src/pipeline/stages/escrow-finalize.stage.ts). The worker must never
- *       touch these rows.
+ *       touch the old rows.
  *
  * Expected side effect: while a refund is open, partition-cleanup logs
  * `Skipping partition with unprocessed events` daily — that is normal, not an

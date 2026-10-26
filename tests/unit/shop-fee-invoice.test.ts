@@ -143,7 +143,9 @@ dbDescribe('fee invoices (INT-25)', () => {
   const chainOf = (r: RefundReceipt): RefundChain => ({ receipt: async () => r });
   const okReceipt = (to: string, micro: string, token = usdc): RefundReceipt => ({
     status: 'success',
-    transfers: [{ token, to, valueMicro: micro }],
+    transfers: [
+      { token, from: '0x00000000000000000000000000000000000f0f0f', to, valueMicro: micro },
+    ],
   });
   const withChain = (c: RefundChain): FeeInvoiceDeps => ({ ...deps, chain: c });
 

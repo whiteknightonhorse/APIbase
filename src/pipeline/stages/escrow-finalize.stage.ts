@@ -3,8 +3,7 @@ import { finalize, refund } from '../../services/escrow.service';
 import { logger } from '../../config/logger';
 import { settleX402 } from './x402-settle';
 import { createHash } from 'node:crypto';
-import { getPrisma } from '../../services/prisma.service';
-import { isInternalWallet } from '../../config/internal-wallets';
+import { recordRefundOwed as recordRefundOwedLedger } from '../../services/refund-ledger.service';
 
 /**
  * F1/C-5 (2026-09-01): MPP is charged by mppMiddleware BEFORE this pipeline
@@ -16,65 +15,34 @@ import { isInternalWallet } from '../../config/internal-wallets';
  * the client's money was gone and nothing recorded it, let alone refunded
  * it.
  *
- * ⛔ STANDING OPERATOR DECISION (2026-09-01, confirmed after this was built):
- * MPP refunds are executed MANUALLY by the operator after this alert, never
- * by autonomous code — MPP/mppx has no reverse-payment primitive, so a real
- * refund would be a brand-new outbound on-chain transfer signed with the
- * live operator key. Sending cryptocurrency unsupervised is a line this
- * codebase does not cross, regardless of future autonomy grants, without a
- * new explicit decision. This function's only job is to durably record
- * exactly what is owed, to whom, and why, with everything a human needs to
- * act on it without investigating further (amount, recipient, network, the
- * original tx hash, the call id, the timestamp) — see
- * scripts/mpp-refund-owed-alerts.py (5-min page),
- * scripts/mpp-refund-resolve.py (operator marks it handled), and
- * scripts/mpp-refund-weekly-summary.py (nothing left to silently age out).
- *
- * The row's `processed` column IS the "still owed" flag — it starts false
- * and stays false until mpp-refund-resolve.py flips it, which also protects
- * the row from partition-cleanup.job.ts's 7-day outbox retention (that job
- * already refuses to drop a partition containing any `processed=false` row).
- * A forgotten refund must not be able to silently expire; it can only be
- * closed by a human explicitly saying so.
+ * Operator ruling REFUND-WALLET-1026 (c), 2026-10-24: refunds are paid automatically by the
+ * refund payout job (0553) from a dedicated operator-funded refund wallet; this function only
+ * records the debt. Until 0553 ships, the payout is still made by hand by the operator
+ * (scripts/refund-ledger.py lists what is owed).
  */
 export async function recordMppRefundOwed(
   ctx: import('../types').PipelineContext,
   reason: string,
 ): Promise<void> {
   // One refund-owed row per request (T-0259): the flag is set BEFORE the
-  // write so a failed write is not retried (logger.error below already says
-  // the debt was missed) and ESCROW + the pipeline executor can't double-book.
+  // write so a failed write is not retried (the ledger logs a failed write
+  // as missed) and ESCROW + the pipeline executor can't double-book.
   if (ctx.mppRefundRecorded) return;
   ctx.mppRefundRecorded = true;
-  // T-0280: our own Heartbeat wallets — keep the row (free QA report on 422s) but it is
-  // not a debt: processed=true so it never blocks partition-cleanup's 7-day retention.
-  const internal = isInternalWallet(ctx.mppPayer);
-  try {
-    await getPrisma().outbox.create({
-      data: {
-        event_type: 'mpp_refund_owed',
-        ...(internal ? { processed: true } : {}),
-        payload: {
-          request_id: ctx.requestId,
-          tool_id: ctx.toolId,
-          payer: ctx.mppPayer,
-          refund_to: ctx.mppPayer,
-          // Charged amount (HMAC-verified, T-0256) is primary; toolPrice is
-          // not yet known if the request stopped before TOOL_STATUS.
-          amount_usd: ctx.mppAmount ?? ctx.toolPrice ?? null,
-          network: 'tempo',
-          tx_hash: ctx.mppTxHash ?? 'unknown',
-          reason,
-          ...(internal ? { internal_wallet: true } : {}),
-        },
-      },
-    });
-  } catch (e) {
-    logger.error(
-      { requestId: ctx.requestId, err: e },
-      'MPP refund-owed record FAILED to write — this refund will be missed unless caught manually',
-    );
-  }
+  // T-0280: our own Heartbeat wallets are booked with status 'internal' by the ledger (not a debt).
+  // Charged amount (HMAC-verified, T-0256) is primary; toolPrice is not yet known if the request
+  // stopped before TOOL_STATUS. recordRefundOwed never throws and logs its own failures.
+  const amount = ctx.mppAmount ?? ctx.toolPrice;
+  await recordRefundOwedLedger({
+    rail: 'tempo',
+    payer: ctx.mppPayer ?? '',
+    amount_usd: amount ?? 0,
+    reason,
+    source_kind: 'request',
+    source_id: ctx.requestId,
+    original_tx: ctx.mppTxHash ?? null,
+    note: { tool_id: ctx.toolId ?? null },
+  });
 }
 
 /**

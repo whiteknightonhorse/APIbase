@@ -24,6 +24,8 @@ type Row = Record<string, any>;
 const D = 24 * 3_600_000;
 const PAYER = '0x00000000000000000000000000000000000a11ce';
 const OTHER = '0x00000000000000000000000000000000000b0b00';
+// the merchant payout wallet the confirmed payment paid (shop_payments.pay_to): refunds must come from it
+const SELLER = '0x00000000000000000000000000000000005e11e2';
 const BUYER = 'agent:rf-buyer';
 const USDC = getX402Config().usdcAddress;
 // unique per run: a verified refund transaction is unique in the (disposable) database
@@ -56,11 +58,11 @@ dbDescribe('refunds, disputes, reputation', () => {
   afterAll(() => prisma.$disconnect());
 
   /** A tx of USDC paying `micro` to `to` (success). */
-  function paid(to: string, usd: number, token = USDC): string {
+  function paid(to: string, usd: number, token = USDC, from = SELLER): string {
     const t = hash();
     txs.set(t, {
       status: 'success',
-      transfers: [{ token, to, valueMicro: String(Math.round(usd * 1_000_000)) }],
+      transfers: [{ token, from, to, valueMicro: String(Math.round(usd * 1_000_000)) }],
     });
     return t;
   }
@@ -86,7 +88,7 @@ dbDescribe('refunds, disputes, reputation', () => {
         o.test ?? false,
       )
     )[0].quote_id;
-    return (
+    const order_id = (
       await q(
         `INSERT INTO shop_orders (quote_id, merchant_id, state, total_usd, fee_usd, payer_wallet, rail, settled_at)
          VALUES ($1::uuid, $2::uuid, $3, $4::numeric, 1.34, $5, 'base', now() - interval '1 day')
@@ -98,6 +100,16 @@ dbDescribe('refunds, disputes, reputation', () => {
         PAYER,
       )
     )[0].order_id as string;
+    await x(
+      `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, pay_to, amount_usd, chain_status, confirmed_at)
+       VALUES ($1::uuid, 'base', $2, $3, $4, $5::numeric, 'confirmed', now())`,
+      order_id,
+      `nonce-${order_id}`,
+      PAYER,
+      SELLER,
+      total,
+    );
+    return order_id;
   }
   const state = async (id: string) =>
     (await q(`SELECT state FROM shop_orders WHERE order_id = $1::uuid`, id))[0].state as string;
@@ -144,6 +156,8 @@ dbDescribe('refunds, disputes, reputation', () => {
       [paid(OTHER, 89), 'no_usdc_transfer_to_payer'],
       [paid(PAYER, 10), 'transfer_below_amount'],
       [paid(PAYER, 89, '0x00000000000000000000000000000000deadbeef'), 'no_usdc_transfer_to_payer'],
+      // A1-16: a third party's transfer to the payer does not close the merchant's refund
+      [paid(PAYER, 89, USDC, OTHER), 'refund_tx_wrong_sender'],
       [hash(), 'tx_not_found_or_unconfirmed'],
     ];
     const reverted = hash();

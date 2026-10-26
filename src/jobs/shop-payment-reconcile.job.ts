@@ -5,6 +5,7 @@ import { finalizeConfirmed } from '../pipeline/stages/shop-settle';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
 import { releaseReservation } from '../shop/repository';
 import { transition } from '../shop/order-state';
+import { recordRefundOwed } from '../services/refund-ledger.service';
 
 /** The on-chain reads the job needs; tests inject a fake, production uses viem. */
 export interface ChainReader {
@@ -100,7 +101,6 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
       ORDER BY p.created_at
       LIMIT 200`,
   );
-  if (rows.length === 0) return;
   let chain = opts?.chain;
   for (const r of rows) {
     try {
@@ -154,6 +154,92 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
       } else if (r.expired) {
         await giveUp(deps, r);
       }
+    } catch (e) {
+      logger.warn(
+        { job: 'shop-payment-reconcile', paymentId: r.payment_id, err: (e as Error).message },
+        'chain unavailable — row left untouched',
+      );
+    }
+  }
+  await reconcileDuplicates(deps, chain);
+}
+
+/**
+ * T-0551: a `failed` payment (inside its window) of an order that is already past PAYING and has a
+ * different confirmed payment may still have been settled on-chain by the buyer's second
+ * authorization. Authorization used + a matching Transfer -> the payment is marked confirmed and
+ * the whole amount is booked in refund_ledger as `duplicate_payment`. The order is never touched.
+ * Merchant recovery (shop_refunds) is NOT opened: operator decision 1 = (B), the seller refunds the
+ * buyer himself. RPC failure -> the row is left untouched (warn). `flagMismatch` stays human-only.
+ */
+async function reconcileDuplicates(
+  deps: ShopDeps,
+  injected: ChainReader | undefined,
+): Promise<void> {
+  const rows = await deps.db.$queryRawUnsafe<PendingRow[]>(
+    `SELECT p.payment_id, p.order_id, o.quote_id, o.merchant_id, p.payer, p.eip3009_nonce, p.pay_to,
+            p.amount_usd::text AS amount_usd, p.splits, p.tx_hash, p.created_at, false AS expired
+       FROM shop_payments p JOIN shop_orders o ON o.order_id = p.order_id
+      WHERE p.rail = 'base' AND p.chain_status = 'failed' AND p.reconcile_until > now()
+        AND o.state IN ('PAID','CONFIRMED','FULFILLED','SHIPPED','DELIVERED','CLOSED',
+                        'REFUND_PENDING','REFUNDED','PARTIALLY_REFUNDED','DISPUTED')
+        AND EXISTS (SELECT 1 FROM shop_payments c
+                     WHERE c.order_id = p.order_id AND c.chain_status = 'confirmed'
+                       AND c.payment_id <> p.payment_id)
+      ORDER BY p.created_at
+      LIMIT 200`,
+  );
+  let chain = injected;
+  for (const r of rows) {
+    try {
+      chain ??= await viemChain();
+      const feeLeg = r.splits?.find((x) => x.mode === 'in_tx' && x.nonce);
+      let used = r.eip3009_nonce ? await chain.authorizationUsed(r.payer, r.eip3009_nonce) : false;
+      let valueMicro = toMicroUsdc(Number(r.amount_usd));
+      if (feeLeg?.nonce) {
+        const feeUsed = await chain.authorizationUsed(r.payer, feeLeg.nonce);
+        if (used !== feeUsed) {
+          await flagMismatch(deps, r);
+          continue;
+        }
+        used = used && feeUsed;
+        valueMicro = String(BigInt(valueMicro) - BigInt(toMicroUsdc(Number(feeLeg.fee ?? 0))));
+      }
+      if (!used) continue;
+      const tx = await chain.findTransfer({
+        payer: r.payer,
+        to: r.pay_to,
+        valueMicro,
+        sinceMs: new Date(r.created_at).getTime(),
+      });
+      if (!tx) continue;
+      await deps.transaction(async (db) => {
+        const upd = await db.$executeRawUnsafe(
+          `UPDATE shop_payments SET chain_status = 'confirmed', tx_hash = $2, confirmed_at = now()
+            WHERE payment_id = $1::uuid AND chain_status = 'failed'`,
+          r.payment_id,
+          tx,
+        );
+        if (!upd) return;
+        await recordRefundOwed(
+          {
+            rail: 'base',
+            payer: r.payer,
+            amount_usd: r.amount_usd,
+            reason: 'duplicate_payment',
+            source_kind: 'order',
+            source_id: r.payment_id,
+            order_id: r.order_id,
+            payment_id: r.payment_id,
+            original_tx: tx,
+          },
+          db,
+        );
+      });
+      logger.warn(
+        { job: 'shop-payment-reconcile', orderId: r.order_id, paymentId: r.payment_id },
+        'duplicate payment settled on-chain — booked in refund_ledger',
+      );
     } catch (e) {
       logger.warn(
         { job: 'shop-payment-reconcile', paymentId: r.payment_id, err: (e as Error).message },

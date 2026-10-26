@@ -135,7 +135,9 @@ describe('receipt body schema', () => {
   it('carries exactly the allowed keys and no forbidden field', async () => {
     for (const ctx of [billedX402(), billedMpp()]) {
       const body = JSON.parse((await planReceipt(ctx, 'x', NOW))!.body);
-      expect(Object.keys(body).sort()).toEqual([...RECEIPT_ALLOWED_KEYS].sort());
+      expect(Object.keys(body).sort()).toEqual(
+        RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund').sort(),
+      );
     }
   });
 
@@ -150,7 +152,9 @@ describe('receipt body schema', () => {
       mppChainId: 4217,
     });
     expect(body).not.toBeNull();
-    expect(Object.keys(body!).sort()).toEqual([...RECEIPT_ALLOWED_KEYS].sort());
+    expect(Object.keys(body!).sort()).toEqual(
+      RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund').sort(),
+    );
   });
 
   it('upstream_status follows ctx.responseStatus', async () => {
@@ -248,7 +252,7 @@ describe('GET /r/<id>.json', () => {
 
   beforeAll(() => {
     const app = express();
-    app.use(createReceiptRouter(store));
+    app.use(createReceiptRouter(store, async () => null));
     server = app.listen(0);
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
@@ -290,5 +294,61 @@ describe('write-once: no update path exists in code', () => {
       expect(src).not.toMatch(/UPDATE\s+"?public_receipts/i);
       expect(src).not.toMatch(/DELETE\s+FROM\s+"?public_receipts/i);
     }
+  });
+});
+
+describe('GET /r/:file refund object (T-0551)', () => {
+  const rid = 'e'.repeat(32);
+  const stored = canonicalJson({ schema: 'apibase-receipt/1', receipt_id: rid, billed: true });
+  const store: ReceiptStore = {
+    insert: async () => undefined,
+    get: async (i) => (i === rid ? stored : null),
+  };
+  const refund = {
+    status: 'owed' as const,
+    amount_atomic: '2000',
+    rail: 'tempo' as const,
+    detected_at: '2026-10-26T10:00:00.000Z',
+    refund_tx: null,
+    sent_at: null,
+    reason: 'provider_call_failed',
+  };
+  let lookup: jest.Mock;
+  let server: ReturnType<express.Express['listen']>;
+  let base: string;
+
+  beforeAll(() => {
+    lookup = jest.fn(async () => null);
+    const app = express();
+    app.use(createReceiptRouter(store, lookup));
+    server = app.listen(0);
+    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  });
+  afterAll(() => {
+    server.close();
+  });
+
+  it('no ledger row: the stored bytes, immutable, no refund key', async () => {
+    lookup.mockResolvedValueOnce(null);
+    const res = await fetch(`${base}/r/${rid}.json`);
+    expect(await res.text()).toBe(stored);
+    expect(res.headers.get('cache-control')).toBe('public, max-age=31536000, immutable');
+  });
+
+  it('a ledger row: refund merged into the JSON at read time, short cache', async () => {
+    lookup.mockResolvedValueOnce(refund);
+    const res = await fetch(`${base}/r/${rid}.json`);
+    const body = await res.json();
+    expect(body.refund).toEqual(refund);
+    expect(body.receipt_id).toBe(rid);
+    expect(res.headers.get('cache-control')).toBe('public, max-age=60');
+    expect(lookup).toHaveBeenLastCalledWith(rid);
+  });
+
+  it('a failing ledger read serves the stored body unchanged', async () => {
+    lookup.mockRejectedValueOnce(new Error('db down'));
+    const res = await fetch(`${base}/r/${rid}.json`);
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe(stored);
   });
 });

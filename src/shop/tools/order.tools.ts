@@ -249,6 +249,17 @@ export function registerOrderTools(
         documents: z.array(z.record(z.unknown())).optional(),
         refund_policy: z.record(z.unknown()),
         subscription: z.object({ id: z.string(), period_no: z.number() }).optional(),
+        refund: z
+          .object({
+            status: z.string(),
+            amount_atomic: z.string(),
+            rail: z.string(),
+            detected_at: z.string(),
+            refund_tx: z.string().nullable(),
+            sent_at: z.string().nullable(),
+            reason: z.string(),
+          })
+          .optional(),
       },
       annotations: { readOnlyHint: true, destructiveHint: false, openWorldHint: false },
     },

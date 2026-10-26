@@ -36,8 +36,8 @@
     "mpp": {
       "value": "refund owed, paid manually by the operator",
       "source": "src/pipeline/stages/escrow-finalize.stage.ts",
-      "anchor": "MANUALLY by the operator",
-      "ruling": "operator standing decision 2026-09-01 (escrow-finalize.stage.ts header)"
+      "anchor": "still made by hand by the operator",
+      "ruling": "REFUND-WALLET-1026 ruling-1 (escrow-finalize.stage.ts header); manual until the refund payout job (0553) ships"
     },
     "x402": {
       "value": "not settled",

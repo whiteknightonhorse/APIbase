@@ -17,12 +17,12 @@
     "required": false
   },
   "hasTools": false,
-  "toolsManifestUrl": "https://apibase.pro/api/v1/tools/manifest",
   "shop_tools": {
-    "version": "11",
+    "version": "12",
     "count": 25,
-    "sha256": "b3c589126327ded314dce3e52cc51f6decb0285880c0daff2551a1afe56e0e20"
+    "sha256": "ac6729bef0f16d8c6635724376d25e1d7b1496fe76066acb46535d5f2093652b"
   },
+  "toolsManifestUrl": "https://apibase.pro/api/v1/tools/manifest",
   "prompts": [
     {
       "name": "find_cheapest_flight",

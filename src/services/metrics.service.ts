@@ -187,6 +187,13 @@ export const provekRegistrySyncFailures = new client.Counter({
   registers: [register],
 });
 
+/** T-0551: refund_ledger writes that failed (a missed debt; the writer logs refund_ledger_write_failed). */
+export const refundLedgerWriteFailuresTotal = new client.Counter({
+  name: 'refund_ledger_write_failures_total',
+  help: 'refund_ledger inserts that failed (the debt was not recorded)',
+  registers: [register],
+});
+
 /** §14: share of active merchant storefronts the hourly probe reached (sample of 100 / active). */
 export const storefrontProbeCoverage = new client.Gauge({
   name: 'storefront_probe_coverage',

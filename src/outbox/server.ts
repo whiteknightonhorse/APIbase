@@ -27,11 +27,10 @@ import {
  * only after a handler ran. Money events belong to scripts/*.py with two
  * different meanings of `processed`:
  *   - x402_settle_failed: processed=true = "paged" (x402-settle-leak-alerts.py)
- *   - mpp_refund_owed:    processed=false = "refund still owed", closed only by
- *     a human via mpp-refund-resolve.py (operator decision 2026-09-01, see
- *     src/pipeline/stages/escrow-finalize.stage.ts:17-36)
- * Expected side effect: while a refund is open, partition-cleanup logs
- * `Skipping partition with unprocessed events` daily — normal, not an incident.
+ *   - mpp_refund_owed:    legacy rows only. Since T-0551 (REFUND-WALLET-1026 ruling-1) refunds
+ *     owed are rows of the refund_ledger table (src/services/refund-ledger.service.ts), not outbox
+ *     events. An old row with processed=false keeps partition-cleanup from dropping its partition
+ *     (`Skipping partition with unprocessed events` daily — normal, not an incident).
  *
  * T-INT-14: the same process also delivers merchant webhooks (src/shop/webhook): shop.* events become
  * shop_webhook_deliveries rows in processEvent, `deliverLoop` below sends them (concurrency 16, no BullMQ).

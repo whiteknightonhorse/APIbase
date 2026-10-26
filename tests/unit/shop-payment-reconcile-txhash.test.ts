@@ -30,7 +30,11 @@ const pending = (tx_hash: string | null) => ({
   created_at: new Date(),
   expired: false,
 });
-const deps = (row: unknown) => ({ db: { $queryRawUnsafe: jest.fn(async () => [row]) } }) as never;
+// first query = the pending rows; the T-0551 duplicate pass that follows finds nothing
+const deps = (row: unknown) =>
+  ({
+    db: { $queryRawUnsafe: jest.fn().mockResolvedValueOnce([row]).mockResolvedValue([]) },
+  }) as never;
 
 describe('shop-payment-reconcile tx_hash path (T-0428)', () => {
   beforeEach(() => mockFinalize.mockClear());

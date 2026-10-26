@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""mpp-refund-weekly-summary.py — backstop for manual MPP refunds.
+"""mpp-refund-weekly-summary.py — backstop for refunds owed (refund_ledger).
 
-Refunds are resolved by hand (operator decision, 2026-09-01) — which means a
-refund can be forgotten. A forgotten refund and a genuinely-resolved one are
-indistinguishable in the moment, and forgetting is worse than an outright
-failure because the 5-minute alert (mpp-refund-owed-alerts.py) already told
-the operator once and moved on. This script is the weekly reminder that a
-debt with no place to age still exists: count of still-open
-(`processed = false`) `mpp_refund_owed` rows, the oldest one's age, and the
-total amount outstanding. Silent when there is nothing open (same
-zero-noise convention as the other night-orchestra alert scripts).
+Operator ruling REFUND-WALLET-1026 (c), 2026-10-24: refunds are paid automatically by the
+refund payout job (0553); until it runs, a debt can sit unpaid. A forgotten refund and a
+quiet one are indistinguishable in the moment, and the 5-minute alert
+(mpp-refund-owed-alerts.py) already told the operator once and moved on. This script is the
+weekly reminder that a debt with no place to age still exists: count of `owed` refund_ledger
+rows (internal wallets excluded), the oldest one's age, and the total amount outstanding.
+Silent when there is nothing open (same zero-noise convention as the other night-orchestra
+alert scripts).
 
 Weekly cron (see crontab) — cheap enough to also run on demand.
 """
@@ -44,10 +43,9 @@ def psql(sql):
 
 row, rc = psql(
     """
-    SELECT COUNT(*), COALESCE(SUM((payload->>'amount_usd')::numeric), 0), MIN(created_at)
-    FROM outbox
-    WHERE event_type = 'mpp_refund_owed' AND processed = false
-      AND (payload->>'internal_wallet')::boolean IS NOT TRUE
+    SELECT COUNT(*), COALESCE(SUM(amount_usd), 0), MIN(detected_at)
+    FROM refund_ledger
+    WHERE status = 'owed'
     """
 )
 if rc != 0:
@@ -66,13 +64,11 @@ token = tg.get("TG_BOT_TOKEN")
 chat_id = tg.get("TG_CHAT_ID")
 
 text = (
-    f"[apibase] \U0001f4cb Weekly MPP refund summary — {count} refund(s) still waiting "
-    f"on your hand.\n"
+    f"[apibase] \U0001f4cb Weekly refund summary — {count} refund(s) still owed.\n"
     f"total outstanding: ${total_raw} USDC\n"
     f"oldest: {oldest_raw}\n"
-    f"list them: SELECT id, created_at, payload FROM outbox WHERE event_type='mpp_refund_owed' "
-    f"AND processed=false ORDER BY created_at;\n"
-    f"close one: mpp-refund-resolve.py <id> --sent \"<tx hash>\" (or --cancel \"<reason>\")"
+    f"list them: scripts/refund-ledger.py list --status owed\n"
+    f"close one without paying: scripts/refund-ledger.py cancel <refund_id> --reason \"<reason>\""
 )
 
 if token and chat_id:

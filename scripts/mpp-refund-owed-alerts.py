@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-# outbox-worker owns only HANDLED_EVENT_TYPES (src/outbox/processor.ts) and never marks this type
-"""mpp-refund-owed-alerts.py — F1/C-5: tell the operator about MPP charges that
-need a manual refund because the provider call failed after payment.
+# outbox-worker owns only HANDLED_EVENT_TYPES (src/outbox/processor.ts) and never marks mpp_settle_unknown
+"""mpp-refund-owed-alerts.py — F1/C-5: tell the operator about charges that are
+owed back because the provider call failed after payment (rows of refund_ledger,
+both rails; mpp_settle_unknown outbox rows are still read from the outbox).
 
 T-0280 (TG-POLICY-1006 / MPP-REFUND-OWED-FLOOD-1006 ruling-1): DIGEST mode
 replaces the per-event pager. One message per day (first tick at or after
@@ -14,24 +15,13 @@ or >= 100 external rows in the last hour. Each page is deduped per key per UTC
 day (state file). All Telegram text lives in config/autopilot/tg-strings.ru.json.
 Run: no args = tick (pages + digest if due); --selftest = pure-logic checks.
 
-WHY THIS TELLS A HUMAN INSTEAD OF SENDING THE REFUND ITSELF: sending
-cryptocurrency autonomously is something this codebase's own author (Claude)
-will not write, ever — not a business-logic choice, a standing safety rule,
-confirmed by the operator as a standing decision on 2026-09-01: MPP refunds
-are sent MANUALLY, by hand, after the alert. MPP has no built-in
-refund/reverse primitive (checked node_modules/mppx — the tempo
-`charge`/`session` methods have no counterpart), so a refund is a brand new
-outbound on-chain transfer signed with the live operator key.
-
-`processed` means "still owed" and stays false until a human explicitly closes
-it via mpp-refund-resolve.py (which also keeps the row safe from
-partition-cleanup.job.ts's 7-day outbox retention — that job already refuses
-to drop any partition with an unprocessed row). Rows from our own wallets
-(internal-wallets.json) are written processed=true by recordMppRefundOwed
-(escrow-finalize.stage.ts): kept as a free QA report, never a debt.
-This script marks `alerted_at` in the payload (not `processed`);
-mpp-refund-weekly-summary.py is the backstop that keeps a slow-to-resolve
-refund visible.
+Operator ruling REFUND-WALLET-1026 (c), 2026-10-24: refunds are paid automatically by the
+refund payout job (0553) from a dedicated operator-funded refund wallet; this script only
+tells a human what is still owed until 0556 replaces it. The debt itself is a refund_ledger
+row (status owed; internal for our own wallets in internal-wallets.json: kept as a free QA
+report, never a debt). A row is closed by the payout job or by `refund-ledger.py cancel`.
+This script marks `alerted_at` in the row's note; mpp-refund-weekly-summary.py is the
+backstop that keeps a slow-to-resolve refund visible.
 """
 import json
 import os
@@ -174,24 +164,44 @@ def render_due(due, tg):
     return tg["mpp_digest_due_head"].format(count=len(due)) + "\n" + lines
 
 
-def fetch_open_rows():
-    """All unresolved rows (processed=false) regardless of alerted_at."""
-    raw, rc = psql(
-        """
-        SELECT json_build_object('id', id,
-                 'created_at', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
-                 'alerted', payload->>'alerted_at' IS NOT NULL, 'payload', payload)
-        FROM outbox WHERE event_type IN ('mpp_refund_owed', 'mpp_settle_unknown') AND processed = false
-        """
-    )
-    if rc != 0:
-        return None
+# One row shape for both sources: {id, created_at, alerted, payload}. Ledger ids are the refund_id
+# uuid; outbox mpp_settle_unknown ids are prefixed "o" so mark_alerted routes them to the right table.
+LEDGER_SELECT = """
+    SELECT json_build_object('id', refund_id::text,
+             'created_at', to_char(detected_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
+             'alerted', note->>'alerted_at' IS NOT NULL,
+             'payload', json_build_object('amount_usd', amount_usd, 'refund_to', payer, 'payer', payer,
+                 'tool_id', note->>'tool_id', 'reason', reason, 'network', rail,
+                 'tx_hash', coalesce(original_tx, 'unknown'),
+                 'request_id', CASE WHEN source_kind = 'request' THEN source_id ELSE '?' END,
+                 'internal_wallet', status = 'internal'))
+    FROM refund_ledger WHERE status IN ({statuses}) {extra}
+"""
+SETTLE_SELECT = """
+    SELECT json_build_object('id', 'o' || id::text,
+             'created_at', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
+             'alerted', payload->>'alerted_at' IS NOT NULL, 'payload', payload)
+    FROM outbox WHERE event_type = 'mpp_settle_unknown' {extra}
+"""
+
+
+def parse_rows(raw):
     rows = []
     for line in raw.splitlines():
         r = json.loads(line)
         r["created_at"] = datetime.fromisoformat(r["created_at"])
         rows.append(r)
     return rows
+
+
+def fetch_open_rows():
+    """All unresolved rows (owed; mpp_settle_unknown not processed) regardless of alerted_at."""
+    raw, rc = psql(
+        LEDGER_SELECT.format(statuses="'owed'", extra="")
+        + " UNION ALL "
+        + SETTLE_SELECT.format(extra="AND processed = false")
+    )
+    return None if rc != 0 else parse_rows(raw)
 
 
 def build_digest(rows, internal, tg, due=()):
@@ -274,38 +284,40 @@ def save_state(state):
 
 
 def mark_alerted(ids):
-    ids = [int(i) for i in ids]
+    ids = [str(i) for i in ids]
     if not ids:
         return 0
-    _, rc = psql(
-        "UPDATE outbox SET payload = payload || jsonb_build_object('alerted_at', now()::text) "
-        f"WHERE event_type IN ('mpp_refund_owed', 'mpp_settle_unknown') AND id IN ({','.join(str(i) for i in ids)})"
-    )
-    return rc
+    ledger = [i for i in ids if not i.startswith("o")]
+    settle = [int(i[1:]) for i in ids if i.startswith("o")]
+    rc_all = 0
+    if ledger:
+        quoted = ",".join("'" + i.replace("'", "") + "'" for i in ledger)
+        _, rc = psql(
+            "UPDATE refund_ledger SET note = note || jsonb_build_object('alerted_at', now()::text) "
+            f"WHERE refund_id::text IN ({quoted})"
+        )
+        rc_all = rc_all or rc
+    if settle:
+        _, rc = psql(
+            "UPDATE outbox SET payload = payload || jsonb_build_object('alerted_at', now()::text) "
+            f"WHERE event_type = 'mpp_settle_unknown' AND id IN ({','.join(str(i) for i in settle)})"
+        )
+        rc_all = rc_all or rc
+    return rc_all
 
 
 def fetch_rows():
-    """Rows that matter: never alerted (any processed state — internal rows are processed=true
-    but still belong in the digest) or created within the last 24h (wallet/rate pages)."""
+    """Rows that matter: never alerted (owed or internal -- internal rows still belong in the
+    digest) or detected within the last 24h (wallet/rate pages)."""
     raw, rc = psql(
-        """
-        SELECT json_build_object('id', id,
-                 'created_at', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
-                 'alerted', payload->>'alerted_at' IS NOT NULL, 'payload', payload)
-        FROM outbox
-        WHERE event_type IN ('mpp_refund_owed', 'mpp_settle_unknown')
-          AND (payload->>'alerted_at' IS NULL OR created_at > now() - interval '24 hours')
-        ORDER BY created_at
-        """
+        LEDGER_SELECT.format(
+            statuses="'owed','internal'",
+            extra="AND (note->>'alerted_at' IS NULL OR detected_at > now() - interval '24 hours')")
+        + " UNION ALL "
+        + SETTLE_SELECT.format(
+            extra="AND (payload->>'alerted_at' IS NULL OR created_at > now() - interval '24 hours')")
     )
-    if rc != 0:
-        return None
-    rows = []
-    for line in raw.splitlines():
-        r = json.loads(line)
-        r["created_at"] = datetime.fromisoformat(r["created_at"])
-        rows.append(r)
-    return rows
+    return None if rc != 0 else parse_rows(raw)
 
 
 def tick():

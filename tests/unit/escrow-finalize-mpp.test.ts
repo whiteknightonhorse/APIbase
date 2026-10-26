@@ -9,8 +9,8 @@
  * (1) the exact regression — MPP + provider failure used to be silently
  *     unhandled (proven directly against the code as written, see the
  *     dedicated regression-shape test below);
- * (2) the fix — an mpp_refund_owed outbox row gets written with the payer,
- *     amount, and reason, and billingStatus/finalCost are set (not left
+ * (2) the fix — a refund_ledger row (T-0551, never an outbox row) gets written with the
+ *     payer, amount, and reason, and billingStatus/finalCost are set (not left
  *     undefined);
  * (3) MPP + SUCCESS still behaves exactly as before (no refund event, no
  *     regression on the paid-and-happy path).
@@ -24,6 +24,10 @@
 const mockOutboxCreate = jest.fn();
 jest.mock('../../src/services/prisma.service', () => ({
   getPrisma: () => ({ outbox: { create: mockOutboxCreate } }),
+}));
+const mockRecord = jest.fn();
+jest.mock('../../src/services/refund-ledger.service', () => ({
+  recordRefundOwed: (...a: unknown[]) => mockRecord(...a),
 }));
 jest.mock('../../src/config/logger', () => ({
   logger: { error: jest.fn(), warn: jest.fn(), info: jest.fn() },
@@ -55,71 +59,55 @@ function ctx() {
 }
 
 describe('recordMppRefundOwed (F1/C-5)', () => {
-  beforeEach(() => mockOutboxCreate.mockReset());
-
-  it('writes an mpp_refund_owed outbox event that is action-ready: payer, amount, network, original tx hash, call id, reason', async () => {
-    mockOutboxCreate.mockResolvedValue({ id: 1n });
-    await recordMppRefundOwed(ctx(), 'provider_call_failed_or_not_made');
-
-    expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
-    const call = mockOutboxCreate.mock.calls[0][0];
-    expect(call.data.event_type).toBe('mpp_refund_owed');
-    expect(call.data.payload).toEqual(
-      expect.objectContaining({
-        request_id: 'req-mpp-1',
-        tool_id: 'weather.get_current',
-        payer: '0xrealpayeraddress',
-        refund_to: '0xrealpayeraddress',
-        amount_usd: 0.002,
-        network: 'tempo',
-        tx_hash: '0xdeadbeef-fake-tx-hash-for-test',
-        reason: 'provider_call_failed_or_not_made',
-      }),
-    );
+  beforeEach(() => {
+    mockOutboxCreate.mockReset();
+    mockRecord.mockReset();
   });
 
-  it('falls back to an explicit "unknown" tx_hash rather than omitting the field when the middleware could not resolve one', async () => {
-    mockOutboxCreate.mockResolvedValue({ id: 1n });
+  it('writes a refund_ledger row that is action-ready: rail, payer, amount, original tx hash, request id, reason; and no outbox row', async () => {
+    mockRecord.mockResolvedValue({});
+    await recordMppRefundOwed(ctx(), 'provider_call_failed_or_not_made');
+
+    expect(mockRecord).toHaveBeenCalledTimes(1);
+    expect(mockRecord.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        rail: 'tempo',
+        payer: '0xrealpayeraddress',
+        amount_usd: 0.002,
+        reason: 'provider_call_failed_or_not_made',
+        source_kind: 'request',
+        source_id: 'req-mpp-1',
+        original_tx: '0xdeadbeef-fake-tx-hash-for-test',
+      }),
+    );
+    expect(mockOutboxCreate).not.toHaveBeenCalled();
+  });
+
+  it('passes a null original_tx rather than omitting the field when the middleware could not resolve one', async () => {
     const c = ctx();
     c.mppTxHash = undefined;
     await recordMppRefundOwed(c, 'x');
-
-    expect(mockOutboxCreate.mock.calls[0][0].data.payload).toEqual(
-      expect.objectContaining({ tx_hash: 'unknown' }),
-    );
+    expect(mockRecord.mock.calls[0][0].original_tx).toBeNull();
   });
 
-  it('never throws even when the outbox write itself fails', async () => {
-    mockOutboxCreate.mockRejectedValue(new Error('db unreachable'));
-    await expect(recordMppRefundOwed(ctx(), 'x')).resolves.toBeUndefined();
-  });
-
-  it('T-0280: external payer row is a debt (no processed override, no internal_wallet flag)', async () => {
-    mockOutboxCreate.mockResolvedValue({ id: 1n });
-    await recordMppRefundOwed(ctx(), 'r');
-    const data = mockOutboxCreate.mock.calls[0][0].data;
-    expect(data.processed).toBeUndefined();
-    expect(data.payload.internal_wallet).toBeUndefined();
-  });
-
-  it('T-0280: internal (Heartbeat) payer row is kept but written processed=true with internal_wallet=true, case-insensitive', async () => {
-    mockOutboxCreate.mockResolvedValue({ id: 1n });
+  it('T-0280: the payer goes to the ledger as given (the ledger lowercases it and marks internal wallets)', async () => {
     const c = ctx();
     c.mppPayer = '0x46F110B1AD8195AC1E59366149DFC39E3A88638B';
     await recordMppRefundOwed(c, 'pipeline_stopped:X:422:bad');
-    const data = mockOutboxCreate.mock.calls[0][0].data;
-    expect(data.processed).toBe(true);
-    expect(data.payload.internal_wallet).toBe(true);
-    expect(data.payload.reason).toBe('pipeline_stopped:X:422:bad');
-    expect(data.payload.refund_to).toBe(c.mppPayer);
+    const row = mockRecord.mock.calls[0][0];
+    expect(row.payer).toBe(c.mppPayer);
+    expect(row.reason).toBe('pipeline_stopped:X:422:bad');
   });
 });
 
 describe('escrowFinalizeStage — MPP paths (F1/C-5)', () => {
-  beforeEach(() => mockOutboxCreate.mockReset());
+  beforeEach(() => {
+    mockOutboxCreate.mockReset();
+    mockRecord.mockReset();
+  });
 
   it('records a refund-owed event when MPP paid but the provider call failed', async () => {
-    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    mockRecord.mockResolvedValue({});
     const c = ctx();
     c.providerCalled = true;
     c.providerResponse = undefined; // provider call did not produce a response
@@ -132,8 +120,8 @@ describe('escrowFinalizeStage — MPP paths (F1/C-5)', () => {
       expect(result.value.billingStatus).toBe('PAID');
       expect(result.value.finalCost).toBe(0.002);
     }
-    expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
-    expect(mockOutboxCreate.mock.calls[0][0].data.event_type).toBe('mpp_refund_owed');
+    expect(mockRecord).toHaveBeenCalledTimes(1);
+    expect(mockOutboxCreate).not.toHaveBeenCalled();
   });
 
   it('records nothing extra when MPP paid AND the provider call succeeded', async () => {
@@ -148,7 +136,7 @@ describe('escrowFinalizeStage — MPP paths (F1/C-5)', () => {
       expect(result.value.billingStatus).toBe('PAID');
       expect(result.value.finalCost).toBe(0.002);
     }
-    expect(mockOutboxCreate).not.toHaveBeenCalled();
+    expect(mockRecord).not.toHaveBeenCalled();
   });
 
   it('REGRESSION SHAPE: MPP + failure with no escrowId used to fall through to "no escrow reserved" and return with billingStatus/finalCost unset — pin that ctx.escrowId really is absent on the MPP path so the old bug is not still latent under a different guard', () => {
@@ -162,44 +150,47 @@ describe('escrowFinalizeStage — MPP paths (F1/C-5)', () => {
 });
 
 describe('MPP refund trail (T-0259)', () => {
-  beforeEach(() => mockOutboxCreate.mockReset());
+  beforeEach(() => {
+    mockOutboxCreate.mockReset();
+    mockRecord.mockReset();
+  });
 
   it('R1: amount_usd is the HMAC-verified charged amount (mppAmount), not the tool price', async () => {
-    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    mockRecord.mockResolvedValue({});
     const c = ctx();
     c.mppAmount = '0.001';
     c.toolPrice = 1;
     await recordMppRefundOwed(c, 'x');
-    expect(mockOutboxCreate.mock.calls[0][0].data.payload.amount_usd).toBe('0.001');
+    expect(mockRecord.mock.calls[0][0].amount_usd).toBe('0.001');
   });
 
   it('R2: two recordMppRefundOwed calls on one ctx write exactly one row', async () => {
-    mockOutboxCreate.mockResolvedValue({ id: 1n });
+    mockRecord.mockResolvedValue({});
     const c = ctx();
     await recordMppRefundOwed(c, 'a');
     await recordMppRefundOwed(c, 'b');
-    expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
+    expect(mockRecord).toHaveBeenCalledTimes(1);
   });
 
   describe('R3: recordMppRefundIfOwed', () => {
-    beforeEach(() => mockOutboxCreate.mockResolvedValue({ id: 1n }));
+    beforeEach(() => mockRecord.mockResolvedValue({}));
 
     it('PROVIDER_CALL/502 → one row with pipeline_stopped reason', async () => {
       await recordMppRefundIfOwed(ctx(), 'PROVIDER_CALL', { code: 502, error: 'bad_gateway' });
-      expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
-      expect(mockOutboxCreate.mock.calls[0][0].data.payload.reason).toBe(
+      expect(mockRecord).toHaveBeenCalledTimes(1);
+      expect(mockRecord.mock.calls[0][0].reason).toBe(
         'pipeline_stopped:PROVIDER_CALL:502:bad_gateway',
       );
     });
 
     it('ESCROW/402 → nothing (ESCROW decided itself)', async () => {
       await recordMppRefundIfOwed(ctx(), 'ESCROW', { code: 402, error: 'payment_required' });
-      expect(mockOutboxCreate).not.toHaveBeenCalled();
+      expect(mockRecord).not.toHaveBeenCalled();
     });
 
     it('ESCROW/503 → one row', async () => {
       await recordMppRefundIfOwed(ctx(), 'ESCROW', { code: 503, error: 'unavailable' });
-      expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
+      expect(mockRecord).toHaveBeenCalledTimes(1);
     });
 
     it('MODERATION with settle_on_block → nothing', async () => {
@@ -208,21 +199,21 @@ describe('MPP refund trail (T-0259)', () => {
         error: 'blocked',
         extra: { settle_on_block: true },
       });
-      expect(mockOutboxCreate).not.toHaveBeenCalled();
+      expect(mockRecord).not.toHaveBeenCalled();
     });
 
     it('not MPP-paid → nothing', async () => {
       const c = ctx();
       c.mppPaid = false;
       await recordMppRefundIfOwed(c, 'PROVIDER_CALL', { code: 502, error: 'bad_gateway' });
-      expect(mockOutboxCreate).not.toHaveBeenCalled();
+      expect(mockRecord).not.toHaveBeenCalled();
     });
 
     it('already recorded → nothing', async () => {
       const c = ctx();
       c.mppRefundRecorded = true;
       await recordMppRefundIfOwed(c, 'PROVIDER_CALL', { code: 502, error: 'bad_gateway' });
-      expect(mockOutboxCreate).not.toHaveBeenCalled();
+      expect(mockRecord).not.toHaveBeenCalled();
     });
 
     it('catch path → pipeline_exception reason', async () => {
@@ -232,9 +223,7 @@ describe('MPP refund trail (T-0259)', () => {
         { code: 500, error: 'internal_error' },
         true,
       );
-      expect(mockOutboxCreate.mock.calls[0][0].data.payload.reason).toBe(
-        'pipeline_exception:PROVIDER_CALL',
-      );
+      expect(mockRecord.mock.calls[0][0].reason).toBe('pipeline_exception:PROVIDER_CALL');
     });
   });
 });

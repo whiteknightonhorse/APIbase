@@ -73,7 +73,10 @@ describe('gen-site-facts.ts', () => {
       put(root, rel, readFileSync(join(ROOT, rel), 'utf8'));
     }
     const efs = join(root, 'src/pipeline/stages/escrow-finalize.stage.ts');
-    writeFileSync(efs, readFileSync(efs, 'utf8').split('MANUALLY by the operator').join('by hand'));
+    writeFileSync(
+      efs,
+      readFileSync(efs, 'utf8').split('still made by hand by the operator').join('made elsewhere'),
+    );
     const r = spawnSync('npx', ['tsx', GEN, '--check'], {
       cwd: ROOT,
       encoding: 'utf8',

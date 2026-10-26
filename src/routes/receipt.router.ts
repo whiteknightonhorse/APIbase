@@ -1,7 +1,9 @@
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { logger } from '../config/logger';
+import { refundForReceipt, type PublicRefund } from '../services/refund-ledger.service';
 import {
+  canonicalJson,
   pgReceiptStore,
   RECEIPT_ID_RE,
   type ReceiptStore,
@@ -27,7 +29,30 @@ export function parseReceiptFile(file: unknown): string | null {
   return RECEIPT_ID_RE.test(id) ? id : null;
 }
 
-export function createReceiptRouter(store: ReceiptStore = pgReceiptStore): Router {
+/**
+ * T-0551: the stored body is immutable; when a refund-owed row exists for the receipt it is merged
+ * in as `refund` at read time. A failed ledger read serves the stored body unchanged.
+ */
+async function withRefund(
+  body: string,
+  id: string,
+  lookup: (receiptId: string) => Promise<PublicRefund | null>,
+): Promise<{ text: string; hasRefund: boolean }> {
+  try {
+    const refund = await lookup(id);
+    if (!refund) return { text: body, hasRefund: false };
+    const parsed = JSON.parse(body) as Record<string, unknown>;
+    return { text: canonicalJson({ ...parsed, refund }), hasRefund: true };
+  } catch (err) {
+    logger.error({ err, receipt_id: id }, 'receipt: refund lookup failed, serving stored body');
+    return { text: body, hasRefund: false };
+  }
+}
+
+export function createReceiptRouter(
+  store: ReceiptStore = pgReceiptStore,
+  refunds: (receiptId: string) => Promise<PublicRefund | null> = (id) => refundForReceipt(id),
+): Router {
   const router = Router();
 
   router.get('/r/:file', receiptLimiter, async (req: Request, res: Response) => {
@@ -49,9 +74,14 @@ export function createReceiptRouter(store: ReceiptStore = pgReceiptStore): Route
       res.status(404).json({ error: 'no such receipt' });
       return;
     }
+    const out = await withRefund(body, id as string, refunds);
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    res.status(200).send(Buffer.from(body, 'utf8'));
+    // A receipt with a refund object changes as the refund moves owed -> sent: not immutable.
+    res.setHeader(
+      'Cache-Control',
+      out.hasRefund ? 'public, max-age=60' : 'public, max-age=31536000, immutable',
+    );
+    res.status(200).send(Buffer.from(out.text, 'utf8'));
   });
 
   return router;

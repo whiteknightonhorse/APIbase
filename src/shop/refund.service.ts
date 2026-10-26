@@ -31,7 +31,7 @@ const REFUNDABLE: readonly State[] = [
 export interface RefundReceipt {
   status: 'success' | 'reverted' | 'missing';
   /** ERC-20 Transfer logs of the transaction. */
-  transfers: Array<{ token: string; to: string; valueMicro: string }>;
+  transfers: Array<{ token: string; from: string; to: string; valueMicro: string }>;
 }
 
 /** The only chain access the refund path has: one read per transaction. Tests inject a fake. */
@@ -66,6 +66,7 @@ export async function viemRefundChain(): Promise<RefundChain> {
         status: r.status === 'success' ? 'success' : 'reverted',
         transfers: logs.map((l) => ({
           token: l.address,
+          from: String(l.args.from),
           to: String(l.args.to),
           valueMicro: String(l.args.value),
         })),
@@ -99,6 +100,8 @@ interface OrderFacts {
   state: State;
   rail: string | null;
   payer_wallet: string | null;
+  /** The wallet the confirmed payment paid (the merchant's payout wallet on that rail). */
+  pay_to: string | null;
   total: bigint;
   refunded: bigint;
 }
@@ -109,14 +112,19 @@ async function orderFacts(tx: ShopTx, merchant_id: string, order_id: string): Pr
       state: State;
       rail: string | null;
       payer_wallet: string | null;
+      pay_to: string | null;
       total: string;
       refunded: string;
     }>
   >(
     `SELECT o.state, o.rail, o.payer_wallet,
+            (SELECT p.pay_to FROM shop_payments p
+              WHERE p.order_id = o.order_id AND p.chain_status = 'confirmed'
+              ORDER BY p.confirmed_at LIMIT 1) AS pay_to,
             (o.total_usd * 1000000)::bigint::text AS total,
             (SELECT COALESCE(SUM(r.verified_amount), 0) * 1000000 FROM shop_refunds r
-              WHERE r.order_id = o.order_id AND r.verified)::bigint::text AS refunded
+              WHERE r.order_id = o.order_id AND r.verified
+                AND r.reason <> 'duplicate_payment_recovery')::bigint::text AS refunded
        FROM shop_orders o WHERE o.order_id = $1::uuid AND o.merchant_id = $2::uuid`,
     order_id,
     merchant_id,
@@ -127,6 +135,7 @@ async function orderFacts(tx: ShopTx, merchant_id: string, order_id: string): Pr
     state: o.state,
     rail: o.rail,
     payer_wallet: o.payer_wallet,
+    pay_to: o.pay_to,
     total: BigInt(o.total),
     refunded: BigInt(o.refunded),
   };
@@ -157,21 +166,29 @@ function checkRefundable(f: OrderFacts, amount: bigint): void {
   }
 }
 
-/** Why the transaction does not prove the refund, or null when it does. */
+/**
+ * Why the transaction does not prove the refund, or null when it does. The USDC must go to `payer`
+ * (the order's payer wallet) and come FROM `sender` (A1-16: the merchant's payout wallet, the one the
+ * settle paid), so a third party's transfer cannot close a merchant's refund obligation.
+ */
 function verifyReceipt(
   r: RefundReceipt,
   token: string,
   payer: string,
+  sender: string | null,
   amount: bigint,
 ): string | null {
   if (r.status === 'missing') return 'tx_not_found_or_unconfirmed';
   if (r.status === 'reverted') return 'tx_reverted';
-  const paidToPayer = r.transfers
+  const toPayer = r.transfers
     .filter((t) => t.token.toLowerCase() === token.toLowerCase())
-    .filter((t) => t.to.toLowerCase() === payer.toLowerCase())
-    .reduce((sum, t) => sum + BigInt(t.valueMicro), 0n);
-  if (paidToPayer === 0n) return 'no_usdc_transfer_to_payer';
-  if (paidToPayer < amount) return 'transfer_below_amount';
+    .filter((t) => t.to.toLowerCase() === payer.toLowerCase());
+  if (toPayer.length === 0) return 'no_usdc_transfer_to_payer';
+  if (!sender) return 'refund_tx_wrong_sender';
+  const fromMerchant = toPayer.filter((t) => t.from.toLowerCase() === sender.toLowerCase());
+  if (fromMerchant.length === 0) return 'refund_tx_wrong_sender';
+  const paid = fromMerchant.reduce((sum, t) => sum + BigInt(t.valueMicro), 0n);
+  if (paid < amount) return 'transfer_below_amount';
   return null;
 }
 
@@ -244,7 +261,7 @@ export async function merchantRefund(
         'retry_after_delay',
       );
     }
-    reason = verifyReceipt(receipt, await railToken(rail), facts.payer_wallet, micro);
+    reason = verifyReceipt(receipt, await railToken(rail), facts.payer_wallet, facts.pay_to, micro);
   }
 
   const amount_usd = fromMicro(micro);

@@ -28,6 +28,7 @@ export const RECEIPT_ALLOWED_KEYS = [
   'payment_tx',
   'rail',
   'receipt_id',
+  'refund',
   'response_sha256',
   'schema',
   'tool',
