@@ -35,3 +35,5 @@ tracking (null in wave 1),
 ,
 # T-0567: the IP-country sentence now says the lookup source (monthly country-level database).
 country/region
+# T-0567: the registration sentence now points at country_not_supported instead of restating the edge-header source.
+is taken from the edge (trusted header),

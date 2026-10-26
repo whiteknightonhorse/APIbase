@@ -22,7 +22,7 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
   exists before a block is decided — enables settle-on-block: a blocked paid request keeps
   the charge and returns an `appeal_url` instead of silently keeping the money with no
   recourse) and before the provider call.
-- **Sign-up IP country (UC-22)**: merchant registration looks up the caller's IP country in-process in a monthly-refreshed DB-IP Country Lite database (country level, refreshed by the worker job `geo-db-refresh`); a trusted edge header overrides it, and a missing database means the IP rule is not applied.
+- **Sign-up IP country (UC-22)**: merchant registration looks up the caller's IP country in-process in a monthly-refreshed DB-IP Country Lite database (country level, refreshed by the worker job `geo-db-refresh`); a trusted edge header overrides it, and a missing database means the IP rule is not applied (policy: [/legal/aup](https://apibase.pro/legal/aup)).
 
 ## Documentation sync
 
