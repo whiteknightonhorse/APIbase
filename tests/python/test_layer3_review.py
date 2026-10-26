@@ -114,6 +114,19 @@ class GrammarTest(unittest.TestCase):
         l3.run(5, ctx=ctx)
         self.assertEqual([(b["product_id"], b["verdict"]) for b in posted], [(P[3], "ok")])
 
+    def test_invoke_uses_absolute_claude_not_path_wrapper(self):
+        with tempfile.TemporaryDirectory() as d:
+            fake = os.path.join(d, "claude")
+            open(fake, "w").write("#!/bin/sh\necho REAL\n")
+            os.chmod(fake, 0o755)
+            self.assertTrue(os.path.isabs(l3.CLAUDE_BIN))
+            old = l3.CLAUDE_BIN
+            l3.CLAUDE_BIN = fake
+            try:
+                self.assertEqual(l3.default_invoke("p").strip(), "REAL")
+            finally:
+                l3.CLAUDE_BIN = old
+
 
 if __name__ == "__main__":
     unittest.main()
