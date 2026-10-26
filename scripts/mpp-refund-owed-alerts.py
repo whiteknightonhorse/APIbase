@@ -30,6 +30,8 @@ import sys
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
 STATE = f"{ROOT}/scripts/night-orchestra/state"
@@ -72,40 +74,12 @@ def load_internal_wallets():
     return out
 
 
-def load_tg_env():
-    env = {}
-    path = f"{STATE}/tg.env"
-    if not os.path.exists(path):
-        return env
-    for line in open(path):
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        env[k] = v.strip('"').strip("'")
-    return env
-
-
 def psql(sql):
     out = subprocess.run(
         ["docker", "exec", "apibase-postgres-1", "psql", "-U", "apibase", "-d", "apibase", "-tAF", "\x1f", "-c", sql],
         capture_output=True, text=True,
     )
     return out.stdout.strip(), out.returncode
-
-
-def send_tg(text):
-    tg = load_tg_env()
-    token = tg.get("TG_BOT_TOKEN")
-    chat_id = tg.get("TG_CHAT_ID")
-    if not (token and chat_id):
-        return False
-    r = subprocess.run(
-        ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-         f"https://api.telegram.org/bot{token}/sendMessage"],
-        capture_output=True, text=True,
-    )
-    return '"ok":true' in r.stdout
 
 
 def usd(payload):
@@ -334,7 +308,7 @@ def tick():
     for key, kind, data, mark_ids in find_pages(rows, internal, now):
         if key in sent_keys:
             continue
-        if not send_tg(render_page(kind, data, tg)):
+        if not tg_send(render_page(kind, data, tg)):
             print(f"FAILED to page {key}")
             continue
         sent_keys[key] = today
@@ -352,7 +326,7 @@ def tick():
         if open_rows is None:
             print("WARNING: open-rows query failed — digest sent without the refund-due block")
         due = due_wallets(open_rows or [], internal, now)
-        if (pending or due) and send_tg(build_digest(pending, internal, tg, due)):
+        if (pending or due) and tg_send(build_digest(pending, internal, tg, due)):
             if mark_alerted([r["id"] for r in pending]) != 0:
                 print("WARNING: digest sent but failed to mark alerted_at — rows re-appear in the next digest")
             state["digest_date"] = today

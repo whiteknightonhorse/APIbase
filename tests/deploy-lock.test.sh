@@ -145,10 +145,23 @@ F2_FAIL=0
   echo dirt > "$fx/app/dirty.txt"
   cat > "$fx/bin/curl" <<'EOF'
 #!/bin/sh
-for a in "$@"; do case "$a" in text=*) printf '%s' "${a#text=}" > "$CAPTURE" ;; esac; done
-echo '{"ok":true}'
+# T-0575: lib/tg.sh calls curl with -o <body> -w %{http_code}; answer like Telegram does.
+out=""; prev=""
+for a in "$@"; do
+  case "$a" in text=*) printf '%s' "${a#text=}" > "$CAPTURE" ;; esac
+  [ "$prev" = "-o" ] && out="$a"
+  prev="$a"
+done
+[ -n "$out" ] && echo '{"ok":true}' > "$out"
+printf 200
 EOF
   chmod +x "$fx/bin/curl"
+  # the delivery lib lives outside this repo (~/taskloop/lib/tg.sh); CI has none, so fall back to a stub of the contract
+  if [ -f "$HOME/taskloop/lib/tg.sh" ]; then TG_LIB="$HOME/taskloop/lib/tg.sh"; else
+    TG_LIB="$fx/tg-stub.sh"
+    printf 'tg_send(){ . "$TG_ENV_FILE"; curl -sS -o /dev/null -w %%{http_code} -F "text=$1" x >/dev/null; }\n' > "$TG_LIB"
+  fi
+  export TG_LIB TG_DELIVERY_LOG="$fx/tg-delivery.log" TG_DEAD_MARKER="$fx/dead" TG_DEAD_STREAK_FILE="$fx/streak"
   # pull the two function definitions out of deploy.sh
   awk '/^(deploy_alert|f2_alert)\(\) \{/{p=1} p{print} p&&/^\}/{p=0}' "$DEPLOY_SCRIPT" > "$fx/fns.sh"
   APP_DIR="$fx/app"; NEW_SHA="abc123"; GITHUB_RUN_ID=777

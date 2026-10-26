@@ -645,20 +645,105 @@ def load_tg_env():
     return env
 
 
+def _tg_cfg(name: str, default: str) -> str:
+    """env var, else NAME=value in ~/taskloop/config.env, else default (same names lib/tg.sh uses)."""
+    if os.environ.get(name):
+        return os.environ[name]
+    try:
+        with open(os.path.join(TASKLOOP_ROOT, "config.env"), encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith(f"{name}="):
+                    return line.split("=", 1)[1].strip().strip('"').strip("'") or default
+    except OSError:
+        pass
+    return default
+
+
+def _tg_log(status: str, http: str, ok: str, desc: str, nbytes: int, text: str) -> None:
+    """One line in lib/tg.sh's format; never the bot credentials, the chat id or the response body."""
+    path = _tg_cfg("TG_DELIVERY_LOG", f"{TASKLOOP_ROOT}/logs/tg-delivery.log")
+    head = text[:40].replace("\n", " ")
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "a", encoding="utf-8") as f:
+            f.write(f"{datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')} {status} http={http} "
+                    f"ok={ok} desc={desc} bytes={nbytes} head={head}\n")
+    except OSError:
+        pass
+
+
+def _tg_paths() -> tuple:
+    return (_tg_cfg("TG_DEAD_STREAK_FILE", f"{TASKLOOP_ROOT}/state/tg-fail-streak"),
+            _tg_cfg("TG_DEAD_MARKER", f"{TASKLOOP_ROOT}/state/tg-dead-marker"))
+
+
+def _tg_fail_streak() -> None:
+    """One undelivered call: bump the shared streak, write the dead marker once at >=3 (as lib/tg.sh)."""
+    streak_path, marker = _tg_paths()
+    try:
+        os.makedirs(os.path.dirname(streak_path), exist_ok=True)
+        try:
+            with open(streak_path) as f:
+                streak = int(f.read().strip() or 0)
+        except (OSError, ValueError):
+            streak = 0
+        streak += 1
+        with open(streak_path, "w") as f:
+            f.write(f"{streak}\n")
+        if streak >= 3 and not os.path.exists(marker):
+            os.makedirs(os.path.dirname(marker), exist_ok=True)
+            with open(marker, "w") as f:
+                f.write(datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ") + "\n")
+    except OSError:
+        pass
+
+
 def tg_send(text: str) -> bool:
+    """Send one Telegram message; True only on HTTP 200 + "ok":true. Appends SENT / FAILED / TG-NOENV
+    to the delivery log in lib/tg.sh's format (T-0575)."""
     env = load_tg_env()
-    token, chat_id = env.get("TG_BOT_TOKEN"), env.get("TG_CHAT_ID")
-    if not token or not chat_id:
+    bot, chat_id = env.get("TG_BOT_TOKEN"), env.get("TG_CHAT_ID")
+    if not bot or not chat_id:
+        env_path = os.environ.get("AUTOPILOT_TG_ENV_PATH", f"{STATE}/tg.env")
+        _tg_log("TG-NOENV", "-", "-", "empty-token-or-chat-id" if os.path.exists(env_path) else "no-env-file", 0, text)
+        _tg_fail_streak()
         return False
+    http, body = "000", ""
     try:
         r = subprocess.run(
-            ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-             f"https://api.telegram.org/bot{token}/sendMessage"],
+            ["curl", "-sS", "--max-time", "30", "-w", "\n%{http_code}",
+             "--form-string", f"chat_id={chat_id}", "--form-string", f"text={text}",
+             f"{_tg_cfg('TG_API_BASE', 'https://api.telegram.org')}/bot{bot}/sendMessage"],
             capture_output=True, text=True,
         )
-        return '"ok":true' in r.stdout
+        body, _, http = r.stdout.rpartition("\n")
+        http = http.strip() or "000"
     except Exception:
-        return False
+        pass
+    tgok = re.search(r'"ok":\s*true', body) is not None
+    m = re.search(r'"description":"([^"]*)"', body)
+    desc = (m.group(1) if m else "none").replace(" ", "_")
+    nbytes = len(body.encode())
+    if http == "200" and tgok:
+        _tg_log("SENT", http, "yes", desc, nbytes, text)
+        streak_path, marker = _tg_paths()
+        try:
+            os.remove(streak_path)
+        except OSError:
+            pass
+        if os.path.exists(marker):
+            try:
+                with open(marker) as f:
+                    since = f.read().strip() or "unknown"
+                _tg_log("RECOVERED", http, "yes", f"dead-marker-cleared-since-{since}", nbytes, text)
+                os.remove(marker)
+            except OSError:
+                pass
+        return True
+    _tg_log("FAILED", http, "yes" if tgok else "no", desc, nbytes, text)
+    _tg_fail_streak()
+    return False
 
 
 # ---------------------------------------------------------------------------

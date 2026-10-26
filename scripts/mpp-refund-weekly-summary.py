@@ -14,23 +14,12 @@ Weekly cron (see crontab) — cheap enough to also run on demand.
 """
 import subprocess
 import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
 STATE = f"{ROOT}/scripts/night-orchestra/state"
-
-
-def load_tg_env():
-    env = {}
-    path = f"{STATE}/tg.env"
-    if not os.path.exists(path):
-        return env
-    for line in open(path):
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        env[k] = v.strip('"').strip("'")
-    return env
 
 
 def psql(sql):
@@ -59,10 +48,6 @@ if count == 0:
     print("mpp-refund-weekly-summary: 0 refunds pending")
     raise SystemExit(0)
 
-tg = load_tg_env()
-token = tg.get("TG_BOT_TOKEN")
-chat_id = tg.get("TG_CHAT_ID")
-
 text = (
     f"[apibase] \U0001f4cb Weekly refund summary — {count} refund(s) still owed.\n"
     f"total outstanding: ${total_raw} USDC\n"
@@ -71,15 +56,8 @@ text = (
     f"close one without paying: scripts/refund-ledger.py cancel <refund_id> --reason \"<reason>\""
 )
 
-if token and chat_id:
-    r = subprocess.run(
-        ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-         f"https://api.telegram.org/bot{token}/sendMessage"],
-        capture_output=True, text=True,
-    )
-    ok = '"ok":true' in r.stdout
-    if not ok:
-        print(f"mpp-refund-weekly-summary: {count} pending but Telegram send FAILED")
-        raise SystemExit(1)
+if not tg_send(text):
+    print(f"mpp-refund-weekly-summary: {count} pending but Telegram send FAILED")
+    raise SystemExit(1)
 
 print(f"mpp-refund-weekly-summary: {count} pending, oldest {oldest_raw}, paged")

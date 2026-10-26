@@ -24,6 +24,8 @@ import os
 import subprocess
 import sys
 from datetime import datetime, timezone
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
 STATE = f"{ROOT}/scripts/night-orchestra/state"
@@ -33,20 +35,6 @@ REDIS_CONTAINER = "apibase-redis-1"
 WALLET_SHORT = "0x54F0...7932"
 STALE_AFTER_S = 3 * 3600
 PACING_S = {"RED": 4 * 3600, "ORANGE": 24 * 3600, "STALE": 24 * 3600}
-
-
-def load_tg_env():
-    env = {}
-    path = f"{STATE}/tg.env"
-    if not os.path.exists(path):
-        return env
-    for line in open(path):
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        env[k] = v.strip('"').strip("'")
-    return env
 
 
 def parse_ts(s):
@@ -81,19 +69,6 @@ def save_state(state):
     with open(tmp, "w") as f:
         json.dump(state, f)
     os.replace(tmp, STATE_FILE)
-
-
-def send(text):
-    tg = load_tg_env()
-    bot, chat_id = tg.get("TG_BOT_TOKEN"), tg.get("TG_CHAT_ID")
-    if not (bot and chat_id):
-        return False
-    r = subprocess.run(
-        ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-         f"https://api.telegram.org/bot{bot}/sendMessage"],
-        capture_output=True, text=True,
-    )
-    return '"ok":true' in r.stdout
 
 
 def main():
@@ -157,7 +132,7 @@ def main():
     if tier == "OK":
         new_state["last_tier"] = "OK"
     if due:
-        if send(text):
+        if tg_send(text):
             new_state.update(last_sent_at=iso(now), last_tier=tier)
         else:
             print("x402-operator-gas-alerts: Telegram send FAILED, will retry next tick")

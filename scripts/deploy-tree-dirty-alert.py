@@ -54,15 +54,17 @@ which is entirely `.gitignore`d in the deploy tree, and its only read of the
 tracked tree is `git status --porcelain` -- no tracked file is ever touched.
 """
 import os
+import sys
 import subprocess
 import time
 from datetime import datetime, timezone
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 DEPLOY_TREE = "/home/apibase/apibase"
 STATE_DIR = f"{DEPLOY_TREE}/scripts/night-orchestra/state"
 STATE_FILE = f"{STATE_DIR}/deploy-tree-dirty-since.txt"
 ALERTED_FILE = f"{STATE_DIR}/deploy-tree-dirty-alerted.txt"
-TG_ENV_PATH = f"{STATE_DIR}/tg.env"
 DIRTY_GRACE_MINUTES = 30
 
 
@@ -72,33 +74,6 @@ def _ts() -> str:
     # logs' clocks. datetime.now(timezone.utc), not utcnow() (deprecated
     # since 3.12).
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def load_tg_env():
-    env = {}
-    if not os.path.exists(TG_ENV_PATH):
-        return env
-    for line in open(TG_ENV_PATH):
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        env[k] = v.strip('"').strip("'")
-    return env
-
-
-def tg_send(text: str) -> bool:
-    env = load_tg_env()
-    token, chat_id = env.get("TG_BOT_TOKEN"), env.get("TG_CHAT_ID")
-    if not token or not chat_id:
-        print(f"{_ts()} deploy-tree-dirty-alert: no tg.env configured -- would have sent:\n" + text)
-        return False
-    r = subprocess.run(
-        ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-         f"https://api.telegram.org/bot{token}/sendMessage"],
-        capture_output=True, text=True,
-    )
-    return '"ok":true' in r.stdout
 
 
 def porcelain_status() -> str:

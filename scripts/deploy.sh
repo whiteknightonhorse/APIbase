@@ -43,43 +43,18 @@ echo "[deploy] Starting deploy: sha-${NEW_SHA}"
 # only. Never auto-revert, never auto-commit (T-20 prohibition still stands).
 deploy_alert() {
   local text="$1" label="${2:-alert}"
-  local tg_env="${APP_DIR}/scripts/night-orchestra/state/tg.env"
-  if [ ! -f "$tg_env" ]; then
-    echo "[deploy] ${label}: tg.env missing, no page sent"
+  # T-0575: the one sender is ~/taskloop/lib/tg.sh (it writes the delivery line); this tree's own env file.
+  local tg_lib="${TG_LIB:-$HOME/taskloop/lib/tg.sh}"
+  if [ ! -f "$tg_lib" ]; then
+    echo "[deploy] ${label}: ${tg_lib} missing, no page sent"
     return
   fi
-
-  local token="" chat_id="" line k v
-  while IFS= read -r line || [ -n "$line" ]; do
-    case "$line" in
-      ""|"#"*) continue ;;
-    esac
-    case "$line" in
-      *=*) ;;
-      *) continue ;;
-    esac
-    k="${line%%=*}"
-    v="${line#*=}"
-    v="${v%\"}"; v="${v#\"}"
-    v="${v%\'}"; v="${v#\'}"
-    case "$k" in
-      TG_BOT_TOKEN) token="$v" ;;
-      TG_CHAT_ID) chat_id="$v" ;;
-    esac
-  done < "$tg_env"
-
-  if [ -z "$token" ] || [ -z "$chat_id" ]; then
-    echo "[deploy] ${label}: tg.env missing, no page sent"
-    return
-  fi
-
-  local http_body="" curl_rc=0
-  http_body="$(curl -sS --max-time 10 -F "chat_id=${chat_id}" -F "text=${text}" \
-    "https://api.telegram.org/bot${token}/sendMessage")" || curl_rc=$?
-  if [ "$curl_rc" -eq 0 ] && printf '%s' "$http_body" | grep -q '"ok":true'; then
+  # shellcheck disable=SC1090
+  . "$tg_lib"
+  if TG_ENV_FILE="${APP_DIR}/scripts/night-orchestra/state/tg.env" tg_send "$text"; then
     echo "[deploy] ${label}: sent"
   else
-    echo "[deploy] ${label}: send FAILED (rc=${curl_rc})"
+    echo "[deploy] ${label}: send FAILED (see tg-delivery.log)"
   fi
 }
 

@@ -16,23 +16,12 @@ import datetime as _dt
 import json
 import subprocess
 import os
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
 STATE = f"{ROOT}/scripts/night-orchestra/state"
-
-
-def load_tg_env():
-    env = {}
-    path = f"{STATE}/tg.env"
-    if not os.path.exists(path):
-        return env
-    for line in open(path):
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        env[k] = v.strip('"').strip("'")
-    return env
 
 
 def psql(sql):
@@ -68,10 +57,6 @@ if not rows_raw:
     print("x402-settle-leak-alerts: 0 unalerted settle failures")
     raise SystemExit(0)
 
-tg = load_tg_env()
-token = tg.get("TG_BOT_TOKEN")
-chat_id = tg.get("TG_CHAT_ID")
-
 sent_ids = []
 for line in rows_raw.splitlines():
     row_id, created_at, payload_raw = line.split("\x1f")
@@ -87,15 +72,7 @@ for line in rows_raw.splitlines():
         f"outbox id: {row_id} @ {created_at}"
     )
 
-    ok = False
-    if token and chat_id:
-        r = subprocess.run(
-            ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-             f"https://api.telegram.org/bot{token}/sendMessage"],
-            capture_output=True, text=True,
-        )
-        ok = '"ok":true' in r.stdout
-    if ok:
+    if tg_send(text):
         sent_ids.append(row_id)
     else:
         print(f"FAILED to alert outbox id {row_id} — left unprocessed for next tick")

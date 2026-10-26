@@ -37,24 +37,13 @@ Daily cron (02:00 UTC) — compares the FULL previous UTC day, never a partial
 import json
 import subprocess
 import os
+import sys
 from datetime import datetime, timedelta, timezone
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
 STATE = f"{ROOT}/scripts/night-orchestra/state"
-
-
-def load_tg_env():
-    env = {}
-    path = f"{STATE}/tg.env"
-    if not os.path.exists(path):
-        return env
-    for line in open(path):
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        env[k] = v.strip('"').strip("'")
-    return env
 
 
 def psql_json(sql):
@@ -110,9 +99,6 @@ report_date = (datetime.now(timezone.utc).date() - timedelta(days=1)).isoformat(
 coverage_line = f"upstream_cost_usd coverage: {covered}/{total} paid providers ({coverage_pct}%)"
 
 if revenue < spend:
-    tg = load_tg_env()
-    token = tg.get("TG_BOT_TOKEN")
-    chat_id = tg.get("TG_CHAT_ID")
     text = (
         f"[apibase] ⚠️ Spend-vs-revenue discrepancy for {report_date} (own records only, "
         f"no bank/card data) — revenue collected is LESS than upstream cost incurred for tools "
@@ -125,15 +111,9 @@ if revenue < spend:
         f"Known noise source: a legitimate refund for a failed provider call also produces this — "
         f"check execution_ledger billing_status='REFUNDED' for {report_date} before assuming a leak."
     )
-    if token and chat_id:
-        r = subprocess.run(
-            ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-             f"https://api.telegram.org/bot{token}/sendMessage"],
-            capture_output=True, text=True,
-        )
-        if '"ok":true' not in r.stdout:
-            print(f"spend-vs-revenue: DISCREPANCY found but Telegram send FAILED: {text}")
-            raise SystemExit(1)
+    if not tg_send(text):
+        print(f"spend-vs-revenue: DISCREPANCY found but Telegram send FAILED: {text}")
+        raise SystemExit(1)
     print(f"spend-vs-revenue: DISCREPANCY for {report_date} — spend ${spend:.6f} > revenue ${revenue:.6f}, paged. {coverage_line}")
     raise SystemExit(0)
 

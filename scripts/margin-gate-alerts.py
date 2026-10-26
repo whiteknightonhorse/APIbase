@@ -52,6 +52,8 @@ import sys
 from datetime import datetime, timezone
 
 import yaml
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 DEPLOY_ROOT = "/home/apibase/apibase"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -62,7 +64,6 @@ MISSING_PREFIX = "Cost model missing: "
 FLOOR_PREFIX = "Price below floor: "
 COVERAGE_TITLE = "Margin gate coverage below threshold"
 COVERAGE_MIN_PCT = 90.0
-TG_ENV_PATH = f"{DEPLOY_ROOT}/scripts/night-orchestra/state/tg.env"
 
 
 with open(f"{ROOT}/src/config/margin.json") as f:
@@ -362,34 +363,6 @@ def coverage_line(with_cost, paid, pct):
     return f"coverage: {with_cost}/{paid} ({pct:.1f}%)"
 
 
-def load_tg_env(path=TG_ENV_PATH):
-    env = {}
-    if not os.path.exists(path):
-        return env
-    with open(path) as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            k, v = line.split("=", 1)
-            env[k] = v.strip().strip('"').strip("'")
-    return env
-
-
-def send_telegram(text):
-    """Same direct sendMessage path as x402-settle-leak-alerts.py (state/tg.env). True on ok."""
-    tg = load_tg_env()
-    token, chat_id = tg.get("TG_BOT_TOKEN"), tg.get("TG_CHAT_ID")
-    if not (token and chat_id):
-        return False
-    r = subprocess.run(
-        ["curl", "-sS", "--max-time", "30", "-F", f"chat_id={chat_id}", "-F", f"text={text}",
-         f"https://api.telegram.org/bot{token}/sendMessage"],
-        capture_output=True, text=True,
-    )
-    return '"ok":true' in r.stdout
-
-
 def coverage_tg_text(with_cost, paid, pct):
     return (f"[apibase] margin gate coverage FAIL -- {coverage_line(with_cost, paid, pct)}, below the "
             f"{COVERAGE_MIN_PCT:.0f}% minimum. 'margin gate: 0 below floor' describes only the covered "
@@ -422,7 +395,7 @@ def check_coverage():
         r = gh("issue", "create", "--repo", REPO, "--title", COVERAGE_TITLE, "--body", body)
         print(f"{'created' if r.returncode == 0 else 'FAILED'}: {COVERAGE_TITLE}")
         # Telegram only alongside a new issue (same dedup), so it is not re-sent every hour
-        ok = send_telegram(coverage_tg_text(with_cost, paid, pct))
+        ok = tg_send(coverage_tg_text(with_cost, paid, pct))
         print(f"telegram {'sent' if ok else 'FAILED'}: {COVERAGE_TITLE}")
     return False
 
@@ -485,7 +458,6 @@ def selftest():
     assert coverage_stats([])[2] == 100.0
     assert coverage_line(2, 3, 100.0 * 2 / 3) == "coverage: 2/3 (66.7%)"
     assert "coverage: 2/3 (66.7%)" in coverage_tg_text(2, 3, 100.0 * 2 / 3)
-    assert load_tg_env("/nonexistent/path.env") == {}
 
     print("margin-gate-alerts --selftest: OK")
 

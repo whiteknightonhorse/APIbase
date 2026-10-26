@@ -76,12 +76,10 @@ calert(){
   key="$(printf '%s' "$cause" | tr -c 'A-Za-z0-9' '-' | cut -c1-80)"
   marker="$STATE_DIR/.calert-sent-${key}-${TODAY}"
   [ -f "$marker" ] && return 0
-  local envf="$HOME/taskloop/state/tg.env"
-  if [ -f "$envf" ]; then
-    ( . "$envf"; [ -n "${TG_BOT_TOKEN:-}" ] && [ -n "${TG_CHAT_ID:-}" ] && \
-      curl -sS --max-time 30 -F "chat_id=$TG_CHAT_ID" -F "text=[sync-counts-cron] $msg" \
-        "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" >/dev/null 2>&1 ) || true
-  fi
+  # T-0575: the one sender, ~/taskloop/lib/tg.sh (writes the delivery line); this tenant's own env file.
+  ( TG_ENV_FILE="${TG_ENV_FILE:-$HOME/taskloop/state/tg.env}"
+    # shellcheck disable=SC1090
+    . "${TG_LIB:-$HOME/taskloop/lib/tg.sh}" && tg_send "[sync-counts-cron] $msg" ) >/dev/null 2>&1 || true
   mkdir -p "$STATE_DIR" 2>/dev/null || true
   date -u +%FT%TZ > "$marker" 2>/dev/null || true
 }

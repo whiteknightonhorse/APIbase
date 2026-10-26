@@ -16,6 +16,8 @@ import re
 import subprocess
 import sys
 from datetime import datetime, timezone
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+from autopilot_common import tg_send  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
 STATE = f"{ROOT}/scripts/night-orchestra/state"
@@ -58,38 +60,12 @@ def format_nag(ob_ids, ct_ids):
     return ("[apibase] inbound messages awaiting a reply — " + "; ".join(parts)) if parts else ""
 
 
-def load_tg_env():
-    env = {}
-    path = f"{STATE}/tg.env"
-    if not os.path.exists(path):
-        return env
-    for line in open(path):
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        k, v = line.split("=", 1)
-        env[k] = v.strip('"').strip("'")
-    return env
-
-
 def psql(sql):
     out = subprocess.run(
         ["docker", "exec", "apibase-postgres-1", "psql", "-U", "apibase", "-d", "apibase", "-tA", "-c", sql],
         capture_output=True, text=True,
     )
     return out.stdout.strip(), out.returncode
-
-
-def send(tg, text):
-    token, chat_id = tg.get("TG_BOT_TOKEN"), tg.get("TG_CHAT_ID")
-    if not (token and chat_id):
-        return False
-    r = subprocess.run(
-        ["curl", "-sS", "--max-time", "30", "--form-string", f"chat_id={chat_id}", "--form-string", f"text={text}",
-         f"https://api.telegram.org/bot{token}/sendMessage"],
-        capture_output=True, text=True,
-    )
-    return '"ok":true' in r.stdout
 
 
 def json_rows(sql):
@@ -113,7 +89,6 @@ def page_new():
     if rows is None:
         print("inbound-messages-alerts: psql query failed")
         return 1
-    tg = load_tg_env()
     sent = []
     for r in rows:
         text = None
@@ -137,7 +112,7 @@ def page_new():
         if text is None:
             print(f"outbox id {r['id']}: source row missing — left unprocessed")
             continue
-        if send(tg, text):
+        if tg_send(text):
             sent.append(str(int(r["id"])))
         else:
             print(f"FAILED to page outbox id {r['id']} — left unprocessed for next tick")
@@ -181,7 +156,7 @@ def nag_once_a_day():
 
     ob_ids, ct_ids = select_stale(parse(ob), parse(ct), datetime.now(timezone.utc))
     text = format_nag(ob_ids, ct_ids)
-    if text and not send(load_tg_env(), text):
+    if text and not tg_send(text):
         print("FAILED to send nag — will retry next tick")
         return
     with open(NAG_FILE, "w") as f:
