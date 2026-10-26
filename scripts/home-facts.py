@@ -76,8 +76,8 @@ def token_values():
         return {}
     t, rl = d["tiers"], d["rate_limits"]
     tiers = (
-        "<strong>Micro</strong> (%d tools, under $0.01). <strong>Standard</strong> (%d tools, $0.01\u2013$0.99). "
-        "<strong>Premium</strong> (%d tools, $1 and above: domain registration and two AIpush reports)."
+        "<strong>Micro</strong> (%d of the tools, under $0.01). <strong>Standard</strong> (%d of the tools, $0.01\u2013$0.99). "
+        "<strong>Premium</strong> (%d of the tools, $1 and above: domain registration and two AIpush reports)."
         % (t["micro"]["count"], t["standard"]["count"], t["premium"]["count"])
     )
     limits = "; ".join(

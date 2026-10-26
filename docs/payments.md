@@ -13,7 +13,7 @@ Q3) so integration detail lives with the rest of the docs, not in the ten-second
 | Wallet | `0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480` |
 | Price range | $0.0005 – $29.99 per call (p90 $0.003) |
 | SDK | `@x402/core`, `@x402/evm`, `@x402/extensions` 2.28 (spec v2, V1 payloads accepted) |
-| Settlement | **Self-hosted on-chain facilitator** is the primary path; PayAI is a fallback only (below). See [`x402-facilitator.md`](x402-facilitator.md). |
+| Settlement | **Self-hosted on-chain facilitator** is the primary path; PayAI fallback: see the paragraph below. See [`x402-facilitator.md`](x402-facilitator.md). |
 
 APIbase runs its own x402 facilitator in-process: every successful payment is settled by
 submitting `transferWithAuthorization` directly on Base via [`viem`](https://viem.sh). There

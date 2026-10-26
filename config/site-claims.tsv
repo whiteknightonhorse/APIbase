@@ -46,8 +46,8 @@ static/.well-known/mcp.json	https://apibase.pro/.well-known/mcp.json	must-contai
 static/.well-known/mcp/server-card.json	https://apibase.pro/.well-known/mcp/server-card.json	must-contain	{{mcp_prompts}}	-	APIBASE-013
 static/llms.txt	https://apibase.pro/llms.txt	regex-equals	all (\d+) tools	{{tools_count}}	APIBASE-014
 static/catalog.html	https://apibase.pro/catalog	must-not-contain	and the MCP <code>tools/list</code> served	-	APIBASE-014
-static/pricing.html	https://apibase.pro/pricing	regex-equals	Standard</strong>[^\n]*?\((\d+) tools	{{tiers.standard.count}}	APIBASE-015
-static/pricing.html	https://apibase.pro/pricing	regex-equals	Premium</strong>[^\n]*?\((\d+) tools	{{tiers.premium.count}}	APIBASE-015
+static/pricing.html	https://apibase.pro/pricing	regex-equals	Standard</strong>[^\n]*?\((\d+) of the tools	{{tiers.standard.count}}	APIBASE-015
+static/pricing.html	https://apibase.pro/pricing	regex-equals	Premium</strong>[^\n]*?\((\d+) of the tools	{{tiers.premium.count}}	APIBASE-015
 static/llms.txt	https://apibase.pro/llms.txt	must-not-contain	ad spend	-	APIBASE-015
 static/pricing.html	https://apibase.pro/pricing	must-not-contain	(90% of tools	-	APIBASE-016
 static/llms.txt	https://apibase.pro/llms.txt	must-not-contain	(90% of tools	-	APIBASE-016
