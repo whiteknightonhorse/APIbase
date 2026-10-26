@@ -28,6 +28,7 @@ import { createHash } from 'crypto';
 import { spawnSync } from 'child_process';
 import { resolve } from 'path';
 import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
+import { NEGOTIATED_PROTOCOL_VERSION, NEGOTIATED_PROTOCOL_VERSIONS } from '../src/mcp/list-cache';
 import { toolSchemas } from '../src/schemas/index';
 import { shopToolDefinitions } from '../src/shop/tool-definitions';
 import { buildPriceRange, type PriceRange } from './price-range';
@@ -339,7 +340,8 @@ async function main(): Promise<void> {
         name: 'APIbase',
         description: `Unified MCP gateway to ${MCP_COUNTS.published} API tools from ${PROV} providers. Pay-per-call via x402 USDC micropayments.`,
         protocol: 'MCP',
-        protocolVersion: '2025-03-26',
+        protocolVersion: NEGOTIATED_PROTOCOL_VERSION,
+        protocolVersions: NEGOTIATED_PROTOCOL_VERSIONS,
         transport: 'streamable-http',
         url: 'https://apibase.pro/mcp',
         version: PACKAGE_VERSION,
@@ -702,6 +704,7 @@ fast-json-stable-stringify (keys sorted recursively, no whitespace) and the thre
 \`GET /api/v1/tools/<id>\` returns. \`GET /api/v1/tools/manifest\` returns every hash with an ETag you can poll
 with \`If-None-Match\`. A changed hash means the description or input schema changed: re-read the tool before
 calling it. Price is not part of the hash.
+\`tools/list\` carries \`ttlMs\` (300000, 5 min) and \`cacheScope\` (\`public\`); a changed \`definition_sha256\` is the signal to re-read, and the price you pay is the one in the 402, never a cached one.
 The manifest covers exactly the tools \`tools/list\` serves right now, including the \`shop.*\` platform tools, so a
 tool marked unavailable drops out of both and \`manifest_sha256\` moves when the served set changes, while a
 \`definition_sha256\` moves only when that tool's description or input schema changes.

@@ -2,7 +2,7 @@
  * MCP server factory and Express route handlers (§12.42, §6.14, §12.1).
  *
  * Dual transport:
- *   - Streamable HTTP (primary, protocol 2025-11-25) — /mcp
+ *   - Streamable HTTP (primary; protocol versions: NEGOTIATED_PROTOCOL_VERSIONS in list-cache.ts, from the SDK) — /mcp
  *   - SSE (deprecated, backward compat, protocol 2024-11-05) — /sse + /messages
  *
  * One McpServer + Transport per session. All tool calls route through the
@@ -28,6 +28,7 @@ import { mcpSessionsActive } from '../services/metrics.service';
 import { registerTools, type PaymentContext } from './tool-adapter';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
+import { withListCacheHints } from './list-cache';
 import { registerCatalogTools } from '../shop/tools/catalog.tools';
 import { registerOrderTools } from '../shop/tools/order.tools';
 import { geoOf } from '../shop/geo-headers';
@@ -200,7 +201,7 @@ export function createMcpServer(
   registerCatalogTools(shopServer, apiKey, requestId);
   registerOrderTools(shopServer, apiKey, requestId, undefined, paymentCtxRef, sessionId);
   registerPrompts(mcpServer);
-  return mcpServer;
+  return withListCacheHints(mcpServer);
 }
 
 /**
@@ -208,8 +209,7 @@ export function createMcpServer(
  */
 function extractPaymentFromReq(req: express.Request): PaymentContext {
   const x402 = (req as unknown as Record<string, unknown>).x402Payment as
-    | { verified?: boolean; payer?: string }
-    | undefined;
+    { verified?: boolean; payer?: string } | undefined;
   const mpp = (req as unknown as Record<string, unknown>).mppPayment as
     | {
         verified?: boolean;
@@ -348,7 +348,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
   const router = express.Router();
 
   // =========================================================================
-  // Streamable HTTP transport — /mcp (primary, protocol 2025-11-25)
+  // Streamable HTTP transport — /mcp (primary; protocol versions from the SDK, see list-cache.ts)
   // =========================================================================
 
   // --- POST /mcp: JSON-RPC messages ---

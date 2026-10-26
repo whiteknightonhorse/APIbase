@@ -51,6 +51,8 @@ Law: unknown is resolved only by reading the chain, and nobody calls settle agai
 
 ### MCP (T-0429)
 
+Protocol versions: see /.well-known/mcp.json.
+
 Transport on `/mcp`, same rules as REST: the x402 payment travels in the `X-Payment` header or in `params._meta["x402/payment"]` of a `tools/call` (x402 MCP transport v2; key names `x402/payment`, `x402/payment-response` from `@x402/mcp` 2.28, a dev dependency used only by tests). Header wins; both present with different payloads is a 400; explicit nulls on optional fields are dropped before parsing. `src/middleware/x402.middleware.ts` re-encodes a `_meta` payment as the X-Payment value, so ESCROW binds both the same way.
 
 A 402 tool result keeps `isError:true` and its JSON text and adds the PaymentRequired object of the HTTP 402 body in `_meta["x402/payment-required"]` and in `structuredContent` (the official transport reads `structuredContent`; the `_meta` key is our addition, the spec defines none for the challenge). A settled call adds `_meta["x402/payment-response"]` `{success, transaction, network, payer}`. `maxTimeoutSeconds` is 120 (the validBefore window; @x402/mcp clients derive their tool-call timeout from it).

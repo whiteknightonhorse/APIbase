@@ -2,7 +2,14 @@
   "name": "APIbase",
   "description": "Unified MCP gateway to 1387 API tools from 401 providers. Pay-per-call via x402 USDC micropayments.",
   "protocol": "MCP",
-  "protocolVersion": "2025-03-26",
+  "protocolVersion": "2025-11-25",
+  "protocolVersions": [
+    "2025-11-25",
+    "2025-06-18",
+    "2025-03-26",
+    "2024-11-05",
+    "2024-10-07"
+  ],
   "transport": "streamable-http",
   "url": "https://apibase.pro/mcp",
   "version": "2.2.0",

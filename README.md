@@ -30,6 +30,7 @@ That's the Claude Desktop config. Cursor, Windsurf, OpenAI Agents SDK, LangChain
 - **[llms.txt](https://apibase.pro/llms.txt)** — concise LLM context
 - **[ai.txt](https://apibase.pro/ai.txt)** — plain-text agent discovery
 - **[mcp.json](https://apibase.pro/.well-known/mcp.json)** — MCP server metadata
+- **MCP protocol versions** — 2025-11-25, 2025-06-18, 2025-03-26, 2024-11-05, 2024-10-07 (Streamable HTTP on `/mcp`); revision 2026-07-28 is not served yet (the released SDK does not support it). Current list: `protocolVersions` in mcp.json
 - **[openapi.json](https://apibase.pro/.well-known/openapi.json)** — OpenAPI 3.1 spec
 - **[api-catalog](https://apibase.pro/.well-known/api-catalog)** — RFC 9727 discovery linkset
 - **[Roadmap](docs/ROADMAP.md)** — planned/shipped changes that affect what an agent can do or see
