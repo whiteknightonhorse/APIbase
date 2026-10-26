@@ -324,8 +324,10 @@ Run \`/security\` skill in Claude Code for full audit with auto-fix.
 ISSUE_EOF
 )"
 
+  source "$(dirname "${BASH_SOURCE[0]}")/lib/ops-issues.sh"
+  ISSUE_BODY="$(printf "%s" "${ISSUE_BODY}" | ops_redact)" || ISSUE_BODY="(body withheld: redaction failed)"
   gh issue create \
-    --repo whiteknightonhorse/APIbase \
+    --repo "$OPS_ISSUES_REPO" \
     --title "${ISSUE_TITLE}" \
     --body "${ISSUE_BODY}" \
     \

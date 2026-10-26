@@ -1,0 +1,6 @@
+{
+  "_comment": "T-0581: patterns scrubbed from operational GitHub issue bodies before they are written. Each match is replaced with the replacement value.",
+  "literals": ["5.78.135.159", "aipush.app", "aipush"],
+  "regexes": ["/home/[A-Za-z0-9_.-]+(?:/[^\\s`'\")]*)?"],
+  "replacement": "<redacted>"
+}

@@ -54,10 +54,11 @@ from datetime import datetime, timezone
 import yaml
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
 from autopilot_common import tg_send  # noqa: E402
+import ops_issues  # noqa: E402
 
 DEPLOY_ROOT = "/home/apibase/apibase"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REPO = "whiteknightonhorse/APIbase"
+REPO = ops_issues.OPS_ISSUES_REPO
 TITLE_PREFIX = "Margin gate blocking: "
 STALE_PREFIX = "Cost model stale: "
 MISSING_PREFIX = "Cost model missing: "
@@ -91,7 +92,7 @@ def psql(sql):
 
 
 def gh(*args):
-    return subprocess.run(["gh", *args], capture_output=True, text=True, cwd=ROOT)
+    return subprocess.run(["gh", *ops_issues.scrub_gh_args(args)], capture_output=True, text=True, cwd=ROOT)
 
 
 def open_issues_with_prefix(prefix):

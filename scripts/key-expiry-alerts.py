@@ -47,7 +47,9 @@ import sys
 from datetime import datetime, timezone
 
 ROOT = "/home/apibase/apibase"
-REPO = "whiteknightonhorse/APIbase"
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
+import ops_issues  # noqa: E402
+REPO = ops_issues.OPS_ISSUES_REPO
 CONFIG_PATH_DEFAULT = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src", "config", "provider-limits.json")
 )
@@ -59,7 +61,7 @@ ISSUE_LABEL = "key-expiry-alert"
 
 
 def gh(*args):
-    return subprocess.run(["gh", *args], capture_output=True, text=True, cwd=ROOT)
+    return subprocess.run(["gh", *ops_issues.scrub_gh_args(args)], capture_output=True, text=True, cwd=ROOT)
 
 
 def load_config(path):

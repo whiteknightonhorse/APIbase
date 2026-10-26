@@ -8,6 +8,7 @@ import types
 
 here = os.path.dirname(os.path.abspath(__file__))
 tmp = tempfile.mkdtemp()
+os.environ["OPS_ISSUES_REPO"] = "dummy/dummy"
 os.environ["LIMIT_ALERT_STATE"] = os.path.join(tmp, "state.json")
 spec = importlib.util.spec_from_file_location("pla", os.path.join(here, "..", "provider-limit-alerts.py"))
 pla = importlib.util.module_from_spec(spec)

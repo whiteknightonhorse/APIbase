@@ -5,7 +5,8 @@
 
 set -uo pipefail
 
-REPO="whiteknightonhorse/APIbase"
+source "$(dirname "${BASH_SOURCE[0]}")/lib/ops-issues.sh"
+REPO="$OPS_ISSUES_REPO"
 ALERTS=""
 SEVERITY="MEDIUM"
 
@@ -106,5 +107,6 @@ $(if echo "$ALERTS" | grep -q "Unhealthy"; then echo "- Restart unhealthy contai
 BODY_EOF
 )"
 
+  BODY="$(printf '%s' "$BODY" | ops_redact)" || exit 1
   gh issue create --repo "$REPO" --title "$TITLE" --body "$BODY" 2>/dev/null || true
 fi

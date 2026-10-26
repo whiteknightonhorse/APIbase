@@ -92,9 +92,10 @@ from datetime import datetime, timedelta, timezone
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "autopilot"))
 import autopilot_common as ap  # noqa: E402
+import ops_issues  # noqa: E402
 
 ROOT = "/home/apibase/apibase"
-REPO = "whiteknightonhorse/APIbase"
+REPO = ops_issues.OPS_ISSUES_REPO
 THRESHOLD = float(os.environ.get("LIMIT_ALERT_PCT", "90"))
 LABEL = "limit-alert"
 
@@ -137,7 +138,7 @@ def _reliability_marker_path():
 
 
 def gh(*args):
-    return subprocess.run(["gh", *args], capture_output=True, text=True, cwd=ROOT)
+    return subprocess.run(["gh", *ops_issues.scrub_gh_args(args)], capture_output=True, text=True, cwd=ROOT)
 
 
 # ---------------------------------------------------------------------------
