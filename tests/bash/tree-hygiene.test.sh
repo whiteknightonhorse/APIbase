@@ -58,9 +58,13 @@ grep -q "diverged" "$T/clog" && ! grep -q continued "$T/clog" && ok "diverged ->
 # 5. hook fixture payloads
 H="$REPO/scripts/hooks/bash-pretool-guard.sh"
 hook(){ printf '{"tool_name":"Bash","tool_input":{"command":%s}}' "$(jq -Rn --arg c "$1" '$c')" | CLAUDE_PROJECT_DIR="$REPO" "$H" 2>/dev/null; }
-hook 'rm -rf /tmp/outside-xyz'; [ $? = 2 ] && ok "hook blocks rm -rf outside worktree" || bad "hook outside"
+hook 'rm -rf /etc/outside-xyz'; [ $? = 2 ] && ok "hook blocks rm -rf outside worktree" || bad "hook outside"
 hook 'rm -rf ~'; [ $? = 2 ] && ok "hook blocks rm -rf ~" || bad "hook home"
 hook 'rm -rf node_modules/.cache'; [ $? = 0 ] && ok "hook allows rm -rf inside worktree" || bad "hook inside"
+hook 'rm -rf /etc/x; rm -rf tmp/y'; [ $? = 2 ] && ok "hook checks every rm" || bad "hook double rm"
+hook 'rm -rf $HOME/x'; [ $? = 2 ] && ok "hook blocks variable target" || bad "hook var"
+hook 'cd /tmp && rm -rf x'; [ $? = 2 ] && ok "hook blocks relative target after cd" || bad "hook cd"
+hook 'rm -rf /tmp/t0578-x'; [ $? = 0 ] && ok "hook allows /tmp subpath" || bad "hook tmp"
 hook 'git reset --hard HEAD~1'; [ $? = 2 ] && ok "hook blocks hard reset" || bad "hook reset"
 hook 'ls -la'; [ $? = 0 ] && ok "hook allows ls" || bad "hook ls"
 echo 'not json' | CLAUDE_PROJECT_DIR="$REPO" "$H" 2>/dev/null; [ $? = 2 ] && ok "hook fails closed on bad stdin" || bad "hook bad stdin"
@@ -92,5 +96,5 @@ assert not os.path.exists(m.state_file(a)) and not os.path.exists(m.alerted_file
 PY
 
 # 7. no dangling CLAUDE.md AP-/section references
-if (cd "$REPO" && git grep -nE 'CLAUDE\.md (AP-|§0)' -- . ':!tests/bash/tree-hygiene.test.sh' | grep -q .); then bad "dangling CLAUDE.md AP-/§0 refs"; else ok "no dangling CLAUDE.md AP-/§0 refs"; fi
+if (cd "$REPO" && git grep -nE 'CLAUDE\.md (AP-|§0)|apibase-autopilot\.md#AP-3' -- . ':!tests/bash/tree-hygiene.test.sh' | grep -q .); then bad "dangling CLAUDE.md AP-/§0 refs"; else ok "no dangling CLAUDE.md AP-/§0 refs"; fi
 exit $FAIL

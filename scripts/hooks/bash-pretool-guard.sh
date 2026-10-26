@@ -16,18 +16,35 @@ case "$CMD" in
     echo "BLOCKED: dangerous command" >&2; exit 2 ;;
 esac
 
-# rm -rf / rm -fr / rm -r -f: every target must resolve inside the worktree.
-if printf '%s' "$CMD" | grep -qE '(^|[;&|[:space:]])rm[[:space:]]+(-[a-zA-Z]*[rR][a-zA-Z]*[[:space:]]+-[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*[[:space:]]+-[a-zA-Z]*[rR]|-[a-zA-Z]*([rR][a-zA-Z]*f|f[a-zA-Z]*[rR]))'; then
-  for tok in $(printf '%s' "$CMD" | sed -E 's/.*(^|[;&|[:space:]])rm[[:space:]]+//' | tr ' ' '\n' | grep -v '^-'); do
-    tok="${tok//[\'\"]/}"
-    case "$tok" in ''|'&&'|'||'|';'|'|') break ;; esac
-    case "$tok" in /*) abs="$tok" ;; '~'*) abs="$HOME${tok#\~}" ;; *) abs="$WORKTREE/$tok" ;; esac
-    abs="$(realpath -m -- "$abs")"
-    case "$abs" in
-      "$WORKTREE") echo "BLOCKED: rm -rf of the worktree root" >&2; exit 2 ;;
-      "$WORKTREE"/*) ;;
-      *) echo "BLOCKED: rm -rf outside the worktree ($abs)" >&2; exit 2 ;;
-    esac
-  done
+# rm -rf / rm -fr / rm -r -f: every rm segment, every target must resolve inside the worktree
+# (or strictly under /tmp/ or /var/tmp/). Variables, command substitution and a preceding cd make a
+# target unresolvable, so those are blocked.
+RMRE='(^|[;&|[:space:]])rm[[:space:]]+(-[a-zA-Z]*[rR][a-zA-Z]*[[:space:]]+-[a-zA-Z]*f|-[a-zA-Z]*f[a-zA-Z]*[[:space:]]+-[a-zA-Z]*[rR]|-[a-zA-Z]*([rR][a-zA-Z]*f|f[a-zA-Z]*[rR]))'
+if printf '%s' "$CMD" | grep -qE "$RMRE"; then
+  HAS_CD=0
+  case "$CMD" in *'cd '*|*pushd\ *) HAS_CD=1 ;; esac
+  while IFS= read -r seg; do
+    printf '%s' "$seg" | grep -qE "$RMRE" || continue
+    seg="$(printf '%s' "$seg" | sed -E 's/^.*(^|[[:space:]])rm[[:space:]]+//')"
+    for tok in $(printf '%s' "$seg" | tr ' ' '\n' | grep -v '^-'); do
+      tok="${tok//[\'\"]/}"
+      case "$tok" in ''|'&&'|'||'|';'|'|') break ;; esac
+      case "$tok" in
+        *'$'*|*'`'*) echo "BLOCKED: rm -rf target is not a literal path" >&2; exit 2 ;;
+      esac
+      case "$tok" in
+        /*) abs="$tok" ;;
+        '~'*) abs="$HOME${tok#\~}" ;;
+        *) if [ "$HAS_CD" = 1 ]; then echo "BLOCKED: rm -rf target is not a literal path" >&2; exit 2; fi
+           abs="$WORKTREE/$tok" ;;
+      esac
+      abs="$(realpath -m -- "$abs")"
+      case "$abs" in
+        "$WORKTREE") echo "BLOCKED: rm -rf of the worktree root" >&2; exit 2 ;;
+        "$WORKTREE"/*|/tmp/?*|/var/tmp/?*) ;;
+        *) echo "BLOCKED: rm -rf outside the worktree ($abs)" >&2; exit 2 ;;
+      esac
+    done
+  done < <(printf '%s\n' "$CMD" | sed -E 's/(;|&&|\|\||\|)/\n/g')
 fi
 exit 0

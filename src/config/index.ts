@@ -5,7 +5,7 @@ import { appEnvSchema, type AppEnv } from './env';
  *
  * Rules:
  *  1. Parsed once at process startup via zod.
- *  2. On validation failure → log FATAL, exit(1). Fail-fast (AP-3).
+ *  2. On validation failure → log FATAL, exit(1). Fail-fast: no silent failures.
  *  3. Object.freeze — config is immutable for the lifetime of the process.
  *  4. Exported as a singleton; all modules import from here.
  */
