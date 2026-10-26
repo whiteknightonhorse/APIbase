@@ -336,7 +336,13 @@ export function productHtml(s: PublicShop, p: PublicProductCard): string {
     `<p>${esc(p.description)}</p><p>Returns: ${returns}</p>` +
     `<h2>Buy with your AI agent</h2>${codeBlock(mcpUrl(s.slug))}` +
     `<p class="muted">shop.quote.create · sku ${esc(p.sku)}</p>`;
-  return page(p.title, `/m/${s.slug}/p/${encodeURIComponent(p.sku)}`, body, { noindex: true, ld });
+  // T-0537: each product carries its own meta description (fitDescription trims it into the gate window).
+  const description = p.description.trim() || `${p.title} — ${s.name} on APIbase Integrator`;
+  return page(p.title, `/m/${s.slug}/p/${encodeURIComponent(p.sku)}`, body, {
+    noindex: true,
+    ld,
+    description,
+  });
 }
 
 // ---- /m/<slug>/cart ----

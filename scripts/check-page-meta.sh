@@ -6,17 +6,18 @@
 #   --no-fetch   crawl static/ only (CI has no server)
 #   --apply      rewrite the <footer> block of every static page from config/page-footer.html (T-0383)
 # Fetches retry on 5xx/no response (PAGE_META_RETRIES x PAGE_META_RETRY_SLEEP s) so a deploy restart is not a failure.
-# /guides/ is not in the default PAGE_META_PATHS: content-machine renders it in a separate repo (content-hub);
-# add it back once the follow-up card makes those generators emit the meta block and footer.
+# T-0537: /guides/ and three sample guides are fetched like any page. content-machine renders the guides in a separate
+# tree (content-hub); with GUIDES_DIR set (default empty, so CI, where the directory is absent, skips it) the --no-fetch
+# crawl also checks every GUIDES_DIR/**/*.html (guide pages and the archive indexes; files starting with _ are fragments).
 # Needs no database of its own, but /m/apibase-demo is served from one, so a 5xx there is a failure.
 set -uo pipefail
 ROOT="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 NO_FETCH=0
 APPLY=0
 for a in "$@"; do [ "$a" = "--no-fetch" ] && NO_FETCH=1; [ "$a" = "--apply" ] && APPLY=1; done
-export ROOT NO_FETCH APPLY
+export ROOT NO_FETCH APPLY GUIDES_DIR
 export PAGE_META_BASE="${PAGE_META_BASE:-http://127.0.0.1:8880}"
-export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal /legal/aup /integrator /integrator/buyers}"
+export PAGE_META_PATHS="${PAGE_META_PATHS:-/m/apibase-demo /legal /legal/aup /integrator /integrator/buyers /guides/ /guides/mcp-servers /guides/uc-health-api /guides/accept-payments-from-ai-agents}"
 exec python3 -I - <<'PY'
 import glob, html, os, re, subprocess, sys, time
 
@@ -69,6 +70,12 @@ for f in sorted(glob.glob(os.path.join(root, "static/**/*.html"), recursive=True
             open(f, "w", encoding="utf-8").write(new)
             print("changed " + os.path.relpath(f, root))
     check(os.path.relpath(f, root), open(f, encoding="utf-8").read(), None)
+
+gdir = os.environ.get("GUIDES_DIR", "")
+if gdir and os.path.isdir(gdir):
+    for f in sorted(glob.glob(os.path.join(gdir, "**/*.html"), recursive=True)):
+        if not os.path.basename(f).startswith("_"):
+            check("guides/" + os.path.relpath(f, gdir), open(f, encoding="utf-8").read(), None)
 
 if os.environ["NO_FETCH"] != "1":
     for p in os.environ["PAGE_META_PATHS"].split():
