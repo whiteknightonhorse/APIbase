@@ -694,6 +694,12 @@ jma-bosai.earthquakes	jma-bosai	0.001
 jma-bosai.forecast	jma-bosai	0.001
 jma-bosai.overview	jma-bosai	0.001
 jma-bosai.warnings	jma-bosai	0.001
+jobs.esco_details	jobs	0.003
+jobs.esco_search	jobs	0.003
+jobs.job_search	jobs	0.003
+jobs.occupation_details	jobs	0.003
+jobs.occupation_search	jobs	0.003
+jobs.salary_data	jobs	0.003
 jooble.search	jooble	0.001
 jpl.close_approaches	jpl	0.001
 jpl.fireballs	jpl	0.001
