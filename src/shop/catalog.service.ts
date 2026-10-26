@@ -10,6 +10,7 @@ import { ShopAuthError } from './auth/errors';
 import type { ShopTx } from './db';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import { descriptionViolations, readsAsInstruction } from '../utils/description-policy';
+import { findPriceClaimMismatch, priceClaimMessage } from './moderation/price-claims';
 import { hasHiddenChars, moderateProduct, stripHidden } from './moderation/product-rules';
 
 export const TEST_SKU = '__apibase_test';
@@ -232,7 +233,7 @@ export interface CatalogItemError {
   index: number;
   sku: string | null;
   status: 422;
-  error_code: 'validation_failed' | 'description_reads_as_instruction';
+  error_code: 'validation_failed' | 'description_reads_as_instruction' | 'price_claim_mismatch';
   message: string;
 }
 
@@ -430,6 +431,13 @@ export async function upsertCatalog(
           `description: reads as an instruction to the agent (${descriptionViolations(p.description).join(', ')}); describe the product instead`,
           'description_reads_as_instruction',
         );
+        continue;
+      }
+      // T-0536: an amount named in the title or description must be the product's own price.
+      const claim =
+        p.stream || p.is_test ? null : findPriceClaimMismatch(p.title, p.description, p.price_usd);
+      if (claim) {
+        bad(priceClaimMessage(claim), 'price_claim_mismatch');
         continue;
       }
       // The order ceiling bounds what a buyer commits at once: a stream's is its minimum deposit.

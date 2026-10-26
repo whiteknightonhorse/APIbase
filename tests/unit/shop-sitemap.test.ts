@@ -17,13 +17,19 @@ interface Row {
   slug: string;
   status: string;
   created_at: Date;
+  domain_verified: boolean;
 }
 
 /** Interprets only the two sitemap queries; honours the status filter exactly when the SQL has it. */
 function fakeDb(rows: Row[]) {
   return {
     $queryRawUnsafe: jest.fn(async (sql: string, ...args: unknown[]) => {
-      const pool = /status = 'active'/.test(sql) ? rows.filter((r) => r.status === 'active') : rows;
+      const byStatus = /status = 'active'/.test(sql)
+        ? rows.filter((r) => r.status === 'active')
+        : rows;
+      const pool = /AND domain_verified/.test(sql)
+        ? byStatus.filter((r) => r.domain_verified)
+        : byStatus;
       if (/count\(\*\)/.test(sql)) {
         const last = pool.reduce<Date | null>(
           (m, r) => (m === null || r.created_at > m ? r.created_at : m),
@@ -40,9 +46,10 @@ function fakeDb(rows: Row[]) {
   };
 }
 
-const mk = (slug: string, status = 'active'): Row => ({
+const mk = (slug: string, status = 'active', domain_verified = true): Row => ({
   slug,
   status,
+  domain_verified,
   created_at: new Date('2026-10-01T12:00:00Z'),
 });
 
@@ -100,6 +107,15 @@ describe('shop sitemap (T-0319)', () => {
     for (const p of ['/sitemap-shops-0.xml', '/sitemap-shops-2.xml', '/sitemap-shops-x.xml']) {
       expect([p, (await fetch(`${base}${p}`)).status]).toEqual([p, 404]);
     }
+  });
+
+  it('S3b T-0536 an unverified-domain shop is absent from the index and the shard', async () => {
+    await start([mk('shop-a'), mk('shop-unv', 'active', false)]);
+    const idx = await (await fetch(`${base}/sitemap-shops-index.xml`)).text();
+    expect(idx.match(/<sitemap>/g)).toHaveLength(1);
+    const xml = await (await fetch(`${base}/sitemap-shops-1.xml`)).text();
+    expect(xml).toContain('/m/shop-a<');
+    expect(xml).not.toContain('shop-unv');
   });
 
   it('S4 suspended and deactivated sellers are absent', async () => {

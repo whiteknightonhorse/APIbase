@@ -198,6 +198,11 @@ dbDescribe('public storefront (INT-15)', () => {
       if (pg * idx.page_size >= idx.total) break;
     }
     expect(slugs).toContain(slugA);
+    // T-0536: slugB is active but its domain is not verified, so it is off the index.
+    expect(slugs).not.toContain(slugB);
+    expect((await (await get('/shops')).text()).includes(slugB)).toBe(false);
+    expect((await get(`/m/${slugB}`)).status).toBe(200);
+    expect((await get(`/shops/${slugB}`)).status).toBe(200);
     expect(slugs).not.toContain(slugGone);
     expect(slugs).not.toContain(slugSusp);
   });

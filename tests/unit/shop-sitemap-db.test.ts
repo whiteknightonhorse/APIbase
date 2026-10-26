@@ -21,7 +21,7 @@ dbDescribe('shop sitemap against real Postgres (T-0358)', () => {
 
   const activate = (id: string, date: string) =>
     db.$executeRawUnsafe(
-      `UPDATE shop_merchants SET status='active', created_at=$1::timestamptz WHERE merchant_id=$2::uuid`,
+      `UPDATE shop_merchants SET status='active', domain_verified=true, created_at=$1::timestamptz WHERE merchant_id=$2::uuid`,
       date,
       id,
     );

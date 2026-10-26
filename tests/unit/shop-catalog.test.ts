@@ -278,6 +278,20 @@ dbDescribe('shop catalog', () => {
     expect(zw[0].description).toBe('niceskates');
   });
 
+  it('CT4b: T-0536 a price stated in the title must equal price_usd', async () => {
+    const { id } = await shop();
+    const r = await up(id, [
+      item('bad', { title: 'Check $0.75 micro-tier', price_usd: 1 }),
+      item('good', { title: 'Check $1.00', price_usd: 1 }),
+      item('none', { title: 'Check micro-tier', price_usd: 1 }),
+    ]);
+    expect(r.errors.map((e) => [e.sku, e.status, e.error_code])).toEqual([
+      ['sku-bad', 422, 'price_claim_mismatch'],
+    ]);
+    expect(r.errors[0].message).toMatch(/0\.75.*1/);
+    expect(r.upserted).toBe(2);
+  });
+
   it('CT5: FTS order by rank, cursor without duplicates, no test SKU, max_price filter', async () => {
     const { id, slug } = await shop();
     await up(id, [
