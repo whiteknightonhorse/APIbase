@@ -120,6 +120,10 @@ biomodels.model.search	biomodels	0.001
 bis-stats.exchange_rates	bis-stats	0.002
 bis-stats.policy_rates	bis-stats	0.002
 bis-stats.property_prices	bis-stats	0.002
+bls-macro.cpi	bls-macro	0.001
+bls-macro.payrolls	bls-macro	0.001
+bls-macro.series	bls-macro	0.002
+bls-macro.unemployment	bls-macro	0.001
 bluesky.feed	bluesky	0.001
 bluesky.profile	bluesky	0.001
 bluesky.search_posts	bluesky	0.001
