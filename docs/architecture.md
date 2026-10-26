@@ -27,6 +27,8 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 - **Sign-up IP country (UC-22)**: merchant registration looks up the caller's IP country in-process in a monthly-refreshed DB-IP Country Lite database (country level, refreshed by the worker job `geo-db-refresh`); a trusted edge header overrides it, and a missing database means the IP rule is not applied (policy: [/legal/aup](https://apibase.pro/legal/aup)).
 - **Wallet screening (T-0570)**: one module (`src/shop/moderation/wallet-screen.ts`, `screenWallet`) checks the OFAC SDN list and the platform's own wallets (including the facilitator operator signer) on registration, identity change, payout change and payout apply; after each daily `ofac-sdn-sync` update every non-deactivated merchant is re-screened, a match suspends the merchant (`sanctions_match`) and opens the human-only `SANCTIONS_HIT` incident, and money never moves automatically (policy: [/legal/aup](https://apibase.pro/legal/aup)).
 
+- **Autopilot incident exit (T-0574)**: an incident parked in `WAITING_HUMAN` with no operator file leaves it only on evidence about its own kind. Reachability kinds (`PROVIDER_DOWN`, `DEGRADED_QUALITY`) auto-close when the provider is HEALTHY, the last probe is OK and no `FAIL_*` probe is newer than 72 h; `QUOTA_LOW` and `QUOTA_EXHAUSTED` ignore probe health and move to `VERIFYING` only when the quota risk drops below CRITICAL (or a human file arrives). A reopened incident keeps its original `created_at` and records `evidence.episode_started_at`; a flapping incident sends one Telegram message on entering `FLAPPING` and none for later reopens or its auto-close.
+
 ## Documentation sync
 
 Every fact a page, the README or `llms.txt` states beyond the counts is read from one generated file,

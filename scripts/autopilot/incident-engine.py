@@ -105,6 +105,13 @@ def UTC_TS_EXPR(col: str) -> str:
     return f"to_char({col} AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US')"
 
 
+def CARD_AGE_EXPR():
+    """T-0574: card-age gates measure the current episode: evidence.episode_started_at (set by a reopen)
+    when present, else created_at. created_at itself is never reset."""
+    return ("to_char(COALESCE(NULLIF(evidence->>'episode_started_at', '')::timestamptz, created_at) "
+            "AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US')")
+
+
 # T-0123: cron (*/10, see run()'s docstring) redirects this module's stdout
 # straight into logs/incident-engine.log with a bare `>>`, no `ts`/logger in
 # the middle — every run()-path print() landed in that file with NO
@@ -403,7 +410,7 @@ def route_auto_incidents():
     everything else has no such age gate."""
     out, rc = ap.psql(
         f"SELECT incident_id, provider, kind, severity, evidence::text, attempts::text, "
-        f"{UTC_TS_EXPR('created_at')} FROM incidents WHERE state = 'OPEN' AND fleet_task_id IS NULL "
+        f"{CARD_AGE_EXPR()} FROM incidents WHERE state = 'OPEN' AND fleet_task_id IS NULL "
         f"ORDER BY severity, created_at"
     )
     if rc != 0 or not out:
@@ -779,7 +786,7 @@ def _waiting_provider_healthy_72h(provider):
 
 def advance_waiting_human():
     out, rc = ap.psql(
-        f"SELECT incident_id, provider, kind, {UTC_TS_EXPR('created_at')}, attempts::text, "
+        f"SELECT incident_id, provider, kind, {CARD_AGE_EXPR()}, attempts::text, "
         f"{UTC_TS_EXPR('updated_at')}, operator_file FROM incidents WHERE state = 'WAITING_HUMAN'"
     )
     if rc != 0 or not out:
@@ -946,14 +953,23 @@ def advance_waiting_human():
         # T-0484 (INC-WAITING-1018 ruling-1): an AUTO/MIXED incident parked with no operator file and
         # no human-done file (FLAPPING, T-0336) has no other exit. It leaves on evidence: provider
         # HEALTHY, last probe OK, and no failing probe inside the last 72 h -> RESOLVED.
+        # T-0574: only for reachability kinds (HEALTH_EXIT_KINDS). QUOTA_* are about the quota, not
+        # reachability: they exit via advance_quota_incidents_if_recovered or a human file.
         if (route in ("AUTO", "MIXED") and not operator_file and not human_done_match
-                and _waiting_provider_healthy_72h(provider)):
+                and kind in ap.HEALTH_EXIT_KINDS and _waiting_provider_healthy_72h(provider)):
             ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
             ap.note_incident(incident_id, "incident-engine", "auto-closed",
-                              "auto-closed: provider healthy for 72 h while WAITING_HUMAN (FLAPPING cooled)")
+                              "auto-closed: provider HEALTHY, last probe OK, no FAIL_* probe in the last 72 h")
             ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) WAITING_HUMAN -> RESOLVED, "
-                      f"auto-closed: provider healthy for 72 h")
-            ap.tg_send(ap.tg("auto_closed_waiting", kind=kind, provider=provider))
+                      f"auto-closed: provider HEALTHY, last probe OK, no FAIL_* probe in the last 72 h")
+            # T-0574: a FLAPPING incident was already paged on entry; its auto-close is a notice only.
+            try:
+                flapped = any(isinstance(a, dict) and a.get("action") == "FLAPPING"
+                              for a in json.loads(attempts_raw))
+            except ValueError:
+                flapped = False
+            if not flapped:
+                ap.tg_send(ap.tg("auto_closed_waiting", kind=kind, provider=provider))
             continue
 
         # 2. 72h reminder edge (F2: "reminder every 72h", C0.5: suppressed
@@ -4585,17 +4601,69 @@ def selftest_db():
             assert ap.get_incident(id26a)["state"] == "RESOLVED", "world 26a: healthy 73 h -> RESOLVED"
             assert ap.get_incident(id26b)["state"] == "WAITING_HUMAN", "world 26b: failure 10 h ago -> stays"
             assert ap.get_incident(id26c)["state"] == "WAITING_HUMAN", "world 26c: HUMAN_ONLY untouched"
-            _closed26 = [t for t in _sent26 if "ap26a" in t]
-            assert len(_closed26) == 1 and len(_sent26) == 1, f"world 26a: exactly one TG, got {_sent26}"
+            # T-0574: ap26a carries a FLAPPING note (already paged on entry), so its auto-close is silent.
+            assert len(_sent26) == 0, f"world 26a: FLAPPING auto-close sends no TG, got {_sent26}"
             with open(ap.NOTICES_LOG, encoding="utf-8") as f:
                 _n26 = f.read()
             assert _n26.count(f"incident-engine: {id26a} (ap26a/PROVIDER_DOWN) WAITING_HUMAN -> RESOLVED") == 1, \
                 "world 26a: exactly one notice"
             advance_waiting_human()
-            assert len(_sent26) == 1, "world 26a: second tick must not re-notify"
+            assert len(_sent26) == 0, "world 26a: second tick must not re-notify"
+            assert ap.get_incident(id26a)["attempts"][-1]["result"] == (
+                "auto-closed: provider HEALTHY, last probe OK, no FAIL_* probe in the last 72 h"), \
+                "world 26a: close note states what was measured"
         finally:
             ap.tg_send = _orig_tg_send26
         print("world 26 (WAITING_HUMAN exit for AUTO kinds: healthy 73 h resolves, 10 h stays, HUMAN_ONLY untouched): OK")
+
+        # World 27 (T-0574): QUOTA_* stay in WAITING_HUMAN on a HEALTHY probe; reopen keeps created_at;
+        # FLAPPING pages exactly once.
+        _sent27 = []
+        _orig_tg_send27 = ap.tg_send
+        ap.tg_send = lambda text: (_sent27.append(text) or True)
+        try:
+            ap.psql(
+                "INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                "probe_interval_s, last_probe_result, last_probe_at) VALUES "
+                "('ap27', 'HEALTHY', now(), now(), 300, 'OK', now())"
+            )
+            id27, _ = ap.open_or_merge_incident(kind="QUOTA_LOW", provider="ap27",
+                                                evidence={"risk": "CRITICAL"}, detected_by="manual")
+            ap.transition_state(id27, "WAITING_HUMAN", reason="world 27 setup")
+            _sent27.clear()
+            advance_waiting_human()
+            assert ap.get_incident(id27)["state"] == "WAITING_HUMAN", \
+                "world 27a: QUOTA_LOW with a HEALTHY probe must stay in WAITING_HUMAN"
+            assert "QUOTA_LOW" not in ap.HEALTH_EXIT_KINDS and "PROVIDER_DOWN" in ap.HEALTH_EXIT_KINDS, \
+                "world 27a: HEALTH_EXIT_KINDS is reachability kinds only"
+            # 27c: reopen keeps created_at and records episode_started_at.
+            ap.transition_state(id27, "OPEN")
+            ap.psql(f"UPDATE incidents SET created_at = now() - interval '5 hours' "
+                    f"WHERE incident_id = {ap.sql_literal(id27)}")
+            before27, _ = ap.psql(f"SELECT created_at::text FROM incidents WHERE incident_id = {ap.sql_literal(id27)}")
+            ap.transition_state(id27, "RESOLVED")
+            idr, _ = ap.open_or_merge_incident(kind="QUOTA_LOW", provider="ap27",
+                                               evidence={"risk": "CRITICAL"}, detected_by="manual")
+            assert idr == id27, "world 27c: same incident reopened"
+            after27, _ = ap.psql(f"SELECT created_at::text FROM incidents WHERE incident_id = {ap.sql_literal(id27)}")
+            assert after27 == before27, f"world 27c: created_at must be kept, {before27!r} -> {after27!r}"
+            assert ap.get_incident(id27)["evidence"].get("episode_started_at"), \
+                "world 27c: evidence.episode_started_at set on reopen"
+            # 27d: FLAPPING pages once (reopens 2, 3, 4 follow the one above).
+            _sent27.clear()
+            for _ in range(3):
+                ap.transition_state(id27, "RESOLVED")
+                ap.open_or_merge_incident(kind="QUOTA_LOW", provider="ap27",
+                                          evidence={"risk": "CRITICAL"}, detected_by="manual")
+            flaps, _ = ap.psql(
+                f"SELECT count(*) FROM incidents, jsonb_array_elements(attempts) e "
+                f"WHERE incident_id = {ap.sql_literal(id27)} AND e->>'action' = 'FLAPPING'")
+            assert int(flaps) >= 2, f"world 27d: setup needs repeated FLAPPING, got {flaps}"
+            assert len(_sent27) == 1 and "FLAPPING" in _sent27[0], \
+                f"world 27d: exactly one FLAPPING TG, got {len(_sent27)}"
+        finally:
+            ap.tg_send = _orig_tg_send27
+        print("world 27 (QUOTA_* stays on HEALTHY; reopen keeps created_at; FLAPPING pages once): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0

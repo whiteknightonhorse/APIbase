@@ -404,6 +404,10 @@ del _k, _v
 PHASE_A_KINDS = frozenset({"PROVIDER_DOWN", "DEGRADED_QUALITY", "QUOTA_LOW", "QUOTA_EXHAUSTED"})
 assert all(MODEL_FOR_KIND.get(_pk) == "haiku" for _pk in PHASE_A_KINDS), \
     "LAW violation: every phase-A kind must be MODEL: haiku in routing.json (T-0265)"
+# T-0574: the T-0484 health exit (WAITING_HUMAN -> RESOLVED on a HEALTHY probe) is evidence only for
+# reachability kinds. QUOTA_* are about the quota, which a HEALTHY probe says nothing about; they leave
+# WAITING_HUMAN only through advance_quota_incidents_if_recovered (risk below CRITICAL) or a human file.
+HEALTH_EXIT_KINDS = PHASE_A_KINDS - frozenset({"QUOTA_LOW", "QUOTA_EXHAUSTED"})
 
 
 def remediation_path_allowlist(config_path: str | None = None) -> list:
@@ -970,8 +974,8 @@ def _merge_outage_sibling(kind, provider, tool_id, evidence, tool_count, revenue
 
 def _reopen_resolved(dk, kind, provider, actor):
     """T-0336: a detection whose dedup_key matches an incident RESOLVED within REOPEN_WINDOW_HOURS
-    reopens it (state OPEN, resolved_at cleared, created_at restarted so the card age gates measure
-    this episode, fleet_task_id cleared, note "reopened") instead of inserting. No schema column
+    reopens it (state OPEN, resolved_at cleared, created_at KEPT, evidence.episode_started_at set to now
+    so the card age gates measure this episode, fleet_task_id cleared, note "reopened") instead of inserting. No schema column
     holds reopen_count: it is the number of "reopened" notes in attempts inside FLAP_WINDOW_DAYS.
     When it reaches FLAP_REOPEN_LIMIT the incident gets a FLAPPING note and goes to WAITING_HUMAN
     (no further card). Returns the incident_id or None."""
@@ -987,7 +991,8 @@ def _reopen_resolved(dk, kind, provider, actor):
     iid, old_task = (row.split(SEP) + [""])[:2]
     out, rc2 = psql(
         f"UPDATE incidents SET state = 'OPEN', resolved_at = NULL, fleet_task_id = NULL, "
-        f"next_recheck_at = NULL, created_at = now(), updated_at = now() "
+        f"next_recheck_at = NULL, updated_at = now(), "
+        f"evidence = jsonb_set(COALESCE(evidence, '{{}}'::jsonb), '{{episode_started_at}}', to_jsonb(now()::text)) "
         f"WHERE incident_id = {sql_literal(iid)} AND state = 'RESOLVED' RETURNING incident_id"
     )
     if rc2 != 0:
@@ -1003,13 +1008,21 @@ def _reopen_resolved(dk, kind, provider, actor):
         f"AND (e->>'ts')::timestamptz > now() - interval '{FLAP_WINDOW_DAYS} days'"
     )
     if rc3 == 0 and n.strip().isdigit() and int(n) >= FLAP_REOPEN_LIMIT:
+        # T-0574: page once, on the transition into FLAPPING; later reopens inside FLAPPING are notices only.
+        prior_flaps, rcf = psql(
+            f"SELECT count(*) FROM incidents, jsonb_array_elements(attempts) e "
+            f"WHERE incident_id = {sql_literal(iid)} AND e->>'action' = 'FLAPPING'")
+        first_flap = rcf == 0 and prior_flaps.strip() == "0"
         note_incident(iid, actor, "FLAPPING",
                       f"kind FLAPPING: reopened {n} times in {FLAP_WINDOW_DAYS} d, "
                       f"no further fleet card, needs a human")
         transition_state(iid, "WAITING_HUMAN",
                          reason=f"FLAPPING, reopened {n} times in {FLAP_WINDOW_DAYS} d")
         full = get_incident(iid)
-        if full:
+        if not first_flap:
+            notice(f"incident-engine: {iid} reopened again while FLAPPING ({n} in {FLAP_WINDOW_DAYS} d), "
+                   f"no Telegram message (T-0574)")
+        elif full:
             tg_send(format_tg_message({
                 **full, "what": f"FLAPPING: reopened {n} times in {FLAP_WINDOW_DAYS} days, no new card filed",
                 "system_did": "stopped filing cards, parked for a human decision"}))

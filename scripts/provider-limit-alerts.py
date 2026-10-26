@@ -334,6 +334,16 @@ def log_probe(provider, kind, result, detail):
 WINDOW_TRUNC = {"hourly": "hour", "daily": "day", "monthly": "month"}
 
 
+def _remaining_within_5pct(prev, cur):
+    """T-0574: same episode = remaining_calls within +-5 % of the RESOLVED row's value (a provider
+    still being called never has an identical count)."""
+    if isinstance(prev, bool) or isinstance(cur, bool):
+        return False
+    if not isinstance(prev, (int, float)) or not isinstance(cur, (int, float)):
+        return False
+    return abs(cur - prev) <= 0.05 * abs(prev)
+
+
 def quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, lt):
     """T-0237 (QUOTA-LOW-LOOP-0930 ruling-1): episode gate in front of
     open_or_merge_incident. I3 dedup only sees live rows; a RESOLVED QUOTA_*
@@ -380,9 +390,7 @@ def quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, l
         attempts = json.loads(att_txt)
         same = (
             ev.get("free_limit") == lim and ev.get("limit_type") == lt
-            and ev.get("remaining_calls") == remaining_count
-            and ev.get("burn_per_hour") == 0
-            and burn_per_hour is not None and burn_per_hour == 0
+            and _remaining_within_5pct(ev.get("remaining_calls"), remaining_count)
             and any(isinstance(a, dict) and a.get("action") == "resolve-request" for a in attempts)
         )
     except Exception as e:
@@ -394,7 +402,7 @@ def quota_gate_suppresses(provider, kind, remaining_count, burn_per_hour, lim, l
     ap.notice_dedup(
         inc_id, "QUOTA_SAME_EPISODE",
         f"silent: {kind} {provider} — unchanged since INC-{ap.short_id(inc_id)} resolved "
-        f"(remaining {remaining_count}/{lim}, burn 0, fleet verdict recorded), same episode, "
+        f"(remaining {remaining_count}/{lim}, within 5 % of the resolved row, fleet verdict recorded), same episode, "
         f"not reopening (F2) [QUOTA_SAME_EPISODE]")
     return True
 
@@ -448,8 +456,8 @@ def advance_quota_incidents_if_recovered(provider, risk):
         dk = ap.dedup_key(kind, provider)
         row, rc = ap.psql(
             f"SELECT incident_id FROM incidents WHERE dedup_key = {ap.sql_literal(dk)} "
-            f"AND state = 'OPEN'"
-        )
+            f"AND (state = 'OPEN' OR (state = 'WAITING_HUMAN' AND operator_file IS NULL))"
+        )  # T-0574: a parked QUOTA_* has no other exit (the health exit excludes it)
         if rc != 0 or not row:
             continue
         try:
@@ -1907,6 +1915,17 @@ def selftest_db():
         assert state_row2 == "OPEN", f"world 4b: NOINFO must NOT advance an OPEN incident, got {state_row2!r}"
         print("world 4b (risk NOINFO does not advance an OPEN QUOTA_* incident): OK")
 
+        # World 4c (T-0574): a parked QUOTA_* (WAITING_HUMAN, no operator file) leaves only when risk
+        # drops below CRITICAL: -> VERIFYING; CRITICAL keeps it parked.
+        ap.transition_state(inc_row2, "WAITING_HUMAN", reason="world 4c setup")
+        advance_quota_incidents_if_recovered("testprov", "CRITICAL")
+        st4c, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_row2)}")
+        assert st4c == "WAITING_HUMAN", f"world 4c: CRITICAL keeps WAITING_HUMAN, got {st4c!r}"
+        advance_quota_incidents_if_recovered("testprov", "WARNING")
+        st4c, _ = ap.psql(f"SELECT state FROM incidents WHERE incident_id = {ap.sql_literal(inc_row2)}")
+        assert st4c == "VERIFYING", f"world 4c: risk drop moves parked QUOTA_* to VERIFYING, got {st4c!r}"
+        print("world 4c (parked QUOTA_* -> VERIFYING only on risk drop): OK")
+
         # T-0237 worlds (a)-(f): episode gate in open_quota_incident + retired
         # skip in main(). Fresh provider names so worlds 3/4 rows don't interfere;
         # the notice-dedup state file is a disposable /tmp path, wiped before each
@@ -1968,7 +1987,7 @@ def selftest_db():
         # (c) gate 2 negatives: each single deviation must open.
         cases = [
             ("consumption (remaining 4)", dict(), dict(remaining=4)),
-            ("current burn 2.0", dict(), dict(burn=2.0)),
+            ("remaining 20 (outside +-5 %)", dict(), dict(remaining=20)),
             ("prior attempts lack resolve-request", dict(attempts=[{"action": "route"}]), dict()),
             ("prior free_limit 200", dict(lim=200), dict()),
             ("monthly, prior resolved last month", dict(lt="monthly",
@@ -1982,6 +2001,11 @@ def selftest_db():
             open_quota_incident("epprov", "CRITICAL", remaining, remaining, call_kw.get("burn", 0.0),
                                 None, 100, call_kw.get("lt", "credits"), 100 - remaining)
             assert _live_quota("epprov") == 1, f"world (c): {label} must open an incident"
+        # T-0574: burn no longer matters; remaining within +-5 % of the resolved row is the same episode.
+        _reset("epprov")
+        _seed_resolved("epprov", remaining=100, lim=2000)
+        open_quota_incident("epprov", "CRITICAL", 103, 103, 2.0, None, 2000, "credits", 1897)
+        assert _live_quota("epprov") == 0, "world (c): burn 2.0 with remaining +3 % must still suppress (T-0574)"
         # ...and the monthly control: resolved THIS month with unchanged evidence suppresses.
         _reset("epprov")
         _seed_resolved("epprov", lt="monthly")
@@ -2010,7 +2034,7 @@ def selftest_db():
         # (f) failing psql in gate 1 / gate 2 query -> opens anyway, with a notice.
         real_psql = ap.psql
         for label, marker in (("gate 1", "AND kind = 'PAYMENT_REQUIRED'"),
-                              ("gate 2", "ORDER BY resolved_at DESC LIMIT 1")):
+                              ("gate 2", "evidence::text, attempts::text FROM incidents")):
             _reset("epprov")
             if label == "gate 2":
                 _seed_resolved("epprov")  # would suppress via gate 2 if its query worked
