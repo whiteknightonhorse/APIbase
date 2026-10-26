@@ -81,3 +81,5 @@ static/policy-moderation.html	https://apibase.pro/policy-moderation	regex-equals
 static/privacy.html	https://apibase.pro/privacy	must-not-contain	5 seconds to 5 minutes	-	APIBASE-004
 static/terms.html	https://apibase.pro/terms	must-not-contain	upon first request	-	APIBASE-004
 static/policy-moderation.html	https://apibase.pro/policy-moderation	must-not-contain	7 days	-	APIBASE-023
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	price_claim_mismatch	-	T-0536
+static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	once your domain is verified	-	T-0536
