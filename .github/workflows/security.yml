@@ -189,11 +189,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          echo "${{ vars.SERVER_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: sync-counts.sh --check against the live server
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
             "cd /home/apibase/apibase && bash scripts/sync-counts.sh --check"
 
@@ -245,13 +246,14 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          echo "${{ vars.SERVER_HOST_KEY }}" > ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: External listings drift (Smithery, etc.) against the live server
         id: check
         run: |
           set +e
-          OUTPUT=$(ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+          OUTPUT=$(ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
             "cd /home/apibase/apibase && bash scripts/check-external-listings.sh")
           RC=$?
