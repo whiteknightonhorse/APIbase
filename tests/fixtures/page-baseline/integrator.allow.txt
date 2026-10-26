@@ -26,3 +26,6 @@ for your shop
 it
 # T-0432: x402 is no longer called a Coinbase protocol (x402 Foundation governance).
 Coinbase
+# T-0534: published sentence now reads "Current versions and hashes: /legal/index.json (latest effective ...)" (LEGAL_LATEST_EFFECTIVE).
+Published on <ISO-DATE>; the hashes are in
+.

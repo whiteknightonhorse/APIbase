@@ -25,7 +25,7 @@ jest.mock('../../src/config/logger', () => ({
 import { submitAppeal } from '../../src/services/appeal.service';
 
 const APPEAL_ID = '3fa85f64-5717-4562-b3fc-2c963f66afa6';
-const CREATED_AT = new Date('2026-09-02T00:00:00Z');
+const CREATED_AT = new Date(Date.now() - 24 * 60 * 60 * 1000); // filed yesterday, inside the window
 const ORIGINAL_EXPIRY = new Date(CREATED_AT.getTime() + 14 * 24 * 60 * 60 * 1000); // creation + 14d
 const OPEN_ROW = {
   appeal_id: APPEAL_ID,
@@ -76,5 +76,18 @@ describe('submitAppeal — content_expires_at extension (STEP 2)', () => {
     const result = await submitAppeal(APPEAL_ID, { message: 'too late' });
     expect(result.ok).toBe(false);
     expect(mockUpdate).not.toHaveBeenCalled();
+  });
+
+  it('T-0534: a filing on day 15 is closed (APPEAL_WINDOW_DAYS = 14); day 13 is accepted', async () => {
+    const day = 24 * 60 * 60 * 1000;
+    mockFindUnique.mockResolvedValue({ ...OPEN_ROW, created_at: new Date(Date.now() - 15 * day) });
+    const late = await submitAppeal(APPEAL_ID, { message: 'too late' });
+    expect(late).toEqual({ ok: false, reason: 'window_closed' });
+    expect(mockUpdate).not.toHaveBeenCalled();
+
+    mockFindUnique.mockResolvedValue({ ...OPEN_ROW, created_at: new Date(Date.now() - 13 * day) });
+    mockUpdate.mockImplementation(({ data }) => Promise.resolve({ ...OPEN_ROW, ...data }));
+    const ok = await submitAppeal(APPEAL_ID, { message: 'in time' });
+    expect(ok.ok).toBe(true);
   });
 });

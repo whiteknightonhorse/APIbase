@@ -117,8 +117,8 @@ pre{overflow-x:auto}
 <p><code>transcribe.submit</code> (speech-to-text) is priced per audio minute: <code>max($0.01, ceil(minutes) &times; $0.005)</code>, rounded up to a cent &mdash; 1 minute $0.01, 10 minutes $0.05, 30 minutes $0.15, 61 minutes $0.31. You declare <code>duration_seconds</code> (required, up to 4 hours); the 402 quote shows the computed price and the job is cut at the declared duration.</p>
 
 <h2 id="cache">Cache discount</h2>
-<p>A tool response is cached per its own TTL (5 seconds for volatile data like crypto prices, up to 7 days for near-static data). A cache hit on x402 or MPP is still billed at 100%; the 10% price exists only on the credit-balance rail.</p>
-<p class="note">x402 and MPP payments are verified against the full listed price before the call runs, so there is no post-hoc discount on those rails. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged at all; the response carries <code>X-APIbase-Charged: false</code> and the original receipt.</p>
+<p>A tool response is cached per its own TTL (<!--cache-ttl-->1 second to 30 days<!--/cache-ttl-->). A cache hit on x402 or MPP is still billed at 100%; the 10% price exists only on the credit-balance rail.</p>
+<p class="note">x402 and MPP payments are verified against the full listed price before the call runs, so there is no post-hoc discount on those rails. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged at all; the response carries <code>X-APIbase-Charged: false</code> and the original receipt. Each billed x402 or MPP call returns an <code>X-APIbase-Receipt</code> header with its public receipt URL; what a receipt contains is in the <a href="/privacy#public-receipts">privacy policy</a>.</p>
 
 <h2>How you pay &mdash; x402 protocol or MPP, pick per request</h2>
 <div class="table-wrap m-table-wrap">

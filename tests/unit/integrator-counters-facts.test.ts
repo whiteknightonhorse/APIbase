@@ -5,7 +5,7 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { buildIntegratorBlock } from '../../src/shop/integrator/facts';
-import { MCP_BASELINE, renderTokens } from '../../src/shop/integrator/tokens';
+import { legalLatestEffective, MCP_BASELINE, renderTokens } from '../../src/shop/integrator/tokens';
 import { INTEGRATOR_DIR } from '../../src/shop/routes/integrator.router';
 import { shopToolDefinitions } from '../../src/shop/tool-definitions';
 
@@ -27,6 +27,7 @@ const FACT_FILES = [
   'static/integrator/llms.txt',
   'static/integrator/buyers.md',
   'static/integrator/connect.html',
+  'src/shop/integrator/tokens.ts',
 ];
 
 function factsCheck(dir: string) {
@@ -175,8 +176,9 @@ describe('T-INT-19', () => {
       writeFileSync(p, JSON.stringify({ published_at: '2026-10-20T10:00:00Z', by: 'operator' }));
       const page = renderTokens(read('static/integrator/index.html'), MCP_BASELINE, p);
       expect(page).toContain(
-        'Published on 2026-10-20; the hashes are in <a href="/legal/index.json">/legal/index.json</a>.',
+        `Current versions and hashes: <a href="/legal/index.json">/legal/index.json</a> (latest effective ${legalLatestEffective()}).`,
       );
+      expect(page).not.toContain('Published on');
       expect(page).not.toContain('not yet published');
     } finally {
       rmSync(dir, { recursive: true, force: true });

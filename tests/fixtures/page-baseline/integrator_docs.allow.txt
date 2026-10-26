@@ -26,3 +26,6 @@ day\|week\|month,
 5 minutes,
 # T-0430: the Moderation paragraph no longer lists "ignore previous"; the description rule refuses it with 422 before moderation.
 ignore previous ,
+# T-0534: published sentence now reads "Current versions and hashes: /legal/index.json (latest effective ...)" (LEGAL_LATEST_EFFECTIVE).
+Published on <ISO-DATE>; the hashes are in
+.

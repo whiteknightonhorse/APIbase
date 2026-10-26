@@ -20,3 +20,7 @@ call. On failure, USDC
 auto-refunded.
 are automatic on
 only.
+# T-0534: Last updated date from the register; keys are not issued on first request (see /auth.md).
+13,
+Agents receive API keys automatically upon
+request (auto-registration).

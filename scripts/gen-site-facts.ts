@@ -33,6 +33,36 @@ const CHECK_MODE = process.argv.includes('--check');
 
 const readText = (root: string, p: string): string => readFileSync(join(root, p), 'utf8');
 
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+];
+
+/** config/site-docs-register.json plus the long date the pages print ("October 26, 2026"). */
+function docRegister(): Record<string, unknown> {
+  const reg = JSON.parse(readText(SRC_ROOT, 'config/site-docs-register.json')) as Record<
+    string,
+    { version: string; updated: string }
+  >;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(reg)) {
+    if (k.startsWith('_')) continue;
+    const [y, m, d] = v.updated.split('-').map(Number);
+    out[k] = { ...v, updated_text: `${MONTHS[m - 1]} ${d}, ${y}` };
+  }
+  return out;
+}
+
 function sortKeys(v: unknown): unknown {
   if (Array.isArray(v)) return v.map(sortKeys);
   if (v !== null && typeof v === 'object') {
@@ -175,7 +205,8 @@ async function build(): Promise<string> {
   const { priceTier } = await import('../src/services/tool-registry.service');
   const { TIER_RATE_LIMITS } = await import('../src/services/agent.service');
   const rails = await import('../src/pipeline/stages/escrow.stage');
-  const { CONTENT_RETENTION_MS } = await import('../src/pipeline/stages/moderation.stage');
+  const { CONTENT_RETENTION_MS, APPEAL_WINDOW_DAYS } =
+    await import('../src/pipeline/stages/moderation.stage');
   const { agentsRouter } = await import('../src/routes/agents.router');
   const { oauthRouter } = await import('../src/routes/oauth.router');
   const pkg = JSON.parse(readText(ROOT, 'package.json')) as { version: string };
@@ -251,6 +282,7 @@ async function build(): Promise<string> {
     },
     categories_count: mcp.categories_count,
     containers_count: services.size,
+    doc_register: docRegister(),
     example_tools: exampleTools(snapshot, defined),
     facilitator: Object.fromEntries(x402.facilitators.map((f) => [f.role, f.name])),
     free_tools_count: [...snapshot.values()].filter((p) => p === 0).length,
@@ -270,7 +302,7 @@ async function build(): Promise<string> {
     mcp_prompts: Object.values(PROMPT_NAMES).sort(),
     min_paid_price_usd: Math.min(...paid),
     moderation: {
-      appeal_window_days: null, // no constant until 0534; the claim row for it fails loud as "no source"
+      appeal_window_days: APPEAL_WINDOW_DAYS,
       content_retention_days: CONTENT_RETENTION_MS / 86_400_000,
     },
     pipeline_stages: [...STAGE_NAMES],

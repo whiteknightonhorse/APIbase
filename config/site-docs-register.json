@@ -1,0 +1,6 @@
+{
+  "_comment": "Version and 'Last updated' date of the static legal pages. The card that changes a page updates its entry; scripts/home-facts.py renders the date on the page from here (<!--doc-date:KEY-->) and site-claims.tsv checks it.",
+  "terms": { "version": "2026-10-26", "updated": "2026-10-26" },
+  "privacy": { "version": "2026-10-26", "updated": "2026-10-26" },
+  "moderation": { "version": "2026-10-26", "updated": "2026-10-26" }
+}

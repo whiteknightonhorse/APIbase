@@ -257,6 +257,8 @@ describe('T-INT-05 legal documents', () => {
       const counts = (h: string) =>
         h
           .replace(/<h2[^>]*>3a\. Analytics<\/h2>\n<p>[^\n]*<\/p>\n\n/g, '')
+          // T-0534 adds one public-receipts paragraph to privacy's data-categories section.
+          .replace(/<p id="public-receipts">[^\n]*<\/p>\n/g, '')
           // T-0416 adds one contact-form retention paragraph to privacy's data-categories section.
           .replace(/<\/ul>\n<p>Messages sent through the [^\n]*<\/p>/g, '</ul>')
           .replace(/<head>[\s\S]*?<\/head>/, '')
@@ -293,6 +295,29 @@ describe('T-INT-05 legal documents', () => {
             'Refunds are automatic on provider failure only.',
           )
           .replace(/\s+/g, ' ')
+          // T-0534: dates come from config/site-docs-register.json; cookie, payload, cache-TTL and
+          // identity wording made truthful; Provek affiliation sentence; public-receipts paragraph.
+          .replace(/Last updated: [A-Z][a-z]+ \d+, \d{4}/g, 'Last updated: October 13, 2026')
+          .replace(
+            /An agent identity is created by the first successful payment or by POST \/api\/v1\/agents\/auto ?; see \/auth\.md ?\./g,
+            'Agents receive API keys automatically upon first request (auto-registration).',
+          )
+          .replace(
+            / The same group operates provek\.dev; the two services are affiliated and say so on both sites\./g,
+            '',
+          )
+          .replace(
+            /Full request payloads are not stored\. Provider responses are cached for the tool's TTL \([^)]*?\) and are not linked to you beyond the cache key\./g,
+            'Full request/response payloads from provider API calls.',
+          )
+          .replace(
+            /Cookies or tracking pixels on API and MCP endpoints\. Human-facing web pages use Google Analytics 4 \(first-party cookies, section 3a ?\)\./g,
+            'Cookies, browser fingerprints, or tracking pixels.',
+          )
+          .replace(
+            /Redis cache: ephemeral, TTL per tool from [^;]*?; cached values are provider responses\./g,
+            'Redis cache: ephemeral, TTL-based (5 seconds to 5 minutes depending on tool).',
+          )
           .replace(/(PRV:\s*)\d+/g, '$1N')
           .replace(/(TOOLS:\s*)\d+/g, '$1N')
           .replace(/\d+ tools from \d+ providers/g, 'N tools from N providers')

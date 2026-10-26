@@ -12,3 +12,6 @@ id: boot-screen
 # T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
 (90% of tools <=
 appeal.
+# T-0534: appeal window is 14 days (APPEAL_WINDOW_DAYS); Last updated date is rendered from config/site-docs-register.json.
+12,
+7

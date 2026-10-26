@@ -6,7 +6,7 @@ categories_count, price_range_usd), the same baseline sync-counts.sh uses. Tools
 phrases are rewritten by sync-counts.sh's own sed pass; this script owns the rest of the shapes
 (categories, price range, "N separate provider integrations", JSON-LD low/high price).
 
-  render  rewrite those shapes in place
+  render  rewrite those shapes in place (T-0534 tokens: cache-ttl, appeal-days, doc-date:KEY)
   check   read-only; exit 1 on any disagreement (used by sync-counts.sh in both modes)
   check-bar    STALE_HEADER_BAR: exit 1 if any header bar differs from the generated one
   check-range  STALE_PRICE_RANGE: exit 1 if any static/ file carries another global price range
@@ -23,6 +23,7 @@ SITE_FACTS = "static/.well-known/site-facts.json"
 FILES = [
     "static/connect.html", "docs/payments.md",
     "static/index.html", "static/index.md", "static/ai.txt", "static/llms.txt", "static/pricing.html",
+    "static/privacy.html", "static/terms.html", "static/policy-moderation.html",
     "static/.well-known/x402-payment.json",
     "static/.well-known/agent-skills/x402-payment.md",
     "static/.well-known/agent-skills/auto-register.md",
@@ -85,15 +86,30 @@ def token_values():
         "%s: %d requests per second, %s per day" % (k, rl[k]["requests_per_second"], _num(rl[k]["daily_limit"]))
         for k in ("free", "paid", "enterprise")
     )
-    return {
+    vals = {
         "tiers": tiers,
         "tiers:premium": "$1+ (%d tools)" % t["premium"]["count"],
         "rate-limits": limits,
         "free-tools": str(int(d["free_tools_count"])),
     }
+    # T-0534: cache TTL range, appeal window and the legal pages' "Last updated" dates.
+    c = d.get("cache_ttl_seconds")
+    if c:
+        lo = int(c["min"])
+        vals["cache-ttl"] = "%d second%s to %g days" % (lo, "" if lo == 1 else "s", c["max_days"])
+    w = (d.get("moderation") or {}).get("appeal_window_days")
+    if w is not None:
+        vals["appeal-days"] = str(int(w))
+    for k, v in (d.get("doc_register") or {}).items():
+        vals["doc-date:" + k] = v["updated_text"]
+    return vals
 
 
-TOKEN_RE = re.compile(r"<!--(tiers(?::premium)?|rate-limits|free-tools)-->.*?<!--/(?:tiers|rate-limits|free-tools)-->", re.S)
+TOKEN_RE = re.compile(
+    r"<!--(tiers(?::premium)?|rate-limits|free-tools|cache-ttl|appeal-days|doc-date:[a-z]+)-->.*?"
+    r"<!--/(?:tiers|rate-limits|free-tools|cache-ttl|appeal-days|doc-date)-->",
+    re.S,
+)
 
 
 def render_tokens(s, path):

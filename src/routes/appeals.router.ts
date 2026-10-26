@@ -235,6 +235,13 @@ async function handleSubmit(req: Request, res: Response): Promise<void> {
         res.status(404).json({ error: 'not_found', message: 'No appeal with that id' });
         return;
       }
+      if (result.reason === 'window_closed') {
+        res.status(410).json({
+          error: 'appeal_window_closed',
+          message: 'The appeal window for this block has closed.',
+        });
+        return;
+      }
       res.status(409).json({
         error: 'already_resolved',
         message: 'This appeal has already been resolved.',

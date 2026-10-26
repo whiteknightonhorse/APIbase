@@ -1,7 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { getShopEnv } from '../../config/env';
-import { isLegalPublished, LEGAL_PUBLISHED_FILE } from '../legal/legal-docs';
+import {
+  isLegalPublished,
+  LEGAL_DIR,
+  LEGAL_PUBLISHED_FILE,
+  readAllLegalFiles,
+} from '../legal/legal-docs';
 import { autolinkSitePaths } from './md';
 
 export const MCP_BASELINE = resolve(__dirname, '../../../static/.well-known/mcp.json');
@@ -36,10 +41,22 @@ export const STREAM_CLOSE_GRACE_S = 900;
 export const DRAFT_LEGAL_STATUS =
   'Drafts, not yet published. A page shows its banner until the operator publishes it.';
 
+/** LEGAL_LATEST_EFFECTIVE: the latest effective_from (YYYY-MM-DD) across the documents /legal/index.json serves. */
+export function legalLatestEffective(dir: string = LEGAL_DIR): string {
+  try {
+    return readAllLegalFiles(dir)
+      .map((f) => f.effective_from.slice(0, 10))
+      .sort()
+      .pop() as string;
+  } catch {
+    return 'unknown';
+  }
+}
+
 function legalStatus(file: string): string {
-  const { published, published_at } = isLegalPublished(file);
+  const { published } = isLegalPublished(file);
   if (!published) return DRAFT_LEGAL_STATUS;
-  return `Published on ${(published_at ?? '').slice(0, 10)}; the hashes are in /legal/index.json.`;
+  return `Current versions and hashes: /legal/index.json (latest effective ${legalLatestEffective()}).`;
 }
 
 function feeState(): { on: boolean; pct: number } {
@@ -69,6 +86,7 @@ export function renderTokens(
     .replace(/\{\{INTEGRATOR_BASE_FEE_MODE\}\}/g, () => INTEGRATOR_BASE_FEE_MODE)
     .replace(/\{\{STREAM_CLOSE_GRACE_S\}\}/g, () => String(STREAM_CLOSE_GRACE_S))
     .replace(/\{\{MERCHANTS_COUNT\}\}/g, () => merchants)
+    .replace(/\{\{LEGAL_LATEST_EFFECTIVE\}\}/g, () => legalLatestEffective())
     .replace(/\{\{LEGAL_STATUS_HTML\}\}/g, () => autolinkSitePaths(legalStatus(legalFile)))
     .replace(/\{\{LEGAL_STATUS\}\}/g, () => legalStatus(legalFile))
     .replace(/\{\{SANDBOX_STATUS\}\}/g, () => e.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS);

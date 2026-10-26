@@ -20,8 +20,8 @@ static/pricing.html	https://apibase.pro/pricing	must-not-contain	or a prepaid ba
 static/terms.html	https://apibase.pro/terms	must-not-contain	or a prepaid balance	-	APIBASE-002
 static/privacy.html	https://apibase.pro/privacy	must-not-contain	or a prepaid balance	-	APIBASE-002
 static/frameworks.html	https://apibase.pro/frameworks	must-not-contain	10% of full price billed via balance	-	APIBASE-003
-static/pricing.html	https://apibase.pro/pricing	regex-equals	up to (\d+) days	{{cache_ttl_seconds.max_days}}	APIBASE-004
-static/privacy.html	https://apibase.pro/privacy	regex-equals	TTL-based \([^)]*? to (\d+) days	{{cache_ttl_seconds.max_days}}	APIBASE-004
+static/pricing.html	https://apibase.pro/pricing	regex-equals	<!--cache-ttl-->[^<]*? to (\d+) days<!--/cache-ttl-->	{{cache_ttl_seconds.max_days}}	APIBASE-004
+static/privacy.html	https://apibase.pro/privacy	regex-equals	<!--cache-ttl-->[^<]*? to (\d+) days<!--/cache-ttl-->	{{cache_ttl_seconds.max_days}}	APIBASE-004
 static/privacy.html	https://apibase.pro/privacy	must-not-contain	tracking pixels.	-	APIBASE-005
 static/privacy.html	https://apibase.pro/privacy	must-contain	public receipt	-	APIBASE-006
 static/.well-known/agent-registration.json	https://apibase.pro/.well-known/agent-registration.json	must-not-contain	Every paid call gets a public receipt	-	APIBASE-007
@@ -57,7 +57,7 @@ static/.well-known/agent-skills/x402-payment.md	https://apibase.pro/.well-known/
 static/.well-known/agent-skills/discover-tools.md	https://apibase.pro/.well-known/agent-skills/discover-tools.md	tool-ids-healthy	-	-	APIBASE-017
 docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	tool-ids-healthy	-	-	APIBASE-017
 README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	tool-ids-healthy	-	-	APIBASE-017
-static/policy-moderation.html	https://apibase.pro/policy-moderation	regex-equals	appeal within <strong>(\d+) days	{{moderation.appeal_window_days}}	APIBASE-023
+static/policy-moderation.html	https://apibase.pro/policy-moderation	regex-equals	You may appeal within <strong><!--appeal-days-->(\d+)<!--/appeal-days--> days	{{moderation.appeal_window_days}}	APIBASE-023
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	definition_sha256	-	APIBASE-024
 docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/architecture.md	must-not-contain	Redis down = reject all requests	-	APIBASE-025
 README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	must-not-contain	Redis down = reject all requests	-	APIBASE-025
@@ -75,3 +75,9 @@ docs/architecture.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/AP
 packages/mcp-client/README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/packages/mcp-client/README.md	regex-equals	\| \*\*MPP\*\* \| Tempo \(Stripe\) \| ([^|]*?) \|	USDC.e	F-20
 README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/README.md	must-not-contain	(docs/integrator.md)	-	F-25
 gh:provek/llms.txt	https://provek.dev/llms.txt	must-not-contain	re:Phase 3[^\n]*\(https://provek\.dev/phase-2/?\)	-	F-34
+static/terms.html	https://apibase.pro/terms	regex-equals	Last updated: <!--doc-date:terms-->([^<]*)<!--/doc-date-->	{{doc_register.terms.updated_text}}	APIBASE-021
+static/privacy.html	https://apibase.pro/privacy	regex-equals	Last updated: <!--doc-date:privacy-->([^<]*)<!--/doc-date-->	{{doc_register.privacy.updated_text}}	APIBASE-021
+static/policy-moderation.html	https://apibase.pro/policy-moderation	regex-equals	Last updated: <!--doc-date:moderation-->([^<]*)<!--/doc-date-->	{{doc_register.moderation.updated_text}}	APIBASE-021
+static/privacy.html	https://apibase.pro/privacy	must-not-contain	5 seconds to 5 minutes	-	APIBASE-004
+static/terms.html	https://apibase.pro/terms	must-not-contain	upon first request	-	APIBASE-004
+static/policy-moderation.html	https://apibase.pro/policy-moderation	must-not-contain	7 days	-	APIBASE-023

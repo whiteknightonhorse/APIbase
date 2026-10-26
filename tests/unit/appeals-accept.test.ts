@@ -44,6 +44,7 @@ let base: string;
 beforeAll(() => {
   (getAppeal as jest.Mock).mockImplementation(async (id: string) => (id === OK_ID ? appeal : null));
   const app = express();
+  app.use(express.json());
   app.use(appealsRouter);
   server = app.listen(0);
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -92,5 +93,22 @@ describe('T-0380 GET /appeals/:appealId content negotiation', () => {
     const r = await get(`/api/v1/appeals/${MISSING_ID}`, '');
     expect(r.status).toBe(404);
     expect(r.type).toContain('application/json');
+  });
+});
+
+describe('T-0534 POST /appeals/:appealId after the window', () => {
+  it('a closed window -> 410 appeal_window_closed', async () => {
+    const { submitAppeal, checkAppealSubmitRateLimit } = jest.requireMock(
+      '../../src/services/appeal.service',
+    );
+    (checkAppealSubmitRateLimit as jest.Mock).mockResolvedValue({ allowed: true });
+    (submitAppeal as jest.Mock).mockResolvedValue({ ok: false, reason: 'window_closed' });
+    const r = await fetch(`${base}/api/v1/appeals/${OK_ID}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ message: 'late' }),
+    });
+    expect(r.status).toBe(410);
+    expect((await r.json()).error).toBe('appeal_window_closed');
   });
 });

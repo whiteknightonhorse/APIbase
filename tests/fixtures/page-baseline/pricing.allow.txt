@@ -32,3 +32,7 @@ delivered response
 charged.
 # T-0532: money-truth rewording (refunds per rail, refund-only balance, cache hit 100%, tier table, p90 wording); old sequence:
 discount applies
+# T-0534: cache TTL range rendered from site-facts (token).
+(5 seconds for volatile data like crypto prices, up
+7
+for near-static data).

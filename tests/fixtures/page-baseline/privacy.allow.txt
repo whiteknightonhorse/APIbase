@@ -16,3 +16,11 @@ id: uptime-counter
 (90% of tools <=
 prepaid balance.
 prepaid
+# T-0534: Last updated date from the register; cookies/payload/cache wording made truthful.
+13,
+request/response
+from provider API calls.
+Cookies, browser fingerprints,
+pixels.
+TTL-based (5 seconds
+5 minutes depending on tool).

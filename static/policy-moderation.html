@@ -89,7 +89,7 @@ pre{overflow-x:auto}
 </div>
 
 <h1>Moderation Policy</h1>
-<p class="updated"><span class="lg-badge">Last updated: October 12, 2026</span></p>
+<p class="updated"><span class="lg-badge">Last updated: <!--doc-date:moderation-->October 26, 2026<!--/doc-date--></span></p>
 
 <div class="lg-layout">
 <!--lg-chrome--><aside class="lg-side"><nav class="lg-toc" aria-label="On this page"><span class="lg-toc-h">On this page</span><a href="#what-happens-when-a-call-is-blocked">What happens when a call is blocked</a><a href="#what-we-keep">What we keep</a><a href="#appeals">Appeals</a><a href="#merchant-catalogs">Merchant catalogs (Integrator)</a><a href="#repeat-blocks">Repeat blocks</a></nav></aside><!--/lg-chrome-->
@@ -112,7 +112,7 @@ pre{overflow-x:auto}
 <ul>
 <li>The full value of the specific field that triggered the rule (capped at 4KB; a longer field is truncated and marked as such), and where in it the match occurred.</li>
 <li><strong>Exception, with no exception to the exception: child sexual abuse material (CSAM) is never retained, in any form, at any length.</strong> A CSAM block keeps only the rule id, category, and appeal id — never the content itself. Review of a CSAM block is done from those identifiers alone.</li>
-<li>This is retained until <strong>30 days after your appeal is resolved</strong>, if you appeal within 14 days of the block. If you never appeal, it is deleted automatically <strong>14 days after the block</strong>.</li>
+<li>This is retained until <strong>30 days after your appeal is resolved</strong>, if you appeal within <!--appeal-days-->14<!--/appeal-days--> days of the block. If you never appeal, it is deleted automatically <strong>14 days after the block</strong>.</li>
 <li>After that, only the skeleton — rule id, category, appeal id, and the resolution verdict — is kept, indefinitely, for audit purposes.</li>
 </ul>
 <p>We keep the full field, not a short excerpt, on purpose: a few words pulled out of context (e.g. "cr<strong>isis</strong> support") can look identical to a genuine violation and identical to a false positive. Reviewing the full field is what lets a human tell the difference.</p>
@@ -123,7 +123,7 @@ pre{overflow-x:auto}
 <h2 id="appeals">Appeals</h2>
 <ul>
 <li>A paid block's response gives you an <code>appeal_url</code> — open it to see the block reason and, if applicable, the flagged content, and to submit your side of the story.</li>
-<li>You may appeal within <strong>7 days</strong> of the block.</li>
+<li>You may appeal within <strong><!--appeal-days-->14<!--/appeal-days--> days</strong> of the block.</li>
 <li>A human reviews every submitted appeal within <strong>72 hours</strong> and marks it <strong>upheld</strong> (the block stands) or <strong>overturned</strong> (the block was wrong).</li>
 <li>If the block was our error, we refund or credit the full charge — that is owed, not discretionary. A balance credit is applied promptly and is the default; an on-chain refund is processed manually and may take up to 14 days after the appeal is upheld.</li>
 </ul>

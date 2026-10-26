@@ -10,6 +10,23 @@
   },
   "categories_count": 25,
   "containers_count": 16,
+  "doc_register": {
+    "moderation": {
+      "updated": "2026-10-26",
+      "updated_text": "October 26, 2026",
+      "version": "2026-10-26"
+    },
+    "privacy": {
+      "updated": "2026-10-26",
+      "updated_text": "October 26, 2026",
+      "version": "2026-10-26"
+    },
+    "terms": {
+      "updated": "2026-10-26",
+      "updated_text": "October 26, 2026",
+      "version": "2026-10-26"
+    }
+  },
   "example_tools": {
     "abr.abn_lookup": "healthy",
     "abr.acn_lookup": "healthy",
@@ -1155,7 +1172,7 @@
   ],
   "min_paid_price_usd": 0.0005,
   "moderation": {
-    "appeal_window_days": null,
+    "appeal_window_days": 14,
     "content_retention_days": 14
   },
   "pipeline_stages": [

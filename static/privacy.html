@@ -89,7 +89,7 @@ pre{overflow-x:auto}
 </div>
 
 <h1>Privacy Policy</h1>
-<p class="updated"><span class="lg-badge">Last updated: October 13, 2026</span></p>
+<p class="updated"><span class="lg-badge">Last updated: <!--doc-date:privacy-->October 26, 2026<!--/doc-date--></span></p>
 
 <div class="lg-layout">
 <!--lg-chrome--><aside class="lg-side"><nav class="lg-toc" aria-label="On this page"><span class="lg-toc-h">On this page</span><a href="#1-service-description">1. Service Description</a><a href="#2-data-we-collect">2. Data We Collect</a><a href="#3-data-we-do-not-collect">3. Data We Do NOT Collect</a><a href="#3a-analytics">3a. Analytics</a><a href="#4-how-we-use-data">4. How We Use Data</a><a href="#5-data-sharing">5. Data Sharing</a><a href="#6-data-retention">6. Data Retention</a><a href="#7-security">7. Security</a><a href="#8-third-party-services">8. Third-Party Services</a><a href="#9-changes">9. Changes</a><a href="#10-contact">10. Contact</a><a href="#integrator">11. Integrator: merchant orders</a></nav></aside><!--/lg-chrome-->
@@ -105,14 +105,15 @@ pre{overflow-x:auto}
 <li><strong>Payment data:</strong> USDC wallet addresses, transaction hashes, escrow records. Stored in an append-only ledger for financial compliance.</li>
 <li><strong>Usage metrics:</strong> Aggregated, anonymized request counts and latency data for system monitoring.</li>
 </ul>
+<p id="public-receipts"><strong>Public receipts.</strong> Every call billed on-chain gets an immutable public receipt at https://apibase.pro/r/&lt;id&gt;.json containing the payer and payee wallet addresses, the payment transaction hash, the amount and a hash of the response. Receipts are append-only and cannot be deleted; they contain no request or response content.</p>
 <p>Messages sent through the <a href="/contact">contact</a> form are stored with the name, e-mail address, message text and IP address you submit, and kept for 12 months, then deleted. We use them to answer your message and to prevent abuse.</p>
 
 <h2 id="3-data-we-do-not-collect">3. Data We Do NOT Collect</h2>
 <ul>
 <li>Account data for platform tool calls: there are no human accounts, so no personal names, email addresses, or phone numbers are collected for them. Merchant orders are different: the delivery address, passport data where a product requires it, and payer contact are processed as described in <a href="#integrator">section 11</a> and the <a href="/legal/dpa">DPA</a>.</li>
-<li>Full request/response payloads from provider API calls.</li>
+<li>Full request payloads are not stored. Provider responses are cached for the tool's TTL (<!--cache-ttl-->1 second to 30 days<!--/cache-ttl-->, <a href="#6-data-retention">section 6</a>) and are not linked to you beyond the cache key.</li>
 <li>IP addresses in application logs (only in Nginx access logs, retained 15 days).</li>
-<li>Cookies, browser fingerprints, or tracking pixels.</li>
+<li>Cookies or tracking pixels on API and MCP endpoints. Human-facing web pages use Google Analytics 4 (first-party cookies, <a href="#3a-analytics">section 3a</a>).</li>
 </ul>
 
 <h2 id="3a-analytics">3a. Analytics</h2>
@@ -133,7 +134,7 @@ pre{overflow-x:auto}
 <ul>
 <li>Financial ledger: retained indefinitely (append-only, compliance requirement).</li>
 <li>Request logs: 15 days.</li>
-<li>Redis cache: ephemeral, TTL-based (5 seconds to 5 minutes depending on tool).</li>
+<li>Redis cache: ephemeral, TTL per tool from <!--cache-ttl-->1 second to 30 days<!--/cache-ttl-->; cached values are provider responses.</li>
 </ul>
 
 <h2 id="7-security">7. Security</h2>

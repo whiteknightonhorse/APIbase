@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { getPrisma } from './prisma.service';
 import { ensureRedisConnected } from './redis.service';
 import { logger } from '../config/logger';
+import { APPEAL_WINDOW_DAYS } from '../pipeline/stages/moderation.stage';
 
 /**
  * Moderation appeal service (F2/C-3, §12.43 MODERATION).
@@ -92,6 +93,7 @@ export interface SubmitAppealInput {
 export type SubmitAppealResult =
   | { ok: true; appeal: AppealView }
   | { ok: false; reason: 'not_found' }
+  | { ok: false; reason: 'window_closed' }
   | { ok: false; reason: 'already_resolved'; appeal: AppealView };
 
 // STEP 2 retention: once an appeal is actually filed, the 14-day
@@ -112,6 +114,8 @@ export async function submitAppeal(
   if (!existing) return { ok: false, reason: 'not_found' };
   if (existing.status !== 'OPEN')
     return { ok: false, reason: 'already_resolved', appeal: existing };
+  if (Date.now() - existing.created_at.getTime() > APPEAL_WINDOW_DAYS * 24 * 60 * 60 * 1000)
+    return { ok: false, reason: 'window_closed' };
 
   const updated = await db.moderationAppeal.update({
     where: { appeal_id: appealId },

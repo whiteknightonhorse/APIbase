@@ -119,7 +119,7 @@ Payment` headers on the same request — both middlewares activate and one fails
 
 ## Public receipts (A-GA-01)
 
-Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets one immutable public receipt, written after billing and after the response is sent. Calls that were not billed get **no** receipt in v0 (nothing to attest), and neither do calls paid from the refund credit balance (no on-chain payment transaction).
+Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets one immutable public receipt, written after billing and after the response is sent. Calls that were not billed get **no** receipt in v0 (nothing to attest), and neither do calls paid from the refund credit balance (no on-chain payment transaction). The privacy policy discloses what a receipt contains: [apibase.pro/privacy#public-receipts](https://apibase.pro/privacy#public-receipts).
 
 - **Where to find it.** REST: response header `X-APIbase-Receipt: https://apibase.pro/r/<receipt_id>.json`. MCP: the tool result `_meta` carries `"apibase/receipt_url": "https://apibase.pro/r/<receipt_id>.json"`.
 - **Fetch.** `GET https://apibase.pro/r/<receipt_id>.json` is public: `Content-Type: application/json`, `Cache-Control: public, max-age=31536000, immutable`, `Access-Control-Allow-Origin: *`. An unknown id answers `404` with `{"error":"no such receipt"}`. The receipt is written just after the response, so a fetch in the first moments can still 404; retry.

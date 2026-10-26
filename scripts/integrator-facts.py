@@ -3,7 +3,7 @@
 
 Source: the `integrator` block + `merchants_count` of static/.well-known/mcp.json (written by
 scripts/gen-discovery.ts from env / one SQL). Tokens: MERCHANTS_COUNT, INTEGRATOR_FEE_PCT,
-INTEGRATOR_MIN_ORDER, SANDBOX_STATUS, LEGAL_STATUS (legal-published.json), STREAM_CLOSE_GRACE_S (`integrator.stream_close_grace_s`).
+INTEGRATOR_MIN_ORDER, SANDBOX_STATUS, LEGAL_STATUS (legal-published.json), STREAM_CLOSE_GRACE_S (`integrator.stream_close_grace_s`), LEGAL_LATEST_EFFECTIVE (max effective_from of static/legal/*.md, inside LEGAL_STATUS).
 
   render  rewrite the Integrator sentence in the nginx-static surfaces (pricing.html, llms.txt)
   check   read-only; exit 1 on any disagreement (used by sync-counts.sh in both modes)
@@ -145,9 +145,13 @@ def check():
     for path in glob.glob("static/integrator/**", recursive=True):
         if os.path.isfile(path):
             s = open(path).read()
-            for lit in ("not yet published", "may still be drafts"):
+            for lit in ("not yet published", "may still be drafts", "Published on"):
                 if lit in s:
                     problems.append("%s: hardcoded legal status %r (use {{LEGAL_STATUS}})" % (path, lit))
+    # T-0534: the published sentence carries the latest effective date from the legal index, not a literal.
+    tokens_ts = open("src/shop/integrator/tokens.ts").read()
+    if "LEGAL_LATEST_EFFECTIVE" not in tokens_ts or "latest effective ${legalLatestEffective()}" not in tokens_ts:
+        problems.append("src/shop/integrator/tokens.ts: LEGAL_LATEST_EFFECTIVE token / published sentence missing")
     for path in TOKEN_FILES:
         s = open(path).read()
         if re.search(r"\b%d\b" % f["grace_s"], s):
