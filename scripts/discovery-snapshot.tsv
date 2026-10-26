@@ -652,8 +652,6 @@ indec-georef.reverse_geocode	indec-georef	0.001
 ine-chile.data	ine-chile	0.001
 ine-chile.dataflows	ine-chile	0.001
 ine-chile.structure	ine-chile	0.001
-ine-portugal.indicator_data	ine-portugal	0.002
-ine-portugal.indicator_metadata	ine-portugal	0.001
 ine-spain.operations	ine-spain	0.001
 ine-spain.series_data	ine-spain	0.002
 ine-spain.table_data	ine-spain	0.002
