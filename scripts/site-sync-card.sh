@@ -80,6 +80,9 @@ while IFS=$'\t' read -r key display; do
     echo "## Drift found (site-facts.py check-live)"
     printf '%s\n' "$lines" | sed 's/^/- /'
     echo
+    echo "## Docs"
+    echo "- $surface_file: live URL, GitHub-main URL, the sentence that changes and the grep that proves it live (CLAUDE.md, Documentation law)."
+    echo
     echo "## Rule"
     echo "Read the LIVE page and the GitHub file first, edit the existing sentence in place, one canonical place per fact,"
     echo "re-run \`python3 -I scripts/site-facts.py check\` to zero for this surface. The facts come from"
