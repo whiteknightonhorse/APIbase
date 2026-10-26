@@ -1103,7 +1103,7 @@
   "genlayer": {
     "chain_id": 4221,
     "contract_address": "0x7572cAB5B7Ba1547cDF259988582E3BBd8E2eaf8",
-    "explorer_host": "explorer-bradbury.genlayer.com",
+    "explorer_host": "scan.bradbury.genlayer.com",
     "rpc_host": "rpc-bradbury.genlayer.com"
   },
   "headers": {

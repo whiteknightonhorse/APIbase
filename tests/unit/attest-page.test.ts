@@ -3,6 +3,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import {
   CONTRACT_ADDRESS,
+  EXPLORER_BASE,
+  NETWORK_NOTE,
   NOT_INDEXED_GRACE_MS,
   attestBlockReason,
   attestationCard,
@@ -235,6 +237,22 @@ describe('page and pins', () => {
     expect(html).toMatch(/only x402 calls settled on Base, and only billed calls/);
     expect(html).toContain('testnet-faucet.genlayer.foundation');
     expect(html).toContain('chain 4221');
+  });
+
+  it('renders the network note from attest-view.ts and uses the scan.bradbury explorer', () => {
+    expect(html).toContain(NETWORK_NOTE);
+    expect(NETWORK_NOTE).toContain('pre-reset');
+    expect(new URL(EXPLORER_BASE).host).toBe('scan.bradbury.genlayer.com');
+  });
+
+  it('keeps one copy of the chain facts: no old explorer host and no second note in static/attest', () => {
+    const bundle = readFileSync(join(ROOT, 'static/attest/attest.js'), 'utf-8');
+    const old = ['explorer', 'bradbury'].join('-');
+    for (const text of [html, bundle]) expect(text).not.toContain(old);
+    for (const f of ['attest-view.ts', 'chain.ts', 'entry.ts', 'build.mjs'])
+      expect(readFileSync(join(ROOT, 'scripts/attest', f), 'utf-8')).not.toContain(old);
+    expect(html.split('pre-reset').length - 1).toBe(1);
+    expect(bundle).not.toContain('pre-reset');
   });
 
   it('pins genlayer-js to an exact version and ships the bundle', () => {

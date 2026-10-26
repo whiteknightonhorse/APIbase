@@ -10,7 +10,12 @@
 export const CONTRACT_ADDRESS = '0x7572cAB5B7Ba1547cDF259988582E3BBd8E2eaf8';
 export const CHAIN_ID = 4221;
 export const RPC_URL = 'https://rpc-bradbury.genlayer.com';
-export const EXPLORER_BASE = 'https://explorer-bradbury.genlayer.com';
+export const EXPLORER_BASE = 'https://scan.bradbury.genlayer.com';
+export const RESET_DATE = '2026-10-24';
+export const NETWORK_NOTE =
+  'Reads from the pre-reset Bradbury network while it answers; the attestation contract is being redeployed on the new GenLayer testnet.';
+/** A read that gets no answer in this long is shown as "network did not answer" instead of hanging. */
+export const RPC_TIMEOUT_MS = 10000;
 export const FAUCET_URL = 'https://testnet-faucet.genlayer.foundation/';
 export const RECEIPT_BASE_URL = 'https://apibase.pro/r/';
 

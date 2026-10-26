@@ -127,13 +127,27 @@ function attestationNode(card: AttestationCard): HTMLElement {
   return wrap;
 }
 
+function retryButton(receiptId: string): HTMLButtonElement {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = 'Retry';
+  b.addEventListener('click', () => {
+    b.disabled = true;
+    void loadAttestations(receiptId);
+  });
+  return b;
+}
+
 async function loadAttestations(receiptId: string): Promise<AttestationCard[]> {
   const list = $('attestations');
   let idList;
   try {
     idList = parseIdList(await readView('list_by_receipt', [receiptId]));
   } catch (e) {
-    list.replaceChildren(el('p', `The list could not be read: ${readableError(e)}`, 'note warn'));
+    list.replaceChildren(
+      el('p', `The list could not be read: ${readableError(e)}`, 'note warn'),
+      retryButton(receiptId),
+    );
     return [];
   }
   if (!idList.ok) {

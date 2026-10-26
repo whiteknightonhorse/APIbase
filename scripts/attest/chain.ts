@@ -5,7 +5,7 @@
  */
 import { createClient } from 'genlayer-js';
 import { testnetBradbury } from 'genlayer-js/chains';
-import { CHAIN_ID, CONTRACT_ADDRESS, RPC_URL } from './attest-view';
+import { CHAIN_ID, CONTRACT_ADDRESS, EXPLORER_BASE, RPC_TIMEOUT_MS, RPC_URL } from './attest-view';
 
 interface EthProvider {
   request(args: { method: string; params?: unknown }): Promise<unknown>;
@@ -22,16 +22,38 @@ export const hasWallet = (): boolean => injected() !== null;
 
 const readClient = createClient({ chain: testnetBradbury });
 
-export function readView(functionName: string, args: unknown[] = []): Promise<unknown> {
-  return readClient.readContract({
-    address: CONTRACT_ADDRESS as Hex,
-    functionName,
-    args: args as never,
+/** Reject after RPC_TIMEOUT_MS so a silent network shows a failure state instead of hanging. */
+function withTimeout<T>(call: Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(
+      () => reject(new Error(`The network did not answer within ${RPC_TIMEOUT_MS / 1000} s.`)),
+      RPC_TIMEOUT_MS,
+    );
+    call.then(
+      (v) => {
+        clearTimeout(timer);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(timer);
+        reject(e);
+      },
+    );
   });
 }
 
+export function readView(functionName: string, args: unknown[] = []): Promise<unknown> {
+  return withTimeout(
+    readClient.readContract({
+      address: CONTRACT_ADDRESS as Hex,
+      functionName,
+      args: args as never,
+    }),
+  );
+}
+
 export function readTransaction(hash: string): Promise<unknown> {
-  return readClient.getTransaction({ hash: hash as never });
+  return withTimeout(readClient.getTransaction({ hash: hash as never }));
 }
 
 /** Connect the browser wallet, put it on Bradbury (4221) and return the selected account. */
@@ -59,7 +81,7 @@ export async function connectWallet(): Promise<Hex> {
             chainName: testnetBradbury.name,
             rpcUrls: [RPC_URL],
             nativeCurrency: testnetBradbury.nativeCurrency,
-            blockExplorerUrls: [testnetBradbury.blockExplorers?.default.url],
+            blockExplorerUrls: [EXPLORER_BASE],
           },
         ],
       });

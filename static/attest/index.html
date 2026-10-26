@@ -107,6 +107,7 @@ body{background:var(--bg,#0e100f);color:var(--ink,#eef1ed);min-height:100vh}
 <div id="receipt"><p class="note info">Open this page as <code>/attest/?r=&lt;receipt id&gt;</code>, using the receipt URL <code>https://apibase.pro/r/&lt;receipt id&gt;.json</code> returned with a paid call.</p></div>
 
 <h2>Attestations on GenLayer</h2>
+<p class="note info"><!--network-note-->Reads from the pre-reset Bradbury network while it answers; the attestation contract is being redeployed on the new GenLayer testnet.<!--/network-note--></p>
 <p>Contract <span id="contract-link"></span> on GenLayer testnet Bradbury (chain 4221). Existing attestations are read directly from the Bradbury RPC; no wallet is needed to read them.</p>
 <div id="attestations"></div>
 
