@@ -2,15 +2,15 @@
   "platform": "APIbase",
   "version": "2.2.0",
   "updated_at": "2026-10-26T00:00:00Z",
-  "tools_count": 1385,
-  "providers_count": 400,
+  "tools_count": 1387,
+  "providers_count": 401,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1385 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1387 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -33,8 +33,8 @@
   "categories": [
     {
       "name": "world",
-      "tools": 253,
-      "providers": "Abs, Africa, Au Data Gov, Bgs Ogcapi, Brasilapi, Bts Transport, Calendarific, Carbon Intensity Uk, Cbs, Census, Censusmapper, Col, Comtrade, Cpsc, Data Europa, Datagovsg, Dogceo, Echo, Emsc, Enviroatlas, Eonet, EPA, EPA Aqs, Eurostat, Eurostat2, Faostat, Fema, GDACS, Gebco, Geodiva, Geonet Nz, Gfw, Gus Poland, Hdx, Hdx Hapi, Inaturalist, Irena, Lmpr, Macrostrat, Malaysiagov, Mbta Transit, Nagerdate, Ncbi Eutils, NOAA Fisheries Stats, NOAA Tides, Nrc, NREL, Oecd Stats, Ons Uk Stats, Open Canada, Openfoodfacts, Opentopography, P2pquake, Randomuser, Restcountries, Samuni, SCB, Socrata, Soil, Spending, Ssbnorway, Statbel, Statcan, Statfin, Statistics Denmark, Swissfso, Unhabitat, Unhcr, Unsdg, Usdamars, USGS Earthquake, USGS Hans Volcano, USGS Mrds, USGS Nwis, USGS Water, VATCOMPLY, Wikimedia Analytics, Wikimedia Rest",
+      "tools": 255,
+      "providers": "Abs, Africa, Au Data Gov, Bgs Ogcapi, Brasilapi, Bts Transport, Calendarific, Carbon Intensity Uk, Cbs, Census, Censusmapper, Col, Comtrade, Cpsc, Data Europa, Datagovsg, Dogceo, Echo, Emsc, Enviroatlas, Eonet, EPA, EPA Aqs, Eurostat, Eurostat2, Faostat, Fema, GDACS, Gebco, Geodiva, Geonet Nz, Gfw, Gus Poland, Hdx, Hdx Hapi, Inaturalist, Ine Portugal, Irena, Lmpr, Macrostrat, Malaysiagov, Mbta Transit, Nagerdate, Ncbi Eutils, NOAA Fisheries Stats, NOAA Tides, Nrc, NREL, Oecd Stats, Ons Uk Stats, Open Canada, Openfoodfacts, Opentopography, P2pquake, Randomuser, Restcountries, Samuni, SCB, Socrata, Soil, Spending, Ssbnorway, Statbel, Statcan, Statfin, Statistics Denmark, Swissfso, Unhabitat, Unhcr, Unsdg, Usdamars, USGS Earthquake, USGS Hans Volcano, USGS Mrds, USGS Nwis, USGS Water, VATCOMPLY, Wikimedia Analytics, Wikimedia Rest",
       "examples": "Call apibase.discover with category=\"world\" for the current tool list and descriptions."
     },
     {
