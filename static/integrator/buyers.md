@@ -16,6 +16,7 @@ No cap across several agents or wallets is imposed by APIbase or by any shop: no
 
 - **On Base (x402, USDC):** a payment is signed by the wallet that holds the USDC, so each agent's hard cap is the balance of its own wallet. Give every agent its own wallet, fund each one with only its share, and top them up from one treasury wallet on your own schedule. The fleet budget is the sum you fund; an agent that runs dry stops and asks you. Keep the per-payment and per-session limits in each client as before.
 - **On Tempo (MPP):** keep one funding wallet and authorize one access key per agent with a spending limit and an expiry (the same `accessKey.authorize` step described under subscriptions below). The sum of the limits is the fleet budget; revoke one key to stop one agent without touching the others.
+- **What the server can see:** the boundary is the paying wallet, not an agent or a session. A mutated request is a new purchase, and idempotency never prevents it. Cross-agent budgets live in how you fund wallets, or in an agent-side budget middleware of your choice.
 - **What you can reconcile against:** every order you pay can be read back with `shop.order.get`, which returns the state, the transaction hash and the refund policy.
 
 If you need a cap enforced by the shop rather than by the wallet, write to support@apibase.pro — today we deliberately do not hold that role.

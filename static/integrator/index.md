@@ -74,6 +74,8 @@ You, by hand:
 4. Paste link A, B, C or D into your site.
 5. Run the check (next section).
 
+soukbase.com is an example merchant (in development). The live, payable demo shop is /m/apibase-demo.
+
 Your agent: give it /integrator/agent-guide. Every step is an exact call with its error codes. It needs a wallet with USDC on Base or Tempo and an x402/MPP client for the last step.
 
 ## Sandbox and the connection check
@@ -103,6 +105,7 @@ Why Base and Tempo: Base: USDC is native; x402 is an open protocol (x402 Foundat
 - Goods are delivered only after the USDC transfer has a successful receipt.
 - Webhooks are signed with HMAC-SHA256 over the raw body; URLs must be https and public, redirects are not followed.
 - Your API key is shown once; APIbase stores only its hash. APIbase takes no card data.
+- A buyer's agent that retries never pays your order twice; a lost reply is recovered by the same payment identifier; you do nothing.
 - Every product passes rule-based moderation before buyers see it.
 
 What stays outside our guarantees: spending limits belong to the buyer's wallet; human confirmation belongs to the buyer's agent client; safekeeping of your key is yours; refunds are the seller's duty (see the refund framework).

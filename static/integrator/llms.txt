@@ -6,6 +6,8 @@
 - [Agent guide](https://apibase.pro/integrator/agent-guide): step-by-step connection for a merchant's agent, with error codes
 - [Integrator guide](https://apibase.pro/integrator/docs): the full merchant reference (registration, catalog, quotes, orders, webhooks, subscriptions)
 - [For buyers](https://apibase.pro/integrator/buyers): limits, quotes, what is and is not guaranteed
+- [Several agents, one budget](https://apibase.pro/integrator/buyers): fund one wallet per agent; the server sees wallets, not agents
+- [Before you send a payment](https://apibase.pro/integrator/agent-guide): persist the payment identifier and signed payload first; re-send, never re-sign
 - [Why Base and Tempo](https://apibase.pro/integrator/why-base-tempo): the two payment rails
 - [Wallet help](https://apibase.pro/integrator/wallet): getting a wallet with USDC; APIbase issues none
 - [Shopify](https://apibase.pro/integrator/platforms/shopify)

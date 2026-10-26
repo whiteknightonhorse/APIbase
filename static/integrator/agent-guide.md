@@ -26,6 +26,8 @@ Errors: `country_not_supported` (403), `category_prohibited` (403, with `alterna
 
 The payout wallet must be the merchant's own; platform addresses are refused with `payout_wallet_platform` (400).
 
+Example: `site_url: "https://soukbase.com"`, an example merchant (in development). The live, payable demo shop is `/m/apibase-demo`.
+
 ## Step 3. accept_terms
 
 Get a fresh nonce with `purpose=accept_terms`; its `message` is the acceptance text with the four document hashes. Sign it and call `POST /api/v1/shop/merchants/me/acceptances` (MCP tool `shop.merchant.accept_terms`) with `{wallet, doc_hashes: [{doc_id, version, sha256}], message, signature}`. All four documents are required: merchant-agreement, aup, dpa, refund-framework (see /legal/index.json).
@@ -137,6 +139,17 @@ x402 clients on `@x402/fetch` >= 2.23 refuse amounts above $1 by default (`spend
 - `namesilo.domain_register` ($21.00)
 
 Shop orders are priced by the merchant quote; a `total_usd` above $1 needs the same setting.
+
+## Before you send a payment: write the intent down
+
+Every server-side protection assumes that after a crash you present the same payment identifier and the same signed payload again. So persist first, send second.
+
+1. Derive the payment identifier from your own step (task id, step number, tool name) BEFORE the first call, and write it to your store in the same transaction as your step log. A step with two legitimate payments writes two intents (step + ordinal).
+2. Store in the same record: the identifier, the quote id and total (the quote hash), the recipient wallet, and the SIGNED payment payload.
+3. After a timeout or crash, RE-SEND the stored signed payload with the stored identifier. Never re-sign: the signed authorization bounds the money (its nonce is single-use on chain); the identifier recovers the work (you get the original answer back).
+4. The identifier is kept 24 hours. After that, look up the public receipt (`/r/<receipt_id>.json`) instead of resending.
+5. A 409 `payment_in_flight` is not final: wait `retry_after` and re-send the same identifier, or read `shop.order.get` (see the `payment_in_flight` anchor below).
+6. Make your tool adapter refuse to send a payment that has no stored intent.
 
 ## Error codes
 

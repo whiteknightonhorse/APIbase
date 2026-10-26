@@ -40,6 +40,9 @@ news, podcasts, search, social, space, travel, weather, world
 - Token: USDC on Base mainnet (x402) or Tempo (MPP)
 - Prices: $0.0005–$29.99 per call (90% of tools <= $0.003)
 - Details: https://apibase.pro/.well-known/x402-payment.json
+- Receipts: https://apibase.pro/r/<receipt_id>.json, a public immutable receipt for each on-chain billed call
+- Payment identifier / idempotency: https://apibase.pro/integrator/agent-guide, persist the intent before you send; re-send the same id, never re-sign
+- Tool manifest: https://apibase.pro/api/v1/tools/manifest, definition_sha256 per tool to detect changed definitions
 - IMPORTANT: use ONE protocol per request, not both
 - If using mppx SDK: set polyfill: false to avoid intercepting x402 requests
 - MPP client: mppx >= 0.6.16 (0.4 clients are not supported); the challenge lists one currency, USDC.e on Tempo mainnet (pathUSD on the testnet)

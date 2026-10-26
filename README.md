@@ -48,6 +48,16 @@ AI payment for merchants: a merchant gets its own MCP storefront, and a buyer's 
 
 ---
 
+## For paying agents: what protects your money
+
+- **Fixed price before payment** — the 402 response states the exact amount and recipient; see [payments](docs/payments.md).
+- **Payment identifier / idempotency** — persist the id and signed payload before you send, re-send after a crash: [agent guide](https://apibase.pro/integrator/agent-guide#before-you-send-a-payment-write-the-intent-down).
+- **Public receipts** — `https://apibase.pro/r/<id>.json`, see [receipts](docs/payments.md#public-receipts-a-ga-01).
+- **Several agents, one budget** — [buyers](https://apibase.pro/integrator/buyers).
+- **Tool definition fingerprint** — [discover-tools](https://apibase.pro/.well-known/agent-skills/discover-tools.md) and `/api/v1/tools/manifest`.
+
+---
+
 ## Integrations & Registries
 
 **[Full framework guides →](https://apibase.pro/frameworks)**
