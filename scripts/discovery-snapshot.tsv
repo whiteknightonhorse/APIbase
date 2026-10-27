@@ -654,10 +654,6 @@ ine-chile.dataflows	ine-chile	0.001
 ine-chile.structure	ine-chile	0.001
 ine-portugal.indicator_data	ine-portugal	0.002
 ine-portugal.indicator_metadata	ine-portugal	0.001
-ine-spain.operations	ine-spain	0.001
-ine-spain.series_data	ine-spain	0.002
-ine-spain.table_data	ine-spain	0.002
-ine-spain.tables	ine-spain	0.001
 insee.company_by_siren	insee	0.001
 insee.establishment_by_siret	insee	0.001
 insee.search_companies	insee	0.002
