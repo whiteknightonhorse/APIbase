@@ -24,3 +24,6 @@ Cookies, browser fingerprints,
 pixels.
 TTL-based (5 seconds
 5 minutes depending on tool).
+# T-0598: Google Analytics 4 removed; section 3a deleted and the cookie bullet reworded (apibase_owner session cookie named).
+3a. Analytics We use Google Analytics 4
+our human-facing web pages to measure visits and ad campaign performance; it sets first-party cookies. API, MCP and agent endpoints are not tracked.

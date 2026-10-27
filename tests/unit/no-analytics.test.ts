@@ -26,6 +26,6 @@ describe('T-0598 no third-party analytics', () => {
     const s = rd('static/privacy.html');
     expect(s).not.toContain('Google Analytics');
     expect(s).not.toContain('3a-analytics');
-    expect(s).toContain('No cookies or tracking pixels.');
+    expect(s).toContain('No analytics or advertising cookies and no tracking pixels.');
   });
 });

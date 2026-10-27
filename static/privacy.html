@@ -116,7 +116,7 @@ pre{overflow-x:auto}
 <li>Account data for platform tool calls: there are no human accounts, so no personal names, email addresses, or phone numbers are collected for them. Merchant orders are different: the delivery address, passport data where a product requires it, and payer contact are processed as described in <a href="#integrator">section 11</a> and the <a href="/legal/dpa">DPA</a>.</li>
 <li>Full request payloads are not stored. Provider responses are cached for the tool's TTL (<!--cache-ttl-->1 second to 30 days<!--/cache-ttl-->, <a href="#6-data-retention">section 6</a>) and are not linked to you beyond the cache key.</li>
 <li>IP addresses in application logs (only in Nginx access logs, retained 15 days).</li>
-<li>No cookies or tracking pixels. Traffic statistics are computed internally from server logs.</li>
+<li>No analytics or advertising cookies and no tracking pixels. The only cookie is the strictly necessary <code>apibase_owner</code> session cookie on the merchant owner page. Traffic statistics are computed internally from server logs.</li>
 </ul>
 
 <h2 id="4-how-we-use-data">4. How We Use Data</h2>
