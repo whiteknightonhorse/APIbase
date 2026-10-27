@@ -56,9 +56,12 @@ describe('integrator human-first landing', () => {
     }
   });
 
-  it('tracks both CTAs, has no forbidden claims and stays light', () => {
-    expect(html).toContain("position:'hero'");
-    expect(html).toContain("position:'footer'");
+  it('has both CTAs without analytics, no forbidden claims and stays light', () => {
+    expect(html).not.toContain('gtag');
+    expect(
+      html.split('class="lp-cta" href="/integrator/connect"').length - 1,
+    ).toBeGreaterThanOrEqual(2);
+    expect(html).toContain('id="cta-final"');
     for (const bad of ['no code', 'no chargebacks', 'no monthly fee', 'free forever']) {
       expect([bad, html.toLowerCase().includes(bad)]).toEqual([bad, false]);
     }
