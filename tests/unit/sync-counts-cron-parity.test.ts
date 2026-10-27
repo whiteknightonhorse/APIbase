@@ -88,4 +88,34 @@ describe('sync-counts-cron.sh page-parity gate', () => {
     expect(log).toContain('0 drift, nothing committed');
     expect(git(t.work, 'log', 'origin/ci-staging..HEAD', '--oneline')).toBe('');
   });
+
+  /** T-0617: the FILES assertion also sees paths written by gen-discovery.ts. */
+  const filesAssertion = (dropFromFiles: boolean) => {
+    const t = setup(false);
+    dir = t.dir;
+    writeFileSync(
+      join(t.work, 'scripts/gen-discovery.ts'),
+      "writeTextIfChanged(resolve(ROOT, 'static/llms-full.txt'), x);\n",
+    );
+    if (dropFromFiles) {
+      const p = join(t.work, 'scripts/sync-counts-cron.sh');
+      writeFileSync(p, readFileSync(p, 'utf8').replace(' static/llms-full.txt', ''));
+    }
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, t.env);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    return { r, log };
+  };
+
+  it('FILES assertion passes with static/llms-full.txt in FILES', () => {
+    const { r, log } = filesAssertion(false);
+    expect(r.status).toBe(0);
+    expect(log).not.toContain('missing from this script');
+  });
+
+  it('FILES assertion reports a generator-written path missing from FILES', () => {
+    const { r, log } = filesAssertion(true);
+    expect(r.status).toBe(1);
+    expect(log).toContain('missing from this script');
+    expect(log).toContain('static/llms-full.txt');
+  });
 });
