@@ -92,4 +92,7 @@ jobs:
         # F8: --passWithNoTests removed: a broken jest config that collects 0 tests should FAIL the
         # build. The jest reporter prints "DB suites skipped: N" and fails the run when N > 0
         # (T-0597). Schema migrations run once per process from tests/unit/helpers/shop-db.ts.
+        env:
+          # two jest workers on a 7 GB runner: a worker OOM-crashed (mpp-handler-status) with the default heap
+          NODE_OPTIONS: --max-old-space-size=4096
         run: npm run test -- --ci --maxWorkers=2
