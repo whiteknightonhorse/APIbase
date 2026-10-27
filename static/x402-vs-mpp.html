@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>x402 vs MPP: two ways to pay per call | APIbase</title>
+<meta property="og:image" content="https://apibase.pro/og-image.png?v=20260928">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="x402 settles USDC on Base through HTTP 402; MPP settles USDC.e on Tempo with a credential per call. What each is, when to pick which, and refunds.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/x402-vs-mpp">
+<meta property="og:title" content="x402 vs MPP">
+<meta property="og:description" content="Two payment rails on one endpoint: x402 (USDC on Base) and MPP (USDC.e on Tempo). What differs, when to pick which, what happens on a failed call.">
+<meta property="og:url" content="https://apibase.pro/x402-vs-mpp">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"APIbase","item":"https://apibase.pro/"},{"@type":"ListItem","position":2,"name":"x402 vs MPP","item":"https://apibase.pro/x402-vs-mpp"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"TechArticle","headline":"x402 vs MPP: two ways to pay per call on APIbase","description":"x402 settles USDC on Base through HTTP 402; MPP settles USDC.e on Tempo with a credential per call. What each is, when to pick which, and refunds.","url":"https://apibase.pro/x402-vs-mpp","mainEntityOfPage":"https://apibase.pro/x402-vs-mpp","inLanguage":"en","dateModified":"2026-10-27","author":{"@type":"Organization","name":"APIbase","url":"https://apibase.pro","logo":"https://apibase.pro/logo.png","sameAs":["https://github.com/whiteknightonhorse/APIbase","https://x.com/apibase_pro"]},"publisher":{"@type":"Organization","name":"APIbase","url":"https://apibase.pro","logo":"https://apibase.pro/logo.png","sameAs":["https://github.com/whiteknightonhorse/APIbase","https://x.com/apibase_pro"]}}
+</script>
+<style>
+/*site-nav*/
+.site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
+.site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-header a{text-decoration:none}
+.site-header .brand{display:flex;align-items:center;gap:9px;min-height:44px;color:#eef1ed;font-weight:700;font-size:18px;letter-spacing:-.02em;flex:none}
+.site-header .brand::before{content:'';width:10px;height:10px;border-radius:3px;background:#4fd283}
+.site-header .nav-full{display:none;align-items:center;gap:2px}
+.site-header .nav-full a{color:#b7beb8;font-size:14.5px;white-space:nowrap;padding:12px 5px;transition:color 120ms cubic-bezier(.2,.7,.2,1)}
+.site-header .nav-full a:hover{color:#eef1ed}
+.site-header nav a[aria-current="page"]{color:#eef1ed;box-shadow:inset 0 -2px 0 #4fd283}
+.site-header .nav-burger summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:1px solid #3e4541;border-radius:8px;color:#eef1ed;font-size:15px}
+.site-header .nav-burger summary::-webkit-details-marker{display:none}
+.site-header .nav-burger summary::before{content:'';width:18px;height:2px;background:#eef1ed;box-shadow:0 -6px 0 #eef1ed,0 6px 0 #eef1ed}
+.site-header .nav-burger[open] summary::before{content:'\00d7';width:auto;height:auto;background:none;box-shadow:none;font-size:26px;line-height:1}
+.site-header .burger-links{position:absolute;left:0;right:0;top:60px;background:#0e100f;border-bottom:1px solid #272c29;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:12px 20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;max-height:calc(100vh - 60px);overflow:auto}
+.site-header .burger-links a{display:flex;align-items:center;min-height:48px;padding:0 12px;border-radius:6px;color:#b7beb8;font-size:16px}
+.site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
+@media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
+/*/site-nav*/
+/* T-60 gate reads inline CSS only: every pre/table scrolls inside its own box (site-m.css styles the rest) */
+pre{overflow-x:auto}
+.table-wrap,.m-table-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<!--site-nav-->
+<link rel="stylesheet" href="/assets/site-m.css?v=ac2f148d">
+<header class="site-header"><div class="sh-in">
+<a class="brand" href="/">APIbase.pro</a>
+<nav class="nav-full" aria-label="Main">
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/policy/moderation">Moderation</a>
+<a href="/frameworks">Frameworks</a>
+<a href="/partners">Partners</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+<a href="https://x.com/apibase_pro">X</a>
+</nav>
+<details class="nav-burger">
+<summary>Menu</summary>
+<nav class="burger-links" aria-label="Main menu">
+<a href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/policy/moderation">Moderation</a>
+<a href="/frameworks">Frameworks</a>
+<a href="/partners">Partners</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+<a href="https://x.com/apibase_pro">X</a>
+</nav>
+</details>
+</div></header>
+<script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
+<!--/site-nav-->
+<div class="page-shell mk">
+<div class="container" id="main-content">
+
+<header class="mk-hero">
+<span class="m-caption">Payment rails</span>
+<h1>x402 vs MPP</h1>
+<p class="mk-lead">An agent with a Base wallet pays with x402; an agent with a Tempo wallet pays with MPP. Both rails are accepted on the same APIbase endpoints at the same listed price per call, and both return a public receipt. They differ in what happens when the provider fails.</p>
+</header>
+
+<p>Use one rail per request, never both. Prices are on <a href="/pricing">/pricing</a>; the connection steps are on <a href="/connect">/connect</a>; the reason for a single endpoint is on <a href="/why">/why</a>.</p>
+
+<h2>What each rail is</h2>
+
+<p><strong>x402</strong> is HTTP 402 Payment Required used as a payment protocol. The server answers a priced call with a 402 challenge naming the price. The agent's wallet signs an EIP-3009 <code>transferWithAuthorization</code> for USDC on Base mainnet and retries with it in the <code>X-PAYMENT</code> header. Over MCP the same payment can travel in <code>params._meta["x402/payment"]</code>. APIbase's self-hosted facilitator settles it on-chain.</p>
+
+<p><strong>MPP</strong> is the Machine Payments Protocol on Tempo. The agent signs a credential for each call with the <code>mppx</code> SDK against a Tempo wallet (chain 4217) and sends it as <code>Authorization: Payment &lt;credential&gt;</code>, or as <code>Payment-Authorization: Payment &lt;credential&gt;</code> next to a Bearer key. The currency is USDC.e on Tempo mainnet.</p>
+
+<h2>Side by side</h2>
+
+<div class="table-wrap m-table-wrap">
+<table class="m-table">
+<thead><tr><th></th><th>x402</th><th>MPP</th></tr></thead>
+<tbody>
+<tr><td>Network and asset</td><td>USDC on Base mainnet</td><td>USDC.e on Tempo mainnet (chain 4217)</td></tr>
+<tr><td>What the agent signs</td><td>An EIP-3009 transfer authorization</td><td>A credential for each call</td></tr>
+<tr><td>Header</td><td><code>X-PAYMENT</code></td><td><code>Authorization: Payment</code></td></tr>
+<tr><td>Client</td><td>An x402 client</td><td><code>mppx</code> 0.6.16 or newer, with <code>polyfill: false</code></td></tr>
+<tr><td>Settlement</td><td>After a delivered response, by the self-hosted facilitator</td><td>Before the provider call</td></tr>
+<tr><td>Provider fails</td><td>Not settled: nothing leaves the wallet</td><td>Refund owed, paid out by the operator</td></tr>
+<tr><td>Same lookup again within 2 minutes</td><td>Answered from cache and not charged</td><td>Charged again</td></tr>
+<tr><td>First payment from a new wallet</td><td>Creates the agent identity</td><td>Creates the agent identity</td></tr>
+<tr><td>Receipt</td><td>Public, <code>X-APIbase-Receipt</code> header</td><td>Public, <code>X-APIbase-Receipt</code> header</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>A replayed MPP credential is refused with 403 <code>credential_replayed</code>.</p>
+
+<h2>When an agent picks which</h2>
+
+<ul>
+<li>The wallet decides. A Base wallet with USDC signs x402; a Tempo wallet with USDC.e signs MPP.</li>
+<li>An agent that already uses Base Account or the Base MCP uses x402.</li>
+<li>An agent starting from a fresh Tempo wallet with no prior registration uses MPP: the first payment is the signup. The same holds for x402 on Base. Details: <a href="/connect">/connect</a>.</li>
+<li>An agent that must never be charged for a failed provider call picks x402, because an unsettled authorization moves no funds.</li>
+<li>An agent that repeats identical cacheable lookups picks x402 for the two-minute no-charge window. The response carries <code>X-APIbase-Charged: false</code> and the original receipt.</li>
+</ul>
+
+<h2>Refunds per rail</h2>
+
+<p><!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in <a href="/pricing#refunds">/pricing#refunds</a>.</p>
+
+<h2>Receipts</h2>
+
+<p>Each billed call on either rail has a public, immutable receipt at <code>https://apibase.pro/r/&lt;receipt_id&gt;.json</code>. What a receipt contains is in the <a href="/privacy">privacy policy</a>.</p>
+
+<h2>Related</h2>
+
+<ul>
+<li><a href="/what-is-an-mcp-gateway">What is an MCP gateway</a></li>
+<li><a href="/faq">FAQ</a></li>
+<li><a href="/pricing">Pricing</a></li>
+</ul>
+
+</div>
+</div>
+<footer class="site-footer"><div class="sf-in">
+<div class="sf-cols">
+<div><a class="sf-brand" href="/">APIbase.pro</a><p class="sf-tag">Unified API gateway for AI agents, and for the shops they buy from.</p></div>
+<nav aria-label="For agents"><div class="sf-h">For agents</div><a href="/catalog">Catalog</a><a href="/pricing">Pricing</a><a href="/connect">Connect</a><a href="/frameworks">Frameworks</a><a href="/dashboard">Dashboard</a></nav>
+<nav aria-label="For merchants"><div class="sf-h">For merchants</div><a href="/integrator">Integrator</a><a href="/shops">Shops</a><a href="/m/apibase-demo">Demo store</a><a href="/integrator/docs">Docs</a></nav>
+<nav aria-label="Operator"><div class="sf-h">Operator</div><a href="/about">About</a><a href="/why">Why APIbase</a><a href="/partners">Partners</a><a href="/contact">Contact</a><a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a><a href="https://x.com/apibase_pro">X</a></nav>
+<nav aria-label="Legal"><div class="sf-h"><a href="/legal">Legal</a></div><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/policy/moderation">Moderation</a><a href="/legal/aup">Acceptable use</a><a href="/legal/dpa">DPA</a><a href="/legal/merchant-agreement">Merchant agreement</a><a href="/legal/refund-framework">Refund framework</a></nav>
+</div>
+<div class="sf-agents"><span class="sf-h">For AI agents</span><a href="/index.md">/index.md</a><a href="/llms.txt">/llms.txt</a><a href="/ai.txt">/ai.txt</a><a href="https://apibase.pro/mcp">https://apibase.pro/mcp</a></div>
+<div class="sf-note"><span>&copy; 2026 APIbase</span><span>USDC via x402 on Base and MPP on Tempo</span></div>
+</div></footer>
+</body>
+</html>

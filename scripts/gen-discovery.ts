@@ -34,6 +34,7 @@ import { shopToolDefinitions } from '../src/shop/tool-definitions';
 import { buildPriceRange, type PriceRange } from './price-range';
 import { computeMcpCounts } from './count-mcp-tools';
 import { buildIntegratorBlock as buildIntegratorFacts } from '../src/shop/integrator/facts';
+import { buildLlmsFull } from './llms-full';
 
 const prisma = new PrismaClient();
 const ROOT = resolve(__dirname, '..');
@@ -774,6 +775,9 @@ access for the rare cases that need it.
     )
   )
     changed++;
+
+  // T-0591: llms.txt + the Markdown pages it links, regenerated after every other writer has run.
+  if (writeTextIfChanged(resolve(ROOT, 'static/llms-full.txt'), buildLlmsFull(ROOT))) changed++;
 
   if (CHECK_MODE) {
     if (driftPaths.length > 0) {

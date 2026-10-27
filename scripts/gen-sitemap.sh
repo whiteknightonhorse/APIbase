@@ -50,6 +50,7 @@ priority_for() {
     /onboard) echo 0.8 ;;
     /frameworks) echo 0.8 ;;
     /pricing) echo 0.8 ;;
+    /x402-vs-mpp|/what-is-an-mcp-gateway|/faq) echo 0.7 ;;
     /contact) echo 0.5 ;;
     /policy/moderation) echo 0.5 ;;
     /privacy) echo 0.4 ;;

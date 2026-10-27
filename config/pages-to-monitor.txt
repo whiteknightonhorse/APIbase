@@ -36,6 +36,9 @@ https://apibase.pro/shops
 https://apibase.pro/terms
 https://apibase.pro/video/
 https://apibase.pro/why
+https://apibase.pro/x402-vs-mpp
+https://apibase.pro/what-is-an-mcp-gateway
+https://apibase.pro/faq
 https://apibase.pro/.well-known/acp.json
 https://apibase.pro/.well-known/agent-registration.json
 https://apibase.pro/.well-known/agent-skills/auto-register.md
@@ -109,6 +112,10 @@ https://apibase.pro/video/templates/slide_discover.html
 https://apibase.pro/video/templates/slide_payment.html
 https://apibase.pro/video/templates/slide_pipeline.html
 https://apibase.pro/why.md
+https://apibase.pro/x402-vs-mpp.md
+https://apibase.pro/what-is-an-mcp-gateway.md
+https://apibase.pro/faq.md
+https://apibase.pro/llms-full.txt
 family /guides/<slug> 48 https://apibase.pro/guides/accept-payments-from-ai-agents https://apibase.pro/guides/mcp-servers https://apibase.pro/guides/uc-health-api
 family /guides/<YYYY-MM>/ 2 https://apibase.pro/guides/2026-09/index https://apibase.pro/guides/2026-10/index
 family /integrator/check/<shop-slug> 7 https://apibase.pro/integrator/check/aegis-verifier https://apibase.pro/integrator/check/assay-verifier https://apibase.pro/integrator/check/imperium-workflows

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAQ: keys, payment, receipts, refunds, limits | APIbase</title>
+<meta property="og:image" content="https://apibase.pro/og-image.png?v=20260928">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="description" content="Twelve short answers about APIbase: identity and keys, x402 and MPP, receipts, caching, rate limits, refunds, sanctions, moderation and Integrator.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" href="/favicon.png">
+<link rel="canonical" href="https://apibase.pro/faq">
+<meta property="og:title" content="APIbase FAQ">
+<meta property="og:description" content="Twelve short answers: identity, keys, payment rails, receipts, caching, limits, refunds, sanctions, moderation and Integrator.">
+<meta property="og:url" content="https://apibase.pro/faq">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"APIbase","item":"https://apibase.pro/"},{"@type":"ListItem","position":2,"name":"FAQ","item":"https://apibase.pro/faq"}]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I have to sign up?","acceptedAnswer":{"@type":"Answer","text":"No. Point an MCP client at https://apibase.pro/mcp. Your first payment, on x402 or MPP, creates your agent identity from the wallet. There is no dashboard signup, no email and no approval queue. Steps: /connect."}},{"@type":"Question","name":"How do I get an API key?","acceptedAnswer":{"@type":"Answer","text":"Send one unauthenticated POST https://apibase.pro/api/v1/agents/auto. The reply holds an agent_id and an api_key starting ak_live_, on the free tier. Use it as Authorization: Bearer. Registration details: /auth.md."}},{"@type":"Question","name":"Which payment rails are accepted?","acceptedAnswer":{"@type":"Answer","text":"x402 (USDC on Base) and MPP (USDC.e on Tempo). Use one per request. How they differ: x402 vs MPP."}},{"@type":"Question","name":"What does a call cost?","acceptedAnswer":{"@type":"Answer","text":"Every tool has a fixed published price: $0.0005–$29.99 per call (p90 $0.003). There is no plan, no included quota and no overage fee. Free tools cost $0. Tiers and per-tool prices: /pricing."}},{"@type":"Question","name":"How do I know what I was charged?","acceptedAnswer":{"@type":"Answer","text":"Each billed x402 or MPP call returns an X-APIbase-Receipt header with a public, immutable receipt at https://apibase.pro/r/<receipt_id>.json. What a receipt holds is in the privacy policy."}},{"@type":"Question","name":"Is a repeated call cached or charged twice?","acceptedAnswer":{"@type":"Answer","text":"A tool response is cached for its own TTL. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged; the response carries X-APIbase-Charged: false. On MPP a cache hit is billed in full. Details: /pricing."}},{"@type":"Question","name":"What are the rate limits?","acceptedAnswer":{"@type":"Answer","text":"The free tier allows 10 requests per second and 100 per day. Paid and enterprise tiers are higher. All three are on /connect."}},{"@type":"Question","name":"What happens when the provider fails?","acceptedAnswer":{"@type":"Answer","text":"On x402 a failed provider call is not settled, so nothing leaves your wallet. On MPP a refund is owed and paid out by the operator. Details: /pricing#refunds."}},{"@type":"Question","name":"Are payments screened for sanctions?","acceptedAnswer":{"@type":"Answer","text":"Yes. Paying wallets are screened before each settlement; a match is refused and the attempt is not charged. The countries and rules are in the Terms, section 12a."}},{"@type":"Question","name":"Where do the tool and provider counts come from?","acceptedAnswer":{"@type":"Answer","text":"They are generated from the live catalog and published in /llms.txt and /.well-known/site-facts.json. The catalog at /api/v1/tools lists every tool with its status. This site does not repeat the numbers in prose."}},{"@type":"Question","name":"Is my content moderated?","acceptedAnswer":{"@type":"Answer","text":"Calls to action tools, which send a message, place a call or post content, are scanned against a fixed ruleset before they reach the provider. Every other tool is checked only against the child-safety rule. A blocked paid call is still charged and can be appealed within 14 days. Policy: /policy/moderation."}},{"@type":"Question","name":"What is Integrator?","acceptedAnswer":{"@type":"Answer","text":"Integrator is AI payment for merchants: an MCP storefront for a shop, paid by AI agents straight to the merchant wallet. The fee and limits are stated once, on /pricing; the product is on /integrator."}}]}
+</script>
+<style>
+/*site-nav*/
+.site-header{position:relative;z-index:30;background:#0e100f;border-bottom:1px solid #272c29;font-family:Seravek,'Gill Sans Nova',Ubuntu,Calibri,'DejaVu Sans',source-sans-pro,sans-serif;font-size:16px;line-height:1.4}
+.site-header .sh-in{max-width:1240px;margin:0 auto;height:60px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.site-header a{text-decoration:none}
+.site-header .brand{display:flex;align-items:center;gap:9px;min-height:44px;color:#eef1ed;font-weight:700;font-size:18px;letter-spacing:-.02em;flex:none}
+.site-header .brand::before{content:'';width:10px;height:10px;border-radius:3px;background:#4fd283}
+.site-header .nav-full{display:none;align-items:center;gap:2px}
+.site-header .nav-full a{color:#b7beb8;font-size:14.5px;white-space:nowrap;padding:12px 5px;transition:color 120ms cubic-bezier(.2,.7,.2,1)}
+.site-header .nav-full a:hover{color:#eef1ed}
+.site-header nav a[aria-current="page"]{color:#eef1ed;box-shadow:inset 0 -2px 0 #4fd283}
+.site-header .nav-burger summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:1px solid #3e4541;border-radius:8px;color:#eef1ed;font-size:15px}
+.site-header .nav-burger summary::-webkit-details-marker{display:none}
+.site-header .nav-burger summary::before{content:'';width:18px;height:2px;background:#eef1ed;box-shadow:0 -6px 0 #eef1ed,0 6px 0 #eef1ed}
+.site-header .nav-burger[open] summary::before{content:'\00d7';width:auto;height:auto;background:none;box-shadow:none;font-size:26px;line-height:1}
+.site-header .burger-links{position:absolute;left:0;right:0;top:60px;background:#0e100f;border-bottom:1px solid #272c29;box-shadow:0 12px 32px rgba(0,0,0,.45);padding:12px 20px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;max-height:calc(100vh - 60px);overflow:auto}
+.site-header .burger-links a{display:flex;align-items:center;min-height:48px;padding:0 12px;border-radius:6px;color:#b7beb8;font-size:16px}
+.site-header .burger-links a:hover,.site-header .burger-links a[aria-current="page"]{background:#1b1f1c;color:#eef1ed}
+@media(min-width:1100px){.site-header .nav-full{display:flex}.site-header .nav-burger{display:none}}
+/*/site-nav*/
+/* T-60 gate reads inline CSS only: every pre/table scrolls inside its own box (site-m.css styles the rest) */
+pre{overflow-x:auto}
+.table-wrap,.m-table-wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<!--site-nav-->
+<link rel="stylesheet" href="/assets/site-m.css?v=ac2f148d">
+<header class="site-header"><div class="sh-in">
+<a class="brand" href="/">APIbase.pro</a>
+<nav class="nav-full" aria-label="Main">
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/policy/moderation">Moderation</a>
+<a href="/frameworks">Frameworks</a>
+<a href="/partners">Partners</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+<a href="https://x.com/apibase_pro">X</a>
+</nav>
+<details class="nav-burger">
+<summary>Menu</summary>
+<nav class="burger-links" aria-label="Main menu">
+<a href="/">APIbase.pro</a>
+<a href="/pricing">Pricing</a>
+<a href="/catalog">Catalog</a>
+<a href="/connect">Connect</a>
+<a href="/integrator">Integrator</a>
+<a href="/dashboard">Dashboard</a>
+<a href="/contact">Contact</a>
+<a href="/privacy">Privacy</a>
+<a href="/terms">Terms</a>
+<a href="/policy/moderation">Moderation</a>
+<a href="/frameworks">Frameworks</a>
+<a href="/partners">Partners</a>
+<a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a>
+<a href="https://x.com/apibase_pro">X</a>
+</nav>
+</details>
+</div></header>
+<script>(function(){var d=document.querySelector(".site-header .nav-burger");if(!d)return;var s=d.querySelector("summary");s.setAttribute("aria-expanded","false");d.addEventListener("toggle",function(){s.setAttribute("aria-expanded",d.open?"true":"false")});document.addEventListener("keydown",function(e){if(e.key==="Escape"&&d.open){d.open=false;s.focus()}});var p=location.pathname.replace(/\/$/,"")||"/";document.querySelectorAll(".site-header nav a").forEach(function(a){if(a.getAttribute("href")===p)a.setAttribute("aria-current","page")})})();</script>
+<!--/site-nav-->
+<div class="page-shell mk">
+<div class="container" id="main-content">
+
+<header class="mk-hero">
+<span class="m-caption">FAQ</span>
+<h1>Frequently asked questions</h1>
+<p class="mk-lead">Short answers about identity, keys, payment, receipts, caching, limits, refunds, sanctions, counts, moderation and Integrator. Each answer links to the page that holds the full fact.</p>
+</header>
+
+<h2>Do I have to sign up?</h2>
+
+<p>No. Point an MCP client at <code>https://apibase.pro/mcp</code>. Your first payment, on x402 or MPP, creates your agent identity from the wallet. There is no dashboard signup, no email and no approval queue. Steps: <a href="/connect">/connect</a>.</p>
+
+<h2>How do I get an API key?</h2>
+
+<p>Send one unauthenticated <code>POST https://apibase.pro/api/v1/agents/auto</code>. The reply holds an <code>agent_id</code> and an <code>api_key</code> starting <code>ak_live_</code>, on the free tier. Use it as <code>Authorization: Bearer</code>. Registration details: <a href="/auth.md">/auth.md</a>.</p>
+
+<h2>Which payment rails are accepted?</h2>
+
+<p>x402 (USDC on Base) and MPP (USDC.e on Tempo). Use one per request. How they differ: <a href="/x402-vs-mpp">x402 vs MPP</a>.</p>
+
+<h2>What does a call cost?</h2>
+
+<p>Every tool has a fixed published price: $0.0005–$29.99 per call (p90 $0.003). There is no plan, no included quota and no overage fee. Free tools cost $0. Tiers and per-tool prices: <a href="/pricing">/pricing</a>.</p>
+
+<h2>How do I know what I was charged?</h2>
+
+<p>Each billed x402 or MPP call returns an <code>X-APIbase-Receipt</code> header with a public, immutable receipt at <code>https://apibase.pro/r/&lt;receipt_id&gt;.json</code>. What a receipt holds is in the <a href="/privacy">privacy policy</a>.</p>
+
+<h2>Is a repeated call cached or charged twice?</h2>
+
+<p>A tool response is cached for its own TTL. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged; the response carries <code>X-APIbase-Charged: false</code>. On MPP a cache hit is billed in full. Details: <a href="/pricing">/pricing</a>.</p>
+
+<h2>What are the rate limits?</h2>
+
+<p>The free tier allows 10 requests per second and 100 per day. Paid and enterprise tiers are higher. All three are on <a href="/connect">/connect</a>.</p>
+
+<h2>What happens when the provider fails?</h2>
+
+<p><!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled, so nothing leaves your wallet. On MPP a refund is owed and paid out by the operator. Details: <a href="/pricing#refunds">/pricing#refunds</a>.</p>
+
+<h2>Are payments screened for sanctions?</h2>
+
+<p>Yes. Paying wallets are screened before each settlement; a match is refused and the attempt is not charged. The countries and rules are in the <a href="/terms#12a-sanctions">Terms, section 12a</a>.</p>
+
+<h2>Where do the tool and provider counts come from?</h2>
+
+<p>They are generated from the live catalog and published in <a href="/llms.txt">/llms.txt</a> and <a href="/.well-known/site-facts.json">/.well-known/site-facts.json</a>. The catalog at <a href="/api/v1/tools">/api/v1/tools</a> lists every tool with its status. This site does not repeat the numbers in prose.</p>
+
+<h2>Is my content moderated?</h2>
+
+<p>Calls to action tools, which send a message, place a call or post content, are scanned against a fixed ruleset before they reach the provider. Every other tool is checked only against the child-safety rule. A blocked paid call is still charged and can be appealed within 14 days. Policy: <a href="/policy/moderation">/policy/moderation</a>.</p>
+
+<h2>What is Integrator?</h2>
+
+<p>Integrator is AI payment for merchants: an MCP storefront for a shop, paid by AI agents straight to the merchant wallet. The fee and limits are stated once, on <a href="/pricing">/pricing</a>; the product is on <a href="/integrator">/integrator</a>.</p>
+
+<h2>Related</h2>
+
+<ul>
+<li><a href="/x402-vs-mpp">x402 vs MPP</a></li>
+<li><a href="/what-is-an-mcp-gateway">What is an MCP gateway</a></li>
+<li><a href="/why">Why APIbase</a></li>
+</ul>
+
+</div>
+</div>
+<footer class="site-footer"><div class="sf-in">
+<div class="sf-cols">
+<div><a class="sf-brand" href="/">APIbase.pro</a><p class="sf-tag">Unified API gateway for AI agents, and for the shops they buy from.</p></div>
+<nav aria-label="For agents"><div class="sf-h">For agents</div><a href="/catalog">Catalog</a><a href="/pricing">Pricing</a><a href="/connect">Connect</a><a href="/frameworks">Frameworks</a><a href="/dashboard">Dashboard</a></nav>
+<nav aria-label="For merchants"><div class="sf-h">For merchants</div><a href="/integrator">Integrator</a><a href="/shops">Shops</a><a href="/m/apibase-demo">Demo store</a><a href="/integrator/docs">Docs</a></nav>
+<nav aria-label="Operator"><div class="sf-h">Operator</div><a href="/about">About</a><a href="/why">Why APIbase</a><a href="/partners">Partners</a><a href="/contact">Contact</a><a href="https://github.com/whiteknightonhorse/APIbase">GitHub</a><a href="https://x.com/apibase_pro">X</a></nav>
+<nav aria-label="Legal"><div class="sf-h"><a href="/legal">Legal</a></div><a href="/terms">Terms</a><a href="/privacy">Privacy</a><a href="/policy/moderation">Moderation</a><a href="/legal/aup">Acceptable use</a><a href="/legal/dpa">DPA</a><a href="/legal/merchant-agreement">Merchant agreement</a><a href="/legal/refund-framework">Refund framework</a></nav>
+</div>
+<div class="sf-agents"><span class="sf-h">For AI agents</span><a href="/index.md">/index.md</a><a href="/llms.txt">/llms.txt</a><a href="/ai.txt">/ai.txt</a><a href="https://apibase.pro/mcp">https://apibase.pro/mcp</a></div>
+<div class="sf-note"><span>&copy; 2026 APIbase</span><span>USDC via x402 on Base and MPP on Tempo</span></div>
+</div></footer>
+</body>
+</html>

@@ -710,6 +710,8 @@ fi
 [ -n "$STALE_ROADMAP" ] && { echo "sync-counts: STALE_ROADMAP — docs/ROADMAP.md format/SHA/freshness violation(s):"; echo "$STALE_ROADMAP"; FAIL=1; }
 if [ "$CHECK" = "1" ]; then
   [ "$GEN_DISCOVERY_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — gen-discovery.ts --check found byte-for-byte drift:"; echo "$GEN_DISCOVERY_CHECK_OUT"; FAIL=1; }
+  # T-0591: static/llms-full.txt is generated from llms.txt and the .md pages it links.
+  STALE_LLMS_FULL=$(npx tsx scripts/llms-full.ts --check 2>&1 >/dev/null) || { echo "sync-counts: $STALE_LLMS_FULL"; FAIL=1; }
   [ "$GEN_OPENAPI_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — generate-openapi.ts --check found byte-for-byte drift:"; echo "$GEN_OPENAPI_CHECK_OUT"; FAIL=1; }
 fi
 

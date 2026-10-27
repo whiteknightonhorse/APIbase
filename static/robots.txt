@@ -40,6 +40,31 @@ User-agent: cohere-ai
 Allow: /
 Content-Signal: ai-train=yes, search=yes, ai-input=yes
 
+# AI search and user-triggered fetchers
+User-agent: OAI-SearchBot
+Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+
+User-agent: ChatGPT-User
+Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+
+User-agent: Claude-SearchBot
+Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+
+User-agent: Claude-User
+Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+
+User-agent: Applebot-Extended
+Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+
+User-agent: Meta-ExternalAgent
+Allow: /
+Content-Signal: ai-train=yes, search=yes, ai-input=yes
+
 # AI-specific: https://apibase.pro/ai.txt
 # LLM instructions: https://apibase.pro/llms.txt
 # Agent manifest (APIbase, not A2A): https://apibase.pro/.well-known/agent.json

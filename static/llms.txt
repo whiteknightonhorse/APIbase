@@ -8,6 +8,9 @@ actually work: https://apibase.pro/why (Markdown: https://apibase.pro/why.md). A
 specific needs (flight search, image generation, company research):
 https://apibase.pro/flight-search-intent, https://apibase.pro/image-generation-intent,
 https://apibase.pro/company-research-intent.
+Concept pages, in Markdown: https://apibase.pro/x402-vs-mpp.md,
+https://apibase.pro/what-is-an-mcp-gateway.md, https://apibase.pro/faq.md.
+Full text of every linked Markdown page in one file: https://apibase.pro/llms-full.txt.
 
 ## Quick Start for Agents
 - Connect: POST https://apibase.pro/mcp (MCP Streamable HTTP)

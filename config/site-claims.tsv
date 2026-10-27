@@ -93,3 +93,28 @@ static/legal/dpa.md	https://apibase.pro/legal/dpa.md	must-contain	Hillsboro	-	T-
 static/terms.html	https://apibase.pro/terms	must-not-contain	effective immediately upon posting	-	T-0582 L-08
 static/privacy.html	https://apibase.pro/privacy	must-not-contain	effective immediately	-	T-0582 L-08
 static/legal/merchant-agreement.md	https://apibase.pro/legal/merchant-agreement.md	must-contain	law of England and Wales	-	T-0582 L-06
+static/x402-vs-mpp.html	https://apibase.pro/x402-vs-mpp	must-contain	<title>x402 vs MPP	-	T-0591
+static/x402-vs-mpp.html	https://apibase.pro/x402-vs-mpp	must-contain	"@type":"TechArticle"	-	T-0591
+static/x402-vs-mpp.html	https://apibase.pro/x402-vs-mpp	must-contain	"@type":"BreadcrumbList"	-	T-0591
+static/x402-vs-mpp.md	https://apibase.pro/x402-vs-mpp.md	must-contain	## Related	-	T-0591
+static/what-is-an-mcp-gateway.html	https://apibase.pro/what-is-an-mcp-gateway	must-contain	<title>What is an MCP gateway	-	T-0591
+static/what-is-an-mcp-gateway.html	https://apibase.pro/what-is-an-mcp-gateway	must-contain	"@type":"TechArticle"	-	T-0591
+static/what-is-an-mcp-gateway.html	https://apibase.pro/what-is-an-mcp-gateway	must-contain	"@type":"BreadcrumbList"	-	T-0591
+static/what-is-an-mcp-gateway.md	https://apibase.pro/what-is-an-mcp-gateway.md	must-contain	## Related	-	T-0591
+static/faq.html	https://apibase.pro/faq	must-contain	<title>FAQ:	-	T-0591
+static/faq.html	https://apibase.pro/faq	must-contain	"@type":"FAQPage"	-	T-0591
+static/faq.html	https://apibase.pro/faq	must-contain	"@type":"BreadcrumbList"	-	T-0591
+static/faq.md	https://apibase.pro/faq.md	must-contain	## Related	-	T-0591
+static/faq.html	https://apibase.pro/faq	must-contain	{{price_range_usd.text}}	-	T-0591
+static/faq.md	https://apibase.pro/faq.md	must-contain	{{price_range_usd.text}}	-	T-0591
+static/faq.md	https://apibase.pro/faq.md	must-contain	The free tier allows {{rate_limits.free.requests_per_second}} requests per second and {{rate_limits.free.daily_limit}} per day	-	T-0591
+static/pricing.html	https://apibase.pro/pricing	regex-equals	"lowPrice":"([^"]+)"	{{price_range_usd.min}}	T-0591
+static/pricing.html	https://apibase.pro/pricing	regex-equals	"highPrice":"([^"]+)"	{{price_range_usd.max}}	T-0591
+static/why.html	https://apibase.pro/why	must-contain	"@type":"TechArticle"	-	T-0591
+static/robots.txt	https://apibase.pro/robots.txt	must-contain	re:User-agent: OAI-SearchBot\nAllow: /\nContent-Signal: ai-train=yes, search=yes, ai-input=yes	-	T-0591
+static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: ChatGPT-User	-	T-0591
+static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: Claude-SearchBot	-	T-0591
+static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: Claude-User	-	T-0591
+static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: Applebot-Extended	-	T-0591
+static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: Meta-ExternalAgent	-	T-0591
+static/llms-full.txt	https://apibase.pro/llms-full.txt	must-contain	<!-- source: https://apibase.pro/x402-vs-mpp.md -->	-	T-0591
