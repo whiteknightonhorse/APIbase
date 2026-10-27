@@ -1,10 +1,11 @@
 # T-0542: pages crawled by scripts/site-facts.py check-live (copied from site-audit-1024/pages-to-monitor.md).
 # Line shapes: `<url> [expect_status]` or `family <pattern> <count> <sample-url>...`. Default expected status is 200.
+# /autopilot/incident is not monitored: it is a per-incident JavaScript view (no static h1, needs ?id=), not in sitemap.xml; the old /autopilot-incident path was never routed (T-0217 fde0e1e2).
+# family /m/<shop-slug> counts verified shops only (GET /api/v1/shop/shops), so the listed count follows that API; T-0536.
 # Machine endpoints are fetched for status and response time only; title/description/canonical/og/h1 apply to HTML pages.
 https://apibase.pro/
 https://apibase.pro/about
 https://apibase.pro/attest/
-https://apibase.pro/autopilot-incident
 https://apibase.pro/catalog
 https://apibase.pro/company-research-intent
 https://apibase.pro/connect
@@ -28,7 +29,6 @@ https://apibase.pro/legal/merchant-agreement
 https://apibase.pro/legal/refund-framework
 https://apibase.pro/onboard
 https://apibase.pro/partners
-https://apibase.pro/policy-moderation
 https://apibase.pro/policy/moderation
 https://apibase.pro/pricing
 https://apibase.pro/privacy
@@ -116,13 +116,13 @@ https://apibase.pro/x402-vs-mpp.md
 https://apibase.pro/what-is-an-mcp-gateway.md
 https://apibase.pro/faq.md
 https://apibase.pro/llms-full.txt
-family /guides/<slug> 48 https://apibase.pro/guides/accept-payments-from-ai-agents https://apibase.pro/guides/mcp-servers https://apibase.pro/guides/uc-health-api
+family /guides/<slug> 51 https://apibase.pro/guides/accept-payments-from-ai-agents https://apibase.pro/guides/mcp-servers https://apibase.pro/guides/uc-health-api
 family /guides/<YYYY-MM>/ 2 https://apibase.pro/guides/2026-09/index https://apibase.pro/guides/2026-10/index
 family /integrator/check/<shop-slug> 7 https://apibase.pro/integrator/check/aegis-verifier https://apibase.pro/integrator/check/assay-verifier https://apibase.pro/integrator/check/imperium-workflows
 family /integrator/platforms/<platform> 10 https://apibase.pro/integrator/platforms/custom https://apibase.pro/integrator/platforms/tilda.md https://apibase.pro/integrator/platforms/woocommerce
 family /m/<shop-slug>/{agent.json,llms.txt,provek.json} 20 https://apibase.pro/m/aegis-verifier/agent.json https://apibase.pro/m/assay-verifier/provek.json https://apibase.pro/m/imperium-workflows/provek.json
 family /m/<shop-slug>/p/<product-slug> 30 https://apibase.pro/m/aegis-verifier/p/aegis-bounty-radar https://apibase.pro/m/apibase-demo/p/demo-tour https://apibase.pro/m/aegis-verifier/p/aegis-wallet-forensics
-family /m/<shop-slug> 7 https://apibase.pro/m/aegis-verifier https://apibase.pro/m/assay-verifier https://apibase.pro/m/x402broker
+family /m/<shop-slug> 0 https://apibase.pro/m/aegis-verifier https://apibase.pro/m/assay-verifier https://apibase.pro/m/x402broker
 https://provek.dev/
 https://provek.dev/404 404
 https://provek.dev/apply/

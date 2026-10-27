@@ -23,10 +23,10 @@ const out = await build({
 // pre-commit private-key scan cannot tell from a key. Splitting the literal keeps the value identical.
 // The library's own Bradbury chain definition names the old explorer host; the page never uses it (chain.ts passes
 // EXPLORER_BASE), so the stale literal is rewritten to the current host to keep the old one out of static/.
-const OLD_EXPLORER = ['explorer', 'bradbury'].join('-'); // spelled out so the repo-wide absence check stays meaningful
+const OLD_EXPLORERS = ['bradbury', 'asimov'].map((n) => ['explorer', n].join('-')); // spelled out so the repo-wide absence check stays meaningful
 const code = out.outputFiles[0].text
   .replace(/"0x([0-9a-fA-F]{64})"/g, '("0"+"x$1")')
-  .replaceAll(`https://${OLD_EXPLORER}.genlayer.com`, 'https://scan.bradbury.genlayer.com');
+  .replace(new RegExp(`https://(?:${OLD_EXPLORERS.join('|')})\\.genlayer\\.com`, 'g'), 'https://scan.bradbury.genlayer.com');
 writeFileSync(out.outputFiles[0].path, code);
 
 // The network note is stated once, in attest-view.ts, and rendered into the page here.

@@ -247,10 +247,11 @@ describe('page and pins', () => {
 
   it('keeps one copy of the chain facts: no old explorer host and no second note in static/attest', () => {
     const bundle = readFileSync(join(ROOT, 'static/attest/attest.js'), 'utf-8');
-    const old = ['explorer', 'bradbury'].join('-');
-    for (const text of [html, bundle]) expect(text).not.toContain(old);
-    for (const f of ['attest-view.ts', 'chain.ts', 'entry.ts', 'build.mjs'])
-      expect(readFileSync(join(ROOT, 'scripts/attest', f), 'utf-8')).not.toContain(old);
+    for (const old of ['bradbury', 'asimov'].map((n) => ['explorer', n].join('-'))) {
+      for (const text of [html, bundle]) expect(text).not.toContain(old);
+      for (const f of ['attest-view.ts', 'chain.ts', 'entry.ts', 'build.mjs'])
+        expect(readFileSync(join(ROOT, 'scripts/attest', f), 'utf-8')).not.toContain(old);
+    }
     expect(html.split('pre-reset').length - 1).toBe(1);
     expect(bundle).not.toContain('pre-reset');
   });
