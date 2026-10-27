@@ -1380,6 +1380,8 @@ def sync_tool_status():
             f"provider = {ap.sql_literal(provider)} "
             f"AND status_source IS DISTINCT FROM 'manual' "
             f"AND (status_source IS NOT NULL OR status = 'healthy') "
+            # T-0584: quota withdrawal is owned by provider-health.job.ts, which also restores it
+            f"AND status_reason IS DISTINCT FROM 'quota_exhausted' "
             f"AND status <> {ap.sql_literal(target)}"
         )
         # T-01 (2026-09-05, Fable ruling-1 decision C1): a row priced below its own

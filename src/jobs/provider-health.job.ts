@@ -2,6 +2,7 @@ import https from 'https';
 import Redis from 'ioredis';
 import { PrismaClient } from '@prisma/client';
 import { logger } from '../config/logger';
+import { QUOTA_EXHAUSTED_REASON } from '../pipeline/stages/tool-status.stage';
 import { substituteEnvPlaceholders } from '../config/url-keys';
 import providerLimitsConfig from '../config/provider-limits.json';
 import { providerHttpsAgent, type ProviderTlsConfig } from '../utils/provider-tls';
@@ -1223,6 +1224,70 @@ async function ensureSeeded(db: PrismaClient): Promise<void> {
 // Entry point (cron: every 2 min, unchanged from v1 — see worker/server.ts)
 // ---------------------------------------------------------------------------
 
+/**
+ * T-0584: a provider whose free upstream quota is spent (provider_status.risk = EXHAUSTED, or a
+ * one-off `trial` allowance at 0 % remaining, which never resets) has its tools withdrawn
+ * (`status = 'unavailable'`, `status_reason = 'quota_exhausted'`) BEFORE a paid call can fail
+ * upstream; TOOL_STATUS/precheck then answer 503 `tool_unavailable` with no charge. Restored to
+ * `healthy` once risk drops below CRITICAL and the last probe was OK. Only rows the autopilot may
+ * own are touched (same eligibility as incident-engine.py sync_tool_status: never `manual`, never
+ * a hand-set NULL-source non-healthy row), and a row priced below its floor is never revived.
+ */
+export async function reconcileQuotaAvailability(db: PrismaClient): Promise<void> {
+  const rows = await db.providerStatus.findMany({
+    select: { provider: true, risk: true, pct_remaining: true, last_probe_result: true },
+  });
+  const ownable = {
+    OR: [
+      { status_source: { in: ['autopilot', 'seed'] } },
+      { status_source: null, status: 'healthy' },
+    ],
+  };
+  for (const r of rows) {
+    const trialSpent = limitsConfig[r.provider]?.limit_type === 'trial' && r.pct_remaining === 0;
+    if (r.risk === 'EXHAUSTED' || trialSpent) {
+      const res = await db.tool.updateMany({
+        where: { provider: r.provider, status: { not: 'unavailable' }, ...ownable },
+        data: {
+          status: 'unavailable',
+          status_source: 'autopilot',
+          status_reason: QUOTA_EXHAUSTED_REASON,
+          status_changed_at: new Date(),
+        },
+      });
+      if (res.count > 0) {
+        logger.warn(
+          { job: 'provider-health', provider: r.provider, tools: res.count, risk: r.risk },
+          'Quota exhausted — tools withdrawn (T-0584)',
+        );
+      }
+      continue;
+    }
+    if (r.risk === 'CRITICAL' || r.last_probe_result !== 'OK') continue;
+    const withdrawn = await db.tool.findMany({
+      where: { provider: r.provider, status: 'unavailable', status_reason: QUOTA_EXHAUSTED_REASON },
+      select: { tool_id: true, price_usd: true, price_floor_usd: true },
+    });
+    const revive = withdrawn
+      .filter((t) => t.price_floor_usd == null || Number(t.price_usd) >= Number(t.price_floor_usd))
+      .map((t) => t.tool_id);
+    if (revive.length === 0) continue;
+    await db.tool.updateMany({
+      where: { tool_id: { in: revive } },
+      data: {
+        status: 'healthy',
+        status_source: 'autopilot',
+        status_reason: 'quota_recovered',
+        status_changed_at: new Date(),
+      },
+    });
+    logger.info(
+      { job: 'provider-health', provider: r.provider, tools: revive.length },
+      'Quota recovered — tools restored (T-0584)',
+    );
+  }
+}
+
 export async function run(redis: Redis): Promise<void> {
   if (providerNames.length === 0) return;
   const db = getPrisma();
@@ -1280,6 +1345,12 @@ export async function run(redis: Redis): Promise<void> {
         await redis.del(`probe:asap:${provider}`).catch(() => {});
       }
     }
+  }
+
+  try {
+    await reconcileQuotaAvailability(db);
+  } catch (err) {
+    logger.error({ err, job: 'provider-health' }, 'Quota availability reconcile failed');
   }
 
   logger.info(

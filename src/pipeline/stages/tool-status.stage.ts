@@ -67,7 +67,15 @@ export interface ToolCacheEntry {
   // cache entry without it (margin-gate.test.ts) keep compiling; real
   // DB-loaded rows always set it.
   provider?: string;
+  // T-0584: why an `unavailable` row is unavailable. 'quota_exhausted' = the provider's free
+  // upstream quota is spent (provider-health.job.ts reconcileQuotaAvailability); such a tool is
+  // answered 503 `tool_unavailable` before any charge, with retry_after from the provider's
+  // provider_status.next_probe_at (quota_retry_at, epoch ms; null = unknown, e.g. a spent trial).
+  status_reason?: string | null;
+  quota_retry_at?: number | null;
 }
+
+export const QUOTA_EXHAUSTED_REASON = 'quota_exhausted';
 
 const toolCache = new Map<string, ToolCacheEntry>();
 let refreshTimer: ReturnType<typeof setInterval> | null = null;
@@ -82,8 +90,25 @@ async function loadToolCache(): Promise<void> {
       upstream_cost_usd: true,
       price_floor_usd: true,
       provider: true,
+      status_reason: true,
     },
   });
+
+  const quotaProviders = [
+    ...new Set(
+      tools
+        .filter((t) => t.status === 'unavailable' && t.status_reason === QUOTA_EXHAUSTED_REASON)
+        .map((t) => t.provider),
+    ),
+  ];
+  const retryAt = new Map<string, number>();
+  if (quotaProviders.length > 0) {
+    const rows = await getPrisma().providerStatus.findMany({
+      where: { provider: { in: quotaProviders } },
+      select: { provider: true, next_probe_at: true },
+    });
+    for (const r of rows) retryAt.set(r.provider, r.next_probe_at.getTime());
+  }
 
   toolCache.clear();
   for (const t of tools) {
@@ -95,6 +120,8 @@ async function loadToolCache(): Promise<void> {
       upstream_cost_usd: t.upstream_cost_usd === null ? null : Number(t.upstream_cost_usd),
       price_floor_usd: t.price_floor_usd === null ? null : Number(t.price_floor_usd),
       provider: t.provider,
+      status_reason: t.status_reason,
+      quota_retry_at: retryAt.get(t.provider) ?? null,
     });
   }
 
@@ -247,9 +274,22 @@ export async function checkToolAvailability(toolId: string): Promise<PipelineErr
   }
 
   if (tool.status === 'unavailable') {
+    const quotaExhausted = tool.status_reason === QUOTA_EXHAUSTED_REASON;
     const alternatives = await getAlternativesForTool(tool.tool_id);
     if (capability && alternatives.length > 0) {
       apibaseCallLostWithAlternativeTotal.inc({ capability, tool_id: tool.tool_id });
+    }
+    if (quotaExhausted) {
+      const untilReset = tool.quota_retry_at
+        ? Math.ceil((tool.quota_retry_at - Date.now()) / 1000)
+        : 0;
+      return {
+        code: 503,
+        error: 'tool_unavailable',
+        message: `Tool ${toolId} is withdrawn until the provider's free quota resets; you are not charged`,
+        retryAfter: Math.min(Math.max(untilReset, 30), 86_400),
+        ...(alternatives.length > 0 ? { extra: { alternatives } } : {}),
+      };
     }
     return {
       code: 503,

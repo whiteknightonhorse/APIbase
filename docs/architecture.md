@@ -14,6 +14,7 @@ CACHE_OR_SINGLE_FLIGHT → RATE_LIMIT → ESCROW → MODERATION → PROVIDER_CAL
 ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 ```
 
+- **Quota-aware catalog**: a tool whose provider's free upstream quota is exhausted is withdrawn (`status_reason = quota_exhausted`) from `/api/v1/tools` and MCP `tools/list`; TOOL_STATUS answers a call to it with 503 `tool_unavailable` and `retry_after` before ESCROW, so no 402 challenge is issued and nothing is settled. It returns automatically once the quota resets and the provider probes healthy.
 - **Escrow-first**: funds are reserved before the provider call. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->x402: not settled on failure; MPP: refund owed, paid by the operator ([details](https://apibase.pro/pricing#refunds)).
 - **Idempotent**: same request + same key = same result, no double charges.
 - **Cache**: per-tool TTL (as short as 5s for stock prices, days for slow-changing data).

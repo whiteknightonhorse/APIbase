@@ -17,6 +17,7 @@ export const ErrorCode = {
   INTERNAL_ERROR: 'internal_error',
   BAD_GATEWAY: 'bad_gateway',
   PROVIDER_UNAVAILABLE: 'provider_unavailable',
+  TOOL_UNAVAILABLE: 'tool_unavailable',
   SERVICE_UNAVAILABLE: 'service_unavailable',
   GATEWAY_TIMEOUT: 'gateway_timeout',
 } as const;
@@ -25,11 +26,7 @@ export type ErrorCodeValue = (typeof ErrorCode)[keyof typeof ErrorCode];
 
 /** Agent-friendly suggested actions for error recovery. */
 export type SuggestedAction =
-  | 'retry_after_delay'
-  | 'fix_request'
-  | 'add_payment'
-  | 'use_different_tool'
-  | 'contact_support';
+  'retry_after_delay' | 'fix_request' | 'add_payment' | 'use_different_tool' | 'contact_support';
 
 /** Map HTTP status ranges to suggested recovery actions. */
 export const SuggestedActionByStatus: Record<number, SuggestedAction> = {
@@ -85,6 +82,7 @@ export const ErrorHttpStatus: Record<ErrorCodeValue, number> = {
   [ErrorCode.INTERNAL_ERROR]: 500,
   [ErrorCode.BAD_GATEWAY]: 502,
   [ErrorCode.PROVIDER_UNAVAILABLE]: 503,
+  [ErrorCode.TOOL_UNAVAILABLE]: 503,
   [ErrorCode.SERVICE_UNAVAILABLE]: 503,
   [ErrorCode.GATEWAY_TIMEOUT]: 504,
 };

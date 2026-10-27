@@ -144,6 +144,7 @@ pre{overflow-x:auto}
 <li>No subscription tier, no seat count, no annual contract.</li>
 <li>No overage fee &mdash; the price per call is the price per call at any volume.</li>
 <li>No markup surprise at settlement &mdash; the price is locked at the moment of the HTTP 402 challenge, not renegotiated after the call runs.</li>
+<li>A tool whose free upstream quota is exhausted is withdrawn until it resets; you are not charged (the call answers 503 <code>tool_unavailable</code> with <code>retry_after</code> before any payment challenge).</li>
 <li id="refunds"><!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled: nothing leaves your wallet. On MPP the payment is already settled when the call runs; if the provider fails, a refund is owed to you and is paid out by the operator (automatic refunds are being designed, see REFUND-WALLET). Calls paid from the credit balance are credited back.</li>
 </ul>
 
