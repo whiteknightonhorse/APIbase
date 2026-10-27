@@ -410,7 +410,12 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
         },
       },
     });
-  type Quote = { quote_id: string; order_id: string; total_usd: number } & Row;
+  type Quote = {
+    quote_id: string;
+    order_id: string;
+    total_usd: number;
+    buyer_token?: string;
+  } & Row;
   async function quote(
     slug: string,
     sku: string,
@@ -633,10 +638,95 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     expect(mockCharge).toHaveBeenCalledTimes(1);
   });
 
-  // Body removed in T-0597 (kept in git history at 891f0744); follow-up card needed to rewrite it.
-  it.todo(
-    'A-7: webhook 500 twice -> retries, then 200 {fulfillment} -> one fulfillment; a redelivery keeps the Delivery-Id and is ignored -- TODO: (first run on a clean DB): fails since T-SHOP-A (3939304f), an IP identity is never the payer, so GET /orders/:id by x-forwarded-for no longer returns `fulfillment`; the test must read the order as the payer (buyer_token or wallet identity). Skipped by name, not silently.',
-  );
+  it('A-7: webhook 500 twice -> retries, then 200 {fulfillment} -> one fulfillment; a redelivery keeps the Delivery-Id and is ignored', async () => {
+    const s = await shop({ price: 5, mode: 'merchant' });
+    const ep = await setWebhook(deps, s.m, {
+      url: 'https://hook.example/hook',
+      events: ['order.paid'],
+    });
+    expect(ep.secret).toMatch(/^whsec_/);
+    const q = await quote(s.slug, s.sku);
+    const paid = await payRest(q, header({ value: toMicroUsdc(5) }));
+    expect(paid.status).toBe(200);
+    expect(await orderState(q.body.order_id)).toBe('PAID');
+    const ob = await row(
+      `SELECT id, created_at, created_at::text AS created_at_txt, event_type, payload FROM outbox
+        WHERE event_type = 'shop.order.paid' AND payload->>'order_id' = $1`,
+      q.body.order_id,
+    );
+    expect(
+      await processEvent(
+        {
+          id: BigInt(ob.id),
+          created_at: ob.created_at,
+          created_at_txt: ob.created_at_txt,
+          event_type: ob.event_type,
+          payload: ob.payload,
+        },
+        procDeps,
+      ),
+    ).toBe(true);
+
+    let call = 0;
+    receiver = () => {
+      call++;
+      return call <= 2
+        ? { status: 500, body: 'boom' }
+        : { status: 200, body: JSON.stringify({ fulfillment: 'KEY-FIRST' }) };
+    };
+    const t0 = Date.now();
+    expect(await deliverDue(deps, { limit: 100, nowMs: t0 + 1_000 })).toBe(1);
+    expect(await orderState(q.body.order_id)).toBe('PAID');
+    expect(await deliverDue(deps, { limit: 100, nowMs: t0 + 120_000 })).toBe(1);
+    expect(await orderState(q.body.order_id)).toBe('PAID');
+    expect(await deliverDue(deps, { limit: 100, nowMs: t0 + 900_000 })).toBe(1);
+    expect(await orderState(q.body.order_id)).toBe('FULFILLED');
+    const ds = await rows(
+      `SELECT delivery_id, attempt, status, status_code, fulfillment_accepted FROM shop_webhook_deliveries
+        WHERE endpoint_id = $1::uuid ORDER BY attempt`,
+      ep.endpoint_id,
+    );
+    expect(ds.map((d) => [d.attempt, d.status, d.status_code])).toEqual([
+      [1, 'retry', 500],
+      [2, 'retry', 500],
+      [3, 'delivered', 200],
+    ]);
+    expect(ds[2].fulfillment_accepted).toBe(true);
+    const ids = new Set(received.map((r) => r.headers['X-APIbase-Delivery-Id']));
+    expect(received).toHaveLength(3);
+    expect(ids.size).toBe(1);
+
+    // the same event delivered again with a different answer: same Delivery-Id, second fulfillment ignored
+    receiver = () => ({ status: 200, body: JSON.stringify({ fulfillment: 'KEY-SECOND' }) });
+    expect(await redeliver(deps, ds[2].delivery_id, Date.now())).toBe(true);
+    expect(await deliverDue(deps, { limit: 100, nowMs: Date.now() + 1_000 })).toBe(1);
+    expect(received).toHaveLength(4);
+    expect(received[3].headers['X-APIbase-Delivery-Id']).toBe([...ids][0]);
+    const last = await row(
+      `SELECT fulfillment_accepted FROM shop_webhook_deliveries WHERE endpoint_id = $1::uuid ORDER BY attempt DESC LIMIT 1`,
+      ep.endpoint_id,
+    );
+    expect(last.fulfillment_accepted).toBe(false);
+    // an IP is never the payer: the anonymous buyer reads the order with the quote's bearer token
+    expect(q.body.buyer_token).toMatch(/^bt_/);
+    const view = await http('GET', `/api/v1/shop/orders/${q.body.order_id}`, {
+      headers: { 'x-forwarded-for': q.who, authorization: `Bearer ${q.body.buyer_token}` },
+    });
+    expect(view.status).toBe(200);
+    expect(view.body.fulfillment).toBe('KEY-FIRST');
+    const stranger = await http('GET', `/api/v1/shop/orders/${q.body.order_id}`, {
+      headers: { 'x-forwarded-for': q.who },
+    });
+    // the same order seen by a non-payer is the public view: no fulfillment
+    expect(stranger.body.fulfillment).toBeUndefined();
+    expect(JSON.stringify(stranger.body)).not.toContain('KEY-FIRST');
+    expect(
+      await count(
+        `SELECT count(*) AS c FROM shop_order_events WHERE order_id = $1::uuid AND to_state = 'FULFILLED'`,
+        q.body.order_id,
+      ),
+    ).toBe(1);
+  });
 
   it('A-8: cross-tenant -> a key of A cannot reach orders of B; /mcp/m/A cannot quote a sku of B', async () => {
     const a = await shop({ price: 5 });
@@ -686,15 +776,150 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
   let demo: { wallet: string; merchant_id: string; api_key: string } | undefined;
   const wallet = privateKeyToAccount(generatePrivateKey());
 
-  // Body removed in T-0597 (kept in git history at 891f0744); follow-up card needed to rewrite it.
-  it.todo(
-    'A-9 (UC-10): nonce -> register -> accept_terms -> catalog -> webhook -> check = connected, payment_verified=false; a paid test SKU flips it -- TODO: (first run on a clean DB): the expected mocked-call list no longer matches; the call list now also carries the demo-stream catalog rows. Re-derive the expectation.',
-  );
+  it('A-9 (UC-10): nonce -> register -> accept_terms -> catalog -> webhook -> check = connected, payment_verified=false; a paid test SKU flips it', async () => {
+    const before = await count(`SELECT count(*) AS c FROM shop_merchants`);
+    const prep = await prepare({ wallet: wallet.address, baseUrl: base });
+    expect(await count(`SELECT count(*) AS c FROM shop_merchants`)).toBe(before);
+    expect(prep.messages.register).toContain('Purpose: register');
+    expect(prep.messages.accept_terms).toContain('I accept APIbase documents:');
+    const sign = (message: string) => wallet.signMessage({ message });
+    const r = await submit({
+      baseUrl: base,
+      signatures: {
+        wallet: wallet.address,
+        register: {
+          message: prep.messages.register,
+          signature: await sign(prep.messages.register),
+        },
+        accept_terms: {
+          message: prep.messages.accept_terms,
+          signature: await sign(prep.messages.accept_terms),
+        },
+        encryption_key: { signature: await sign(prep.messages.encryption_key) },
+      },
+      payoutBase: PAYOUT,
+      payoutTempo: PAYOUT_TEMPO,
+      webhookUrl: 'https://hook.example/demo',
+    });
+    expect(r.slug).toBe(DEMO_SLUG);
+    expect(r.api_key).toMatch(/^mk_live_/);
+    expect(r.webhook_secret).toMatch(/^whsec_/);
+    expect(r.check.status).toBe('connected');
+    expect(r.check.payment_verified).toBe(false);
+    demo = { wallet: wallet.address, merchant_id: r.merchant_id, api_key: r.api_key };
 
-  // Body removed in T-0597 (kept in git history at 891f0744); follow-up card needed to rewrite it.
-  it.todo(
-    'A-10 (UC-1): discover -> initialize -> tools/list (8) -> quote -> pay -> get in <= 6 tool calls and < 60 s; paid to the seller payout -- TODO: needs the demo merchant registered by A-9, which is skipped above.',
-  );
+    const items = await rows(
+      `SELECT sku, price_usd::float8 AS price, is_test, fulfillment_mode, refund_window_days
+         FROM shop_products WHERE merchant_id = $1::uuid ORDER BY price_usd, sku`,
+      r.merchant_id,
+    );
+    expect(
+      items.map((i) => [i.sku, i.price, i.is_test, i.fulfillment_mode, i.refund_window_days]),
+    ).toEqual([
+      ['demo-stream', 0.0001, false, 'stream', null],
+      [TEST_SKU, 0.01, true, 'instant', 14],
+      ['demo-guide', 1, false, 'instant', 14],
+      ['demo-tour', 1, false, 'instant', 14],
+      ['demo-weekly', 1, false, 'instant', null],
+      ['demo-bundle', 5, false, 'instant', 14],
+    ]);
+    const m = await row(
+      `SELECT slug, category, payout_wallet_base, payout_wallet_tempo, status FROM shop_merchants WHERE merchant_id = $1::uuid`,
+      r.merchant_id,
+    );
+    expect(m).toMatchObject({
+      slug: 'apibase-demo',
+      category: 'digital-goods',
+      payout_wallet_base: PAYOUT,
+      payout_wallet_tempo: PAYOUT_TEMPO,
+      status: 'active',
+    });
+
+    // a second submit with the spent nonces is refused (single use)
+    await expect(
+      submit({
+        baseUrl: base,
+        signatures: {
+          wallet: wallet.address,
+          register: {
+            message: prep.messages.register,
+            signature: await sign(prep.messages.register),
+          },
+          accept_terms: {
+            message: prep.messages.accept_terms,
+            signature: await sign(prep.messages.accept_terms),
+          },
+          encryption_key: { signature: await sign(prep.messages.encryption_key) },
+        },
+        payoutBase: PAYOUT,
+        payoutTempo: PAYOUT_TEMPO,
+      }),
+    ).rejects.toThrow(/register failed/);
+
+    // the merchant's own agent pays the test SKU (mocked rail)
+    const q = await quote(DEMO_SLUG, TEST_SKU);
+    expect(q.status).toBe(201);
+    expect(q.body.total_usd).toBe(0.01);
+    const paid = await payRest(q, header({ value: toMicroUsdc(0.01) }));
+    expect(paid.status).toBe(200);
+    expect(paid.body.order.fulfillment).toBe('test ok');
+    const check = await http('GET', '/api/v1/shop/merchants/me/check', { key: r.api_key });
+    expect(check.body.status).toBe('connected');
+    expect(check.body.payment_verified).toBe(true);
+    const pub = await http('GET', `/integrator/check/${DEMO_SLUG}`);
+    expect(pub.body.payment_verified).toBe(true);
+  });
+
+  it('A-10 (UC-1): discover -> initialize -> tools/list (8) -> quote -> pay -> get in <= 6 tool calls and < 60 s; paid to the seller payout', async () => {
+    expect(demo).toBeDefined();
+    const t0 = Date.now();
+    const shopInfo = await http('GET', `/api/v1/shop/shops/${DEMO_SLUG}`);
+    expect(shopInfo.status).toBe(200);
+    let xPayment = '';
+    const t = new StreamableHTTPClientTransport(new URL(`${base}/mcp/m/${DEMO_SLUG}`), {
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        if (xPayment) h.set('x-payment', xPayment);
+        return fetch(input, { ...init, headers: h });
+      },
+    });
+    const c = new Client({ name: 'uc1-agent', version: '1' });
+    await c.connect(t);
+    const tools = (await c.listTools()).tools.map((x) => x.name);
+    expect(tools).toHaveLength(8);
+    let calls = 0;
+    const call = async (name: string, args: Row) => {
+      calls++;
+      const r: any = await c.callTool({ name, arguments: args });
+      return { isError: !!r.isError, body: JSON.parse(r.content[0].text) as Row };
+    };
+    const quoted = await call('shop.order.quote', { items: [{ sku: 'demo-guide', qty: 1 }] });
+    expect(quoted.isError).toBe(false);
+    expect(quoted.body.total_usd).toBe(1);
+    expect(quoted.body.pay.x402.payTo).toBe(PAYOUT);
+    xPayment = header({ value: toMicroUsdc(1), to: quoted.body.pay.x402.payTo });
+    const paid = await call('shop.order.pay', { quote_id: quoted.body.quote_id });
+    xPayment = '';
+    expect(paid.isError).toBe(false);
+    expect(paid.body.status).toBe('paid');
+    expect(paid.body.order.fulfillment).toContain('APIbase agent commerce guide');
+    const got = await call('shop.order.get', { order_id: quoted.body.order_id });
+    expect(got.body.fulfillment).toBe(paid.body.order.fulfillment);
+    expect(calls).toBeLessThanOrEqual(6);
+    expect(Date.now() - t0).toBeLessThan(60_000);
+    expect(
+      await count(
+        `SELECT count(*) AS c FROM shop_order_events WHERE order_id = $1::uuid AND to_state = 'FULFILLED'`,
+        quoted.body.order_id,
+      ),
+    ).toBe(1);
+    const p = await row(
+      `SELECT pay_to FROM shop_payments WHERE order_id = $1::uuid`,
+      quoted.body.order_id,
+    );
+    expect(p.pay_to).toBe(PAYOUT);
+    await c.close();
+  });
 
   it('A-11: the 4th paid test-SKU order of a day -> 429 test_sku_daily_cap before verify', async () => {
     const s = await shop({ price: 0.01, test: true });
@@ -747,10 +972,48 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     expect(handlerCalls).toBe(0);
   });
 
-  // Body removed in T-0597 (kept in git history at 891f0744); follow-up card needed to rewrite it.
-  it.todo(
-    'A-14: shop.merchant.deactivate -> /mcp/m/apibase-demo answers 410 -- TODO: needs the demo merchant registered by A-9, which is skipped above.',
-  );
+  it('A-14: shop.merchant.deactivate -> /mcp/m/apibase-demo answers 410', async () => {
+    expect(demo).toBeDefined();
+    const before = await http('POST', `/mcp/m/${DEMO_SLUG}`, {
+      headers: { accept: 'application/json, text/event-stream' },
+      body: {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'initialize',
+        params: {
+          protocolVersion: '2025-03-26',
+          capabilities: {},
+          clientInfo: { name: 't', version: '1' },
+        },
+      },
+    });
+    expect(before.status).toBe(200);
+    const srvTools = new McpServer({ name: 't', version: '0' });
+    registerMerchantTools(srvTools, demo!.api_key, 'req-a14', deps);
+    const c = new Client({ name: 'merchant', version: '0' });
+    const [t1, t2] = InMemoryTransport.createLinkedPair();
+    await Promise.all([srvTools.connect(t1), c.connect(t2)]);
+    const r: any = await c.callTool({ name: 'shop.merchant.deactivate', arguments: {} });
+    expect(r.isError).toBeFalsy();
+    clearStorefrontCache(DEMO_SLUG); // the descriptor cache otherwise lives 30 s (STOREFRONT_TTL_MS)
+    const after = await http('POST', `/mcp/m/${DEMO_SLUG}`, {
+      headers: { accept: 'application/json, text/event-stream' },
+      body: {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'initialize',
+        params: {
+          protocolVersion: '2025-03-26',
+          capabilities: {},
+          clientInfo: { name: 't', version: '1' },
+        },
+      },
+    });
+    expect(after.status).toBe(410);
+    expect(after.body.error).toBe('merchant_unavailable');
+    const quoteAfter = await quote(DEMO_SLUG, 'demo-guide');
+    expect(quoteAfter.status).toBe(410);
+  });
 
   it('A-13: no payment of the whole run pays the platform, Tempo or fee wallet; execution_ledger cost_usd = the fee', async () => {
     // a $89 order with the integrator fee on, paid by x402 and finished through the ledger stages
