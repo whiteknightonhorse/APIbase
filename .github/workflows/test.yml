@@ -1,5 +1,5 @@
 # APIbase.pro — PR Validation (§12.12)
-# Runs on pull requests to main: lint, typecheck, unit tests.
+# Runs on pull requests to main: lint, typecheck, unit + DB tests (disposable Postgres, T-0597).
 
 name: Test
 
@@ -14,7 +14,38 @@ jobs:
   validate:
     name: Lint + Typecheck + Test
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+
+    # Disposable Postgres for the dbDescribe suites (major matches docker-compose.yml).
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: apibase_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d apibase_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      # shop-stream-merchant-real-mppx opens a real ioredis connection (TEST_REDIS_URL).
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgresql://test:test@localhost:5432/apibase_test
+      TEST_REDIS_URL: redis://localhost:6379
 
     steps:
       - name: Checkout
@@ -35,14 +66,29 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: pg_dump 16 (shop-pii-never-plaintext dumps every shop_* table)
+        run: |
+          if ! pg_dump --version 2>/dev/null | grep -q ' 16\.'; then
+            sudo apt-get update -q
+            sudo apt-get install -y -q postgresql-client-16 || {
+              sudo install -d /usr/share/postgresql-common/pgdg
+              sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+              echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+              sudo apt-get update -q
+              sudo apt-get install -y -q postgresql-client-16
+            }
+            echo "PG_DUMP=$(ls /usr/lib/postgresql/16/bin/pg_dump)" >> "$GITHUB_ENV"
+          fi
+          "${PG_DUMP:-pg_dump}" --version
+
       - name: Lint
         run: npm run lint
 
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Unit tests
-        # F8: --passWithNoTests removed. This repo has 24 suites / 818+ tests --
-        # a broken jest config that collects 0 tests should FAIL the build, not
-        # report green because nothing ran.
-        run: npm run test -- --ci
+      - name: Unit + DB tests
+        # F8: --passWithNoTests removed: a broken jest config that collects 0 tests should FAIL the
+        # build. The jest reporter prints "DB suites skipped: N" and fails the run when N > 0
+        # (T-0597). Schema migrations run once per process from tests/unit/helpers/shop-db.ts.
+        run: npm run test -- --ci --maxWorkers=2
