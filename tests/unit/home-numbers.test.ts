@@ -91,7 +91,9 @@ describe('H4 sync-counts consistency', () => {
     execFileSync('python3', ['scripts/integrator-facts.py', 'check'], { cwd: ROOT });
   });
   it('ai.txt is on the sync-counts-cron allow-list and carries no date or old price', () => {
-    expect(read('scripts/sync-counts-cron.sh')).toMatch(/static\/llms\.txt static\/ai\.txt /);
+    expect(read('scripts/sync-counts-cron.sh')).toMatch(
+      /static\/llms\.txt static\/llms-full\.txt static\/ai\.txt /,
+    );
     const ai = read('static/ai.txt');
     expect(ai).not.toMatch(/Last updated/);
     const text = JSON.parse(read('static/.well-known/mcp.json')).price_range_usd.text;
