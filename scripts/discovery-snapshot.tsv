@@ -425,6 +425,10 @@ eurlex.legislation.recent	eurlex	0.001
 eurlex.legislation.search	eurlex	0.002
 europeana.record	europeana	0.001
 europeana.search	europeana	0.001
+europepmc.article	europepmc	0.001
+europepmc.citations	europepmc	0.001
+europepmc.references	europepmc	0.001
+europepmc.search	europepmc	0.001
 eurostat.gdp_growth	eurostat	0.001
 eurostat.inflation	eurostat	0.002
 eurostat.population	eurostat	0.001
