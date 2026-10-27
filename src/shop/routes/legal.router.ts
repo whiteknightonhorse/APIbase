@@ -30,6 +30,7 @@ export const DRAFT_BANNER =
 
 const STATIC_DIR = resolve(LEGAL_DIR, '..');
 const PROHIBITED_FILE = resolve(LEGAL_DIR, '../../config/integrator/prohibited-categories.json');
+const REGISTER_FILE = resolve(LEGAL_DIR, '../../config/site-docs-register.json');
 
 export interface LegalRouterOptions {
   db?: ShopTx;
@@ -165,16 +166,56 @@ function page(
   );
 }
 
-/** Pointers to the static Terms/Privacy pages: sha256 of the HTML bytes, not registry documents. */
-export function staticPageEntries(staticDir: string): Array<Record<string, unknown>> {
+/**
+ * The legal text of a static page: the `lg-doc` body, without the header bar, the counts ticker
+ * (`lg-facts`) and the footer. The hourly counts cron rewrites those, and the in-text
+ * "N tools from N providers" figure, so none of them may move the published hash.
+ */
+export function legalBodyOf(html: string): string {
+  const start = html.indexOf('<div class="lg-doc">');
+  if (start < 0) throw new Error('static legal page has no lg-doc body');
+  const ends = [html.indexOf('<p class="lg-facts">', start), html.indexOf('<footer', start)].filter(
+    (i) => i >= 0,
+  );
+  const end = ends.length > 0 ? Math.min(...ends) : html.length;
+  return html
+    .slice(start, end)
+    .replace(/\d+ tools from \d+ providers/g, 'N tools from N providers');
+}
+
+/** `version` and `effective_from` of a static page from config/site-docs-register.json, if listed. */
+function registerEntry(
+  id: string,
+  registerFile: string,
+): { version?: string; effective_from?: string } {
+  try {
+    const j = JSON.parse(readFileSync(registerFile, 'utf-8')) as Record<string, unknown>;
+    const e = j[id] as { version?: unknown; effective_from?: unknown } | undefined;
+    return {
+      ...(typeof e?.version === 'string' ? { version: e.version } : {}),
+      ...(typeof e?.effective_from === 'string' ? { effective_from: e.effective_from } : {}),
+    };
+  } catch {
+    return {};
+  }
+}
+
+/** Pointers to the static Terms/Privacy pages: sha256 of the legal text only, not registry documents. */
+export function staticPageEntries(
+  staticDir: string,
+  registerFile: string = REGISTER_FILE,
+): Array<Record<string, unknown>> {
   return ['terms', 'privacy'].flatMap((id) => {
     const file = resolve(staticDir, `${id}.html`);
     if (!existsSync(file)) throw new Error(`static page missing from image: ${file}`);
     return [
       {
         doc_id: id,
+        ...registerEntry(id, registerFile),
         url: `/${id}`,
-        sha256: createHash('sha256').update(readFileSync(file)).digest('hex'),
+        sha256: createHash('sha256')
+          .update(legalBodyOf(readFileSync(file, 'utf-8')))
+          .digest('hex'),
         registry: false,
       },
     ];
@@ -314,7 +355,9 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
     const file = readLegalFile(id, dir);
     res.set('Vary', 'Accept');
     if (wantsMd || /text\/markdown/i.test(req.get('accept') ?? '')) {
-      res.type('text/markdown; charset=utf-8').send(file.body_md);
+      res
+        .type('text/markdown; charset=utf-8')
+        .send(file.body_md.replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, feeText()));
       return;
     }
     const body = renderMarkdown(file.body_md).replace(

@@ -87,7 +87,7 @@ describe('T-INT-05 legal documents', () => {
   it('LG1 index.json: 4 entries, sha256 == sha256sum of the .md', async () => {
     const db = fakeDb();
     await syncLegalDocs(db);
-    const s = await serve({ db });
+    const s = await serve({ db, now: () => Date.parse('2030-01-01') });
     const all = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Array<
       Row & { registry?: boolean }
     >;
@@ -99,7 +99,7 @@ describe('T-INT-05 legal documents', () => {
         .toString()
         .split(' ')[0];
       expect(e.sha256).toBe(sum);
-      expect(e.version).toBe(['merchant-agreement', 'aup'].includes(e.doc_id) ? '1.4' : '1.3');
+      expect(e.version).toBe(['merchant-agreement', 'aup'].includes(e.doc_id) ? '1.5' : '1.4');
       expect(e.url).toBe(`/legal/${e.doc_id}`);
       expect(Object.keys(e).sort()).toEqual([
         'doc_id',
@@ -111,19 +111,19 @@ describe('T-INT-05 legal documents', () => {
     }
   });
 
-  it('LG2 text change without a version change fails sync; 1.5 appends and index shows 1.5', async () => {
+  it('LG2 text change without a version change fails sync; 1.6 appends and index shows 1.6', async () => {
     const dir = tmpLegalDir();
     const db = fakeDb();
     await syncLegalDocs(db, dir);
     const aup = join(dir, 'aup.md');
     writeFileSync(aup, read(aup) + 'x');
     await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalDocChangedError);
-    const bumped = read(aup).replace('version: 1.4;', 'version: 1.5;');
+    const bumped = read(aup).replace('version: 1.5;', 'version: 1.6;');
     writeFileSync(aup, bumped);
     await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalEffectiveFromError);
     writeFileSync(
       aup,
-      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-10-27'),
+      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-11-27'),
     );
     await syncLegalDocs(db, dir);
     expect(
@@ -131,11 +131,11 @@ describe('T-INT-05 legal documents', () => {
         .filter((r) => r.doc_id === 'aup')
         .map((r) => r.version)
         .sort(),
-    ).toEqual(['1.4', '1.5']);
+    ).toEqual(['1.5', '1.6']);
     const s = await serve({ db, dir, now: () => Date.parse('2030-01-01') });
     const idx = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Row[];
     await s.close();
-    expect(idx.find((e) => e.doc_id === 'aup')!.version).toBe('1.5');
+    expect(idx.find((e) => e.doc_id === 'aup')!.version).toBe('1.6');
   });
 
   it('LG3 DRAFT banner + noindex until legal-published.json exists; .md never has the banner', async () => {
@@ -187,24 +187,26 @@ describe('T-INT-05 legal documents', () => {
       for (const re of FORBIDDEN)
         expect({ f, re: String(re), hit: re.test(t) }).toMatchObject({ hit: false });
     }
-    const line71 = [
-      /APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant; APIbase has no registered legal entity and is operated as a decentralised autonomous organisation of independent open-source developers/,
-    ];
+    // T-0582: the operator is named truthfully; the one-sentence role line survives without the DAO wording.
+    const line71 =
+      /APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant\./;
     for (const f of [
       join(ROOT, 'static/legal/merchant-agreement.md'),
       join(ROOT, 'static/terms.html'),
       join(ROOT, 'static/privacy.html'),
     ]) {
-      expect(line71[0].test(read(f))).toBe(true);
+      expect(line71.test(read(f))).toBe(true);
     }
+    for (const f of [...surfaces, join(ROOT, 'docs/payments.md')]) {
+      expect(read(f)).not.toMatch(/decentrali[sz]ed autonomous/i);
+    }
+    expect(read(join(ROOT, 'static/legal/dpa.md'))).not.toContain('European Union');
+    expect(read(join(ROOT, 'static/legal/dpa.md'))).toContain('Hillsboro');
     for (const id of LEGAL_DOC_IDS) {
       const t = read(join(ROOT, 'static/legal', `${id}.md`));
-      const head =
-        id === 'merchant-agreement'
-          ? /^<!-- version: 1\.4; effective_from: 2026-10-19; status: accepted by operator without legal review -->$/
-          : id === 'aup'
-            ? /^<!-- version: 1\.4; effective_from: 2026-10-26; status: accepted by operator without legal review -->$/
-            : /^<!-- version: 1\.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->$/;
+      const head = new RegExp(
+        `^<!-- version: ${{ 'merchant-agreement': '1\\.5', aup: '1\\.5', dpa: '1\\.4', 'refund-framework': '1\\.4' }[id]}; effective_from: 2026-11-26; status: in force; drafted by the operator without legal review -->$`,
+      );
       expect(t.split('\n')[0]).toMatch(head);
     }
     for (const id of LEGAL_DOC_IDS) {
@@ -242,92 +244,27 @@ describe('T-INT-05 legal documents', () => {
     expect(body).toBe(read(join(ROOT, 'static/legal/dpa.md')));
   });
 
-  it('LG8 terms/privacy: everything outside the new block is unchanged', () => {
+  it('LG8 terms/privacy keep the integrator block and carry the T-0582 sections', () => {
+    // T-0582 rewrites the legal text of both pages (operator, law, sanctions, controller, bases,
+    // recipients, retention, rights), so the old before-int05 word-for-word comparison is retired.
     for (const n of ['terms', 'privacy']) {
       const now = read(join(ROOT, `static/${n}.html`));
       expect(now).toContain('<!-- integrator-legal:start -->');
-      const stripped = now.replace(
-        /<!-- integrator-legal:start -->[\s\S]*?<!-- integrator-legal:end -->\n\n/,
-        '',
-      );
-      // The hourly counts cron rewrites the tool/provider totals in these pages: not a legal change.
-      // T-0344 adds og:image, twitter:card and the shared footer: head/footer meta, not legal text.
-      // T-0367 moves the header (markup + css) into the shared site-nav block: header, not legal text.
-      // T-0375 adds one Analytics paragraph to privacy: disclosure of the GA4 snippet, not a rewrite.
-      // T-0383 (design M) drops the terminal chrome (titlebar, boot sequence), swaps the header/footer and
-      // restyles the page: the legal TEXT is compared, so head, styles, scripts, nav, footer and chrome are out.
-      const counts = (h: string) =>
-        h
-          .replace(/<h2[^>]*>3a\. Analytics<\/h2>\n<p>[^\n]*<\/p>\n\n/g, '')
-          // T-0534 adds one public-receipts paragraph to privacy's data-categories section.
-          .replace(/<p id="public-receipts">[^\n]*<\/p>\n/g, '')
-          // T-0416 adds one contact-form retention paragraph to privacy's data-categories section.
-          .replace(/<\/ul>\n<p>Messages sent through the [^\n]*<\/p>/g, '</ul>')
-          .replace(/<head>[\s\S]*?<\/head>/, '')
-          .replace(/<(script|style)\b[\s\S]*?<\/\1>/g, '')
-          .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->/g, '')
-          // T-0387: breadcrumb and contents are chrome; terminal status lines are decoration.
-          .replace(/<!--lg-chrome-->[\s\S]*?<!--\/lg-chrome-->/g, '')
-          .replace(
-            /<div class="titlebar">\s*<div class="dots">[\s\S]*?<\/div>\s*<span class="titlebar-text">[\s\S]*?<\/span>\s*<\/div>/,
-            '',
-          )
-          .replace(
-            /<div id="boot-screen"[^>]*>(?:\s*<div class="line[^"]*">[\s\S]*?<\/div>)+\s*<\/div>/,
-            '',
-          )
-          .replace(/<nav>[\s\S]*?<\/nav>/g, '')
-          .replace(/<footer class="(?:footer|site-footer)">[\s\S]*?<\/footer>/g, '')
-          .replace(/<[^>]+>/g, ' ')
-          .replace(/STATUS: ONLINE\s*\|\s*PID: 1337\s*\|\s*TTY: pts\/0\s*\|\s*USER: apibase/g, '')
-          .replace(/Uptime: \d+m \d+s/g, '')
-          .replace(/BUILD: v1\.0\.0/g, '')
-          // T-0432: the Tempo token is named USDC.e.
-          .replace(/USDC\.e on Tempo/g, 'USDC on Tempo')
-          // T-0532: money-truth rewording, mapped back to the pre-T-INT-05 wording.
-          .replace(/\(p90 (\$[\d.]+)\)/g, '(90% of tools &lt;= $1)')
-          .replace(/a refund credit balance \(no top-up\)/g, 'a prepaid balance')
-          .replace(/debit refund credit balances/g, 'debit prepaid balances')
-          .replace(
-            /Escrow model \(platform tool calls only\)\. x402: USDC is settled only after a delivered response\. MPP: payment settles before the call; on provider failure a refund is owed and paid by the operator\. Balance: credited back\./g,
-            'Escrow model (platform tool calls only): USDC is locked before the provider call. On failure, USDC is auto-refunded.',
-          )
-          .replace(
-            /Refunds for provider failure are owed on every rail; on x402 they take the form of no settlement\./g,
-            'Refunds are automatic on provider failure only.',
-          )
-          .replace(/\s+/g, ' ')
-          // T-0534: dates come from config/site-docs-register.json; cookie, payload, cache-TTL and
-          // identity wording made truthful; Provek affiliation sentence; public-receipts paragraph.
-          .replace(/Last updated: [A-Z][a-z]+ \d+, \d{4}/g, 'Last updated: October 13, 2026')
-          .replace(
-            /An agent identity is created by the first successful payment or by POST \/api\/v1\/agents\/auto ?; see \/auth\.md ?\./g,
-            'Agents receive API keys automatically upon first request (auto-registration).',
-          )
-          .replace(
-            / The same group operates provek\.dev; the two services are affiliated and say so on both sites\./g,
-            '',
-          )
-          .replace(
-            /Full request payloads are not stored\. Provider responses are cached for the tool's TTL \([^)]*?\) and are not linked to you beyond the cache key\./g,
-            'Full request/response payloads from provider API calls.',
-          )
-          .replace(
-            /Cookies or tracking pixels on API and MCP endpoints\. Human-facing web pages use Google Analytics 4 \(first-party cookies, section 3a ?\)\./g,
-            'Cookies, browser fingerprints, or tracking pixels.',
-          )
-          .replace(
-            /Redis cache: ephemeral, TTL per tool from [^;]*?; cached values are provider responses\./g,
-            'Redis cache: ephemeral, TTL-based (5 seconds to 5 minutes depending on tool).',
-          )
-          .replace(/(PRV:\s*)\d+/g, '$1N')
-          .replace(/(TOOLS:\s*)\d+/g, '$1N')
-          .replace(/\d+ tools from \d+ providers/g, 'N tools from N providers')
-          .replace(/\d+ tools \| \d+ providers/g, 'N tools | N providers')
-          .trim();
-      expect(counts(stripped)).toBe(
-        counts(read(join(ROOT, `tests/unit/fixtures/${n}.before-int05.html`))),
-      );
+      expect(now).toContain('<!-- integrator-legal:end -->');
+      expect(now).toContain('Changes take effect 30 days after they are posted at /legal');
+      expect(now).toContain('without a lawyer and are not legal advice');
+    }
+    const terms = read(join(ROOT, 'static/terms.html'));
+    expect(terms).toContain('id="12a-sanctions"');
+    expect(terms).toContain('law of England and Wales');
+    const privacy = read(join(ROOT, 'static/privacy.html'));
+    for (const id of ['controller', '4a-legal-bases', '9a-your-rights', '6-data-retention']) {
+      expect(privacy).toContain(`id="${id}"`);
+    }
+    expect(privacy.match(/an individual independent open-source developer/g)).toHaveLength(1);
+    for (const t of [terms, privacy]) {
+      expect(t).not.toContain('effective immediately upon posting');
+      expect(t).not.toMatch(/decentrali[sz]ed autonomous/i);
     }
   });
 

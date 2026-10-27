@@ -62,7 +62,7 @@ def sentence(f):
 
 
 def fee_state(f):
-    return "<!--fee-state-->Integrator fee: %s. Fee Switch state is published here per Merchant Agreement &sect;8.<!--/fee-state-->" % f["fee"]
+    return "<!--fee-state-->Integrator fee: %s. Fee Switch state is published here per Merchant Agreement &sect;9.<!--/fee-state-->" % f["fee"]
 
 
 def merchants_line(f):

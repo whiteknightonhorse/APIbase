@@ -1,5 +1,5 @@
-<!-- version: 1.3; effective_from: 2026-10-12; status: accepted by operator without legal review -->
-# Refund Framework v1.3
+<!-- version: 1.4; effective_from: 2026-11-26; status: in force; drafted by the operator without legal review -->
+# Refund Framework v1.4
 
 ## 1. What the merchant must publish
 
@@ -26,4 +26,6 @@ On-chain payments are irreversible. An order placed by the buyer's agent binds t
 - Subscription: a cancelled subscription is not charged again; the current paid period is not refunded unless the merchant's published policy says so. A renewal charged outside the renewal window or above the authorised amount is refunded in full within 7 days.
 - Stream: the unconsumed deposit is returned through the payment channel when the stream closes; consumed seconds are refunded only under the merchant's published policy.
 
-APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant; APIbase has no registered legal entity and is operated as a decentralised autonomous organisation of independent open-source developers.
+APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant. APIbase is operated by its operator, an individual independent open-source developer (the "Operator"), identified by the domain apibase.pro, the public repository github.com/whiteknightonhorse/APIbase and the address support@apibase.pro. There is no registered company. "APIbase" in these documents means the Operator. The Operator may transfer this role to a company or a successor operator of apibase.pro with 30 days' notice at /legal.
+
+These documents were prepared without a lawyer and are not legal advice; a professional review is planned.

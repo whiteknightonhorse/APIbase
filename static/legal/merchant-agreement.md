@@ -1,19 +1,21 @@
-<!-- version: 1.4; effective_from: 2026-10-19; status: accepted by operator without legal review -->
-# Merchant Agreement v1.4
+<!-- version: 1.5; effective_from: 2026-11-26; status: in force; drafted by the operator without legal review -->
+# Merchant Agreement v1.5
 
 ## 1. Role of APIbase
 
-APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant; APIbase has no registered legal entity and is operated as a decentralised autonomous organisation of independent open-source developers.
+APIbase is a technology intermediary; buyer funds do not pass through APIbase; the fee is charged to the merchant.
+
+APIbase is operated by its operator, an individual independent open-source developer (the "Operator"), identified by the domain apibase.pro, the public repository github.com/whiteknightonhorse/APIbase and the address support@apibase.pro. There is no registered company. "APIbase" in these documents means the Operator. The Operator may transfer this role to a company or a successor operator of apibase.pro with 30 days' notice at /legal.
 
 APIbase is not the seller, is not a payment institution, and does not hold funds. The buyer pays USDC directly to the merchant's wallet. APIbase provides the storefront, the quote, the order record and the notifications.
 
-The operator is identified by the domain apibase.pro and the public repository github.com/whiteknightonhorse/APIbase. Notices to APIbase go to support@apibase.pro. Notices to the merchant go to the contact e-mail in the merchant profile; the merchant keeps it current.
+Notices to APIbase go to support@apibase.pro. Notices to the merchant go to the contact e-mail in the merchant profile; the merchant keeps it current.
 
 ## 2. Fee and settlement
 
 - Fee: {{INTEGRATOR_FEE_PCT}}, minimum $0.05 per order, charged to the merchant.
 - Tempo (MPP): the fee is taken in the buyer's transaction as a split; the merchant receives the order total minus the fee.
-- Base (x402): the fee is not part of the transaction. APIbase records it as a receivable and sends the merchant an invoice, payable in USDC.
+- Base (x402): the fee is taken in the same transaction when the buyer's client supports fee-split; otherwise it is not part of the transaction and APIbase invoices it to the merchant, payable in USDC.
 - Pilot: the fee is 0%. The Fee Switch can change this only under section 9.
 
 ## 3. Merchant obligations
@@ -31,7 +33,7 @@ The operator is identified by the domain apibase.pro and the public repository g
 
 ## 4. Suspension and termination
 
-APIbase may suspend or disconnect a merchant that breaks this Agreement or the Acceptable Use Policy, with immediate effect for prohibited goods, fraud, sanctions matches or a lawful request. Either party may end this Agreement for convenience with 30 days' notice. The merchant may deactivate its storefront at any time; open orders remain to be served. Sections 3, 7, 8, 12, 13 and 14 survive termination.
+APIbase may suspend or disconnect a merchant that breaks this Agreement or the Acceptable Use Policy, with immediate effect for prohibited goods, fraud, sanctions matches or a lawful request. Either party may end this Agreement for convenience with 30 days' notice. The merchant may deactivate its storefront at any time; open orders remain to be served. Sections 3, 7, 8, 12, 13, 14 and 15 survive termination.
 
 ## 5. Reputation
 
@@ -39,7 +41,7 @@ APIbase may show order statistics and dispute outcomes for a merchant on its sto
 
 ## 6. Changes
 
-APIbase may publish a new version of these documents at /legal with its version, effective date and hash. The merchant is notified at the contact e-mail of its profile and in API responses (`terms_update_pending`). The merchant has 30 days to accept the new version by signing the new document hashes; after that, new quotes are refused until it is accepted again.
+APIbase publishes a new version of these documents at /legal with its version, effective date and hash. A new version takes effect 30 days after it is posted, except changes required by law, changes that only add tools or lower prices, and corrections of errors, which take effect on posting. The merchant is notified at the contact e-mail of its profile and in API responses (`terms_update_pending`). The merchant accepts the new version by signing the new document hashes; once the version is in effect, new quotes are refused until it is accepted.
 
 ## 7. Liability
 
@@ -77,4 +79,6 @@ Neither party is liable for delay caused by events outside its reasonable contro
 
 ## 15. Governing law and disputes
 
-APIbase has no registered seat. No national law is chosen for these documents; mandatory rules of the merchant's country apply where they cannot be excluded. A dispute is first negotiated in good faith for 30 days from written notice. If unresolved, either party may propose final and binding arbitration before a single arbitrator under the UNCITRAL Arbitration Rules, conducted online in English, and the parties confirm that choice in writing when the dispute arises. Claims are brought individually, not as a class or representative action, where the applicable law allows this waiver.
+These documents are governed by the law of England and Wales, without regard to its conflict-of-law rules; mandatory consumer or data-protection rules of your country still apply where they cannot be excluded. A dispute is first negotiated in good faith for 30 days from written notice. Any dispute not resolved in that period shall be finally resolved by binding arbitration under the UNCITRAL Arbitration Rules before a single arbitrator, conducted online in English, seat London; either party may instead bring a claim in the small-claims court of its own country for amounts within that court's limit. Claims are brought individually, not as a class or representative action, where the applicable law allows this waiver.
+
+These documents were prepared without a lawyer and are not legal advice; a professional review is planned.

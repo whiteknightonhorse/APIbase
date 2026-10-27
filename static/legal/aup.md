@@ -1,5 +1,5 @@
-<!-- version: 1.4; effective_from: 2026-10-26; status: accepted by operator without legal review -->
-# Acceptable Use Policy v1.4
+<!-- version: 1.5; effective_from: 2026-11-26; status: in force; drafted by the operator without legal review -->
+# Acceptable Use Policy v1.5
 
 ## 1. Allowed categories
 
@@ -28,3 +28,5 @@ CU, IR, KP, RU, BY, CN, DZ, BD, EG, IQ, MA, NP, QA, TN, TR, ID, VN, KW, SY, SA, 
 <!-- countries:end -->
 
 Sign-ups from some IP addresses, countries and regions may be refused. IP country is checked at registration (country-level, monthly database). Merchant identity, payout and recovery wallets on the OFAC SDN list are refused at registration and on every wallet change, and wallets are re-screened daily against the OFAC SDN list; a merchant with a match is suspended and a person reviews it.
+
+These documents were prepared without a lawyer and are not legal advice; a professional review is planned.

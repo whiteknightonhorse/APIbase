@@ -83,3 +83,13 @@ static/terms.html	https://apibase.pro/terms	must-not-contain	upon first request	
 static/policy-moderation.html	https://apibase.pro/policy/moderation	must-not-contain	7 days	-	APIBASE-023
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	price_claim_mismatch	-	T-0536
 static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	once your domain is verified	-	T-0536
+static/terms.html	https://apibase.pro/terms	must-not-contain	decentralised	-	T-0582 L-02
+static/privacy.html	https://apibase.pro/privacy	must-not-contain	decentralised	-	T-0582 L-02
+static/legal/merchant-agreement.md	https://apibase.pro/legal/merchant-agreement.md	must-not-contain	decentralised	-	T-0582 L-02
+static/legal/dpa.md	https://apibase.pro/legal/dpa.md	must-not-contain	decentralised	-	T-0582 L-02
+static/legal/refund-framework.md	https://apibase.pro/legal/refund-framework.md	must-not-contain	decentralised	-	T-0582 L-02
+static/legal/dpa.md	https://apibase.pro/legal/dpa.md	must-not-contain	European Union	-	T-0582 L-07
+static/legal/dpa.md	https://apibase.pro/legal/dpa.md	must-contain	Hillsboro	-	T-0582 L-07
+static/terms.html	https://apibase.pro/terms	must-not-contain	effective immediately upon posting	-	T-0582 L-08
+static/privacy.html	https://apibase.pro/privacy	must-not-contain	effective immediately	-	T-0582 L-08
+static/legal/merchant-agreement.md	https://apibase.pro/legal/merchant-agreement.md	must-contain	law of England and Wales	-	T-0582 L-06

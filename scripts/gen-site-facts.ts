@@ -52,7 +52,7 @@ const MONTHS = [
 function docRegister(): Record<string, unknown> {
   const reg = JSON.parse(readText(SRC_ROOT, 'config/site-docs-register.json')) as Record<
     string,
-    { version: string; updated: string }
+    { version: string; updated: string; effective_from?: string }
   >;
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(reg)) {
