@@ -15,11 +15,19 @@ dbDescribe('MS1-real: merchant close through the real mppx/server factory (INT-4
   let r: any;
   beforeAll(() => {
     migrate();
-    const stdout = execFileSync(
-      path.join(root, 'node_modules/.bin/tsx'),
-      [path.join(__dirname, 'helpers/shop-stream-merchant-real-mppx.child.ts')],
-      { cwd: root, encoding: 'utf8', timeout: 90000, stdio: ['ignore', 'pipe', 'ignore'] },
-    );
+    let stdout: string;
+    try {
+      stdout = execFileSync(
+        path.join(root, 'node_modules/.bin/tsx'),
+        [path.join(__dirname, 'helpers/shop-stream-merchant-real-mppx.child.ts')],
+        { cwd: root, encoding: 'utf8', timeout: 90000, stdio: ['ignore', 'pipe', 'pipe'] },
+      );
+    } catch (e) {
+      const err = e as { stderr?: string; stdout?: string; status?: number | null };
+      throw new Error(
+        `child exited ${err.status}: ${String(err.stderr).slice(-1500)} | stdout: ${String(err.stdout).slice(-500)}`,
+      );
+    }
     r = JSON.parse(stdout.split('RESULT')[1]);
   }, 100000);
 
