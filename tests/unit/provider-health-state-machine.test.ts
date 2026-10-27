@@ -70,7 +70,7 @@ describe('computeTransition — F1 state machine', () => {
     expect(t.newIntervalS).toBe(3600); // fresh entry into DOWN starts the 1h backoff floor
   });
 
-  it('DOWN backoff doubles on each further transient fail, capped at 24h', () => {
+  it('DOWN backoff doubles on each further transient fail, capped at 6h (T-0585)', () => {
     let t = transition({
       oldState: 'DOWN',
       oldFailures: 5,
@@ -85,28 +85,29 @@ describe('computeTransition — F1 state machine', () => {
       result: 'FAIL_TRANSIENT',
     });
     expect(t.newIntervalS).toBe(14400);
+    // ... the next doubling (28800) is clamped to 6h
     t = transition({
       oldState: 'DOWN',
       oldFailures: 7,
       oldIntervalS: 14400,
       result: 'FAIL_TRANSIENT',
     });
-    expect(t.newIntervalS).toBe(28800);
-    // ... keeps doubling past 24h but is clamped
-    t = transition({
-      oldState: 'DOWN',
-      oldFailures: 20,
-      oldIntervalS: 43200,
-      result: 'FAIL_TRANSIENT',
-    });
-    expect(t.newIntervalS).toBe(86400);
+    expect(t.newIntervalS).toBe(21600);
     t = transition({
       oldState: 'DOWN',
       oldFailures: 21,
+      oldIntervalS: 21600,
+      result: 'FAIL_TRANSIENT',
+    });
+    expect(t.newIntervalS).toBe(21600); // capped, does not exceed 6h
+    // a row left at the old 24h cap by earlier code is pulled down on its next fail
+    t = transition({
+      oldState: 'DOWN',
+      oldFailures: 30,
       oldIntervalS: 86400,
       result: 'FAIL_TRANSIENT',
     });
-    expect(t.newIntervalS).toBe(86400); // capped, does not exceed 24h
+    expect(t.newIntervalS).toBe(21600);
   });
 
   it('FAIL_DETERMINISTIC bypasses the counters: HEALTHY -> DEGRADED on the very first one', () => {

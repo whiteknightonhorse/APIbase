@@ -7,6 +7,9 @@ entry with `count` + `last_at` -- the shape note_incident() now writes -- then a
 
   compact-attempts.py [--dry-run]   default; READ-ONLY (fleet_ro); prints per incident
                                     "entries -> collapsed" and a total. Writes nothing.
+  compact-attempts.py --older-than 7d
+                                    T-0585: only entries older than the age (Nd/Nh) are folded; newer
+                                    ones are left as written. Combine with --apply for the cron run.
   compact-attempts.py --apply       one transaction (DO block), every UPDATE guarded by
                                     `attempts = <what was read>`; if any row changed under us
                                     the whole transaction aborts and nothing is written.
@@ -14,8 +17,10 @@ entry with `count` + `last_at` -- the shape note_incident() now writes -- then a
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
+from datetime import datetime, timedelta, timezone
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -29,17 +34,50 @@ def _is_recurrence(e):
     return isinstance(e, dict) and str(e.get("action", "")).startswith("recurrence")
 
 
-def _same_fault(a, b):
-    return all(a.get(k) == b.get(k) for k in ("action", "actor", "result"))
+def _same_fault(a, b, ignore_result=False):
+    keys = ("action", "actor") if ignore_result else ("action", "actor", "result")
+    return all(a.get(k) == b.get(k) for k in keys)
 
 
-def collapse(attempts):
-    """Pure: returns the compacted list (recurrence runs folded, then capped)."""
+def parse_age(text):
+    m = re.fullmatch(r"(\d+)([dh])", text or "")
+    if not m:
+        raise argparse.ArgumentTypeError("--older-than needs Nd or Nh, e.g. 7d")
+    n = int(m.group(1))
+    return timedelta(days=n) if m.group(2) == "d" else timedelta(hours=n)
+
+
+def _entry_time(e):
+    raw = e.get("last_at") or e.get("ts") if isinstance(e, dict) else None
+    try:
+        t = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return t if t.tzinfo else t.replace(tzinfo=timezone.utc)
+
+
+def collapse(attempts, older_than=None, now=None, ignore_result=False):
+    """Pure: returns the compacted list (recurrence runs folded, then capped). With `older_than`
+    (a timedelta) only the leading run of entries older than that age is folded, and there a run of
+    recurrences folds even when their evidence text differs (the folded entry keeps the newest
+    text): the daily notes differ only by a probe timestamp, which is why 163 of them never folded.
+    The rest is kept verbatim."""
+    if older_than is not None:
+        cutoff = (now or datetime.now(timezone.utc)) - older_than
+        n = 0
+        while n < len(attempts):
+            t = _entry_time(attempts[n])
+            if t is None or t >= cutoff:
+                break
+            n += 1
+        return cap(collapse(attempts[:n], ignore_result=True) + attempts[n:])
     out = []
     for e in attempts:
         if _is_recurrence(e):
-            if out and _is_recurrence(out[-1]) and _same_fault(out[-1], e):
+            if out and _is_recurrence(out[-1]) and _same_fault(out[-1], e, ignore_result):
                 prev = out[-1]
+                if ignore_result:
+                    prev["result"] = e.get("result")
                 prev["count"] = int(prev.get("count", 1)) + int(e.get("count", 1))
                 prev["last_at"] = e.get("last_at") or e.get("ts")
                 continue
@@ -84,13 +122,15 @@ def main(argv=None):
     g = p.add_mutually_exclusive_group()
     g.add_argument("--dry-run", action="store_true", help="default: print only, read-only")
     g.add_argument("--apply", action="store_true", help="write, one transaction")
+    p.add_argument("--older-than", type=parse_age, default=None, metavar="AGE",
+                   help="only fold entries older than AGE (Nd or Nh)")
     args = p.parse_args(argv)
 
     rows = load(ap.PG_USER if args.apply else RO_USER)
     before = after = 0
     updates = []
     for iid, provider, kind, state, raw, attempts in rows:
-        new = collapse(attempts)
+        new = collapse(attempts, args.older_than)
         before += len(attempts)
         after += len(new)
         if len(new) != len(attempts):

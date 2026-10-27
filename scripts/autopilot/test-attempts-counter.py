@@ -150,6 +150,44 @@ class AttemptsCounter(unittest.TestCase):
                           ("wait", None), ("wait", None)])
         self.assertEqual(len(c.collapse([{"action": "note", "result": str(i)} for i in range(600)])), 500)
 
+    def test_ac7_older_than_folds_differing_old_recurrences_and_keeps_recent(self):
+        from datetime import timedelta
+        c = compact_module()
+        old = "2026-01-01T00:00:00+00:00"
+        recent = "2999-01-01T00:00:00+00:00"
+        r = lambda ts, res: {"actor": "e", "action": "recurrence", "result": res, "ts": ts}
+        src = [{"action": "route", "ts": old}, r(old, "a"), r(old, "b"), r(old, "c"),
+               r(recent, "d"), r(recent, "e")]
+        out = c.collapse(src, timedelta(days=7))
+        self.assertEqual([(e["action"], e.get("count"), e.get("result")) for e in out],
+                         [("route", None, None), ("recurrence", 3, "c"), ("recurrence", None, "d"),
+                          ("recurrence", None, "e")])
+
+    def test_ac8_stuck_sev1_recurrence_asks_once_then_notices_only(self):
+        iid = new_incident("nasa")
+        fx.psql(f"UPDATE incidents SET state = 'STUCK', severity = 'SEV1' WHERE incident_id = '{iid}'")
+        sent = []
+        ap.tg_send = lambda text: sent.append(text) or True
+        ask = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{ap.short_id(iid)}.ask.md")
+        if os.path.exists(ask):
+            os.remove(ask)
+        before = len(attempts(iid))
+        for i in range(3):
+            ap.open_or_merge_incident("PROVIDER_DOWN", "nasa", {"x": i}, "probe")
+        self.assertTrue(os.path.isfile(ask))
+        text = open(ask, encoding="utf-8").read()
+        self.assertIn("RETIRE", text)
+        self.assertIn("PROVIDE", text)
+        self.assertEqual(len(sent), 1)
+        self.assertEqual(recurrences(iid), [])
+        self.assertEqual([a["action"] for a in attempts(iid)][before:], ["ask-operator"])
+
+    def test_ac9_stuck_sev3_still_gets_recurrence_note(self):
+        iid = new_incident("amadeus")
+        fx.psql(f"UPDATE incidents SET state = 'STUCK', severity = 'SEV3' WHERE incident_id = '{iid}'")
+        ap.open_or_merge_incident("PROVIDER_DOWN", "amadeus", {"x": 9}, "probe")
+        self.assertEqual(len(recurrences(iid)), 1)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

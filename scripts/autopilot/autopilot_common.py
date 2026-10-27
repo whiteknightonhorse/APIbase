@@ -1052,8 +1052,7 @@ def _merge_outage_sibling(kind, provider, tool_id, evidence, tool_count, revenue
             raise RuntimeError(f"_merge_outage_sibling: escalate failed for {live}")
         note_incident(live, actor, "escalated", "DEGRADED_QUALITY -> PROVIDER_DOWN (same outage, one incident)")
     else:
-        note_incident(live, actor, "recurrence",
-                      json.dumps(_redact_untrusted_evidence(evidence), ensure_ascii=False)[:2000])
+        _note_recurrence(live, actor, "recurrence", evidence)
     return live
 
 
@@ -1114,6 +1113,64 @@ def _reopen_resolved(dk, kind, provider, actor):
     return iid
 
 
+def build_stuck_sev1_ask(sid, provider, kind):
+    return f"""# INC-{sid} - {kind} - {provider} (STUCK, SEV1): the system cannot fix this alone
+
+The fleet gave up on this incident and the fault is still present. Pick ONE:
+
+1. RETIRE the provider: `incident-cli.py retire --id <incident id> --actor operator --reason "..."`
+   (its tools leave the catalog; nothing else is needed).
+2. PROVIDE what is missing: a provider key (set it in the server environment file, restart the
+   worker, then `incident-cli.py recheck {provider}`) or a paid plan, and say so below.
+
+Write your choice after the marker below.
+
+This is asked once. Further occurrences are written to notices.log only.
+
+OPERATOR RESULT:
+"""
+
+
+def _stuck_sev1_ask_path(incident_id):
+    return os.path.join(HUMAN_DONE_DIR, f"INC-{short_id(incident_id)}.ask.md")
+
+
+def _note_recurrence(incident_id, actor, action, evidence):
+    """T-0585 (AUDIT-OPUS-1028 A2-07): a recurrence on a SEV1 incident already in STUCK is not a
+    new fact for anyone, so no daily `recurrence` attempts entry. The first one writes ONE ask file
+    (human-done/INC-<id>.ask.md: retire, or provide a key/plan) and sends ONE Telegram line; every
+    later one is a notices.log line only. The file's existence is the once-only marker."""
+    recurrence = json.dumps(_redact_untrusted_evidence(evidence), ensure_ascii=False)[:2000]
+    out, rc = psql(f"SELECT state, severity, provider, kind FROM incidents "
+                   f"WHERE incident_id = {sql_literal(incident_id)}")
+    if rc != 0 or not out:
+        note_incident(incident_id, actor, action, recurrence)
+        return
+    state, severity, provider, kind = (out.split(SEP) + ["", "", "", ""])[:4]
+    if not (state == "STUCK" and severity == "SEV1"):
+        note_incident(incident_id, actor, action, recurrence)
+        return
+    path = _stuck_sev1_ask_path(incident_id)
+    sid = short_id(incident_id)
+    if os.path.exists(path):
+        notice(f"silent: INC-{sid} {kind}/{provider} STUCK SEV1 still waiting for the operator "
+               f"({path}); no recurrence note")
+        return
+    try:
+        os.makedirs(HUMAN_DONE_DIR, exist_ok=True)
+        with open(path, "x", encoding="utf-8") as f:
+            f.write(build_stuck_sev1_ask(sid, provider, kind))
+    except FileExistsError:
+        return
+    except Exception as e:
+        notice(f"WARN: failed to write STUCK SEV1 ask file for {incident_id}: {e}")
+        note_incident(incident_id, actor, action, recurrence)
+        return
+    note_incident(incident_id, actor, "ask-operator", f"STUCK SEV1: asked once via {path}")
+    if not tg_send(tg("stuck_sev1_ask", sid=sid, kind=kind, provider=provider, path=path)):
+        notice(f"silent: TG send failed/unconfigured for STUCK SEV1 ask {incident_id}")
+
+
 def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
                             tool_count=None, revenue_pct=None, what=None, system_did=None,
                             docs_url=None, actor="incident-engine", dedup_suffix=None):
@@ -1145,8 +1202,7 @@ def open_or_merge_incident(kind, provider, evidence, detected_by, tool_id=None,
     if rc != 0:
         raise RuntimeError(f"open_or_merge_incident: lookup failed for {dk}")
     if existing:
-        note_incident(existing, actor, "recurrence",
-                       json.dumps(_redact_untrusted_evidence(evidence), ensure_ascii=False)[:2000])
+        _note_recurrence(existing, actor, "recurrence", evidence)
         return existing, False
 
     if kind in OUTAGE_KINDS and not dedup_suffix:

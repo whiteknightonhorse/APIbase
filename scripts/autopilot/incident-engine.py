@@ -810,7 +810,7 @@ def advance_waiting_human():
         human_done_result = None
         if os.path.isdir(ap.HUMAN_DONE_DIR):
             for fn in os.listdir(ap.HUMAN_DONE_DIR):
-                if f"INC-{sid}" in fn and os.path.isfile(os.path.join(ap.HUMAN_DONE_DIR, fn)):
+                if f"INC-{sid}" in fn and not fn.endswith(".ask.md") and os.path.isfile(os.path.join(ap.HUMAN_DONE_DIR, fn)):
                     human_done_match = os.path.join(ap.HUMAN_DONE_DIR, fn)
                     break
             if human_done_match:

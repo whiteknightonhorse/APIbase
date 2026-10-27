@@ -53,11 +53,12 @@ export const INTERVAL_DEGRADED_S = 30 * 60;
  *  confirm the second OK before trusting the recovery. */
 export const INTERVAL_RECOVERING_S = 5 * 60;
 
-/** DOWN backoff: 1h → 2h → 4h → capped at 24h. Doubles only while the
+/** DOWN backoff: 1h → 2h → 4h → capped at 6h (T-0585: was 24h, which made
+ *  down-to-healthy latency up to a day). Doubles only while the
  *  provider STAYS down between probes; a fresh DOWN entry always starts at
  *  the 1h floor regardless of whatever interval preceded it. */
 export const INTERVAL_DOWN_START_S = 3600;
-export const INTERVAL_DOWN_CAP_S = 24 * 3600;
+export const INTERVAL_DOWN_CAP_S = 6 * 3600;
 
 /** FAIL_DETERMINISTIC (401/403 with a configured key, etc.): counters don't
  *  apply — pause probing for a full day; only a "key rotated" event or
