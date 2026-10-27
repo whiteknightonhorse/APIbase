@@ -29,7 +29,7 @@ describe('host nginx CSP (T-0510z)', () => {
 
   it('site-wide CSP is unchanged', () => {
     expect(cspLines[0]?.[1]).toBe(
-      "default-src 'none'; script-src 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; media-src 'self'; frame-ancestors 'none'",
+      "default-src 'none'; script-src 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; img-src 'self' data:; media-src 'self'; frame-ancestors 'none'",
     );
     expect(siteCsp['script-src']).not.toContain("'self'");
     expect(siteCsp['connect-src']).not.toContain('https://rpc-bradbury.genlayer.com');

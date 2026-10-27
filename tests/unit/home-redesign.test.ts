@@ -59,13 +59,10 @@ describe('HP2 block order', () => {
     );
   });
   it('no external resources', () => {
-    // T-0375: the GA4 loader is the one allowed external script.
     // T-0383: the shared same-origin design-M stylesheet (versioned, inside the site-nav block) is the one allowed link.
     expect(
       externalResources(
-        html()
-          .replace(/<!--ga4-->[\s\S]*?<!--\/ga4-->/, '')
-          .replace(/<link rel="stylesheet" href="\/assets\/site-m\.css\?v=[0-9a-f]{8}">/, ''),
+        html().replace(/<link rel="stylesheet" href="\/assets\/site-m\.css\?v=[0-9a-f]{8}">/, ''),
       ),
     ).toEqual([]);
   });

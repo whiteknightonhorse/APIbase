@@ -92,9 +92,9 @@ pre{overflow-x:auto}
 <p class="updated"><span class="lg-badge">Last updated: <!--doc-date:privacy-->October 27, 2026<!--/doc-date--></span></p>
 
 <div class="lg-layout">
-<!--lg-chrome--><aside class="lg-side"><nav class="lg-toc" aria-label="On this page"><span class="lg-toc-h">On this page</span><a href="#controller">Controller and contact</a><a href="#1-service-description">1. Service Description</a><a href="#2-data-we-collect">2. Data We Collect</a><a href="#3-data-we-do-not-collect">3. Data We Do NOT Collect</a><a href="#3a-analytics">3a. Analytics</a><a href="#4-how-we-use-data">4. How We Use Data</a><a href="#4a-legal-bases">4a. Legal bases</a><a href="#5-data-sharing">5. Data Sharing and Recipients</a><a href="#6-data-retention">6. Data Retention</a><a href="#7-security">7. Security</a><a href="#8-third-party-services">8. Third-Party Services</a><a href="#9-changes">9. Changes</a><a href="#9a-your-rights">9a. Your rights</a><a href="#10-contact">10. Contact</a><a href="#integrator">11. Integrator: merchant orders</a></nav></aside><!--/lg-chrome-->
+<!--lg-chrome--><aside class="lg-side"><nav class="lg-toc" aria-label="On this page"><span class="lg-toc-h">On this page</span><a href="#controller">Controller and contact</a><a href="#1-service-description">1. Service Description</a><a href="#2-data-we-collect">2. Data We Collect</a><a href="#3-data-we-do-not-collect">3. Data We Do NOT Collect</a><a href="#4-how-we-use-data">4. How We Use Data</a><a href="#4a-legal-bases">4a. Legal bases</a><a href="#5-data-sharing">5. Data Sharing and Recipients</a><a href="#6-data-retention">6. Data Retention</a><a href="#7-security">7. Security</a><a href="#8-third-party-services">8. Third-Party Services</a><a href="#9-changes">9. Changes</a><a href="#9a-your-rights">9a. Your rights</a><a href="#10-contact">10. Contact</a><a href="#integrator">11. Integrator: merchant orders</a></nav></aside><!--/lg-chrome-->
 <div class="lg-doc">
-<!--lg-chrome--><details class="lg-toc-narrow"><summary>On this page</summary><nav class="lg-toc" aria-label="On this page"><a href="#controller">Controller and contact</a><a href="#1-service-description">1. Service Description</a><a href="#2-data-we-collect">2. Data We Collect</a><a href="#3-data-we-do-not-collect">3. Data We Do NOT Collect</a><a href="#3a-analytics">3a. Analytics</a><a href="#4-how-we-use-data">4. How We Use Data</a><a href="#4a-legal-bases">4a. Legal bases</a><a href="#5-data-sharing">5. Data Sharing and Recipients</a><a href="#6-data-retention">6. Data Retention</a><a href="#7-security">7. Security</a><a href="#8-third-party-services">8. Third-Party Services</a><a href="#9-changes">9. Changes</a><a href="#9a-your-rights">9a. Your rights</a><a href="#10-contact">10. Contact</a><a href="#integrator">11. Integrator: merchant orders</a></nav></details><!--/lg-chrome-->
+<!--lg-chrome--><details class="lg-toc-narrow"><summary>On this page</summary><nav class="lg-toc" aria-label="On this page"><a href="#controller">Controller and contact</a><a href="#1-service-description">1. Service Description</a><a href="#2-data-we-collect">2. Data We Collect</a><a href="#3-data-we-do-not-collect">3. Data We Do NOT Collect</a><a href="#4-how-we-use-data">4. How We Use Data</a><a href="#4a-legal-bases">4a. Legal bases</a><a href="#5-data-sharing">5. Data Sharing and Recipients</a><a href="#6-data-retention">6. Data Retention</a><a href="#7-security">7. Security</a><a href="#8-third-party-services">8. Third-Party Services</a><a href="#9-changes">9. Changes</a><a href="#9a-your-rights">9a. Your rights</a><a href="#10-contact">10. Contact</a><a href="#integrator">11. Integrator: merchant orders</a></nav></details><!--/lg-chrome-->
 <h2 id="controller">Controller and contact</h2>
 <p>APIbase is operated by its operator, an individual independent open-source developer (the "Operator"), identified by the domain apibase.pro, the public repository github.com/whiteknightonhorse/APIbase and the address support@apibase.pro. There is no registered company. "APIbase" in these documents means the Operator. The Operator may transfer this role to a company or a successor operator of apibase.pro with 30 days' notice at /legal. The Operator is the controller for platform data (agent identities, API keys, ledger, logs, receipts, contact form). For order data the merchant is the controller and APIbase is the processor (<a href="/legal/dpa">DPA</a>). Contact: <a href="mailto:support@apibase.pro">support@apibase.pro</a>.</p>
 
@@ -116,11 +116,8 @@ pre{overflow-x:auto}
 <li>Account data for platform tool calls: there are no human accounts, so no personal names, email addresses, or phone numbers are collected for them. Merchant orders are different: the delivery address, passport data where a product requires it, and payer contact are processed as described in <a href="#integrator">section 11</a> and the <a href="/legal/dpa">DPA</a>.</li>
 <li>Full request payloads are not stored. Provider responses are cached for the tool's TTL (<!--cache-ttl-->1 second to 30 days<!--/cache-ttl-->, <a href="#6-data-retention">section 6</a>) and are not linked to you beyond the cache key.</li>
 <li>IP addresses in application logs (only in Nginx access logs, retained 15 days).</li>
-<li>Cookies or tracking pixels on API and MCP endpoints. Human-facing web pages use Google Analytics 4 (first-party cookies, <a href="#3a-analytics">section 3a</a>).</li>
+<li>No cookies or tracking pixels. Traffic statistics are computed internally from server logs.</li>
 </ul>
-
-<h2 id="3a-analytics">3a. Analytics</h2>
-<p>We use Google Analytics 4 on our human-facing web pages to measure visits and ad campaign performance; it sets first-party cookies. API, MCP and agent endpoints are not tracked.</p>
 
 <h2 id="4-how-we-use-data">4. How We Use Data</h2>
 <ul>
@@ -135,7 +132,6 @@ pre{overflow-x:auto}
 <li><strong>Contract performance:</strong> calls, orders and receipts.</li>
 <li><strong>Legitimate interest:</strong> security logs, abuse prevention and moderation.</li>
 <li><strong>Legal obligation:</strong> sanctions screening and financial records.</li>
-<li><strong>Consent:</strong> analytics cookies on human-facing pages, where required.</li>
 </ul>
 
 <h2 id="5-data-sharing">5. Data Sharing and Recipients</h2>
@@ -143,7 +139,6 @@ pre{overflow-x:auto}
 <ul>
 <li>Hetzner Online GmbH: hosting, United States (see the <a href="/legal/dpa">DPA</a>).</li>
 <li>Resend, Inc.: transactional e-mail, United States.</li>
-<li>Google LLC: Analytics 4 on human-facing pages, United States (<a href="#3a-analytics">section 3a</a>).</li>
 <li>NameSilo: domain tools, United States.</li>
 <li>The destination you choose when you call an action tool (Telegram, Twilio, Telnyx, Resend): what you send to them is governed by their terms.</li>
 </ul>

@@ -22,7 +22,7 @@ static/privacy.html	https://apibase.pro/privacy	must-not-contain	or a prepaid ba
 static/frameworks.html	https://apibase.pro/frameworks	must-not-contain	10% of full price billed via balance	-	APIBASE-003
 static/pricing.html	https://apibase.pro/pricing	regex-equals	<!--cache-ttl-->[^<]*? to (\d+) days<!--/cache-ttl-->	{{cache_ttl_seconds.max_days}}	APIBASE-004
 static/privacy.html	https://apibase.pro/privacy	regex-equals	<!--cache-ttl-->[^<]*? to (\d+) days<!--/cache-ttl-->	{{cache_ttl_seconds.max_days}}	APIBASE-004
-static/privacy.html	https://apibase.pro/privacy	must-not-contain	tracking pixels.	-	APIBASE-005
+static/privacy.html	https://apibase.pro/privacy	must-not-contain	Google Analytics	-	APIBASE-005
 static/privacy.html	https://apibase.pro/privacy	must-contain	public receipt	-	APIBASE-006
 static/.well-known/agent-registration.json	https://apibase.pro/.well-known/agent-registration.json	must-not-contain	Every paid call gets a public receipt	-	APIBASE-007
 static/connect.html	https://apibase.pro/connect	must-not-contain	re:-d\s+\'\{"params"	-	APIBASE-008

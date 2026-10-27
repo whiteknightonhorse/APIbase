@@ -94,10 +94,9 @@ const PAGES = [
   ...PLATFORMS.map((p) => `/integrator/platforms/${p}`),
 ];
 
-/** T-0344: the canonical link and JSON-LD breadcrumb are the only allowed head extras; T-0375 adds the GA4 block; T-0383 the shared header with its one tiny script. */
+/** T-0344: the canonical link and JSON-LD breadcrumb are the only allowed head extras; T-0383 the shared header with its one tiny script. */
 const stripMeta = (html: string) =>
   html
-    .replace(/<!--ga4-->[\s\S]*?<!--\/ga4-->/g, '')
     .replace(/<!--site-nav-->[\s\S]*?<!--\/site-nav-->/g, '')
     .replace(/<link rel="canonical"[^>]*>/g, '')
     .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '');
