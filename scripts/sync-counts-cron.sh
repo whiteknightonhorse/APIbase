@@ -219,6 +219,7 @@ FILES=(
   static/.well-known/openapi.json static/.well-known/openapi-discovery.json
   scripts/discovery-snapshot.tsv
   static/.well-known/x402-payment.json static/.well-known/agent-skills/x402-payment.md
+  static/.well-known/site-facts.json
 )
 
 # T-0173 (ruling-2, attempt-2): FILES above is hand-maintained prose ("kept in sync with its own
@@ -315,6 +316,16 @@ if [ "$RUN_RC" != 0 ]; then
   exit 1
 fi
 COUNTS_MSG="$(echo "$RUN_OUT" | grep -m1 'live active' || true)"
+# T-0619 (Fable ruling 0597 ruling-2): site-facts.json is derived from the files the counts step
+# just rewrote; tests/unit/site-facts.test.ts runs gen-site-facts --check, so without this
+# regeneration every counts sync turns the deploy gate red. The generator, never typed numbers.
+GEN_OUT="$(npx tsx scripts/gen-site-facts.ts 2>&1)" && GEN_RC=0 || GEN_RC=$?
+if [ "$GEN_RC" != 0 ]; then
+  clog "ABORT -- gen-site-facts.ts exited $GEN_RC, nothing committed: $(printf '%s\n' "$GEN_OUT" | tail -n 3 | tr '\n' ';')"
+  calert "🔴 sync-counts-cron: gen-site-facts упал с кодом $GEN_RC -- отказ прибора, ничего не закоммичено, see log." "site-facts-failed"
+  exit 1
+fi
+
 TOOLS="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ tools' | grep -oE '[0-9]+')"
 PROV="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ providers' | grep -oE '[0-9]+')"
 
