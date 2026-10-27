@@ -1,7 +1,9 @@
 /**
  * T-0567 L1-L5: UC-22 in-process IP country lookup (DB-IP Country Lite MMDB, fixture generated here).
  */
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, utimesSync, writeFileSync } from 'node:fs';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const fs = require('node:fs') as typeof import('node:fs');
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildCountryMmdb } from '../fixtures/mmdb-fixture';
@@ -68,5 +70,47 @@ describe('countryOf / geoOf', () => {
     expect(geoOf({ headers, ip: '203.0.113.7' }).ip_country).toBe('CU');
     process.env.INTEGRATOR_GEO_HEADERS = 'trusted';
     expect(geoOf({ headers, ip: '203.0.113.7' }).ip_country).toBe('DE');
+  });
+});
+
+describe('T-0609 one descriptor for mtime and read', () => {
+  afterEach(() => jest.restoreAllMocks());
+
+  function bump(f: string, t0: number): void {
+    const when = new Date(t0 + 5_000_000);
+    utimesSync(f, when, when);
+  }
+
+  it('F1 reloads when the mtime changes and closes every descriptor it opened', () => {
+    const f = join(dir, 'reload.mmdb');
+    writeFileSync(f, buildCountryMmdb([{ cidr: '203.0.113.0/24', country: 'CU' }]));
+    process.env.GEO_MMDB_PATH = f;
+    const open = jest.spyOn(fs, 'openSync');
+    const close = jest.spyOn(fs, 'closeSync');
+    const t0 = Date.now();
+    const now = jest.spyOn(Date, 'now').mockReturnValue(t0);
+    expect(countryOf('203.0.113.7')).toBe('CU');
+    writeFileSync(f, buildCountryMmdb([{ cidr: '203.0.113.0/24', country: 'DE' }]));
+    bump(f, t0);
+    now.mockReturnValue(t0 + 11 * 60_000);
+    expect(countryOf('203.0.113.7')).toBe('DE');
+    expect(open.mock.calls.length).toBe(close.mock.calls.length);
+    expect(close.mock.calls.length).toBeGreaterThan(0);
+  });
+
+  it('F2 unreadable content keeps the previous reader and still closes the descriptor', () => {
+    const f = join(dir, 'torn.mmdb');
+    writeFileSync(f, buildCountryMmdb([{ cidr: '203.0.113.0/24', country: 'CU' }]));
+    process.env.GEO_MMDB_PATH = f;
+    const open = jest.spyOn(fs, 'openSync');
+    const close = jest.spyOn(fs, 'closeSync');
+    const t0 = Date.now();
+    const now = jest.spyOn(Date, 'now').mockReturnValue(t0);
+    expect(countryOf('203.0.113.7')).toBe('CU');
+    writeFileSync(f, 'garbage');
+    bump(f, t0);
+    now.mockReturnValue(t0 + 11 * 60_000);
+    expect(countryOf('203.0.113.7')).toBe('CU');
+    expect(open.mock.calls.length).toBe(close.mock.calls.length);
   });
 });

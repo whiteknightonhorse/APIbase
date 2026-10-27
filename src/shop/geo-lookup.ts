@@ -1,4 +1,4 @@
-import { readFileSync, statSync } from 'node:fs';
+import { closeSync, fstatSync, openSync, readFileSync } from 'node:fs';
 import { isIP } from 'node:net';
 import { resolve } from 'node:path';
 import { Reader, type CountryResponse } from 'mmdb-lib';
@@ -29,17 +29,22 @@ function warnOnce(reason: string): void {
   logger.warn({ path: dbPath(), reason }, 'geo_db_missing');
 }
 
-/** Load (or reload after a monthly refresh) the database; at most one stat per interval. */
+/** Load (or reload after a monthly refresh) the database; at most one fstat per interval. */
 function ensureLoaded(): Reader<CountryResponse> | null {
   const now = Date.now();
   if (checkedAt !== 0 && now - checkedAt < (reader ? RECHECK_MS : RETRY_MISSING_MS)) return reader;
   checkedAt = now;
   try {
-    const path = dbPath();
-    const mtime = statSync(path).mtimeMs;
-    if (!reader || mtime !== loadedMtimeMs) {
-      reader = new Reader<CountryResponse>(readFileSync(path));
-      loadedMtimeMs = mtime;
+    // one descriptor for the mtime check and the read: no check-then-use on a path name
+    const fd = openSync(dbPath(), 'r');
+    try {
+      const mtime = fstatSync(fd).mtimeMs;
+      if (!reader || mtime !== loadedMtimeMs) {
+        reader = new Reader<CountryResponse>(readFileSync(fd));
+        loadedMtimeMs = mtime;
+      }
+    } finally {
+      closeSync(fd);
     }
     geoDbLoaded.set(1);
     return reader;
