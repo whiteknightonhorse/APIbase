@@ -19,6 +19,10 @@ process.env.MPP_SECRET_KEY = 'real-factory-hmac-secret-of-32-bytes-or-more';
 process.env.TEMPO_WALLET_ADDRESS = '0x0000000000000000000000000000000000000002';
 process.env.TEMPO_PRIVATE_KEY = `0x${'11'.repeat(32)}`;
 process.env.REDIS_URL = process.env.TEST_REDIS_URL ?? 'redis://127.0.0.1:55447';
+// config/env.ts requires these; a CI box has no dev environment, so point them at the test database.
+process.env.DATABASE_URL_WORKER ??= process.env.TEST_DATABASE_URL;
+process.env.DATABASE_URL_OUTBOX ??= process.env.TEST_DATABASE_URL;
+process.env.API_KEY_SECRET ??= 'k'.repeat(40);
 const KEY = process.env.ENCRYPTION_KEY;
 const TOKEN = '0x20c0000000000000000000000000000000000000';
 const MERCHANT = privateKeyToAccount(generatePrivateKey());

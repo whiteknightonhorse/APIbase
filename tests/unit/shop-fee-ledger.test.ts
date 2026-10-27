@@ -103,6 +103,8 @@ dbDescribe('shop fee ledger, ledger cost, duplicate MPP refund', () => {
       MPP_ENABLED: 'true',
       INTEGRATOR_TEST_SKU_DAILY_CAP: '30',
       INTEGRATOR_FEE_WALLET: FEE_WALLET,
+      // the Base fee leg; without it payBase carries no split and no ledger row (a CI box has no dev env)
+      INTEGRATOR_FEE_WALLET_BASE: FEE_WALLET,
       PUBLIC_BASE_URL: 'https://apibase.pro',
     });
     mockVerify.mockReset().mockImplementation(async (p: any) => ({
@@ -238,17 +240,7 @@ dbDescribe('shop fee ledger, ledger cost, duplicate MPP refund', () => {
     const f = await fixture(89);
     const r = await payBase(f);
     expect(r.status).toBe(200);
-    const got = await feeRows(f);
-    if (got.length === 0) {
-      const pay = await rows(
-        `SELECT rail, amount_usd::text, splits, chain_status FROM shop_payments WHERE order_id = $1::uuid`,
-        f.quote.order_id,
-      );
-      throw new Error(
-        `no fee row; fee=${f.fee} payments=${JSON.stringify(pay)} body=${JSON.stringify(r.body)}`,
-      );
-    }
-    expect(got).toEqual([{ mode: 'receivable', status: 'owed', fee: '1.340000' }]);
+    expect(await feeRows(f)).toEqual([{ mode: 'receivable', status: 'owed', fee: '1.340000' }]);
     expect((await order(f)).fee_settlement).toBe('receivable');
   });
 
