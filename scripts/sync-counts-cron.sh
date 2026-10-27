@@ -209,7 +209,7 @@ FILES=(
   static/privacy.html static/dashboard.html static/pricing.html static/connect.html
   static/why.html static/why.md static/flight-search-intent.html
   static/image-generation-intent.html static/company-research-intent.html
-  static/llms.txt static/ai.txt static/policy-moderation.html static/index.md README.md
+  static/llms.txt static/llms-full.txt static/ai.txt static/policy-moderation.html static/index.md README.md
   static/integrator/index.html static/integrator/llms.txt
   static/.well-known/api-catalog static/.well-known/mcp.json
   static/.well-known/mcp/server-card.json static/catalog.html static/sitemap.xml
