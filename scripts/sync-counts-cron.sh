@@ -209,7 +209,7 @@ FILES=(
   static/privacy.html static/dashboard.html static/pricing.html static/connect.html
   static/why.html static/why.md static/flight-search-intent.html
   static/image-generation-intent.html static/company-research-intent.html
-  static/llms.txt static/llms-full.txt static/ai.txt static/policy-moderation.html static/index.md README.md
+  static/llms.txt static/ai.txt static/policy-moderation.html static/index.md README.md
   static/integrator/index.html static/integrator/llms.txt
   static/.well-known/api-catalog static/.well-known/mcp.json
   static/.well-known/mcp/server-card.json static/catalog.html static/sitemap.xml
@@ -234,14 +234,6 @@ SELF_HEAL_PATHS="$(awk '/^else$/{p=1} p&&/^fi$/{exit} p' scripts/sync-counts.sh 
   | grep -vE '^\s*#' \
   | grep -oE '(static/[A-Za-z0-9_./-]+|README\.md|scripts/discovery-snapshot\.tsv)' \
   | sort -u)"
-# T-0617: the self-heal branch also calls TS generators whose write targets never appear in
-# sync-counts.sh itself (gen-discovery.ts wrote static/llms-full.txt unseen since T-0591), so
-# collect the literal `resolve(ROOT, 'static/...')` paths from gen-discovery.ts too.
-if [ -f scripts/gen-discovery.ts ]; then
-  GEN_PATHS="$(grep -oE "resolve\(ROOT, 'static/[A-Za-z0-9_./-]+'" scripts/gen-discovery.ts \
-    | grep -oE "static/[A-Za-z0-9_./-]+" | sort -u || true)"
-  SELF_HEAL_PATHS="$(printf '%s\n%s\n' "$SELF_HEAL_PATHS" "$GEN_PATHS" | sort -u)"
-fi
 MISSING_FROM_FILES=""
 while IFS= read -r p; do
   [ -z "$p" ] && continue
