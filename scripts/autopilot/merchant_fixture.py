@@ -71,7 +71,7 @@ def ensure_pg():
     if chk.returncode == 0 and chk.stdout.strip() == "t":
         return
     sh(["docker", "rm", "-f", CONTAINER])
-    r = sh(["docker", "run", "-d", "--name", CONTAINER, "-e", "POSTGRES_PASSWORD=x",
+    r = sh(["docker", "run", "-d", "--restart", "unless-stopped", "--name", CONTAINER, "-e", "POSTGRES_PASSWORD=x",
             "-e", "POSTGRES_USER=apibase", "-e", "POSTGRES_DB=apibase", "postgres:16.2-alpine"])
     if r.returncode != 0:
         raise RuntimeError(f"cannot start disposable postgres: {r.stderr}")

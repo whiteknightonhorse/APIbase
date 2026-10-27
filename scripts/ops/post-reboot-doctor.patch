@@ -1,0 +1,23 @@
+--- a/usr/local/sbin/post-reboot-doctor.sh	2026-10-27 07:26:10.742199601 +0000
++++ b/usr/local/sbin/post-reboot-doctor.sh	2026-10-27 07:26:10.742199601 +0000
+@@ -18,6 +18,9 @@
+ # Critical services that MUST be active on this server.
+ # Order matters: dependencies first (vpn-namespace before vpn-openvpn,
+ # postgres/redis before app servers).
++# polymarket-* removed (T-0593, A4-18): the units no longer exist on this host.
++# chat-egress-firewall.service is intentionally NOT checked: the unit is gone and whether the
++# ai-chat-runtime egress filter is still wanted is operator question 9 (A4 section 5); add it back here if yes.
+ CRITICAL_SERVICES=(
+   postgresql@14-main
+   redis-server
+@@ -25,10 +28,6 @@
+   docker
+   vpn-namespace
+   vpn-openvpn
+-  polymarket-api
+-  polymarket-markets
+-  polymarket-news
+-  polymarket-news-matcher
+   aipush
+   aipush-eth-indexer
+   aipush-cf-hostname-poller
