@@ -47,6 +47,7 @@ never touch a provider, per this task's own boundary):
 """
 import json
 import os
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -350,14 +351,39 @@ def check_price_below_floor():
 # ---------------------------------------------------------------------------
 # Check 5 (T-0352): how much of the paid catalog the gate can actually see
 # ---------------------------------------------------------------------------
+def _cov_row(r):
+    """(price, cost, cost_source, provider); the trailing fields are optional."""
+    return (tuple(r) + ("", "", ""))[:4]
+
+
 def coverage_stats(rows):
-    """rows: [(price_usd, upstream_cost_usd_or_empty)] for every tool. Returns
-    (with_cost, paid_tools, pct). A tool is paid iff price_usd > 0; it is covered iff
-    upstream_cost_usd is set (an explicit "0" counts). Pure, so --selftest needs no DB."""
-    paid = [(p, c) for p, c in rows if float(p) > 0]
-    with_cost = sum(1 for _, c in paid if c not in ("", None))
+    """rows: [(price_usd, upstream_cost_usd_or_empty[, cost_source_or_empty[, provider]])] for every
+    tool. Returns (with_cost, paid_tools, pct). A tool is paid iff price_usd > 0; it is covered iff
+    cost_source IS NOT NULL OR upstream_cost_usd IS NOT NULL (T-0583: an explicit "0" counts, and so
+    does a derived zero). Pure, so --selftest needs no DB."""
+    paid = [_cov_row(r) for r in rows if float(r[0]) > 0]
+    with_cost = sum(1 for _, c, src, _p in paid if c not in ("", None) or src not in ("", None))
     pct = 100.0 * with_cost / len(paid) if paid else 100.0
     return with_cost, len(paid), pct
+
+
+def missing_providers(rows, top=10):
+    """Top `top` providers by number of paid tools the gate cannot see: [(provider, n)]."""
+    counts = {}
+    for price, cost, src, provider in (_cov_row(r) for r in rows):
+        if float(price) > 0 and cost in ("", None) and src in ("", None):
+            counts[provider] = counts.get(provider, 0) + 1
+    return sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[:top]
+
+
+def missing_line(missing):
+    if not missing:
+        return "top missing providers: none"
+    return "top missing providers: " + ", ".join(f"{p} ({n})" for p, n in missing)
+
+
+def coverage_signature(with_cost, paid, missing):
+    return f"{with_cost}/{paid}|" + ",".join(f"{p}:{n}" for p, n in missing)
 
 
 def coverage_line(with_cost, paid, pct):
@@ -370,34 +396,79 @@ def coverage_tg_text(with_cost, paid, pct):
             f"fraction. See issue \"{COVERAGE_TITLE}\".")
 
 
+def open_issue_number(title):
+    r = gh("issue", "list", "--repo", REPO, "--state", "open", "--search", f"{title} in:title",
+           "--limit", "100", "--json", "number,title")
+    try:
+        for i in json.loads(r.stdout or "[]"):
+            if i["title"] == title:
+                return i["number"]
+    except Exception:
+        pass
+    return None
+
+
+def last_signature(number):
+    """Signature marker of the newest comment (of the body when there is none), else None."""
+    r = gh("issue", "view", str(number), "--repo", REPO, "--json", "body,comments")
+    try:
+        d = json.loads(r.stdout or "{}")
+    except Exception:
+        return None
+    texts = [c.get("body", "") for c in d.get("comments", [])] or [d.get("body", "")]
+    m = re.search(r"<!-- sig:(.*?) -->", texts[-1])
+    return m.group(1) if m else None
+
+
+def fetch_coverage_rows():
+    """[(price, cost, cost_source, provider)] for every tool. Falls back to the pre-0047 query when
+    the cost_source column does not exist yet."""
+    for sql in ("SELECT price_usd, coalesce(upstream_cost_usd::text, ''), coalesce(cost_source, ''), provider FROM tools",
+                "SELECT price_usd, coalesce(upstream_cost_usd::text, ''), '', provider FROM tools"):
+        rows_raw = psql(sql)
+        if rows_raw:
+            break
+    rows = []
+    for line in rows_raw.splitlines() if rows_raw else []:
+        # the output is stripped, which can drop trailing tabs of an empty-cost last row
+        parts = line.split("\t")
+        parts += [""] * (4 - len(parts))
+        rows.append(tuple(parts[:4]))
+    return rows
+
+
 def check_coverage():
     """Returns True when coverage >= COVERAGE_MIN_PCT. Below it, the '0 below floor' lines
     above only describe the covered fraction, so this is a visible red (exit 1)."""
-    rows_raw = psql("SELECT price_usd, coalesce(upstream_cost_usd::text, '') FROM tools")
-    rows = []
-    for line in rows_raw.splitlines() if rows_raw else []:
-        # psql() strips the output, which can drop the trailing tab of an empty-cost last row
-        price, _, cost = line.partition("\t")
-        rows.append((price, cost))
+    rows = fetch_coverage_rows()
     with_cost, paid, pct = coverage_stats(rows)
     print(f"margin-gate-alerts: {coverage_line(with_cost, paid, pct)}")
     if pct >= COVERAGE_MIN_PCT:
         return True
+    missing = missing_providers(rows)
     print(f"margin-gate-alerts: FAIL coverage {pct:.1f}% < {COVERAGE_MIN_PCT:.0f}% -- the margin gate "
-          f"does not see {paid - with_cost} paid tool(s)")
-    if COVERAGE_TITLE not in open_issues_with_prefix(COVERAGE_TITLE):
-        body = (
-            f"{coverage_line(with_cost, paid, pct)} -- below the {COVERAGE_MIN_PCT:.0f}% minimum. "
-            f"`upstream_cost_usd` is unset on {paid - with_cost} paid tool(s), so 'margin gate: 0 below "
-            f"floor' is true only for the covered fraction. Run `python3 scripts/backfill-upstream-cost.py` "
-            f"(dry run) for the zero-cost backfill and the list of paid providers needing a sourced "
-            f"cost model. Auto-detected by margin-gate-alerts (hourly)."
-        )
-        r = gh("issue", "create", "--repo", REPO, "--title", COVERAGE_TITLE, "--body", body)
+          f"does not see {paid - with_cost} paid tool(s); {missing_line(missing)}")
+    sig = coverage_signature(with_cost, paid, missing)
+    detail = (
+        f"{coverage_line(with_cost, paid, pct)} -- below the {COVERAGE_MIN_PCT:.0f}% minimum. "
+        f"`upstream_cost_usd` is unset on {paid - with_cost} paid tool(s), so 'margin gate: 0 below "
+        f"floor' is true only for the covered fraction. {missing_line(missing)}. Run "
+        f"`npx tsx scripts/pricing/derive-upstream-cost.ts` (dry run) for the derived-zero list of free "
+        f"providers and the owner list of the rest. Auto-detected by margin-gate-alerts (hourly).\n\n"
+        f"<!-- sig:{sig} -->"
+    )
+    number = open_issue_number(COVERAGE_TITLE)
+    if number is None:
+        r = gh("issue", "create", "--repo", REPO, "--title", COVERAGE_TITLE, "--body", detail)
         print(f"{'created' if r.returncode == 0 else 'FAILED'}: {COVERAGE_TITLE}")
         # Telegram only alongside a new issue (same dedup), so it is not re-sent every hour
         ok = tg_send(coverage_tg_text(with_cost, paid, pct))
         print(f"telegram {'sent' if ok else 'FAILED'}: {COVERAGE_TITLE}")
+    elif last_signature(number) != sig:
+        r = gh("issue", "comment", str(number), "--repo", REPO, "--body", detail)
+        print(f"{'commented' if r.returncode == 0 else 'FAILED'}: #{number} (coverage changed)")
+    else:
+        print(f"skip (unchanged): #{number}")
     return False
 
 
@@ -457,6 +528,21 @@ def selftest():
     assert coverage_stats([("0.01", "0"), ("0.01", ""), ("0", ""), ("0.02", "0.005")]) == (2, 3, 100.0 * 2 / 3), \
         "explicit 0 counts as covered; free (price 0) tools are not in the denominator"
     assert coverage_stats([])[2] == 100.0
+    # T-0583: a derived zero (cost_source set) is covered; NULL cost with NULL source is not
+    cov_rows = [
+        ("0.01", "0", "provider-limits:free", "freeco"),
+        ("0.01", "", "provider-limits:free", "freeco"),
+        ("0.02", "", "", "paidco"),
+        ("0.03", "", "", "paidco"),
+        ("0.04", "", "", "otherco"),
+        ("0", "", "", "freepriced"),
+    ]
+    assert coverage_stats(cov_rows) == (2, 5, 40.0), coverage_stats(cov_rows)
+    assert missing_providers(cov_rows) == [("paidco", 2), ("otherco", 1)]
+    many = [("0.01", "", "", f"p{i:02d}") for i in range(15)]
+    assert len(missing_providers(many)) == 10, "the FAIL line lists at most the top 10 missing providers"
+    assert missing_line([("paidco", 2), ("otherco", 1)]) == "top missing providers: paidco (2), otherco (1)"
+    assert coverage_signature(2, 5, [("paidco", 2)]) == "2/5|paidco:2"
     assert coverage_line(2, 3, 100.0 * 2 / 3) == "coverage: 2/3 (66.7%)"
     assert "coverage: 2/3 (66.7%)" in coverage_tg_text(2, 3, 100.0 * 2 / 3)
 

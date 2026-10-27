@@ -153,8 +153,9 @@ async function seedTools(): Promise<number> {
         price_usd: tool.price_usd,
         cache_ttl: tool.cache_ttl,
         // Omit (not null) when absent from YAML — see comment above seedTools().
+        // T-0583: a cost written by the YAML is a recorded one, so it clears a derived cost_source.
         ...(tool.upstream_cost_usd !== undefined
-          ? { upstream_cost_usd: tool.upstream_cost_usd }
+          ? { upstream_cost_usd: tool.upstream_cost_usd, cost_source: null }
           : {}),
         category,
         namespace,

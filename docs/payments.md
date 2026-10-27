@@ -74,7 +74,7 @@ MPP: the credential is read from `Payment-Authorization: Payment <cred>` first, 
 | Discovery | [mpp.dev/services](https://mpp.dev/services) |
 | Price range | $0.0005 – $29.99 per call (p90 $0.003) |
 
-No subscriptions, no minimums. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled; on MPP the payment is already settled when the call runs, so a failure leaves a refund owed to you, paid out by the operator (see [pricing](https://apibase.pro/pricing#refunds)).
+No subscriptions, no minimums. Paid tools are priced at or above the provider's cost where the cost is known; tools whose provider is free carry no upstream cost (see [pricing](https://apibase.pro/pricing)). <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled; on MPP the payment is already settled when the call runs, so a failure leaves a refund owed to you, paid out by the operator (see [pricing](https://apibase.pro/pricing#refunds)).
 
 ### MPP Payment Flow
 

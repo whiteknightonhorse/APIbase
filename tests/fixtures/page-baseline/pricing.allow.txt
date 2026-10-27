@@ -36,3 +36,7 @@ discount applies
 (5 seconds for volatile data like crypto prices, up
 7
 for near-static data).
+# T-0583: cost sentence reworded (priced at or above the provider cost where known; free providers carry no upstream cost); old sequence:
+set from
+real
+cost plus margin.
