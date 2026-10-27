@@ -319,7 +319,8 @@ COUNTS_MSG="$(echo "$RUN_OUT" | grep -m1 'live active' || true)"
 # T-0619 (Fable ruling 0597 ruling-2): site-facts.json is derived from the files the counts step
 # just rewrote; tests/unit/site-facts.test.ts runs gen-site-facts --check, so without this
 # regeneration every counts sync turns the deploy gate red. The generator, never typed numbers.
-GEN_OUT="$(npx tsx scripts/gen-site-facts.ts 2>&1)" && GEN_RC=0 || GEN_RC=$?
+# SYNC_COUNTS_CRON_GEN_CMD is overridable only so the parity test can run in a bare temp tree.
+GEN_OUT="$(${SYNC_COUNTS_CRON_GEN_CMD:-npx tsx scripts/gen-site-facts.ts} 2>&1)" && GEN_RC=0 || GEN_RC=$?
 if [ "$GEN_RC" != 0 ]; then
   clog "ABORT -- gen-site-facts.ts exited $GEN_RC, nothing committed: $(printf '%s\n' "$GEN_OUT" | tail -n 3 | tr '\n' ';')"
   calert "🔴 sync-counts-cron: gen-site-facts упал с кодом $GEN_RC -- отказ прибора, ничего не закоммичено, see log." "site-facts-failed"

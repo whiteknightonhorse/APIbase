@@ -58,6 +58,7 @@ function setup(mutate: boolean) {
     SYNC_COUNTS_CRON_STATE_DIR: join(dir, 'state'),
     SYNC_COUNTS_CRON_LOG_DIR: join(dir, 'logs'),
     SYNC_COUNTS_CRON_CONFIG_ENV: join(dir, 'config.env'),
+    SYNC_COUNTS_CRON_GEN_CMD: 'true',
   };
   return { dir, work, env };
 }
