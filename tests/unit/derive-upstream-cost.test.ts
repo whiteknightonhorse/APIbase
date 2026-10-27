@@ -16,6 +16,15 @@ describe('T-0583 derive-upstream-cost', () => {
     ).toBe(false);
   });
 
+  it('does not derive zero when the free proof quotes a per-call price', () => {
+    expect(
+      isFreeProvider({
+        limit_type: 'daily',
+        limit_proof: '2,500 free lookups/day, $0.001/lookup above free tier',
+      }),
+    ).toBe(false);
+  });
+
   it('never derives zero for a provider with a paid tier marker, credits, trial or no entry', () => {
     expect(isFreeProvider({ limit_type: 'unlimited', pricing_url: 'https://x.invalid' })).toBe(
       false,

@@ -12,7 +12,9 @@
  *     paid_balance, balance_api, pricing_url, pricing_check, pricing_note). A provider with such a
  *     marker is the "PROVIDER_KEY_* with a paid plan" case: its key can be on a paid plan;
  *   - and is 'unlimited', or has a windowed free limit (hourly/daily/monthly/rate_limited) whose
- *     limit_proof says "free".
+ *     limit_proof says "free" and does not quote a per-call price (PER_CALL_PRICE: "$0.001/lookup above
+ *     free tier", "PAYG", "per call"). Premise: no card is on file for a provider that is only windowed-free,
+ *     so a soft or exceedable limit does not make calls cost money; a quoted per-call price means it could.
  *
  * Usage:
  *   npx tsx scripts/pricing/derive-upstream-cost.ts                    dry run against DATABASE_URL (read-only)
@@ -34,6 +36,8 @@ export const PAID_KEYS = [
   'pricing_check',
   'pricing_note',
 ] as const;
+const PER_CALL_PRICE =
+  /\$\d[\d.]*\s*\/\s*[a-z]|\bper[ -](call|lookup|request|credit)\b|\bpay-?as-?you-?go\b|\bpayg\b|above (the )?free/i;
 const WINDOWED = new Set(['hourly', 'daily', 'monthly', 'rate_limited']);
 
 export interface LimitEntry {
@@ -58,7 +62,8 @@ export function isFreeProvider(entry: LimitEntry | undefined): boolean {
     typeof type === 'string' &&
     WINDOWED.has(type) &&
     typeof proof === 'string' &&
-    /\bfree\b/i.test(proof)
+    /\bfree\b/i.test(proof) &&
+    !PER_CALL_PRICE.test(proof)
   );
 }
 
