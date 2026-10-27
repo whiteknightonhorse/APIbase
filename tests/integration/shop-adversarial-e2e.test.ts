@@ -633,10 +633,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     expect(mockCharge).toHaveBeenCalledTimes(1);
   });
 
-  // T-0597 TODO (first run on a clean DB): fails since T-SHOP-A (3939304f), an IP identity is never the
-  // payer, so GET /orders/:id by x-forwarded-for no longer returns `fulfillment`; the test must read the
-  // order as the payer (buyer_token or wallet identity). Skipped by name, not silently.
-  it.skip('A-7: webhook 500 twice -> retries, then 200 {fulfillment} -> one fulfillment; a redelivery keeps the Delivery-Id and is ignored', async () => {
+  it('A-7: webhook 500 twice -> retries, then 200 {fulfillment} -> one fulfillment; a redelivery keeps the Delivery-Id and is ignored', async () => {
     const s = await shop({ price: 5, mode: 'merchant' });
     const ep = await setWebhook(deps, s.m, {
       url: 'https://hook.example/hook',
@@ -765,9 +762,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
   let demo: { wallet: string; merchant_id: string; api_key: string } | undefined;
   const wallet = privateKeyToAccount(generatePrivateKey());
 
-  // T-0597 TODO (first run on a clean DB): the expected mocked-call list no longer matches; the call
-  // list now also carries the demo-stream catalog rows. Re-derive the expectation. Skipped by name.
-  it.skip('A-9 (UC-10): nonce -> register -> accept_terms -> catalog -> webhook -> check = connected, payment_verified=false; a paid test SKU flips it', async () => {
+  it('A-9 (UC-10): nonce -> register -> accept_terms -> catalog -> webhook -> check = connected, payment_verified=false; a paid test SKU flips it', async () => {
     const before = await count(`SELECT count(*) AS c FROM shop_merchants`);
     const prep = await prepare({ wallet: wallet.address, baseUrl: base });
     expect(await count(`SELECT count(*) AS c FROM shop_merchants`)).toBe(before);
@@ -859,8 +854,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     expect(pub.body.payment_verified).toBe(true);
   });
 
-  // T-0597 TODO: needs the demo merchant registered by A-9, which is skipped above. Skipped by name.
-  it.skip('A-10 (UC-1): discover -> initialize -> tools/list (8) -> quote -> pay -> get in <= 6 tool calls and < 60 s; paid to the seller payout', async () => {
+  it('A-10 (UC-1): discover -> initialize -> tools/list (8) -> quote -> pay -> get in <= 6 tool calls and < 60 s; paid to the seller payout', async () => {
     expect(demo).toBeDefined();
     const t0 = Date.now();
     const shopInfo = await http('GET', `/api/v1/shop/shops/${DEMO_SLUG}`);
@@ -962,8 +956,7 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
     expect(handlerCalls).toBe(0);
   });
 
-  // T-0597 TODO: needs the demo merchant registered by A-9, which is skipped above. Skipped by name.
-  it.skip('A-14: shop.merchant.deactivate -> /mcp/m/apibase-demo answers 410', async () => {
+  it('A-14: shop.merchant.deactivate -> /mcp/m/apibase-demo answers 410', async () => {
     expect(demo).toBeDefined();
     const before = await http('POST', `/mcp/m/${DEMO_SLUG}`, {
       headers: { accept: 'application/json, text/event-stream' },

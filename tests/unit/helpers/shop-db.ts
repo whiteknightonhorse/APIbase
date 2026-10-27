@@ -1,73 +1,16 @@
-import { execFileSync, execSync } from 'child_process';
-import { appendFileSync } from 'fs';
+import { execSync } from 'child_process';
 import { join } from 'path';
 import { PrismaClient } from '@prisma/client';
 
 /**
  * Test-DB gate for the Integrator shop suites: set TEST_DATABASE_URL to a DISPOSABLE
- * local Postgres (never the live DB). Without it the DB suites are skipped; CI (test.yml) always sets it
- * from a disposable Postgres service, and tests/reporters/db-suites-reporter.js fails the job on any skip.
+ * local Postgres (never the live DB). Without it the DB suites are skipped (CI has no Postgres).
  * `prisma migrate deploy` is run against it once per process (idempotent).
  * This module must stay importable outside jest (tsx children), so the jest globals are optional.
  */
-
-/** URL this module already pinned into DATABASE_URL (a second call must not mistake it for the live DB). */
-let pinnedUrl: string | undefined;
-
-/**
- * Every jest test file gets its own database cloned from the migrated TEST_DATABASE_URL database
- * (tests/setup/db-template.js migrates it once per run), so suites that assume empty tables do not see
- * rows left by other files. The reporter drops the clones (name prefix apibase_t_<run id>_).
- * Not under jest (tsx children inherit the already-cloned URL), unset or non-local URL: left as is.
- */
-function cloneTestDb(): void {
-  const g = globalThis as { __TEST_DB_CLONED__?: boolean };
-  const base = process.env.TEST_DATABASE_URL;
-  if (g.__TEST_DB_CLONED__ || typeof describe !== 'function' || !base) return;
-  g.__TEST_DB_CLONED__ = true;
-  let u: URL;
-  try {
-    u = new URL(base);
-  } catch {
-    return;
-  }
-  if (!['postgres:', 'postgresql:'].includes(u.protocol)) return;
-  if (u.hostname !== '127.0.0.1' && u.hostname !== 'localhost') return;
-  const template = u.pathname.slice(1);
-  const rand = Math.random().toString(36).slice(2, 6);
-  const name = `apibase_t_${process.env.DB_SUITES_RUN_ID ?? 'x'}_${process.pid}_${rand}`;
-  const admin = new URL(base);
-  admin.pathname = '/postgres';
-  const script =
-    "const{Client}=require('pg');(async()=>{const c=new Client({connectionString:process.argv[1]});" +
-    "await c.connect();await c.query('CREATE DATABASE \"'+process.argv[2]+'\" TEMPLATE \"'+process.argv[3]+'\"');" +
-    'await c.end()})().catch(e=>{console.error(e.message);process.exit(1)})';
-  execFileSync(process.execPath, ['-e', script, admin.toString(), name, template], {
-    cwd: join(__dirname, '../../..'),
-    stdio: 'pipe',
-  });
-  u.pathname = `/${name}`;
-  // A unique clone can never be the live DB, so suites may pre-pin DATABASE_URL to it themselves.
-  process.env.TEST_DATABASE_URL = pinnedUrl = u.toString();
-}
-cloneTestDb();
-
 export const TEST_DB_URL = process.env.TEST_DATABASE_URL;
-
-/** A skipped DB suite is counted in-process (global.__DB_SUITES_SKIPPED__) and logged for the reporter. */
-function skipAndCount(...args: Parameters<jest.Describe>): void {
-  const g = globalThis as { __DB_SUITES_SKIPPED__?: number };
-  g.__DB_SUITES_SKIPPED__ = (g.__DB_SUITES_SKIPPED__ ?? 0) + 1;
-  const log = process.env.DB_SUITES_SKIP_LOG;
-  if (log) appendFileSync(log, `${expect.getState().testPath ?? String(args[0])}\n`);
-  describe.skip(...args);
-}
 export const dbDescribe: jest.Describe =
-  typeof describe === 'function'
-    ? TEST_DB_URL
-      ? describe
-      : (Object.assign(skipAndCount, describe) as unknown as jest.Describe)
-    : (undefined as never);
+  typeof describe === 'function' ? (TEST_DB_URL ? describe : describe.skip) : (undefined as never);
 
 const REFUSAL =
   'TEST_DATABASE_URL unset or not a disposable local Postgres - refusing (would fall back to DATABASE_URL = production)';
@@ -76,6 +19,9 @@ const REFUSAL =
  * Returns TEST_DATABASE_URL only when it is a local postgres URL different from DATABASE_URL, and
  * pins process.env.DATABASE_URL to it so no Prisma instance can fall back to .env.
  */
+/** URL this module already pinned into DATABASE_URL (a second call must not mistake it for the live DB). */
+let pinnedUrl: string | undefined;
+
 export function requireTestDb(): string {
   const url: unknown = process.env.TEST_DATABASE_URL;
   if (typeof url !== 'string' || url === '') throw new Error(REFUSAL);

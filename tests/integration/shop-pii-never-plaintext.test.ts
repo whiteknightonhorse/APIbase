@@ -701,9 +701,7 @@ dbDescribe('shop PII is never plaintext (INT-21, wave 2)', () => {
     await c.close();
   });
 
-  // T-0597 TODO (first run on a clean DB): same cause as A-7 in shop-adversarial-e2e (T-SHOP-A, an IP
-  // identity is never the payer, so the order view omits `pii`); read the order as the payer. Skipped by name.
-  it.skip('PII-2: a valid envelope (both algs) -> PAID, one bytea row, matching sha256, marker nowhere', async () => {
+  it('PII-2: a valid envelope (both algs) -> PAID, one bytea row, matching sha256, marker nowhere', async () => {
     const s = await shop();
     for (const alg of ['hpke-x25519-sha256-chacha20', 'sealed-box-x25519'] as const) {
       const q = await quote(s.slug, s.skuPassport);
@@ -1160,8 +1158,7 @@ dbDescribe('shop PII is never plaintext (INT-21, wave 2)', () => {
     expect(rot).toMatch(/await verifyEncryptionKeySignature\(m\.wallet_address, k\)/);
   });
 
-  // T-0597 TODO: scans the envelopes and hashes that PII-2 (skipped above) records; re-enable with PII-2. Skipped by name.
-  it.skip('PII-8: no log line of the whole run holds an envelope, a ciphertext hash or a marker; the redaction covers the PII keys', async () => {
+  it('PII-8: no log line of the whole run holds an envelope, a ciphertext hash or a marker; the redaction covers the PII keys', async () => {
     const all = logLines.join('\n');
     expect(logLines.length).toBeGreaterThan(0);
     expect(sentB64.length).toBeGreaterThan(5);
