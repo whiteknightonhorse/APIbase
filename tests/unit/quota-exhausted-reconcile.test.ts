@@ -114,9 +114,10 @@ describe('reconcileQuotaAvailability', () => {
     expect(db.tools[0]).toMatchObject({ status: 'healthy', status_reason: 'quota_recovered' });
   });
 
-  it('no recovery while CRITICAL, or while the probe is not OK, or below price floor', async () => {
+  it('no recovery while CRITICAL or NOINFO (never a recovery signal), or while the probe is not OK, or below price floor', async () => {
     for (const [risk, probe, floor] of [
       ['CRITICAL', 'OK', null],
+      ['NOINFO', 'OK', null],
       ['NORMAL', 'FAIL_TRANSIENT', null],
       ['NORMAL', 'OK', 0.5],
     ] as const) {

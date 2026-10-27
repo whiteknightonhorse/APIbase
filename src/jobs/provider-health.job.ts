@@ -1263,7 +1263,11 @@ export async function reconcileQuotaAvailability(db: PrismaClient): Promise<void
       }
       continue;
     }
-    if (r.risk === 'CRITICAL' || r.last_probe_result !== 'OK') continue;
+    // NOINFO / null is never a recovery signal (provider-limit-alerts.py, T-0574): only a measured
+    // risk below CRITICAL restores. pct_remaining is a rounded Int, so a trial with 1 call left of
+    // 300 reads 0 and is withdrawn one call early; accepted.
+    if (!r.risk || !['NORMAL', 'ATTENTION', 'WARNING'].includes(r.risk)) continue;
+    if (r.last_probe_result !== 'OK') continue;
     const withdrawn = await db.tool.findMany({
       where: { provider: r.provider, status: 'unavailable', status_reason: QUOTA_EXHAUSTED_REASON },
       select: { tool_id: true, price_usd: true, price_floor_usd: true },

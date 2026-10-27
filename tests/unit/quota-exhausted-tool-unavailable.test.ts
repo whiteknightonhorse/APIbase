@@ -23,10 +23,31 @@ jest.mock('../../src/config/index', () => ({
 jest.mock('../../src/config/logger', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
 }));
-jest.mock('../../src/services/prisma.service', () => ({ getPrisma: () => ({}) }));
-jest.mock('../../src/services/redis.service', () => ({ ensureRedisConnected: async () => ({}) }));
+// A well-formed x402 credential whose signature verifies, so AUTH passes and the call really
+// reaches TOOL_STATUS (and would reach ESCROW/settle if the guard were skipped).
+jest.mock('@x402/core/http', () => ({ decodePaymentSignatureHeader: () => ({ decoded: true }) }));
+jest.mock('@x402/core/schemas', () => ({
+  parsePaymentPayload: () => ({
+    success: true,
+    data: { accepted: {}, payload: { authorization: { from: '0xPAYER', value: '20000' } } },
+  }),
+}));
+jest.mock('../../src/services/prisma.service', () => ({
+  getPrisma: () => ({
+    providerStatus: { findMany: async () => [] },
+    agent: {
+      findUnique: async () => ({ agent_id: 'agent-1', tier: 'free', status: 'active' }),
+      create: async () => ({ agent_id: 'agent-1', tier: 'free', status: 'active' }),
+    },
+  }),
+}));
+jest.mock('../../src/services/redis.service', () => ({
+  ensureRedisConnected: async () => ({ get: async () => null, set: async () => 'OK' }),
+}));
 jest.mock('../../src/services/x402-server.service', () => ({
-  getSharedResourceServer: () => ({}),
+  getSharedResourceServer: () => ({
+    verifyPayment: async () => ({ isValid: true, payer: '0xPAYER' }),
+  }),
 }));
 jest.mock('../../src/services/idempotency.service', () => ({
   finalizePipelineIdempotency: async () => undefined,
@@ -65,7 +86,19 @@ const entry = (tool_id: string, status: string, extra: Record<string, unknown> =
 });
 
 describe('quota-exhausted tool is withdrawn before any charge', () => {
-  const app = express().use(express.json()).use(executeRouter);
+  // Stands in for x402Middleware (mocked module): marks a request carrying X-Payment as verified.
+  const app = express()
+    .use(express.json())
+    .use((req, _res, next) => {
+      if (req.headers['x-payment']) {
+        (req as unknown as { x402Payment: unknown }).x402Payment = {
+          verified: true,
+          payer: '0xPAYER',
+        };
+      }
+      next();
+    })
+    .use(executeRouter);
   const server = app.listen(0, '127.0.0.1');
   const base = () => `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   const post = (tool: string, headers: Record<string, string> = {}) =>
@@ -107,9 +140,17 @@ describe('quota-exhausted tool is withdrawn before any charge', () => {
 
   it('a call carrying a payment header is never settled or re-challenged', async () => {
     const res = await post('quota.tool', { 'x-payment': 'eyJ4IjoxfQ==' });
-    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBe(503);
+    expect(((await res.json()) as { error: string }).error).toBe('tool_unavailable');
     expect(settleX402).not.toHaveBeenCalled();
     expect(buildPaymentRequiredResponse).not.toHaveBeenCalled();
+  });
+
+  it('REST tool list (discover) excludes the withdrawn tool by default', async () => {
+    const { discover } = await import('../../src/services/discovery.service');
+    const res = await discover({ limit: 2000 } as never);
+    const ids = JSON.stringify(res);
+    expect(ids).not.toContain('quota.tool');
   });
 
   it('tools/list set omits the withdrawn tool and keeps healthy ones', () => {
