@@ -9,7 +9,7 @@ describe('T-0399 footer column headings', () => {
   const navs = [...footer.matchAll(/<nav aria-label="([^"]+)">(.*?)<\/nav>/g)];
 
   it('has four columns whose heading is the same element and class', () => {
-    expect(navs.map((m) => m[1])).toEqual(['For agents', 'For merchants', 'Company', 'Legal']);
+    expect(navs.map((m) => m[1])).toEqual(['For agents', 'For merchants', 'Operator', 'Legal']);
     for (const m of navs) {
       expect(m[2].startsWith('<div class="sf-h">')).toBe(true);
     }
