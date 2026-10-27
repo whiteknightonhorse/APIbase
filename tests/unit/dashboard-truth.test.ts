@@ -22,7 +22,10 @@ const row = (over: Record<string, unknown>) => ({
   calls_24h: 0n,
   calls_today: 0n,
   calls_this_month: 0n,
-  calls_last_hour: 0n,
+  win_hour: 0n,
+  win_day: 0n,
+  win_month: 0n,
+  win_total: 0n,
   calls_total: 0n,
   paid_calls_24h: 0n,
   revenue_24h: null,
@@ -52,9 +55,18 @@ async function run(rows: Array<Record<string, unknown>>, redisHealth?: Record<st
   return getDashboardData();
 }
 
+it('limit-window usage counts only provider_called rows (same filter as provider-limit-alerts)', async () => {
+  const q = jest.fn().mockResolvedValue([row({})]);
+  (getPrisma as jest.Mock).mockReturnValue({ $queryRawUnsafe: q });
+  (ensureRedisConnected as jest.Mock).mockRejectedValue(new Error('no redis'));
+  await getDashboardData();
+  const sql = String(q.mock.calls[0][0]);
+  expect(sql).toMatch(/WHERE e2\.provider_called = true/);
+});
+
 describe('T-0586 limits are window-based', () => {
   it('unlimited: no used, no remaining, no colour, even with lifetime calls', async () => {
-    const d = await run([row({ provider: 'polymarket', calls_total: 987654n })]);
+    const d = await run([row({ provider: 'polymarket', win_total: 987654n })]);
     expect(d.providers[0].limits).toMatchObject({
       type: 'unlimited',
       used: null,
@@ -69,9 +81,9 @@ describe('T-0586 limits are window-based', () => {
     const d = await run([
       row({
         provider: 'openweathermap',
-        calls_this_month: 40n,
-        calls_today: 7n,
-        calls_total: 500000n,
+        win_month: 40n,
+        win_day: 7n,
+        win_total: 500000n,
       }),
     ]);
     expect(d.providers[0].limits).toMatchObject({ window: 'monthly', used: 40, status: 'green' });
@@ -81,18 +93,18 @@ describe('T-0586 limits are window-based', () => {
     const d = await run([
       row({
         provider: 'ticketmaster',
-        calls_today: 12n,
-        calls_this_month: 900n,
-        calls_total: 9000n,
+        win_day: 12n,
+        win_month: 900n,
+        win_total: 9000n,
       }),
-      row({ provider: 'aviasales', calls_last_hour: 30n, calls_today: 150n, calls_total: 9000n }),
+      row({ provider: 'aviasales', win_hour: 30n, win_day: 150n, win_total: 9000n }),
     ]);
     expect(d.providers[0].limits).toMatchObject({ window: 'daily', used: 12 });
     expect(d.providers[1].limits).toMatchObject({ window: 'hourly', used: 30, pct_remaining: 85 });
   });
 
   it('credits (never reset) use the lifetime window and say so', async () => {
-    const d = await run([row({ provider: 'whoisxml', calls_total: 100n })]);
+    const d = await run([row({ provider: 'whoisxml', win_total: 100n })]);
     expect(d.providers[0].limits).toMatchObject({
       window: 'lifetime',
       used: 100,
@@ -101,7 +113,7 @@ describe('T-0586 limits are window-based', () => {
   });
 
   it('red only when pct_remaining <= 10 inside the window', async () => {
-    const at = (used: bigint) => row({ provider: 'ticketmaster', calls_today: used });
+    const at = (used: bigint) => row({ provider: 'ticketmaster', win_day: used });
     const d = await run([at(4400n), at(4500n), at(4999n)]);
     expect(d.providers.map((p) => p.limits.pct_remaining)).toEqual([12, 10, 0]);
     expect(d.providers.map((p) => p.limits.status)).toEqual(['yellow', 'red', 'red']);
