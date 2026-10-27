@@ -658,6 +658,10 @@ ine-spain.operations	ine-spain	0.001
 ine-spain.series_data	ine-spain	0.002
 ine-spain.table_data	ine-spain	0.002
 ine-spain.tables	ine-spain	0.001
+ine.operations	ine	0.001
+ine.series_data	ine	0.001
+ine.series_metadata	ine	0.001
+ine.tables	ine	0.001
 insee.company_by_siren	insee	0.001
 insee.establishment_by_siret	insee	0.001
 insee.search_companies	insee	0.002
