@@ -642,8 +642,6 @@ inaturalist.observations_search	inaturalist	0.002
 inaturalist.places_search	inaturalist	0.001
 inaturalist.species_counts	inaturalist	0.002
 inaturalist.taxa_search	inaturalist	0.001
-indec-argentina.get_series	indec-argentina	0.001
-indec-argentina.search_series	indec-argentina	0.001
 indec-georef.departamentos	indec-georef	0.001
 indec-georef.geocode	indec-georef	0.001
 indec-georef.localidades	indec-georef	0.001
