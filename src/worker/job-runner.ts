@@ -18,8 +18,7 @@ export interface JobSpec {
   timeout_ms?: number;
 }
 
-const LEGACY_JOBS =
-  'heartbeat, reconciliation, provider-health, x402-health, partition-create, partition-cleanup';
+const LEGACY_JOBS = 'heartbeat';
 
 const names: string[] = [];
 let prisma: PrismaClient | null = null;
@@ -36,6 +35,14 @@ async function recordStart(job: string, expectEveryS: number): Promise<void> {
     INSERT INTO worker_job_runs (job, expect_every_s, last_started_at)
     VALUES (${job}, ${expectEveryS}, now())
     ON CONFLICT (job) DO UPDATE SET expect_every_s = EXCLUDED.expect_every_s, last_started_at = now()`;
+}
+
+// T-0586: a row exists from startup, all run columns NULL, so a monthly job is visible before its first run.
+async function recordRegistered(job: string, expectEveryS: number): Promise<void> {
+  await db().$executeRaw`
+    INSERT INTO worker_job_runs (job, expect_every_s)
+    VALUES (${job}, ${expectEveryS})
+    ON CONFLICT (job) DO UPDATE SET expect_every_s = EXCLUDED.expect_every_s`;
 }
 
 async function recordFinish(
@@ -64,6 +71,7 @@ async function safeRecord(job: string, write: () => Promise<void>): Promise<void
 export function registerJob(spec: JobSpec): ScheduledTask {
   const { name, expect_every_s } = spec;
   names.push(name);
+  void safeRecord(name, () => recordRegistered(name, expect_every_s));
   const timeoutMs = spec.timeout_ms ?? Math.max(expect_every_s * 2000, 300_000);
   let running = false;
 

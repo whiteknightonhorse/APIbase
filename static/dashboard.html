@@ -45,7 +45,7 @@
 .mono-wrap{font-family:var(--mono);font-size:12px;overflow-wrap:anywhere}
 .testnet-warn{display:inline-block;color:var(--bad);font-weight:700;border:1px solid var(--bad);border-radius:var(--r-chip);padding:0 var(--s2);font-size:13px;margin-bottom:var(--s2)}
 .status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;flex:none}
-.dot-g{background:var(--accent)}.dot-o{background:var(--warn)}.dot-y{background:#ffd166}.dot-r{background:var(--bad)}.dot-u{background:var(--unknown)}.dot-p{background:var(--info)}
+.dot-g{background:var(--accent)}.dot-o{background:var(--warn)}.dot-y{background:#ffd166}.dot-r{background:var(--bad)}.dot-u{background:var(--unknown)}.dot-p{background:var(--info)}.dot-s{background:transparent;box-shadow:inset 0 0 0 2px var(--warn)}.sys-inc{margin:16px 0}.sys-inc li{margin:4px 0}
 .incident-section{margin-bottom:var(--s5)}
 .incident-section h2{font-size:var(--fs-h3);margin:0 0 var(--s2);display:flex;align-items:center;gap:var(--s2)}
 .incident-section h2 svg{flex:none}
@@ -629,12 +629,13 @@
     if (bar) bar.style.width = Math.max(0, Math.min(100, Math.round((sec / 60) * 100))) + '%';
   }
 
-  var DOT_LABEL = { g: 'healthy', o: 'slow', y: 'warning', r: 'down', u: 'unknown', p: 'paid' };
+  var DOT_LABEL = { g: 'healthy', o: 'slow', y: 'warning', r: 'down', u: 'unknown', p: 'paid', s: 'stale' };
   function statusDot(status) {
     var cls = 'dot-u';
     if (status === 'green') cls = 'dot-g'; else if (status === 'orange') cls = 'dot-o';
     else if (status === 'yellow') cls = 'dot-y'; else if (status === 'red') cls = 'dot-r';
     else if (status === 'paid') cls = 'dot-p';
+    else if (status === 'stale') cls = 'dot-s';
     else if (status === 'n/a') cls = 'dot-u';
     return '<span class="status-dot ' + cls + '" role="img" aria-label="' + DOT_LABEL[cls.slice(4)] + '"></span>';
   }
@@ -905,6 +906,26 @@
     }
   }
 
+  // T-0586: green is never shown without its age; stale and never-probed rows say so, and a Redis/PG disagreement is visible.
+  function healthNote(p) {
+    var hl = p.health, n = '';
+    if (hl.measured === false) n = 'never probed';
+    else if (hl.status === 'stale') n = 'stale, probe ' + fmtProbeAge(p.probe_age_s) + ' old';
+    else n = 'probe ' + fmtProbeAge(p.probe_age_s) + ' ago';
+    if (hl.conflict) n += ' <span class="over" title="Redis latency check says ' + escAttr(String(hl.latency_status)) + ', Postgres state says otherwise">conflict</span>';
+    return ' <span class="unit">' + n + '</span>';
+  }
+
+  function systemIncidents(list) {
+    if (!list || !list.length) return '';
+    var h = '<div class="sys-inc"><div class="sf-h">System incidents (' + list.length + ')</div><ul>';
+    for (var i = 0; i < list.length; i++) {
+      var x = list[i];
+      h += '<li><a href="/autopilot/incident?id=' + encodeURIComponent(x.incident_id) + '">INC-' + escHtml(shortId(x.incident_id)) + '</a> ' + escHtml(x.severity) + ' ' + escHtml(x.kind) + ' on ' + escHtml(x.provider) + ' (' + escHtml(x.state) + ', ' + fmtAge(x.created_at) + ')</li>';
+    }
+    return h + '</ul></div>';
+  }
+
   function limitsCell(p) {
     var h = statusDot(p.limits.status === 'n/a' ? 'unknown' : p.limits.status);
     if (p.balance && p.balance.balance_usd !== null) {
@@ -915,7 +936,7 @@
     else if (p.limits.type === 'rate_limited' && p.limits.free_limit === 0) h += '<span class="muted">Rate Limited</span>';
     else if (p.limits.used > p.limits.free_limit && p.limits.free_limit > 0) h += '<span class="over">OVER ' + formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + '</span>';
     else {
-      h += formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + ' (' + p.limits.pct_remaining + '%) <span class="unit">/' + (p.limits.type === 'monthly' ? 'mo' : p.limits.type === 'daily' ? 'day' : p.limits.type === 'credits' ? 'cr' : '') + '</span>';
+      h += formatNum(p.limits.used) + '/' + formatNum(p.limits.free_limit) + ' (' + p.limits.pct_remaining + '%) <span class="unit">/' + (p.limits.window === 'monthly' ? 'mo' : p.limits.window === 'daily' ? 'day' : p.limits.window === 'hourly' ? 'h' : p.limits.window === 'lifetime' ? 'total' : '') + '</span>';
       if (p.limits.free_limit > 0) h += '<span class="lim-bar" aria-hidden="true"><span class="lim-fill lim-' + escAttr(p.limits.status) + '" style="width:' + Math.max(0, Math.min(100, Number(p.limits.pct_remaining) || 0)) + '%"></span></span>';
     }
     return h;
@@ -928,7 +949,7 @@
     h += dlRow('Last health check', fmtDate(p.health.last_check));
     h += dlRow('Avg latency', p.avg_latency_ms !== null && p.avg_latency_ms !== undefined ? p.avg_latency_ms + 'ms' : '--');
     h += dlRow('Calls today', formatNum(u.calls_today)) + dlRow('Calls this month', formatNum(u.calls_this_month)) + dlRow('Calls total', formatNum(u.calls_total));
-    h += dlRow('Limit type', escHtml(p.limits.type || '--')) + dlRow('Remaining', formatNum(p.limits.remaining));
+    h += dlRow('Limit type', escHtml(p.limits.type || '--')) + dlRow('Limit window', escHtml(p.limits.window || '--')) + dlRow('Remaining', formatNum(p.limits.remaining));
     h += dlRow('Open incidents', formatNum(p.open_incidents || 0));
     h += '</dl>';
     return h;
@@ -945,12 +966,13 @@
     renderCategoryFilter(data);
 
     // Health summary counts
-    var hGreen = 0, hOrange = 0, hRed = 0, hUnknown = 0;
+    var hGreen = 0, hOrange = 0, hRed = 0, hUnknown = 0, hStale = 0;
     for (var h = 0; h < data.providers.length; h++) {
       var hs = data.providers[h].health.status;
       if (hs === 'green') hGreen++;
       else if (hs === 'orange') hOrange++;
       else if (hs === 'red') hRed++;
+      else if (hs === 'stale') hStale++;
       else hUnknown++;
     }
 
@@ -960,10 +982,12 @@
     document.getElementById('t-unknown').textContent = hUnknown;
     if (hOrange > 0) html += '<span class="h-orange">WARN:' + hOrange + '</span>  ';
     if (hRed > 0) html += '<span class="h-red">CRIT:' + hRed + '</span>  ';
+    if (hStale > 0) html += '<span class="h-orange">STALE:' + hStale + '</span>  ';
+    html += '<span class="h-grey">UNMEASURED:' + (data.totals.providers_unmeasured || 0) + '</span>  ';
     html += '<span class="h-grey">TRACKED:' + data.totals.providers_tracked + '</span>';
     html += '</div>';
 
-    html += '<div class="latency-legend">STATUS: <span class="legend-item"><span class="status-dot dot-g"></span>healthy</span><span class="legend-item"><span class="status-dot dot-o"></span>slow</span><span class="legend-item"><span class="status-dot dot-r"></span>down</span><span class="legend-item"><span class="status-dot dot-u"></span>pending</span></div>';
+    html += '<div class="latency-legend">STATUS: <span class="legend-item"><span class="status-dot dot-g"></span>healthy</span><span class="legend-item"><span class="status-dot dot-o"></span>slow</span><span class="legend-item"><span class="status-dot dot-r"></span>down</span><span class="legend-item"><span class="status-dot dot-s"></span>stale (probe older than 2 h)</span><span class="legend-item"><span class="status-dot dot-u"></span>pending</span></div>';
 
     html += '<div class="table-wrap"><table class="d-table d-providers"><thead><tr>';
     html += '<th scope="col">Provider</th><th scope="col">Cat</th><th scope="col">Status</th><th scope="col">Limits</th><th scope="col">Calls 24h</th><th scope="col">Tools</th>';
@@ -992,7 +1016,7 @@
       body += '<tbody class="d-row"><tr class="' + borderCls + rowNoinfo + '">';
       body += '<td data-label="Provider" class="c-name">' + escHtml(p.display_name) + '</td>';
       body += '<td data-label="Cat" class="c-cat">' + escHtml(cat) + '</td>';
-      body += '<td data-label="Status">' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span class="muted">pending</span>' : 'OK')) + '</td>';
+      body += '<td data-label="Status">' + statusDot(p.health.status) + (p.health.latency_ms !== null ? p.health.latency_ms + 'ms' : (p.health.status === 'unknown' ? '<span class="muted">pending</span>' : 'OK')) + healthNote(p) + '</td>';
       body += '<td data-label="Limits" class="c-limits">' + limitsCell(p) + '</td>';
       body += '<td data-label="Calls 24h">' + formatNum(p.calls_24h);
       if (p.usage && p.usage.calls_total > 0) body += ' <span class="unit">/ ' + formatNum(p.usage.calls_total) + ' total</span>';
@@ -1018,6 +1042,7 @@
     }
 
     html += body + '</table></div>';
+    html += systemIncidents(data.system_incidents);
     content.innerHTML = html;
 
     var btns = content.querySelectorAll('.d-expand');

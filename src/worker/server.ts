@@ -1,5 +1,4 @@
 import Redis from 'ioredis';
-import cron from 'node-cron';
 import {
   registerJob as registerJobTracked,
   workerStartedMessage,
@@ -89,41 +88,6 @@ async function sendHeartbeat(): Promise<void> {
 // Cron jobs (§12.244)
 // ---------------------------------------------------------------------------
 
-let reconciliationRunning = false;
-let providerHealthRunning = false;
-
-async function runReconciliationSafe(): Promise<void> {
-  if (reconciliationRunning) {
-    return;
-  }
-  reconciliationRunning = true;
-  try {
-    await runReconciliation();
-  } catch (err) {
-    logger.error({ err }, 'Reconciliation job failed');
-  } finally {
-    reconciliationRunning = false;
-  }
-}
-
-async function runProviderHealthSafe(): Promise<void> {
-  if (providerHealthRunning) {
-    return;
-  }
-  providerHealthRunning = true;
-  try {
-    const r = getRedis();
-    if (r.status === 'wait') {
-      await r.connect();
-    }
-    await runProviderHealth(r);
-  } catch (err) {
-    logger.error({ err }, 'Provider health job failed');
-  } finally {
-    providerHealthRunning = false;
-  }
-}
-
 let toolQualityRunning = false;
 
 async function runToolQualitySafe(): Promise<void> {
@@ -176,24 +140,44 @@ heartbeatTimer = setInterval(() => {
 }, HEARTBEAT_INTERVAL_MS);
 sendHeartbeat().catch(() => {});
 
-// Schedule reconciliation every 60s (§12.244 job #3)
-const reconciliationTask = cron.schedule('* * * * *', () => {
-  runReconciliationSafe().catch(() => {});
+// T-0586: every cron job goes through registerJob, so each has a worker_job_runs row from startup.
+// Reconciliation every 60s (§12.244 job #3).
+registerJob({
+  name: 'reconciliation',
+  cron: '* * * * *',
+  expect_every_s: 60,
+  run: () => runReconciliation(),
 });
-
-// Schedule provider health checks every 2 min (round-robin, 1 provider per run)
-const providerHealthTask = cron.schedule('*/2 * * * *', () => {
-  runProviderHealthSafe().catch(() => {});
+// Provider health checks every 2 min (round-robin, 1 provider per run).
+registerJob({
+  name: 'provider-health',
+  cron: '*/2 * * * *',
+  expect_every_s: 120,
+  run: async () => {
+    const r = getRedis();
+    if (r.status === 'wait') {
+      await r.connect();
+    }
+    return runProviderHealth(r);
+  },
 });
-
-// Schedule x402 facilitator health check every hour (§12.244)
-const x402HealthTask = cron.schedule('0 * * * *', () => {
-  runX402HealthSafe().catch(() => {});
+// x402 facilitator health check every hour (§12.244).
+registerJob({
+  name: 'x402-health',
+  cron: '0 * * * *',
+  expect_every_s: 3600,
+  run: async () => {
+    await runX402HealthSafe();
+  },
 });
-
-// Schedule tool quality index every 10 min (F5)
-const toolQualityTask = cron.schedule('*/10 * * * *', () => {
-  runToolQualitySafe().catch(() => {});
+// Tool quality index every 10 min (F5).
+registerJob({
+  name: 'tool-quality',
+  cron: '*/10 * * * *',
+  expect_every_s: 600,
+  run: async () => {
+    await runToolQualitySafe();
+  },
 });
 
 // Run tool quality once at startup after 15s delay
@@ -206,38 +190,23 @@ setTimeout(() => {
   runX402HealthSafe().catch(() => {});
 }, 10_000);
 
-// Schedule partition creation daily at 23:00 UTC (§12.244 job #1)
-async function runPartitionCreateSafe(): Promise<void> {
-  try {
-    await runPartitionCreate();
-  } catch (err) {
-    logger.error({ err, job: 'partition-create' }, 'Partition creation failed');
-  }
-}
-const partitionCreateTask = cron.schedule('0 23 * * *', () => {
-  runPartitionCreateSafe().catch(() => {});
+// Partition creation daily at 23:00 UTC (§12.244 job #1).
+registerJob({
+  name: 'partition-create',
+  cron: '0 23 * * *',
+  expect_every_s: 86400,
+  run: () => runPartitionCreate(),
 });
 
-// Schedule partition cleanup daily at 04:00 UTC (§12.244 job #2, per its own docstring).
+// Partition cleanup daily at 04:00 UTC (§12.244 job #2, per its own docstring).
 // F1: this job existed with a green test but was never wired into any server.ts --
 // moderation content ("deleted automatically" per /policy/moderation) never actually expired,
 // outbox/execution_ledger/request_metrics partitions were created daily and never dropped.
-let partitionCleanupRunning = false;
-async function runPartitionCleanupSafe(): Promise<void> {
-  if (partitionCleanupRunning) {
-    return;
-  }
-  partitionCleanupRunning = true;
-  try {
-    await runPartitionCleanup();
-  } catch (err) {
-    logger.error({ err, job: 'partition-cleanup' }, 'Partition cleanup job failed');
-  } finally {
-    partitionCleanupRunning = false;
-  }
-}
-const partitionCleanupTask = cron.schedule('0 4 * * *', () => {
-  runPartitionCleanupSafe().catch(() => {});
+registerJob({
+  name: 'partition-cleanup',
+  cron: '0 4 * * *',
+  expect_every_s: 86400,
+  run: () => runPartitionCleanup(),
 });
 
 // OFAC SDN -> shop_sanctioned_addresses daily at 05:30 UTC (F-13). Startup run (skipIfFresh)
@@ -323,20 +292,14 @@ registerJob({
   run: async () => ({ count: await runShopCatalogImportJob() }),
 });
 // Layer-1 re-moderation when the rule files change (T-0315): hourly, no-op unless the rules hash differs.
-let catalogRemoderateRunning = false;
-const catalogRemoderateTask = cron.schedule('17 * * * *', () => {
-  if (catalogRemoderateRunning) {
-    return;
-  }
-  catalogRemoderateRunning = true;
-  backfillContentHashes()
-    .then(() => runCatalogRemoderate())
-    .catch((err) =>
-      logger.error({ err, job: 'catalog-remoderate' }, 'catalog remoderate job failed'),
-    )
-    .finally(() => {
-      catalogRemoderateRunning = false;
-    });
+registerJob({
+  name: 'catalog-remoderate',
+  cron: '17 * * * *',
+  expect_every_s: 3600,
+  run: async () => {
+    await backfillContentHashes();
+    return runCatalogRemoderate();
+  },
 });
 // T-0568: backfill content hashes once at start so reject memory is live right after deploy, not an hour later.
 backfillContentHashes().catch((err) =>
@@ -412,13 +375,6 @@ logger.info(workerStartedMessage());
 function shutdown(signal: string): void {
   logger.info({ signal }, 'Worker shutdown signal received');
 
-  reconciliationTask.stop();
-  providerHealthTask.stop();
-  x402HealthTask.stop();
-  partitionCreateTask.stop();
-  toolQualityTask.stop();
-  partitionCleanupTask.stop();
-  catalogRemoderateTask.stop();
   for (const task of registeredTasks) {
     task.stop();
   }

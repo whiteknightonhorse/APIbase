@@ -175,8 +175,8 @@ describe('getDashboardData — AP-9 provider_status/incidents JOIN', () => {
       provider: 'apdown',
       state: 'DOWN',
       risk: 'ATTENTION',
-      // T-0360: Redis is unavailable here, so health is unknown and the score is null.
-      reliability_score: null,
+      // T-0586: health comes from PG state (DOWN, fresh probe) not Redis, so the score is kept.
+      reliability_score: 40,
       open_incidents: 1,
     });
   });

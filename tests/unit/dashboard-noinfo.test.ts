@@ -252,8 +252,7 @@ describe('T-0330: unmeasured is not healthy', () => {
   });
 
   it('score is kept only with calc + fresh probe (<= 2x interval); stale probe -> null', async () => {
-    // T-0360: with Redis unavailable health is unknown, so even a fresh probe yields null.
-    // The kept branch (health known) is covered in the T-0360 describe below.
+    // T-0586: health is the PG state, so a fresh probe keeps the score even with Redis down.
     const fresh = await run([
       {
         ...baseRow,
@@ -264,7 +263,7 @@ describe('T-0330: unmeasured is not healthy', () => {
         last_probe_at: new Date(NOW - 7000_000),
       },
     ]);
-    expect(fresh.providers[0].reliability_score).toBeNull();
+    expect(fresh.providers[0].reliability_score).toBe(90);
     const stale = await run([
       {
         ...baseRow,
@@ -350,16 +349,16 @@ describe('T-0360', () => {
     expect(n).toBe(225);
   });
 
-  it('abr row that passed the old gate: health unknown (Redis unavailable) -> reliability_score null', async () => {
+  it('abr row that passed the old gate: probe 6 h old -> health stale (T-0586), reliability_score null', async () => {
     const d = await run([abrRow()]);
     const p = d.providers[0];
-    expect(p.health.status).toBe('unknown');
+    expect(p.health.status).toBe('stale');
     expect(p.probe_age_s).toBeGreaterThanOrEqual(21526);
     expect(p.probe_age_s).toBeLessThanOrEqual(21530);
     expect(p.reliability_score).toBeNull();
   });
 
-  it('same row with a live Redis health hash -> health green, score kept', async () => {
+  it('same row with a fresh probe and a live Redis health hash -> health green, score kept, no conflict', async () => {
     // getDashboardData calls ensureRedisConnected twice (cache read, then health read),
     // so the same client is served for both; get() -> null keeps the cache cold.
     const client = {
@@ -373,9 +372,10 @@ describe('T-0360', () => {
       ),
     };
     (ensureRedisConnected as jest.Mock).mockResolvedValueOnce(client).mockResolvedValueOnce(client);
-    const d = await run([abrRow()]);
+    const d = await run([{ ...abrRow(), last_probe_at: new Date(NOW - 100_000) }]);
     const p = d.providers[0];
     expect(p.health.status).toBe('green');
+    expect(p.health.conflict).toBe(false);
     expect(p.reliability_score).toBe(100);
   });
 });

@@ -19,18 +19,35 @@ import providerLimitsConfig from '../config/provider-limits.json';
 const DASHBOARD_CACHE_KEY = 'dashboard:data';
 const DASHBOARD_CACHE_TTL = 60;
 
+// T-0586: green is a claim about NOW — a HEALTHY probe older than this expires into 'stale'.
+const HEALTH_STALE_AFTER_S = 7200;
+// T-0586: red only when this little of the window's free allowance is left.
+const LIMIT_RED_PCT = 10;
+
 interface ProviderHealth {
-  status: 'green' | 'orange' | 'red' | 'unknown';
+  // 'stale' = PG state says healthy but the last probe is older than HEALTH_STALE_AFTER_S.
+  status: 'green' | 'orange' | 'red' | 'unknown' | 'stale';
   latency_ms: number | null;
   last_check: string | null;
+  // T-0586: false = provider_status has never recorded a probe (amadeus, jikan, sslchecker...).
+  measured: boolean;
+  // Redis provider:health status — only colours the latency, never the health.
+  latency_status: 'green' | 'orange' | 'red' | null;
+  // True when the Redis colour disagrees with the PG-derived one (shown, not hidden).
+  conflict: boolean;
 }
+
+type LimitWindow = 'hourly' | 'daily' | 'monthly' | 'lifetime';
 
 interface ProviderLimits {
   type: string;
   free_limit: number;
-  used: number;
-  remaining: number;
-  pct_remaining: number;
+  // T-0586: calls inside `window` (never lifetime calls_total unless window is 'lifetime').
+  // null for unlimited: there is nothing to count against.
+  used: number | null;
+  remaining: number | null;
+  pct_remaining: number | null;
+  window: LimitWindow | null;
   status: 'green' | 'orange' | 'yellow' | 'red' | 'paid' | 'n/a'; // 'n/a' = unlimited, nothing to measure
 }
 
@@ -135,14 +152,28 @@ interface DashboardResponse {
     // including autopilot-demoted DOWN providers kept visible on purpose
     // (818-autopilot-score-dashboard-api.ruling-3). Was the old `providers`.
     providers_tracked: number;
-    // providers_tracked - providers: tracked rows with zero catalog tools.
+    // Tracked rows with zero catalog tools that have been probed at least once
+    // (T-0586: never-probed rows are counted in providers_unmeasured instead).
     providers_down: number;
+    // T-0586: rows with no recorded probe at all — unknown, not down.
+    providers_unmeasured: number;
     tools: number;
     calls_24h: number;
   };
   payment_system: PaymentSystemStatus;
   // T-0569: layer-3 (model) catalog review. null = no review recorded yet (never fabricated).
   moderation: { last_llm_review_at: string | null };
+  // T-0586: open incidents whose provider has no provider_status row (night-orchestra, email-intake, merchant:*).
+  system_incidents: SystemIncident[];
+}
+
+interface SystemIncident {
+  incident_id: string;
+  provider: string;
+  kind: string;
+  severity: string;
+  state: string;
+  created_at: string;
 }
 
 const limitsConfig = providerLimitsConfig as Record<
@@ -181,6 +212,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     calls_24h: bigint;
     calls_today: bigint;
     calls_this_month: bigint;
+    calls_last_hour: bigint;
     calls_total: bigint;
     paid_calls_24h: bigint;
     revenue_24h: number | null;
@@ -193,6 +225,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     last_probe_at: Date | null;
     open_incidents: bigint;
     last_llm_review_at: Date | null;
+    system_incidents: SystemIncident[] | string | null;
   }> = await prisma.$queryRawUnsafe(`
     SELECT
       t.provider,
@@ -208,6 +241,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours') AS calls_24h,
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('day', NOW())) AS calls_today,
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('month', NOW())) AS calls_this_month,
+      COUNT(el.execution_id) FILTER (WHERE el.created_at >= NOW() - INTERVAL '1 hour') AS calls_last_hour,
       COUNT(el.execution_id) AS calls_total,
       COUNT(el.execution_id) FILTER (WHERE el.billing_status = 'PAID' AND el.created_at >= NOW() - INTERVAL '24 hours') AS paid_calls_24h,
       SUM(el.cost_usd) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours')::numeric AS revenue_24h,
@@ -220,7 +254,15 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       ps.last_probe_at AS last_probe_at,
       COALESCE(inc.open_incidents, 0) AS open_incidents,
       -- T-0569: same value on every row (uncorrelated), read from the first; keeps this one round trip.
-      (SELECT max(r.at) FROM shop_moderation_reviews r WHERE r.layer = 'llm') AS last_llm_review_at
+      (SELECT max(r.at) FROM shop_moderation_reviews r WHERE r.layer = 'llm') AS last_llm_review_at,
+      -- T-0586: same trick — one uncorrelated scalar on every row, no second round trip.
+      (SELECT COALESCE(json_agg(json_build_object(
+          'incident_id', i.incident_id, 'provider', i.provider, 'kind', i.kind,
+          'severity', i.severity, 'state', i.state, 'created_at', i.created_at
+        ) ORDER BY i.severity, i.created_at), '[]'::json)
+        FROM incidents i
+        WHERE i.state <> 'RESOLVED'
+          AND NOT EXISTS (SELECT 1 FROM provider_status sp WHERE sp.provider = i.provider)) AS system_incidents
     FROM tools t
     LEFT JOIN execution_ledger el
       ON el.tool_id = t.tool_id
@@ -271,73 +313,60 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     totalTools += toolCount;
     totalCalls += calls24h;
 
-    // Read health from Redis
-    let health: ProviderHealth = { status: 'unknown', latency_ms: null, last_check: null };
+    // AP-9 (L1): probe_age_s derived from last_probe_at — null (never
+    // probed) stays null, never coerced to Infinity/0.
+    const probeAgeS = row.last_probe_at
+      ? Math.max(0, Math.floor((Date.now() - row.last_probe_at.getTime()) / 1000))
+      : null;
+
+    // T-0586: PG provider_status.state is the health; Redis only colours latency.
+    let redisHealth: { status?: string; latency_ms?: string; last_check?: string } | null = null;
     if (redis) {
       try {
         const healthData = await redis.hgetall(`provider:health:${providerName}`);
-        if (healthData && healthData.status) {
-          health = {
-            status: healthData.status as ProviderHealth['status'],
-            latency_ms: healthData.latency_ms ? parseInt(healthData.latency_ms, 10) : null,
-            last_check: healthData.last_check || null,
-          };
-        }
+        if (healthData && healthData.status) redisHealth = healthData;
       } catch {
         // skip
       }
     }
+    const health = deriveHealth(row.provider_state, probeAgeS, redisHealth);
 
-    // Read limits from Redis or compute from config
-    let limits: ProviderLimits;
-    if (redis) {
+    // Limits: the window count comes from the ledger (the same window provider-limit-alerts
+    // uses); Redis is read only for providers whose balance API reports the real remainder.
+    const windowUsed = {
+      hourly: Number(row.calls_last_hour),
+      daily: callsToday,
+      monthly: callsThisMonth,
+      lifetime: callsTotal,
+    };
+    let limits: ProviderLimits | null = null;
+    if (redis && cfg?.balance_api) {
       try {
         const limitsData = await redis.hgetall(`provider:limits:${providerName}`);
         if (limitsData && limitsData.type) {
+          const freeLimit = parseInt(limitsData.free_limit || '0', 10);
+          const pct = parseInt(limitsData.pct_remaining || '100', 10);
           limits = {
             type: limitsData.type,
-            free_limit: parseInt(limitsData.free_limit || '0', 10),
+            free_limit: freeLimit,
             used: parseInt(limitsData.used || '0', 10),
             remaining: parseInt(limitsData.remaining || '0', 10),
-            pct_remaining: parseInt(limitsData.pct_remaining || '100', 10),
-            status: (limitsData.limit_status as ProviderLimits['status']) || 'green',
+            pct_remaining: pct,
+            window: limitWindow(cfg),
+            status: freeLimit > 0 ? computeLimitStatus(pct) : 'paid',
           };
-        } else {
-          limits = buildDefaultLimits(providerName, {
-            today: callsToday,
-            month: callsThisMonth,
-            total: callsTotal,
-          });
         }
       } catch {
-        limits = buildDefaultLimits(providerName, {
-          today: callsToday,
-          month: callsThisMonth,
-          total: callsTotal,
-        });
+        // fall through to the ledger
       }
-    } else {
-      limits = buildDefaultLimits(providerName, {
-        today: callsToday,
-        month: callsThisMonth,
-        total: callsTotal,
-      });
     }
-
-    // T-0330: unlimited providers have nothing to measure — never green.
-    if (limits.type === 'unlimited') limits = { ...limits, status: 'n/a' };
+    if (!limits) limits = buildDefaultLimits(providerName, windowUsed);
 
     // Fetch real balance for paid providers (cached in Redis 5min)
     let balance: ProviderBalance | null = null;
     if (cfg?.paid_balance) {
       balance = await fetchProviderBalance(providerName, redis);
     }
-
-    // AP-9 (L1): probe_age_s derived from last_probe_at — null (never
-    // probed) stays null, never coerced to Infinity/0.
-    const probeAgeS = row.last_probe_at
-      ? Math.max(0, Math.floor((Date.now() - row.last_probe_at.getTime()) / 1000))
-      : null;
 
     providers.push({
       provider: providerName,
@@ -487,15 +516,18 @@ export async function getDashboardData(): Promise<DashboardResponse> {
   }
 
   const providersTracked = providers.length;
-  const providersDown = providers.filter((p) => p.tool_count === 0).length;
+  const zeroToolRows = providers.filter((p) => p.tool_count === 0);
+  const providersDown = zeroToolRows.filter((p) => p.health.measured).length;
+  const providersUnmeasured = providers.filter((p) => !p.health.measured).length;
 
   const response: DashboardResponse = {
     generated_at: new Date().toISOString(),
     providers,
     totals: {
-      providers: providersTracked - providersDown,
+      providers: providersTracked - zeroToolRows.length,
       providers_tracked: providersTracked,
       providers_down: providersDown,
+      providers_unmeasured: providersUnmeasured,
       tools: totalTools,
       calls_24h: totalCalls,
     },
@@ -505,6 +537,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
         ? new Date(providerStats[0].last_llm_review_at).toISOString()
         : null,
     },
+    system_incidents: parseSystemIncidents(providerStats[0]?.system_incidents),
   };
 
   // Cache in Redis
@@ -519,7 +552,7 @@ export async function getDashboardData(): Promise<DashboardResponse> {
   return response;
 }
 
-// T-0330/T-0360: a stored reliability_score is reported only when health is known and both the daily calc and
+// T-0330/T-0360/T-0586: a stored reliability_score is reported only when health is known and not stale, and both the daily calc and
 // a probe exist and the probe is fresh (<= 2x probe_interval_s). Otherwise null.
 function effectiveReliability(
   row: {
@@ -530,74 +563,115 @@ function effectiveReliability(
   probeAgeS: number | null,
   health: { status: string },
 ): number | null {
-  if (health.status === 'unknown') return null;
+  if (health.status === 'unknown' || health.status === 'stale') return null;
   if (row.reliability_score === null || row.reliability_score === undefined) return null;
   if (!row.reliability_calculated_at || probeAgeS === null) return null;
   if (!row.probe_interval_s || probeAgeS > 2 * row.probe_interval_s) return null;
   return row.reliability_score;
 }
 
+function parseSystemIncidents(raw: unknown): SystemIncident[] {
+  let v = raw;
+  if (typeof v === 'string') {
+    try {
+      v = JSON.parse(v);
+    } catch {
+      return [];
+    }
+  }
+  return Array.isArray(v) ? (v as SystemIncident[]) : [];
+}
+
+const STATE_COLOUR: Record<string, 'green' | 'orange' | 'red'> = {
+  HEALTHY: 'green',
+  DEGRADED: 'orange',
+  DOWN: 'red',
+};
+
+// T-0586: one health source. The PG state decides; a green older than HEALTH_STALE_AFTER_S is
+// 'stale'; a provider with no probe is unmeasured (status unknown). Redis disagreement is flagged.
+function deriveHealth(
+  state: string | null,
+  probeAgeS: number | null,
+  redisHealth: { status?: string; latency_ms?: string; last_check?: string } | null,
+): ProviderHealth {
+  const measured = probeAgeS !== null;
+  const pgColour = state ? (STATE_COLOUR[state] ?? null) : null;
+  const rs = redisHealth?.status;
+  const latencyStatus = rs === 'green' || rs === 'orange' || rs === 'red' ? rs : null;
+  let status: ProviderHealth['status'] = 'unknown';
+  if (measured && pgColour) {
+    status =
+      pgColour === 'green' && (probeAgeS as number) > HEALTH_STALE_AFTER_S ? 'stale' : pgColour;
+  }
+  return {
+    status,
+    latency_ms: redisHealth?.latency_ms ? parseInt(redisHealth.latency_ms, 10) : null,
+    last_check: redisHealth?.last_check || null,
+    measured,
+    latency_status: latencyStatus,
+    conflict: measured && pgColour !== null && latencyStatus !== null && latencyStatus !== pgColour,
+  };
+}
+
+function limitWindow(cfg: { limit_type: string; reset_period: string }): LimitWindow {
+  const t =
+    cfg.limit_type === 'credits' || cfg.limit_type === 'trial' ? cfg.reset_period : cfg.limit_type;
+  if (t === 'hourly' || t === 'daily' || t === 'monthly') return t;
+  return 'lifetime';
+}
+
 function buildDefaultLimits(
   providerName: string,
-  counts: { today: number; month: number; total: number },
+  used: Record<LimitWindow, number>,
 ): ProviderLimits {
   const cfg = limitsConfig[providerName];
+  // T-0330/T-0586: unlimited has nothing to measure — no used, no remaining, never a colour.
   if (!cfg || cfg.limit_type === 'unlimited') {
     return {
       type: 'unlimited',
       free_limit: 0,
-      used: counts.total,
-      remaining: 0,
-      pct_remaining: 100,
+      used: null,
+      remaining: null,
+      pct_remaining: null,
+      window: null,
       status: 'n/a',
     };
   }
+
+  const window = limitWindow(cfg);
 
   // Paid providers with no free tier
   if (cfg.paid_balance && cfg.free_limit === 0) {
     return {
       type: cfg.limit_type,
       free_limit: 0,
-      used: counts.total,
+      used: used[window],
       remaining: 0,
       pct_remaining: 0,
+      window,
       status: 'paid',
     };
   }
 
-  // Pick the right counter based on reset period
   const freeLimit = cfg.free_limit;
-  let used: number;
-  switch (cfg.reset_period) {
-    case 'daily':
-      used = counts.today;
-      break;
-    case 'monthly':
-      used = counts.month;
-      break;
-    case 'hourly':
-      used = counts.today; // approximate — hourly is too granular for dashboard
-      break;
-    default:
-      // 'none' (credits) or unknown — use total
-      used = counts.total;
-  }
-
-  const remaining = Math.max(0, freeLimit - used);
+  const inWindow = used[window];
+  const remaining = Math.max(0, freeLimit - inWindow);
   const pctRemaining = freeLimit > 0 ? Math.round((remaining / freeLimit) * 100) : 100;
 
   return {
     type: cfg.limit_type,
     free_limit: freeLimit,
-    used,
+    used: inWindow,
     remaining,
     pct_remaining: pctRemaining,
+    window,
     status: computeLimitStatus(pctRemaining),
   };
 }
 
 function computeLimitStatus(pctRemaining: number): ProviderLimits['status'] {
-  if (pctRemaining <= 0) return 'red';
+  if (pctRemaining <= LIMIT_RED_PCT) return 'red';
   if (pctRemaining < 25) return 'yellow';
   if (pctRemaining < 50) return 'orange';
   return 'green';

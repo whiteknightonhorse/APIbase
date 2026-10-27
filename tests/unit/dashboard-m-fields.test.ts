@@ -27,6 +27,7 @@ const RICH = {
     used: 120,
     remaining: 380,
     pct_remaining: 76,
+    window: 'monthly',
     status: 'yellow',
   },
   balance: null,
