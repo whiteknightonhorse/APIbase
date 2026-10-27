@@ -354,10 +354,6 @@
     "epa.water_systems": "healthy",
     "europeana.record": "healthy",
     "europeana.search": "healthy",
-    "europepmc.article": "healthy",
-    "europepmc.citations": "healthy",
-    "europepmc.references": "healthy",
-    "europepmc.search": "healthy",
     "eurostat.gdp_growth": "healthy",
     "eurostat.inflation": "healthy",
     "eurostat.population": "healthy",
@@ -529,10 +525,6 @@
     "inaturalist.places_search": "healthy",
     "inaturalist.species_counts": "healthy",
     "inaturalist.taxa_search": "healthy",
-    "ine.operations": "healthy",
-    "ine.series_data": "healthy",
-    "ine.series_metadata": "healthy",
-    "ine.tables": "healthy",
     "insee.company_by_siren": "healthy",
     "insee.establishment_by_siret": "healthy",
     "insee.search_companies": "healthy",
@@ -1207,7 +1199,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 401,
+  "providers_count": 399,
   "rails": [
     "x402",
     "mpp",
@@ -1241,7 +1233,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1360,
+      "count": 1352,
       "max_usd": 0.008
     },
     "premium": {
@@ -1255,6 +1247,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1387,
+  "tools_count": 1379,
   "version": "2.2.0"
 }
