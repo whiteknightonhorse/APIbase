@@ -212,8 +212,11 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     calls_24h: bigint;
     calls_today: bigint;
     calls_this_month: bigint;
-    calls_last_hour: bigint;
     calls_total: bigint;
+    win_hour: bigint | null;
+    win_day: bigint | null;
+    win_month: bigint | null;
+    win_total: bigint | null;
     paid_calls_24h: bigint;
     revenue_24h: number | null;
     avg_latency_ms: number | null;
@@ -241,8 +244,10 @@ export async function getDashboardData(): Promise<DashboardResponse> {
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours') AS calls_24h,
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('day', NOW())) AS calls_today,
       COUNT(el.execution_id) FILTER (WHERE el.created_at >= date_trunc('month', NOW())) AS calls_this_month,
-      COUNT(el.execution_id) FILTER (WHERE el.created_at >= NOW() - INTERVAL '1 hour') AS calls_last_hour,
       COUNT(el.execution_id) AS calls_total,
+      -- T-0586: limit-window usage uses provider-limit-alerts' row filter (provider_called = true,
+      -- no status filter), so cache hits never inflate limits.used.
+      MAX(wu.h) AS win_hour, MAX(wu.d) AS win_day, MAX(wu.m) AS win_month, MAX(wu.total) AS win_total,
       COUNT(el.execution_id) FILTER (WHERE el.billing_status = 'PAID' AND el.created_at >= NOW() - INTERVAL '24 hours') AS paid_calls_24h,
       SUM(el.cost_usd) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours')::numeric AS revenue_24h,
       ROUND(AVG(el.provider_latency_ms) FILTER (WHERE el.created_at >= NOW() - INTERVAL '24 hours'))::integer AS avg_latency_ms,
@@ -267,6 +272,16 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     LEFT JOIN execution_ledger el
       ON el.tool_id = t.tool_id
       AND el.status IN ('success', 'shared_success', 'provider_success')
+    LEFT JOIN (
+      SELECT t2.provider,
+        COUNT(*) FILTER (WHERE e2.created_at >= NOW() - INTERVAL '1 hour') AS h,
+        COUNT(*) FILTER (WHERE e2.created_at >= date_trunc('day', NOW() AT TIME ZONE 'UTC')) AS d,
+        COUNT(*) FILTER (WHERE e2.created_at >= date_trunc('month', NOW() AT TIME ZONE 'UTC')) AS m,
+        COUNT(*) AS total
+      FROM execution_ledger e2 JOIN tools t2 ON t2.tool_id = e2.tool_id
+      WHERE e2.provider_called = true
+      GROUP BY t2.provider
+    ) wu ON wu.provider = t.provider
     LEFT JOIN provider_status ps ON ps.provider = t.provider
     LEFT JOIN (
       SELECT provider, COUNT(*) AS open_incidents FROM incidents WHERE state <> 'RESOLVED' GROUP BY provider
@@ -334,10 +349,10 @@ export async function getDashboardData(): Promise<DashboardResponse> {
     // Limits: the window count comes from the ledger (the same window provider-limit-alerts
     // uses); Redis is read only for providers whose balance API reports the real remainder.
     const windowUsed = {
-      hourly: Number(row.calls_last_hour),
-      daily: callsToday,
-      monthly: callsThisMonth,
-      lifetime: callsTotal,
+      hourly: Number(row.win_hour ?? 0),
+      daily: Number(row.win_day ?? 0),
+      monthly: Number(row.win_month ?? 0),
+      lifetime: Number(row.win_total ?? 0),
     };
     let limits: ProviderLimits | null = null;
     if (redis && cfg?.balance_api) {
