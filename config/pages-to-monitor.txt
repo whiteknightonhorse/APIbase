@@ -1,6 +1,6 @@
 # T-0542: pages crawled by scripts/site-facts.py check-live (copied from site-audit-1024/pages-to-monitor.md).
 # Line shapes: `<url> [expect_status]` or `family <pattern> <count> <sample-url>...`. Default expected status is 200.
-# /autopilot/incident is not monitored: it is a per-incident JavaScript view (no static h1, needs ?id=), not in sitemap.xml; the old /autopilot-incident path was never routed (T-0217 fde0e1e2).
+# /autopilot/incident is not monitored: it is a per-incident JavaScript view (no static h1, needs ?id=), not in sitemap.xml; the old /autopilot-incident path was replaced by /autopilot/incident (nginx location from 7db8bf77, T-819; sitemap entry swapped in fde0e1e2, T-0217).
 # family /m/<shop-slug> counts verified shops only (GET /api/v1/shop/shops), so the listed count follows that API; T-0536.
 # Machine endpoints are fetched for status and response time only; title/description/canonical/og/h1 apply to HTML pages.
 https://apibase.pro/
