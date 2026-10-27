@@ -117216,6 +117216,238 @@
         ]
       }
     },
+    "/api/v1/tools/indec-argentina.search_series/call": {
+      "post": {
+        "operationId": "indec-argentina_search_series",
+        "summary": "Search Argentina Statistics Series",
+        "description": "Search the Argentine government catalog of economic and social statistics time series by keyword (e.g. \"desempleo\", \"inflacion\", \"tipo de cambio\"). Returns matching series IDs, titles, units, frequency, and date coverage. Data: apis.datos.gob.ar/series (Subsecretaría de Programación Macroeconómica / INDEC), no auth required.",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "indec-argentina.search_series"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Keyword to search the time series catalog (e.g. \"desempleo\", \"inflacion\", \"tipo de cambio\"). Spanish terms work best — this is an Argentine government dataset.",
+                    "minLength": 1
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Maximum number of matching series to return (1-50, default 10)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/indec-argentina.get_series/call": {
+      "post": {
+        "operationId": "indec-argentina_get_series",
+        "summary": "Get Argentina Statistics Series Data",
+        "description": "Fetch data points for one or more Argentine government statistics time series by ID (up to 5 at once), with optional date range and frequency resampling (day/month/quarter/semester/year with avg/sum/end_of_period/min/max aggregation). Covers exchange rates, inflation, employment, and national accounts. Data: apis.datos.gob.ar/series (INDEC), no auth required.",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "indec-argentina.get_series"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "series_id": {
+                    "type": "string",
+                    "description": "Series ID(s) to fetch, comma-separated for up to 5 series (e.g. \"168.1_T_CAMBIOR_D_0_0_26\"). Find IDs via search_series.",
+                    "minLength": 1
+                  },
+                  "start_date": {
+                    "type": "string",
+                    "description": "Restrict results to dates on/after this ISO date (YYYY-MM-DD)."
+                  },
+                  "end_date": {
+                    "type": "string",
+                    "description": "Restrict results to dates on/before this ISO date (YYYY-MM-DD)."
+                  },
+                  "collapse": {
+                    "type": "string",
+                    "enum": [
+                      "day",
+                      "month",
+                      "quarter",
+                      "semester",
+                      "year"
+                    ],
+                    "description": "Resample the series to this frequency (default: series native frequency)."
+                  },
+                  "collapse_aggregation": {
+                    "type": "string",
+                    "enum": [
+                      "avg",
+                      "sum",
+                      "end_of_period",
+                      "min",
+                      "max"
+                    ],
+                    "description": "Aggregation method used when \"collapse\" resamples to a lower frequency (default: avg)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 1000,
+                    "description": "Maximum number of data points to return (1-1000, default 100)."
+                  }
+                },
+                "required": [
+                  "series_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/noaa-fisheries-stats.landings/call": {
       "post": {
         "operationId": "noaa-fisheries-stats_landings",
