@@ -1203,7 +1203,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 400,
+  "providers_count": 399,
   "rails": [
     "x402",
     "mpp",
@@ -1237,7 +1237,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1356,
+      "count": 1352,
       "max_usd": 0.008
     },
     "premium": {
@@ -1251,6 +1251,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1383,
+  "tools_count": 1379,
   "version": "2.2.0"
 }
