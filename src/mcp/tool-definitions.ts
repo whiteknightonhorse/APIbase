@@ -3450,7 +3450,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     mcpName: 'domain.namesilo.register',
     title: 'Register Domain Name',
     description:
-      '⚡ ACTION: Purchase and register a domain name (1-10 years). Includes free WHOIS privacy protection. Domain is registered instantly. Prices: .com ~$21, .org ~$12, .dev ~$18, .io ~$42 (NameSilo)',
+      '⚡ ACTION: Purchase and register a domain name. 1-year registration, TLDs: .com .net .org .dev .app .xyz, premium domains refused. Includes free WHOIS privacy protection. Domain is registered instantly.',
     category: 'infrastructure',
     annotations: TRADING,
   },

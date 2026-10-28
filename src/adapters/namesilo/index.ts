@@ -1,5 +1,11 @@
 import { BaseAdapter } from '../base.adapter';
+import { ProviderErrorCode } from '../../types/provider';
 import type { ProviderRequest, ProviderRawResponse } from '../../types/provider';
+
+// T-0629: domain_register sells at a flat $23.00, so it may only register 1-year,
+// non-premium domains whose live price keeps price >= cost x 1.3 (23 / 1.3 = 17.69).
+const MAX_REGISTER_COST_USD = 17.69;
+const ALLOWED_TLDS = ['com', 'net', 'org', 'dev', 'app', 'xyz'];
 
 export class NameSiloAdapter extends BaseAdapter {
   private readonly apiKey: string;
@@ -7,6 +13,68 @@ export class NameSiloAdapter extends BaseAdapter {
   constructor(apiKey: string) {
     super({ provider: 'namesilo', baseUrl: 'https://www.namesilo.com', maxRetries: 1 });
     this.apiKey = apiKey;
+  }
+
+  /**
+   * Pre-call guard for domain_register. Every refusal throws before any registerDomain
+   * request is sent (nothing is debited) and as a ProviderError, so the call is not billed.
+   */
+  async call(req: ProviderRequest): Promise<ProviderRawResponse> {
+    if (req.toolId === 'namesilo.domain_register') {
+      await this.guardRegister(req);
+    }
+    return super.call(req);
+  }
+
+  private refuse(req: ProviderRequest, message: string): never {
+    throw {
+      code: ProviderErrorCode.INPUT_REJECTED,
+      httpStatus: 422,
+      message,
+      provider: this.provider,
+      toolId: req.toolId,
+      durationMs: 0,
+    };
+  }
+
+  private async guardRegister(req: ProviderRequest): Promise<void> {
+    const params = (req.params ?? {}) as Record<string, unknown>;
+    if ((params.years ?? 1) !== 1) {
+      this.refuse(req, 'domain_register sells 1-year registrations only (years must be 1)');
+    }
+    const domain = typeof params.domain === 'string' ? params.domain.trim().toLowerCase() : '';
+    const m = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+([a-z]{2,})$/.exec(domain);
+    const tld = m ? m[1] : '';
+    if (!ALLOWED_TLDS.includes(tld) || domain.split('.').length !== 2) {
+      this.refuse(
+        req,
+        `domain_register supports only second-level domains in .${ALLOWED_TLDS.join(' .')}`,
+      );
+    }
+
+    const check = await super.call({
+      toolId: 'namesilo.domain_check',
+      params: { domains: domain },
+      requestId: req.requestId,
+      agentId: req.agentId,
+    });
+    // call() wraps the parsed parseResponse() result: the availability list sits at body.body.
+    const parsed = ((check.body ?? {}) as { body?: unknown }).body ?? check.body;
+    const body = (parsed ?? {}) as { available?: Array<Record<string, unknown>> };
+    const hit = (body.available ?? []).find((d) => d.domain === domain);
+    if (!hit) {
+      this.refuse(req, `Domain ${domain} is not available for registration`);
+    }
+    const price = Number(hit.price_usd);
+    if (hit.premium === true) {
+      this.refuse(req, `Domain ${domain} is a premium domain; premium domains are refused`);
+    }
+    if (!Number.isFinite(price) || price > MAX_REGISTER_COST_USD) {
+      this.refuse(
+        req,
+        `Live registration price for ${domain} exceeds the allowed maximum of $${MAX_REGISTER_COST_USD}`,
+      );
+    }
   }
 
   buildRequest(req: ProviderRequest): {
@@ -30,7 +98,7 @@ export class NameSiloAdapter extends BaseAdapter {
 
       case 'namesilo.domain_register': {
         const domain = String(params.domain ?? '');
-        const years = params.years ?? 1;
+        const years = 1;
         const priv = params.private !== false ? 1 : 0;
         return {
           url: `${base}/registerDomain?${qs}&domain=${encodeURIComponent(domain)}&years=${years}&private=${priv}&auto_renew=0`,
