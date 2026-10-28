@@ -7,13 +7,14 @@
  * what an RPC response carried or an explicit refusal.
  */
 
-export const CONTRACT_ADDRESS = '0x7572cAB5B7Ba1547cDF259988582E3BBd8E2eaf8';
+export const CONTRACT_ADDRESS = '0x1bD4C0EBC9b365905d4EBC84b944d861499afe6E';
 export const CHAIN_ID = 4221;
 export const RPC_URL = 'https://rpc-bradbury.genlayer.com';
 export const EXPLORER_BASE = 'https://scan.bradbury.genlayer.com';
 export const RESET_DATE = '2026-10-24';
 export const NETWORK_NOTE =
-  'Reads from the pre-reset Bradbury network while it answers; the attestation contract is being redeployed on the new GenLayer testnet.';
+  'Records before the 2026-10-24 reset were not carried over; only attestations on Bradbury Phase 2 are shown.';
+export const FEE_NOTE = 'Bradbury is a test network; the fee is test GEN, not money.';
 /** A read that gets no answer in this long is shown as "network did not answer" instead of hanging. */
 export const RPC_TIMEOUT_MS = 10000;
 export const FAUCET_URL = 'https://testnet-faucet.genlayer.foundation/';
@@ -319,4 +320,27 @@ export function attestBlockReason(hasWallet: boolean, receiptId: string | null):
   if (!hasWallet)
     return 'No browser wallet found. Install an EVM wallet (for example MetaMask) to attest on GenLayer.';
   return null;
+}
+
+/** GEN (18 decimals) as a decimal string, from the wei amount the fee estimate returned. */
+export function formatGen(wei: bigint): string {
+  const base = 10n ** 18n;
+  const frac = (wei % base).toString().padStart(18, '0').replace(/0+$/, '');
+  return `${wei / base}${frac ? `.${frac}` : ''}`;
+}
+
+/** The sentence shown before signing, built only from the estimate's feeValue. */
+export function feeQuoteText(feeValue: bigint): string {
+  return `Quoted fee: ${formatGen(feeValue)} GEN (a deposit; the unused part is refunded). ${FEE_NOTE}`;
+}
+
+/** An estimate failure said as what it is: low balance by name, anything else with the node's own words. */
+export function estimateErrorText(err: unknown): string {
+  const raw = err instanceof Error ? err.message : typeof err === 'string' ? err : '';
+  const msg = raw.trim().slice(0, 300);
+  if (/insufficient|not enough|exceeds balance|balance/i.test(msg))
+    return `Not enough test GEN to pay the fee (${msg}). Get some from the faucet: ${FAUCET_URL}`;
+  if (/\b503\b|unavailable|timed out|did not answer/i.test(msg))
+    return `The fee could not be estimated because the network is unavailable (${msg}). Nothing was sent; try again later.`;
+  return `The fee could not be estimated${msg ? ` (${msg})` : ''}. Nothing was sent.`;
 }

@@ -4,6 +4,10 @@ import { join, resolve } from 'node:path';
 import {
   CONTRACT_ADDRESS,
   EXPLORER_BASE,
+  FEE_NOTE,
+  estimateErrorText,
+  feeQuoteText,
+  formatGen,
   NETWORK_NOTE,
   NOT_INDEXED_GRACE_MS,
   attestBlockReason,
@@ -241,7 +245,7 @@ describe('page and pins', () => {
 
   it('renders the network note from attest-view.ts and uses the scan.bradbury explorer', () => {
     expect(html).toContain(NETWORK_NOTE);
-    expect(NETWORK_NOTE).toContain('pre-reset');
+    expect(NETWORK_NOTE).toContain('2026-10-24 reset');
     expect(new URL(EXPLORER_BASE).host).toBe('scan.bradbury.genlayer.com');
   });
 
@@ -252,12 +256,12 @@ describe('page and pins', () => {
       for (const f of ['attest-view.ts', 'chain.ts', 'entry.ts', 'build.mjs'])
         expect(readFileSync(join(ROOT, 'scripts/attest', f), 'utf-8')).not.toContain(old);
     }
-    expect(html.split('pre-reset').length - 1).toBe(1);
-    expect(bundle).not.toContain('pre-reset');
+    expect(html.split('2026-10-24 reset').length - 1).toBe(1);
+    expect(bundle).not.toContain('2026-10-24 reset');
   });
 
   it('pins genlayer-js to an exact version and ships the bundle', () => {
-    expect(pkg.devDependencies['genlayer-js']).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(pkg.devDependencies['genlayer-js']).toBe('2.0.0-rc.2');
     expect(existsSync(join(ROOT, 'static/attest/attest.js'))).toBe(true);
   });
 
@@ -267,5 +271,56 @@ describe('page and pins', () => {
       .join('\n');
     expect(src).not.toMatch(/privateKey|PRIVATE_KEY|generatePrivateKey|createAccount|innerHTML/);
     expect(src).not.toMatch(/fetch\(\s*['"`]\/api/);
+  });
+});
+
+describe('Bradbury Phase 2 pins and fee quote', () => {
+  const readme = readFileSync(join(ROOT, 'README.md'), 'utf-8');
+  const html = readFileSync(join(ROOT, 'static/attest/index.html'), 'utf-8');
+  const bundle = readFileSync(join(ROOT, 'static/attest/attest.js'), 'utf-8');
+
+  it('the page, the bundle and the README name the same contract', () => {
+    expect(CONTRACT_ADDRESS).toBe('0x1bD4C0EBC9b365905d4EBC84b944d861499afe6E');
+    expect(readme).toContain(CONTRACT_ADDRESS);
+    expect(bundle).toContain(CONTRACT_ADDRESS);
+    expect(readme).toContain(`${EXPLORER_BASE}/address/${CONTRACT_ADDRESS}`);
+    expect(html).toContain('Bradbury Phase 2');
+    expect(html).toContain(FEE_NOTE);
+  });
+
+  it('quotes the fee in GEN before signing', () => {
+    expect(formatGen(100000000000010352n)).toBe('0.100000000000010352');
+    expect(formatGen(2n * 10n ** 18n)).toBe('2');
+    expect(feeQuoteText(10n ** 17n)).toContain('0.1 GEN');
+    expect(feeQuoteText(10n ** 17n)).toContain(FEE_NOTE);
+  });
+
+  it('renders estimate errors as what they are, never a generic failure', () => {
+    expect(estimateErrorText(new Error('insufficient funds for gas'))).toMatch(
+      /Not enough test GEN.*faucet/,
+    );
+    expect(estimateErrorText(new Error('HTTP 503 Service Unavailable'))).toMatch(
+      /network is unavailable/,
+    );
+    expect(estimateErrorText(new Error('boom'))).toContain('(boom)');
+    expect(estimateErrorText(undefined)).toBe('The fee could not be estimated. Nothing was sent.');
+  });
+
+  it('passes the receipt id as a plain string argument to estimate and write', async () => {
+    const { quote: quoteAttest, send: sendAttest } = await import('../../scripts/attest/write');
+    const calls: any[] = [];
+    const client = {
+      estimateTransactionFeesForWrite: async (a: unknown) => (
+        calls.push(a),
+        { feeValue: 5n, distribution: { d: 1 } }
+      ),
+      writeContract: async (a: unknown) => (calls.push(a), '0xabc'),
+    };
+    const q = await quoteAttest(client, ID);
+    expect(await sendAttest(client, ID, q)).toBe('0xabc');
+    expect(calls[0].args).toEqual([ID]);
+    expect(calls[0].functionName).toBe('attest');
+    expect(calls[1].args).toEqual([ID]);
+    expect(calls[1].fees).toEqual({ distribution: { d: 1 }, feeValue: 5n });
   });
 });

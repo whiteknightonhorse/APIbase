@@ -4,7 +4,8 @@
  * page holds no key and relays nothing.
  */
 import { createClient } from 'genlayer-js';
-import { testnetBradbury } from 'genlayer-js/chains';
+import { testnetBradbury as presetBradbury } from 'genlayer-js/chains';
+import { quote, send, type FeeQuote, type WriteClient } from './write';
 import { CHAIN_ID, CONTRACT_ADDRESS, EXPLORER_BASE, RPC_TIMEOUT_MS, RPC_URL } from './attest-view';
 
 interface EthProvider {
@@ -19,6 +20,14 @@ function injected(): EthProvider | null {
 }
 
 export const hasWallet = (): boolean => injected() !== null;
+
+// The 2.0.0-rc.2 preset points at rpc.testnet-chain.genlayer.com, which does not serve gen_call; reads
+// need RPC_URL, so the chain object is the preset with this page's RPC and explorer.
+const testnetBradbury = {
+  ...presetBradbury,
+  rpcUrls: { default: { http: [RPC_URL] } },
+  blockExplorers: { default: { name: 'GenLayer Scan', url: EXPLORER_BASE } },
+};
 
 const readClient = createClient({ chain: testnetBradbury });
 
@@ -94,14 +103,16 @@ export async function connectWallet(): Promise<Hex> {
   return account as Hex;
 }
 
-/** Send `attest(receipt_id)`; genlayer-js hands the transaction to the browser wallet for signing. */
-export async function sendAttest(account: Hex, receiptId: string): Promise<string> {
-  const client = createClient({ chain: testnetBradbury, account, provider: injected() as never });
-  const hash = await client.writeContract({
-    address: CONTRACT_ADDRESS as Hex,
-    functionName: 'attest',
-    args: [receiptId] as never,
-    value: 0n,
-  });
-  return String(hash);
+function writeClient(account: Hex, provider: unknown): WriteClient {
+  return createClient({ chain: testnetBradbury, account, provider: provider as never }) as never;
+}
+
+/** Ask the node what `attest(receipt_id)` costs. */
+export function quoteAttest(account: Hex, receiptId: string): Promise<FeeQuote> {
+  return withTimeout(quote(writeClient(account, injected()), receiptId));
+}
+
+/** Send `attest(receipt_id)` with the quoted fee; genlayer-js hands the transaction to the browser wallet. */
+export function sendAttest(account: Hex, receiptId: string, q: FeeQuote): Promise<string> {
+  return send(writeClient(account, injected()), receiptId, q);
 }

@@ -1104,7 +1104,7 @@
   "free_tools_count": 8,
   "genlayer": {
     "chain_id": 4221,
-    "contract_address": "0x7572cAB5B7Ba1547cDF259988582E3BBd8E2eaf8",
+    "contract_address": "0x1bD4C0EBC9b365905d4EBC84b944d861499afe6E",
     "explorer_host": "scan.bradbury.genlayer.com",
     "rpc_host": "rpc-bradbury.genlayer.com"
   },

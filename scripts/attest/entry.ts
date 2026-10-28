@@ -6,7 +6,9 @@ import {
   attestBlockReason,
   attestationCard,
   explorerAddressUrl,
+  estimateErrorText,
   explorerTxUrl,
+  feeQuoteText,
   parseIdList,
   readableError,
   receiptFromQuery,
@@ -22,7 +24,14 @@ import {
   type Observed,
   type TxFound,
 } from './attest-view';
-import { connectWallet, hasWallet, readTransaction, readView, sendAttest } from './chain';
+import {
+  connectWallet,
+  hasWallet,
+  quoteAttest,
+  readTransaction,
+  readView,
+  sendAttest,
+} from './chain';
 
 const POLL_MS = 4000;
 
@@ -228,7 +237,7 @@ function track(hash: string, receiptId: string): void {
       line = `Could not read the transaction (retrying): ${step.error}`;
       tone = 'warn';
     } else if (step.notFound === 'not_indexed_yet') {
-      line = `Not indexed by Bradbury yet (${step.notIndexedSeconds} s); still watching.`;
+      line = `Not indexed by Bradbury Phase 2 yet (${step.notIndexedSeconds} s); still watching.`;
     } else if (step.notFound === 'absent') {
       line = 'Bradbury does not know this transaction hash.';
       tone = 'warn';
@@ -284,7 +293,16 @@ async function main(): Promise<void> {
     try {
       setNote('attest-reason', 'Connect the wallet and confirm the transaction there...', 'info');
       const account = await connectWallet();
-      const hash = await sendAttest(account, receiptId);
+      let quote;
+      try {
+        quote = await quoteAttest(account, receiptId);
+      } catch (e) {
+        setNote('attest-reason', estimateErrorText(e), 'warn');
+        btn.disabled = false;
+        return;
+      }
+      setNote('attest-reason', `${feeQuoteText(quote.feeValue)} Confirm in your wallet...`, 'info');
+      const hash = await sendAttest(account, receiptId, quote);
       setNote(
         'attest-reason',
         'Transaction sent. Validators are now checking the receipt.',
