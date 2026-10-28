@@ -1436,10 +1436,10 @@ tools:
   - tool_id: email.validate
     name: Email Validation
     provider: zerobounce
-    price_usd: "0.025"
+    price_usd: "0.026"
     upstream_cost_usd: "0.0195"
     upstream_cost_model: flat
-    upstream_cost_note: "https://www.zerobounce.net/pricing/ — \"Pay as You Go option starts at $39 USD for validating 2,000 email addresses; Free: 100 validation credits, refill monthly; one credit per email; Unknown results are not charged\" — 2026-10-14 — tier assumed: Pay as You Go ($39 / 2,000 credits); operator to confirm; $39 / 2000 = $0.0195 per validation; free 100/month is too small to count as free_tier"
+    upstream_cost_note: "https://www.zerobounce.net/pricing/ — \"Pay as You Go option starts at $39 USD for validating 2,000 email addresses\" — 2026-10-28 — tier assumed: Pay as You Go ($39 / 2,000 credits); operator to confirm; 0.0195 x 1.3 = 0.02535 > old price 0.025, raised to 0.026"
     cache_ttl: 86400
 
   # --- UC-112: Short.io (URL Shortener) ---
@@ -1744,10 +1744,9 @@ tools:
     name: Send SMS
     provider: twilio
     price_usd: "0.020"
-    upstream_cost_status: NOT_MEASURED
-    upstream_cost_model: metered
-    upstream_cost_note: "https://www.twilio.com/en-us/sms/pricing/us — \"$0.0083 per outbound SMS segment\" plus carrier fee (AT&T $0.0035 ... Verizon $0.005; example AT&T $0.0118); failed messages \"$0.001\" processing fee — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: segments x ($0.0083 + carrier fee), max US long code $0.0133 per segment; non-US destinations priced separately and can exceed the fixed price"
-    upstream_cost_remeasure_by: "2026-11-14"
+    upstream_cost_usd: "0.0133"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://www.twilio.com/en-us/sms/pricing/us — \"$0.0083 per outbound SMS segment\" plus carrier fee up to $0.005 — 2026-10-28 — tier assumed: Pay-as-you-go, US long code, 1 segment; operator to confirm; max 0.0133 x 1.3 = 0.01729 <= 0.020 (live catalog still shows 0.015: re-seed); non-US and multi-segment cost more"
     cache_ttl: 0
 
   # --- UC-395: Telnyx (CPaaS - SMS + Voice, geo-tiered pricing) ---
@@ -1755,10 +1754,9 @@ tools:
     name: Send SMS — NANP (Telnyx)
     provider: telnyx
     price_usd: "0.016"
-    upstream_cost_status: NOT_MEASURED
-    upstream_cost_model: metered
-    upstream_cost_note: "https://telnyx.com/pricing/messaging — \"$0.004 per message part + carrier fee\" (AT&T $0.0035, T-Mobile/Verizon $0.0045 per part) — 2026-10-14 — tier assumed: Pay-as-you-go; operator to confirm; formula: parts x ($0.004 + carrier fee), roughly $0.0075-$0.0085 per part; multi-part messages scale linearly"
-    upstream_cost_remeasure_by: "2026-11-14"
+    upstream_cost_usd: "0.009"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://telnyx.com/pricing/messaging — \"$0.004 per message part\" plus carrier fee up to $0.005 (US Cellular) — 2026-10-28 — tier assumed: Pay-as-you-go, US long code, 1 part; operator to confirm; 0.009 x 1.3 = 0.0117 <= 0.016 (live catalog shows 0.012: re-seed; keep 0.016 for tests/multi-part)"
     cache_ttl: 0
 
   - tool_id: telnyx.send_sms_world
@@ -2285,10 +2283,9 @@ tools:
     name: Generate Image
     provider: stability
     price_usd: "0.070"
-    upstream_cost_status: NOT_MEASURED
-    upstream_cost_model: metered
-    upstream_cost_note: "https://platform.stability.ai/pricing — \"1 credit = $0.01\"; Stable Image Core 3 credits per image (third-party sources, the pricing page is JS-rendered and unreadable; limit_proof in provider-limits.json agrees) — 2026-10-14; tier assumed: pay-as-you-go credits; operator to confirm; formula: credits per model x $0.01 (Core $0.03, Ultra 8 credits $0.08 above the $0.07 price)"
-    upstream_cost_remeasure_by: "2026-11-14"
+    upstream_cost_usd: "0.03"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.stability.ai/pricing — \"1 credit = $0.01\"; Stable Image Core = 3 credits — 2026-10-28 — tier assumed: pay-as-you-go credits; operator to confirm; adapter calls stable-image/generate/core; price 0.07 unchanged (133% margin)"
     cache_ttl: 0
 
   # --- UC-076: Resend (Transactional Email) ---
@@ -2475,9 +2472,9 @@ tools:
     capability: search.web
     scope: global
     price_usd: "0.012"
-    upstream_cost_usd: "0"
-    upstream_cost_model: free_tier
-    upstream_cost_note: "https://exa.ai/pricing — \"The Free Tier gives you $10 in credits (up to 2,500 Instant searches)\" — 2026-10-14 — tier assumed: Free; operator to confirm; no card attached, overage = refusal; paid list price search $4/1k instant, contents $1/1k pages"
+    upstream_cost_usd: "0.007"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://exa.ai/docs/admin/pricing — auto search \"$7 per 1k\" requests incl. up to 10 results, +$1/1k results above 10 — 2026-10-28 — tier assumed: pay-as-you-go (not the free credits); operator to confirm; default 10 results; at num_results=25 cost is 0.022 (price 0.012 would leak, cap num_results at 10 or reprice)"
     cache_ttl: 300
 
   - tool_id: exa.contents
@@ -2504,19 +2501,19 @@ tools:
     provider: tavily
     capability: search.web
     scope: global
-    price_usd: "0.010"
-    upstream_cost_usd: "0"
-    upstream_cost_model: free_tier
-    upstream_cost_note: "https://www.tavily.com/pricing — \"Free plan: 1,000 API credits / month; pay-as-you-go $0.008 per credit\" — 2026-10-14 — tier assumed: Free (Researcher); operator to confirm; no card attached, overage = refusal"
+    price_usd: "0.011"
+    upstream_cost_usd: "0.008"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://www.tavily.com/pricing — pay-as-you-go \"$0.008 per credit\"; basic search = 1 credit (https://docs.tavily.com/documentation/api-credits) — 2026-10-28 — tier assumed: pay-as-you-go; operator to confirm; 0.008 x 1.3 = 0.0104, raised to 0.011; search_depth=advanced costs 2 credits = 0.016, restrict adapter to basic/fast"
     cache_ttl: 300
 
   - tool_id: tavily.extract
     name: Web Page Content Extract
     provider: tavily
-    price_usd: "0.010"
-    upstream_cost_usd: "0"
-    upstream_cost_model: free_tier
-    upstream_cost_note: "https://www.tavily.com/pricing — \"Free plan: 1,000 API credits / month; pay-as-you-go $0.008 per credit\" — 2026-10-14 — tier assumed: Free (Researcher); operator to confirm; no card attached, overage = refusal"
+    price_usd: "0.011"
+    upstream_cost_usd: "0.008"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.tavily.com/documentation/api-credits — \"Every 5 successful URL extractions cost 1 API credit\" at $0.008 per credit — 2026-10-28 — tier assumed: pay-as-you-go, basic extract, <=5 URLs; operator to confirm; 0.008 x 1.3 = 0.0104, raised to 0.011; schema allows 20 URLs = 0.032, cap urls at 5"
     cache_ttl: 3600
 
   # --- UC-067: Serper.dev (Google Search API) ---
@@ -3666,11 +3663,10 @@ tools:
   - tool_id: scrape.browser
     name: Browser-Rendered Page HTML
     provider: zyte
-    price_usd: "0.015"
-    upstream_cost_status: NOT_MEASURED
-    upstream_cost_model: metered
-    upstream_cost_note: "https://www.zyte.com/pricing/ — \"1 Simple $0.13 ... 5 Advanced $1.27\" per 1,000 HTTP responses; browser rendered \"$1.01 ... $16.08\" per 1,000; screenshot price not listed — 2026-10-14 — tier assumed: Pay as you go (provider-limits.json: $100/mo cap, no commitment); operator to confirm; formula: extract = per-site tier price / 1000 ($0.00013-$0.00127); browser = $0.00101-$0.01608 per response; screenshot unlisted; at the documented max $0.01608 x 1.3 = $0.0209 exceeds price_usd 0.015 (re-price decision for the operator); needs 30d real traffic for p80"
-    upstream_cost_remeasure_by: "2026-11-14"
+    price_usd: "0.021"
+    upstream_cost_usd: "0.01608"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://www.zyte.com/pricing/ — browser rendered \"$1.01 ... $16.08\" per 1,000 responses across five site tiers — 2026-10-28 — tier assumed: Pay as you go, worst site tier 5 = $0.01608; operator to confirm; 0.01608 x 1.3 = 0.0209 > old price 0.015, raised to 0.021; tier 1 sites cost only $0.00101"
     cache_ttl: 3600
   - tool_id: scrape.screenshot
     name: Web Page Screenshot
@@ -3678,10 +3674,9 @@ tools:
     capability: web.screenshot
     scope: global
     price_usd: "0.024"
-    upstream_cost_status: NOT_MEASURED
-    upstream_cost_model: metered
-    upstream_cost_note: "https://www.zyte.com/pricing/ — \"1 Simple $0.13 ... 5 Advanced $1.27\" per 1,000 HTTP responses; browser rendered \"$1.01 ... $16.08\" per 1,000; screenshot price not listed — 2026-10-14 — tier assumed: Pay as you go (provider-limits.json: $100/mo cap, no commitment); operator to confirm; formula: extract = per-site tier price / 1000 ($0.00013-$0.00127); browser = $0.00101-$0.01608 per response; screenshot unlisted; screenshot has no published rate, billed as browser rendered (>= $0.01608 max) plus an undocumented surcharge, above price_usd 0.024 at the top of the range; needs 30d real traffic for p80"
-    upstream_cost_remeasure_by: "2026-11-14"
+    upstream_cost_usd: "0.01742"
+    upstream_cost_model: flat
+    upstream_cost_note: "https://docs.zyte.com/zyte-api/pricing.html — \"Screenshots: $1.34 per 1,000\" on top of base browser request ($16.08 per 1,000 at tier 5, https://www.zyte.com/pricing/) — 2026-10-28 — tier assumed: Pay as you go, worst site tier 5 ($0.01608 + $0.00134 = $0.01742); operator to confirm; best tier 1 costs $0.00235; 0.01742 x 1.3 = 0.02265 <= 0.024"
     # Zyte publishes no distinct screenshot rate -- it bills as Browser rendered
     # (same render path as scrape.browser) plus an undocumented "additional costs
     # for some features" surcharge (zyte.com/pricing, playwright snapshot
@@ -4025,34 +4020,34 @@ tools:
   - tool_id: canopy.search
     name: Search Amazon Products
     provider: canopy
-    price_usd: "0.012"
+    price_usd: "0.013"
     upstream_cost_usd: "0.01"
     upstream_cost_model: flat
-    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
+    upstream_cost_note: "https://www.canopyapi.co/ — \"+$0.01 per additional request\" after 100 free per month — 2026-10-28 — tier assumed: Pay As You Go; operator to confirm; 0.01 x 1.3 = 0.013 (was 0.012)"
     cache_ttl: 3600
   - tool_id: canopy.product
     name: Amazon Product Details
     provider: canopy
-    price_usd: "0.012"
+    price_usd: "0.013"
     upstream_cost_usd: "0.01"
     upstream_cost_model: flat
-    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
+    upstream_cost_note: "https://www.canopyapi.co/ — \"+$0.01 per additional request\" after 100 free per month — 2026-10-28 — tier assumed: Pay As You Go; operator to confirm; 0.01 x 1.3 = 0.013 (was 0.012)"
     cache_ttl: 86400
   - tool_id: canopy.offers
     name: Amazon Offers & Buy Box
     provider: canopy
-    price_usd: "0.012"
+    price_usd: "0.013"
     upstream_cost_usd: "0.01"
     upstream_cost_model: flat
-    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
+    upstream_cost_note: "https://www.canopyapi.co/ — \"+$0.01 per additional request\" after 100 free per month — 2026-10-28 — tier assumed: Pay As You Go; operator to confirm; 0.01 x 1.3 = 0.013 (was 0.012)"
     cache_ttl: 1800
   - tool_id: canopy.deals
     name: Amazon Current Deals
     provider: canopy
-    price_usd: "0.012"
+    price_usd: "0.013"
     upstream_cost_usd: "0.01"
     upstream_cost_model: flat
-    upstream_cost_note: "https://docs.canopyapi.co/ — \"Hobby plan includes a number of free requests per month, and a pay-as-you-go option charges per request (rate not on the page; provider-limits.json limit_proof records PAYG $0.01/req)\" — 2026-10-14 — tier assumed: pay-as-you-go; operator to confirm; $0.01 per request is taken from provider-limits.json, not re-verified on the vendor page"
+    upstream_cost_note: "https://www.canopyapi.co/ — \"+$0.01 per additional request\" after 100 free per month — 2026-10-28 — tier assumed: Pay As You Go; operator to confirm; 0.01 x 1.3 = 0.013 (was 0.012)"
     cache_ttl: 3600
 
   # --- UC-258: Remotive (Remote Jobs) ---
