@@ -136,7 +136,7 @@ Idempotency on /mcp: put a string of 16-128 characters in `params._meta["apibase
 x402 clients on `@x402/fetch` >= 2.23 refuse amounts above $1 by default (`spendControls`); tools priced above $1 need `spendControls: false` or an explicit cap. API tools priced above $1 today (`config/tool_provider_config.yaml`, `price_usd` > 1):
 
 - `aipush.market_report` ($29.99)
-- `namesilo.domain_register` ($21.00)
+- `namesilo.domain_register` ($23.00)
 
 Shop orders are priced by the merchant quote; a `total_usd` above $1 needs the same setting.
 

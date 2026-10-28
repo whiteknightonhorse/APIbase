@@ -2768,7 +2768,7 @@ tools:
     price_usd: "23.00"
     upstream_cost_status: NOT_MEASURED
     upstream_cost_model: metered
-    upstream_cost_note: "max allowed TLD cost $17.29 (.com/.xyz, namesilo.com/pricing 2026-10-28); 23.00 >= 17.29 x 1.3 = 22.48"
+    upstream_cost_note: "max allowed TLD cost $17.29 (.com/.xyz, https://www.namesilo.com/pricing 2026-10-28); 23.00 >= 17.29 x 1.3 = 22.48"
     upstream_cost_remeasure_by: "2026-11-14"
     cache_ttl: 0
   - tool_id: namesilo.domain_list

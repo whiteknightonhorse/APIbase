@@ -17,7 +17,13 @@ const domainRegister = z
       .string()
       .regex(/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\.(?:com|net|org|dev|app|xyz)$/i)
       .describe('Domain to register, only .com .net .org .dev .app .xyz (e.g. "mybusiness.com")'),
-    years: z.literal(1).optional().describe('Registration period: exactly 1 year (default 1)'),
+    years: z
+      .number()
+      .int()
+      .min(1)
+      .max(1)
+      .optional()
+      .describe('Registration period: exactly 1 year (default 1)'),
     private: z.boolean().optional().describe('Enable free WHOIS privacy (default true)'),
   })
   .strip();
