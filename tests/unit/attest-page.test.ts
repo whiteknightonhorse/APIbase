@@ -323,4 +323,16 @@ describe('Bradbury Phase 2 pins and fee quote', () => {
     expect(calls[1].args).toEqual([ID]);
     expect(calls[1].fees).toEqual({ distribution: { d: 1 }, feeValue: 5n });
   });
+
+  it('encodes attest(receipt_id: str) with the rc.2 calldata encoder as a string', async () => {
+    const { abi } = require(join(process.cwd(), 'node_modules/genlayer-js/dist/index.cjs'));
+    const cd = abi.calldata;
+    const obj = cd.makeCalldataObject('attest', [ID], undefined);
+    const decoded: any = cd.decode(cd.encode(obj));
+    const get = (k: string) => (decoded instanceof Map ? decoded.get(k) : decoded[k]);
+    expect(get('')).toBe('attest');
+    expect(get('args')).toHaveLength(1);
+    expect(typeof get('args')[0]).toBe('string');
+    expect(get('args')[0]).toBe(ID);
+  });
 });

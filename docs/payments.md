@@ -128,7 +128,7 @@ Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets on
 - **Body.** Canonical JSON (sorted keys, no whitespace), schema `apibase-receipt/1`:
   `schema`, `receipt_id` (32 hex chars), `issued_at` (ISO 8601 UTC), `tool`, `upstream_status`, `response_sha256` (sha256 of the exact response body sent), `billed` (always `true`), `rail` (`x402-base` or `mpp-tempo`), `chain_id`, `asset` (`USDC`), `amount_atomic` (integer string, 6 decimals), `payer`, `payee`, `payment_tx` (lowercase hex). Optional `refund` (added at read time, only when APIbase owes the payer a refund for this receipt; the stored body is unchanged): `{status, amount_atomic, rail, detected_at, refund_tx, sent_at, reason}`.
 - **Never included.** Request body, response body, headers, IP, user agent, API keys.
-- **Attestation.** Anyone can ask GenLayer validators to check a receipt against its USDC transfer on Base at `https://apibase.pro/attest/?r=<receipt_id>` (contract address, network and fee in the [README](../README.md)). The page shows the fee quote before signing; Bradbury is a test network and the fee is test GEN, not money. Records written before the 2026-10-24 reset were not carried over.
+- **Attestation.** Anyone can ask GenLayer validators to check a receipt against its USDC transfer on Base at `https://apibase.pro/attest/?r=<receipt_id>` (contract address, network and fee in the [README](../README.md)). Fee and reset notes are on the page itself.
 - **Load note for validators.** Validators fetch each receipt several times within one minute. This is expected load, served from cache.
 
 ## Authentication
