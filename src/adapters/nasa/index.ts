@@ -18,7 +18,7 @@ import type {
  * Supported tools (Phase 1, read-only):
  *   nasa.apod          → GET /planetary/apod
  *   nasa.neo_feed      → GET /neo/rest/v1/feed
- *   nasa.donki_flr     → GET /DONKI/FLR
+ *   nasa.donki_flr     → GET ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR (no API key)
  *   nasa.epic          → GET /EPIC/api/natural/date/{date}
  *   nasa.image_search  → GET images-api.nasa.gov/search (no API key)
  *
@@ -26,6 +26,7 @@ import type {
  * Free tier: 1,000 req/hour.
  */
 export class NasaAdapter extends BaseAdapter {
+  private static readonly DONKI_BASE = 'https://ccmc.gsfc.nasa.gov/DONKI/WS/get';
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
@@ -153,13 +154,13 @@ export class NasaAdapter extends BaseAdapter {
     params: Record<string, unknown>,
     headers: Record<string, string>,
   ): { url: string; method: string; headers: Record<string, string> } {
+    // DONKI moved to the CCMC host (no API key); api.nasa.gov/DONKI answers 503.
     const qs = new URLSearchParams();
-    qs.set('api_key', this.apiKey);
     if (params.start_date) qs.set('startDate', String(params.start_date));
     if (params.end_date) qs.set('endDate', String(params.end_date));
 
     return {
-      url: `${this.baseUrl}/DONKI/FLR?${qs.toString()}`,
+      url: `${NasaAdapter.DONKI_BASE}/FLR?${qs.toString()}`,
       method: 'GET',
       headers,
     };
@@ -173,9 +174,7 @@ export class NasaAdapter extends BaseAdapter {
     qs.set('api_key', this.apiKey);
     const date = params.date ? String(params.date) : '';
 
-    const path = date
-      ? `/EPIC/api/natural/date/${date}`
-      : '/EPIC/api/natural';
+    const path = date ? `/EPIC/api/natural/date/${date}` : '/EPIC/api/natural';
 
     return {
       url: `${this.baseUrl}${path}?${qs.toString()}`,

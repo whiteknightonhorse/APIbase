@@ -1,7 +1,8 @@
 /**
  * NASA Open APIs response types (UC-034).
  *
- * API host: api.nasa.gov (apod, neo, donki, epic)
+ * API host: api.nasa.gov (apod, neo, epic)
+ *           ccmc.gsfc.nasa.gov (donki, no key)
  *           images-api.nasa.gov (image search — no key)
  * Auth: query param api_key=KEY (except image_search)
  * Free tier: 1,000 req/hour per key
@@ -33,7 +34,10 @@ export interface NeoObject {
   name: string;
   nasa_jpl_url?: string;
   absolute_magnitude_h?: number;
-  estimated_diameter?: Record<string, { estimated_diameter_min: number; estimated_diameter_max: number }>;
+  estimated_diameter?: Record<
+    string,
+    { estimated_diameter_min: number; estimated_diameter_max: number }
+  >;
   is_potentially_hazardous_asteroid?: boolean;
   close_approach_data?: Array<{
     close_approach_date?: string;

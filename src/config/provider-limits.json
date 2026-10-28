@@ -643,7 +643,7 @@
   },
   "nasa": {
     "display_name": "NASA Open APIs",
-    "health_url": "https://api.nasa.gov/DONKI/FLR?api_key=${PROVIDER_KEY_NASA}",
+    "health_url": "https://ccmc.gsfc.nasa.gov/DONKI/WS/get/FLR",
     "limit_type": "hourly",
     "free_limit": 1000,
     "reset_period": "hourly",
