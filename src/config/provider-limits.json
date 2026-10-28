@@ -4583,7 +4583,12 @@
       "timeout_ms": 18000
     },
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-10-28",
+      "task": "T-0625",
+      "reason": "operator decision 2026-10-28: provider down since 2026-10-22 (connect timeout for everyone), retired from catalog"
+    }
   },
   "latvia-statistics": {
     "display_name": "Latvia Statistics (Central Statistical Bureau)",
