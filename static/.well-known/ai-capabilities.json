@@ -1,16 +1,16 @@
 {
   "platform": "APIbase",
   "version": "2.2.0",
-  "updated_at": "2026-10-28T00:00:00Z",
-  "tools_count": 1387,
-  "providers_count": 401,
+  "updated_at": "2026-10-29T00:00:00Z",
+  "tools_count": 1384,
+  "providers_count": 400,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1387 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1384 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -45,8 +45,8 @@
     },
     {
       "name": "health",
-      "tools": 154,
-      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO, WHO GHO",
+      "tools": 151,
+      "providers": "Biomodels, Cactus, CDC, CDC Chronic, Chembl, Clinicaltrials, Cms, Delphi, Disease, Ebi Metagenomics, Ecdc Surveillance, Ensembl, Europepmc, Fatsecret, FDA OPENFDA, Global Health Covid, Health, Itistaxonomy, Malaria Atlas, Materials Project, Medlineplus, Mychem, Mygene, Myvariant, Nihreporter, Nlm Icd11, Openbeautyfacts, OPENFDA Devices, Orphadata, Pharmgkb, Pubchem, Rcsb, Rxnorm, SDWIS, Spoonacular, Ukfsa, Ukhsa Dashboard, Uniprot, Wger, WHO GHO",
       "examples": "Call apibase.discover with category=\"health\" for the current tool list and descriptions."
     },
     {
