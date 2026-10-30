@@ -1329,10 +1329,6 @@ weatherapi.search	weatherapi	0.001
 wger.exercise_details	wger	0.001
 wger.exercise_search	wger	0.001
 wger.ingredients	wger	0.001
-who.country_health	who-gho	0.002
-who.dimension_values	who-gho	0.001
-who.indicator_data	who-gho	0.002
-who.indicator_search	who-gho	0.001
 whois.availability	whoisxml	0.003
 whois.dns_lookup	whoisxml	0.003
 whois.lookup	whoisxml	0.005
