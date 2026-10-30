@@ -409,9 +409,6 @@ epa-aqs.list_parameters	epa-aqs	0.002
 epa-aqs.monitors	epa-aqs	0.002
 epa.toxic_releases	epa	0.001
 epa.water_systems	epa	0.001
-estat-japan-dashboard.get_data	estat-japan-dashboard	0.003
-estat-japan-dashboard.indicator_info	estat-japan-dashboard	0.002
-estat-japan-dashboard.region_info	estat-japan-dashboard	0.001
 estonia-statistics.catalog	estonia-statistics	0.001
 estonia-statistics.table_metadata	estonia-statistics	0.002
 estonia-statistics.table_query	estonia-statistics	0.003
