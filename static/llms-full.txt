@@ -30,7 +30,7 @@ Full text of every linked Markdown page in one file: https://apibase.pro/llms-fu
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
-1380 tools across 25 categories (TOOL_DEFINITIONS[].category — the single source of truth
+1380 tools across 24 categories (TOOL_DEFINITIONS[].category — the single source of truth
 shared by MCP apibase.discover, the REST ?category= filter, and this file, ZZ-03-01). Call
 apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - No args → best/most-relevant matches across the whole catalog
@@ -40,7 +40,7 @@ All tools remain callable via tools/call regardless of discovery. The discover_t
 still works (kept for backward compatibility) — it now renders apibase.discover's own JSON.
 /.well-known/site-facts.json — machine-readable facts the pages are checked against.
 
-## Categories (25)
+## Categories (24)
 business, crypto, developer, device, education, entertainment, finance, health,
 infrastructure, jobs, legal, location, logistics, marketing, media, messaging, music,
 news, podcasts, search, social, space, travel, weather, world
