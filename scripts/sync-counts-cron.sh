@@ -204,6 +204,7 @@ fi
 # gap was silent (these 5 pages happen not to have carried a stale count recently, so the
 # whitelist ABORT at the bottom of this script never fired on them -- it would have, the first
 # time one did, and self-heal for ALL files would have aborted with it, not just these 5).
+shopt -s nullglob
 FILES=(
   static/index.html static/terms.html static/frameworks.html static/contact.html
   static/privacy.html static/dashboard.html static/pricing.html static/connect.html
@@ -220,7 +221,11 @@ FILES=(
   scripts/discovery-snapshot.tsv
   static/.well-known/x402-payment.json static/.well-known/agent-skills/x402-payment.md
   static/.well-known/site-facts.json
+  provek.json
+  SECURITY.md
+  docs/*.md packages/*/README.md
 )
+shopt -u nullglob
 
 # T-0173 (ruling-2, attempt-2): FILES above is hand-maintained prose ("kept in sync with its own
 # for loops"), which is exactly how the 5 paths above went missing without anyone noticing --
@@ -244,6 +249,29 @@ while IFS= read -r p; do
 done <<<"$SELF_HEAL_PATHS"
 if [ -n "$MISSING_FROM_FILES" ]; then
   clog "ABORT -- sync-counts.sh's self-heal branch writes path(s) missing from this script's FILES allow-list, refusing to run (FILES is stale, update it first):$MISSING_FROM_FILES"
+  calert "🔴 sync-counts-cron: FILES отстаёт от sync-counts.sh self-heal, отказ прибора -- see log." "files-stale"
+  exit 1
+fi
+
+# T-0664: the self-heal check above only sees LITERAL paths. sync-counts.sh also walks the
+# GitHub-side doc surfaces by glob (its `for f in provek.json SECURITY.md docs/*.md ...` loop, and
+# home-facts.py renders SECURITY.md and docs/*.md pages). Re-expand that loop's patterns here and
+# refuse when any expanded path is missing from FILES (same ABORT text).
+GLOB_PATTERNS="$(grep -E '^for f in .*(SECURITY\.md|docs/\*\.md).*; do' scripts/sync-counts.sh \
+  | head -n1 | sed -E 's/^for f in //; s/; do.*$//')"
+GLOB_MISSING=""
+if [ -n "$GLOB_PATTERNS" ]; then
+  shopt -s nullglob
+  # shellcheck disable=SC2086
+  for p in $GLOB_PATTERNS; do
+    found=0
+    for a in "${FILES[@]}"; do [ "$p" = "$a" ] && found=1 && break; done
+    [ "$found" = 0 ] && GLOB_MISSING="$GLOB_MISSING $p"
+  done
+  shopt -u nullglob
+fi
+if [ -n "$GLOB_MISSING" ]; then
+  clog "ABORT -- sync-counts.sh's self-heal branch writes path(s) missing from this script's FILES allow-list, refusing to run (FILES is stale, update it first):$GLOB_MISSING"
   calert "🔴 sync-counts-cron: FILES отстаёт от sync-counts.sh self-heal, отказ прибора -- see log." "files-stale"
   exit 1
 fi

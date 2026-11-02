@@ -18,7 +18,7 @@ const git = (cwd: string, ...args: string[]) => {
 };
 
 /** Temp fleet tree on branch ci-staging with a local bare origin and a stubbed generator. */
-function setup(mutate: boolean) {
+function setup(mutate: boolean, selfHealWrite = '') {
   const dir = mkdtempSync(join(tmpdir(), 'scc-parity-'));
   const work = join(dir, 'work');
   const bare = join(dir, 'origin.git');
@@ -39,12 +39,15 @@ function setup(mutate: boolean) {
     : '';
   writeFileSync(
     join(work, 'scripts/sync-counts.sh'),
-    `#!/usr/bin/env bash\nset -e\ncd "$ROOT"\nif false; then\n  :\nelse\n  : static/catalog.html\n${stub}fi\necho "${COUNTS}"\n`,
+    `#!/usr/bin/env bash\nset -e\ncd "$ROOT"\nif false; then\n  :\nelse\n  : static/catalog.html\n${stub}${selfHealWrite}fi\nfor f in provek.json SECURITY.md docs/*.md packages/*/README.md; do\n  :\ndone\necho "${COUNTS}"\n`,
   );
   git(dir, 'init', '--bare', '-q', bare);
   git(work, 'init', '-q', '-b', 'ci-staging');
   git(work, 'config', 'user.email', 't@example.invalid');
   git(work, 'config', 'user.name', 'T');
+  mkdirSync(join(work, 'docs'), { recursive: true });
+  writeFileSync(join(work, 'SECURITY.md'), 'x\n');
+  writeFileSync(join(work, 'docs/architecture.md'), 'x\n');
   git(work, 'add', '-A');
   git(work, 'commit', '-q', '-m', 'base');
   git(work, 'remote', 'add', 'origin', bare);
@@ -108,5 +111,26 @@ describe('sync-counts-cron.sh page-parity gate', () => {
     expect(log).toContain('ABORT -- home-facts.py check-bar exited 1');
     expect(git(t.work, 'status', '--porcelain')).toBe('');
     expect(git(t.work, 'log', 'origin/ci-staging..HEAD', '--oneline')).toBe('');
+  });
+
+  it('accepts a self-heal write to docs/architecture.md (T-0664)', () => {
+    const t = setup(false, '  echo y > docs/architecture.md\n');
+    dir = t.dir;
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, t.env);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    expect(log).not.toContain('outside the allow-list');
+    expect(log).not.toContain('FILES is stale');
+    expect(r.status).toBe(0);
+  });
+
+  it('ABORTs when SECURITY.md is missing from FILES (T-0664)', () => {
+    const t = setup(false);
+    dir = t.dir;
+    const p = join(t.work, 'scripts/sync-counts-cron.sh');
+    writeFileSync(p, readFileSync(p, 'utf8').replace(/^ {2}SECURITY\.md\n/m, ''));
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, t.env);
+    expect(r.status).toBe(1);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    expect(log).toContain('FILES is stale, update it first): SECURITY.md');
   });
 });
