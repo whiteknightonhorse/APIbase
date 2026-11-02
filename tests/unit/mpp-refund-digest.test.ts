@@ -17,7 +17,8 @@ describe('internal-wallets (T-0280)', () => {
     expect(list).toHaveLength(15);
     for (const e of list) {
       expect(e.address).toMatch(/^0x[0-9a-f]{40}$/);
-      expect(e.label).toBe('mcp-heartbeat');
+      const tester = '0xe03d9423d06dd5e3300fb1c09a03ddbb5e8b274b';
+      expect(e.label).toBe(e.address === tester ? 'mcp-protocol-tester' : 'mcp-heartbeat');
     }
   });
 
