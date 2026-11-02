@@ -41,13 +41,11 @@ const post = (body: unknown) =>
 
 describe('T-0654 pay_model', () => {
   it('missing pay_model is rejected', async () => {
-    expect((await post(valid)).status).toBeGreaterThanOrEqual(400);
-    expect((await post(valid)).status).toBeLessThan(500);
+    expect((await post(valid)).status).toBe(422);
   });
   it.each(['bogus', ['api_key'], { a: 1 }, 5])('invalid pay_model %p is rejected', async (v) => {
     const r = await post({ ...valid, pay_model: v });
-    expect(r.status).toBeGreaterThanOrEqual(400);
-    expect(r.status).toBeLessThan(500);
+    expect(r.status).toBe(422);
   });
   it.each(['api_key', 'x402_upstream'])('valid pay_model %s is stored', async (v) => {
     const r = await post({ ...valid, pay_model: v });

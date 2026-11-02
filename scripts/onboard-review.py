@@ -46,6 +46,17 @@ def psql(sql):
     return r.stdout.strip(), r.returncode, r.stderr.strip()
 
 
+def render_list(out):
+    """Label the pay_model column (5th) in each printed row."""
+    lines = []
+    for line in out.splitlines():
+        cols = line.split(" | ")
+        if len(cols) >= 5:
+            cols[4] = "pay_model=" + cols[4]
+        lines.append(" | ".join(cols))
+    return "\n".join(lines)
+
+
 def list_row_sql_has_pay_model():
     return "pay_model" in LIST_SQL
 
@@ -53,6 +64,9 @@ def list_row_sql_has_pay_model():
 def selftest():
     assert list_row_sql_has_pay_model()
     assert "COALESCE(pay_model, '-')" in LIST_SQL and 'x402_upstream' not in LIST_SQL
+    row = "s1 | 2026-10-14 | Acme | other | x402_upstream | https://a.example | a@example.com"
+    assert "pay_model=x402_upstream" in render_list(row)
+    assert "pay_model=-" in render_list(row.replace("x402_upstream", "-"))
     now = datetime(2026, 10, 14, 12, 0, 0, tzinfo=timezone.utc)
     m = json.loads(moderation_json("accept", "it's ok", now))
     assert m == {"decision": "accept", "note": "it's ok", "by": "operator", "at": "2026-10-14T12:00:00Z"}
@@ -68,7 +82,7 @@ def main(argv):
         return 0
     if argv and argv[0] == "list":
         out, rc, err = psql(LIST_SQL)
-        print((out or "no pending submissions") if rc == 0 else err)
+        print((render_list(out) or "no pending submissions") if rc == 0 else err)
         return rc
     if len(argv) >= 2 and argv[0] in STATUS:
         note = argv[argv.index("--note") + 1] if "--note" in argv and argv.index("--note") + 1 < len(argv) else ""
