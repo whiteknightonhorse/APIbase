@@ -253,7 +253,8 @@ WAIT_FROM_STATES = ("REMEDIATION_QUEUED", "OPEN")
 # T-0265: sha256 of the API_CHANGED task body (fix.md bullets pinned, filename-derived id masked) as
 # generated BEFORE the two-phase split -- single-phase kinds must stay byte-identical. Re-pinned by
 # ENGLISH-ONLY-B (language-only change of the body text, same structure).
-API_CHANGED_BODY_SHA256 = "91735f023354e3a88eeeea657728421cd52505cccc33943ac0203df4d39e10db"
+# T-0644: re-pinned; the pin was already stale at HEAD (body text moved with T-0515/T-0585), this card does not change the API_CHANGED body.
+API_CHANGED_BODY_SHA256 = "0b235192d2295fd812e72fec05866ea03a18d9d02ce0c74e082dbb2fc70239df"
 
 
 def parse_wait_until(raw, now=None):
@@ -467,8 +468,9 @@ def selftest():
     # not just prose, so a future edit that silently reverts one kind fails THIS assertion.
     for _k in ("PROVIDER_DOWN", "API_CHANGED", "ENDPOINT_CHANGED", "DEGRADED_QUALITY"):
         assert ap.REVIEW_FOR_KIND[_k] == "opus", f"{_k} must route to the opus tier (T-0140 Ch-3)"
-    assert ap.REVIEW_FOR_KIND["EMAIL_NOTICE"] == "fable", \
-        "EMAIL_NOTICE must stay on fable unconditionally (T-0140 Ch-3: untrusted inbound text)"
+    assert ap.REVIEW_FOR_KIND["EMAIL_NOTICE"] == "opus", \
+        "EMAIL_NOTICE routes to opus (T-0644, REVIEW-ROUTING-1102); fable is never a generated REVIEW"
+    assert "fable" not in ap.REVIEW_FOR_KIND.values(), "no routing.json review may be fable (T-0644)"
     # build_remediation_task_body's own MAX_ATTEMPTS must give review=opus the SAME ceiling as
     # review=fable (ruling-1: "the REJECT cycle exists for this tier too") -- checked on the actual generated
     # task body, not just the formula, so a refactor that forgets the "opus" branch is caught.
@@ -543,7 +545,7 @@ def selftest():
     assert "cause not reproduced" in _bc and "````json" in _bc, "reproduce-first demand + longer fence for embedded backticks"
     _email_incident = dict(_opus_incident, kind="EMAIL_NOTICE")
     _fname2, _content2 = ap.build_remediation_task_body(_email_incident)
-    assert "REVIEW: fable" in _content2, "EMAIL_NOTICE task body must still carry REVIEW: fable"
+    assert "REVIEW: opus" in _content2, "EMAIL_NOTICE task body must carry REVIEW: opus"
     assert "MAX_ATTEMPTS: 4" in _content2
 
     # every kind classified, no silent gaps

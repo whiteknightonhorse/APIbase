@@ -551,7 +551,7 @@ def advance_remediation_queued():
 
     Deliberately does NOT trust the fleet's own verdict text — a fleet task
     landing in done/ only proves taskloop's own review gate accepted it
-    (VERDICT: DONE, +fable ACCEPT where REVIEW: fable), never that the
+    (VERDICT: DONE, +fable ACCEPT where the review tier is fable), never that the
     provider is actually healthy again (C0.3: no fabricated verdicts). So
     'fleet DONE' moves the incident to VERIFYING, the SAME state
     advance_verifying() already confirms or rejects via a REAL re-probe
@@ -3171,7 +3171,7 @@ def selftest_db():
         followup_path = os.path.join(ap.TASKLOOP_QUEUE_DIR, inc11b["fleet_task_id"])
         assert os.path.isfile(followup_path), f"world 11: follow-up task file missing: {followup_path}"
         followup_body = open(followup_path, encoding="utf-8").read()
-        assert followup_body.startswith("REVIEW: fable\n"), followup_body[:40]
+        assert followup_body.startswith("REVIEW: opus\n"), followup_body[:40]
         assert "ENDPOINT_CHANGED" in followup_body and "example.invalid/v2" in followup_body, (
             "world 11: follow-up task must quote the operator's actual answer as data"
         )

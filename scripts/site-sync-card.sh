@@ -62,13 +62,15 @@ while IFS=$'\t' read -r key display; do
   surface_file="$(printf '%s\n' "$lines" | sed -n 's/^\([^ :]*\): expected .*/\1/p' | head -1)"
   [ -n "$surface_file" ] || surface_file="$surface_slug"
   review=sonnet
+  category=""
   case "$surface_file" in
-    docs/payments.md|static/terms.html) review=fable ;;
+    docs/payments.md|static/terms.html) review=fable; category=money ;;
   esac
   tmp="$f.tmp.$$"
   {
     echo "REVIEW: $review"
     echo "MODEL: sonnet"
+    [ -n "$category" ] && echo "CATEGORY: $category"
     echo "MAX_ATTEMPTS: 2"
     echo "DOCS: $surface_file"
     echo

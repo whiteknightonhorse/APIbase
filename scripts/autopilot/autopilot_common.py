@@ -396,6 +396,12 @@ for _k, _v in ROUTING.items():
             f"task, there is nothing here for a model to execute"
         )
 del _k, _v
+# T-0644 (REVIEW-ROUTING-1102): fable is never a generated REVIEW.
+for _k, _r in REVIEW_FOR_KIND.items():
+    assert _r != "fable", f"LAW violation: {_k} has review=fable in routing.json (T-0644)"
+del _k, _r
+# Default REVIEW tier of a human-done follow-up card (no per-kind routing entry applies to it).
+FOLLOWUP_REVIEW = "opus"
 
 # T-0265 (REMEDIATION-MODEL-1005 ruling-1): two-phase remediation. Phase A (haiku, no commit)
 # only MEASURES and proposes (incident-cli.py wait | propose-fix | BLOCKED); phase B (sonnet)
@@ -925,7 +931,7 @@ def build_operator_file(incident: dict, docs_url: str | None = None,
     else:
         handoff_body = f"""On its next tick the engine (incident-engine.py, cron */10) will read the filled-in field below from
 {HUMAN_DONE_DIR}/, append it as text to the incident attempts, generate a follow-up task for the fleet
-(a file in {TASKLOOP_QUEUE_DIR}/, REVIEW: fable, your answer — as data bounded by fix.md) and
+(a file in {TASKLOOP_QUEUE_DIR}/, REVIEW: opus, your answer — as data bounded by fix.md) and
 move the incident to REMEDIATION_QUEUED (ceiling {DAILY_TASK_CAP}/day, F2/J3) — after that the
 fix + re-probe decide, and the engine closes the incident itself (I4). You do not need to drop anything else. If
 the daily task ceiling is exhausted at that moment, the file stays here and will be processed on the
@@ -2004,7 +2010,7 @@ def build_remediation_task_body(incident: dict) -> tuple:
     attempts_md = _attempts_md(incident)
     filename = next_task_filename(kind, provider, severity)
     task_id = filename[:-3] if filename.endswith(".md") else filename  # T-0229: full TID, not just the number
-    # T-06 (2026-09-06, Fable consult): a REVIEW: fable task pays a REJECT-cycle tax that a
+    # T-06 (2026-09-06, Fable consult): a fable-reviewed task pays a REJECT-cycle tax that a
     # REVIEW: none task never sees -- fable ACCEPT/REJECT is one full model call per attempt on
     # top of the executor's own, so a genuine "REJECT once, fix, re-review" round trip already
     # spends 2 of the 2 attempts a flat ceiling gave it, with zero room left for anything else
@@ -2084,13 +2090,13 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     operator is far more trusted than an inbound email, but the boundaries
     below still apply regardless of what the text asks for).
 
-    REVIEW is always 'fable', unconditionally: routing.json's per-kind
+    REVIEW is always FOLLOWUP_REVIEW ('opus', T-0644), unconditionally: routing.json's per-kind
     `review` is null for every HUMAN_* kind (WAITING_HUMAN kinds never get an
     AUTO-routed fleet task, so I2's REVIEW field is meaningless for them
     there) — but a human-done follow-up is a DIFFERENT code path that can
     absolutely end up touching src/ or config/ once the operator's answer is
-    read (I2's own rule: 'REVIEW: fable for everything that touches src/ or
-    config/'), so this never falls back to 'none' the way an AUTO task's
+    read (the Opus tier escalates to fable by itself when a diff leaves its
+    allowlist, REVIEW-ROUTING-1102), so this never falls back to 'none' the way an AUTO task's
     lookup does. MODEL is likewise always 'sonnet', unconditionally, for the
     same reason (T-07/B2) — routing.json's per-kind `model` is meaningless
     here too (HUMAN_* kinds never carry one, by construction), and an
@@ -2106,9 +2112,9 @@ def build_human_followup_task_body(incident: dict, operator_result: str) -> tupl
     attempts_md = _attempts_md(incident)
     filename = next_task_filename(kind, provider, severity)
     task_id = filename[:-3] if filename.endswith(".md") else filename  # T-0229: full TID, not just the number
-    # T-06: always REVIEW: fable here (see the docstring above), so always the fable ceiling —
-    # same 4 as build_remediation_task_body's review=="fable" branch, same reasoning.
-    content = f"""REVIEW: fable
+    # T-0644: always FOLLOWUP_REVIEW here (see the docstring above); MAX_ATTEMPTS 4 is the same
+    # ceiling build_remediation_task_body gives review in ("fable", "opus").
+    content = f"""REVIEW: {FOLLOWUP_REVIEW}
 MODEL: sonnet
 MAX_ATTEMPTS: 4
 

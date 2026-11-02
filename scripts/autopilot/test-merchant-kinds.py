@@ -29,7 +29,7 @@ OLD_KINDS = {
     "API_CHANGED": {"route_class": "AUTO", "review": "opus", "fleet_task": True, "model": "sonnet"},
     "ENDPOINT_CHANGED": {"route_class": "AUTO", "review": "opus", "fleet_task": True, "model": "sonnet"},
     "DEGRADED_QUALITY": {"route_class": "AUTO", "review": "opus", "fleet_task": True, "model": "haiku"},
-    "EMAIL_NOTICE": {"route_class": "AUTO", "review": "fable", "fleet_task": True, "model": "sonnet"},
+    "EMAIL_NOTICE": {"route_class": "AUTO", "review": "opus", "fleet_task": True, "model": "sonnet"},
     "RATE_LIMITED": {"route_class": "AUTO_NO_MODEL", "review": "none", "fleet_task": False},
     "QUOTA_LOW": {"route_class": "MIXED", "review": "none", "fleet_task": True, "model": "haiku"},
     "QUOTA_EXHAUSTED": {"route_class": "MIXED", "review": "none", "fleet_task": True, "model": "haiku"},
@@ -112,7 +112,7 @@ class RoutingSchema(unittest.TestCase):
         for kind, cfg in self.routing.items():
             self.assertIn(cfg["route_class"], ROUTE_CLASSES, kind)
             self.assertIsInstance(cfg["fleet_task"], bool, kind)
-            self.assertIn(cfg["review"], ("fable", "opus", "none", None), kind)
+            self.assertIn(cfg["review"], ("opus", "none", None), kind)
             if cfg["fleet_task"]:
                 self.assertIn(cfg.get("model"), ("haiku", "sonnet"), kind)
             if cfg["route_class"].startswith("HUMAN"):
@@ -149,7 +149,7 @@ class RoutingSchema(unittest.TestCase):
     def test_ap1_storefront_down_is_the_only_new_task_kind(self):
         cfg = self.routing["STOREFRONT_DOWN"]
         self.assertEqual((cfg["route_class"], cfg["fleet_task"], cfg["review"], cfg["model"]),
-                         ("AUTO", True, "fable", "sonnet"))
+                         ("AUTO", True, "opus", "sonnet"))
         self.assertEqual({k for k in NEW_KINDS if self.routing[k]["fleet_task"]}, {"STOREFRONT_DOWN"})
         for k in NEW_KINDS:
             if k != "STOREFRONT_DOWN":
@@ -254,7 +254,7 @@ class EngineWorlds(unittest.TestCase):
         self.assertEqual(len(queue_files()), 3, "a later tick does not exceed the ceiling")
         body = open(os.path.join(fx.SCRATCH, "taskloop", "queue", queue_files()[0]), encoding="utf-8").read()
         self.assertIn("MODEL: sonnet", body)
-        self.assertIn("REVIEW: fable", body)
+        self.assertIn("REVIEW: opus", body)
 
     def test_ap3_cap_read_from_config(self):
         p = os.path.join(fx.SCRATCH, "cfg.env")

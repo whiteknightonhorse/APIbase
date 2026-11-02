@@ -32,12 +32,34 @@ describe('autopilot routing.json vs incidents_kind_check', () => {
     expect(routed.sort()).toEqual([...kinds].sort());
   });
 
-  it('JOB_STALE is a sonnet fleet task reviewed by fable', () => {
+  it('JOB_STALE is a sonnet fleet task reviewed by opus', () => {
     expect(routing.JOB_STALE).toMatchObject({
       route_class: 'AUTO',
-      review: 'fable',
+      review: 'opus',
       fleet_task: true,
       model: 'sonnet',
     });
+  });
+
+  it('no generated REVIEW is fable (T-0644, REVIEW-ROUTING-1102)', () => {
+    for (const [k, v] of Object.entries(routing) as [string, { review?: string | null }][]) {
+      if (k.startsWith('_')) continue;
+      expect(v.review).not.toBe('fable');
+    }
+    const files = [
+      'scripts/autopilot/autopilot_common.py',
+      'scripts/autopilot/incident-engine.py',
+      'scripts/autopilot/incident-cli.py',
+      'config/autopilot/routing.json',
+    ];
+    for (const f of files)
+      expect(readFileSync(join(root, f), 'utf8')).not.toContain('REVIEW: fable');
+  });
+
+  it('site-sync-card writes fable only with CATEGORY: money', () => {
+    const sh = readFileSync(join(root, 'scripts', 'site-sync-card.sh'), 'utf8');
+    expect(sh).toMatch(/docs\/payments\.md\|static\/terms\.html\) review=fable; category=money/);
+    expect(sh.match(/review=fable/g)).toHaveLength(1);
+    expect(sh).toContain('CATEGORY: $category');
   });
 });
