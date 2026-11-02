@@ -1,4 +1,3 @@
-import { getSharedRedis } from './redis.service';
 import { logger } from '../config/logger';
 import client from 'prom-client';
 import { ProviderErrorCode, type ProviderError } from '../types/provider';
@@ -16,6 +15,12 @@ import { ProviderErrorCode, type ProviderError } from '../types/provider';
  *  - recordSuccess deletes the key (closes the breaker, resets the ladder).
  * Redis errors fail open (breaker closed): the catalog status still applies.
  */
+
+// Lazy: importing redis.service loads config (process.exit on missing env) at module load,
+// which would break every module that merely imports the stage chain.
+async function getSharedRedis() {
+  return (await import('./redis.service')).getSharedRedis();
+}
 
 const BREAKER_FAIL_THRESHOLD = 3;
 const BREAKER_WINDOW_S = 600;
@@ -88,7 +93,7 @@ export async function recordFailure(
 ): Promise<void> {
   if (!isBreakerFailure(error)) return;
   try {
-    const redis = getSharedRedis();
+    const redis = await getSharedRedis();
     const prev = parse(await redis.get(keyOf(toolId))) ?? { fails: 0, opened_until: 0, opens: 0 };
     if (prev.opened_until > now) return; // already open: in-flight stragglers do not extend it
     const state: BreakerState = { ...prev, fails: prev.fails + 1 };
@@ -122,7 +127,7 @@ export async function recordFailure(
 /** A 2xx provider result closes the breaker and resets the backoff ladder. */
 export async function recordSuccess(toolId: string): Promise<void> {
   try {
-    await getSharedRedis().del(keyOf(toolId));
+    await (await getSharedRedis()).del(keyOf(toolId));
     dropGauge(toolId);
   } catch (err) {
     logger.warn({ err, tool_id: toolId }, 'Tool breaker recordSuccess failed (fail-open)');
@@ -132,7 +137,7 @@ export async function recordSuccess(toolId: string): Promise<void> {
 /** Remaining open seconds (>= 1) or 0 when closed. Redis trouble -> 0. */
 export async function isOpen(toolId: string, now: number = Date.now()): Promise<number> {
   try {
-    const state = parse(await getSharedRedis().get(keyOf(toolId)));
+    const state = parse(await (await getSharedRedis()).get(keyOf(toolId)));
     const remaining = state ? Math.ceil((state.opened_until - now) / 1000) : 0;
     if (remaining > 0) return remaining;
     dropGauge(toolId);
