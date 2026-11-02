@@ -329,7 +329,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       const resultAny = result as unknown as Record<string, unknown>;
       const errorReason = resultAny.errorReason ?? resultAny.error;
       const verdict = settleOutcomeIsUnknown(errorReason, result.errorMessage);
-      const sigRpc = errorReason === 'invalid_exact_evm_signature';
+      const sigRpc = String(errorReason ?? '').startsWith('invalid_exact_evm_signature');
       logger.warn(
         {
           requestId: ctx.requestId,
