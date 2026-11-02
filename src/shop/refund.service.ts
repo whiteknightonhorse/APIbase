@@ -126,7 +126,8 @@ async function orderFacts(tx: ShopTx, merchant_id: string, order_id: string): Pr
             (o.total_usd * 1000000)::bigint::text AS total,
             (SELECT COALESCE(SUM(r.verified_amount), 0) * 1000000 FROM shop_refunds r
               WHERE r.order_id = o.order_id AND r.verified
-                AND r.reason <> 'duplicate_payment_recovery')::bigint::text AS refunded
+                AND r.reason <> 'duplicate_payment_recovery'
+                AND NOT (r.requested_by = 'system' AND r.payment_id IS NOT NULL))::bigint::text AS refunded
        FROM shop_orders o WHERE o.order_id = $1::uuid AND o.merchant_id = $2::uuid`,
     order_id,
     merchant_id,
@@ -173,7 +174,7 @@ function checkRefundable(f: OrderFacts, amount: bigint): void {
  * (the order's payer wallet) and come FROM `sender` (A1-16: the merchant's payout wallet, the one the
  * settle paid), so a third party's transfer cannot close a merchant's refund obligation.
  */
-function verifyReceipt(
+export function verifyReceipt(
   r: RefundReceipt,
   token: string,
   payer: string,
@@ -319,6 +320,7 @@ export async function merchantRefund(
       `SELECT refund_id, (amount_usd * 1000000)::bigint::text AS owed, reason, requested_by, status, due_at
          FROM shop_refunds
         WHERE order_id = $1::uuid AND NOT verified AND status IN ('requested', 'awaiting_merchant_tx', 'overdue')
+          AND NOT (requested_by = 'system' AND payment_id IS NOT NULL)
         ORDER BY created_at LIMIT 1 FOR UPDATE`,
       order_id,
     );
@@ -362,7 +364,8 @@ export async function merchantRefund(
     if (full) {
       await tx.$executeRawUnsafe(
         `UPDATE shop_refunds SET status = 'rejected', reject_reason = 'order_fully_refunded'
-          WHERE order_id = $1::uuid AND NOT verified AND status IN ('requested', 'awaiting_merchant_tx', 'overdue')`,
+          WHERE order_id = $1::uuid AND NOT verified AND status IN ('requested', 'awaiting_merchant_tx', 'overdue')
+            AND NOT (requested_by = 'system' AND payment_id IS NOT NULL)`,
         order_id,
       );
     }

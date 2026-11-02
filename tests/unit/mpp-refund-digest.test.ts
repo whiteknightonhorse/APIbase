@@ -10,11 +10,11 @@ import { isInternalWallet, parseInternalWallets } from '../../src/config/interna
 const ROOT = join(__dirname, '..', '..');
 
 describe('internal-wallets (T-0280)', () => {
-  it('ships 14 lowercase Heartbeat addresses', () => {
+  it('ships 15 lowercase Heartbeat addresses', () => {
     const list = JSON.parse(
       readFileSync(join(ROOT, 'config/autopilot/internal-wallets.json'), 'utf-8'),
     ) as Array<{ address: string; label: string; source: string }>;
-    expect(list).toHaveLength(14);
+    expect(list).toHaveLength(15);
     for (const e of list) {
       expect(e.address).toMatch(/^0x[0-9a-f]{40}$/);
       expect(e.label).toBe('mcp-heartbeat');
@@ -23,6 +23,7 @@ describe('internal-wallets (T-0280)', () => {
 
   it('matches case-insensitively and rejects unknown / empty payers', () => {
     expect(isInternalWallet('0x6B414116D641D9AF479297DAF9892DE91F72B4CF')).toBe(true);
+    expect(isInternalWallet('0xE2D8DC842FC5037C99C332BD57BAABA3649F66C2')).toBe(true);
     expect(isInternalWallet('0x' + '1'.repeat(40))).toBe(false);
     expect(isInternalWallet('unknown-mpp-payer')).toBe(false);
     expect(isInternalWallet(undefined)).toBe(false);

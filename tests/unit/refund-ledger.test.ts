@@ -30,6 +30,8 @@ import {
 } from '../../src/services/refund-ledger.service';
 import { confirmPayment, getOrderView } from '../../src/shop/order-payment.service';
 import { run as reconcile, type ChainReader } from '../../src/jobs/shop-payment-reconcile.job';
+import { flagOverdueSystemRefunds } from '../../src/jobs/shop-sla-sweeper.job';
+import { verifyReceipt } from '../../src/shop/refund.service';
 import { logger } from '../../src/config/logger';
 
 type Row = Record<string, any>;
@@ -127,8 +129,8 @@ dbDescribe('refund_ledger', () => {
   const mkPayment = async (o: string, status: string, over: Record<string, unknown> = {}) =>
     (
       await q(
-        `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, eip3009_nonce, pay_to, amount_usd, chain_status)
-         VALUES ($1::uuid, $2, $3, $4, $5, $6, 1, $7) RETURNING payment_id`,
+        `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, eip3009_nonce, pay_to, amount_usd, chain_status, splits)
+         VALUES ($1::uuid, $2, $3, $4, $5, $6, 1, $7, $8::jsonb) RETURNING payment_id`,
         o,
         over.rail ?? 'base',
         `n-${uniq()}`,
@@ -136,10 +138,25 @@ dbDescribe('refund_ledger', () => {
         `0x${uniq().padStart(64, '0')}`,
         SELLER,
         status,
+        JSON.stringify(over.splits ?? []),
       )
     )[0].payment_id as string;
+  const FEE_LEG = [
+    { wallet: SELLER, amount_usd: '0.1', fee_to: SELLER, fee: 0.1, mode: 'in_tx', nonce: '0xfee' },
+  ];
+  const chainFor = (found: string): ChainReader => ({
+    receiptOk: jest.fn(async () => false),
+    authorizationUsed: jest.fn(async () => true),
+    findTransfer: jest.fn(async () => found),
+  });
+  const sysRows = (o: string) =>
+    q(`SELECT * FROM shop_refunds WHERE order_id = $1::uuid AND requested_by = 'system'`, o);
+  const orderState = async (o: string) =>
+    (await q(`SELECT state FROM shop_orders WHERE order_id = $1::uuid`, o))[0].state;
+  const approxDays = (d: Date, n: number) =>
+    Math.abs(new Date(d).getTime() - (Date.now() + n * 86_400_000)) < 120_000;
 
-  it('RL5: confirmPayment on an EXPIRED order -> payment confirmed, ledger paid_after_terminal, order unchanged', async () => {
+  it('RL5: confirmPayment on an EXPIRED order -> payment confirmed, no ledger row at fee 0, system request for the whole amount, order unchanged', async () => {
     const { o } = await mkPaying('EXPIRED');
     const p = await mkPayment(o, 'pending');
     const t = tx();
@@ -157,21 +174,23 @@ dbDescribe('refund_ledger', () => {
       chain_status: 'confirmed',
       tx_hash: t,
     });
-    const led = await q(`SELECT * FROM refund_ledger WHERE payment_id = $1::uuid`, p);
-    expect(led).toHaveLength(1);
-    expect(led[0]).toMatchObject({
+    // decision B, fee 0: nothing in the ledger, the whole amount is a seller request to the payer
+    expect(await q(`SELECT 1 FROM refund_ledger WHERE payment_id = $1::uuid`, p)).toHaveLength(0);
+    const sys = await sysRows(o);
+    expect(sys).toHaveLength(1);
+    expect(sys[0]).toMatchObject({
       reason: 'paid_after_terminal',
-      rail: 'base',
-      payer: PAYER,
-      original_tx: t,
-      status: 'owed',
-      source_kind: 'order',
-      order_id: o,
+      status: 'awaiting_merchant_tx',
+      payment_id: p,
+      refund_to: null,
+      verified: false,
     });
-    expect(Number(led[0].amount_usd)).toBe(1);
+    expect(Number(sys[0].amount_usd)).toBe(1);
+    expect(approxDays(sys[0].due_at, 7)).toBe(true);
     // a replay of the same confirmation books nothing more
     await confirmPayment(deps, { order_id: o, payment_id: p, tx_hash: t, payer: PAYER });
-    expect(await q(`SELECT 1 FROM refund_ledger WHERE payment_id = $1::uuid`, p)).toHaveLength(1);
+    expect(await q(`SELECT 1 FROM refund_ledger WHERE payment_id = $1::uuid`, p)).toHaveLength(0);
+    expect(await sysRows(o)).toHaveLength(1);
     expect(
       await q(
         `SELECT 1 FROM outbox WHERE event_type = 'shop.order.paid' AND payload->>'order_id' = $1`,
@@ -180,25 +199,18 @@ dbDescribe('refund_ledger', () => {
     ).toHaveLength(0);
   });
 
-  it('RL6: reconcile - failed payment of a PAID order with the authorization used -> confirmed + ledger duplicate_payment, no shop_refunds row (decision 1 = B)', async () => {
+  it('RL6: duplicate with a fee leg -> ledger = fee share only, seller system request for the rest (7 d, to the payer), order untouched, replay books nothing', async () => {
     const { o } = await mkPaying('PAID');
     await mkPayment(o, 'confirmed');
-    const dup = await mkPayment(o, 'failed');
+    const dup = await mkPayment(o, 'failed', { splits: FEE_LEG });
     const found = tx();
-    const chain: ChainReader = {
-      receiptOk: jest.fn(async () => false),
-      authorizationUsed: jest.fn(async () => true),
-      findTransfer: jest.fn(async () => found),
-    };
+    const chain = chainFor(found);
     await reconcile({ deps, chain });
     expect(
       (
         await q(`SELECT chain_status, tx_hash FROM shop_payments WHERE payment_id = $1::uuid`, dup)
       )[0],
-    ).toEqual({
-      chain_status: 'confirmed',
-      tx_hash: found,
-    });
+    ).toEqual({ chain_status: 'confirmed', tx_hash: found });
     const led = await q(`SELECT * FROM refund_ledger WHERE payment_id = $1::uuid`, dup);
     expect(led).toHaveLength(1);
     expect(led[0]).toMatchObject({
@@ -206,14 +218,106 @@ dbDescribe('refund_ledger', () => {
       original_tx: found,
       status: 'owed',
       order_id: o,
+      note: { whole_amount_usd: '1.000000', fee_share_usd: '0.1', decision: 'B' },
     });
-    expect(await q(`SELECT 1 FROM shop_refunds WHERE order_id = $1::uuid`, o)).toHaveLength(0);
-    expect((await q(`SELECT state FROM shop_orders WHERE order_id = $1::uuid`, o))[0].state).toBe(
-      'PAID',
-    );
-    // second run: the payment is confirmed now, nothing new
+    expect(Number(led[0].amount_usd)).toBe(0.1); // never the whole payment (1)
+    const sys = await sysRows(o);
+    expect(sys).toHaveLength(1);
+    expect(sys[0]).toMatchObject({
+      reason: 'duplicate_payment',
+      status: 'awaiting_merchant_tx',
+      payment_id: dup,
+      refund_to: null,
+    });
+    expect(Number(sys[0].amount_usd)).toBe(0.9);
+    expect(approxDays(sys[0].due_at, 7)).toBe(true);
+    expect(await orderState(o)).toBe('PAID');
     await reconcile({ deps, chain });
     expect(await q(`SELECT 1 FROM refund_ledger WHERE payment_id = $1::uuid`, dup)).toHaveLength(1);
+    expect(await sysRows(o)).toHaveLength(1);
+  });
+
+  it('RL6b: duplicate with fee 0 -> no ledger row, system request for the whole amount', async () => {
+    const { o } = await mkPaying('PAID');
+    await mkPayment(o, 'confirmed');
+    const dup = await mkPayment(o, 'failed');
+    await reconcile({ deps, chain: chainFor(tx()) });
+    expect(await q(`SELECT 1 FROM refund_ledger WHERE payment_id = $1::uuid`, dup)).toHaveLength(0);
+    const sys = await sysRows(o);
+    expect(sys).toHaveLength(1);
+    expect(Number(sys[0].amount_usd)).toBe(1);
+    expect(await orderState(o)).toBe('PAID');
+  });
+
+  it('RL5b: paid_after_terminal with a fee leg -> ledger = fee share, seller request for the rest', async () => {
+    const { o } = await mkPaying('EXPIRED');
+    const p = await mkPayment(o, 'pending', { splits: FEE_LEG });
+    await confirmPayment(deps, { order_id: o, payment_id: p, tx_hash: tx(), payer: PAYER });
+    const led = await q(`SELECT * FROM refund_ledger WHERE payment_id = $1::uuid`, p);
+    expect(led).toHaveLength(1);
+    expect(led[0]).toMatchObject({ reason: 'paid_after_terminal', note: { decision: 'B' } });
+    expect(Number(led[0].amount_usd)).toBe(0.1);
+    const sys = await sysRows(o);
+    expect(sys).toHaveLength(1);
+    expect(Number(sys[0].amount_usd)).toBe(0.9);
+    expect(await orderState(o)).toBe('EXPIRED');
+  });
+
+  it('RL10: overdue system request -> one moderation flag, a second sweep adds none, order untouched', async () => {
+    const { m, o } = await mkPaying('PAID');
+    await mkPayment(o, 'confirmed');
+    const dup = await mkPayment(o, 'failed');
+    await reconcile({ deps, chain: chainFor(tx()) });
+    const now = new Date();
+    expect(await flagOverdueSystemRefunds(deps, now)).toBe(0); // not due yet
+    await x(
+      `UPDATE shop_refunds SET due_at = now() - interval '1 hour' WHERE payment_id = $1::uuid`,
+      dup,
+    );
+    expect(await flagOverdueSystemRefunds(deps, new Date())).toBe(1);
+    expect(await flagOverdueSystemRefunds(deps, new Date())).toBe(0);
+    const flags = await q(
+      `SELECT merchant_id::text AS m FROM shop_moderation_reviews WHERE category = 'duplicate_refund_overdue'`,
+    );
+    expect(flags.filter((f) => f.m === m)).toHaveLength(1);
+    expect(await orderState(o)).toBe('PAID');
+    expect(await q(`SELECT 1 FROM refund_ledger WHERE payment_id = $1::uuid`, dup)).toHaveLength(0);
+  });
+
+  it('RL11: verifyReceipt accepts (from = pay_to, to = payer) for a system row and rejects a wrong `to`', () => {
+    const TOKEN = '0x00000000000000000000000000000000000000aa';
+    const ok = {
+      status: 'success' as const,
+      transfers: [{ token: TOKEN, from: SELLER, to: PAYER, valueMicro: '900000' }],
+    };
+    expect(verifyReceipt(ok, TOKEN, PAYER, SELLER, 900000n)).toBeNull();
+    const wrongTo = {
+      ...ok,
+      transfers: [{ ...ok.transfers[0], to: '0x00000000000000000000000000000000000000bb' }],
+    };
+    expect(verifyReceipt(wrongTo, TOKEN, PAYER, SELLER, 900000n)).toBe('no_usdc_transfer_to_payer');
+    const wrongFrom = { ...ok, transfers: [{ ...ok.transfers[0], from: PAYER }] };
+    expect(verifyReceipt(wrongFrom, TOKEN, PAYER, SELLER, 900000n)).toBe('refund_tx_wrong_sender');
+  });
+
+  it('RL12: a system request never counts toward the order refund total', async () => {
+    const { o } = await mkPaying('PAID');
+    await mkPayment(o, 'confirmed');
+    await mkPayment(o, 'failed');
+    await reconcile({ deps, chain: chainFor(tx()) });
+    await x(
+      `UPDATE shop_refunds SET verified = true, verified_amount = amount_usd WHERE order_id = $1::uuid`,
+      o,
+    );
+    const { refunded } = (
+      await q(
+        `SELECT (SELECT COALESCE(SUM(r.verified_amount), 0) FROM shop_refunds r
+                  WHERE r.order_id = $1::uuid AND r.verified
+                    AND NOT (r.requested_by = 'system' AND r.payment_id IS NOT NULL)) AS refunded`,
+        o,
+      )
+    )[0];
+    expect(Number(refunded)).toBe(0);
   });
 
   it('RL7: reconcile - authorization not used, or the chain unreadable -> nothing booked', async () => {

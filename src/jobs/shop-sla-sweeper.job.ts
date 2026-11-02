@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { logger } from '../config/logger';
 import type { ShopTx } from '../shop/db';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
@@ -296,6 +297,31 @@ async function overdueRefunds(d: ShopDeps, now: Date): Promise<number> {
   });
 }
 
+/**
+ * T-0656: a system refund request (duplicate_payment / paid_after_terminal, decision B) still unpaid
+ * past due_at -> ONE human flag per request (dedup by evidence_hash). No money, no order transition.
+ */
+export async function flagOverdueSystemRefunds(d: ShopDeps, now: Date): Promise<number> {
+  const rows = await d.db.$queryRawUnsafe<Array<{ refund_id: string; merchant_id: string }>>(
+    `SELECT r.refund_id, o.merchant_id FROM shop_refunds r JOIN shop_orders o ON o.order_id = r.order_id
+      WHERE r.status IN ('awaiting_merchant_tx', 'overdue') AND r.requested_by = 'system' AND r.due_at < $1::timestamptz
+      LIMIT 200`,
+    now,
+  );
+  let n = 0;
+  for (const r of rows) {
+    n += await d.db.$executeRawUnsafe(
+      `INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category, evidence_hash)
+       SELECT $1::uuid, 'merchant', 'rules', 'flag', 'duplicate_refund_overdue', $2
+        WHERE NOT EXISTS (SELECT 1 FROM shop_moderation_reviews
+                           WHERE category = 'duplicate_refund_overdue' AND evidence_hash = $2)`,
+      r.merchant_id,
+      createHash('sha256').update(r.refund_id).digest('hex'),
+    );
+  }
+  return n;
+}
+
 /** (e) F-1: payout_pending whose effective_at has passed becomes the merchant's wallet for its rail. */
 export async function applyPayouts(d: ShopDeps, now: Date): Promise<number> {
   return d.transaction(async (tx) => {
@@ -388,6 +414,7 @@ export async function runShopSlaSweeper(
     'refunds_overdue',
     async () => void (out.refunds_overdue = await overdueRefunds(d, now)),
   );
+  await step('system_refunds_flag', async () => void (await flagOverdueSystemRefunds(d, now)));
   // T-INT-23: dispute due_at passed -> expired + DISPUTE_UNANSWERED; reputation hourly per merchant (UC-17).
   await step(
     'disputes_expired',

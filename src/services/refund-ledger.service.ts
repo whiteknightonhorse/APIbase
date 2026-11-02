@@ -209,3 +209,78 @@ export async function refundForOrder(
   );
   return rows[0] ? toPublic(rows[0]) : null;
 }
+
+/** Seller refund window for a payment that arrived twice or after the order closed. */
+const SYSTEM_REFUND_DAYS = 7;
+
+export type OrderDebtReason = 'duplicate_payment' | 'paid_after_terminal';
+
+export interface OrderDebtPayment {
+  payment_id: string;
+  order_id: string;
+  rail: 'base' | 'tempo';
+  payer: string;
+  amount_usd: string;
+  original_tx: string | null;
+}
+
+/**
+ * T-0656 (operator decision 1 = B): the seller refunds the buyer himself, APIbase returns only its
+ * own fee. The money of a duplicate / late order payment sits in the seller's payout wallet; APIbase
+ * holds only the fee leg that was taken in the payment's own transaction (`splits` mode `in_tx`).
+ *  - fee_share > 0: refund_ledger row for the fee share only (never the whole payment);
+ *  - fee_share = 0: nothing in the ledger;
+ *  - always: one system refund request on the seller (shop_refunds, 7 days, to the paying wallet,
+ *    refund_to NULL), idempotent on (payment_id, reason). Records only; the order is never touched.
+ * Runs inside the caller's transaction: a failed request insert rolls the whole booking back.
+ */
+export async function bookOrderPaymentDebt(
+  tx: LedgerDb,
+  p: OrderDebtPayment,
+  reason: OrderDebtReason,
+): Promise<{ fee_share_usd: string; seller_usd: string }> {
+  const legs = await tx.$queryRawUnsafe<Array<{ fee: string; seller: string }>>(
+    `SELECT fee::text AS fee, (amount - fee)::text AS seller FROM (
+       SELECT $2::numeric AS amount,
+              coalesce((SELECT sum((e->>'amount_usd')::numeric)
+                          FROM shop_payments sp, jsonb_array_elements(sp.splits) e
+                         WHERE sp.payment_id = $1::uuid AND e->>'mode' = 'in_tx'), 0) AS fee) t`,
+    p.payment_id,
+    p.amount_usd,
+  );
+  const fee = legs[0]?.fee ?? '0';
+  const seller = legs[0]?.seller ?? p.amount_usd;
+  const feeShare = Number(fee) > 0 ? Number(fee) : 0;
+  if (feeShare > 0) {
+    await recordRefundOwed(
+      {
+        rail: p.rail,
+        payer: p.payer,
+        amount_usd: fee,
+        reason,
+        source_kind: 'order',
+        source_id: p.payment_id,
+        order_id: p.order_id,
+        payment_id: p.payment_id,
+        original_tx: p.original_tx ?? undefined,
+        note: { whole_amount_usd: p.amount_usd, fee_share_usd: fee, decision: 'B' },
+      },
+      tx,
+    );
+  }
+  if (Number(seller) > 0) {
+    await tx.$executeRawUnsafe(
+      `INSERT INTO shop_refunds (order_id, payment_id, amount_usd, reason, requested_by, status, due_at)
+       VALUES ($1::uuid, $2::uuid, $3::numeric, $4, 'system', 'awaiting_merchant_tx',
+               now() + make_interval(days => $5::int))
+       ON CONFLICT (payment_id, reason) WHERE requested_by = 'system' AND payment_id IS NOT NULL
+       DO NOTHING`,
+      p.order_id,
+      p.payment_id,
+      seller,
+      reason,
+      SYSTEM_REFUND_DAYS,
+    );
+  }
+  return { fee_share_usd: fee, seller_usd: seller };
+}

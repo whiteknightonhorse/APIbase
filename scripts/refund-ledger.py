@@ -27,9 +27,13 @@ def sql_literal(value):
     return "'" + value.replace("'", "''") + "'"
 
 
-def run_sql(sql):
+READ_ROLE = "fleet_ro"   # T-0656 R9: read verbs run as the read-only role
+WRITE_ROLE = "apibase"   # only `cancel` writes
+
+
+def run_sql(sql, role=READ_ROLE):
     out = subprocess.run(
-        ["docker", "exec", "apibase-postgres-1", "psql", "-U", "apibase", "-d", "apibase",
+        ["docker", "exec", "apibase-postgres-1", "psql", "-U", role, "-d", "apibase",
          "-tAF", SEP, "-c", sql],
         capture_output=True, text=True,
     )
@@ -116,7 +120,7 @@ def main(argv):
         print(out.replace(SEP, "\t") if out else "(no rows)")
         return 0
     if verb == "cancel":
-        out, rc = run_sql(cancel_sql(opts))
+        out, rc = run_sql(cancel_sql(opts), WRITE_ROLE)
         if rc != 0 or out != "UPDATE 1":
             print(f"refund-ledger: cancel failed ({out!r}) -- only owed/internal rows can be cancelled")
             return 1
@@ -151,6 +155,9 @@ def selftest():
     _, o = parse_args(["cancel", "00000000-0000-0000-0000-000000000000", "--reason", "o'k"])
     assert "'o''k'" in cancel_sql(o) and "IN ('owed', 'internal')" in cancel_sql(o)
     assert "rail = 'tempo'" in list_sql({"rail": "tempo"})
+    import inspect
+    assert inspect.signature(run_sql).parameters["role"].default == "fleet_ro" and WRITE_ROLE == "apibase"
+    assert inspect.getsource(main).count("WRITE_ROLE") == 1
     print("refund-ledger --selftest: OK")
     return 0
 

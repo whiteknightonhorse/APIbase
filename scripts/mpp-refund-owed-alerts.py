@@ -341,7 +341,7 @@ def tick():
 def selftest():
     tg = load_tg_strings()
     wallets = load_internal_wallets()
-    assert len(wallets) == 14, "internal-wallets.json must hold the 14 Heartbeat addresses"
+    assert len(wallets) == 15, "internal-wallets.json must hold the 15 Heartbeat addresses"
     internal = {"0x" + "a" * 40}
     now = datetime(2026, 10, 7, 6, 30, tzinfo=timezone.utc)
 

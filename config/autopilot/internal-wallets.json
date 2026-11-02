@@ -12,5 +12,6 @@
   {"address": "0x688130810f0bede38742b66e7a443274c01d4213", "label": "mcp-heartbeat", "source": "operator file 2026-10-06"},
   {"address": "0x5656dce7d16fc7dedce3a6eb02b9c6443dfd08a1", "label": "mcp-heartbeat", "source": "operator file 2026-10-06"},
   {"address": "0x1eb51c15eebf9ec76d0e12655335d47e496f04fd", "label": "mcp-heartbeat", "source": "operator file 2026-10-06"},
-  {"address": "0x6b414116d641d9af479297daf9892de91f72b4cf", "label": "mcp-heartbeat", "source": "operator file 2026-10-06"}
+  {"address": "0x6b414116d641d9af479297daf9892de91f72b4cf", "label": "mcp-heartbeat", "source": "operator file 2026-10-06"},
+  {"address": "0xe2d8dc842fc5037c99c332bd57baaba3649f66c2", "label": "mcp-heartbeat", "source": "operator report 2026-10-28"}
 ]
