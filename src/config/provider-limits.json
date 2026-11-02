@@ -1795,7 +1795,12 @@
     "pricing_note": "$0.005/call is not stated on audd.io or docs.audd.io; trial of 300 requests is dashboard-only, and the trial was recorded as active only till 2026-04-11.",
     "limit_proof": "Trial: 300 free requests, no CC. Paid: $5/1K ($0.005/call). Trial active till 2026-04-11",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-11-02",
+      "task": "T-0665",
+      "reason": "operator decision 2026-11-02: QUOTA_LOW flapping 74x/7d and priced below recorded cost; retire"
+    }
   },
   "materials-project": {
     "display_name": "Materials Project",
