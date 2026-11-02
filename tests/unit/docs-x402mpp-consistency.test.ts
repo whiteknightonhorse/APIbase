@@ -3,7 +3,9 @@
  * Scans every public surface that talks about payments and fails on:
  *   1. github.com/coinbase/x402 (the repository lives at x402-foundation/x402);
  *   2. an mppx or @x402/<pkg> version string that is not the package.json range
- *      (`mppx >= 0.6.16` is the one allowed minimum client version);
+ *      (`mppx >= 0.6.16` is the one allowed minimum client version); docs/releases/* is exempt from
+ *      this rule only: release notes are append-only dated snapshots (FLEET-DOCS-LAW-1026 section 2)
+ *      and keep the version they shipped (T-0566: v2.2.0 says mppx 0.13.5 after the 0.15 bump);
  *   3. the removed MPP charge memo: "memo" within 200 chars of MPP / Tempo / quote
  *      (two allowlisted anchors: keychain renewal memos and the fee-invoice memo in static/integrator/docs.md,
  *      plus the "Removed" line of docs/releases/v2.2.0.md);
@@ -112,7 +114,7 @@ describe('T-0432 docs x402/MPP consistency gate', () => {
 
   it('G2: mppx and @x402/* versions equal the package.json range', () => {
     const bad: string[] = [];
-    for (const f of files) {
+    for (const f of files.filter((x) => !x.startsWith('docs/releases/'))) {
       const t = read(f);
       for (const m of t.matchAll(/mppx\s*(>=|v|@)?\s*(0\.\d+(?:\.\d+)?)/gi)) {
         const ok = m[2] === MPPX_VERSION || (m[1] === '>=' && m[2] === MIN_MPP_CLIENT);
@@ -123,6 +125,13 @@ describe('T-0432 docs x402/MPP consistency gate', () => {
       }
     }
     expect(bad).toEqual([]);
+  });
+
+  it('G2: release notes keep their shipped version and are still scanned by G1/G3-G5', () => {
+    expect(files.filter((f) => f.startsWith('docs/releases/'))).toContain(
+      'docs/releases/v2.2.0.md',
+    );
+    expect(read('docs/releases/v2.2.0.md')).toMatch(/mppx 0\.13\.5/);
   });
 
   it('G3: no charge memo next to MPP / Tempo / quote', () => {

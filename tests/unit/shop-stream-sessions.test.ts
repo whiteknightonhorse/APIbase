@@ -13,7 +13,7 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { encryptSecret } from '../../src/services/secret-crypto.service';
-import { createStreamRouter } from '../../src/shop/routes/stream.router';
+import { createStreamRouter, isVerifiedSession } from '../../src/shop/routes/stream.router';
 import {
   CONTENT_CHARS_PER_S,
   STREAM_LRU_MAX,
@@ -246,6 +246,13 @@ const PAYLOAD = Array.from({ length: 12_000 }, (_, i) =>
 // no database
 // ---------------------------------------------------------------------------
 describe('stream helpers and catalog item rules (no DB)', () => {
+  it('A3-14: only an mppx session result with status 200 is paid; 402, 403 and any other status are not', () => {
+    expect(isVerifiedSession({ status: 200 })).toBe(true);
+    for (const status of [402, 403, 400, 401, 500, 201, 204, 0]) {
+      expect(isVerifiedSession({ status })).toBe(false);
+    }
+  });
+
   it('micro-dollar conversion is exact and refuses sub-micro amounts', () => {
     expect(toMicro('0.0001')).toBe(100n);
     expect(toMicro('1')).toBe(1_000_000n);

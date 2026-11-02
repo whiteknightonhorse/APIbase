@@ -144,6 +144,15 @@ const parseSeconds = (raw: unknown): number => {
   return n;
 };
 
+/**
+ * A3-14 (T-0566): only status 200 from the mppx session handler is a verified credential. Every
+ * other status (402 today; a replayed credential is a 402 result carrying a 403 response; any
+ * future non-200 shape) is answered with the mppx response and never reaches the paid path.
+ */
+export function isVerifiedSession(result: { status: number }): boolean {
+  return result.status === 200;
+}
+
 export function createStreamRouter(opts: StreamRouterOptions = {}): Router {
   const deps = () => opts.deps ?? defaultShopDeps();
   const router = Router();
@@ -236,8 +245,8 @@ export function createStreamRouter(opts: StreamRouterOptions = {}): Router {
     };
     let deferredClose: DeferredClose | undefined;
     try {
-      const captured = await captureDeferredClose(
-        (): Promise<typeof result> => method.mppx.session({ amount: unitAmount })(fetchReq),
+      const captured = await captureDeferredClose((): Promise<typeof result> =>
+        method.mppx.session({ amount: unitAmount })(fetchReq),
       );
       result = captured.value;
       deferredClose = captured.deferredClose;
@@ -275,12 +284,12 @@ export function createStreamRouter(opts: StreamRouterOptions = {}): Router {
       });
       return;
     }
-    if (result.status === 402) {
+    if (!isVerifiedSession(result)) {
       await sendFetch(res, result.challenge);
       return;
     }
 
-    // Verified credential. The placeholder only carries the receipt header out of mppx.
+    // Verified credential (status 200 only). The placeholder only carries the receipt header out of mppx.
     const probe: globalThis.Response = result.withReceipt(
       new globalThis.Response(null, { status: 200 }),
     );

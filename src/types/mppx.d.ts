@@ -26,13 +26,8 @@ declare module 'mppx/server' {
     (options: TempoMethodParams): unknown;
     charge(options: TempoMethodParams): unknown;
     session(options: TempoMethodParams): unknown;
-    /** One-shot settle of the highest voucher in the channel store (T-INT-40). */
-    settle(
-      store: unknown,
-      client: unknown,
-      channelId: `0x${string}`,
-      options?: { account?: unknown; escrowContract?: `0x${string}` },
-    ): Promise<`0x${string}`>;
+    // T-0566: no settle here. Every settle runs on mppx-legacy (declared below); root mppx 0.14+
+    // settle() refuses vouchers above `spent` and is out of scope (ruling MPPX-015-1102).
   }
   export const tempo: TempoFn;
 
