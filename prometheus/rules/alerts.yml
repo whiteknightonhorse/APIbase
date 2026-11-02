@@ -1,5 +1,5 @@
 # APIbase.pro — Prometheus Alert Rules (§12.240)
-# 32 alerts. All have severity label. Telegram delivery via Alertmanager.
+# 33 alerts. All have severity label. Telegram delivery via Alertmanager.
 # Critical = 1h repeat, Warning = 4h repeat.
 
 groups:
@@ -361,3 +361,14 @@ groups:
           severity: warning
         annotations:
           summary: "a failed settle landed on chain — see refund_ledger"
+
+      # -----------------------------------------------------------------------
+      # 33. ToolBreakerOpening — warning (T-0657)
+      # A per-tool circuit breaker opened repeatedly: the tool is paused BEFORE payment.
+      # -----------------------------------------------------------------------
+      - alert: ToolBreakerOpening
+        expr: increase(tool_breaker_opens_total[1h]) > 5
+        labels:
+          severity: warning
+        annotations:
+          summary: "a tool failed repeatedly and was paused before payment"

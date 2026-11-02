@@ -9,7 +9,10 @@ jest.mock('../../src/config/mpp.config', () => ({ getMppConfig: () => mockCfg() 
 jest.mock('../../src/config/logger', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
-jest.mock('../../src/pipeline/stages/tool-status.stage', () => ({ getToolPriceUsd: () => 0.25 }));
+jest.mock('../../src/pipeline/stages/tool-status.stage', () => ({
+  getToolPriceUsd: () => 0.25,
+  checkToolAvailability: async () => null,
+}));
 const mockOutboxCreate = jest.fn().mockResolvedValue({});
 jest.mock('../../src/services/prisma.service', () => ({
   getPrisma: () => ({ outbox: { create: mockOutboxCreate } }),

@@ -3,6 +3,7 @@ import { type Stage, ok, err, type PipelineError } from '../types';
 import { getPrisma } from '../../services/prisma.service';
 import { logger } from '../../config/logger';
 import marginConfig from '../../config/margin.json';
+import { isOpen as toolBreakerIsOpen } from '../../services/tool-breaker.service';
 import { getAlternativesForTool, getCapabilityForTool } from '../../services/alternatives.service';
 import {
   apibaseCallAttemptedTotal,
@@ -297,6 +298,22 @@ export async function checkToolAvailability(toolId: string): Promise<PipelineErr
       message: `Tool ${toolId} is currently unavailable`,
       retryAfter: 30,
       ...(alternatives.length > 0 ? { extra: { alternatives } } : {}),
+    };
+  }
+
+  // T-0657: per-tool circuit breaker (Redis; fail-open). Nothing is charged or challenged.
+  const breakerRemaining = await toolBreakerIsOpen(toolId);
+  if (breakerRemaining > 0) {
+    const alternatives = await getAlternativesForTool(tool.tool_id);
+    return {
+      code: 503,
+      error: 'tool_unavailable',
+      message: `Tool ${toolId} failed repeatedly and is paused briefly; you are not charged`,
+      retryAfter: breakerRemaining,
+      extra: {
+        status_reason: 'circuit_open',
+        ...(alternatives.length > 0 ? { alternatives } : {}),
+      },
     };
   }
 
