@@ -3,9 +3,14 @@
   "name": "APIbase",
   "description": "MCP gateway for AI agents: about 1400 tools from about 400 providers, paid per call in USDC via x402 on Base and MPP on Tempo, no account needed. Every call billed on-chain gets a public receipt; in v0 only x402 calls settled on Base can be attested.",
   "image": "https://apibase.pro/brand/apibase-logo.png",
-  "endpoints": [
-    { "name": "MCP", "endpoint": "https://apibase.pro/mcp" },
+  "services": [
+    { "name": "MCP", "endpoint": "https://apibase.pro/mcp", "version": "2025-11-25" },
     { "name": "OpenAPI", "endpoint": "https://apibase.pro/.well-known/openapi.json" },
     { "name": "web", "endpoint": "https://apibase.pro" }
+  ],
+  "x402Support": true,
+  "active": true,
+  "registrations": [
+    { "agentId": 399542, "agentRegistry": "eip155:8453:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" }
   ]
 }

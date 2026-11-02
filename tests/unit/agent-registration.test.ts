@@ -2,6 +2,7 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/sdk/types.js';
 
 const ROOT = join(__dirname, '../..');
 const bytes = (p: string) => readFileSync(join(ROOT, p));
@@ -13,8 +14,18 @@ describe('T-0514 agent-registration.json', () => {
     const j = JSON.parse(bytes('static/.well-known/agent-registration.json').toString('utf8'));
     expect(j.type).toBe('https://eips.ethereum.org/EIPS/eip-8004#registration-v1');
     for (const k of ['name', 'description', 'image']) expect(typeof j[k]).toBe('string');
-    expect(Array.isArray(j.endpoints)).toBe(true);
-    expect(j.endpoints.length).toBeGreaterThan(0);
+    expect(Array.isArray(j.services)).toBe(true);
+    expect(j.services.length).toBeGreaterThan(0);
+    expect(j.endpoints).toBeUndefined();
+    const mcp = j.services.find((s: { name: string }) => s.name === 'MCP');
+    expect(mcp.endpoint).toBe('https://apibase.pro/mcp');
+    expect(mcp.version).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(SUPPORTED_PROTOCOL_VERSIONS).toContain(mcp.version);
+    expect(j.x402Support).toBe(true);
+    expect(j.active).toBe(true);
+    expect(j.registrations).toEqual([
+      { agentId: 399542, agentRegistry: 'eip155:8453:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432' },
+    ]);
     expect(j.image).toBe('https://apibase.pro/brand/apibase-logo.png');
   });
 
