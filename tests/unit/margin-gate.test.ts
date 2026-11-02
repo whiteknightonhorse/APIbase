@@ -10,6 +10,11 @@
  * rollout must never take down the ~322 providers still pending migration.
  */
 
+// T-0657: the per-tool breaker needs Redis; this suite is about the margin gate only.
+jest.mock('../../src/services/tool-breaker.service', () => ({
+  isOpen: jest.fn().mockResolvedValue(0),
+}));
+
 import {
   toolStatusStage,
   __setToolCacheEntryForTest,
