@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import client from 'prom-client';
 
 /**
@@ -224,7 +225,7 @@ export const geoDbLoaded = new client.Gauge({
 export const x402LocalSettleTotal = new client.Counter({
   name: 'x402_local_settle_total',
   help: 'Total x402 local-facilitator settle attempts',
-  labelNames: ['result'] as const, // 'success' | 'fallback' | 'error'
+  labelNames: ['result', 'kind'] as const, // result: 'success' | 'fallback' | 'error'; kind: 'tool' | 'order' | 'fee_split'
   registers: [register],
 });
 
@@ -234,7 +235,25 @@ export const x402LocalSettleDurationSeconds = new client.Histogram({
   // Sub-second buckets to capture future fire-and-forget optimization wins;
   // upper buckets to detect chain-finality slowdowns.
   buckets: [0.1, 0.25, 0.5, 1, 2, 5, 10, 30],
-  labelNames: ['result'] as const, // 'success' | 'fallback' | 'error'
+  labelNames: ['result', 'kind'] as const, // result: 'success' | 'fallback' | 'error'; kind: 'tool' | 'order' | 'fee_split'
+  registers: [register],
+});
+
+/**
+ * T-0552: which kind of settle is running, for the `kind` label of the local-facilitator latency
+ * metrics. The resource server calls `settle()` without any hint, so the shop caller sets it here.
+ */
+export type SettleKind = 'tool' | 'order' | 'fee_split';
+const settleKindStore = new AsyncLocalStorage<SettleKind>();
+export const withSettleKind = <T>(kind: SettleKind, fn: () => T): T =>
+  settleKindStore.run(kind, fn);
+export const currentSettleKind = (): SettleKind => settleKindStore.getStore() ?? 'tool';
+
+/** T-0552: targeted authorizationState reads after a failed shop settle (S8). */
+export const shopFailedAuthorizationChecksTotal = new client.Counter({
+  name: 'shop_failed_authorization_checks_total',
+  help: 'Outcome of the on-chain check of a failed shop settle: used (it landed), dead (expired unused), rpc_error',
+  labelNames: ['outcome'] as const, // 'used' | 'dead' | 'rpc_error'
   registers: [register],
 });
 

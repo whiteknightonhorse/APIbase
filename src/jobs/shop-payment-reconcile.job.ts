@@ -81,6 +81,8 @@ interface PendingRow {
   tx_hash: string | null;
   created_at: Date;
   expired: boolean;
+  /** T-0552: valid_before + 60 s has passed (true for a pre-0552 row without valid_before). */
+  auth_dead?: boolean;
 }
 
 /**
@@ -94,7 +96,8 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
   const deps = opts?.deps ?? defaultShopDeps();
   const rows = await deps.db.$queryRawUnsafe<PendingRow[]>(
     `SELECT p.payment_id, p.order_id, o.quote_id, o.merchant_id, p.payer, p.eip3009_nonce, p.pay_to,
-            p.amount_usd::text AS amount_usd, p.splits, p.tx_hash, p.created_at, (p.reconcile_until <= now()) AS expired
+            p.amount_usd::text AS amount_usd, p.splits, p.tx_hash, p.created_at, (p.reconcile_until <= now()) AS expired,
+            (p.valid_before IS NULL OR p.valid_before + interval '60 seconds' <= now()) AS auth_dead
        FROM shop_payments p JOIN shop_orders o ON o.order_id = p.order_id
       WHERE p.rail = 'base' AND o.state IN ('PAYING', 'PAYMENT_FAILED')
         AND (p.chain_status = 'pending' OR (p.chain_status = 'failed' AND p.reconcile_until > now()))
@@ -151,14 +154,19 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
           request_id: 'shop-payment-reconcile',
         });
         logger.info({ job: 'shop-payment-reconcile', orderId: r.order_id }, 'payment confirmed');
-      } else if (r.expired) {
-        await giveUp(deps, r);
+      } else if (r.expired && !used && r.auth_dead !== false) {
+        // T-0552: PAYMENT_FAILED for good only after a SUCCESSFUL read in this very tick showed the
+        // authorization unused AND it can no longer execute (valid_before + 60 s passed).
+        await giveUp(deps, r, { unusedRead: true });
       }
     } catch (e) {
       logger.warn(
         { job: 'shop-payment-reconcile', paymentId: r.payment_id, err: (e as Error).message },
         'chain unavailable — row left untouched',
       );
+      // T-0552: the whole window passed without one successful read: never fail the order on an
+      // RPC outage; a human looks (order stays PAYING).
+      if (r.expired) await flagUnknownRpc(deps, r);
     }
   }
   await reconcileDuplicates(deps, chain);
@@ -264,7 +272,31 @@ async function flagMismatch(deps: ShopDeps, r: PendingRow): Promise<void> {
   );
 }
 
-async function giveUp(deps: ShopDeps, r: PendingRow): Promise<void> {
+async function flagUnknownRpc(deps: ShopDeps, r: PendingRow): Promise<void> {
+  try {
+    await deps.db.$executeRawUnsafe(
+      `INSERT INTO shop_moderation_reviews (merchant_id, scope, layer, verdict, category, evidence_hash)
+       SELECT $1::uuid, 'merchant', 'rules', 'flag', 'payment_unknown_rpc', $2
+        WHERE NOT EXISTS (SELECT 1 FROM shop_moderation_reviews
+                           WHERE category = 'payment_unknown_rpc' AND evidence_hash = $2)`,
+      r.merchant_id,
+      createHash('sha256').update(r.payment_id).digest('hex'),
+    );
+    logger.error(
+      { job: 'shop-payment-reconcile', orderId: r.order_id },
+      'reconcile window elapsed without a successful chain read — order left as is, human flag payment_unknown_rpc',
+    );
+  } catch (e) {
+    logger.warn(
+      { job: 'shop-payment-reconcile', paymentId: r.payment_id, err: (e as Error).message },
+      'payment_unknown_rpc flag not written',
+    );
+  }
+}
+
+/** `proof.unusedRead` is required: giveUp is unreachable without a successful authorizationState read. */
+async function giveUp(deps: ShopDeps, r: PendingRow, proof: { unusedRead: true }): Promise<void> {
+  if (!proof.unusedRead) return;
   await deps.transaction(async (tx) => {
     await tx.$executeRawUnsafe(
       `UPDATE shop_payments SET chain_status = 'failed' WHERE payment_id = $1::uuid`,

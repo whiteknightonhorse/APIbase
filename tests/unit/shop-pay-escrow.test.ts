@@ -7,6 +7,7 @@ import { randomBytes } from 'node:crypto';
 import { toMicroUsdc } from '../../src/config/x402.config';
 import { buildPaymentBinding } from '../../src/pipeline/stages/escrow.stage';
 import { payQuote } from '../../src/shop/pay.service';
+import { transition } from '../../src/shop/order-state';
 import { createQuote } from '../../src/shop/quote.service';
 import type { PipelineContext } from '../../src/pipeline/types';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
@@ -224,6 +225,92 @@ dbDescribe('shop.order.pay ESCROW binding', () => {
     expect(again.status).toBe(402);
     expect(again.body.error).toBe('payment_required');
     expect(await payments(f)).toBe(1);
+  });
+
+  /** An order in PAYMENT_FAILED with an open quote (T-0552 gate tests). */
+  async function failedOrder() {
+    const f = await fixture(5);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_orders SET state = 'PAYMENT_FAILED' WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    return f.quote.order_id as string;
+  }
+  const toPaying = (o: string) =>
+    prisma.$transaction((tx) =>
+      transition(tx as never, o, 'PAYING', { actor: 'buyer', reason: 't' }),
+    );
+
+  it('T-0552: PAYMENT_FAILED -> PAYING is refused while a failed authorization can still land', async () => {
+    const o = await failedOrder();
+    const failed = (validBefore: string) =>
+      prisma.$executeRawUnsafe(
+        `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, pay_to, amount_usd, chain_status, valid_before, reconcile_until)
+         VALUES ($1::uuid, 'base', $2, '0xp', '0xm', 1, 'failed', ${validBefore}, now() + interval '24 hours')`,
+        o,
+        `n-${o}-${Math.random()}`,
+      );
+    // validBefore passed 30 s ago: the authorization is expired but validBefore + 60 s is still ahead
+    await failed(`now() - interval '30 seconds'`);
+    await expect(toPaying(o)).rejects.toMatchObject({ code: 'PRIOR_PAYMENT_MAY_LAND' });
+    await prisma.$executeRawUnsafe(`DELETE FROM shop_payments WHERE order_id = $1::uuid`, o);
+    // validBefore + 60 s passed 2 s ago: dead
+    await failed(`now() - interval '62 seconds'`);
+    await expect(toPaying(o)).resolves.toMatchObject({ from: 'PAYMENT_FAILED', to: 'PAYING' });
+  });
+
+  it('T-0552: a pre-0552 failed row (valid_before NULL) counts as may-land until reconcile_until', async () => {
+    const o = await failedOrder();
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, pay_to, amount_usd, chain_status, reconcile_until)
+       VALUES ($1::uuid, 'base', $2, '0xp', '0xm', 1, 'failed', now() + interval '1 hour')`,
+      o,
+      `n-${o}-null`,
+    );
+    await expect(toPaying(o)).rejects.toMatchObject({ code: 'PRIOR_PAYMENT_MAY_LAND' });
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET reconcile_until = now() - interval '1 second' WHERE order_id = $1::uuid`,
+      o,
+    );
+    await expect(toPaying(o)).resolves.toMatchObject({ to: 'PAYING' });
+  });
+
+  it('T-0552: re-pay after a failed settle -> 409 payment_in_flight while the first authorization can land; allowed after', async () => {
+    const f = await fixture(5);
+    const first = await pay(f, header({ value: toMicroUsdc(5) }));
+    expect(first.status).toBe(202);
+    const p1 = await row(
+      `SELECT valid_before FROM shop_payments WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    expect(Math.abs(new Date(p1.valid_before).getTime() - Date.now() - 600_000)).toBeLessThan(
+      10_000,
+    );
+    // the settle failed: payment failed, order PAYMENT_FAILED, authorization valid for 100 s more
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET chain_status = 'failed', valid_before = now() + interval '100 seconds' WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_orders SET state = 'PAYMENT_FAILED' WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    const refused = await pay(f, header({ value: toMicroUsdc(5) }));
+    expect(refused.status).toBe(409);
+    expect(refused.body).toMatchObject({ error: 'payment_in_flight', order_id: f.quote.order_id });
+    expect(refused.body.retry_after).toBeGreaterThanOrEqual(155);
+    expect(refused.body.retry_after).toBeLessThanOrEqual(161);
+    expect(await payments(f)).toBe(1); // nothing was inserted, nothing charged
+    expect(mockSettle).toHaveBeenCalledTimes(1);
+    expect(await orderState(f)).toBe('PAYMENT_FAILED');
+
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET valid_before = now() - interval '61 seconds' WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    const again = await pay(f, header({ value: toMicroUsdc(5) }));
+    expect(again.status).toBe(202);
+    expect(await orderState(f)).toBe('PAYING');
   });
 
   it('PB4: a sanctioned payer -> 402 generic, one ofac review, verify called, no claim, no settle', async () => {

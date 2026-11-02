@@ -20,6 +20,7 @@ jest.mock('../../src/config/x402.config', () => ({
 
 // Stub metrics — verify counter calls below.
 jest.mock('../../src/services/metrics.service', () => ({
+  currentSettleKind: () => 'tool',
   x402LocalSettleTotal: { inc: jest.fn() },
   x402LocalSettleDurationSeconds: { observe: jest.fn() },
   x402OperatorEthBalance: { set: jest.fn() },
@@ -149,7 +150,7 @@ describe('LocalFacilitatorClient', () => {
     const result = await client.settle(PAYLOAD, REQUIREMENTS);
     expect(result.success).toBe(true);
     expect(result.transaction).toBe('0xtx');
-    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'success' });
+    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'success', kind: 'tool' });
     expect(x402LocalSettleDurationSeconds.observe).toHaveBeenCalled();
   });
 
@@ -165,7 +166,7 @@ describe('LocalFacilitatorClient', () => {
     const client = new LocalFacilitatorClient(local as never, '0xOperator');
     const result = await client.settle(PAYLOAD, REQUIREMENTS);
     expect(result.success).toBe(false);
-    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'error' });
+    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'error', kind: 'tool' });
   });
 
   test('settle falls back to remote when local throws and increments fallback counter', async () => {
@@ -175,14 +176,14 @@ describe('LocalFacilitatorClient', () => {
     const result = await client.settle(PAYLOAD, REQUIREMENTS);
     expect(result.transaction).toBe('0xremote');
     expect(remote.settle).toHaveBeenCalledTimes(1);
-    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'fallback' });
+    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'fallback', kind: 'tool' });
   });
 
   test('settle rethrows when local throws and no fallback configured (counter=error)', async () => {
     const local = makeLocalStub({ settleThrows: new Error('chain stalled') });
     const client = new LocalFacilitatorClient(local as never, '0xOperator');
     await expect(client.settle(PAYLOAD, REQUIREMENTS)).rejects.toThrow('chain stalled');
-    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'error' });
+    expect(x402LocalSettleTotal.inc).toHaveBeenCalledWith({ result: 'error', kind: 'tool' });
   });
 
   test('getSupported delegates to local facilitator', async () => {

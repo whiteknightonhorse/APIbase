@@ -185,6 +185,8 @@ HTTP 409. The `payment-identifier` id was already used with a different quote, a
 
 HTTP 409. A request with this `payment-identifier` id is still running. Wait, then retry with the same id to get the stored answer, or read the order. The body carries `retry_after` (seconds; also the `Retry-After` header on REST), `poll: "shop.order.get"` and `order_id` when the order is known: wait `retry_after` seconds, then re-send the SAME id, or read `shop.order.get` with `order_id`. A 409 is not final: do not mint a new id. An attempt that crashed is resolved from the order after 3 minutes; the same id then returns the order (`replayed: true`) or lets you pay again. A supervising worker takes over by re-presenting the same identifier, not by re-signing.
 
+The same 409 answers a second payment for an order whose first attempt failed: after a failed payment attempt the same order can be paid again only once the first authorization has expired on chain (`validBefore` + 60 s), and `retry_after` is the time left. Set `validBefore` to now + 120 s as the 402 says; a longer `validBefore` only delays your own retry.
+
 ### `pii_required`
 
 HTTP 422. The product needs personal data, encrypted under the merchant's key from `shop.catalog.get`. Add it and retry.

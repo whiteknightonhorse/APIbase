@@ -1,5 +1,5 @@
 # APIbase.pro — Prometheus Alert Rules (§12.240)
-# 27 alerts. All have severity label. Telegram delivery via Alertmanager.
+# 32 alerts. All have severity label. Telegram delivery via Alertmanager.
 # Critical = 1h repeat, Warning = 4h repeat.
 
 groups:
@@ -349,3 +349,15 @@ groups:
           severity: warning
         annotations:
           summary: "IP country database (geo_db_loaded) missing for 1h — UC-22 IP rule not applied; run scripts/geo-db-refresh.sh"
+
+      # -----------------------------------------------------------------------
+      # 32. ShopFailedSettleLanded — warning (T-0552, REFUND-WALLET-1026 S8++++++)
+      # A shop settle that was reported failed was found USED on chain by the targeted
+      # authorizationState check; the buyer is refunded through refund_ledger.
+      # -----------------------------------------------------------------------
+      - alert: ShopFailedSettleLanded
+        expr: increase(shop_failed_authorization_checks_total{outcome="used"}[24h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "a failed settle landed on chain — see refund_ledger"

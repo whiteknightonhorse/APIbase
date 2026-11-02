@@ -23,7 +23,11 @@ import { withOperatorLock } from './operator-lock';
 export const FACILITATOR_TIMEOUT_MS = 30_000;
 import { getX402Config } from '../config/x402.config';
 import { logger } from '../config/logger';
-import { x402LocalSettleTotal, x402LocalSettleDurationSeconds } from '../services/metrics.service';
+import {
+  currentSettleKind,
+  x402LocalSettleTotal,
+  x402LocalSettleDurationSeconds,
+} from '../services/metrics.service';
 
 /**
  * Local x402 facilitator client.
@@ -120,14 +124,15 @@ export class LocalFacilitatorClient implements FacilitatorClient {
     paymentRequirements: PaymentRequirements,
   ): Promise<SettleResponse> {
     const start = performance.now();
+    const kind = currentSettleKind();
     try {
       const result = await withOperatorLock(this.operatorAddress, () =>
         this.localFacilitator.settle(paymentPayload, paymentRequirements),
       );
       const outcome = result.success ? 'success' : 'error';
-      x402LocalSettleTotal.inc({ result: outcome });
+      x402LocalSettleTotal.inc({ result: outcome, kind });
       x402LocalSettleDurationSeconds.observe(
-        { result: outcome },
+        { result: outcome, kind },
         (performance.now() - start) / 1000,
       );
       return result;
@@ -137,16 +142,16 @@ export class LocalFacilitatorClient implements FacilitatorClient {
         'x402 local settle threw — attempting fallback',
       );
       if (this.remoteFallback) {
-        x402LocalSettleTotal.inc({ result: 'fallback' });
+        x402LocalSettleTotal.inc({ result: 'fallback', kind });
         x402LocalSettleDurationSeconds.observe(
-          { result: 'fallback' },
+          { result: 'fallback', kind },
           (performance.now() - start) / 1000,
         );
         return this.remoteFallback.settle(paymentPayload, paymentRequirements);
       }
-      x402LocalSettleTotal.inc({ result: 'error' });
+      x402LocalSettleTotal.inc({ result: 'error', kind });
       x402LocalSettleDurationSeconds.observe(
-        { result: 'error' },
+        { result: 'error', kind },
         (performance.now() - start) / 1000,
       );
       throw err;
@@ -175,9 +180,9 @@ export class LocalFacilitatorClient implements FacilitatorClient {
     const payer = auth1.from;
     const start = performance.now();
     const done = (outcome: 'success' | 'error') => {
-      x402LocalSettleTotal.inc({ result: outcome });
+      x402LocalSettleTotal.inc({ result: outcome, kind: 'fee_split' });
       x402LocalSettleDurationSeconds.observe(
-        { result: outcome },
+        { result: outcome, kind: 'fee_split' },
         (performance.now() - start) / 1000,
       );
     };

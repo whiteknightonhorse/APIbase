@@ -142,6 +142,23 @@ export async function transition(
     );
     if (open.length === 0)
       return fail('QUOTE_NOT_OPEN', `quote is no longer open: PAYMENT_FAILED -> PAYING refused`);
+    // T-0552 (S8): a failed settle does not prove the authorization is dead. An EIP-3009
+    // authorization cannot execute after validBefore, so one chain read after validBefore + 60 s
+    // is conclusive. Until then a second payment could duplicate the first. A pre-0552 row
+    // (valid_before NULL) counts as "may land" until its reconcile_until has passed.
+    const mayLand = await tx.$queryRawUnsafe<unknown[]>(
+      `SELECT 1 FROM shop_payments
+        WHERE order_id = $1::uuid AND chain_status = 'failed'
+          AND ((valid_before IS NULL AND reconcile_until > now())
+               OR valid_before + interval '60 seconds' > now())
+        LIMIT 1`,
+      order_id,
+    );
+    if (mayLand.length > 0)
+      return fail(
+        'PRIOR_PAYMENT_MAY_LAND',
+        `a failed payment of order ${order_id} can still land on chain: PAYMENT_FAILED -> PAYING refused`,
+      );
   }
 
   if (to === 'FULFILLED' && from === 'CONFIRMED' && order.fulfillment_status === 'fulfilled') {

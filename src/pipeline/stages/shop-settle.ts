@@ -2,6 +2,9 @@ import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
 import { logger } from '../../config/logger';
 import { buildServerX402Requirements } from '../../config/x402.config';
+import { shopFailedAuthorizationChecksTotal, withSettleKind } from '../../services/metrics.service';
+import { toMicroUsdc } from '../../config/x402.config';
+import type { ChainReader } from '../../jobs/shop-payment-reconcile.job';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import type {
   Eip3009Authorization,
@@ -67,6 +70,167 @@ async function settleFeeSplitLegs(
   return feeSplitSettler.settleFeeSplit(a1, inner.signature, a2, inner.feeAuthorization.signature);
 }
 
+/** T-0552 (S8): reads after a failed settle, seconds after the failure. */
+export const FAILED_CHECK_OFFSETS_S = [15, 45, 120] as const;
+/** The final read: an EIP-3009 authorization cannot execute after validBefore; +60 s is margin for clock skew and block time. */
+export const FAILED_CHECK_FINAL_GRACE_S = 60;
+
+export type FailedCheckOutcome = 'used' | 'unused' | 'dead' | 'rpc_error' | 'skipped';
+
+interface FailedPaymentRow {
+  order_id: string;
+  payer: string;
+  eip3009_nonce: string | null;
+  pay_to: string;
+  amount_usd: string;
+  splits: Array<{ mode?: string; nonce?: string; fee?: number }> | null;
+  created_at: Date;
+  chain_status: string;
+}
+
+/**
+ * One targeted read of the authorization(s) of a FAILED shop payment. Used -> the transfer landed:
+ * `finalizeConfirmed` (PAID if the order still accepts it, else `paid_after_terminal` in the refund
+ * ledger via confirmPayment). Unused on the final read -> the authorization is dead: nothing is
+ * owed and a re-pay is allowed; the marker is an element `{"mode":"dead_at","dead_at":<ts>}`
+ * appended to the existing `splits` jsonb array (no migration; consumers sum `amount_usd` and
+ * look for `in_tx`/`receivable`, so the element is inert). RPC error -> logged once by the caller,
+ * the 60-s reconcile job is the backstop. Never signs, never sends.
+ */
+export async function checkFailedAuthorization(
+  deps: ShopDeps,
+  chain: ChainReader,
+  payment_id: string,
+  final = false,
+): Promise<FailedCheckOutcome> {
+  try {
+    const rows = await deps.db.$queryRawUnsafe<FailedPaymentRow[]>(
+      `SELECT order_id, payer, eip3009_nonce, pay_to, amount_usd::text AS amount_usd, splits,
+              created_at, chain_status
+         FROM shop_payments WHERE payment_id = $1::uuid AND rail = 'base'`,
+      payment_id,
+    );
+    const r = rows[0];
+    if (!r || r.chain_status !== 'failed' || !r.eip3009_nonce) return 'skipped';
+    const feeLeg = r.splits?.find((x) => x.mode === 'in_tx' && x.nonce);
+    let used = await chain.authorizationUsed(r.payer, r.eip3009_nonce);
+    let valueMicro = toMicroUsdc(Number(r.amount_usd));
+    if (feeLeg?.nonce) {
+      const feeUsed = await chain.authorizationUsed(r.payer, feeLeg.nonce);
+      // One used and one not cannot happen with allowFailure=false: reconcile flags it for a human.
+      if (used !== feeUsed) return 'skipped';
+      valueMicro = String(BigInt(valueMicro) - BigInt(toMicroUsdc(Number(feeLeg.fee ?? 0))));
+    }
+    if (used) {
+      const tx = await chain.findTransfer({
+        payer: r.payer,
+        to: r.pay_to,
+        valueMicro,
+        sinceMs: new Date(r.created_at).getTime(),
+      });
+      shopFailedAuthorizationChecksTotal.inc({ outcome: 'used' });
+      logger.error(
+        { orderId: r.order_id, paymentId: payment_id },
+        'shop: a failed settle landed on chain after all',
+      );
+      if (!tx) return 'used'; // transfer not indexed yet: the reconcile job finishes it
+      await finalizeConfirmed(deps, {
+        order_id: r.order_id,
+        payment_id,
+        tx_hash: tx,
+        payer: r.payer,
+        request_id: 'shop-failed-authorization-check',
+      });
+      return 'used';
+    }
+    if (!final) return 'unused';
+    const marked = await deps.db.$executeRawUnsafe(
+      `UPDATE shop_payments
+          SET splits = coalesce(splits, '[]'::jsonb)
+                       || jsonb_build_array(jsonb_build_object('mode', 'dead_at', 'dead_at', now()))
+        WHERE payment_id = $1::uuid AND chain_status = 'failed'
+          AND valid_before + interval '60 seconds' <= now()
+          AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(coalesce(splits, '[]'::jsonb)) e
+                           WHERE e->>'mode' = 'dead_at')`,
+      payment_id,
+    );
+    if (marked) shopFailedAuthorizationChecksTotal.inc({ outcome: 'dead' });
+    return 'dead';
+  } catch (e) {
+    shopFailedAuthorizationChecksTotal.inc({ outcome: 'rpc_error' });
+    logger.warn(
+      { paymentId: payment_id, err: e instanceof Error ? e.message : String(e) },
+      'shop failed-authorization check: chain unavailable — reconcile is the backstop',
+    );
+    return 'rpc_error';
+  }
+}
+
+/**
+ * Follow-up for a failed settle: in-process setTimeout chain (no new infrastructure) calling
+ * `checkFailedAuthorization` at +15/+45/+120 s and at validBefore + 60 s. Stops at the first
+ * `used`. A worker restart loses the timers — acceptable: shop-payment-reconcile (every 60 s)
+ * reads the same chain state and covers the whole window.
+ */
+export function scheduleFailedAuthorizationChecks(
+  deps: ShopDeps,
+  payment_id: string,
+  opts: { chain?: ChainReader; validBeforeMs?: number | null; nowMs?: number } = {},
+): void {
+  const now = opts.nowMs ?? Date.now();
+  const delays: Array<{ ms: number; final: boolean }> = FAILED_CHECK_OFFSETS_S.map((s) => ({
+    ms: s * 1000,
+    final: false,
+  }));
+  if (opts.validBeforeMs != null) {
+    delays.push({
+      ms: Math.max(opts.validBeforeMs + FAILED_CHECK_FINAL_GRACE_S * 1000 - now, 0),
+      final: true,
+    });
+  }
+  let stopped = false;
+  let chain = opts.chain;
+  for (const d of delays) {
+    const t = setTimeout(() => {
+      if (stopped) return;
+      void (async () => {
+        try {
+          chain ??= await (await import('../../jobs/shop-payment-reconcile.job')).viemChain();
+        } catch (e) {
+          logger.warn(
+            { paymentId: payment_id, err: e instanceof Error ? e.message : String(e) },
+            'shop failed-authorization check: no chain client — reconcile is the backstop',
+          );
+          return;
+        }
+        if (stopped) return;
+        const out = await checkFailedAuthorization(deps, chain, payment_id, d.final);
+        if (out === 'used' || out === 'dead' || out === 'skipped') stopped = true;
+      })();
+    }, d.ms);
+    t.unref?.();
+  }
+}
+
+async function startFailedAuthorizationChecks(deps: ShopDeps, payment_id: string): Promise<void> {
+  try {
+    const rows = await deps.db.$queryRawUnsafe<Array<{ vb_ms: string | null }>>(
+      `SELECT (EXTRACT(EPOCH FROM valid_before) * 1000)::bigint::text AS vb_ms
+         FROM shop_payments WHERE payment_id = $1::uuid`,
+      payment_id,
+    );
+    const vb = rows[0]?.vb_ms;
+    scheduleFailedAuthorizationChecks(deps, payment_id, {
+      validBeforeMs: vb != null ? Number(vb) : null,
+    });
+  } catch (e) {
+    logger.warn(
+      { paymentId: payment_id, err: e instanceof Error ? e.message : String(e) },
+      'shop failed-authorization checks not scheduled — reconcile is the backstop',
+    );
+  }
+}
+
 /** The PROVIDER_CALL leg for a confirmed payment: confirm (-> PAID) then the `shop` adapter. */
 export async function finalizeConfirmed(deps: ShopDeps, p: PaidInput): Promise<OrderView | null> {
   const moved = await confirmPayment(deps, p);
@@ -105,6 +269,7 @@ export async function settleAndFinalize(
 ): Promise<SettleOutcome> {
   const fail = async (reason: string): Promise<SettleOutcome> => {
     await failPayment(deps, { order_id: p.order_id, payment_id: p.payment_id, reason });
+    await startFailedAuthorizationChecks(deps, p.payment_id);
     return { kind: 'failed', order_id: p.order_id, reason };
   };
   let result: { success: boolean; transaction?: string; errorReason?: string };
@@ -119,7 +284,9 @@ export async function settleAndFinalize(
     const settling = (
       p.fee_split
         ? settleFeeSplitLegs(payload.data)
-        : getSharedResourceServer().settlePayment(payload.data as never, requirements as never)
+        : withSettleKind('order', () =>
+            getSharedResourceServer().settlePayment(payload.data as never, requirements as never),
+          )
     ) as Promise<{ success: boolean; transaction?: string; errorReason?: string }>;
     let timer: NodeJS.Timeout | undefined;
     const timedOut = Symbol('timeout');

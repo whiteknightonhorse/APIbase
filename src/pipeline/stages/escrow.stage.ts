@@ -14,6 +14,7 @@ import { getX402Config, buildServerX402Requirements, toMicroUsdc } from '../../c
 import { buildPaymentRequiredResponse as buildToolPaymentRequired } from '../../middleware/x402.middleware';
 import type { ShopDeps } from '../../shop/merchant-lifecycle.service';
 import type { ShopTx } from '../../shop/db';
+import { OrderTransitionError } from '../../shop/order-state';
 import { getSharedResourceServer } from '../../services/x402-server.service';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import { parsePaymentPayload } from '@x402/core/schemas';
@@ -359,6 +360,8 @@ export function buildPaymentRequiredResponse(
 interface VerifiedX402 {
   payer: string;
   nonce: string;
+  /** T-0552: EIP-3009 validBefore (unix seconds) of the first authorization; stored on shop_payments. */
+  validBefore?: number;
   /** Set when the payer paid with two authorizations (T-INT-42); both nonces are claimed. */
   feeSplit?: { fee_to: string; fee_usd: number; fee_nonce: string };
   /** T-0526: the verified payer was already charged for this exact cached read; nonce NOT claimed. */
@@ -744,6 +747,7 @@ export async function verifyX402Binding(
   return ok({
     payer: ctx.x402Payer,
     nonce: nonceInfo.nonce,
+    validBefore: nonceInfo.validBefore,
     ...(feeSplitLeg && binding.fee_split
       ? {
           feeSplit: {
@@ -892,6 +896,41 @@ async function recordMppDuplicate(tx: ShopTx, ctx: PipelineContext): Promise<boo
   return true;
 }
 
+/** T-0552: the 409 `payment_in_flight` body (0525 contract) for a re-pay refused by the S8 gate. */
+async function priorPaymentInFlight(deps: ShopDeps, ctx: PipelineContext): Promise<PipelineError> {
+  const quoteId = String((ctx.body as { quote_id?: unknown } | undefined)?.quote_id ?? '');
+  let orderId: string | undefined;
+  let retryAfter = 5;
+  try {
+    const rows = await deps.db.$queryRawUnsafe<Array<{ order_id: string; wait_s: number | null }>>(
+      `SELECT o.order_id,
+              CEIL(EXTRACT(EPOCH FROM (MAX(COALESCE(p.valid_before, p.reconcile_until))
+                                       + interval '60 seconds' - now())))::int AS wait_s
+         FROM shop_orders o JOIN shop_payments p ON p.order_id = o.order_id
+        WHERE o.quote_id = $1::uuid AND p.chain_status = 'failed'
+        GROUP BY o.order_id
+        ORDER BY MAX(p.created_at) DESC LIMIT 1`,
+      quoteId,
+    );
+    orderId = rows[0]?.order_id;
+    if (rows[0]?.wait_s != null) retryAfter = Math.max(5, Number(rows[0].wait_s));
+  } catch {
+    /* the default retry_after is a safe answer */
+  }
+  return {
+    code: 409,
+    error: 'payment_in_flight',
+    message:
+      'A previous payment attempt for this order failed but its authorization has not expired on chain yet. Retry after retry_after seconds.',
+    retryAfter,
+    extra: {
+      retry_after: retryAfter,
+      ...(orderId ? { order_id: orderId } : {}),
+      poll: 'shop.order.get',
+    },
+  };
+}
+
 const isLiveOrderConflict = (e: unknown): boolean =>
   /shop_orders_quote_id_live_key|unique constraint|\b23505\b/i.test(
     `${(e as { code?: string })?.code ?? ''} ${(e as { message?: string })?.message ?? ''}`,
@@ -997,14 +1036,16 @@ async function escrowQuotePaymentOnce(
       const { payer } = verified.value;
       const feeSplit = 'feeSplit' in verified.value ? verified.value.feeSplit : undefined;
       const nonce = 'nonce' in verified.value ? verified.value.nonce : verified.value.challengeId;
+      const validBefore = 'validBefore' in verified.value ? verified.value.validBefore : undefined;
 
       // x402: pending until settle returns the receipt. MPP: charge() already settled on Tempo and
       // its receipt carries the tx hash, so the row is confirmed at once (§7.2).
       const pay = await tx.$queryRawUnsafe<Array<{ payment_id: string }>>(
         `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, eip3009_nonce, pay_to,
-                                  amount_usd, splits, tx_hash, chain_status, confirmed_at, reconcile_until)
+                                  amount_usd, splits, tx_hash, chain_status, confirmed_at, reconcile_until, valid_before)
        VALUES ($1::uuid, $7, $2, $3, $8, $4, $5::numeric, $6::jsonb, $9, $10,
-               CASE WHEN $10 = 'confirmed' THEN now() END, now() + interval '24 hours')
+               CASE WHEN $10 = 'confirmed' THEN now() END, now() + interval '24 hours',
+               CASE WHEN $11::double precision IS NULL THEN NULL ELSE to_timestamp($11::double precision) END)
        RETURNING payment_id`,
         quote.order_id,
         nonce,
@@ -1031,6 +1072,7 @@ async function escrowQuotePaymentOnce(
         mpp ? null : nonce,
         mpp ? (ctx.mppTxHash ?? null) : null,
         mpp ? 'confirmed' : 'pending',
+        !mpp && typeof validBefore === 'number' ? validBefore : null,
       );
       await transition(tx, quote.order_id, 'PAYING', {
         actor: 'buyer',
@@ -1054,6 +1096,12 @@ async function escrowQuotePaymentOnce(
   } catch (e) {
     // §9.1 "Two payments of one quote": a second live order row for the quote hits the INT-01 index.
     // The losing transaction rolled back, so the duplicate trail is written in a fresh one.
+    if (e instanceof OrderTransitionError && e.code === 'PRIOR_PAYMENT_MAY_LAND') {
+      // T-0552 (S8): a failed authorization of this order can still execute on chain. The tx rolled
+      // back (no payment row, nothing settled): refuse with 409 and tell when re-pay becomes safe.
+      if (ctx.mppPaid) await recordMppRefundOwed(ctx, 'escrow_failed:prior_payment_may_land');
+      return err<PipelineError>(await priorPaymentInFlight(deps, ctx));
+    }
     const live = isLiveOrderConflict(e);
     if (ctx.mppPaid) {
       const dup = live ? await deps.transaction((tx) => recordMppDuplicate(tx, ctx)) : false;
