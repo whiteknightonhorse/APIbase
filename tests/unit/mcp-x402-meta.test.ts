@@ -211,9 +211,16 @@ describe('x402 over MCP: tool results (T-0429)', () => {
 
   it('a settled x402 call returns the payment-response in _meta', async () => {
     mockRun.mockImplementation(async (c: Record<string, unknown>) => {
-      c.x402SettleSucceeded = true;
-      c.x402SettleTxHash = '0xtx';
-      return { ok: true, value: { responseBody: { a: 1 } } };
+      // R1/R5: stages return spread copies; the flags live on result.value, never on the input ctx.
+      return {
+        ok: true,
+        value: {
+          ...c,
+          x402SettleSucceeded: true,
+          x402SettleTxHash: '0xtx',
+          responseBody: { a: 1 },
+        },
+      };
     });
     const r = await call(ctx({ x402Paid: true, x402Payer: '0xPAYER', x402PaymentHeader: 'h' }));
     expect(r._meta).toEqual({
@@ -231,9 +238,15 @@ describe('x402 over MCP: tool results (T-0429)', () => {
     try {
       mockRun.mockImplementation(async (c: Record<string, unknown>) => {
         await new Promise((r) => setTimeout(r, 2000));
-        c.x402SettleSucceeded = true;
-        c.x402SettleTxHash = '0xslow';
-        return { ok: true, value: { responseBody: { a: 1 } } };
+        return {
+          ok: true,
+          value: {
+            ...c,
+            x402SettleSucceeded: true,
+            x402SettleTxHash: '0xslow',
+            responseBody: { a: 1 },
+          },
+        };
       });
       const p = call(ctx({ x402Paid: true, x402Payer: '0xPAYER', x402PaymentHeader: 'h' }));
       await jest.advanceTimersByTimeAsync(2000);
@@ -252,16 +265,19 @@ describe('x402 over MCP: tool results (T-0429)', () => {
       '$1-$2-$3-$4-$5',
     );
     mockRun.mockImplementation(async (c: Record<string, unknown>) => {
-      Object.assign(c, {
-        x402SettleState: 'pending',
-        executionId: EXEC,
-        toolId: 'weather.current',
-        billingStatus: 'PAID',
-        finalCost: 0.001,
-        responseBody: { a: 1 },
-        x402Payer: '0xAbCdEf0123456789aBcDeF0123456789AbCdEf01',
-      });
-      return { ok: true, value: c };
+      return {
+        ok: true,
+        value: {
+          ...c,
+          x402SettleState: 'pending',
+          executionId: EXEC,
+          toolId: 'weather.current',
+          billingStatus: 'PAID',
+          finalCost: 0.001,
+          responseBody: { a: 1 },
+          x402Payer: '0xAbCdEf0123456789aBcDeF0123456789AbCdEf01',
+        },
+      };
     });
     const r = await call(
       ctx({
@@ -282,8 +298,7 @@ describe('x402 over MCP: tool results (T-0429)', () => {
 
   it('T-0596: a failed settle is isError false with settle failed, not silence', async () => {
     mockRun.mockImplementation(async (c: Record<string, unknown>) => {
-      c.x402SettleSucceeded = false;
-      return { ok: true, value: { responseBody: { a: 1 } } };
+      return { ok: true, value: { ...c, x402SettleSucceeded: false, responseBody: { a: 1 } } };
     });
     const r = await call(ctx({ x402Paid: true, x402Payer: '0x1', x402PaymentHeader: 'h' }));
     expect(r.isError).toBeUndefined();

@@ -155,15 +155,15 @@ export function registerTools(
         if (result.ok) {
           // T-0429: x402 MCP transport v2 settlement receipt (verify -> deliver -> settle: the
           // receipt exists only when the settle already succeeded; a pending one is reconciled).
-          const settleStatus = x402SettleStatus(ctx);
+          const settleStatus = x402SettleStatus(result.value);
           const receipt =
             settleStatus === 'settled'
               ? {
                   [MCP_PAYMENT_RESPONSE_META_KEY]: {
                     success: true,
-                    transaction: ctx.x402SettleTxHash ?? '',
+                    transaction: result.value.x402SettleTxHash ?? '',
                     network: getX402Config().network,
-                    payer: ctx.x402Payer ?? '',
+                    payer: result.value.x402Payer ?? '',
                   },
                 }
               : undefined;
