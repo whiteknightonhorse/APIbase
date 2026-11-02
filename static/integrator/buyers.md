@@ -8,7 +8,14 @@ Each shop has its own MCP storefront at `https://apibase.pro/mcp/m/<slug>` with 
 
 ## Set limits in your wallet
 
-Spending limits belong to your wallet or your agent's client, not to the shop and not to APIbase. Before you let an agent pay, set a per-payment and a per-session limit there (for example in Coinbase Payments MCP, or with Tempo access keys). If an agent reaches its limit, it stops and asks you. How to get a wallet: /integrator/wallet.
+Limits live in the wallet, not in the prompt: a prompt can change what an agent wants; it cannot change what its wallet can sign.
+
+- **Per payment and per session:** set both in the client (Coinbase Payments MCP, or `@x402/fetch` `spendControls`; the $1 default is described in /integrator/agent-guide#x402-clients-and-the-1-default-cap). An agent that reaches a limit stops and asks you.
+- **Per agent:** one wallet, or one Tempo access key, per agent, funded with its share (see "Several agents, one budget" below).
+- **The sum:** a cap set inside one shop's account covers that shop only; with ten shops you have ten caps and nothing that adds them up. The paying wallet is the one place that does: fund it with the budget, and every shop, API and agent draws from the same ceiling.
+- **Human confirmation:** when a quote carries `requires_human_confirmation` (total above `limits.human_confirm_above_usd`, default $100), the client asks the human first (see /integrator/docs#quotes).
+
+How to get a wallet: /integrator/wallet.
 
 ## Several agents, one budget
 
@@ -42,6 +49,7 @@ Integrator never asks for your private keys or seed phrase, in any tool, page or
 - Human confirmation is done by your agent's client.
 - Safekeeping of a seller's key is the seller's.
 - Refunds are the seller's duty under its stated policy and the refund framework: /legal/refund-framework.
+- USDC is issued by Circle, which can block addresses under its terms; a lost key means lost funds; stablecoin balances are not insured deposits. Keep agent wallets small and funded from a treasury you control.
 
 ## Streams: pay by the second
 

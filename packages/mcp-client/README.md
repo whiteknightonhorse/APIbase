@@ -15,6 +15,8 @@ Available as two identical packages:
 npx -y apibase-mcp-client
 ```
 
+This client is a stdio-to-HTTP proxy. It holds no wallet and signs no payment: payments are made by your agent's x402/MPP client, where spending limits and the stored payment intent live (see https://apibase.pro/integrator/agent-guide#before-you-send-a-payment-write-the-intent-down).
+
 ## Usage
 
 ### Claude Desktop
