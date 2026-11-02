@@ -173,6 +173,19 @@ describe('T-0383 page-parity gate', () => {
       expect(r.stdout).toContain('PARITY_FAIL about: missing text Last synced');
     });
 
+    it('PP13: "<N> categories" is a generated total, a lost sentence fails', () => {
+      const base = join(tmp, 'tests/fixtures/page-baseline');
+      const page = (body: string) =>
+        writeFileSync(join(tmp, 'static/about.html'), `<html><body>${body}</body></html>`);
+      writeFileSync(join(base, 'about.txt'), 'Stay tuned. Travel and more, 25 categories total.');
+      writeFileSync(join(base, 'about.meta.json'), '{"links":[],"ids":[],"scripts":0}');
+      writeFileSync(join(base, 'about.allow.txt'), '');
+      page('<p>Stay tuned.</p><p>Travel and more, 24 categories total.</p>');
+      expect(parity(['about', '--render'], tmp).status).toBe(0);
+      page('<p>Stay tuned.</p>');
+      expect(parity(['about', '--render'], tmp).status).toBe(1);
+    });
+
     it('PP9: labelled counts are volatile, a lost "numbers" sentence fails', () => {
       const base = join(tmp, 'tests/fixtures/page-baseline');
       const page = (body: string) =>

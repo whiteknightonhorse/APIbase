@@ -104,6 +104,7 @@ COUNT = re.compile(r"\d[\d,]{2,}$")
 PATH_PUNCT = re.compile(r"(/[^\s]*?)([.,;:)]+)$")
 BUILD_TAG = re.compile(r"v\d+\.\d+\.\d+$")
 COUNT_UNIT = re.compile(r"(tools|providers)\b", re.I)
+TOTAL_UNIT = re.compile(r"categories\b", re.I)  # T-0672: "<N> categories" is a generated total for any N
 
 
 LABEL_COUNT = re.compile(r"\d[\d,]*(?=[.,;]?$)")
@@ -146,6 +147,8 @@ def norm_ts(tokens):
             out.extend([m.group(1), m.group(2)])
             continue
         if COUNT.match(t) and i + 1 < len(tokens) and COUNT_UNIT.match(tokens[i + 1]):
+            t = "<COUNT>"
+        elif t.isdigit() and i + 1 < len(tokens) and TOTAL_UNIT.match(tokens[i + 1]):
             t = "<COUNT>"
         out.append(ISO_TS.sub("<ISO-DATE>", t))
     return out
