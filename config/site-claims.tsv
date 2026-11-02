@@ -118,3 +118,5 @@ static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: Claude
 static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: Applebot-Extended	-	T-0591
 static/robots.txt	https://apibase.pro/robots.txt	must-contain	User-agent: Meta-ExternalAgent	-	T-0591
 static/llms-full.txt	https://apibase.pro/llms-full.txt	must-contain	<!-- source: https://apibase.pro/x402-vs-mpp.md -->	-	T-0591
+static/llms.txt	https://apibase.pro/llms.txt	must-contain	retrieve_url	-	T-0554
+static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-contain	retrieve_url	-	T-0554
