@@ -24,6 +24,11 @@ export const X_AGENT_NAME = 'x-agent-name';
 export const X_CACHE = 'x-cache';
 /** A-GA-01: URL of the public receipt of a billed call. */
 export const X_APIBASE_RECEIPT = 'x-apibase-receipt';
+/** T-0554: URL where the payer fetches the paid result for 24 h (wallet-signed, free). */
+export const X_APIBASE_RETRIEVE = 'x-apibase-retrieve';
+/** T-0554: retrieve auth: the paying wallet and its EIP-191 signature. */
+export const X_PAYER_ADDRESS = 'x-payer-address';
+export const X_PAYER_SIGNATURE = 'x-payer-signature';
 /** T-0526: 'false' when the answer was served inside the dedup window without a charge. */
 export const X_APIBASE_CHARGED = 'x-apibase-charged';
 /** T-0596: x402 settle outcome the REST response could not carry in PAYMENT-RESPONSE: pending | failed. */

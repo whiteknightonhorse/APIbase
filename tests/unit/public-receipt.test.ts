@@ -43,6 +43,9 @@ import {
 import { createReceiptRouter } from '../../src/routes/receipt.router';
 import { createPipelineContext, type PipelineContext } from '../../src/pipeline/types';
 import { logger } from '../../src/config/logger';
+jest.mock('../../src/services/redis.service', () => ({
+  ensureRedisConnected: jest.fn().mockRejectedValue(new Error('no redis in unit tests')),
+}));
 
 const PAYER = '0xAbCdEf0123456789aBcDeF0123456789AbCdEf01';
 const TX = '0x' + 'ab'.repeat(32);
@@ -92,6 +95,8 @@ describe('planReceipt (written only when billing succeeded)', () => {
       payer: PAYER.toLowerCase(),
       payee: '0x50ebda9da5dc19c302ca059d7b9e06e264936480',
       payment_tx: TX,
+      retrieve_url: `https://apibase.pro/x402/retrieve/${plan!.receiptId}`,
+      result_retained_until: null,
     });
     expect(plan!.receiptId).toMatch(/^[0-9a-f]{32}$/);
     expect(plan!.url).toBe(`https://apibase.pro/r/${plan!.receiptId}.json`);

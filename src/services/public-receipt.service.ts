@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { logger } from '../config/logger';
+import { isInternalWallet } from '../config/internal-wallets';
 import type { PipelineContext } from '../pipeline/types';
 
 /**
@@ -15,6 +16,13 @@ export const RECEIPT_SCHEMA = 'apibase-receipt/1';
 /** MCP tool-result `_meta` key carrying the receipt URL. */
 export const MCP_RECEIPT_URL_META_KEY = 'apibase/receipt_url';
 export const RECEIPT_BASE_URL = 'https://apibase.pro/r/';
+/** T-0554: MCP tool-result `_meta` key carrying the signed-retrieve URL. */
+export const MCP_RETRIEVE_URL_META_KEY = 'apibase/retrieve_url';
+const RETRIEVE_BASE_URL = 'https://apibase.pro/x402/retrieve/';
+/** T-0554: the paid response body is kept this long, only if it fits the cap. */
+export const RESULT_TTL_SECONDS = 86_400;
+export const RESULT_MAX_BYTES = 64 * 1024;
+export const resultKey = (receiptId: string): string => `result:${receiptId}`;
 
 /** The ONLY keys a receipt may carry. A test fails on any other key. */
 export const RECEIPT_ALLOWED_KEYS = [
@@ -30,6 +38,8 @@ export const RECEIPT_ALLOWED_KEYS = [
   'receipt_id',
   'refund',
   'response_sha256',
+  'result_retained_until',
+  'retrieve_url',
   'schema',
   'status',
   'tool',
@@ -50,6 +60,10 @@ export interface ReceiptBody {
   amount_atomic: string;
   payer: string;
   payee: string;
+  /** T-0554: where the payer fetches the result (wallet-signed, free). */
+  retrieve_url: string;
+  /** T-0554: ISO issued_at + 24 h when the body was stored, else null. */
+  result_retained_until: string | null;
   /** Absent while the x402 settle is pending (T-0596); the retrieve route fills it in. */
   payment_tx?: string;
   /** T-0596: 'pending' = settle outcome unknown at call time; resolved at read time from the ledger. */
@@ -61,9 +75,15 @@ export interface ReceiptStore {
   get(receiptId: string): Promise<string | null>;
 }
 
+/** T-0554: Redis-backed holder of paid response bodies (test seam). Returns false on any failure. */
+export interface ResultStore {
+  put(receiptId: string, body: string, ttlSeconds: number): Promise<boolean>;
+}
+
 export interface ReceiptPlan {
   receiptId: string;
   url: string;
+  retrieveUrl: string;
   body: string;
 }
 
@@ -106,6 +126,10 @@ export function x402SettleStatus(
   return undefined;
 }
 
+function retrieveUrl(receiptId: string): string {
+  return `${RETRIEVE_BASE_URL}${receiptId}`;
+}
+
 export function receiptUrl(receiptId: string): string {
   return `${RECEIPT_BASE_URL}${receiptId}.json`;
 }
@@ -140,6 +164,12 @@ function lower(x: unknown): string {
   return typeof x === 'string' ? x.toLowerCase() : '';
 }
 
+function retainedUntil(inp: { issuedAt: Date; resultRetained?: boolean }): string | null {
+  return inp.resultRetained
+    ? new Date(inp.issuedAt.getTime() + RESULT_TTL_SECONDS * 1000).toISOString()
+    : null;
+}
+
 export interface ReceiptInputs {
   receiptId: string;
   issuedAt: Date;
@@ -148,6 +178,8 @@ export interface ReceiptInputs {
   x402ChainId: number | null;
   mppPayee: string;
   mppChainId: number;
+  /** T-0554: the response body was stored under result:{receipt_id}. */
+  resultRetained?: boolean;
 }
 
 /**
@@ -188,6 +220,8 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
         amount_atomic: amount,
         payer: lower(ctx.x402Payer),
         payee: lower(inp.x402Payee),
+        retrieve_url: retrieveUrl(inp.receiptId),
+        result_retained_until: retainedUntil(inp),
         status: 'pending',
       };
     }
@@ -224,8 +258,36 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
     amount_atomic: amount,
     payer,
     payee,
+    retrieve_url: retrieveUrl(inp.receiptId),
+    result_retained_until: retainedUntil(inp),
     payment_tx: tx,
   };
+}
+
+let redisDownLogged = false;
+
+const redisResultStore: ResultStore = {
+  async put(receiptId, body, ttlSeconds) {
+    try {
+      const { ensureRedisConnected } = await import('./redis.service');
+      const r = await ensureRedisConnected();
+      await r.set(resultKey(receiptId), body, 'EX', ttlSeconds);
+      redisDownLogged = false;
+      return true;
+    } catch (e) {
+      if (!redisDownLogged) {
+        redisDownLogged = true;
+        logger.warn({ err: e }, 'receipt: result store unavailable, results not retained');
+      }
+      return false;
+    }
+  },
+};
+
+/** T-0554: size cap and internal-wallet exclusion. Pure. */
+function resultEligible(payer: unknown, responseText: string): boolean {
+  if (typeof payer !== 'string' || isInternalWallet(payer)) return false;
+  return Buffer.byteLength(responseText, 'utf8') <= RESULT_MAX_BYTES;
 }
 
 /** Plans a receipt for a finished, billed call. Pure and non-throwing: null = no receipt. */
@@ -233,6 +295,7 @@ export async function planReceipt(
   ctx: PipelineContext,
   responseText: string,
   now: Date = new Date(),
+  resultStore: ResultStore = redisResultStore,
 ): Promise<ReceiptPlan | null> {
   try {
     if (ctx.billingStatus !== 'PAID' || (!ctx.x402Paid && !ctx.mppPaid)) return null;
@@ -247,9 +310,15 @@ export async function planReceipt(
         : null;
     if (ctx.x402Paid && ctx.x402SettleState === 'pending' && !pendingId) return null;
     const receiptId = pendingId ?? newReceiptId();
+    // T-0554: store the paid body BEFORE the receipt is built, so the receipt states what happened.
+    const payer = ctx.x402Paid ? ctx.x402Payer : ctx.mppPayer;
+    const resultRetained =
+      resultEligible(payer, responseText) &&
+      (await resultStore.put(receiptId, responseText, RESULT_TTL_SECONDS));
     const body = buildReceiptBody(ctx, {
       receiptId,
       issuedAt: now,
+      resultRetained,
       responseText,
       x402Payee: x402.paymentAddress,
       x402ChainId: m ? Number(m[1]) : null,
@@ -257,7 +326,12 @@ export async function planReceipt(
       mppChainId: mpp.chainId,
     });
     if (!body) return null;
-    return { receiptId, url: receiptUrl(receiptId), body: canonicalJson(body) };
+    return {
+      receiptId,
+      url: receiptUrl(receiptId),
+      retrieveUrl: retrieveUrl(receiptId),
+      body: canonicalJson(body),
+    };
   } catch (e) {
     logger.error({ err: e, request_id: ctx.requestId }, 'receipt: planning failed, no receipt');
     return null;

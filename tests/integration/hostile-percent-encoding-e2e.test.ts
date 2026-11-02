@@ -90,9 +90,6 @@ jest.mock('../../src/services/onboard.service', () => ({
   checkIpRateLimit: jest.fn().mockResolvedValue({ allowed: true }),
   createSubmission: jest.fn().mockResolvedValue({ id: 'sub-e2e-1' }),
 }));
-jest.mock('../../src/services/receipt.service', () => ({
-  getReceipt: jest.fn().mockResolvedValue(null),
-}));
 jest.mock('../../src/services/tool-registry.service', () => ({
   getPublicCatalog: jest.fn().mockResolvedValue({ tools: [], count: 0 }),
   getToolsPaginated: jest.fn().mockResolvedValue({ tools: [], next_cursor: null }),

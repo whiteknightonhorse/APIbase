@@ -23,6 +23,7 @@ import {
   X_API_KEY,
   X_CACHE,
   X_APIBASE_RECEIPT,
+  X_APIBASE_RETRIEVE,
   X_APIBASE_CHARGED,
   X_APIBASE_SETTLE,
   resolveX402PaymentHeader,
@@ -96,7 +97,10 @@ executeRouter.post(
           result.value,
           JSON.stringify(result.value.responseBody) ?? '',
         );
-        if (receipt) res.setHeader(X_APIBASE_RECEIPT, receipt.url);
+        if (receipt) {
+          res.setHeader(X_APIBASE_RECEIPT, receipt.url);
+          res.setHeader(X_APIBASE_RETRIEVE, receipt.retrieveUrl);
+        }
         // T-0596 REST parity with MCP `_meta`: settle is awaited before this point. Settled ->
         // PAYMENT-RESPONSE (x402 v2 settle response); pending / failed -> X-APIbase-Settle (a pending
         // one also carries the receipt URL in X-APIbase-Receipt; the route resolves the final state).

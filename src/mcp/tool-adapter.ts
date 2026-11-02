@@ -15,6 +15,7 @@ import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import {
   MCP_RECEIPT_URL_META_KEY,
+  MCP_RETRIEVE_URL_META_KEY,
   planReceipt,
   writeReceiptSafe,
   x402SettleStatus,
@@ -194,7 +195,12 @@ export function registerTools(
           const resultMeta = {
             ...(receipt ?? {}),
             ...settleMeta,
-            ...(publicReceipt ? { [MCP_RECEIPT_URL_META_KEY]: publicReceipt.url } : {}),
+            ...(publicReceipt
+              ? {
+                  [MCP_RECEIPT_URL_META_KEY]: publicReceipt.url,
+                  [MCP_RETRIEVE_URL_META_KEY]: publicReceipt.retrieveUrl,
+                }
+              : {}),
             ...(dedup
               ? {
                   [MCP_CHARGED_META_KEY]: false,
