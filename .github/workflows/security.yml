@@ -192,6 +192,12 @@ jobs:
           echo "${{ vars.SERVER_HOST_KEY }}" > ~/.ssh/known_hosts
           chmod 644 ~/.ssh/known_hosts
 
+      - name: site-facts check (claims table vs site-facts.json, blocking, T-0543)
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
+            "cd /home/apibase/apibase && python3 -I scripts/site-facts.py check"
+
       - name: sync-counts.sh --check against the live server
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \

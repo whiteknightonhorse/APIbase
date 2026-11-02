@@ -112,6 +112,8 @@ https://apibase.pro/video/templates/slide_discover.html
 https://apibase.pro/video/templates/slide_payment.html
 https://apibase.pro/video/templates/slide_pipeline.html
 https://apibase.pro/why.md
+https://apibase.pro/.well-known/site-facts.json
+https://apibase.pro/.well-known/security.txt
 https://apibase.pro/x402-vs-mpp.md
 https://apibase.pro/what-is-an-mcp-gateway.md
 https://apibase.pro/faq.md

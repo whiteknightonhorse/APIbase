@@ -136,6 +136,9 @@ print('%s %s' % (t, p))
     && GEN_DISCOVERY_CHECK_RC=0 || GEN_DISCOVERY_CHECK_RC=$?
   GEN_OPENAPI_CHECK_OUT="$(SYNC_COUNTS_SNAPSHOT="scripts/discovery-snapshot.tsv" npx tsx scripts/generate-openapi.ts --check 2>&1)" \
     && GEN_OPENAPI_CHECK_RC=0 || GEN_OPENAPI_CHECK_RC=$?
+  # T-0543: static/.well-known/site-facts.json byte-compare (no DB, no network).
+  GEN_SITE_FACTS_CHECK_OUT="$(npx tsx scripts/gen-site-facts.ts --check 2>&1)" \
+    && GEN_SITE_FACTS_CHECK_RC=0 || GEN_SITE_FACTS_CHECK_RC=$?
 else
   # Self-heal: one atomic point-in-time snapshot of every active tool_id+provider, not just an
   # aggregate count. T-05 (2026-09-04, ruling-1): gen-card.ts/gen-catalog-page.ts used to run
@@ -331,6 +334,12 @@ else
   python3 scripts/integrator-facts.py render
   # T-INT-27: categories / price range / provider-integration numbers on index.html, index.md, ai.txt.
   python3 scripts/home-facts.py render
+  # T-0543: site-facts.json is derived from the files rewritten above; regenerate it here so the
+  # blocking STALE_SITE_FACTS check below reads current facts (the cron also regenerates it, T-0619).
+  sf=$(md5sum static/.well-known/site-facts.json 2>/dev/null | cut -d" " -f1 || echo "")
+  npx tsx scripts/gen-site-facts.ts > /tmp/gen-site-facts.out 2>&1 \
+    || { echo "sync-counts: gen-site-facts.ts FAILED"; cat /tmp/gen-site-facts.out; exit 1; }
+  [ "$(md5sum static/.well-known/site-facts.json | cut -d" " -f1)" != "$sf" ] && { echo "  updated static/.well-known/site-facts.json"; CHANGED=$((CHANGED+1)); }
   [ "$(md5sum static/pricing.html | cut -d" " -f1)" != "$b1" ] && CHANGED=$((CHANGED+1))
   [ "$(md5sum static/llms.txt | cut -d" " -f1)" != "$b2" ] && CHANGED=$((CHANGED+1))
 
@@ -645,6 +654,10 @@ STALE_EXAMPLE_TOOLS=$(npx tsx scripts/check-static-tool-refs.ts 2>&1 >/dev/null 
 # mcp.json (scripts/price-range.ts -> gen-discovery.ts -> home-facts.py), both modes.
 STALE_PRICE_RANGE=$(python3 scripts/home-facts.py check-range 2>&1 || true)
 STALE_HEADER_BAR=$(python3 scripts/home-facts.py check-bar 2>&1 || true)
+# T-0543: claims table (config/site-claims.tsv) vs static/.well-known/site-facts.json, blocking, both modes
+# (SITE-AUDIT-1026 item 2). Offline; live-only rows are scripts/site-audit-rerun.sh's job.
+STALE_SITE_FACTS=$(python3 -I scripts/site-facts.py check 2>&1 || true)
+case "$STALE_SITE_FACTS" in "site-facts: 0 failures"*) STALE_SITE_FACTS="" ;; esac
 
 # T-0332: one tool-count formula (scripts/count-mcp-tools.ts). Prints all five numbers on every
 # run; exits 1 naming the surface (mcp.json / openapi.json / snapshot) that disagrees with it.
@@ -657,6 +670,7 @@ STALE_MCP_COUNT=$(echo "$STALE_MCP_COUNT" | grep 'STALE_MCP_COUNT' || true)
 FAIL=0
 [ -n "$STALE_MCP_COUNT" ] && { echo "sync-counts: STALE_MCP_COUNT:"; echo "$STALE_MCP_COUNT"; FAIL=1; }
 [ -n "$STALE_PRICE_RANGE" ] && { echo "sync-counts: STALE_PRICE_RANGE — a static/ price range differs from the generated one:"; echo "$STALE_PRICE_RANGE"; FAIL=1; }
+[ -n "$STALE_SITE_FACTS" ] && { echo "sync-counts: STALE_SITE_FACTS — a page or doc disagrees with the claims table / site-facts.json:"; echo "$STALE_SITE_FACTS"; FAIL=1; }
 [ -n "$STALE_HEADER_BAR" ] && { echo "sync-counts: STALE_HEADER_BAR — a header bar differs from the generated one:"; echo "$STALE_HEADER_BAR"; FAIL=1; }
 [ -n "$STALE_EXAMPLE_TOOLS" ] && { echo "sync-counts: STALE_EXAMPLE_TOOLS — a doc names a tool that is not healthy:"; echo "$STALE_EXAMPLE_TOOLS"; FAIL=1; }
 [ -n "$STALE_HOME" ] && { echo "sync-counts: STALE homepage facts:"; echo "$STALE_HOME"; FAIL=1; }
@@ -712,6 +726,7 @@ if [ "$CHECK" = "1" ]; then
   [ "$GEN_DISCOVERY_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — gen-discovery.ts --check found byte-for-byte drift:"; echo "$GEN_DISCOVERY_CHECK_OUT"; FAIL=1; }
   # T-0591: static/llms-full.txt is generated from llms.txt and the .md pages it links.
   STALE_LLMS_FULL=$(npx tsx scripts/llms-full.ts --check 2>&1 >/dev/null) || { echo "sync-counts: $STALE_LLMS_FULL"; FAIL=1; }
+  [ "$GEN_SITE_FACTS_CHECK_RC" != "0" ] && { echo "sync-counts: STALE_SITE_FACTS — gen-site-facts.ts --check found byte-for-byte drift:"; echo "$GEN_SITE_FACTS_CHECK_OUT"; FAIL=1; }
   [ "$GEN_OPENAPI_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — generate-openapi.ts --check found byte-for-byte drift:"; echo "$GEN_OPENAPI_CHECK_OUT"; FAIL=1; }
 fi
 

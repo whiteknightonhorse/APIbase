@@ -43,7 +43,8 @@ anchored manual facts in `config/site-facts.manual.json`). `config/site-claims.t
 surface says about those facts; `scripts/site-facts.py check` compares them offline, and the daily job
 `scripts/site-sync-check.sh` runs `check-live` against production (claims, page metadata crawl, link and
 GenLayer probes, agent-ready checks). A mismatch reaches the operator through fleet-check and opens a
-docs-drift card.
+docs-drift card. The offline check is blocking from 2026-11-02: `scripts/sync-counts.sh --check` (and the
+CI job that runs it) fails with `STALE_SITE_FACTS` on any drift.
 
 Payment settlement (self-hosted x402 facilitator, MPP dual-rail, auth, error codes): see
 [`payments.md`](payments.md) (Base RPC: public primary with an optional reserve host, see there). Day-2 operations (container management, restarts, backups,
