@@ -20,9 +20,10 @@ import { TOOL_DEFINITIONS } from '../src/mcp/tool-definitions';
 import {
   loadYamlTools,
   planSeedRows,
-  providersWithCostModel,
-  reviveFields,
+  loadRetiredProviders,
   seedOnly,
+  seedTools as runSeedTools,
+  type FullSeedTool,
 } from './seed-plan';
 
 const prisma = new PrismaClient();
@@ -34,15 +35,6 @@ const prisma = new PrismaClient();
 const TOOL_CATEGORIES: ReadonlyMap<string, string> = new Map(
   TOOL_DEFINITIONS.map((def) => [def.toolId, def.category]),
 );
-
-/**
- * namespace = old prefix-derived value (tool_id.split('.')[0], falling back to provider for
- * a dot-less tool_id) that REST used to call 'category' — see migration 0017 for why this
- * stays a real column instead of a read-time computation.
- */
-function namespaceOf(toolId: string, provider: string): string {
-  return toolId.includes('.') ? toolId.split('.')[0] : provider;
-}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -64,110 +56,30 @@ function dateSuffix(d: Date): string {
 // 1. Seed tools from YAML config
 // ---------------------------------------------------------------------------
 
-interface ToolConfig {
-  tool_id: string;
-  name: string;
-  provider: string;
-  price_usd: string;
-  cache_ttl: number;
-  // F1/C-4: optional — absent means "not yet migrated", NOT "free". See
-  // config/tool_provider_config.yaml header + scripts/migrate-upstream-cost.py.
-  upstream_cost_usd?: string;
-  // T-0207 (ZZ-03-07): optional — absent means "not part of a declared capability group" (the
-  // overwhelming majority of tools). Backfills tools.capability/tools.scope (migration 0020),
-  // an SQL-queryable mirror of the same fields src/services/capability-registry.service.ts
-  // reads straight from this YAML at runtime. `same_upstream_as` (also declared in the YAML)
-  // has no DB column at all — see schema.prisma's Tool model comment — so it is read here only
-  // for gap-checking (a capability with no scope, or vice versa, is a broken declaration) and
-  // otherwise ignored by this script.
-  capability?: string;
-  scope?: string;
-  same_upstream_as?: string[];
-}
-
 interface ToolProviderConfig {
-  tools: ToolConfig[];
+  tools: FullSeedTool[];
 }
 
 /**
  * F1/C-4: upstream_cost_usd in YAML is optional. Present -> upsert that value
  * (0 is a real, evidence-backed number, never a placeholder). Absent -> never
- * touch the DB column, so a bounded migration pass (config/tool_provider_config.yaml
- * header, scripts/migrate-upstream-cost.py) never gets silently reverted by an
- * unrelated re-seed (e.g. onboarding a new provider re-runs this over the whole file).
+ * touch the DB column. T-0660: retired providers are skipped; cost_source = 'yaml:<model>'.
+ * The logic lives in seed-plan.ts seedTools() so tests can drive it with a stub client.
  */
-async function seedTools(): Promise<number> {
+async function seedTools(dryRun: boolean): Promise<number> {
   const configPath = resolve(__dirname, '..', 'config', 'tool_provider_config.yaml');
-  const raw = readFileSync(configPath, 'utf-8');
-  const config = parse(raw) as ToolProviderConfig;
-
-  const existing = new Map(
-    (await prisma.tool.findMany({ select: { tool_id: true, status: true, price_usd: true } })).map(
-      (r) => [r.tool_id, r],
-    ),
+  const config = parse(readFileSync(configPath, 'utf-8')) as ToolProviderConfig;
+  // eslint-disable-next-line no-console
+  const log = (l: string) => console.log(l);
+  const res = await runSeedTools(
+    prisma as never,
+    config.tools,
+    TOOL_CATEGORIES,
+    loadRetiredProviders(),
+    dryRun,
+    log,
   );
-  const costModel = providersWithCostModel(config.tools);
-
-  let count = 0;
-  for (const tool of config.tools) {
-    // ZZ-03-01: category has no NULL fallback (migration 0017 made it NOT NULL) — a
-    // tool_id in the yaml with no TOOL_DEFINITIONS entry is a broken catalog, not a value
-    // to guess at. Fail the whole seed loudly instead of writing a wrong/empty category.
-    const category = TOOL_CATEGORIES.get(tool.tool_id);
-    if (!category) {
-      throw new Error(
-        `seedTools: '${tool.tool_id}' is in config/tool_provider_config.yaml but has no ` +
-          `TOOL_DEFINITIONS entry (src/mcp/tool-definitions.ts) — cannot derive category.`,
-      );
-    }
-    const namespace = namespaceOf(tool.tool_id, tool.provider);
-
-    // T-0207: capability and scope are always declared together or not at all — a tool_id with
-    // one but not the other is a broken YAML entry (the alternatives matcher treats a null
-    // scope as "never suggest", so a capability with no scope would silently never appear as
-    // anyone's alternative — fail loud instead of seeding that quietly).
-    if ((tool.capability === undefined) !== (tool.scope === undefined)) {
-      throw new Error(
-        `seedTools: '${tool.tool_id}' declares only one of capability/scope — both or neither ` +
-          `are required (config/tool_provider_config.yaml).`,
-      );
-    }
-
-    await prisma.tool.upsert({
-      where: { tool_id: tool.tool_id },
-      create: {
-        tool_id: tool.tool_id,
-        name: tool.name,
-        provider: tool.provider,
-        status: 'healthy',
-        price_usd: tool.price_usd,
-        cache_ttl: tool.cache_ttl,
-        upstream_cost_usd: tool.upstream_cost_usd ?? null,
-        category,
-        namespace,
-        capability: tool.capability ?? null,
-        scope: tool.scope ?? null,
-      },
-      update: {
-        name: tool.name,
-        price_usd: tool.price_usd,
-        cache_ttl: tool.cache_ttl,
-        // Omit (not null) when absent from YAML — see comment above seedTools().
-        // T-0583: a cost written by the YAML is a recorded one, so it clears a derived cost_source.
-        ...(tool.upstream_cost_usd !== undefined
-          ? { upstream_cost_usd: tool.upstream_cost_usd, cost_source: null }
-          : {}),
-        category,
-        namespace,
-        capability: tool.capability ?? null,
-        scope: tool.scope ?? null,
-        ...reviveFields(existing.get(tool.tool_id), tool, costModel),
-      },
-    });
-    count++;
-  }
-
-  return count;
+  return res.count;
 }
 
 // ---------------------------------------------------------------------------
@@ -253,7 +165,7 @@ async function seedPartitions(): Promise<void> {
  * rows untouched), skipping the test agent and partitions. --dry-run prints rows, writes nothing.
  */
 async function mainOnly(ids: string[], dryRun: boolean): Promise<void> {
-  const rows = planSeedRows(loadYamlTools(), TOOL_CATEGORIES, ids);
+  const rows = planSeedRows(loadYamlTools(), TOOL_CATEGORIES, ids, loadRetiredProviders());
   for (const r of rows) {
     // eslint-disable-next-line no-console
     console.log(`${r.tool_id}\tprice_usd=${r.price_usd}\tstatus=${r.status}`);
@@ -276,11 +188,15 @@ async function main(): Promise<void> {
     if (ids.length === 0) throw new Error('seed: --only requires a comma-separated tool_id list');
     return mainOnly(ids, argv.includes('--dry-run'));
   }
-  if (argv.includes('--dry-run')) throw new Error('seed: --dry-run is only valid with --only');
+  if (argv.includes('--dry-run')) {
+    // T-0660: full-upsert preview; reads the DB, writes nothing.
+    await seedTools(true);
+    return;
+  }
   // eslint-disable-next-line no-console
   console.log('[seed] Starting...');
 
-  const toolCount = await seedTools();
+  const toolCount = await seedTools(false);
   // eslint-disable-next-line no-console
   console.log(`[seed] Upserted ${toolCount} tools`);
 

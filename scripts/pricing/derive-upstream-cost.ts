@@ -50,6 +50,7 @@ export interface ToolRow {
   provider: string;
   price_usd: number;
   cost: string | null;
+  cost_source?: string | null;
 }
 
 export function isFreeProvider(entry: LimitEntry | undefined): boolean {
@@ -87,6 +88,7 @@ export function todoMarkdown(
   remaining: ToolRow[],
   limits: Record<string, LimitEntry>,
   date: string,
+  all: ToolRow[] = [],
 ): string {
   const paid = remaining.filter((r) => r.price_usd > 0);
   const byProvider = new Map<string, ToolRow[]>();
@@ -123,8 +125,32 @@ export function todoMarkdown(
       return `| ${p} | ${rs.length} | ${maxPrice(rs)} | ${tier(maxPrice(rs))} | ${marker} |`;
     }),
     '',
+    ...assumedFreeTable(all, limits),
   ];
   return out.join('\n');
+}
+
+/** T-0660: second table - YAML free_tier zeros whose provider carries a paid-tier marker. */
+export function assumedFreeTable(rows: ToolRow[], limits: Record<string, LimitEntry>): string[] {
+  const by = new Map<string, number>();
+  for (const r of rows) {
+    if (r.cost_source !== 'yaml:free_tier') continue;
+    const lim = limits[r.provider];
+    if (!lim || !PAID_KEYS.some((k) => k in lim)) continue;
+    by.set(r.provider, (by.get(r.provider) ?? 0) + 1);
+  }
+  return [
+    '## Assumed free tier (operator to confirm)',
+    '',
+    'Tools recorded in the YAML as `free_tier` (cost_source `yaml:free_tier`) whose provider has a paid-tier marker in provider-limits.json.',
+    '',
+    '| provider | tools | pricing marker in provider-limits.json |',
+    '|---|---|---|',
+    ...[...by.entries()]
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([p, n]) => `| ${p} | ${n} | ${PAID_KEYS.filter((k) => k in limits[p]).join(', ')} |`),
+    '',
+  ];
 }
 
 function parseTsv(path: string): ToolRow[] {
@@ -166,13 +192,20 @@ async function main(): Promise<number> {
     const { PrismaClient } = await import('@prisma/client');
     prisma = new PrismaClient();
     const dbRows = await prisma.tool.findMany({
-      select: { tool_id: true, provider: true, price_usd: true, upstream_cost_usd: true },
+      select: {
+        tool_id: true,
+        provider: true,
+        price_usd: true,
+        upstream_cost_usd: true,
+        cost_source: true,
+      },
     });
     rows = dbRows.map((r) => ({
       tool_id: r.tool_id,
       provider: r.provider,
       price_usd: Number(r.price_usd),
       cost: r.upstream_cost_usd === null ? null : r.upstream_cost_usd.toString(),
+      cost_source: r.cost_source,
     }));
   }
 
@@ -205,7 +238,10 @@ async function main(): Promise<number> {
   );
 
   if (todoPath) {
-    writeFileSync(todoPath, todoMarkdown(remaining, limits, new Date().toISOString().slice(0, 10)));
+    writeFileSync(
+      todoPath,
+      todoMarkdown(remaining, limits, new Date().toISOString().slice(0, 10), rows),
+    );
     console.log(`WROTE ${todoPath}`);
   }
 
