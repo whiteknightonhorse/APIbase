@@ -236,4 +236,58 @@ describe('GET /x402/retrieve/:receiptId', () => {
     const r = await fetch(`${base}/x402/retrieve/not-an-id`);
     expect(r.status).toBe(404);
   });
+
+  it('production wiring (default verifier) rejects a wrong signer and accepts the payer', async () => {
+    const app = express();
+    app.use(
+      createX402Router(
+        { insert: async () => undefined, get: async () => JSON.stringify(receipt) },
+        { get: async () => stored },
+        undefined,
+        () => T0,
+      ),
+    );
+    const srv = app.listen(0);
+    const url = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/x402/retrieve/${ID}`;
+    try {
+      const call = async (signer: typeof account) =>
+        fetch(url, {
+          headers: {
+            'X-Payer-Address': account.address,
+            'X-Payer-Signature': await signer.signMessage({ message: retrieveMessage(ID, minute) }),
+          },
+        });
+      expect((await call(other)).status).toBe(401);
+      expect((await call(account)).status).toBe(200);
+    } finally {
+      await new Promise((r) => srv.close(() => r(undefined)));
+    }
+  });
+
+  it('receipt store failure -> 503 retrieve_unavailable', async () => {
+    const app = express();
+    app.use(
+      createX402Router(
+        {
+          insert: async () => undefined,
+          get: async () => {
+            throw new Error('db down');
+          },
+        },
+        { get: async () => stored },
+        undefined,
+        () => T0,
+      ),
+    );
+    const srv = app.listen(0);
+    try {
+      const r = await fetch(
+        `http://127.0.0.1:${(srv.address() as AddressInfo).port}/x402/retrieve/${ID}`,
+      );
+      expect(r.status).toBe(503);
+      expect((await r.json()).error).toBe('retrieve_unavailable');
+    } finally {
+      await new Promise((r) => srv.close(() => r(undefined)));
+    }
+  });
 });
