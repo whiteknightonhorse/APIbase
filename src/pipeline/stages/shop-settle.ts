@@ -283,7 +283,7 @@ export async function settleAndFinalize(
     // transfer may still be mined, so it must not become PAYMENT_FAILED).
     const settling = (
       p.fee_split
-        ? settleFeeSplitLegs(payload.data)
+        ? withSettleKind('fee_split', () => settleFeeSplitLegs(payload.data))
         : withSettleKind('order', () =>
             getSharedResourceServer().settlePayment(payload.data as never, requirements as never),
           )

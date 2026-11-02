@@ -249,6 +249,18 @@ export const withSettleKind = <T>(kind: SettleKind, fn: () => T): T =>
   settleKindStore.run(kind, fn);
 export const currentSettleKind = (): SettleKind => settleKindStore.getStore() ?? 'tool';
 
+// The facilitator client records these two metrics without knowing what it settles: the `kind`
+// label is injected here from the async context, so the facilitator code stays untouched.
+const inc0 = x402LocalSettleTotal.inc.bind(x402LocalSettleTotal) as (l: object) => void;
+(x402LocalSettleTotal as unknown as { inc: (l: object) => void }).inc = (l) =>
+  inc0({ kind: currentSettleKind(), ...l });
+const observe0 = x402LocalSettleDurationSeconds.observe.bind(x402LocalSettleDurationSeconds) as (
+  l: object,
+  v: number,
+) => void;
+(x402LocalSettleDurationSeconds as unknown as { observe: (l: object, v: number) => void }).observe =
+  (l, v) => observe0({ kind: currentSettleKind(), ...l }, v);
+
 /** T-0552: targeted authorizationState reads after a failed shop settle (S8). */
 export const shopFailedAuthorizationChecksTotal = new client.Counter({
   name: 'shop_failed_authorization_checks_total',

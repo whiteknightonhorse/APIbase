@@ -7,6 +7,7 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { toMicroUsdc } from '../../src/config/x402.config';
 import { payQuote } from '../../src/shop/pay.service';
+import { transition } from '../../src/shop/order-state';
 import { createQuote } from '../../src/shop/quote.service';
 import { getOrderView } from '../../src/shop/order-payment.service';
 import { encryptSecret } from '../../src/services/secret-crypto.service';
@@ -15,6 +16,10 @@ import {
   runDailySample,
   type ChainReader,
 } from '../../src/jobs/shop-payment-reconcile.job';
+import {
+  checkFailedAuthorization,
+  scheduleFailedAuthorizationChecks,
+} from '../../src/pipeline/stages/shop-settle';
 import { LocalFacilitatorClient } from '../../src/payments/local-facilitator';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
@@ -45,6 +50,8 @@ jest.mock('../../src/payments/operator-lock', () => ({
 jest.mock('../../src/services/metrics.service', () => ({
   x402LocalSettleTotal: { inc: jest.fn() },
   x402LocalSettleDurationSeconds: { observe: jest.fn() },
+  shopFailedAuthorizationChecksTotal: { inc: jest.fn() },
+  withSettleKind: (_k: string, fn: () => unknown) => fn(),
 }));
 jest.mock('@x402/core/http', () => ({
   decodePaymentSignatureHeader: (h: string) => JSON.parse(h),
@@ -397,7 +404,8 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     const f = await fixture();
     await pay(f);
     await prisma.$executeRawUnsafe(
-      `UPDATE shop_payments SET reconcile_until = now() - interval '1 minute' WHERE order_id = $1::uuid`,
+      `UPDATE shop_payments SET reconcile_until = now() - interval '1 minute',
+              valid_before = now() - interval '61 seconds' WHERE order_id = $1::uuid`,
       f.quote.order_id,
     );
     const down: ChainReader = {
@@ -429,10 +437,217 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     expect([prod.available, prod.reserved]).toEqual([10, 0]);
   });
 
+  /** T-0552 gate: PAYMENT_FAILED -> PAYING while a failed authorization can still land. */
+  async function failedOrder() {
+    const f = await fixture(5);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_orders SET state = 'PAYMENT_FAILED' WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    return f.quote.order_id as string;
+  }
+  const toPaying = (o: string) =>
+    prisma.$transaction((tx) =>
+      transition(tx as never, o, 'PAYING', { actor: 'buyer', reason: 't' }),
+    );
+
+  it('T-0552: PAYMENT_FAILED -> PAYING is refused while validBefore + 60 s is ahead, allowed after (boundary)', async () => {
+    const o = await failedOrder();
+    const failed = (validBefore: string) =>
+      prisma.$executeRawUnsafe(
+        `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, pay_to, amount_usd, chain_status, valid_before, reconcile_until)
+         VALUES ($1::uuid, 'base', $2, '0xp', '0xm', 1, 'failed', ${validBefore}, now() + interval '24 hours')`,
+        o,
+        `n-${o}-${Math.random()}`,
+      );
+    // validBefore passed 30 s ago: expired, but validBefore + 60 s is still ahead
+    await failed(`now() - interval '30 seconds'`);
+    await expect(toPaying(o)).rejects.toMatchObject({ code: 'PRIOR_PAYMENT_MAY_LAND' });
+    await prisma.$executeRawUnsafe(`DELETE FROM shop_payments WHERE order_id = $1::uuid`, o);
+    // validBefore + 60 s passed 2 s ago: dead
+    await failed(`now() - interval '62 seconds'`);
+    await expect(toPaying(o)).resolves.toMatchObject({ from: 'PAYMENT_FAILED', to: 'PAYING' });
+  });
+
+  it('T-0552: a pre-0552 failed row (valid_before NULL) counts as may-land until reconcile_until', async () => {
+    const o = await failedOrder();
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO shop_payments (order_id, rail, nonce_or_challenge_id, payer, pay_to, amount_usd, chain_status, reconcile_until)
+       VALUES ($1::uuid, 'base', $2, '0xp', '0xm', 1, 'failed', now() + interval '1 hour')`,
+      o,
+      `n-${o}-null`,
+    );
+    await expect(toPaying(o)).rejects.toMatchObject({ code: 'PRIOR_PAYMENT_MAY_LAND' });
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET reconcile_until = now() - interval '1 second' WHERE order_id = $1::uuid`,
+      o,
+    );
+    await expect(toPaying(o)).resolves.toMatchObject({ to: 'PAYING' });
+  });
+
+  // ---- T-0552: event-triggered authorizationState checks after a failed settle ----
+  const chainOf = (used: Array<boolean | Error>) => {
+    let n = 0;
+    return {
+      authorizationUsed: jest.fn(async () => {
+        const v = used[Math.min(n++, used.length - 1)];
+        if (v instanceof Error) throw v;
+        return v;
+      }),
+      findTransfer: jest.fn(async () => '0xlanded'),
+      receiptOk: jest.fn(async () => false),
+    } satisfies ChainReader;
+  };
+  async function failedPayment() {
+    localSettle.mockResolvedValueOnce({ success: false, errorReason: 'transaction_failed' });
+    const f = await fixture();
+    expect((await pay(f)).status).toBe(402);
+    const p = await row(
+      `SELECT payment_id, (EXTRACT(EPOCH FROM valid_before) * 1000)::bigint::text AS vb_ms
+         FROM shop_payments WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    return { f, pid: p.payment_id as string, vbMs: Number(p.vb_ms) };
+  }
+  /** Runs scheduleFailedAuthorizationChecks with setTimeout captured (not run): returns the timers. */
+  function captureTimers(pid: string, chain: ChainReader, vbMs: number) {
+    const timers: Array<{ ms: number; fn: () => void }> = [];
+    const spy = jest.spyOn(global, 'setTimeout').mockImplementation(((
+      fn: () => void,
+      ms: number,
+    ) => {
+      timers.push({ ms, fn });
+      return { unref: () => undefined };
+    }) as never);
+    try {
+      scheduleFailedAuthorizationChecks(deps, pid, { chain, validBeforeMs: vbMs });
+    } finally {
+      spy.mockRestore();
+    }
+    return timers;
+  }
+  const flush = async (until: () => boolean) => {
+    for (let i = 0; i < 200 && !until(); i++) await new Promise((r) => setTimeout(r, 10));
+  };
+
+  it('T-0552: a failed settle is re-read at +15 s, +45 s, +120 s and validBefore + 60 s', async () => {
+    const { pid, vbMs } = await failedPayment();
+    const timers = captureTimers(pid, chainOf([false]), vbMs);
+    expect(timers.map((t) => t.ms).slice(0, 3)).toEqual([15_000, 45_000, 120_000]);
+    expect(timers).toHaveLength(4);
+    expect(Math.abs(timers[3].ms - (vbMs + 60_000 - Date.now()))).toBeLessThan(2_000);
+  });
+
+  it('T-0552: used at +45 s -> payment confirmed once (order PAID path), later reads do not run', async () => {
+    const { f, pid, vbMs } = await failedPayment();
+    const chain = chainOf([false, true]);
+    const timers = captureTimers(pid, chain, vbMs);
+    for (const t of timers) {
+      const before = chain.authorizationUsed.mock.calls.length;
+      t.fn();
+      await flush(() => chain.authorizationUsed.mock.calls.length > before || t === timers[2]);
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    expect(chain.authorizationUsed).toHaveBeenCalledTimes(2);
+    expect(chain.findTransfer).toHaveBeenCalledTimes(1);
+    expect(await states(f)).toEqual(expect.arrayContaining(['PAYMENT_FAILED', 'PAYING', 'PAID']));
+    expect((await order(f)).state).not.toBe('PAYMENT_FAILED');
+  });
+
+  it('T-0552: unused at the final read -> dead marker once; only after validBefore + 60 s; RPC error leaves no marker', async () => {
+    const { pid } = await failedPayment();
+    const dead = async () =>
+      count(
+        `SELECT count(*) AS c FROM shop_payments p, jsonb_array_elements(p.splits) e
+          WHERE p.payment_id = $1::uuid AND e->>'mode' = 'dead_at'`,
+        pid,
+      );
+    // validBefore + 60 s still ahead: a successful unused final read marks nothing
+    expect(await checkFailedAuthorization(deps, chainOf([false]), pid, true)).toBe('dead');
+    expect(await dead()).toBe(0);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET valid_before = now() - interval '61 seconds' WHERE payment_id = $1::uuid`,
+      pid,
+    );
+    expect(await checkFailedAuthorization(deps, chainOf([false]), pid, false)).toBe('unused');
+    expect(await dead()).toBe(0);
+    expect(await checkFailedAuthorization(deps, chainOf([new Error('rpc')]), pid, true)).toBe(
+      'rpc_error',
+    );
+    expect(await dead()).toBe(0);
+    expect(await checkFailedAuthorization(deps, chainOf([false]), pid, true)).toBe('dead');
+    expect(await checkFailedAuthorization(deps, chainOf([false]), pid, true)).toBe('dead');
+    expect(await dead()).toBe(1);
+  });
+
+  it('T-0552: a payment that is no longer failed is skipped, no chain read', async () => {
+    const f = await fixture();
+    await pay(f);
+    const p = await row(
+      `SELECT payment_id FROM shop_payments WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
+    const chain = chainOf([true]);
+    expect(await checkFailedAuthorization(deps, chain, p.payment_id, true)).toBe('skipped');
+    expect(chain.authorizationUsed).not.toHaveBeenCalled();
+  });
+
+  it('T-0552 reconcile: window over + RPC error -> payment_unknown_rpc flag, order stays PAYING; unused but validBefore + 60 s ahead -> no give-up; used without transfer -> payment_mismatch flag, never failed', async () => {
+    localSettle.mockResolvedValue({ success: true, transaction: '' });
+    const f = await fixture();
+    await pay(f);
+    const expire = (vb: string) =>
+      prisma.$executeRawUnsafe(
+        `UPDATE shop_payments SET reconcile_until = now() - interval '1 minute', valid_before = ${vb}
+          WHERE order_id = $1::uuid`,
+        f.quote.order_id,
+      );
+    const flags = (cat: string) =>
+      count(`SELECT count(*) AS c FROM shop_moderation_reviews WHERE category = $1`, cat);
+    const mk = (used: boolean | Error, transfer?: string): ChainReader => ({
+      authorizationUsed: async () => {
+        if (used instanceof Error) throw used;
+        return used;
+      },
+      findTransfer: async () => transfer,
+      receiptOk: async () => true,
+    });
+    await expire(`now() - interval '61 seconds'`);
+    const before = await flags('payment_unknown_rpc');
+    await reconcile({ deps, chain: mk(new Error('rpc down')) });
+    expect((await order(f)).state).toBe('PAYING');
+    expect(await flags('payment_unknown_rpc')).toBe(before + 1);
+    await reconcile({ deps, chain: mk(new Error('rpc down')) }); // deduped by evidence_hash
+    expect(await flags('payment_unknown_rpc')).toBe(before + 1);
+
+    await expire(`now() + interval '100 seconds'`);
+    await reconcile({ deps, chain: mk(false) });
+    expect((await order(f)).state).toBe('PAYING');
+
+    await expire(`now() - interval '61 seconds'`);
+    const mm = await flags('payment_mismatch');
+    await reconcile({ deps, chain: mk(true, undefined) });
+    expect((await order(f)).state).toBe('PAYING');
+    expect(await flags('payment_mismatch')).toBe(mm + 1);
+
+    await reconcile({ deps, chain: mk(false) });
+    expect((await order(f)).state).toBe('PAYMENT_FAILED');
+  });
+
   it('SE5: a retry after PAYMENT_FAILED (new nonce) reuses the same order row', async () => {
     localSettle.mockResolvedValueOnce({ success: false, errorReason: 'transaction_failed' });
     const f = await fixture();
     expect((await pay(f)).status).toBe(402);
+    // T-0552: the failed authorization (validBefore +600 s) can still land -> re-pay refused, nothing charged
+    const early = await pay(f);
+    expect(early.status).toBe(409);
+    expect(early.body).toMatchObject({ error: 'payment_in_flight', order_id: f.quote.order_id });
+    expect(early.body.retry_after).toBeGreaterThan(600);
+    expect(localSettle).toHaveBeenCalledTimes(1);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET valid_before = now() - interval '61 seconds' WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
     expect((await pay(f)).status).toBe(200);
     expect(
       await count(
@@ -494,6 +709,10 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     localSettle.mockResolvedValueOnce({ success: false, errorReason: 'transaction_failed' });
     const f = await fixture();
     await pay(f);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET valid_before = now() - interval '61 seconds' WHERE order_id = $1::uuid`,
+      f.quote.order_id,
+    );
     await prisma.$executeRawUnsafe(
       `INSERT INTO shop_orders (quote_id, merchant_id, state, total_usd) VALUES ($1::uuid, $2::uuid, 'PAYING', 5)`,
       f.quote.quote_id,

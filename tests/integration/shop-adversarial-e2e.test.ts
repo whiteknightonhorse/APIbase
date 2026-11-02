@@ -569,6 +569,14 @@ dbDescribe('shop adversarial end-to-end (wave 1)', () => {
         .status,
     ).toBe('open');
 
+    // T-0552: the failed authorization can still land until validBefore + 60 s -> 409, nothing charged
+    const early = await payRest(q, header({ value: toMicroUsdc(5) }));
+    expect(early.status).toBe(409);
+    expect(early.body.error).toBe('payment_in_flight');
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_payments SET valid_before = now() - interval '61 seconds' WHERE order_id = $1::uuid`,
+      q.body.order_id,
+    );
     const retry = await payRest(q, header({ value: toMicroUsdc(5) }));
     expect(retry.status).toBe(200);
     expect(retry.body.order.order_id).toBe(q.body.order_id);

@@ -158,6 +158,10 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
         // T-0552: PAYMENT_FAILED for good only after a SUCCESSFUL read in this very tick showed the
         // authorization unused AND it can no longer execute (valid_before + 60 s passed).
         await giveUp(deps, r, { unusedRead: true });
+      } else if (r.expired && used) {
+        // Used on chain but no matching transfer found: money may have moved, so the order is never
+        // failed on that evidence (the pre-0552 give-up did). Human flag (deduped), order untouched.
+        await flagMismatch(deps, r);
       }
     } catch (e) {
       logger.warn(
@@ -268,7 +272,7 @@ async function flagMismatch(deps: ShopDeps, r: PendingRow): Promise<void> {
   );
   logger.error(
     { job: 'shop-payment-reconcile', orderId: r.order_id },
-    'fee-split: exactly one of two authorizations is used on-chain — PAYMENT_MISMATCH, human only',
+    'payment evidence inconsistent (fee-split legs differ, or authorization used without a matching transfer) — PAYMENT_MISMATCH, human only',
   );
 }
 
