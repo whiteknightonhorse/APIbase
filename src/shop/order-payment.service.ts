@@ -10,7 +10,7 @@ import { loadPiiSummary } from './pii/pii.service';
 import { refundPolicy, type RefundPolicy } from './order-lifecycle.service';
 import { applySubscriptionPayment } from './subscription-core';
 import {
-  bookOrderPaymentDebt,
+  recordRefundOwed,
   refundForOrder,
   type PublicRefund,
 } from '../services/refund-ledger.service';
@@ -206,8 +206,8 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
 
 /**
  * T-0551: money moved for an order that no longer accepts PAID (EXPIRED, CANCELLED, already PAID by
- * another payment, ...). The payment row is marked confirmed (it is) and the debt is booked by
- * bookOrderPaymentDebt (T-0656: APIbase's fee share in refund_ledger, the rest a seller request). The order is never transitioned and nothing is delivered.
+ * another payment, ...). The payment row is marked confirmed (it is) and the debt is booked in
+ * refund_ledger as `paid_after_terminal`. The order is never transitioned and nothing is delivered.
  * A payment row that was already confirmed (a replay of the same confirmation) books nothing.
  */
 async function bookPaidAfterTerminal(tx: ShopTx, p: PaidInput): Promise<void> {
@@ -221,17 +221,19 @@ async function bookPaidAfterTerminal(tx: ShopTx, p: PaidInput): Promise<void> {
   );
   const pay = rows[0];
   if (!pay) return;
-  await bookOrderPaymentDebt(
-    tx,
+  await recordRefundOwed(
     {
-      payment_id: p.payment_id,
-      order_id: p.order_id,
       rail: pay.rail === 'tempo' ? 'tempo' : 'base',
       payer: pay.payer || p.payer,
       amount_usd: pay.amount_usd,
+      reason: 'paid_after_terminal',
+      source_kind: 'order',
+      source_id: p.payment_id,
+      order_id: p.order_id,
+      payment_id: p.payment_id,
       original_tx: p.tx_hash,
     },
-    'paid_after_terminal',
+    tx,
   );
 }
 

@@ -5,7 +5,7 @@ import { finalizeConfirmed } from '../pipeline/stages/shop-settle';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
 import { releaseReservation } from '../shop/repository';
 import { transition } from '../shop/order-state';
-import { bookOrderPaymentDebt } from '../services/refund-ledger.service';
+import { recordRefundOwed } from '../services/refund-ledger.service';
 
 /** The on-chain reads the job needs; tests inject a fake, production uses viem. */
 export interface ChainReader {
@@ -181,8 +181,10 @@ export async function run(opts?: { deps?: ShopDeps; chain?: ChainReader }): Prom
  * T-0551: a `failed` payment (inside its window) of an order that is already past PAYING and has a
  * different confirmed payment may still have been settled on-chain by the buyer's second
  * authorization. Authorization used + a matching Transfer -> the payment is marked confirmed and
- * bookOrderPaymentDebt books it as `duplicate_payment` (T-0656, decision B: APIbase's fee share in
- * refund_ledger, a 7-day system refund request on the seller for the rest). The order is never touched. RPC failure -> the row is left untouched (warn). `flagMismatch` stays human-only.
+ * the payment is booked as `duplicate_payment` through recordRefundOwed, which routes order debts to
+ * bookOrderPaymentDebt (T-0656, decision B: APIbase's fee share in refund_ledger, a 7-day system
+ * refund request on the seller for the rest). The order is never touched. RPC failure -> the row is
+ * left untouched (warn). `flagMismatch` stays human-only.
  */
 async function reconcileDuplicates(
   deps: ShopDeps,
@@ -233,17 +235,19 @@ async function reconcileDuplicates(
           tx,
         );
         if (!upd) return;
-        await bookOrderPaymentDebt(
-          db,
+        await recordRefundOwed(
           {
-            payment_id: r.payment_id,
-            order_id: r.order_id,
             rail: 'base',
             payer: r.payer,
             amount_usd: r.amount_usd,
+            reason: 'duplicate_payment',
+            source_kind: 'order',
+            source_id: r.payment_id,
+            order_id: r.order_id,
+            payment_id: r.payment_id,
             original_tx: tx,
           },
-          'duplicate_payment',
+          db,
         );
       });
       logger.warn(

@@ -70,6 +70,8 @@ const COLS = `refund_id::text, rail, payer, amount_usd::text, reason, source_kin
   receipt_id, order_id::text, payment_id::text, original_tx, status, payout_id::text, refund_tx,
   detected_at, sent_at, cancelled_reason`;
 
+const ORDER_DEBT_REASONS = new Set<string>(['duplicate_payment', 'paid_after_terminal']);
+
 const walletTag = (w: string) => createHash('sha256').update(w).digest('hex').slice(0, 8);
 
 /**
@@ -78,7 +80,7 @@ const walletTag = (w: string) => createHash('sha256').update(w).digest('hex').sl
  * Never throws. With `db` set (inside a shop transaction) the insert runs under a savepoint so a
  * failure cannot abort the caller's transaction.
  */
-export async function recordRefundOwed(
+async function insertLedgerRow(
   row: RefundOwedInput,
   db?: LedgerDb,
 ): Promise<RefundLedgerRow | null> {
@@ -210,6 +212,39 @@ export async function refundForOrder(
   return rows[0] ? toPublic(rows[0]) : null;
 }
 
+/**
+ * Public writer. T-0656: order-level debts (duplicate_payment / paid_after_terminal, written inside a
+ * shop transaction) never reach the ledger as the whole payment: they go through bookOrderPaymentDebt
+ * (decision B: fee share only, plus a seller refund request). Every other debt is booked as given.
+ */
+export async function recordRefundOwed(
+  row: RefundOwedInput,
+  db?: LedgerDb,
+): Promise<RefundLedgerRow | null> {
+  if (
+    db &&
+    row.source_kind === 'order' &&
+    ORDER_DEBT_REASONS.has(row.reason) &&
+    row.payment_id &&
+    row.order_id
+  ) {
+    await bookOrderPaymentDebt(
+      db,
+      {
+        payment_id: row.payment_id,
+        order_id: row.order_id,
+        rail: row.rail,
+        payer: row.payer,
+        amount_usd: String(row.amount_usd),
+        original_tx: row.original_tx ?? null,
+      },
+      row.reason as OrderDebtReason,
+    );
+    return null;
+  }
+  return insertLedgerRow(row, db);
+}
+
 /** Seller refund window for a payment that arrived twice or after the order closed. */
 const SYSTEM_REFUND_DAYS = 7;
 
@@ -252,7 +287,7 @@ export async function bookOrderPaymentDebt(
   const seller = legs[0]?.seller ?? p.amount_usd;
   const feeShare = Number(fee) > 0 ? Number(fee) : 0;
   if (feeShare > 0) {
-    await recordRefundOwed(
+    await insertLedgerRow(
       {
         rail: p.rail,
         payer: p.payer,
