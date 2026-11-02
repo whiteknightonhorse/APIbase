@@ -36,7 +36,7 @@ export const RECEIPT_ALLOWED_KEYS = [
   'payment_tx',
   'rail',
   'receipt_id',
-  'refund',
+  'refund_url',
   'response_sha256',
   'result_retained_until',
   'retrieve_url',
@@ -64,6 +64,8 @@ export interface ReceiptBody {
   retrieve_url: string;
   /** T-0554: ISO issued_at + 24 h when the body was stored, else null. */
   result_retained_until: string | null;
+  /** T-0659: static pointer to the sibling refund resource; part of the attested bytes. Absent on receipts issued before T-0659. */
+  refund_url?: string;
   /** Absent while the x402 settle is pending (T-0596); the retrieve route fills it in. */
   payment_tx?: string;
   /** T-0596: 'pending' = settle outcome unknown at call time; resolved at read time from the ledger. */
@@ -124,6 +126,11 @@ export function x402SettleStatus(
   if (ctx.x402SettleState === 'pending') return 'pending';
   if (ctx.x402SettleSucceeded === false) return 'failed';
   return undefined;
+}
+
+/** T-0659: the sibling resource carrying the refund state (never part of the receipt bytes). */
+export function refundUrl(receiptId: string): string {
+  return `${RECEIPT_BASE_URL}${receiptId}.refund.json`;
 }
 
 function retrieveUrl(receiptId: string): string {
@@ -220,6 +227,7 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
         amount_atomic: amount,
         payer: lower(ctx.x402Payer),
         payee: lower(inp.x402Payee),
+        refund_url: refundUrl(inp.receiptId),
         retrieve_url: retrieveUrl(inp.receiptId),
         result_retained_until: retainedUntil(inp),
         status: 'pending',
@@ -258,6 +266,7 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
     amount_atomic: amount,
     payer,
     payee,
+    refund_url: refundUrl(inp.receiptId),
     retrieve_url: retrieveUrl(inp.receiptId),
     result_retained_until: retainedUntil(inp),
     payment_tx: tx,

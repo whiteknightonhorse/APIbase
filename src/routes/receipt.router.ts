@@ -30,26 +30,6 @@ export function parseReceiptFile(file: unknown): string | null {
   return RECEIPT_ID_RE.test(id) ? id : null;
 }
 
-/**
- * T-0551: the stored body is immutable; when a refund-owed row exists for the receipt it is merged
- * in as `refund` at read time. A failed ledger read serves the stored body unchanged.
- */
-async function withRefund(
-  body: string,
-  id: string,
-  lookup: (receiptId: string) => Promise<PublicRefund | null>,
-): Promise<{ text: string; hasRefund: boolean }> {
-  try {
-    const refund = await lookup(id);
-    if (!refund) return { text: body, hasRefund: false };
-    const parsed = JSON.parse(body) as Record<string, unknown>;
-    return { text: canonicalJson({ ...parsed, refund }), hasRefund: true };
-  } catch (err) {
-    logger.error({ err, receipt_id: id }, 'receipt: refund lookup failed, serving stored body');
-    return { text: body, hasRefund: false };
-  }
-}
-
 /** T-0596: the settle state of a pending receipt, read from the ledger by execution id. */
 export interface PendingSettle {
   state: 'settled' | 'pending' | 'failed';
@@ -113,6 +93,33 @@ export function createReceiptRouter(
 ): Router {
   const router = Router();
 
+  // T-0659: the refund state lives beside the receipt, never inside it. Registered first so that
+  // `<id>.refund.json` is not taken by the `/r/:file` receipt route.
+  router.get('/r/:id.refund.json', receiptLimiter, async (req: Request, res: Response) => {
+    const raw: unknown = req.params.id;
+    const id = typeof raw === 'string' && RECEIPT_ID_RE.test(raw) ? raw : null;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    if (!id) {
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(404).json({ error: 'no_refund' });
+      return;
+    }
+    try {
+      const refund = await refunds(id);
+      if (!refund) {
+        res.setHeader('Cache-Control', 'no-store');
+        res.status(404).json({ error: 'no_refund', receipt_id: id });
+        return;
+      }
+      res.setHeader('Cache-Control', 'public, max-age=60');
+      res.status(200).json({ receipt_id: id, ...refund });
+    } catch (err) {
+      logger.error({ err, receipt_id: id }, 'receipt: refund lookup failed');
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(503).json({ error: 'refund lookup unavailable', receipt_id: id });
+    }
+  });
+
   router.get('/r/:file', receiptLimiter, async (req: Request, res: Response) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     const id = parseReceiptFile(req.params.file);
@@ -133,16 +140,13 @@ export function createReceiptRouter(
       return;
     }
     const settled = await withSettle(body, id as string, settles);
-    const out = await withRefund(settled.text, id as string, refunds);
     res.setHeader('Content-Type', 'application/json');
-    // A receipt with a refund object changes as the refund moves owed -> sent: not immutable.
+    // T-0659: the served bytes are the stored bytes (a pending settle is still resolved, T-0596).
     res.setHeader(
       'Cache-Control',
-      out.hasRefund || !settled.final
-        ? 'public, max-age=60'
-        : 'public, max-age=31536000, immutable',
+      settled.final ? 'public, max-age=31536000, immutable' : 'public, max-age=60',
     );
-    res.status(200).send(Buffer.from(out.text, 'utf8'));
+    res.status(200).send(Buffer.from(settled.text, 'utf8'));
   });
 
   return router;

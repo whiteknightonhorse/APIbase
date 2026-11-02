@@ -84,6 +84,7 @@ describe('planReceipt (written only when billing succeeded)', () => {
       schema: 'apibase-receipt/1',
       receipt_id: plan!.receiptId,
       issued_at: '2026-10-20T12:00:00.000Z',
+      refund_url: `https://apibase.pro/r/${plan!.receiptId}.refund.json`,
       tool: 'weather.current',
       upstream_status: 200,
       response_sha256: sha256Hex('{"data":1}'),
@@ -141,7 +142,7 @@ describe('receipt body schema', () => {
     for (const ctx of [billedX402(), billedMpp()]) {
       const body = JSON.parse((await planReceipt(ctx, 'x', NOW))!.body);
       expect(Object.keys(body).sort()).toEqual(
-        RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund' && k !== 'status').sort(),
+        RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'status').sort(),
       );
     }
   });
@@ -158,7 +159,7 @@ describe('receipt body schema', () => {
     });
     expect(body).not.toBeNull();
     expect(Object.keys(body!).sort()).toEqual(
-      RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund' && k !== 'status').sort(),
+      RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'status').sort(),
     );
   });
 
@@ -302,13 +303,9 @@ describe('write-once: no update path exists in code', () => {
   });
 });
 
-describe('GET /r/:file refund object (T-0551)', () => {
+describe('T-0659: receipt bytes immutable, refund at the sibling resource', () => {
   const rid = 'e'.repeat(32);
-  const stored = canonicalJson({ schema: 'apibase-receipt/1', receipt_id: rid, billed: true });
-  const store: ReceiptStore = {
-    insert: async () => undefined,
-    get: async (i) => (i === rid ? stored : null),
-  };
+  const oldFixture = canonicalJson({ schema: 'apibase-receipt/1', receipt_id: rid, billed: true });
   const refund = {
     status: 'owed' as const,
     amount_atomic: '2000',
@@ -317,6 +314,10 @@ describe('GET /r/:file refund object (T-0551)', () => {
     refund_tx: null,
     sent_at: null,
     reason: 'provider_call_failed',
+  };
+  const store: ReceiptStore = {
+    insert: async () => undefined,
+    get: async (i) => (i === rid ? oldFixture : null),
   };
   let lookup: jest.Mock;
   let server: ReturnType<express.Express['listen']>;
@@ -333,28 +334,64 @@ describe('GET /r/:file refund object (T-0551)', () => {
     server.close();
   });
 
-  it('no ledger row: the stored bytes, immutable, no refund key', async () => {
-    lookup.mockResolvedValueOnce(null);
+  it('served bytes are identical before and after a ledger row exists (sha256)', async () => {
+    lookup.mockResolvedValue(null);
+    const before = await (await fetch(`${base}/r/${rid}.json`)).text();
+    lookup.mockResolvedValue(refund);
     const res = await fetch(`${base}/r/${rid}.json`);
-    expect(await res.text()).toBe(stored);
+    const after = await res.text();
+    lookup.mockResolvedValue(null);
+    expect(sha256Hex(after)).toBe(sha256Hex(before));
+    expect(after).toBe(oldFixture);
+    expect(JSON.parse(after)).not.toHaveProperty('refund');
     expect(res.headers.get('cache-control')).toBe('public, max-age=31536000, immutable');
   });
 
-  it('a ledger row: refund merged into the JSON at read time, short cache', async () => {
+  it('attestation fixture: receipt_sha256 of the served body survives a refund row', async () => {
+    const attested = sha256Hex(oldFixture);
+    lookup.mockResolvedValue(refund);
+    const served = await (await fetch(`${base}/r/${rid}.json`)).text();
+    lookup.mockResolvedValue(null);
+    expect(sha256Hex(served)).toBe(attested);
+  });
+
+  it('sibling route: 200 with the public row, short cache', async () => {
     lookup.mockResolvedValueOnce(refund);
-    const res = await fetch(`${base}/r/${rid}.json`);
-    const body = await res.json();
-    expect(body.refund).toEqual(refund);
-    expect(body.receipt_id).toBe(rid);
+    const res = await fetch(`${base}/r/${rid}.refund.json`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ receipt_id: rid, ...refund });
     expect(res.headers.get('cache-control')).toBe('public, max-age=60');
     expect(lookup).toHaveBeenLastCalledWith(rid);
   });
 
-  it('a failing ledger read serves the stored body unchanged', async () => {
-    lookup.mockRejectedValueOnce(new Error('db down'));
-    const res = await fetch(`${base}/r/${rid}.json`);
-    expect(res.status).toBe(200);
-    expect(await res.text()).toBe(stored);
+  it('sibling route: 404 no_refund without a row (and for internal rows, which the lookup hides)', async () => {
+    lookup.mockResolvedValueOnce(null);
+    const res = await fetch(`${base}/r/${rid}.refund.json`);
+    expect(res.status).toBe(404);
+    expect(await res.json()).toEqual({ error: 'no_refund', receipt_id: rid });
+  });
+
+  it('sibling route: malformed id is 404 and never reaches the ledger', async () => {
+    lookup.mockClear();
+    const res = await fetch(`${base}/r/not-an-id.refund.json`);
+    expect(res.status).toBe(404);
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it('/r/:file handler reads no ledger refund', async () => {
+    lookup.mockClear();
+    await fetch(`${base}/r/${rid}.json`);
+    expect(lookup).not.toHaveBeenCalled();
+  });
+
+  it('new receipts carry the static refund_url; the old fixture has none', async () => {
+    const body = JSON.parse((await planReceipt(billedX402(), 'x', NOW))!.body);
+    expect(body.refund_url).toBe(`https://apibase.pro/r/${body.receipt_id}.refund.json`);
+    expect(Object.keys(JSON.parse(oldFixture))).not.toContain('refund_url');
+    for (const k of Object.keys(JSON.parse(oldFixture))) {
+      expect(RECEIPT_ALLOWED_KEYS as readonly string[]).toContain(k);
+    }
+    expect(RECEIPT_ALLOWED_KEYS as readonly string[]).not.toContain('refund');
   });
 });
 
