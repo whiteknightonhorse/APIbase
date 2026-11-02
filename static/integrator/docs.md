@@ -101,6 +101,8 @@ recorded (subscribable through webhooks, also in `GET /merchants/me/events`). Th
 
 ## Catalog {#catalog}
 
+**Inactive merchants (`410 merchant_inactive`).** The key of a suspended or deactivated merchant can still read (`GET`) and close open orders (order confirm/ship/document, refunds, stream settle, subscription renewed/cancel, fee-invoice paid, deactivate); every other write — catalog, webhooks, provek, stream-settings, renewer-key, key rotation — is refused with `410 merchant_inactive`, on REST and on the MCP tools alike.
+
 Write path (merchant key `mk_live_…`, scope `catalog:write`, 60 writes/min per key; merchants must have accepted the current documents — pending → `428`, deactivated/suspended → `410`):
 
 - `PUT /api/v1/shop/merchants/me/catalog` with `{ "items": [ … ] }` (≤500 items, body ≤1 MB) · MCP `shop.merchant.catalog_upsert`. Idempotent by `sku`; the merchant is always the key's owner (a `merchant` field in the body is ignored). A price change applies to new quotes at once.

@@ -22,6 +22,8 @@ export interface AuthedMerchant {
   merchant_id: string;
   key_hash: string;
   scopes: string[];
+  /** shop_merchants.status at authentication time (T-0599). */
+  status: string;
 }
 
 declare module 'express-serve-static-core' {
@@ -77,13 +79,51 @@ export async function authenticateMerchantKey(
   const m = /^Bearer (mk_live_[0-9a-f]{32})$/.exec(authorization ?? '');
   if (!m) throw new ShopAuthError(401, MALFORMED_KEY_MESSAGE);
   const key_hash = hashApiKey(m[1]);
-  const rows = await db.$queryRawUnsafe<Array<{ merchant_id: string; scopes: string[] }>>(
-    `SELECT merchant_id, scopes FROM shop_merchant_keys
-      WHERE key_hash = $1 AND revoked_at IS NULL`,
+  const rows = await db.$queryRawUnsafe<
+    Array<{ merchant_id: string; scopes: string[]; status: string | null }>
+  >(
+    `SELECT k.merchant_id, k.scopes, m.status
+       FROM shop_merchant_keys k
+       LEFT JOIN shop_merchants m ON m.merchant_id = k.merchant_id
+      WHERE k.key_hash = $1 AND k.revoked_at IS NULL`,
     key_hash,
   );
   if (!rows[0]) throw new ShopAuthError(401, 'invalid or revoked merchant key');
-  return { merchant_id: rows[0].merchant_id, key_hash, scopes: rows[0].scopes };
+  return {
+    merchant_id: rows[0].merchant_id,
+    key_hash,
+    scopes: rows[0].scopes,
+    status: rows[0].status ?? 'active',
+  };
+}
+
+/** T-0599: a suspended/deactivated merchant's key may only read and finish open orders. */
+export const INACTIVE_STATUSES: readonly string[] = ['suspended', 'deactivated'];
+export const isInactiveMerchant = (m: Pick<AuthedMerchant, 'status'>): boolean =>
+  INACTIVE_STATUSES.includes(m.status);
+
+/** Non-GET routes still open to an inactive merchant: close/fulfil orders, confirm refunds, settle, cancel. */
+const INACTIVE_WRITE_ALLOWED: readonly RegExp[] = [
+  /^\/api\/v1\/shop\/merchants\/me\/orders\/[^/]+\/(confirm|ship|document)$/,
+  /^\/api\/v1\/shop\/merchants\/me\/refunds$/,
+  /^\/api\/v1\/shop\/merchants\/me\/streams\/[^/]+\/settled$/,
+  /^\/api\/v1\/shop\/merchants\/me\/subscriptions\/[^/]+\/(renewed|cancel)$/,
+  /^\/api\/v1\/shop\/merchants\/me\/fee-invoices\/[^/]+\/paid$/,
+  /^\/api\/v1\/shop\/merchants\/me\/deactivate$/,
+];
+
+export function inactiveWriteAllowed(method: string, path: string): boolean {
+  if (method === 'GET' || method === 'HEAD') return true;
+  return INACTIVE_WRITE_ALLOWED.some((re) => re.test(path));
+}
+
+export function merchantInactiveError(): ShopAuthError {
+  return new ShopAuthError(
+    410,
+    'merchant is suspended or deactivated: only reads and closing open orders are allowed',
+    'contact_support',
+    'merchant_inactive',
+  );
 }
 
 /** express guard: requires every scope in `scopes` (403 otherwise), then rate-limits per key.
@@ -110,6 +150,16 @@ export function requireMerchantKey(
       } else {
         res.status(503).json({ error: 'auth backend unavailable' });
       }
+      return;
+    }
+    if (isInactiveMerchant(req.merchant) && !inactiveWriteAllowed(req.method, req.path)) {
+      const e = merchantInactiveError();
+      res.status(410).json({
+        error: 'merchant_inactive',
+        error_code: 'merchant_inactive',
+        message: e.message,
+        suggested_action: e.suggested_action,
+      });
       return;
     }
     const have = new Set(req.merchant.scopes);

@@ -16,7 +16,7 @@ const required = {
 const TEMPO = '0x00000000000000000000000000000000000fee01';
 const BASE = '0x00000000000000000000000000000000000fee02';
 
-describe('fee wallets are required per enabled rail (T-0318)', () => {
+describe('fee switch requires both fee wallets (T-0318, T-0599)', () => {
   it('E1 fee on + MPP on + empty Tempo address fails', () => {
     const env = {
       ...required,
@@ -51,5 +51,15 @@ describe('fee wallets are required per enabled rail (T-0318)', () => {
   it('E3 fee off needs no addresses', () => {
     const env = { ...required, MPP_ENABLED: 'true', INTEGRATOR_BASE_ORDERS_ENABLED: 'true' };
     expect(issuesFor(env)).toEqual([]);
+  });
+
+  it('E4 fee on with only the Base wallet fails on the Tempo wallet even with no rail enabled', () => {
+    const env = { ...required, INTEGRATOR_FEE_ENABLED: 'true', INTEGRATOR_FEE_WALLET_BASE: BASE };
+    expect(issuesFor(env)).toEqual(['INTEGRATOR_FEE_WALLET']);
+  });
+
+  it('E5 fee on with only the Tempo wallet fails on the Base wallet', () => {
+    const env = { ...required, INTEGRATOR_FEE_ENABLED: 'true', INTEGRATOR_FEE_WALLET: TEMPO };
+    expect(issuesFor(env)).toEqual(['INTEGRATOR_FEE_WALLET_BASE']);
   });
 });

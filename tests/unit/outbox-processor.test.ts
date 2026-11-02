@@ -82,9 +82,30 @@ describe('outbox processor (T-0259)', () => {
       'shop.subscription.pull_failed',
       // T-INT-46
       'shop.stream.settle_due',
+      // T-0599: pull-only types owned here as no-ops
+      'shop.merchant.deactivated',
+      'shop.order.closed',
+      'stream.closed',
+      'stream.close_requested',
+      'shop.dispute.unanswered',
     ]);
     expect(HANDLED_EVENT_TYPES).not.toContain('mpp_refund_owed');
     expect(HANDLED_EVENT_TYPES).not.toContain('x402_settle_failed');
+  });
+
+  it.each([
+    'shop.merchant.deactivated',
+    'shop.order.closed',
+    'stream.closed',
+    'stream.close_requested',
+    'shop.dispute.unanswered',
+  ])('T-0599: pull-only %s is marked processed with no side effect', async (t) => {
+    const { deps, redis, log } = makeDeps();
+    expect(await processBatch([ev(t, { merchant_id: 'm' })], deps)).toBe(1);
+    expect(deps.executeRaw).toHaveBeenCalledTimes(1);
+    expect(deps.executeRaw.mock.calls[0][0]).toMatch(/UPDATE outbox SET processed = true/);
+    expect(redis.scan).not.toHaveBeenCalled();
+    expect(log.warn).not.toHaveBeenCalled();
   });
 
   it('O3: unknown event type → false, no UPDATE, one warn', async () => {

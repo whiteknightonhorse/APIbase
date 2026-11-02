@@ -229,6 +229,52 @@ describe('ID3/ID7 guard', () => {
   });
 });
 
+describe('T-0599 inactive merchant key', () => {
+  it.each(['suspended', 'deactivated'])(
+    '%s: reads and closing orders pass, the rest is 410',
+    async (st) => {
+      const f = fakeDb({ merchant: mk() });
+      const app = express();
+      const g = requireMerchantKey([], () => f.db);
+      const ok = (_q: express.Request, r: express.Response) => void r.json({ ok: 1 });
+      const P = '/api/v1/shop/merchants/me';
+      app.get(`${P}/orders`, g, ok);
+      app.post(`${P}/orders/:id/ship`, g, ok);
+      app.post(`${P}/refunds`, g, ok);
+      app.put(`${P}/webhooks`, g, ok);
+      app.patch(`${P}/provek`, g, ok);
+      app.patch(`${P}/stream-settings`, g, ok);
+      app.put(`${P}/renewer-key`, g, ok);
+      const srv = app.listen(0);
+      const base = `http://127.0.0.1:${(srv.address() as AddressInfo).port}${P}`;
+      try {
+        const key = await issueKey(f.db, 'm1');
+        const h = (method: string) => ({ method, headers: { authorization: `Bearer ${key}` } });
+        expect((await fetch(`${base}/webhooks`, h('PUT'))).status).toBe(200);
+        Object.assign(
+          f.keys.find((k) => k.key_hash === hashApiKey(key))!,
+          { status: st },
+        );
+        expect((await fetch(`${base}/orders`, h('GET'))).status).toBe(200);
+        expect((await fetch(`${base}/orders/o1/ship`, h('POST'))).status).toBe(200);
+        expect((await fetch(`${base}/refunds`, h('POST'))).status).toBe(200);
+        for (const [m, p] of [
+          ['PUT', '/webhooks'],
+          ['PATCH', '/provek'],
+          ['PATCH', '/stream-settings'],
+          ['PUT', '/renewer-key'],
+        ]) {
+          const r = await fetch(`${base}${p}`, h(m));
+          expect(r.status).toBe(410);
+          expect((await r.json()).error_code).toBe('merchant_inactive');
+        }
+      } finally {
+        srv.close();
+      }
+    },
+  );
+});
+
 describe('ID4-ID6 identity', () => {
   let redis: FakeRedis;
   beforeEach(() => {

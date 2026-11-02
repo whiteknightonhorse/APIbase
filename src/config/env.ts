@@ -507,23 +507,15 @@ export const appEnvSchema = z
           'ENCRYPTION_KEY must be at least 32 characters in production (see docs/OPERATOR-ACTION-encryption-key.md)',
       });
     }
-    // Fee on without the address of an enabled rail would bill 0 or refuse at payment time.
+    // T-0599 (A1-20): the fee switch needs BOTH fee wallets, whatever rails are on today, so that
+    // enabling a rail later cannot bill 0 or refuse at payment time.
     if (env.INTEGRATOR_FEE_ENABLED === 'true') {
       const addr = /^0x[0-9a-fA-F]{40}$/;
       const message =
-        'INTEGRATOR_FEE_ENABLED=true requires INTEGRATOR_FEE_WALLET (tempo) / INTEGRATOR_FEE_WALLET_BASE (base)';
-      if (env.MPP_ENABLED === 'true' && !addr.test(env.INTEGRATOR_FEE_WALLET)) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['INTEGRATOR_FEE_WALLET'], message });
-      }
-      if (
-        env.INTEGRATOR_BASE_ORDERS_ENABLED === 'true' &&
-        !addr.test(env.INTEGRATOR_FEE_WALLET_BASE)
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['INTEGRATOR_FEE_WALLET_BASE'],
-          message,
-        });
+        'INTEGRATOR_FEE_ENABLED=true requires INTEGRATOR_FEE_WALLET (tempo) and INTEGRATOR_FEE_WALLET_BASE (base)';
+      for (const key of ['INTEGRATOR_FEE_WALLET', 'INTEGRATOR_FEE_WALLET_BASE'] as const) {
+        if (!addr.test(env[key]))
+          ctx.addIssue({ code: z.ZodIssueCode.custom, path: [key], message });
       }
     }
   });

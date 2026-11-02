@@ -320,7 +320,7 @@ export function toApiError(err: unknown, request_id?: string): ApiErr {
   }
   if (err instanceof ShopAuthError) {
     const code =
-      (err as { error_code?: string }).error_code ??
+      err.error_code ??
       (err.status === 401
         ? 'unauthorized'
         : err.status === 403

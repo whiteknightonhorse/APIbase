@@ -54,12 +54,31 @@ const SHOP_WEBHOOK_EVENT_TYPES = [
  * Invariant: outbox-worker failure does NOT affect API or Worker.
  */
 
+/**
+ * T-0599 (AUDIT-OPUS-1028 A1-21): pull-only event types. Nobody pushes them anywhere; consumers read the
+ * source tables (merchant events feed, stream settle-queue, dispute rows). This worker is their owner
+ * and only marks them processed, so they stop pinning partitions in partition-cleanup.
+ *   shop.merchant.deactivated   -> merchant lifecycle, read via GET /merchants/me/events
+ *   shop.order.closed           -> shop-sla-sweeper, read via GET /merchants/me/events
+ *   stream.closed               -> stream settle sweep, read via streams/settle-queue
+ *   stream.close_requested      -> stream settle sweep, read via streams/settle-queue
+ *   shop.dispute.unanswered     -> dispute rows (shop_disputes), read via the dispute routes
+ */
+export const PULL_ONLY_EVENT_TYPES = [
+  'shop.merchant.deactivated',
+  'shop.order.closed',
+  'stream.closed',
+  'stream.close_requested',
+  'shop.dispute.unanswered',
+] as const;
+
 export const HANDLED_EVENT_TYPES = [
   'cache_invalidate',
   'TOOL_CONFIG_UPDATED',
   // T-INT-14 (0259 §3 p.1): the third consumer — merchant webhooks. Only shop.* types; the money types
   // (mpp_refund_owed, x402_settle_failed) are NOT added and stay with their scripts.
   ...SHOP_WEBHOOK_EVENT_TYPES,
+  ...PULL_ONLY_EVENT_TYPES,
 ] as const;
 
 export interface OutboxEvent {
@@ -131,6 +150,8 @@ export async function processEvent(event: OutboxEvent, deps: ProcessorDeps): Pro
     }
     return true;
   }
+
+  if ((PULL_ONLY_EVENT_TYPES as readonly string[]).includes(eventType)) return true;
 
   const webhookEvent = OUTBOX_TO_WEBHOOK[eventType];
   if (webhookEvent) {

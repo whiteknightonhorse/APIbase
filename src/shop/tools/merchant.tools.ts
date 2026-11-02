@@ -3,7 +3,12 @@ import { z } from 'zod';
 import type { RegisterCtx } from '../merchant.service';
 import { ShopAuthError } from '../auth/errors';
 import { rotateKey } from '../auth/identity.service';
-import { authenticateMerchantKey, type AuthedMerchant } from '../auth/merchant-key.service';
+import {
+  authenticateMerchantKey,
+  isInactiveMerchant,
+  merchantInactiveError,
+  type AuthedMerchant,
+} from '../auth/merchant-key.service';
 import { termsStatus } from '../auth/terms.guard';
 import {
   addMerchantDocument,
@@ -73,8 +78,14 @@ function fail(err: unknown, request_id: string): Result {
   return { isError: true, content: [{ type: 'text', text: JSON.stringify(body) }] };
 }
 
-async function bearer(d: ShopDeps, apiKey: string, scope?: string): Promise<AuthedMerchant> {
+async function bearer(
+  d: ShopDeps,
+  apiKey: string,
+  scope?: string,
+  activeOnly = false,
+): Promise<AuthedMerchant> {
   const m = await authenticateMerchantKey(d.db, `Bearer ${apiKey}`);
+  if (activeOnly && isInactiveMerchant(m)) throw merchantInactiveError();
   if (scope && !m.scopes.includes(scope)) throw new ShopAuthError(403, `missing scope ${scope}`);
   return m;
 }
@@ -203,7 +214,7 @@ export function registerMerchantTools(
     },
     async (a: { encryption_key?: z.infer<typeof ENC_KEY> }) => {
       try {
-        const m = await bearer(deps, apiKey);
+        const m = await bearer(deps, apiKey, undefined, true);
         const api_key = await deps.transaction((tx) =>
           rotateKey(
             { db: tx, redis: deps.redis, now: deps.now },
@@ -417,7 +428,7 @@ export function registerMerchantTools(
     },
     async (a: Record<string, unknown>) => {
       try {
-        const m = await bearer(deps, apiKey, 'webhooks:write');
+        const m = await bearer(deps, apiKey, 'webhooks:write', true);
         return ok({ ...(await setWebhook(deps, m.merchant_id, a)) });
       } catch (err) {
         return fail(err, requestId);

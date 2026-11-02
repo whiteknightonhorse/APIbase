@@ -1,7 +1,12 @@
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ShopAuthError } from '../auth/errors';
-import { authenticateMerchantKey, WRITE_LIMIT_PER_MIN } from '../auth/merchant-key.service';
+import {
+  authenticateMerchantKey,
+  isInactiveMerchant,
+  merchantInactiveError,
+  WRITE_LIMIT_PER_MIN,
+} from '../auth/merchant-key.service';
 import { deleteCatalog, MAX_ITEMS_PER_CALL, upsertCatalog } from '../catalog.service';
 import { getProduct, searchCatalog, SEARCH_MAX_LIMIT } from '../catalog.read.service';
 import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycle.service';
@@ -65,6 +70,7 @@ export function registerCatalogTools(
 
   const writer = async () => {
     const m = await authenticateMerchantKey(deps.db, `Bearer ${apiKey}`);
+    if (isInactiveMerchant(m)) throw merchantInactiveError();
     if (!m.scopes.includes('catalog:write'))
       throw new ShopAuthError(403, 'missing scope catalog:write');
     takeWriteToken(m.key_hash, (deps.now ?? Date.now)());
