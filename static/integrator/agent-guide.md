@@ -222,3 +222,7 @@ HTTP 200. The same buyer already paid this quote; the reply is the same order. N
 ### `test_sku_daily_cap`
 
 HTTP 429. The daily limit of paid test orders is reached. Try again after 24 hours.
+
+### `tool_unavailable`
+
+HTTP 503. The tool is withdrawn (for example its provider's free quota is used up) and is also returned before payment when the tool failed repeatedly in the last minutes (`status_reason: circuit_open`). Honour `retry_after` (seconds); nothing is charged and no payment challenge is issued.

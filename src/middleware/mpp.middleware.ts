@@ -1,10 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 import { getMppConfig } from '../config/mpp.config';
-import { resolveToolPriceUsd, schemaFailureStatus } from '../pricing/audio-minute';
+import { resolveToolPriceUsd } from '../pricing/audio-minute';
 import { getToolPriceUsd } from '../pipeline/stages/tool-status.stage';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
-import { bodySchemaFailure } from '../pipeline/precheck';
+import { precheckToolCall } from '../pipeline/precheck';
 
 /**
  * F1/C-5 (2026-09-01): resolve the REAL on-chain payer address, not a stub.
@@ -332,33 +332,32 @@ export function mppMiddleware(req: Request, res: Response, next: NextFunction): 
     .catch(next);
 }
 
-/** T-0282: true when a 400 was sent because the body fails the tool's zod schema (no charge). */
-function rejectInvalidBody(req: Request, res: Response): boolean {
+/**
+ * T-0657: the same pre-payment check the x402 402 path runs (tool status, schema, circuit
+ * breaker). charge() settles on-chain and cannot be undone, so a call the pipeline would refuse
+ * is answered here with the pipeline's status/body plus charged:false BEFORE any money moves.
+ * Returns true when a response was sent. Provider-side 422s are out of scope.
+ */
+async function rejectUnservable(req: Request, res: Response): Promise<boolean> {
   const toolId = toolIdFromUrl(req.originalUrl);
-  const failure = toolId ? bodySchemaFailure(toolId, req.body) : null;
-  if (!toolId || !failure) return false;
-  res
-    .status(
-      schemaFailureStatus(
-        toolId,
-        failure.issues.map((i) => i.path),
-      ),
-    )
-    .json({
-      error: 'schema_validation_failed',
-      message: `Request body validation failed. Expected params: ${failure.expected_params.join(', ')}`,
-      tool_id: toolId,
-      issues: failure.issues,
-      expected_params: failure.expected_params,
-      received_params: failure.received_params,
-      hint: `Fetch schema: GET /api/v1/tools/${toolId}`,
-      request_id: req.requestId,
-      charged: false,
-    });
+  if (!toolId) return false;
+  const failure = await precheckToolCall(toolId, req.body);
+  if (!failure) return false;
+  res.status(failure.code).json({
+    error: failure.error,
+    error_code: (failure.error || '').toUpperCase(),
+    message: failure.message,
+    request_id: req.requestId,
+    suggested_action:
+      failure.code === 400 || failure.code === 422 ? 'fix_request' : 'retry_after_delay',
+    ...(failure.retryAfter ? { retry_after: failure.retryAfter } : {}),
+    ...(failure.extra ?? {}),
+    charged: false,
+  });
   return true;
 }
 
-/** Resolves false when the response was already sent (409 quote_already_paying, 400 schema). */
+/** Resolves false when the response was already sent (409 quote_already_paying, 400 schema, 503 unavailable). */
 async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   const params = await resolveAmountForUrl(req.originalUrl, req.body);
   if (params === undefined) {
@@ -374,7 +373,7 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   if (!quoteId) {
     // T-0282: charge() settles on-chain and cannot be undone, so reject a body our own
     // schema would refuse (400) BEFORE any money moves. Provider-side 422s are out of scope.
-    if (rejectInvalidBody(req, res)) return false;
+    if (await rejectUnservable(req, res)) return false;
     return chargeAndRecord(req, res, params);
   }
   // GET /quotes/:id/pay only ever returns the challenge (§6.3): a credential is not settled here.
