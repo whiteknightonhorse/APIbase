@@ -59,6 +59,7 @@ function setup(mutate: boolean) {
     SYNC_COUNTS_CRON_LOG_DIR: join(dir, 'logs'),
     SYNC_COUNTS_CRON_CONFIG_ENV: join(dir, 'config.env'),
     SYNC_COUNTS_CRON_GEN_CMD: 'true',
+    SYNC_COUNTS_CRON_HOME_CMD: 'true',
   };
   return { dir, work, env };
 }
@@ -87,6 +88,25 @@ describe('sync-counts-cron.sh page-parity gate', () => {
     expect(r.status).toBe(0);
     const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
     expect(log).toContain('0 drift, nothing committed');
+    expect(git(t.work, 'log', 'origin/ci-staging..HEAD', '--oneline')).toBe('');
+  });
+
+  it('aborts and commits nothing when the rendered bar differs from site-facts (T-0645)', () => {
+    const t = setup(false);
+    dir = t.dir;
+    const stub = join(t.dir, 'home-stub.sh');
+    writeFileSync(
+      stub,
+      '#!/usr/bin/env bash\n[ "$1" = check-bar ] && { echo "static/pricing.html: header bar differs"; exit 1; }\nexit 0\n',
+    );
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, {
+      ...t.env,
+      SYNC_COUNTS_CRON_HOME_CMD: `bash ${stub}`,
+    });
+    expect(r.status).toBe(1);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    expect(log).toContain('ABORT -- home-facts.py check-bar exited 1');
+    expect(git(t.work, 'status', '--porcelain')).toBe('');
     expect(git(t.work, 'log', 'origin/ci-staging..HEAD', '--oneline')).toBe('');
   });
 });

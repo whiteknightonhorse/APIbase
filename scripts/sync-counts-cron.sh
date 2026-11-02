@@ -327,6 +327,21 @@ if [ "$GEN_RC" != 0 ]; then
   exit 1
 fi
 
+# T-0645 (0601 ruling-2 item 1): home-facts.py render reads site-facts.json (tiers, bar, range),
+# but sync-counts.sh runs it BEFORE gen-site-facts.ts above, so it rendered from the previous
+# run's facts and ci-staging oscillated (H4 / price-range jest reds). Render again now that
+# site-facts.json is current, then verify; red = ABORT, the EXIT trap reverts the generated files.
+# SYNC_COUNTS_CRON_HOME_CMD is overridable only so the test can run in a bare temp tree.
+HOME_CMD="${SYNC_COUNTS_CRON_HOME_CMD:-python3 scripts/home-facts.py}"
+for sub in render check check-bar check-range; do
+  HF_OUT="$($HOME_CMD $sub 2>&1)" && HF_RC=0 || HF_RC=$?
+  if [ "$HF_RC" != 0 ]; then
+    clog "ABORT -- home-facts.py $sub exited $HF_RC after gen-site-facts, nothing committed: $(printf '%s\n' "$HF_OUT" | tail -n 3 | tr '\n' ';')"
+    calert "🔴 sync-counts-cron: home-facts $sub упал с кодом $HF_RC после gen-site-facts -- ничего не закоммичено, see log." "home-facts-red"
+    exit 1
+  fi
+done
+
 TOOLS="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ tools' | grep -oE '[0-9]+')"
 PROV="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ providers' | grep -oE '[0-9]+')"
 
