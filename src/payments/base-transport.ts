@@ -40,10 +40,79 @@ function noteFallbackUsed(url: unknown): void {
   }
 }
 
+/** Replace every configured RPC URL (and its path, which may carry a key) with its host. */
+function scrub(text: unknown, urls: readonly string[]): unknown {
+  if (typeof text !== 'string') return text;
+  let out = text;
+  for (const u of urls) {
+    if (!u) continue;
+    out = out.split(u).join(rpcHost(u));
+    try {
+      const parsed = new URL(u);
+      const tail = parsed.pathname + parsed.search;
+      if (tail.length > 1) out = out.split(tail).join('');
+    } catch {
+      /* not a URL: nothing more to scrub */
+    }
+  }
+  return out;
+}
+
+function scrubError(err: unknown, urls: readonly string[], depth = 0): void {
+  if (typeof err !== 'object' || err === null || depth > 5) return;
+  const e = err as Record<string, unknown>;
+  for (const k of ['message', 'shortMessage', 'details']) {
+    if (typeof e[k] === 'string') {
+      try {
+        e[k] = scrub(e[k], urls);
+      } catch {
+        /* read-only property */
+      }
+    }
+  }
+  if (Array.isArray(e.metaMessages)) {
+    try {
+      e.metaMessages = e.metaMessages.map((m) => scrub(m, urls));
+    } catch {
+      /* read-only property */
+    }
+  }
+  if (typeof e.url === 'string') {
+    try {
+      e.url = scrub(e.url, urls);
+    } catch {
+      /* read-only property */
+    }
+  }
+  scrubError(e.cause, urls, depth + 1);
+}
+
+/** Wrap a transport so errors it throws never carry a configured RPC URL (T-0642 R4). */
+function sanitized(t: Transport, urls: readonly string[]): Transport {
+  return ((args) => {
+    const inner = t(args);
+    const req = inner.request;
+    return {
+      ...inner,
+      request: async (...a: Parameters<typeof req>) => {
+        try {
+          return await req(...a);
+        } catch (err) {
+          scrubError(err, urls);
+          throw err;
+        }
+      },
+    };
+  }) as Transport;
+}
+
 export function baseTransport(cfg: BaseTransportConfig): Transport {
   const [primary, reserve] = cfg.baseRpcUrls;
   if (!reserve) {
-    return http(primary, { retryCount: 2, retryDelay: 200, timeout: 10_000 });
+    return sanitized(
+      http(primary, { retryCount: 2, retryDelay: 200, timeout: 10_000 }),
+      cfg.baseRpcUrls,
+    );
   }
   const inner = fallback(
     [
@@ -52,7 +121,7 @@ export function baseTransport(cfg: BaseTransportConfig): Transport {
     ],
     { rank: false, retryCount: 0 },
   );
-  return ((args) => {
+  const withMetric = ((args) => {
     const t = inner(args);
     const value = t.value as {
       onResponse?: (
@@ -66,4 +135,5 @@ export function baseTransport(cfg: BaseTransportConfig): Transport {
     });
     return t;
   }) as Transport;
+  return sanitized(withMetric, cfg.baseRpcUrls);
 }

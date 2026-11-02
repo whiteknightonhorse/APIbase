@@ -177,7 +177,7 @@ That's the whole thing.
 - Operator key lives only in `.env` (chmod 600, `.gitignore`-d). Never logged, never echoed to stdout/`ps`. Loaded into memory once at startup, scoped to the WalletClient closure.
 - Operator wallet **never** holds USDC. If the key is compromised, attacker gets unspent gas (small dollar amount). Customer USDC is on the receiver wallet which has no private key in the runtime environment at all.
 - Operator key rotation: generate new key, drain remaining ETH from old → new, swap value in `.env`, restart api+worker.
-- Public RPC (`https://mainnet.base.org`) has no SLA. For higher reliability, set `X402_BASE_RPC_URL_FALLBACK` to a private RPC (Alchemy, QuickNode, etc.) as a reserve behind the public primary (T-0642; `x402_rpc_fallback_used_total{host}` counts uses). Configurable per-environment without redeploy.
+- Public RPC (`https://mainnet.base.org`) has no SLA; the optional private reserve is described in [payments.md](payments.md) (Base RPC).
 
 ## Status
 

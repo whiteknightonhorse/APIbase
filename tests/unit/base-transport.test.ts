@@ -87,6 +87,36 @@ describe('baseTransport', () => {
     expect(await counter()).toBe(0);
   });
 
+  it('both fail -> thrown error text, message chain and logs never contain the reserve key', async () => {
+    const p = await start('err500');
+    const f = await start('drop');
+    const c = createPublicClient({ transport: baseTransport({ baseRpcUrls: [p.url, f.url] }) });
+    let caught: unknown;
+    try {
+      await c.getChainId();
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeDefined();
+    const e = caught as { message: string; shortMessage?: string; details?: string };
+    const text = JSON.stringify([
+      e.message,
+      e.shortMessage,
+      e.details,
+      (e as { metaMessages?: string[] }).metaMessages,
+      String((e as { cause?: { message?: string } }).cause?.message),
+      mockWarn.mock.calls,
+      mockInfo.mock.calls,
+    ]);
+    expect(text).not.toContain('SECRETKEY123');
+  });
+
+  it('single keyed transport failing also hides the key', async () => {
+    const f = await start('drop');
+    const c = createPublicClient({ transport: baseTransport({ baseRpcUrls: [f.url] }) });
+    await expect(c.getChainId()).rejects.toThrow(/^(?!.*SECRETKEY123)/s);
+  });
+
   it('no fallback configured -> single transport, counter 0', async () => {
     const p = await start('ok');
     const c = createPublicClient({ transport: baseTransport({ baseRpcUrls: [p.url] }) });
