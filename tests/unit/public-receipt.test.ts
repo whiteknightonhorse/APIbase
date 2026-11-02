@@ -136,7 +136,7 @@ describe('receipt body schema', () => {
     for (const ctx of [billedX402(), billedMpp()]) {
       const body = JSON.parse((await planReceipt(ctx, 'x', NOW))!.body);
       expect(Object.keys(body).sort()).toEqual(
-        RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund').sort(),
+        RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund' && k !== 'status').sort(),
       );
     }
   });
@@ -153,7 +153,7 @@ describe('receipt body schema', () => {
     });
     expect(body).not.toBeNull();
     expect(Object.keys(body!).sort()).toEqual(
-      RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund').sort(),
+      RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'refund' && k !== 'status').sort(),
     );
   });
 
@@ -350,5 +350,74 @@ describe('GET /r/:file refund object (T-0551)', () => {
     const res = await fetch(`${base}/r/${rid}.json`);
     expect(res.status).toBe(200);
     expect(await res.text()).toBe(stored);
+  });
+});
+
+describe('T-0596: pending x402 settle receipt', () => {
+  const EXEC = '0123456789abcdef-0123-456789abcdef'.replace('abcdef-0123-', 'abcd-ef01-23');
+  const RID = EXEC.replace(/-/g, '');
+  function pendingCtx(): PipelineContext {
+    const ctx = billedX402();
+    ctx.x402SettleSucceeded = undefined;
+    ctx.x402SettleTxHash = undefined;
+    ctx.x402SettleState = 'pending';
+    ctx.executionId = EXEC;
+    return ctx;
+  }
+
+  it('plans a pending body under the id derived from the execution id, without payment_tx', async () => {
+    const plan = await planReceipt(pendingCtx(), 'x', NOW);
+    expect(plan!.receiptId).toBe(RID);
+    const body = JSON.parse(plan!.body);
+    expect(body.status).toBe('pending');
+    expect(body.payment_tx).toBeUndefined();
+    expect(body.receipt_id).toBe(RID);
+  });
+
+  it('no execution id -> no pending receipt', async () => {
+    const ctx = pendingCtx();
+    ctx.executionId = undefined;
+    expect(await planReceipt(ctx, 'x', NOW)).toBeNull();
+  });
+
+  describe('retrieve route resolves the final state from the ledger', () => {
+    let server: ReturnType<ReturnType<typeof express>['listen']>;
+    let base: string;
+    let stored: string;
+    const settle = jest.fn();
+    beforeAll(async () => {
+      stored = (await planReceipt(pendingCtx(), 'x', NOW))!.body;
+      const store: ReceiptStore = { insert: jest.fn(), get: async () => stored };
+      const app = express();
+      app.use(createReceiptRouter(store, async () => null, settle));
+      server = app.listen(0);
+      base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    });
+    afterAll(() => {
+      server.close();
+    });
+
+    it('still pending: stored body, short cache', async () => {
+      settle.mockResolvedValueOnce({ state: 'pending' });
+      const res = await fetch(`${base}/r/${RID}.json`);
+      expect(await res.text()).toBe(stored);
+      expect(res.headers.get('cache-control')).toBe('public, max-age=60');
+    });
+
+    it('settled: payment_tx merged, status dropped, immutable', async () => {
+      settle.mockResolvedValueOnce({ state: 'settled', tx: TX });
+      const res = await fetch(`${base}/r/${RID}.json`);
+      const body = await res.json();
+      expect(body.payment_tx).toBe(TX);
+      expect(body.status).toBeUndefined();
+      expect(res.headers.get('cache-control')).toBe('public, max-age=31536000, immutable');
+    });
+
+    it('expired unsettled: status failed, short cache', async () => {
+      settle.mockResolvedValueOnce({ state: 'failed' });
+      const res = await fetch(`${base}/r/${RID}.json`);
+      expect((await res.json()).status).toBe('failed');
+      expect(res.headers.get('cache-control')).toBe('public, max-age=60');
+    });
   });
 });

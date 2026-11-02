@@ -125,7 +125,7 @@ Base64-encode the JSON into the `X-Payment` header as usual. Any other amount, r
 
 ## Payment transport on /mcp
 
-x402: send the payment as the `X-Payment` header, or as `params._meta["x402/payment"]` of the `tools/call` (x402 MCP transport v2, the key names of `@x402/mcp` 2.28). A tool call without payment returns `isError: true`, the JSON text as before, and the same payment-required object as the HTTP 402 body in `_meta["x402/payment-required"]` (also in `structuredContent`). After a settled call the result `_meta["x402/payment-response"]` carries the receipt. Header first, `_meta` second; both present with different payloads is a 400. Null optional fields are accepted. `maxTimeoutSeconds` is 120.
+x402: send the payment as the `X-Payment` header, or as `params._meta["x402/payment"]` of the `tools/call` (x402 MCP transport v2, the key names of `@x402/mcp` 2.28). A tool call without payment returns `isError: true`, the JSON text as before, and the same payment-required object as the HTTP 402 body in `_meta["x402/payment-required"]` (also in `structuredContent`). After a settled call the result `_meta["x402/payment-response"]` carries the receipt; an unknown settle outcome returns `_meta["apibase/settle"]` `{status: "pending", receipt_id, retrieve_url}` instead (both shapes: [docs/payments.md](https://github.com/whiteknightonhorse/APIbase/blob/main/docs/payments.md)). Header first, `_meta` second; both present with different payloads is a 400. Null optional fields are accepted. `maxTimeoutSeconds` is 120.
 
 MPP: send the credential as `Authorization: Payment <credential>` or, to keep `Authorization: Bearer <api key>`, as `Payment-Authorization: Payment <credential>`. A credential in both headers is a 400.
 

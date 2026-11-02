@@ -27,6 +27,15 @@ jest.mock('../../src/config/x402.config', () => ({
 jest.mock('../../src/config/index', () => ({
   config: { ENCRYPTION_KEY: 'k'.repeat(40), X402_NETWORK: 'base' },
 }));
+jest.mock('../../src/config/mpp.config', () => ({
+  getMppConfig: () => ({
+    chainId: 4217,
+    walletAddress: '0x9E29FF84B0f3EDa9756262d2F950C435495BA8cC',
+  }),
+}));
+jest.mock('../../src/services/prisma.service', () => ({
+  getPrisma: () => ({ $executeRawUnsafe: jest.fn(async () => 1) }),
+}));
 const mockRun = jest.fn();
 jest.mock('../../src/pipeline/pipeline', () => ({ runPipeline: (c: unknown) => mockRun(c) }));
 
@@ -215,6 +224,70 @@ describe('x402 over MCP: tool results (T-0429)', () => {
         payer: '0xPAYER',
       },
     });
+  });
+
+  it('T-0596: settle that finishes late (2 s facilitator) is awaited, the receipt carries the tx', async () => {
+    jest.useFakeTimers();
+    try {
+      mockRun.mockImplementation(async (c: Record<string, unknown>) => {
+        await new Promise((r) => setTimeout(r, 2000));
+        c.x402SettleSucceeded = true;
+        c.x402SettleTxHash = '0xslow';
+        return { ok: true, value: { responseBody: { a: 1 } } };
+      });
+      const p = call(ctx({ x402Paid: true, x402Payer: '0xPAYER', x402PaymentHeader: 'h' }));
+      await jest.advanceTimersByTimeAsync(2000);
+      const r = await p;
+      expect(r._meta).toEqual({
+        'x402/payment-response': expect.objectContaining({ success: true, transaction: '0xslow' }),
+      });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('T-0596: a pending settle announces status pending with the receipt id and retrieve url', async () => {
+    const EXEC = '0123456789abcdef0123456789abcdef'.replace(
+      /^(.{8})(.{4})(.{4})(.{4})(.{12})$/,
+      '$1-$2-$3-$4-$5',
+    );
+    mockRun.mockImplementation(async (c: Record<string, unknown>) => {
+      Object.assign(c, {
+        x402SettleState: 'pending',
+        executionId: EXEC,
+        toolId: 'weather.current',
+        billingStatus: 'PAID',
+        finalCost: 0.001,
+        responseBody: { a: 1 },
+        x402Payer: '0xAbCdEf0123456789aBcDeF0123456789AbCdEf01',
+      });
+      return { ok: true, value: c };
+    });
+    const r = await call(
+      ctx({
+        x402Paid: true,
+        x402Payer: '0xAbCdEf0123456789aBcDeF0123456789AbCdEf01',
+        x402PaymentHeader: 'h',
+      }),
+    );
+    const meta = r._meta as Record<string, Record<string, unknown>>;
+    expect(meta['x402/payment-response']).toBeUndefined();
+    expect(meta['apibase/settle']).toEqual({
+      status: 'pending',
+      receipt_id: '0123456789abcdef0123456789abcdef',
+      retrieve_url: 'https://apibase.pro/r/0123456789abcdef0123456789abcdef.json',
+    });
+    expect(r.isError).toBeUndefined();
+  });
+
+  it('T-0596: a failed settle is isError false with settle failed, not silence', async () => {
+    mockRun.mockImplementation(async (c: Record<string, unknown>) => {
+      c.x402SettleSucceeded = false;
+      return { ok: true, value: { responseBody: { a: 1 } } };
+    });
+    const r = await call(ctx({ x402Paid: true, x402Payer: '0x1', x402PaymentHeader: 'h' }));
+    expect(r.isError).toBeUndefined();
+    expect(r._meta).toEqual({ 'apibase/settle': { status: 'failed' } });
   });
 
   it('an unpaid or unsettled success has no payment-response', async () => {

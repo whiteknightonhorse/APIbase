@@ -1,13 +1,19 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { randomUUID } from 'node:crypto';
-import { encodePaymentRequiredHeader } from '@x402/core/http';
+import { encodePaymentRequiredHeader, encodePaymentResponseHeader } from '@x402/core/http';
 import type { PaymentRequired } from '@x402/core/types';
 import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
 import { buildMppChallengeHeader } from '../middleware/mpp.middleware';
-import { planReceipt, writeReceiptSafe, receiptUrl } from '../services/public-receipt.service';
+import {
+  planReceipt,
+  writeReceiptSafe,
+  receiptUrl,
+  x402SettleStatus,
+} from '../services/public-receipt.service';
+import { getX402Config } from '../config/x402.config';
 import { NO_RECEIPT, recordDedupAfterCharge } from '../services/cache.service';
 import { finalizePipelineIdempotency } from '../services/idempotency.service';
 import {
@@ -18,6 +24,7 @@ import {
   X_CACHE,
   X_APIBASE_RECEIPT,
   X_APIBASE_CHARGED,
+  X_APIBASE_SETTLE,
   resolveX402PaymentHeader,
 } from '../config/http-headers';
 
@@ -90,6 +97,23 @@ executeRouter.post(
           JSON.stringify(result.value.responseBody) ?? '',
         );
         if (receipt) res.setHeader(X_APIBASE_RECEIPT, receipt.url);
+        // T-0596 REST parity with MCP `_meta`: settle is awaited before this point. Settled ->
+        // PAYMENT-RESPONSE (x402 v2 settle response); pending / failed -> X-APIbase-Settle (a pending
+        // one also carries the receipt URL in X-APIbase-Receipt; the route resolves the final state).
+        const settleStatus = x402SettleStatus(result.value);
+        if (settleStatus === 'settled') {
+          res.setHeader(
+            'PAYMENT-RESPONSE',
+            encodePaymentResponseHeader({
+              success: true,
+              transaction: result.value.x402SettleTxHash ?? '',
+              network: getX402Config().network,
+              payer: result.value.x402Payer ?? '',
+            } as never),
+          );
+        } else if (settleStatus) {
+          res.setHeader(X_APIBASE_SETTLE, settleStatus);
+        }
         // T-0526: dedup hit -> answered, not charged, original receipt. A charged call opens the window.
         if (result.value.dedupHit) {
           res.setHeader(X_APIBASE_CHARGED, 'false');

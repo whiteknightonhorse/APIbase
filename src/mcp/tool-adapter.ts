@@ -17,6 +17,7 @@ import {
   MCP_RECEIPT_URL_META_KEY,
   planReceipt,
   writeReceiptSafe,
+  x402SettleStatus,
 } from '../services/public-receipt.service';
 import { NO_RECEIPT, recordDedupAfterCharge } from '../services/cache.service';
 import { receiptUrl } from '../services/public-receipt.service';
@@ -35,6 +36,7 @@ export { TOOL_DEFINITIONS } from './tool-definitions';
 
 const MCP_IDEMPOTENCY_KEY_META_KEY = 'apibase/idempotency_key';
 const MCP_CHARGED_META_KEY = 'apibase/charged';
+const MCP_SETTLE_META_KEY = 'apibase/settle';
 
 /**
  * Default outputSchema applied to every tool that doesn't declare its own.
@@ -153,8 +155,9 @@ export function registerTools(
         if (result.ok) {
           // T-0429: x402 MCP transport v2 settlement receipt (verify -> deliver -> settle: the
           // receipt exists only when the settle already succeeded; a pending one is reconciled).
+          const settleStatus = x402SettleStatus(ctx);
           const receipt =
-            ctx.x402Paid && ctx.x402SettleSucceeded === true
+            settleStatus === 'settled'
               ? {
                   [MCP_PAYMENT_RESPONSE_META_KEY]: {
                     success: true,
@@ -173,8 +176,24 @@ export function registerTools(
           // T-0526: dedup hit -> not charged, original receipt. A charged call opens the window.
           const dedup = result.value.dedupHit;
           if (!dedup) await recordDedupAfterCharge(result.value, publicReceipt?.receiptId);
+          // T-0596: pending / failed settle is announced explicitly, never silence. The pending
+          // shape carries the receipt id and the retrieve URL (the route resolves the final state).
+          const settleMeta =
+            settleStatus === 'pending'
+              ? {
+                  [MCP_SETTLE_META_KEY]: {
+                    status: 'pending',
+                    ...(publicReceipt
+                      ? { receipt_id: publicReceipt.receiptId, retrieve_url: publicReceipt.url }
+                      : {}),
+                  },
+                }
+              : settleStatus === 'failed'
+                ? { [MCP_SETTLE_META_KEY]: { status: 'failed' } }
+                : {};
           const resultMeta = {
             ...(receipt ?? {}),
+            ...settleMeta,
             ...(publicReceipt ? { [MCP_RECEIPT_URL_META_KEY]: publicReceipt.url } : {}),
             ...(dedup
               ? {

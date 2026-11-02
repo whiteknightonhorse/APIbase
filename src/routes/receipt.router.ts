@@ -4,6 +4,7 @@ import { logger } from '../config/logger';
 import { refundForReceipt, type PublicRefund } from '../services/refund-ledger.service';
 import {
   canonicalJson,
+  executionIdFromReceiptId,
   pgReceiptStore,
   RECEIPT_ID_RE,
   type ReceiptStore,
@@ -49,9 +50,66 @@ async function withRefund(
   }
 }
 
+/** T-0596: the settle state of a pending receipt, read from the ledger by execution id. */
+export interface PendingSettle {
+  state: 'settled' | 'pending' | 'failed';
+  tx?: string;
+}
+
+export async function ledgerPendingSettle(receiptId: string): Promise<PendingSettle> {
+  const { getPrisma } = await import('../services/prisma.service');
+  const rows = (await getPrisma().$queryRawUnsafe(
+    `SELECT x402_settle_state, settle_tx_hash, x402_onchain_settled FROM execution_ledger
+      WHERE execution_id = $1::uuid LIMIT 1`,
+    executionIdFromReceiptId(receiptId),
+  )) as Array<{
+    x402_settle_state: string | null;
+    settle_tx_hash: string | null;
+    x402_onchain_settled: boolean | null;
+  }>;
+  const r = rows[0];
+  if (!r) return { state: 'pending' };
+  if (r.x402_settle_state === 'settled' && r.settle_tx_hash) {
+    return { state: 'settled', tx: r.settle_tx_hash.toLowerCase() };
+  }
+  if (r.x402_settle_state === 'pending') return { state: 'pending' };
+  return { state: 'failed' };
+}
+
+/**
+ * T-0596: a stored body with status 'pending' is write-once; the final state is merged in at read
+ * time. settled -> payment_tx set, status dropped; failed -> status 'failed'; pending -> unchanged.
+ */
+async function withSettle(
+  body: string,
+  id: string,
+  lookup: (receiptId: string) => Promise<PendingSettle>,
+): Promise<{ text: string; final: boolean }> {
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(body) as Record<string, unknown>;
+  } catch {
+    return { text: body, final: true };
+  }
+  if (parsed.status !== 'pending') return { text: body, final: true };
+  try {
+    const r = await lookup(id);
+    if (r.state === 'settled' && r.tx) {
+      const { status: _s, ...rest } = parsed;
+      return { text: canonicalJson({ ...rest, payment_tx: r.tx }), final: true };
+    }
+    if (r.state === 'failed')
+      return { text: canonicalJson({ ...parsed, status: 'failed' }), final: false };
+  } catch (err) {
+    logger.error({ err, receipt_id: id }, 'receipt: settle lookup failed, serving pending body');
+  }
+  return { text: body, final: false };
+}
+
 export function createReceiptRouter(
   store: ReceiptStore = pgReceiptStore,
   refunds: (receiptId: string) => Promise<PublicRefund | null> = (id) => refundForReceipt(id),
+  settles: (receiptId: string) => Promise<PendingSettle> = ledgerPendingSettle,
 ): Router {
   const router = Router();
 
@@ -74,12 +132,15 @@ export function createReceiptRouter(
       res.status(404).json({ error: 'no such receipt' });
       return;
     }
-    const out = await withRefund(body, id as string, refunds);
+    const settled = await withSettle(body, id as string, settles);
+    const out = await withRefund(settled.text, id as string, refunds);
     res.setHeader('Content-Type', 'application/json');
     // A receipt with a refund object changes as the refund moves owed -> sent: not immutable.
     res.setHeader(
       'Cache-Control',
-      out.hasRefund ? 'public, max-age=60' : 'public, max-age=31536000, immutable',
+      out.hasRefund || !settled.final
+        ? 'public, max-age=60'
+        : 'public, max-age=31536000, immutable',
     );
     res.status(200).send(Buffer.from(out.text, 'utf8'));
   });

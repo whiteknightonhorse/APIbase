@@ -31,6 +31,7 @@ export const RECEIPT_ALLOWED_KEYS = [
   'refund',
   'response_sha256',
   'schema',
+  'status',
   'tool',
   'upstream_status',
 ] as const;
@@ -49,7 +50,10 @@ export interface ReceiptBody {
   amount_atomic: string;
   payer: string;
   payee: string;
-  payment_tx: string;
+  /** Absent while the x402 settle is pending (T-0596); the retrieve route fills it in. */
+  payment_tx?: string;
+  /** T-0596: 'pending' = settle outcome unknown at call time; resolved at read time from the ledger. */
+  status?: 'pending';
 }
 
 export interface ReceiptStore {
@@ -69,6 +73,37 @@ export const RECEIPT_ID_RE = /^[0-9a-f]{32}$/;
 
 export function newReceiptId(): string {
   return randomBytes(16).toString('hex');
+}
+
+/**
+ * T-0596: a call whose x402 settle is still pending gets a receipt id derived from its execution id
+ * (the uuid without dashes: 32 lowercase hex). The write-once row cannot be updated when the settle
+ * lands, so the retrieve route resolves the final state from the ledger by this id.
+ */
+export function pendingReceiptId(executionId: string): string | null {
+  const id = executionId.replace(/-/g, '').toLowerCase();
+  return RECEIPT_ID_RE.test(id) ? id : null;
+}
+
+/** Inverse of pendingReceiptId: the ledger execution uuid for a 32-hex id. */
+export function executionIdFromReceiptId(receiptId: string): string {
+  const h = receiptId;
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`;
+}
+
+/**
+ * T-0596: what the paying agent is told about the x402 settle of a finished call. Settle is awaited
+ * inside ESCROW_FINALIZE, before the response is built, so this is final for the request:
+ * settled (tx known), pending (unknown outcome, ledger reconciles), failed (attempt failed).
+ */
+export function x402SettleStatus(
+  ctx: PipelineContext,
+): 'settled' | 'pending' | 'failed' | undefined {
+  if (!ctx.x402Paid) return undefined;
+  if (ctx.x402SettleSucceeded === true) return 'settled';
+  if (ctx.x402SettleState === 'pending') return 'pending';
+  if (ctx.x402SettleSucceeded === false) return 'failed';
+  return undefined;
 }
 
 export function receiptUrl(receiptId: string): string {
@@ -130,6 +165,32 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
   let payee: string;
   let tx: string;
   if (ctx.x402Paid) {
+    if (ctx.x402SettleState === 'pending') {
+      // T-0596: unknown outcome -> a pending body without payment_tx.
+      if (
+        inp.x402ChainId === null ||
+        !ADDR_RE.test(lower(ctx.x402Payer)) ||
+        !ADDR_RE.test(lower(inp.x402Payee))
+      ) {
+        return null;
+      }
+      return {
+        schema: RECEIPT_SCHEMA,
+        receipt_id: inp.receiptId,
+        issued_at: inp.issuedAt.toISOString(),
+        tool: ctx.toolId,
+        upstream_status: ctx.responseStatus ?? 200,
+        response_sha256: sha256Hex(inp.responseText),
+        billed: true,
+        rail: 'x402-base',
+        chain_id: inp.x402ChainId,
+        asset: 'USDC',
+        amount_atomic: amount,
+        payer: lower(ctx.x402Payer),
+        payee: lower(inp.x402Payee),
+        status: 'pending',
+      };
+    }
     if (ctx.x402SettleSucceeded !== true) return null;
     rail = 'x402-base';
     chainId = inp.x402ChainId;
@@ -180,7 +241,12 @@ export async function planReceipt(
     const x402 = getX402Config();
     const mpp = getMppConfig();
     const m = /^eip155:(\d+)$/.exec(x402.network);
-    const receiptId = newReceiptId();
+    const pendingId =
+      ctx.x402Paid && ctx.x402SettleState === 'pending' && ctx.executionId
+        ? pendingReceiptId(ctx.executionId)
+        : null;
+    if (ctx.x402Paid && ctx.x402SettleState === 'pending' && !pendingId) return null;
+    const receiptId = pendingId ?? newReceiptId();
     const body = buildReceiptBody(ctx, {
       receiptId,
       issuedAt: now,
