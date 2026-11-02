@@ -20,6 +20,13 @@
     }
   ],
   "payment_endpoint": "https://apibase.pro/api/v1/tools/{toolId}/call",
+  "probe": {
+    "method": "POST",
+    "url": "https://apibase.pro/api/v1/tools/polymarket.trending/call",
+    "body": {},
+    "expect": { "status": 402, "x402Version": 2, "network": "eip155:8453" },
+    "note": "Unpaid request. Returns the x402 v2 PaymentRequired challenge (and WWW-Authenticate: Payment for MPP). Pay only if you want the result."
+  },
   "price_range": {
     "min_usd": "0.0005",
     "max_usd": "29.99"
@@ -32,5 +39,5 @@
   },
   "documentation": "https://apibase.pro/ai.txt",
   "orders": "paid to the merchant wallet from the quote; see /integrator",
-  "updated_at": "2026-10-22"
+  "updated_at": "2026-11-02"
 }
