@@ -33,7 +33,7 @@ def build_update(decision, sub_id, note, now):
 
 
 LIST_SQL = (
-    "SELECT submission_id, created_at::date, company_name, category, api_url, contact_email "
+    "SELECT submission_id, created_at::date, company_name, category, COALESCE(pay_model, '-'), api_url, contact_email "
     "FROM onboarding_submissions WHERE status = 'pending' ORDER BY created_at"
 )
 
@@ -46,7 +46,13 @@ def psql(sql):
     return r.stdout.strip(), r.returncode, r.stderr.strip()
 
 
+def list_row_sql_has_pay_model():
+    return "pay_model" in LIST_SQL
+
+
 def selftest():
+    assert list_row_sql_has_pay_model()
+    assert "COALESCE(pay_model, '-')" in LIST_SQL and 'x402_upstream' not in LIST_SQL
     now = datetime(2026, 10, 14, 12, 0, 0, tzinfo=timezone.utc)
     m = json.loads(moderation_json("accept", "it's ok", now))
     assert m == {"decision": "accept", "note": "it's ok", "by": "operator", "at": "2026-10-14T12:00:00Z"}

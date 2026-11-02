@@ -100,6 +100,8 @@ pre{overflow-x:auto}
 <h2>For API providers</h2>
 <div class="step">
 <p>Listing a provider's API on APIbase puts it in front of agents that already discover, price-check, and pay for tools through the same endpoint &mdash; instead of requiring every agent developer to integrate that API directly. Providers keep their own API; APIbase wraps it as one or more priced tools behind the shared MCP + REST surface, handles discovery, schema validation, and the payment/escrow flow, and forwards calls straight through.</p>
+<p><strong>(A) You hold the API, we hold a key.</strong> Give APIbase an API key or a free tier; we wrap your endpoints as tools, agents pay us per call in USDC, and we pay your subscription or usage as agreed. Open today: <a href="/onboard">/onboard</a>.</p>
+<p><strong>(B) Your endpoint already answers HTTP 402</strong> (x402 on Base or MPP on Tempo): APIbase would pay your 402 per call from its own wallet and resell the call at a published markup, so you receive USDC per call with no contract. This path is designed and not yet open; submit the same form at <a href="/onboard">/onboard</a> and choose &ldquo;my API is paid per call over x402/MPP&rdquo; &mdash; we write to you when it opens, in order of submission.</p>
 </div>
 
 <h2>Data sources</h2>

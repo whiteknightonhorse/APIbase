@@ -36,6 +36,7 @@ That's the Claude Desktop config. Cursor, Windsurf, OpenAI Agents SDK, LangChain
 - **[openapi.json](https://apibase.pro/.well-known/openapi.json)** — OpenAPI 3.1 spec
 - **[api-catalog](https://apibase.pro/.well-known/api-catalog)** — RFC 9727 discovery linkset
 - **[Roadmap](docs/ROADMAP.md)** — planned/shipped changes that affect what an agent can do or see
+- **API providers:** [/partners](https://apibase.pro/partners) (two ways in)
 
 ---
 

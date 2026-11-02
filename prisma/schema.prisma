@@ -277,6 +277,7 @@ model OnboardingSubmission {
   description        String
   affiliate_program  String?
   monthly_volume     String?
+  pay_model          String?
   ip_address         String
   status             String   @default("pending")
   moderation_result  Json?    @db.JsonB

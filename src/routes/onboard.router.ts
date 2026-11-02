@@ -10,6 +10,8 @@ import { metaTags, SITE_FOOTER, SITE_NAV, SITE_NAV_CSS } from '../shop/page-meta
 // Zod schema (§6.12)
 // ---------------------------------------------------------------------------
 
+export const PAY_MODELS = ['api_key', 'x402_upstream'] as const;
+
 const onboardSchema = z
   .object({
     company_name: z.string().min(1).max(256),
@@ -19,6 +21,7 @@ const onboardSchema = z
     description: z.string().min(1).max(500),
     affiliate_program: z.string().url().max(2048).optional().or(z.literal('')),
     monthly_volume: z.string().max(64).optional().or(z.literal('')),
+    pay_model: z.enum(PAY_MODELS),
     _honeypot: z.string().optional(),
   })
   .strip();
@@ -85,6 +88,9 @@ ${SITE_NAV}
 <div class="fm-f wide"><label for="ob-description">Description <span class="req" aria-hidden="true">*</span></label><textarea id="ob-description" name="description" required maxlength="500" placeholder="Brief description of your API"></textarea>${err('description')}</div>
 <div class="fm-f"><label for="ob-affiliate_program">Affiliate Program URL</label><input id="ob-affiliate_program" name="affiliate_program" type="url" maxlength="2048" placeholder="https://example.com/affiliates">${err('affiliate_program')}</div>
 <div class="fm-f"><label for="ob-monthly_volume">Estimated Monthly Volume</label><input id="ob-monthly_volume" name="monthly_volume" maxlength="64" placeholder="e.g. 10,000 requests/month"></div>
+<fieldset class="fm-f wide" id="ob-pay_model-set"><legend>How do you want to be paid <span class="req" aria-hidden="true">*</span></legend>
+<label><input type="radio" name="pay_model" value="api_key" required> I will give APIbase a key or free tier</label>
+<label><input type="radio" name="pay_model" value="x402_upstream" required> My API is paid per call over x402/MPP</label>${err('pay_model')}</fieldset>
 <div class="hp"><label>Leave empty</label><input name="_honeypot" tabindex="-1" autocomplete="off"></div>
 <div class="fm-box bad fm-note" id="ob-errors" role="note" hidden>${BAD_ICON}<div><strong>Check the highlighted fields</strong><span id="ob-errors-n"></span></div></div>
 <div class="fm-actions"><button class="fm-btn p" id="ob-submit" type="submit">Submit</button></div>
@@ -98,15 +104,15 @@ ${SITE_NAV}
 (function(){
   var f=document.getElementById('ob-form');
   if(!f)return;
-  var F=['company_name','api_url','contact_email','category','description','affiliate_program'];
-  var LABEL={company_name:'Enter your company name',api_url:'Enter your API URL',contact_email:'Enter a contact email',category:'Choose a category',description:'Describe your API'};
-  function el(k){return document.getElementById('ob-'+k)}
+  var F=['company_name','api_url','contact_email','category','description','affiliate_program','pay_model'];
+  var LABEL={company_name:'Enter your company name',api_url:'Enter your API URL',contact_email:'Enter a contact email',category:'Choose a category',description:'Describe your API',pay_model:'Choose how you want to be paid'};
+  function el(k){return k==='pay_model'?{value:(f.querySelector('input[name=pay_model]:checked')||{}).value||'',setAttribute:function(){}}:document.getElementById('ob-'+k)}
   function check(k,v){
     v=v.trim();
     if(k==='company_name')return v?'':LABEL[k];
     if(k==='api_url')return !v?LABEL[k]:!/^https?:\\/\\/[^\\s.]+\\.[^\\s]{2,}$/i.test(v)?'Start with https:// like https://api.example.com':'';
     if(k==='contact_email')return !v?LABEL[k]:!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/.test(v)?'Enter a full email, like name@company.com':'';
-    if(k==='category')return v?'':LABEL[k];
+    if(k==='category'||k==='pay_model')return v?'':LABEL[k];
     if(k==='description')return v?(v.length>500?'Use at most 500 characters':''):LABEL[k];
     if(k==='affiliate_program')return v&&!/^https?:\\/\\/[^\\s.]+\\.[^\\s]{2,}$/i.test(v)?'Start with https:// like https://example.com':'';
     return '';
@@ -117,7 +123,7 @@ ${SITE_NAV}
     i.setAttribute('aria-describedby','ob-'+k+'-err');
     e.hidden=!msg;e.lastChild.textContent=msg;
   }
-  F.forEach(function(k){el(k).addEventListener('blur',function(){show(k,check(k,this.value))})});
+  F.forEach(function(k){if(k!=='pay_model')el(k).addEventListener('blur',function(){show(k,check(k,this.value))})});
   function fail(msg){
     document.getElementById('ob-fail-text').textContent=msg;
     document.getElementById('ob-fail').hidden=false;
@@ -179,6 +185,7 @@ const JSON_SCHEMA_RESPONSE = {
     description: { type: 'string', required: true, max: 500 },
     affiliate_program: { type: 'string', format: 'url', required: false, max: 2048 },
     monthly_volume: { type: 'string', required: false, max: 64 },
+    pay_model: { type: 'enum', values: [...PAY_MODELS], required: true },
   },
 };
 

@@ -10,7 +10,9 @@ import { logger } from '../config/logger';
 const RATE_LIMIT_MAX = 5;
 const RATE_LIMIT_WINDOW_SEC = 3600;
 
-export async function checkIpRateLimit(ip: string): Promise<{ allowed: boolean; retryAfter?: number }> {
+export async function checkIpRateLimit(
+  ip: string,
+): Promise<{ allowed: boolean; retryAfter?: number }> {
   const key = `onboard:ratelimit:${ip}`;
 
   try {
@@ -46,6 +48,7 @@ interface SubmissionData {
   description: string;
   affiliate_program?: string;
   monthly_volume?: string;
+  pay_model: string;
 }
 
 export async function createSubmission(
@@ -66,6 +69,7 @@ export async function createSubmission(
         description: data.description,
         affiliate_program: data.affiliate_program || null,
         monthly_volume: data.monthly_volume || null,
+        pay_model: data.pay_model,
         ip_address: ip,
       },
     }),
@@ -78,6 +82,7 @@ export async function createSubmission(
           api_url: data.api_url,
           contact_email: data.contact_email,
           category: data.category,
+          pay_model: data.pay_model,
         },
       },
     }),
