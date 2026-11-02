@@ -162,4 +162,22 @@ describe('zod3Issues', () => {
       ['n', 'too_big', 'Number must be less than or equal to 10'],
     ]);
   });
+
+  // T-0603 ruling-2 decision (ii), documented in docs/architecture.md: the REST 400 for an
+  // integer beyond 2^53-1 is intended, not forwarded to the provider.
+  it('documented residual: {"page":1e300} is a 400 too_big at SCHEMA_VALIDATION', async () => {
+    const [code, , issues] = (await stageResult('fbiwanted.search', { page: 1e300 })) as [
+      number,
+      string,
+      unknown,
+    ];
+    expect(code).toBe(400);
+    expect(issues).toEqual([
+      {
+        path: 'page',
+        code: 'too_big',
+        message: 'Number must be less than or equal to 9007199254740991',
+      },
+    ]);
+  });
 });
