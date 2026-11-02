@@ -24,7 +24,7 @@ const deviceState = z
   .object({
     connection_id: z
       .string()
-      .uuid()
+      .guid()
       .describe('Your device-connection id from /connect/device/connections'),
     device_id: z.string().min(1).max(128).describe("The vendor's device id (from device.list)"),
   })
@@ -34,7 +34,7 @@ const deviceCommand = z
   .object({
     connection_id: z
       .string()
-      .uuid()
+      .guid()
       .describe('Your device-connection id from /connect/device/connections'),
     device_id: z.string().min(1).max(128).describe("The vendor's device id (from device.list)"),
     command: z

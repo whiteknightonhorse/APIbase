@@ -97,7 +97,7 @@ const PUBLIC_SELECT = {
 const LIST_LIMIT = 100;
 
 export function isValidIncidentId(id: string): boolean {
-  return z.string().uuid().safeParse(id).success;
+  return z.string().guid().safeParse(id).success;
 }
 
 // Fable ruling-3: drop the absolute-path directory prefix, keep the

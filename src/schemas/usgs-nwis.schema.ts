@@ -1,4 +1,5 @@
 import { z, type ZodSchema } from 'zod';
+import { orderedEnum } from '../utils/zod-to-json-schema';
 
 const dailyValues = z
   .object({
@@ -19,8 +20,7 @@ const dailyValues = z
       .describe(
         'End date in YYYY-MM-DD format (e.g. "2026-06-30"). Defaults to today if omitted. Max range: 1 year.',
       ),
-    parameter_cd: z
-      .enum(['00060', '00065', '00010', '00095', '63680'])
+    parameter_cd: orderedEnum(['00060', '00065', '00010', '00095', '63680'])
       .optional()
       .describe(
         'USGS parameter code. "00060" = discharge/streamflow (ft3/s, default), "00065" = gage height (ft), "00010" = water temperature (°C), "00095" = specific conductance (µS/cm), "63680" = turbidity (FNU).',

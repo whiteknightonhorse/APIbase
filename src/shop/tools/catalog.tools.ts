@@ -85,7 +85,7 @@ export function registerCatalogTools(
       description: `Create or update up to ${MAX_ITEMS_PER_CALL} products, idempotent by sku (needs catalog:write). Prices $1.00..limits.max_order_usd; one $0.01 __apibase_test item (is_test) is allowed. Items in a prohibited category come back in rejected[]; instruction-like text is saved as flagged and hidden until reviewed.`,
       inputSchema: {
         items: z
-          .array(z.record(z.unknown()))
+          .array(z.record(z.string(), z.unknown()))
           .max(MAX_ITEMS_PER_CALL)
           .describe(
             'F-2 items: sku, title, description, price_usd, category, ... (see docs/integrator.md#catalog).',
@@ -148,8 +148,8 @@ export function registerCatalogTools(
       outputSchema: {
         merchant: z.object({
           name: z.string(),
-          reputation: z.record(z.unknown()),
-          policy_summary: z.record(z.unknown()),
+          reputation: z.record(z.string(), z.unknown()),
+          policy_summary: z.record(z.string(), z.unknown()),
         }),
         products: z.array(
           z.object({
@@ -198,8 +198,8 @@ export function registerCatalogTools(
         }),
         merchant: z.object({
           name: z.string(),
-          reputation: z.record(z.unknown()),
-          policy_summary: z.record(z.unknown()),
+          reputation: z.record(z.string(), z.unknown()),
+          policy_summary: z.record(z.string(), z.unknown()),
         }),
         merchant_encryption_key: z.unknown(),
       },

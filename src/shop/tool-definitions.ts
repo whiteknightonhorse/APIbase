@@ -5,6 +5,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerCatalogTools } from './tools/catalog.tools';
 import { registerMerchantTools } from './tools/merchant.tools';
 import { registerOrderTools } from './tools/order.tools';
+import { withZod3ToolSchemas } from '../mcp/zod3-tool-schema';
 
 /**
  * §8.3 (5): the `shop.*` tool definitions are versioned and hashed in the server-card. Bump the
@@ -30,6 +31,7 @@ export async function shopToolDefinitions(): Promise<Array<Record<string, unknow
   registerMerchantTools(server, '', 'defs');
   registerCatalogTools(server, '', 'defs');
   registerOrderTools(server, '', 'defs');
+  withZod3ToolSchemas(server);
   const [a, b] = InMemoryTransport.createLinkedPair();
   const client = new Client({ name: 'shop-defs', version: '0' });
   try {

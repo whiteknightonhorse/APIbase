@@ -47,7 +47,7 @@ const statbelViewData = z
   .object({
     view_id: z
       .string()
-      .uuid()
+      .guid()
       .describe(
         'View UUID from statbel.list_views (e.g. "1be9b77f-4005-4d58-a885-8281b5bbe617"). ' +
           'Already encodes the language — no separate locale param needed.',
@@ -82,7 +82,7 @@ const statbelDatasourceDetail = z
   .object({
     datasource_id: z
       .string()
-      .uuid()
+      .guid()
       .describe(
         'Datasource UUID from statbel.list_datasources (e.g. "e957ac31-44a2-4718-8469-10470d3c41d9"). ' +
           'An invalid or unpublished id returns an empty upstream response.',

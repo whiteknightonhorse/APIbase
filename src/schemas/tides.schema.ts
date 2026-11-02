@@ -1,4 +1,5 @@
 import { z, type ZodSchema } from 'zod';
+import { orderedEnum } from '../utils/zod-to-json-schema';
 
 const predictions = z
   .object({
@@ -16,8 +17,7 @@ const predictions = z
       .string()
       .regex(/^\d{8}$/, 'Must be YYYYMMDD format')
       .describe('End date in YYYYMMDD format (e.g. "20260410"). Max range: 31 days.'),
-    interval: z
-      .enum(['hilo', 'h', '6'])
+    interval: orderedEnum(['hilo', 'h', '6'])
       .optional()
       .describe(
         'Prediction interval: "hilo" = high/low tides only (default), "h" = hourly, "6" = every 6 minutes',

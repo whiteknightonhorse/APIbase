@@ -26,6 +26,7 @@ import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
 import { mcpSessionsActive } from '../services/metrics.service';
 import { registerTools, type PaymentContext } from './tool-adapter';
+import { withZod3ToolSchemas } from './zod3-tool-schema';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
 import { withListCacheHints } from './list-cache';
@@ -201,7 +202,7 @@ export function createMcpServer(
   registerCatalogTools(shopServer, apiKey, requestId);
   registerOrderTools(shopServer, apiKey, requestId, undefined, paymentCtxRef, sessionId);
   registerPrompts(mcpServer);
-  return withListCacheHints(mcpServer);
+  return withListCacheHints(withZod3ToolSchemas(mcpServer));
 }
 
 /**

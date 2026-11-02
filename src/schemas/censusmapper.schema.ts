@@ -24,7 +24,7 @@ const data = z
         'Geographic aggregation level of the returned rows: Regions (the listed regions themselves), PR, CMA, CD, CSD, CT, DA or DB',
       ),
     regions: z
-      .record(z.array(z.string().min(1).max(20)).min(1).max(20))
+      .record(z.string(), z.array(z.string().min(1).max(20)).min(1).max(20))
       .describe(
         'Census regions to query, keyed by level with arrays of region ids (e.g. {"CMA":["35535"]} for Toronto, {"PR":["35"]} for Ontario)',
       ),

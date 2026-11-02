@@ -92,7 +92,7 @@ const VariantSchema = z.object({
   title: clean(120).pipe(z.string().min(1)),
   price_usd: money.optional(),
   stock: z.number().int().min(0).nullable().optional(),
-  attributes: z.record(z.string().max(200)).optional(),
+  attributes: z.record(z.string(), z.string().max(200)).optional(),
 });
 
 /** UC-7 / F-9 stream item rules: the rate, the deposit, no test SKU, the content source. */

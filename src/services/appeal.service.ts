@@ -50,7 +50,7 @@ export interface AppealView {
 // Checked here, once, so every current and future caller of getAppeal()
 // is protected regardless of whether the route layer remembers to check.
 export function isValidAppealId(id: string): boolean {
-  return z.string().uuid().safeParse(id).success;
+  return z.string().guid().safeParse(id).success;
 }
 
 export async function getAppeal(appealId: string): Promise<AppealView | null> {

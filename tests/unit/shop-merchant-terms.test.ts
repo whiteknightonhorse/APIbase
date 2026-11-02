@@ -453,6 +453,7 @@ describe('TA6 tools/list', () => {
   it('/mcp createMcpServer: other tools unchanged vs registerTools alone', async () => {
     const { createMcpServer } = await import('../../src/mcp/server');
     const { registerTools } = await import('../../src/mcp/tool-adapter');
+    const { withZod3ToolSchemas } = await import('../../src/mcp/zod3-tool-schema');
     const list = async (s: McpServer) => {
       const c = new Client({ name: 'c', version: '0' });
       const [a, b] = InMemoryTransport.createLinkedPair();
@@ -462,6 +463,7 @@ describe('TA6 tools/list', () => {
     const full = await list(createMcpServer('k', 'r', {} as never));
     const base = new McpServer({ name: 'b', version: '0' });
     registerTools(base, 'k', 'r', {} as never);
+    withZod3ToolSchemas(base); // T-0603: /mcp renders tool schemas the zod 3 way
     const before = await list(base);
     const names = new Set<string>([
       ...MERCHANT_TOOL_NAMES,

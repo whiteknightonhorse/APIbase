@@ -1,0 +1,1491 @@
+{
+  "_comment": "T-0603: captured under zod 3.25.76 at ed21b180 (before the zod 4 upgrade). tools_list = entries of tools/list from createMcpServer; converter = src/utils/zod-to-json-schema.ts output by toolId. Regenerate only for an intended schema change of these tools.",
+  "tools_list": {
+    "weather.conditions.current": {
+      "name": "weather.conditions.current",
+      "title": "Get Current Weather",
+      "description": "Get current weather conditions for a location",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "City name, coordinates (lat,lon), or zip code"
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "metric",
+              "imperial"
+            ],
+            "description": "Temperature units system"
+          }
+        },
+        "required": [
+          "location"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "290faf0a0b224e809cecb9a6fc52c5283d6d7971f7aa9b6c1de798cbb2b49df1"
+      }
+    },
+    "hyperliquid.markets.orderbook": {
+      "name": "hyperliquid.markets.orderbook",
+      "title": "Hyperliquid Order Book",
+      "description": "Get L2 order book depth for a perpetual pair on Hyperliquid",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "coin": {
+            "type": "string",
+            "description": "Coin symbol (e.g. BTC, ETH)"
+          },
+          "n_sig_figs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "description": "Number of significant figures for price levels"
+          },
+          "mantissa": {
+            "type": "integer",
+            "description": "Mantissa for price rounding"
+          }
+        },
+        "required": [
+          "coin"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "61f18a3c14aafdcef41a9f0bbab5ac9b070d12a468d959dcd44b55075c561073"
+      }
+    },
+    "weather.location.geocode": {
+      "name": "weather.location.geocode",
+      "title": "Geocode Location",
+      "description": "Geocode a location query to coordinates",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Location name or coordinates to geocode"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "forward",
+              "reverse"
+            ],
+            "description": "Geocoding direction: forward (name to coords) or reverse (coords to name)"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 5,
+            "description": "Max number of results (1-5)"
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "d70cc79bc5feddc1c40fdc94e92027f375ad2a4015437e1efac680d1f745ca03"
+      }
+    },
+    "amadeus.flights.price": {
+      "name": "amadeus.flights.price",
+      "title": "Confirm Flight Price",
+      "description": "Confirm and get final pricing for a flight offer from Amadeus flight search",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "flight_offer": {
+            "type": "object",
+            "additionalProperties": {},
+            "description": "Flight offer object from flight_search results"
+          }
+        },
+        "required": [
+          "flight_offer"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "38718f806cc5bb3c93e414959a0ec81ccecabad71de7d9e1d1ba1f45e2d2cca5"
+      }
+    },
+    "platform.batch.call": {
+      "name": "platform.batch.call",
+      "title": "Batch Tool Calls",
+      "description": "⚡ ACTION: Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "calls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "tool_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Tool ID to call (e.g. \"crypto.get_price\")"
+                },
+                "params": {
+                  "type": "object",
+                  "additionalProperties": {},
+                  "description": "Parameters for the tool call"
+                },
+                "idempotency_key": {
+                  "type": "string",
+                  "description": "Optional idempotency key for this specific call"
+                }
+              },
+              "required": [
+                "tool_id",
+                "params"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1,
+            "maxItems": 20,
+            "description": "Array of tool calls to execute in parallel (max 20)"
+          },
+          "max_parallel": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10,
+            "default": 10,
+            "description": "Max concurrent calls (1-10). Default: 10"
+          }
+        },
+        "required": [
+          "calls"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "ed10acd8c7cbfb166510abb4afd1bb7a05d8cd72cb4b11b6603552826d7dd6c4"
+      }
+    },
+    "music.artists.details": {
+      "name": "music.artists.details",
+      "title": "Get Artist Details",
+      "description": "Get detailed artist info by MusicBrainz ID — tags, ratings, external links, life span, area (MusicBrainz)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mbid": {
+            "type": "string",
+            "format": "uuid",
+            "description": "MusicBrainz artist ID (UUID format, e.g. \"a74b1b7f-71a5-4011-9441-d0b5e4122711\")"
+          }
+        },
+        "required": [
+          "mbid"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "ba612ea32cbba94bffeefb7e50421ba3b806393b5470fd7a5d923f050fd83854"
+      }
+    },
+    "rawg.games.details": {
+      "name": "rawg.games.details",
+      "title": "Get Game Details",
+      "description": "Get full game details by ID or slug — description, platforms, genres, developers, publishers, ratings, Metacritic score, system requirements (RAWG)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "RAWG game ID (numeric) or slug (e.g. \"grand-theft-auto-v\", 3498)"
+          }
+        },
+        "required": [
+          "id"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "164cbf06112beecd08697a5cdcb35fb4f9b3f39f2a47e6c6b4fce0aaed4ec92c"
+      }
+    },
+    "tides.noaa.predictions": {
+      "name": "tides.noaa.predictions",
+      "title": "Get Tide Predictions",
+      "description": "Get tide predictions for a NOAA station — high/low tides, hourly, or 6-minute intervals. Returns predicted water level in feet or meters. Covers US coastlines, rivers, Great Lakes. Station IDs: 8518750 (NYC), 9414290 (SF), 8443970 (Boston) (NOAA, US Gov)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "station": {
+            "type": "string",
+            "minLength": 1,
+            "description": "NOAA station ID (e.g. \"8518750\" for The Battery NYC, \"9414290\" for San Francisco, \"8443970\" for Boston)"
+          },
+          "begin_date": {
+            "type": "string",
+            "pattern": "^\\d{8}$",
+            "description": "Start date in YYYYMMDD format (e.g. \"20260409\")"
+          },
+          "end_date": {
+            "type": "string",
+            "pattern": "^\\d{8}$",
+            "description": "End date in YYYYMMDD format (e.g. \"20260410\"). Max range: 31 days."
+          },
+          "interval": {
+            "type": "string",
+            "enum": [
+              "hilo",
+              "h",
+              "6"
+            ],
+            "description": "Prediction interval: \"hilo\" = high/low tides only (default), \"h\" = hourly, \"6\" = every 6 minutes"
+          },
+          "datum": {
+            "type": "string",
+            "description": "Vertical datum: MLLW (default), MSL, NAVD, MHHW, MHW, MLW, etc."
+          },
+          "units": {
+            "type": "string",
+            "enum": [
+              "english",
+              "metric"
+            ],
+            "description": "Units: \"english\" = feet (default), \"metric\" = meters"
+          }
+        },
+        "required": [
+          "station",
+          "begin_date",
+          "end_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "91101e0acb058401830b14858c95d0ae38fd8ebd980b6d12dd3306f4f4a43e45"
+      }
+    },
+    "nwis.streamflow.daily_values": {
+      "name": "nwis.streamflow.daily_values",
+      "title": "USGS NWIS — Daily Streamflow Values",
+      "description": "Get historical daily mean streamflow (discharge) values for a USGS gauge station over any date range. Returns one measurement per day (midnight UTC) in cubic feet per second (ft3/s). Also supports gage height (ft), water temperature (°C), specific conductance, and turbidity via parameter_cd. Ideal for trend analysis, drought monitoring, flood season review, and hydrology research. Coverage: 1,500+ active US streamflow stations, records from 1900s to present. Use water.sites to look up station numbers by state or bounding box. No auth — USGS public domain, unlimited calls.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_no": {
+            "type": "string",
+            "description": "USGS gauge station number, 8–15 digits (e.g. \"01646500\" for Potomac River near DC). Use water.sites to find station numbers."
+          },
+          "start_date": {
+            "type": "string",
+            "description": "Start date in YYYY-MM-DD format (e.g. \"2026-01-01\"). Defaults to 30 days ago if omitted."
+          },
+          "end_date": {
+            "type": "string",
+            "description": "End date in YYYY-MM-DD format (e.g. \"2026-06-30\"). Defaults to today if omitted. Max range: 1 year."
+          },
+          "parameter_cd": {
+            "type": "string",
+            "enum": [
+              "00060",
+              "00065",
+              "00010",
+              "00095",
+              "63680"
+            ],
+            "description": "USGS parameter code. \"00060\" = discharge/streamflow (ft3/s, default), \"00065\" = gage height (ft), \"00010\" = water temperature (°C), \"00095\" = specific conductance (µS/cm), \"63680\" = turbidity (FNU)."
+          }
+        },
+        "required": [
+          "site_no"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "8264bac6041460d13fb4cc0eecda8637948979eaad4162a71463b8517d4d6251"
+      }
+    },
+    "uk-landregistry-pricepaid.property.by_postcode": {
+      "name": "uk-landregistry-pricepaid.property.by_postcode",
+      "title": "UK Property Sales By Postcode",
+      "description": "Search HM Land Registry Price Paid Data — every residential property sale in England & Wales since 1995 — by exact UK postcode. Optional filters: min/max price paid (GBP), min/max transaction date (YYYY-MM-DD), and pagination. Returns price paid, transaction date, property type, estate type (freehold/leasehold), new-build flag, and full address for each sale. Data: HM Land Registry, no auth required, Open Government Licence v3.0.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "postcode": {
+            "type": "string",
+            "minLength": 1,
+            "description": "UK postcode to search (e.g. \"SW1A 1AA\"). Matches on exact postcode."
+          },
+          "min_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Only include transactions completed on/after this date (YYYY-MM-DD)."
+          },
+          "max_date": {
+            "$ref": "#/properties/min_date",
+            "description": "Only include transactions completed on/before this date (YYYY-MM-DD)."
+          },
+          "min_price": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Minimum price paid in GBP."
+          },
+          "max_price": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Maximum price paid in GBP."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Zero-based page number for pagination (default 0)."
+          },
+          "page_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Number of transactions per page (1-100, default 20)."
+          }
+        },
+        "required": [
+          "postcode"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "9b1074d6155c608bb873303508512a0e729aecccab8518cfed874ed4ef5777e4"
+      }
+    },
+    "gfw.ocean.fishing_effort": {
+      "name": "gfw.ocean.fishing_effort",
+      "title": "Analyze Fishing Effort",
+      "description": "Analyze fishing effort intensity across a geographic polygon for a specified date range, aggregated by gear type (trawlers, longliners, purse seiners, squid jiggers, etc.). Returns a grid of 0.1-degree cells with fishing hours and vessel counts per month or year, drawn from Global Fishing Watch's public AIS-based fishing effort dataset covering 2012–present. Useful for marine protected area monitoring, fisheries research, and vessel traffic analysis. Define the study area with a closed polygon in [longitude, latitude] coordinates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Start of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-01-01\"). GFW data coverage starts from 2012."
+          },
+          "end_date": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "End of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-06-30\"). Must be after start_date; keep ranges under 12 months for manageable response sizes."
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ]
+            },
+            "minItems": 4,
+            "description": "Polygon boundary as an array of [longitude, latitude] pairs defining the analysis area. The polygon must be closed (first and last coordinate identical). Example: [[-10,35],[-5,35],[-5,40],[-10,40],[-10,35]] for a box in the NE Atlantic. Omit to analyze global waters."
+          },
+          "temporal_resolution": {
+            "type": "string",
+            "enum": [
+              "MONTHLY",
+              "YEARLY"
+            ],
+            "description": "Time granularity for effort aggregation. \"MONTHLY\" groups data by calendar month; \"YEARLY\" by year. Default: \"MONTHLY\"."
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "a4212faad927017ed06bffb5a0796d7e3ccb9211306f3c3e9a1ae2ffa0407a52"
+      }
+    },
+    "sabre.flights.search": {
+      "name": "sabre.flights.search",
+      "title": "Search Flights (Sabre)",
+      "description": "Search for real-time flight offers with prices between airports (Sabre GDS)",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Origin airport IATA code (e.g. JFK, LAX)"
+          },
+          "destination": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 3,
+            "description": "Destination airport IATA code (e.g. CDG, LHR)"
+          },
+          "departure_date": {
+            "type": "string",
+            "description": "Departure date in YYYY-MM-DD format"
+          },
+          "return_date": {
+            "type": "string",
+            "description": "Return date in YYYY-MM-DD format for round trips"
+          },
+          "point_of_sale": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "default": "US",
+            "description": "2-letter country code for pricing (e.g. US, GB)"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max number of flight offers (1-50)"
+          }
+        },
+        "required": [
+          "origin",
+          "destination",
+          "departure_date"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "description": "Tool response payload. Shape varies per tool — consult the tool description and inputSchema. May be an object, array, string, or number depending on the upstream provider response."
+          },
+          "error": {
+            "description": "Present only when the call failed. Includes error code, message, request_id, and any provider-specific extras."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "5161acef17ca482153ed2cdb07f276e353c4b25120c17d333fd15d971f0c271a"
+      }
+    },
+    "shop.catalog.get": {
+      "name": "shop.catalog.get",
+      "title": "Get a product card",
+      "description": "Full product card by sku: shipping_options, delivery_slots, refund_policy and the merchant's encryption key (for end-to-end encrypted order details).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "merchant": {
+            "type": "string",
+            "description": "Merchant slug."
+          },
+          "sku": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "merchant",
+          "sku"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "price_usd": {
+            "type": "string"
+          },
+          "availability": {
+            "type": "string"
+          },
+          "fulfillment_mode": {
+            "type": "string"
+          },
+          "requires_pii": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "shipping_options": {
+            "type": "array",
+            "items": {}
+          },
+          "delivery_slots": {
+            "type": "array",
+            "items": {}
+          },
+          "refund_policy": {
+            "type": "object",
+            "properties": {
+              "refund_window_days": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "returns_accepted": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "refund_window_days",
+              "returns_accepted"
+            ],
+            "additionalProperties": false
+          },
+          "merchant": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "reputation": {
+                "type": "object",
+                "additionalProperties": {}
+              },
+              "policy_summary": {
+                "type": "object",
+                "additionalProperties": {}
+              }
+            },
+            "required": [
+              "name",
+              "reputation",
+              "policy_summary"
+            ],
+            "additionalProperties": false
+          },
+          "merchant_encryption_key": {}
+        },
+        "required": [
+          "sku",
+          "title",
+          "description",
+          "price_usd",
+          "availability",
+          "fulfillment_mode",
+          "requires_pii",
+          "shipping_options",
+          "delivery_slots",
+          "refund_policy",
+          "merchant"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "684bb6acc6aefacf488b9e871ab78df431e311dcc1694bef8c24957ed848a90f"
+      }
+    },
+    "shop.order.quote": {
+      "name": "shop.order.quote",
+      "title": "Quote an order",
+      "description": "Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). A subscription item is quoted alone with subscribe: true (422 if the item has no subscription); the quote is period 1. Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "merchant": {
+            "type": "string",
+            "description": "Merchant slug."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sku": {
+                  "type": "string"
+                },
+                "variant": {
+                  "type": "string"
+                },
+                "qty": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "sku",
+                "qty"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "shipping_option": {
+            "type": "string"
+          },
+          "delivery_slot": {
+            "type": "string"
+          },
+          "buyer_ref": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "subscribe": {
+            "type": "boolean",
+            "description": "true: quote period 1 of the item subscription (one item, qty 1). The answer carries subscription_terms."
+          }
+        },
+        "required": [
+          "merchant",
+          "items"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "quote_id": {
+            "type": "string"
+          },
+          "order_id": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "total_usd": {
+            "type": "number"
+          },
+          "shipping_usd": {
+            "type": "number"
+          },
+          "shipping_option": {
+            "type": "string"
+          },
+          "delivery_slot": {
+            "type": "string"
+          },
+          "fee_disclosed": {
+            "type": "boolean"
+          },
+          "expires_at": {
+            "type": "string"
+          },
+          "requires_pii": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requires_human_confirmation": {
+            "type": "boolean"
+          },
+          "merchant_encryption_key": {},
+          "pay": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "terms_update_pending": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "subscription_terms": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        },
+        "required": [
+          "quote_id",
+          "order_id",
+          "items",
+          "total_usd",
+          "fee_disclosed",
+          "expires_at",
+          "requires_pii",
+          "requires_human_confirmation",
+          "pay"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "06173303bb667d3d5e8d14c4bb2f400edfd0a52ea0a0e4a4c597bc5f0a42d61b"
+      }
+    },
+    "shop.merchant.check": {
+      "name": "shop.merchant.check",
+      "title": "Check the connection",
+      "description": "Connection check for your merchant (any valid key): storefront initialize, tools/list = 6, a quote for the test SKU (voided at once, no payment), a signed webhook ping, and whether a PAID test order exists. Returns status connected|incomplete with per-step status ok|fail|skipped and a code; the public twin (statuses and codes only) is public_url.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "connected",
+              "incomplete"
+            ]
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "ok",
+                    "fail",
+                    "skipped"
+                  ]
+                },
+                "code": {
+                  "type": "string"
+                },
+                "detail": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "status"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "payment_verified": {
+            "type": "boolean"
+          },
+          "public_url": {
+            "type": "string"
+          },
+          "mcp_url": {
+            "type": "string"
+          },
+          "suggested_action": {
+            "type": "string"
+          },
+          "documentation_url": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "steps",
+          "payment_verified",
+          "public_url",
+          "mcp_url"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true
+      },
+      "execution": {
+        "taskSupport": "forbidden"
+      },
+      "_meta": {
+        "apibase/definition_sha256": "4123a02946ada946a28e7e2cadae231668ad676fc520e091347c80e5a3bbc7ba"
+      }
+    }
+  },
+  "converter": {
+    "tides.predictions": {
+      "type": "object",
+      "properties": {
+        "station": {
+          "type": "string",
+          "description": "NOAA station ID (e.g. \"8518750\" for The Battery NYC, \"9414290\" for San Francisco, \"8443970\" for Boston)",
+          "minLength": 1
+        },
+        "begin_date": {
+          "type": "string",
+          "description": "Start date in YYYYMMDD format (e.g. \"20260409\")"
+        },
+        "end_date": {
+          "type": "string",
+          "description": "End date in YYYYMMDD format (e.g. \"20260410\"). Max range: 31 days."
+        },
+        "interval": {
+          "type": "string",
+          "enum": [
+            "hilo",
+            "h",
+            "6"
+          ],
+          "description": "Prediction interval: \"hilo\" = high/low tides only (default), \"h\" = hourly, \"6\" = every 6 minutes"
+        },
+        "datum": {
+          "type": "string",
+          "description": "Vertical datum: MLLW (default), MSL, NAVD, MHHW, MHW, MLW, etc."
+        },
+        "units": {
+          "type": "string",
+          "enum": [
+            "english",
+            "metric"
+          ],
+          "description": "Units: \"english\" = feet (default), \"metric\" = meters"
+        }
+      },
+      "required": [
+        "station",
+        "begin_date",
+        "end_date"
+      ]
+    },
+    "nwis.daily_values": {
+      "type": "object",
+      "properties": {
+        "site_no": {
+          "type": "string",
+          "description": "USGS gauge station number, 8–15 digits (e.g. \"01646500\" for Potomac River near DC). Use water.sites to find station numbers."
+        },
+        "start_date": {
+          "type": "string",
+          "description": "Start date in YYYY-MM-DD format (e.g. \"2026-01-01\"). Defaults to 30 days ago if omitted."
+        },
+        "end_date": {
+          "type": "string",
+          "description": "End date in YYYY-MM-DD format (e.g. \"2026-06-30\"). Defaults to today if omitted. Max range: 1 year."
+        },
+        "parameter_cd": {
+          "type": "string",
+          "enum": [
+            "00060",
+            "00065",
+            "00010",
+            "00095",
+            "63680"
+          ],
+          "description": "USGS parameter code. \"00060\" = discharge/streamflow (ft3/s, default), \"00065\" = gage height (ft), \"00010\" = water temperature (°C), \"00095\" = specific conductance (µS/cm), \"63680\" = turbidity (FNU)."
+        }
+      },
+      "required": [
+        "site_no"
+      ]
+    },
+    "amadeus.flight_price": {
+      "type": "object",
+      "properties": {
+        "flight_offer": {
+          "type": "object",
+          "additionalProperties": {},
+          "description": "Flight offer object from flight_search results"
+        }
+      },
+      "required": [
+        "flight_offer"
+      ]
+    },
+    "platform.call_batch": {
+      "type": "object",
+      "properties": {
+        "calls": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tool_id": {
+                "type": "string",
+                "description": "Tool ID to call (e.g. \"crypto.get_price\")",
+                "minLength": 1
+              },
+              "params": {
+                "type": "object",
+                "additionalProperties": {},
+                "description": "Parameters for the tool call"
+              },
+              "idempotency_key": {
+                "type": "string",
+                "description": "Optional idempotency key for this specific call"
+              }
+            },
+            "required": [
+              "tool_id",
+              "params"
+            ]
+          },
+          "description": "Array of tool calls to execute in parallel (max 20)",
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "max_parallel": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Max concurrent calls (1-10). Default: 10",
+          "default": 10
+        }
+      },
+      "required": [
+        "calls"
+      ]
+    },
+    "hyperliquid.order_book": {
+      "type": "object",
+      "properties": {
+        "coin": {
+          "type": "string",
+          "description": "Coin symbol (e.g. BTC, ETH)"
+        },
+        "n_sig_figs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "description": "Number of significant figures for price levels"
+        },
+        "mantissa": {
+          "type": "integer",
+          "description": "Mantissa for price rounding"
+        }
+      },
+      "required": [
+        "coin"
+      ]
+    },
+    "music.artist_details": {
+      "type": "object",
+      "properties": {
+        "mbid": {
+          "type": "string",
+          "description": "MusicBrainz artist ID (UUID format, e.g. \"a74b1b7f-71a5-4011-9441-d0b5e4122711\")"
+        }
+      },
+      "required": [
+        "mbid"
+      ]
+    },
+    "rawg.game_details": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "RAWG game ID (numeric) or slug (e.g. \"grand-theft-auto-v\", 3498)"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "uk-landregistry-pricepaid.search_by_postcode": {
+      "type": "object",
+      "properties": {
+        "postcode": {
+          "type": "string",
+          "description": "UK postcode to search (e.g. \"SW1A 1AA\"). Matches on exact postcode.",
+          "minLength": 1
+        },
+        "min_date": {
+          "type": "string",
+          "description": "Only include transactions completed on/after this date (YYYY-MM-DD)."
+        },
+        "max_date": {
+          "type": "string",
+          "description": "Only include transactions completed on/before this date (YYYY-MM-DD)."
+        },
+        "min_price": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum price paid in GBP."
+        },
+        "max_price": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum price paid in GBP."
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Zero-based page number for pagination (default 0)."
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Number of transactions per page (1-100, default 20)."
+        }
+      },
+      "required": [
+        "postcode"
+      ]
+    },
+    "gfw.ocean.fishing_effort": {
+      "type": "object",
+      "properties": {
+        "start_date": {
+          "type": "string",
+          "description": "Start of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-01-01\"). GFW data coverage starts from 2012."
+        },
+        "end_date": {
+          "type": "string",
+          "description": "End of the analysis period in ISO format YYYY-MM-DD (e.g. \"2023-06-30\"). Must be after start_date; keep ranges under 12 months for manageable response sizes."
+        },
+        "coordinates": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "minItems": 4,
+          "description": "Polygon boundary as an array of [longitude, latitude] pairs defining the analysis area. The polygon must be closed (first and last coordinate identical). Example: [[-10,35],[-5,35],[-5,40],[-10,40],[-10,35]] for a box in the NE Atlantic. Omit to analyze global waters."
+        },
+        "temporal_resolution": {
+          "type": "string",
+          "enum": [
+            "MONTHLY",
+            "YEARLY"
+          ],
+          "description": "Time granularity for effort aggregation. \"MONTHLY\" groups data by calendar month; \"YEARLY\" by year. Default: \"MONTHLY\"."
+        }
+      },
+      "required": [
+        "start_date",
+        "end_date"
+      ]
+    },
+    "censusmapper.data": {
+      "type": "object",
+      "properties": {
+        "dataset": {
+          "type": "string",
+          "description": "Census dataset id from censusmapper.list_datasets (e.g. \"CA21\", \"CA16\", \"CA11\")",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        "level": {
+          "type": "string",
+          "enum": [
+            "Regions",
+            "PR",
+            "CMA",
+            "CD",
+            "CSD",
+            "CT",
+            "DA",
+            "DB"
+          ],
+          "description": "Geographic aggregation level of the returned rows: Regions (the listed regions themselves), PR, CMA, CD, CSD, CT, DA or DB"
+        },
+        "regions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 20
+            },
+            "minItems": 1,
+            "maxItems": 20
+          },
+          "description": "Census regions to query, keyed by level with arrays of region ids (e.g. {\"CMA\":[\"35535\"]} for Toronto, {\"PR\":[\"35\"]} for Ontario)"
+        },
+        "vectors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Census vector ids to return (e.g. [\"v_CA21_1\",\"v_CA21_6\"] = population 2021, 2016)",
+          "minItems": 1,
+          "maxItems": 20
+        },
+        "geo_hierarchy": {
+          "type": "boolean",
+          "description": "Include the parent geography hierarchy columns in each row (default false)"
+        },
+        "max_rows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Maximum number of rows to return (1-1000, default 200)"
+        }
+      },
+      "required": [
+        "dataset",
+        "level",
+        "regions",
+        "vectors"
+      ]
+    },
+    "sabre.search_flights": {
+      "type": "object",
+      "properties": {
+        "origin": {
+          "type": "string",
+          "description": "Origin airport IATA code (e.g. JFK, LAX)",
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "destination": {
+          "type": "string",
+          "description": "Destination airport IATA code (e.g. CDG, LHR)",
+          "minLength": 3,
+          "maxLength": 3
+        },
+        "departure_date": {
+          "type": "string",
+          "description": "Departure date in YYYY-MM-DD format"
+        },
+        "return_date": {
+          "type": "string",
+          "description": "Return date in YYYY-MM-DD format for round trips"
+        },
+        "point_of_sale": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 2,
+          "description": "2-letter country code for pricing (e.g. US, GB)",
+          "default": "US"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Max number of flight offers (1-50)"
+        }
+      },
+      "required": [
+        "origin",
+        "destination",
+        "departure_date"
+      ]
+    },
+    "weather.get_current": {
+      "type": "object",
+      "properties": {
+        "location": {
+          "type": "string",
+          "description": "City name, coordinates (lat,lon), or zip code"
+        },
+        "units": {
+          "type": "string",
+          "enum": [
+            "metric",
+            "imperial"
+          ],
+          "description": "Temperature units system"
+        }
+      },
+      "required": [
+        "location"
+      ]
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { withListCacheHints } from '../mcp/list-cache';
+import { withZod3ToolSchemas } from '../mcp/zod3-tool-schema';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { registerCatalogTools } from './tools/catalog.tools';
@@ -185,7 +186,7 @@ export function createMerchantMcpServer(
   // Not wrapped with withDefinitionSha256: the storefront strips `merchant` from the shape, so the hash would be wrong here and the storefront publishes no manifest.
   registerCatalogTools(shim, apiKey, requestId, deps);
   registerOrderTools(shim, apiKey, requestId, deps, paymentCtx, sessionId);
-  return withListCacheHints(server);
+  return withListCacheHints(withZod3ToolSchemas(server));
 }
 
 /**

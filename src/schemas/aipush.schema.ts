@@ -164,7 +164,7 @@ const aipushMarketReportStatus = z
   .object({
     report_id: z
       .string()
-      .uuid()
+      .guid()
       .describe(
         'Report ID in UUID format (e.g. "ed90f49c-15d8-46ee-9799-c6a8d468f6ba") — returned by aipush.market_report. Poll until status = "completed" to get full profile_json with competitors, keywords, and market analysis.',
       ),

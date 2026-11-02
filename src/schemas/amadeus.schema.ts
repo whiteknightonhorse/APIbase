@@ -6,21 +6,42 @@ const amadeusFlightSearch = z
     destination: z.string().length(3).describe('Destination airport IATA code (e.g. CDG, LHR)'),
     departure_date: z.string().describe('Departure date in YYYY-MM-DD format'),
     return_date: z.string().optional().describe('Return date in YYYY-MM-DD format for round trips'),
-    adults: z.number().int().min(1).max(9).optional().default(1).describe('Number of adult passengers (1-9)'),
+    adults: z
+      .number()
+      .int()
+      .min(1)
+      .max(9)
+      .optional()
+      .default(1)
+      .describe('Number of adult passengers (1-9)'),
     travel_class: z
       .enum(['ECONOMY', 'PREMIUM_ECONOMY', 'BUSINESS', 'FIRST'])
       .optional()
       .default('ECONOMY')
       .describe('Cabin class: ECONOMY, PREMIUM_ECONOMY, BUSINESS, or FIRST (default ECONOMY)'),
     nonstop: z.boolean().optional().default(false).describe('Only return non-stop flights'),
-    max_results: z.number().int().min(1).max(50).optional().default(10).describe('Max number of flight offers (1-50)'),
-    currency: z.string().length(3).optional().default('USD').describe('Price currency ISO code (e.g. USD, EUR)'),
+    max_results: z
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .optional()
+      .default(10)
+      .describe('Max number of flight offers (1-50)'),
+    currency: z
+      .string()
+      .length(3)
+      .optional()
+      .default('USD')
+      .describe('Price currency ISO code (e.g. USD, EUR)'),
   })
   .strip();
 
 const amadeusFlightPrice = z
   .object({
-    flight_offer: z.record(z.unknown()).describe('Flight offer object from flight_search results'),
+    flight_offer: z
+      .record(z.string(), z.unknown())
+      .describe('Flight offer object from flight_search results'),
   })
   .strip();
 
@@ -34,7 +55,11 @@ const amadeusFlightStatus = z
 
 const amadeusAirportSearch = z
   .object({
-    keyword: z.string().min(1).max(100).describe('Airport or city name to search (e.g. London, JFK)'),
+    keyword: z
+      .string()
+      .min(1)
+      .max(100)
+      .describe('Airport or city name to search (e.g. London, JFK)'),
     subType: z.enum(['AIRPORT', 'CITY']).optional().describe('Filter by location type'),
   })
   .strip();
@@ -43,7 +68,14 @@ const amadeusAirportNearest = z
   .object({
     latitude: z.number().min(-90).max(90).describe('Latitude in decimal degrees (-90 to 90)'),
     longitude: z.number().min(-180).max(180).describe('Longitude in decimal degrees (-180 to 180)'),
-    radius: z.number().int().min(1).max(500).optional().default(500).describe('Search radius in km (1-500)'),
+    radius: z
+      .number()
+      .int()
+      .min(1)
+      .max(500)
+      .optional()
+      .default(500)
+      .describe('Search radius in km (1-500)'),
   })
   .strip();
 

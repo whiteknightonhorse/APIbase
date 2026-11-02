@@ -42,6 +42,7 @@ jest.mock('../../../src/adapters/platform', () => ({
 
 import { resolveAdapter } from '../../../src/adapters/registry';
 import { toolSchemas } from '../../../src/schemas/index';
+import { zodToJsonSchema } from '../../../src/utils/zod-to-json-schema';
 
 interface YamlToolEntry {
   tool_id: string;
@@ -83,7 +84,11 @@ describe('adapter registry coverage (§12.43)', () => {
         if (!(schema instanceof z.ZodObject)) continue;
 
         const shape = schema.shape as Record<string, z.ZodTypeAny>;
-        const describedParams = Object.keys(shape).filter((key) => !!shape[key].description);
+        // T-0603: read the published description; under zod 4 a .default()/.optional() wrapper
+        // no longer inherits the inner schema's .description, the converter unwraps it.
+        const describedParams = Object.keys(shape).filter(
+          (key) => !!zodToJsonSchema(shape[key]).description,
+        );
         expect(describedParams.length).toBeGreaterThanOrEqual(1);
       }
     },
