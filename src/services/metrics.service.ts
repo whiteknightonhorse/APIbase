@@ -137,6 +137,14 @@ export const ledgerWriteFailedAfterSettleTotal = new client.Counter({
   registers: [register],
 });
 
+// T-0646: the worker booked a `ledger.write_failed` outbox row into execution_ledger.
+export const ledgerWriteFailedBookedTotal = new client.Counter({
+  name: 'apibase_ledger_write_failed_booked_total',
+  help: 'ledger.write_failed outbox rows booked into execution_ledger by the worker reconcile job',
+  labelNames: ['rail'] as const,
+  registers: [register],
+});
+
 export const providerErrorsTotal = new client.Counter({
   name: 'provider_errors_total',
   help: 'Total provider errors',

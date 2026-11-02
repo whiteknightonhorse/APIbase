@@ -58,6 +58,7 @@ async function recordLedgerWriteFailedAfterSettle(ctx: PipelineContext, e: unkno
         payload: {
           request_id: ctx.requestId,
           execution_id: ctx.executionId,
+          agent_id: ctx.agentId,
           tool_id: ctx.toolId,
           rail,
           payer,

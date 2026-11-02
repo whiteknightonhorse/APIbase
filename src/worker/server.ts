@@ -20,6 +20,7 @@ import {
   runDailySample as runShopPaymentSample,
 } from '../jobs/shop-payment-reconcile.job';
 import { run as runX402SettlePending } from '../jobs/x402-settle-pending.job';
+import { run as runLedgerWriteFailed } from '../jobs/ledger-write-failed.job';
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { backfillContentHashes, run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
@@ -241,6 +242,13 @@ registerJob({
   cron: '* * * * *',
   expect_every_s: 60,
   run: () => runX402SettlePending(),
+});
+// T-0646: books `ledger.write_failed` outbox rows (ledger write threw after money moved) into execution_ledger.
+registerJob({
+  name: 'ledger-write-failed',
+  cron: '* * * * *',
+  expect_every_s: 60,
+  run: () => runLedgerWriteFailed(),
 });
 // Order SLA sweeper (INT-12, §5.3): expired quotes, confirm_overdue, close_after, refund due_at,
 // payout_pending, connect_events TTL, PII purge, fee overdue, payment identifiers.
