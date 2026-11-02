@@ -1655,10 +1655,10 @@ tools:
     provider: apiflash
     capability: web.screenshot
     scope: global
-    price_usd: "0.005"
+    price_usd: "0.0091"
     upstream_cost_usd: "0.007"
     upstream_cost_model: flat
-    upstream_cost_note: "https://apiflash.com/ — \"Free $0/month 100 Screenshots; Lite $7/month 1,000 Screenshots; Medium $35/month 10,000\" — 2026-10-14 — tier assumed: Lite; operator to confirm; $7 / 1000 = $0.007 per screenshot; free 100/month is too small to count as free_tier"
+    upstream_cost_note: "https://apiflash.com/ — \"Free $0/month 100 Screenshots; Lite $7/month 1,000 Screenshots; Medium $35/month 10,000\" — 2026-10-14 — tier assumed: Lite; operator to confirm; $7 / 1000 = $0.007 per screenshot; free 100/month is too small to count as free_tier — price raised 2026-11-02 to cost x 1.3 (T-0661)"
     cache_ttl: 86400
 
   # --- UC-089: API-Sports (Multi-Sport Data) ---
@@ -3142,10 +3142,10 @@ tools:
   - tool_id: hunter.company
     name: Company Email & Enrichment
     provider: hunter
-    price_usd: "0.005"
+    price_usd: "0.032"
     upstream_cost_usd: "0.0245"
     upstream_cost_model: flat
-    upstream_cost_note: "https://hunter.io/pricing — \"Free plan: 50 credits per month; Starter $49/month billed monthly, 2,000 credits per month\" — 2026-10-14 — tier assumed: Starter; operator to confirm; $49 / 2000 = $0.0245 per credit; assumed 1 credit per company enrichment call; free 50/month too small for free_tier"
+    upstream_cost_note: "https://hunter.io/pricing — \"Free plan: 50 credits per month; Starter $49/month billed monthly, 2,000 credits per month\" — 2026-10-14 — tier assumed: Starter; operator to confirm; $49 / 2000 = $0.0245 per credit; assumed 1 credit per company enrichment call; free 50/month too small for free_tier — price raised 2026-11-02 to cost x 1.3 (T-0661)"
     cache_ttl: 3600
 
   # --- UC-191: FDIC BankFind ---

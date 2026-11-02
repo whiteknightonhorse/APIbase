@@ -17,6 +17,8 @@ const TOOLS = [
   'telnyx.send_sms_na',
   'tavily.search',
   'tavily.extract',
+  'hunter.company',
+  'screenshot.capture',
 ];
 
 interface Tool {
