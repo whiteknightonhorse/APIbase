@@ -17,6 +17,15 @@
  *       POST /merchants, POST /merchants/me/acceptances, PUT /merchants/me/catalog and, with
  *       --webhook-url, PUT /merchants/me/webhooks, then GET /merchants/me/check.
  *
+ *   --reaccept --wallet <addr> --base-url <url> [--key-env NAME]
+ *       Re-accepts the current legal set for an ACTIVE merchant. Reads a nonce (purpose
+ *       accept_terms), signs the message EIP-191 in-process with the key held in the environment
+ *       variable NAME (default X402_OPERATOR_PRIVATE_KEY) and POSTs /merchants/me/acceptances with
+ *       every document in the message. The key is read once from the environment: never from argv
+ *       (--key is refused), never logged. Prints HTTP status, doc ids and versions, and the server's
+ *       status/hint. Exit 2 on 428 (the server's docs_to_accept list is printed; never retried with
+ *       a subset), exit 1 on any other failure or an empty key variable (checked before any request).
+ *
  * The signatures file:
  *   { "wallet": "0x...",
  *     "register":       { "message": "<printed>", "signature": "0x..." },
@@ -31,6 +40,7 @@
  */
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { privateKeyToAccount } from 'viem/accounts';
 
 export const DEMO_SLUG = 'apibase-demo';
 export const DEMO_CATEGORY = 'digital-goods';
@@ -363,12 +373,107 @@ async function finish(
   };
 }
 
+export interface ReacceptIo {
+  out: (line: string) => void;
+  err: (line: string) => void;
+}
+
+const DOC_RE = /([a-z0-9][a-z0-9._-]*) v(\S+) sha256:([0-9a-f]{64})/g;
+const DEFAULT_KEY_ENV = 'X402_OPERATOR_PRIVATE_KEY';
+
+/**
+ * --reaccept: returns the process exit code (0 ok, 1 failure, 2 for 428). The signing key is read
+ * from `env` only and is never printed.
+ */
+export async function reaccept(
+  argv: string[],
+  env: Record<string, string | undefined>,
+  f: FetchFn,
+  io: ReacceptIo,
+): Promise<number> {
+  try {
+    if (argv.includes('--key') || argv.some((a) => /^(0x)?[0-9a-fA-F]{64}$/.test(a))) {
+      throw new Error('a signing key must never be passed on the command line; use --key-env NAME');
+    }
+    const baseUrl = arg(argv, '--base-url');
+    const wallet = arg(argv, '--wallet');
+    if (!baseUrl) throw new Error('--base-url is required');
+    if (!wallet || !ADDR_RE.test(wallet)) throw new Error('--wallet must be an EVM address');
+    const name = arg(argv, '--key-env') ?? DEFAULT_KEY_ENV;
+    const raw = (env[name] ?? '').trim();
+    if (!raw)
+      throw new Error(`environment variable ${name} is empty; export the signing key first`);
+    const hex = (raw.startsWith('0x') ? raw : `0x${raw}`) as `0x${string}`;
+    let account: ReturnType<typeof privateKeyToAccount>;
+    try {
+      account = privateKeyToAccount(hex);
+    } catch {
+      throw new Error(`environment variable ${name} does not hold a valid signing key`);
+    }
+    if (account.address.toLowerCase() !== wallet.toLowerCase()) {
+      throw new Error(`the key in ${name} does not belong to --wallet`);
+    }
+    const nonce = must(
+      await call(
+        f,
+        baseUrl,
+        'GET',
+        `/api/v1/shop/auth/nonce?wallet=${wallet}&purpose=accept_terms`,
+      ),
+      'nonce(accept_terms)',
+    );
+    const message = String(nonce['message'] ?? '');
+    const doc_hashes = [...message.matchAll(DOC_RE)].map((m) => ({
+      doc_id: m[1],
+      version: m[2],
+      sha256: m[3],
+    }));
+    if (doc_hashes.length === 0) throw new Error('the nonce message lists no documents');
+    const signature = await account.signMessage({ message });
+    const r = await call(f, baseUrl, 'POST', '/api/v1/shop/merchants/me/acceptances', {
+      body: { wallet, doc_hashes, message, signature },
+    });
+    io.out(`HTTP ${r.status}`);
+    for (const d of doc_hashes) io.out(`doc ${d.doc_id} v${d.version}`);
+    if (r.status === 428) {
+      const todo = r.body['docs_to_accept'];
+      if (Array.isArray(todo)) {
+        for (const d of todo as Array<Record<string, unknown>>) {
+          io.out(`docs_to_accept ${String(d['doc_id'])} v${String(d['version'])}`);
+        }
+      }
+      io.err('428: accept the full docs_to_accept list; this script never retries with a subset');
+      return 2;
+    }
+    for (const k of ['status', 'hint']) {
+      if (r.body[k] !== undefined) io.out(`${k}: ${String(r.body[k])}`);
+    }
+    if (r.status < 200 || r.status >= 300) {
+      io.err(
+        `reaccept failed: HTTP ${r.status} ${String(r.body['error_code'] ?? r.body['error'] ?? '')}`,
+      );
+      return 1;
+    }
+    return 0;
+  } catch (err) {
+    io.err((err as Error).message);
+    return 1;
+  }
+}
+
 function arg(argv: string[], name: string): string | undefined {
   const i = argv.indexOf(name);
   return i >= 0 ? argv[i + 1] : undefined;
 }
 
 async function main(argv: string[]): Promise<void> {
+  if (argv.includes('--reaccept')) {
+    process.exitCode = await reaccept(argv, process.env, fetch, {
+      out: (l) => console.log(l),
+      err: (l) => console.error(l),
+    });
+    return;
+  }
   const baseUrl = arg(argv, '--base-url');
   if (!baseUrl) throw new Error('--base-url is required');
   if (argv.includes('--prepare')) {
@@ -407,7 +512,7 @@ async function main(argv: string[]): Promise<void> {
     console.log(JSON.stringify(r, null, 2));
     return;
   }
-  throw new Error('use --prepare, --submit or --resume');
+  throw new Error('use --prepare, --submit, --resume or --reaccept');
 }
 
 if (require.main === module) {
