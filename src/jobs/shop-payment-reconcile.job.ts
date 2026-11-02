@@ -26,9 +26,10 @@ const SECONDS_PER_BLOCK = 2; // Base
 const BLOCK_MARGIN = 600;
 
 export async function viemChain(): Promise<ChainReader> {
-  const { createPublicClient, http, parseAbi } = await import('viem');
+  const { createPublicClient, parseAbi } = await import('viem');
+  const { baseTransport } = await import('../payments/base-transport');
   const cfg = getX402Config();
-  const client = createPublicClient({ transport: http(cfg.baseRpcUrl) });
+  const client = createPublicClient({ transport: baseTransport(cfg) });
   const usdc = cfg.usdcAddress as `0x${string}`;
   const abi = parseAbi([
     'function authorizationState(address authorizer, bytes32 nonce) view returns (bool)',

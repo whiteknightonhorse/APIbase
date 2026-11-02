@@ -111,6 +111,14 @@ export const providerCallDurationSeconds = new client.Histogram({
   registers: [register],
 });
 
+// T-0642: a Base RPC call failed on the primary and was served by the reserve host.
+export const x402RpcFallbackUsedTotal = new client.Counter({
+  name: 'x402_rpc_fallback_used_total',
+  help: 'Base RPC requests that failed on the primary host and were retried on the fallback host',
+  labelNames: ['host'] as const,
+  registers: [register],
+});
+
 // T-0339 (finding 048): a paid request reached LEDGER_WRITE with no escrow and no on-chain ledger
 // entry, so nothing recorded it. Expected to stay 0.
 export const ledgerPaidWithoutEscrowTotal = new client.Counter({

@@ -1,3 +1,4 @@
+import { rpcHost } from '../payments/base-transport';
 import {
   HTTPFacilitatorClient,
   x402ResourceServer,
@@ -44,7 +45,11 @@ export function getSharedResourceServer(): x402ResourceServer {
     const localClient = buildLocalFacilitatorClient();
     clients.push(localClient);
     logger.info(
-      { facilitator: 'local', network: x402Cfg.network, rpc: x402Cfg.baseRpcUrl },
+      {
+        facilitator: 'local',
+        network: x402Cfg.network,
+        rpc_hosts: x402Cfg.baseRpcUrls.map(rpcHost),
+      },
       'x402: LOCAL facilitator registered as PRIMARY (self-hosted on-chain settle)',
     );
   } else {

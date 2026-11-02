@@ -59,10 +59,49 @@ export async function run(redis: Redis): Promise<void> {
     logger.warn({ err }, 'Mode A health check threw — ignored');
   });
 
+  // T-0642: Base RPC primary/reserve reachability (hosts only, no URLs).
+  await runBaseRpcProbe(redis).catch((err) => {
+    logger.warn({ err }, 'Base RPC probe threw — ignored');
+  });
+
   // T-0372: MPP rail RPC probe.
   await runMppHealthCheck(redis).catch((err) => {
     logger.warn({ err }, 'MPP health check threw — ignored');
   });
+}
+
+async function probeRpc(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      signal: AbortSignal.timeout(HEALTH_CHECK_TIMEOUT_MS),
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] }),
+    });
+    if (!res.ok) return false;
+    const body = (await res.json()) as { result?: unknown };
+    return typeof body?.result === 'string';
+  } catch {
+    return false;
+  }
+}
+
+/** T-0642: reports whether each Base RPC host answers; never writes a URL. */
+async function runBaseRpcProbe(redis: Redis): Promise<void> {
+  const [primary, reserve] = getX402Config().baseRpcUrls;
+  const primaryOk = await probeRpc(primary);
+  const fields: Record<string, string> = {
+    rpc_primary_ok: String(primaryOk),
+    rpc_fallback_ok: reserve ? String(await probeRpc(reserve)) : 'n/a',
+    last_check: new Date().toISOString(),
+  };
+  try {
+    await redis.hmset('x402:rpc', fields);
+    await redis.expire('x402:rpc', REDIS_TTL);
+  } catch (err) {
+    logger.warn({ err }, 'Failed to write x402 RPC health to Redis');
+  }
+  logger.info({ job: 'x402-health', ...fields }, 'Base RPC probe completed');
 }
 
 async function runFacilitatorProbe(redis: Redis): Promise<string> {

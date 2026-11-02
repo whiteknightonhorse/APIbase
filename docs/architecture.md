@@ -46,6 +46,6 @@ GenLayer probes, agent-ready checks). A mismatch reaches the operator through fl
 docs-drift card.
 
 Payment settlement (self-hosted x402 facilitator, MPP dual-rail, auth, error codes): see
-[`payments.md`](payments.md). Day-2 operations (container management, restarts, backups,
+[`payments.md`](payments.md) (Base RPC: public primary with an optional reserve host, see there). Day-2 operations (container management, restarts, backups,
 monitoring): see [`runbook.md`](runbook.md). Self-hosting your own instance: see
 [`self-hosting.md`](self-hosting.md).

@@ -89,6 +89,15 @@ export const appEnvSchema = z
     // Base RPC URLs (override with private RPC for high QPS).
     X402_BASE_RPC_URL: z.string().url().default('https://mainnet.base.org'),
     X402_BASE_SEPOLIA_RPC_URL: z.string().url().default('https://sepolia.base.org'),
+    // Optional reserve RPC (T-0642). An empty value counts as unset.
+    X402_BASE_RPC_URL_FALLBACK: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().url().optional(),
+    ),
+    X402_BASE_SEPOLIA_RPC_URL_FALLBACK: z.preprocess(
+      (v) => (v === '' ? undefined : v),
+      z.string().url().optional(),
+    ),
     // Operator wallet ETH balance threshold for low-balance alert (in ETH, not wei).
     X402_OPERATOR_MIN_ETH_BALANCE: z.coerce.number().default(0.005),
 

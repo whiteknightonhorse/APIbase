@@ -1,6 +1,5 @@
 import {
   createWalletClient,
-  http,
   publicActions,
   formatEther,
   type WalletClient,
@@ -13,6 +12,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { base, baseSepolia } from 'viem/chains';
 import { getX402Config } from '../config/x402.config';
 import { logger } from '../config/logger';
+import { baseTransport, rpcHost } from './base-transport';
 import { AppError, ErrorCode } from '../types/errors';
 
 /**
@@ -70,9 +70,8 @@ export function getOperatorWallet(): OperatorWallet {
   const signer = createWalletClient({
     account,
     chain,
-    // retryCount=2 + retryDelay=200ms absorbs transient public-RPC blips
-    // (mainnet.base.org has no SLA) before falling back to PayAI HTTP path
-    transport: http(cfg.baseRpcUrl, { retryCount: 2, retryDelay: 200 }),
+    // Public primary (retryCount=2 absorbs blips) + optional reserve host (T-0642).
+    transport: baseTransport(cfg),
   }).extend(publicActions) as OperatorSigner;
 
   cached = {
@@ -84,7 +83,7 @@ export function getOperatorWallet(): OperatorWallet {
   };
 
   logger.info(
-    { operator: account.address, chain: chain.name, rpc: cfg.baseRpcUrl },
+    { operator: account.address, chain: chain.name, rpc: cfg.baseRpcUrls.map(rpcHost) },
     'x402 local facilitator: operator wallet initialized',
   );
 

@@ -47,11 +47,13 @@ export async function viemRefundChain(): Promise<RefundChain> {
   const { createPublicClient, http, parseAbi, parseEventLogs } = await import('viem');
   const { getX402Config } = await import('../config/x402.config');
   const { getMppConfig } = await import('../config/mpp.config');
+  const { baseTransport } = await import('../payments/base-transport');
   const abi = parseAbi(['event Transfer(address indexed from, address indexed to, uint256 value)']);
   return {
     receipt: async (rail, txHash) => {
-      const url = rail === 'tempo' ? getMppConfig().rpcUrl : getX402Config().baseRpcUrl;
-      const client = createPublicClient({ transport: http(url) });
+      const transport =
+        rail === 'tempo' ? http(getMppConfig().rpcUrl) : baseTransport(getX402Config());
+      const client = createPublicClient({ transport });
       let r;
       try {
         r = await client.getTransactionReceipt({ hash: txHash as `0x${string}` });

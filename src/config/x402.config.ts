@@ -12,6 +12,8 @@ export interface X402Config {
   readonly facilitatorMode: 'local' | 'remote';
   readonly operatorPrivateKey: string;
   readonly baseRpcUrl: string;
+  /** Primary first, then the optional reserve (X402_BASE_RPC_URL_FALLBACK). */
+  readonly baseRpcUrls: readonly string[];
   readonly operatorMinEthBalance: number;
 }
 
@@ -33,6 +35,10 @@ let frozen: X402Config | null = null;
 export function getX402Config(): X402Config {
   if (!frozen) {
     const net = NETWORK_MAP[config.X402_NETWORK] ?? NETWORK_MAP['base-sepolia'];
+    const primaryRpc = net.testnet ? config.X402_BASE_SEPOLIA_RPC_URL : config.X402_BASE_RPC_URL;
+    const fallbackRpc = net.testnet
+      ? config.X402_BASE_SEPOLIA_RPC_URL_FALLBACK
+      : config.X402_BASE_RPC_URL_FALLBACK;
     frozen = Object.freeze({
       network: net.chainId,
       usdcAddress: net.usdc,
@@ -44,7 +50,8 @@ export function getX402Config(): X402Config {
       testnet: net.testnet,
       facilitatorMode: config.X402_FACILITATOR_MODE,
       operatorPrivateKey: config.X402_OPERATOR_PRIVATE_KEY,
-      baseRpcUrl: net.testnet ? config.X402_BASE_SEPOLIA_RPC_URL : config.X402_BASE_RPC_URL,
+      baseRpcUrl: primaryRpc,
+      baseRpcUrls: Object.freeze(fallbackRpc ? [primaryRpc, fallbackRpc] : [primaryRpc]),
       operatorMinEthBalance: config.X402_OPERATOR_MIN_ETH_BALANCE,
     });
   }

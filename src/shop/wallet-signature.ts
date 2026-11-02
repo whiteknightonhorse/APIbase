@@ -33,10 +33,11 @@ export function setSignaturePublicClient(c: SignaturePublicClient | undefined): 
 async function client(): Promise<SignaturePublicClient> {
   if (override) return override;
   if (!cached) {
-    const { createPublicClient, http } = await import('viem');
+    const { createPublicClient } = await import('viem');
+    const { baseTransport } = await import('../payments/base-transport');
     const { getX402Config } = await import('../config/x402.config');
     cached = createPublicClient({
-      transport: http(getX402Config().baseRpcUrl),
+      transport: baseTransport(getX402Config()),
     }) as unknown as SignaturePublicClient;
   }
   return cached;
