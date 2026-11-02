@@ -1157,6 +1157,7 @@
       "x402": "100%"
     },
     "idempotency_on_redis_failure": "fail-open",
+    "legal_index_hash_reproducible": "every sha256 in /legal/index.json is reproducible from the bytes at its source_url; scheduled versions at /legal/index.next.json",
     "refund_on_provider_failure": {
       "mpp": "refund owed, paid manually by the operator",
       "x402": "not settled"

@@ -56,5 +56,11 @@
       "anchor": "rail: 'x402-base' | 'mpp-tempo';",
       "ruling": "A-GA-01 (public receipts)"
     }
+  },
+  "legal_index_hash_reproducible": {
+    "value": "every sha256 in /legal/index.json is reproducible from the bytes at its source_url; scheduled versions at /legal/index.next.json",
+    "source": "src/shop/routes/legal.router.ts",
+    "anchor": "/legal/index.next.json",
+    "ruling": "T-0669 (TESTS-APPEND-1102)"
   }
 }

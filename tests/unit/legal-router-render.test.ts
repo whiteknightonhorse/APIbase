@@ -9,6 +9,7 @@ import {
   staticPageEntries,
 } from '../../src/shop/routes/legal.router';
 import { LEGAL_DOC_IDS, LEGAL_DIR } from '../../src/shop/legal/legal-docs';
+import { fixtureDb } from './helpers/legal-fixture-db';
 import { SITE_NAV } from '../../src/shop/page-meta';
 
 jest.mock('../../src/config', () => ({ config: {} }));
@@ -27,7 +28,7 @@ const sha = (p: string) => createHash('sha256').update(readFileSync(p)).digest('
 
 describe('T-0343 /legal page chrome', () => {
   it('every document has canonical, description, title, nav and footer links', async () => {
-    const s = await serve({ db: {} as never });
+    const s = await serve({ db: fixtureDb(), now: () => Date.parse('2027-01-01T00:00:00Z') });
     for (const id of LEGAL_DOC_IDS) {
       const html = await (await fetch(`${s.base}/legal/${id}`)).text();
       expect(html).toContain(`<link rel="canonical" href="https://apibase.pro/legal/${id}">`);
@@ -53,7 +54,7 @@ describe('T-0343 /legal page chrome', () => {
   });
 
   it('the .md twin is the file with the fee token rendered; the registry hash stays over the file', async () => {
-    const s = await serve({ db: {} as never });
+    const s = await serve({ db: fixtureDb(), now: () => Date.parse('2027-01-01T00:00:00Z') });
     for (const id of LEGAL_DOC_IDS) {
       const raw = readFileSync(join(LEGAL_DIR, `${id}.md`), 'utf-8');
       const body = await (await fetch(`${s.base}/legal/${id}.md`)).text();
@@ -67,7 +68,8 @@ describe('T-0343 /legal page chrome', () => {
 
   it('index.json lists terms/privacy with the sha256 of the legal text, marked registry:false', async () => {
     const db = { $queryRawUnsafe: async () => [] } as never;
-    const s = await serve({ db });
+    const now = Date.parse('2026-11-02T00:00:00Z');
+    const s = await serve({ db, now: () => now });
     const idx = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Array<{
       doc_id: string;
       sha256: string;
@@ -83,7 +85,9 @@ describe('T-0343 /legal page chrome', () => {
           .update(legalBodyOf(readFileSync(join(ROOT, `static/${id}.html`), 'utf-8')))
           .digest('hex'),
       );
-      expect(e).toMatchObject({ version: '2.0', effective_from: '2026-11-26' });
+      // 2.0 is scheduled (effective 2026-11-26): not marked current here, listed in index.next.json
+      expect(e).not.toHaveProperty('version');
+      expect(e).toMatchObject({ hash_of: 'legal-body', source_url: `/legal/${id}.body.txt` });
     }
   });
 });

@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { onboardRouter } from '../../src/routes/onboard.router';
 import { createIntegratorRouter } from '../../src/shop/routes/integrator.router';
+import { fixtureDb } from './helpers/legal-fixture-db';
 import { createLegalRouter } from '../../src/shop/routes/legal.router';
 
 jest.mock('../../src/config', () => ({ config: {} }));
@@ -49,7 +50,7 @@ let dir: string;
 beforeAll(async () => {
   const app = express();
   app.use(createIntegratorRouter({ limit: 10_000 }));
-  app.use(createLegalRouter({ db: {} as never }));
+  app.use(createLegalRouter({ db: fixtureDb(), now: () => Date.parse('2027-01-01T00:00:00Z') }));
   app.use(onboardRouter);
   server = app.listen(0);
   base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;

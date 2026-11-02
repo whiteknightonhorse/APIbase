@@ -22,7 +22,8 @@ import {
   LEGAL_PUBLISHED_FILE,
   isLegalPublished,
   legalIndex,
-  readLegalFile,
+  legalSource,
+  nextLegalRows,
 } from '../legal/legal-docs';
 
 export const DRAFT_BANNER =
@@ -200,23 +201,36 @@ function registerEntry(
   }
 }
 
-/** Pointers to the static Terms/Privacy pages: sha256 of the legal text only, not registry documents. */
+/**
+ * Pointers to the static Terms/Privacy pages: sha256 of the legal body only, not registry documents.
+ * `scheduled: false` -> the pages as served now (a version whose effective_from is still in the
+ * future is not marked current: no version/effective_from); `scheduled: true` -> only the pages
+ * with a future effective_from, carrying that version.
+ */
 export function staticPageEntries(
   staticDir: string,
   registerFile: string = REGISTER_FILE,
+  opts: { now?: number; scheduled?: boolean } = {},
 ): Array<Record<string, unknown>> {
+  const now = opts.now ?? Date.now();
   return ['terms', 'privacy'].flatMap((id) => {
     const file = resolve(staticDir, `${id}.html`);
     if (!existsSync(file)) throw new Error(`static page missing from image: ${file}`);
+    const reg = registerEntry(id, registerFile);
+    const future = reg.effective_from !== undefined && Date.parse(reg.effective_from) > now;
+    if (opts.scheduled === true && !future) return [];
+    const meta = future && opts.scheduled !== true ? {} : reg;
     return [
       {
         doc_id: id,
-        ...registerEntry(id, registerFile),
+        ...meta,
         url: `/${id}`,
         sha256: createHash('sha256')
           .update(legalBodyOf(readFileSync(file, 'utf-8')))
           .digest('hex'),
         registry: false,
+        hash_of: 'legal-body',
+        source_url: `/legal/${id}.body.txt`,
       },
     ];
   });
@@ -265,7 +279,6 @@ export function indexPage(docs: ReadonlyArray<object>): string {
 
 /** §11 / §15 public legal documents: /legal, /legal/index.json, /legal/:doc_id[.md]. */
 export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
-  const dir = opts.dir ?? LEGAL_DIR;
   const publishedFile = opts.publishedFile ?? LEGAL_PUBLISHED_FILE;
   const now = opts.now ?? Date.now;
   const staticDir = opts.staticDir ?? STATIC_DIR;
@@ -296,8 +309,14 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
 
   const sendIndex = async (req: Request, res: Response, html = false) => {
     try {
-      const docs = [...(await legalIndex(db(), now())), ...staticPageEntries(staticDir)];
-      res.set('Cache-Control', 'no-cache').set('Vary', 'Accept');
+      const docs = [
+        ...(await legalIndex(db(), now())),
+        ...staticPageEntries(staticDir, REGISTER_FILE, { now: now() }),
+      ];
+      res
+        .set('Cache-Control', 'no-cache')
+        .set('Vary', 'Accept')
+        .set('Link', '</legal/index.next.json>; rel="next"');
       if (html && req.accepts(['json', 'html']) === 'html') res.type('html').send(indexPage(docs));
       else res.json(docs);
     } catch {
@@ -313,6 +332,103 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
 
   router.get('/legal', (req, res) => sendIndex(req, res, true));
   router.get('/legal/index.json', (req, res) => sendIndex(req, res));
+
+  const limiterOf = () =>
+    rateLimit({
+      windowMs: 60_000,
+      limit: 60,
+      standardHeaders: true,
+      legacyHeaders: false,
+      validate: false,
+      handler: (_req, res) => {
+        res.status(429).json({
+          error: 'rate_limited',
+          error_code: 'rate_limited',
+          message: 'too many requests from this address',
+          suggested_action: 'retry_after_delay',
+          documentation_url: '/integrator/docs#legal-documents',
+        });
+      },
+    });
+  const nextLimiter = limiterOf();
+  const srcLimiter = limiterOf();
+  const bodyLimiter = limiterOf();
+  const docLimiter = limiterOf();
+
+  router.get('/legal/index.next.json', nextLimiter, async (_req, res) => {
+    try {
+      res
+        .set('Cache-Control', 'no-cache')
+        .json([
+          ...(await nextLegalRows(db(), undefined, now())),
+          ...staticPageEntries(staticDir, REGISTER_FILE, { now: now(), scheduled: true }),
+        ]);
+    } catch {
+      res.status(503).json({
+        error: 'unavailable',
+        error_code: 'legal_index_unavailable',
+        message: 'legal index temporarily unavailable',
+        suggested_action: 'retry_after_delay',
+        documentation_url: '/integrator/docs#legal-documents',
+      });
+    }
+  });
+
+  const notFound = (res: Response, error_code: string, message: string) =>
+    res.status(404).json({
+      error: 'not_found',
+      error_code,
+      message,
+      suggested_action: 'fix_request',
+      documentation_url: '/legal/index.json',
+    });
+
+  // The exact registry bytes that /legal/index.json hashes: no substitution of any token.
+  router.get(/^\/legal\/([a-z-]+)\.src\.md$/, srcLimiter, async (req, res) => {
+    const id = String(req.params[0]);
+    const v: unknown = req.query.version;
+    if (!isLegalDocId(id)) return void notFound(res, 'not_found', 'unknown legal document');
+    if (v !== undefined && (typeof v !== 'string' || !/^[0-9][0-9A-Za-z.]*$/.test(v))) {
+      return void notFound(res, 'unknown_version', 'unknown version of this document');
+    }
+    try {
+      const row = await legalSource(db(), id, v, now());
+      if (!row) {
+        return void notFound(
+          res,
+          v === undefined ? 'not_found' : 'unknown_version',
+          'no such version of this document',
+        );
+      }
+      res
+        .set('ETag', `"sha256-${row.sha256}"`)
+        .set(
+          'Cache-Control',
+          v === undefined ? 'public, max-age=300' : 'public, max-age=31536000, immutable',
+        )
+        .type('text/markdown; charset=utf-8')
+        .send(Buffer.from(row.body_md, 'utf-8'));
+    } catch {
+      res.status(503).json({
+        error: 'unavailable',
+        error_code: 'legal_index_unavailable',
+        message: 'legal document temporarily unavailable',
+        suggested_action: 'retry_after_delay',
+        documentation_url: '/integrator/docs#legal-documents',
+      });
+    }
+  });
+
+  // The exact text staticPageEntries hashes for /terms and /privacy.
+  router.get(/^\/legal\/(terms|privacy)\.body\.txt$/, bodyLimiter, (req, res) => {
+    const page = String(req.params[0]);
+    const file = resolve(staticDir, `${page}.html`);
+    if (!existsSync(file)) return void notFound(res, 'not_found', 'static page missing');
+    res
+      .set('Cache-Control', 'public, max-age=300')
+      .type('text/plain; charset=utf-8')
+      .send(legalBodyOf(readFileSync(file, 'utf-8')));
+  });
 
   const prohibitedLimiter = rateLimit({
     windowMs: 60_000,
@@ -338,7 +454,7 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
       .send(readFileSync(PROHIBITED_FILE));
   });
 
-  router.get('/legal/:doc', (req: Request, res: Response) => {
+  router.get('/legal/:doc', docLimiter, async (req: Request, res: Response) => {
     const raw = String(req.params.doc);
     const wantsMd = raw.endsWith('.md');
     const id = wantsMd ? raw.slice(0, -3) : raw;
@@ -352,7 +468,22 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
       });
       return;
     }
-    const file = readLegalFile(id, dir);
+    let file: { version: string; effective_from: string; body_md: string } | null;
+    try {
+      file = await legalSource(db(), id, undefined, now());
+    } catch {
+      file = null;
+    }
+    if (!file) {
+      res.status(503).json({
+        error: 'unavailable',
+        error_code: 'legal_index_unavailable',
+        message: 'legal document temporarily unavailable',
+        suggested_action: 'retry_after_delay',
+        documentation_url: '/integrator/docs#legal-documents',
+      });
+      return;
+    }
     res.set('Vary', 'Accept');
     if (wantsMd || /text\/markdown/i.test(req.get('accept') ?? '')) {
       res

@@ -130,3 +130,4 @@ static/index.html	https://apibase.pro/	must-contain	refund-truth:	-	T-0543 refun
 static/policy-moderation.html	https://apibase.pro/policy/moderation	must-contain	refund-truth:	-	T-0543 refund-truth marker
 static/x402-vs-mpp.html	https://apibase.pro/x402-vs-mpp	must-contain	refund-truth:	-	T-0543 refund-truth marker
 static/x402-vs-mpp.md	https://apibase.pro/x402-vs-mpp.md	must-contain	refund-truth:	-	T-0543 refund-truth marker
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	scheduled versions are listed at `/legal/index.next.json`	-	T-0669 legal index hash reproducible

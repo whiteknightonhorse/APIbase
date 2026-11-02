@@ -134,7 +134,13 @@ export interface LegalIndexEntry {
   sha256: string;
   url: string;
   effective_from: string;
+  /** What the sha256 is computed over; the bytes are served at source_url. */
+  hash_of?: 'source' | 'legal-body';
+  source_url?: string;
 }
+
+export const sourceUrlOf = (doc_id: string, version: string): string =>
+  `/legal/${doc_id}.src.md?version=${encodeURIComponent(version)}`;
 
 /**
  * The one "current version" query: latest (effective_from <= now) row per doc_id; a tie on
@@ -170,8 +176,83 @@ export async function latestLegalRows(
   }));
 }
 
+const withSource = (r: LegalIndexEntry): LegalIndexEntry => ({
+  ...r,
+  hash_of: 'source',
+  source_url: sourceUrlOf(r.doc_id, r.version),
+});
+
 /** Latest effective version of each of the four documents, in LEGAL_DOC_IDS order. */
 export async function legalIndex(db: ShopTx, now: number = Date.now()): Promise<LegalIndexEntry[]> {
   const rows = await latestLegalRows(db, LEGAL_DOC_IDS, now);
-  return LEGAL_DOC_IDS.flatMap((id) => rows.filter((x) => x.doc_id === id));
+  return LEGAL_DOC_IDS.flatMap((id) => rows.filter((x) => x.doc_id === id).map(withSource));
+}
+
+/** Registered but not yet effective versions: one per doc_id, the lowest effective_from. */
+export async function nextLegalRows(
+  db: ShopTx,
+  ids: readonly string[] = LEGAL_DOC_IDS,
+  now: number = Date.now(),
+): Promise<LegalIndexEntry[]> {
+  const rows = await db.$queryRawUnsafe<
+    Array<{
+      doc_id: string;
+      version: string;
+      sha256: string;
+      url: string;
+      effective_from: Date | string;
+    }>
+  >(
+    `SELECT DISTINCT ON (doc_id) doc_id, version, sha256, url, effective_from
+       FROM shop_legal_docs
+      WHERE doc_id = ANY($1::text[]) AND effective_from > $2::timestamptz
+      ORDER BY doc_id, effective_from ASC, version ASC`,
+    [...ids],
+    new Date(now).toISOString(),
+  );
+  const out = rows.map((r) =>
+    withSource({
+      doc_id: r.doc_id,
+      version: r.version,
+      sha256: r.sha256.trim(),
+      url: r.url,
+      effective_from: new Date(r.effective_from).toISOString(),
+    }),
+  );
+  return ids.flatMap((id) => out.filter((x) => x.doc_id === id));
+}
+
+export interface LegalSource {
+  version: string;
+  sha256: string;
+  effective_from: string;
+  body_md: string;
+}
+
+/** Registry row bytes: a registered `version`, or (none given) the current effective version. */
+export async function legalSource(
+  db: ShopTx,
+  doc_id: string,
+  version: string | undefined,
+  now: number = Date.now(),
+): Promise<LegalSource | null> {
+  const rows = await db.$queryRawUnsafe<
+    Array<{ version: string; sha256: string; effective_from: Date | string; body_md: string }>
+  >(
+    version === undefined
+      ? `SELECT version, sha256, effective_from, body_md FROM shop_legal_docs
+          WHERE doc_id = $1 AND effective_from <= $2::timestamptz
+          ORDER BY effective_from DESC, version DESC LIMIT 1`
+      : `SELECT version, sha256, effective_from, body_md FROM shop_legal_docs
+          WHERE doc_id = $1 AND version = $2 LIMIT 1`,
+    ...(version === undefined ? [doc_id, new Date(now).toISOString()] : [doc_id, version]),
+  );
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    version: r.version,
+    sha256: r.sha256.trim(),
+    effective_from: new Date(r.effective_from).toISOString(),
+    body_md: r.body_md,
+  };
 }

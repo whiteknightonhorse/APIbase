@@ -19,6 +19,10 @@ import {
   stripHtmlComments,
 } from '../../src/shop/routes/legal.router';
 
+import { fixtureDb } from './helpers/legal-fixture-db';
+
+const FAR = () => Date.parse('2030-01-01');
+
 jest.mock('../../src/config', () => ({ config: {} }));
 
 const ROOT = resolve(__dirname, '../..');
@@ -104,7 +108,9 @@ describe('T-INT-05 legal documents', () => {
       expect(Object.keys(e).sort()).toEqual([
         'doc_id',
         'effective_from',
+        'hash_of',
         'sha256',
+        'source_url',
         'url',
         'version',
       ]);
@@ -141,7 +147,7 @@ describe('T-INT-05 legal documents', () => {
   it('LG3 DRAFT banner + noindex until legal-published.json exists; .md never has the banner', async () => {
     const dir = tmpLegalDir();
     const pub = join(dir, 'legal-published.json');
-    const s = await serve({ db: fakeDb(), dir, publishedFile: pub });
+    const s = await serve({ db: fixtureDb(), dir, publishedFile: pub, now: FAR });
     let html = await (await fetch(`${s.base}/legal/aup`)).text();
     expect(html).toContain('draft-banner');
     expect(html).toContain('noindex');
@@ -236,12 +242,17 @@ describe('T-INT-05 legal documents', () => {
   });
 
   it('LG7 Accept: text/markdown on /legal/dpa returns the file', async () => {
-    const s = await serve({ db: fakeDb() });
+    const s = await serve({ db: fixtureDb(), now: FAR });
     const r = await fetch(`${s.base}/legal/dpa`, { headers: { accept: 'text/markdown' } });
     const body = await r.text();
     await s.close();
     expect(r.headers.get('content-type')).toMatch(/text\/markdown/);
-    expect(body).toBe(read(join(ROOT, 'static/legal/dpa.md')));
+    expect(body).toBe(
+      read(join(ROOT, 'static/legal/dpa.md')).replace(
+        /\{\{INTEGRATOR_FEE_PCT\}\}/g,
+        '0% during the pilot',
+      ),
+    );
   });
 
   it('LG8 terms/privacy keep the integrator block and carry the T-0582 sections', () => {

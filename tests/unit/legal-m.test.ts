@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AddressInfo } from 'node:net';
 import express from 'express';
+import { fixtureDb } from './helpers/legal-fixture-db';
 import { createLegalRouter } from '../../src/shop/routes/legal.router';
 import { legalDocLayout } from '../../src/shop/legal/legal-layout';
 import { LEGAL_DOC_IDS, readLegalFile } from '../../src/shop/legal/legal-docs';
@@ -63,7 +64,7 @@ describe('T-0387 legal pages in design M', () => {
 
   it('/legal/:doc renders version and effective badges from the registry file, contents from its headings', async () => {
     const app = express();
-    app.use(createLegalRouter({ db: {} as never }));
+    app.use(createLegalRouter({ db: fixtureDb(), now: () => Date.parse('2027-01-01T00:00:00Z') }));
     const server = app.listen(0);
     const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
     for (const id of LEGAL_DOC_IDS) {
