@@ -55,8 +55,6 @@ au-data-gov.dataset_detail	au-data-gov	0.002
 au-data-gov.dataset_search	au-data-gov	0.002
 au-data-gov.organization_search	au-data-gov	0.001
 au-data-gov.subject_list	au-data-gov	0.001
-audd.lyrics	audd	0.003
-audd.recognize	audd	0.007
 autodev.vin_decode	autodev	0.003
 aviasales.airport_lookup	aviasales	0.001
 aviasales.cheap_flights	aviasales	0.001
@@ -157,10 +155,10 @@ bundesbank-timeseries.data	bundesbank-timeseries	0.002
 bundesbank-timeseries.dataflows	bundesbank-timeseries	0.001
 bundesbank-timeseries.structure	bundesbank-timeseries	0.001
 calendarific.holidays	calendarific	0.002
-canopy.deals	canopy	0.012
-canopy.offers	canopy	0.012
-canopy.product	canopy	0.012
-canopy.search	canopy	0.012
+canopy.deals	canopy	0.013
+canopy.offers	canopy	0.013
+canopy.product	canopy	0.013
+canopy.search	canopy	0.013
 carbonintensity.current	carbon-intensity-uk	0.001
 carbonintensity.forecast	carbon-intensity-uk	0.001
 carbonintensity.generation	carbon-intensity-uk	0.001
@@ -235,6 +233,10 @@ cocktail.search	cocktaildb	0.001
 code.execute	judge0	0.005
 code.languages	judge0	0.001
 coingecko.get_market	coingecko	0.001
+col.children	col	0.001
+col.detail	col	0.001
+col.search	col	0.001
+col.suggest	col	0.001
 comtrade.availability	comtrade	0.001
 comtrade.metadata	comtrade	0.001
 comtrade.reporters	comtrade	0.001
@@ -385,7 +387,7 @@ eia.electricity_retail	eia	0.002
 eia.natural_gas	eia	0.002
 eia.petroleum_spot	eia	0.001
 eia.series	eia	0.002
-email.validate	zerobounce	0.025
+email.validate	zerobounce	0.026
 email_verify.check	email_verify	0.01
 emsc.event_detail	emsc	0.001
 emsc.search_earthquakes	emsc	0.002
@@ -1166,8 +1168,8 @@ swpc.solar_wind	swpc	0.001
 tatoeba.languages	tatoeba	0.001
 tatoeba.search	tatoeba	0.001
 tatoeba.sentence	tatoeba	0.001
-tavily.extract	tavily	0.01
-tavily.search	tavily	0.01
+tavily.extract	tavily	0.011
+tavily.search	tavily	0.011
 telegram.get_chat	telegram	0.001
 telegram.get_updates	telegram	0.001
 telegram.send_document	telegram	0.001
@@ -1177,7 +1179,7 @@ telnyx.balance	telnyx	0.001
 telnyx.estimate_price	telnyx	0.001
 telnyx.list_messages	telnyx	0.002
 telnyx.message_status	telnyx	0.001
-telnyx.send_sms_na	telnyx	0.012
+telnyx.send_sms_na	telnyx	0.016
 telnyx.send_sms_premium	telnyx	0.25
 telnyx.send_sms_world	telnyx	0.1
 tfl.arrivals	tfl	0.001
@@ -1230,7 +1232,7 @@ tvmaze.show_details	tvmaze	0.001
 tvmaze.show_episodes	tvmaze	0.001
 tvmaze.show_search	tvmaze	0.001
 twilio.lookup	twilio	0.005
-twilio.send_sms	twilio	0.015
+twilio.send_sms	twilio	0.02
 twitter.followers	twitterapi	0.003
 twitter.search	twitterapi	0.002
 twitter.trending	twitterapi	0.002

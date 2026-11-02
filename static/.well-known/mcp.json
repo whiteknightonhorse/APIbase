@@ -1,6 +1,6 @@
 {
   "name": "APIbase",
-  "description": "Unified MCP gateway to 1378 API tools from 398 providers. Pay-per-call via x402 USDC micropayments.",
+  "description": "Unified MCP gateway to 1380 API tools from 398 providers. Pay-per-call via x402 USDC micropayments.",
   "protocol": "MCP",
   "protocolVersion": "2025-11-25",
   "protocolVersions": [
@@ -15,7 +15,7 @@
   "version": "2.2.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
   "tools_manifest_url": "https://apibase.pro/api/v1/tools/manifest",
-  "tools_count": 1378,
+  "tools_count": 1380,
   "platform_tools_count": 29,
   "shop_tools_count": 25,
   "providers_count": 398,
@@ -33,7 +33,7 @@
     "stream_close_grace_s": 900,
     "sandbox_status": "Sandbox: https://sandbox.apibase.pro — the same image on Base Sepolia and Tempo testnet with its own database; register and run the connection check there first, then repeat on mainnet with the $0.01 test SKU."
   },
-  "categories_count": 25,
+  "categories_count": 24,
   "price_range_usd": {
     "min": 0.0005,
     "max": 29.99,
