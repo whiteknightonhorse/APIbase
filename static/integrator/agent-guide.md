@@ -40,13 +40,13 @@ Errors: `terms_not_accepted` (428, `docs[]` holds the current hashes), `merchant
 
 Call `PUT /api/v1/shop/merchants/me/catalog` with `Authorization: Bearer <api_key>` and `{items: [...]}` (MCP tool `shop.merchant.catalog_upsert`). Up to 500 items per call. Include exactly one test item: `sku: "__apibase_test"`, `is_test: true`, `price_usd: 0.01`. The reply lists `upserted`, `flagged` and `rejected`; a bad item never blocks the others.
 
-Errors: `terms_not_accepted` (428), `merchant_unavailable` (410), `category_prohibited` (an item in `rejected`).
+Errors: `terms_not_accepted` (428), `merchant_unavailable` (410), `merchant_inactive` (410), `category_prohibited` (an item in `rejected`).
 
 ## Step 5. webhook_set
 
 Call `PUT /api/v1/shop/merchants/me/webhooks` with `{url, events[]}` (MCP tool `shop.merchant.webhook_set`). The reply shows the `whsec_` signing secret once. Deliveries carry `X-APIbase-Signature: t=<unix>,v1=<hex>` where `v1` is HMAC-SHA256 of `t + "." + body` with that secret. Answer any 2xx within 10 seconds.
 
-Errors: `validation_failed` (422, for example a private address or a non-https URL), `merchant_unavailable` (410).
+Errors: `validation_failed` (422, for example a private address or a non-https URL), `merchant_unavailable` (410), `merchant_inactive` (410).
 
 ## Step 6. check
 
@@ -198,6 +198,10 @@ HTTP 400. Personal data was sent in the clear; the value is not echoed. Send it 
 ### `merchant_unavailable`
 
 HTTP 410 or 503. The shop is deactivated, suspended or temporarily unavailable. The reason is not disclosed.
+
+### `merchant_inactive`
+
+HTTP 410. The merchant key is suspended or deactivated: it can still read and close open orders, and every other write is refused. Details: /integrator/docs.
 
 ### `country_not_supported`
 
