@@ -39,7 +39,7 @@
     "mmdb-lib": "3.0.3",
     "mppx": "^0.15.0",
     "mppx-legacy": "npm:mppx@0.8.2",
-    "node-cron": "^3.0.3",
+    "node-cron": "^4.6.0",
     "pg": "^8.23.1",
     "pino": "^9.6.0",
     "pino-http": "^10.4.0",
