@@ -84,6 +84,37 @@ interface OpenApiPath {
   };
 }
 
+// T-0651: authorization is payment. Paid operations accept either rail; free and
+// platform operations are explicitly anonymous (`{}` = no credential required).
+const SECURITY_PAID: Array<Record<string, string[]>> = [{ x402Payment: [] }, { mppPayment: [] }];
+const SECURITY_ANON: Array<Record<string, string[]>> = [{}];
+const AUTH_IS_PAYMENT_SENTENCE =
+  'Authorization is payment: paid operations accept an x402 payload or an MPP credential; an API key is optional.';
+
+function buildSecuritySchemes(): Record<string, unknown> {
+  return {
+    x402Payment: {
+      type: 'apiKey',
+      in: 'header',
+      name: 'X-PAYMENT',
+      description:
+        'x402 v2 payment payload (USDC on Base, scheme exact). A call without it receives 402 with the challenge in the body; see x-payment-info on the operation.',
+    },
+    mppPayment: {
+      type: 'http',
+      scheme: 'Payment',
+      description:
+        'MPP credential (USDC.e on Tempo): Authorization: Payment <credential>, or Payment-Authorization when Authorization carries a Bearer key. A call without it receives 402 with WWW-Authenticate: Payment.',
+    },
+    BearerAuth: {
+      type: 'http',
+      scheme: 'bearer',
+      description:
+        'Optional. Identifies an agent (rate-limit tier, balance rail); it does not pay for a call.',
+    },
+  };
+}
+
 async function generate(): Promise<void> {
   const activeIds = await loadActiveToolIds();
   const activeDefs = TOOL_DEFINITIONS.filter((d) => activeIds.has(d.toolId));
@@ -108,6 +139,8 @@ async function generate(): Promise<void> {
       summary: 'List all available tools',
       description:
         'Returns the full catalog of tools available on the platform with pricing and metadata.',
+      'x-payment-required': false,
+      security: SECURITY_ANON,
       responses: {
         '200': { description: 'Tool catalog' },
       },
@@ -165,6 +198,8 @@ async function generate(): Promise<void> {
           schema: { type: 'boolean', default: false },
         },
       ],
+      'x-payment-required': false,
+      security: SECURITY_ANON,
       responses: {
         '200': { description: 'Ranked discovery results' },
       },
@@ -198,6 +233,8 @@ async function generate(): Promise<void> {
           },
         },
       },
+      'x-payment-required': false,
+      security: SECURITY_ANON,
       responses: {
         '201': { description: 'Agent registered successfully' },
         '400': { description: 'Invalid request' },
@@ -268,11 +305,16 @@ async function generate(): Promise<void> {
       ],
     };
 
+    const paymentRequired = price > 0;
+    const opSecurity = paymentRequired ? SECURITY_PAID : SECURITY_ANON;
+
     discoveryPaths[`/api/v1/tools/${def.toolId}/call`] = {
       post: {
         operationId: def.toolId.replace(/\./g, '_'),
         summary: def.title || def.description,
         'x-payment-info': flatPaymentInfo,
+        'x-payment-required': paymentRequired,
+        security: opSecurity,
         requestBody: { $ref: '#/components/requestBodies/ToolRequest' },
         responses: {
           '200': { $ref: '#/components/responses/ToolResult' },
@@ -286,7 +328,10 @@ async function generate(): Promise<void> {
         operationId,
         summary: def.title || def.description,
         description: def.description,
-        ...({ 'x-payment-info': xPaymentInfo } as Record<string, unknown>),
+        ...({
+          'x-payment-info': xPaymentInfo,
+          'x-payment-required': paymentRequired,
+        } as Record<string, unknown>),
         parameters: [
           {
             name: 'toolId',
@@ -313,7 +358,7 @@ async function generate(): Promise<void> {
           '500': { description: 'Internal server error' },
           '502': { description: 'Provider unavailable' },
         },
-        security: [{ BearerAuth: [] }],
+        security: opSecurity,
       },
     };
 
@@ -326,7 +371,8 @@ async function generate(): Promise<void> {
       title: 'APIbase — Universal API Hub for AI Agents',
       version: PACKAGE_VERSION,
       description:
-        'APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint. Supports dual-rail payments: x402 (USDC on Base) and MPP (USDC.e on Tempo).',
+        AUTH_IS_PAYMENT_SENTENCE +
+        ' APIbase aggregates, normalizes, and provides APIs from hundreds of businesses in a unified format optimized for AI agent consumption. Search flights, trade prediction markets, check weather, and more — all via a single REST API or MCP endpoint. Supports dual-rail payments: x402 (USDC on Base) and MPP (USDC.e on Tempo).',
       'x-guidance':
         'Use POST /api/v1/tools/{tool_id}/call to invoke any tool. Send Authorization: Bearer <api_key> header. Tool catalog at GET /api/v1/tools. MCP endpoint at /mcp. Payment: 402 responses include both x402 body and WWW-Authenticate: Payment header (MPP). Agent auto-registers on first request.',
       contact: {
@@ -344,14 +390,9 @@ async function generate(): Promise<void> {
       },
     ],
     components: {
-      securitySchemes: {
-        BearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          description: 'API key (ak_live_...) obtained from /api/v1/agents/register',
-        },
-      },
+      securitySchemes: buildSecuritySchemes(),
     },
+    security: SECURITY_ANON,
     paths,
     externalDocs: {
       description: 'MCP Server Manifest',
@@ -380,7 +421,9 @@ async function generate(): Promise<void> {
       },
     },
     servers: doc.servers,
+    security: SECURITY_ANON,
     components: {
+      securitySchemes: buildSecuritySchemes(),
       requestBodies: {
         ToolRequest: {
           required: true,
