@@ -255,7 +255,10 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       execution_id: entry.executionId,
       agent_id: entry.agentId,
       tool_id: entry.toolId,
-      status: notCharged ?? (blocked ? 'blocked' : 'success'),
+      // T-0601: `status` is CHECK-constrained; only 'provider_input_rejected' is a status value.
+      // Other not-charged reasons (e.g. 'dedup_hit', T-0526) are a served 'success' with billing NOT_CHARGED.
+      status:
+        notCharged === 'provider_input_rejected' ? notCharged : blocked ? 'blocked' : 'success',
       billing_status: notCharged ? 'NOT_CHARGED' : 'PAID',
       cost_usd: notCharged ? 0 : entry.cost,
       payer: entry.payer,

@@ -119,6 +119,15 @@ export const ledgerPaidWithoutEscrowTotal = new client.Counter({
   registers: [register],
 });
 
+// T-0601: LEDGER_WRITE threw after the payer's money moved (settled / pending / MPP charged).
+// The result was delivered and an outbox row `ledger.write_failed` was booked. Expected to stay 0.
+export const ledgerWriteFailedAfterSettleTotal = new client.Counter({
+  name: 'apibase_ledger_write_failed_after_settle_total',
+  help: 'LEDGER_WRITE exceptions after a successful settle (result delivered, outbox row booked)',
+  labelNames: ['rail'] as const,
+  registers: [register],
+});
+
 export const providerErrorsTotal = new client.Counter({
   name: 'provider_errors_total',
   help: 'Total provider errors',

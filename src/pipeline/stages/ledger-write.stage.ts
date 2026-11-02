@@ -8,7 +8,12 @@ import {
 } from '../../services/ledger.service';
 import { getX402Config } from '../../config/x402.config';
 import { logger } from '../../config/logger';
-import { ledgerPaidWithoutEscrowTotal } from '../../services/metrics.service';
+import { getPrisma } from '../../services/prisma.service';
+import {
+  ledgerPaidWithoutEscrowTotal,
+  ledgerWriteFailedAfterSettleTotal,
+} from '../../services/metrics.service';
+import type { PipelineContext } from '../types';
 
 /**
  * LEDGER_WRITE stage (§12.43 stage 11, §12.151, §AP-9).
@@ -21,10 +26,69 @@ import { ledgerPaidWithoutEscrowTotal } from '../../services/metrics.service';
  *
  * Invariant: every execution produces exactly one ledger row.
  */
+/**
+ * T-0601: money already moved (x402 settled or pending, or MPP charged at the middleware) when the
+ * ledger write threw. Never answer a bare 500 for a payer who was charged: log, count, book an
+ * outbox row `ledger.write_failed` for the chain reconcile, and let the response deliver the result.
+ */
+function moneyMoved(ctx: PipelineContext): boolean {
+  if (ctx.x402Paid) return ctx.x402SettleSucceeded === true || ctx.x402SettleState === 'pending';
+  return ctx.mppPaid === true && ctx.billingStatus === 'PAID';
+}
+
+async function recordLedgerWriteFailedAfterSettle(ctx: PipelineContext, e: unknown): Promise<void> {
+  const rail = ctx.x402Paid ? 'x402' : 'mpp';
+  const payer = ctx.x402Paid ? ctx.x402Payer : (ctx.mppPayer ?? 'tempo-agent');
+  logger.error(
+    {
+      event: 'ledger_write_failed_after_settle',
+      request_id: ctx.requestId,
+      tool_id: ctx.toolId,
+      rail,
+      err: e,
+    },
+    'ledger write failed after a successful settle -- result still delivered, reconcile will book it',
+  );
+  ledgerWriteFailedAfterSettleTotal.inc({ rail });
+  try {
+    await getPrisma().outbox.create({
+      data: {
+        event_type: 'ledger.write_failed',
+        payload: {
+          request_id: ctx.requestId,
+          execution_id: ctx.executionId,
+          tool_id: ctx.toolId,
+          rail,
+          payer,
+          tx_hash: ctx.x402Paid ? ctx.x402SettleTxHash : undefined,
+          amount_usd: ctx.finalCost ?? ctx.toolPrice,
+        },
+      },
+    });
+  } catch (outboxErr) {
+    logger.error(
+      { request_id: ctx.requestId, err: outboxErr },
+      'ledger.write_failed outbox row FAILED to write -- reconcile will miss this one',
+    );
+  }
+}
+
 export const ledgerWriteStage: Stage = {
   name: 'LEDGER_WRITE',
 
   async execute(ctx) {
+    try {
+      return await executeLedgerWrite(ctx);
+    } catch (e) {
+      if (!moneyMoved(ctx)) throw e;
+      await recordLedgerWriteFailedAfterSettle(ctx, e);
+      return ok(ctx);
+    }
+  },
+};
+
+async function executeLedgerWrite(ctx: PipelineContext): ReturnType<Stage['execute']> {
+  {
     // Escrowed request: ledger already written by ESCROW_FINALIZE (§12.151)
     if (ctx.escrowId) {
       ctx.ledgerWritten = true;
@@ -168,5 +232,5 @@ export const ledgerWriteStage: Stage = {
     ledgerPaidWithoutEscrowTotal.inc({ rail });
     ctx.ledgerWritten = true;
     return ok(ctx);
-  },
-};
+  }
+}

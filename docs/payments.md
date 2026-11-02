@@ -23,7 +23,7 @@ Primary path: the self-hosted facilitator. PayAI is wired as a fallback used onl
 
 Order of events on a paid x402 call stays **verify before, deliver, settle after**: the payment is
 verified and bound to the tool price before the provider is called, the result is delivered, and the
-on-chain settle runs afterwards. Every 402 response carries `Cache-Control: no-store`.
+on-chain settle runs afterwards. If the ledger write fails after a successful settle, the result is still delivered and the row is booked by the reconcile job from the `ledger.write_failed` outbox event. Every 402 response carries `Cache-Control: no-store`.
 
 ### Dedup window (T-0526)
 
