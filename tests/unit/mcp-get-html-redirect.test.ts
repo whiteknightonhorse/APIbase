@@ -54,8 +54,33 @@ describe('T-0491 GET /mcp browser redirect', () => {
     });
   });
 
-  it('no Accept header -> 400 unchanged', async () => {
+  it('no Accept header -> 200 JSON server card', async () => {
     const res = await get({});
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toContain('application/json');
+    expect(res.headers.get('cache-control')).toBe('no-store');
+    const body = await res.json();
+    expect(body.name).toBe('APIbase');
+    expect(body.connect).toEqual(expect.any(String));
+    expect(Array.isArray(body.protocolVersions)).toBe(true);
+  });
+
+  it('Accept */* -> 200', async () => {
+    expect((await get({ accept: '*/*' })).status).toBe(200);
+  });
+
+  it('Accept application/json -> 200', async () => {
+    expect((await get({ accept: 'application/json' })).status).toBe(200);
+  });
+
+  it('HEAD with no Accept -> 200 and empty body', async () => {
+    const res = await fetch(`${base}/mcp`, { method: 'HEAD', redirect: 'manual' });
+    expect(res.status).toBe(200);
+    expect(await res.text()).toBe('');
+  });
+
+  it('Accept application/json, text/event-stream without a session -> 400', async () => {
+    const res = await get({ accept: 'application/json, text/event-stream' });
     expect(res.status).toBe(400);
   });
 });

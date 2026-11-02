@@ -29,7 +29,7 @@ import { registerTools, type PaymentContext } from './tool-adapter';
 import { withZod3ToolSchemas } from './zod3-tool-schema';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
-import { withListCacheHints } from './list-cache';
+import { withListCacheHints, NEGOTIATED_PROTOCOL_VERSIONS } from './list-cache';
 import { registerCatalogTools } from '../shop/tools/catalog.tools';
 import { registerOrderTools } from '../shop/tools/order.tools';
 import { geoOf } from '../shop/geo-headers';
@@ -339,6 +339,7 @@ async function openStreamableSession(
  * Streamable HTTP (primary):
  *   POST   /mcp — JSON-RPC messages (initialize creates session)
  *   GET    /mcp — SSE subscription for server-initiated notifications
+ *            GET /mcp without a session and without Accept text/event-stream -> 200 server card (health checkers); with text/event-stream -> 400 (session required)
  *   DELETE /mcp — close session
  *
  * SSE (deprecated, backward compat):
@@ -417,6 +418,25 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
         req.accepts(['text/event-stream', 'application/json', 'text/html']) === 'text/html'
       ) {
         res.redirect(302, '/connect');
+        return;
+      }
+      // No session and no text/event-stream in Accept: not an MCP request (health checkers).
+      const acceptHeader: unknown = req.headers.accept;
+      if (
+        !sessionId &&
+        !(typeof acceptHeader === 'string' && acceptHeader.includes('text/event-stream'))
+      ) {
+        res.status(200).set('Cache-Control', 'no-store').json({
+          name: SERVER_INFO.name,
+          version: SERVER_INFO.version,
+          transport: 'streamable-http',
+          endpoint: 'https://apibase.pro/mcp',
+          protocolVersions: NEGOTIATED_PROTOCOL_VERSIONS,
+          connect:
+            'POST /mcp with a JSON-RPC initialize request and Accept: application/json, text/event-stream; then send Mcp-Session-Id on every request',
+          manifest: 'https://apibase.pro/.well-known/mcp.json',
+          registration: 'https://apibase.pro/.well-known/agent-registration.json',
+        });
         return;
       }
       if (!sessionId) {
