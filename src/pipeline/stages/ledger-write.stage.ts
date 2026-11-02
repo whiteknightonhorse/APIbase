@@ -33,6 +33,7 @@ import type { PipelineContext } from '../types';
  */
 function moneyMoved(ctx: PipelineContext): boolean {
   if (ctx.x402Paid) return ctx.x402SettleSucceeded === true || ctx.x402SettleState === 'pending';
+  // Note: escrow-finalize also sets PAID on a provider failure with a refund-owed outbox row; a ledger failure there books a second outbox row for the same request (harmless).
   return ctx.mppPaid === true && ctx.billingStatus === 'PAID';
 }
 
@@ -47,7 +48,7 @@ async function recordLedgerWriteFailedAfterSettle(ctx: PipelineContext, e: unkno
       rail,
       err: e,
     },
-    'ledger write failed after a successful settle -- result still delivered, reconcile will book it',
+    'ledger write failed after a successful settle -- result still delivered, outbox row ledger.write_failed recorded',
   );
   ledgerWriteFailedAfterSettleTotal.inc({ rail });
   try {
@@ -68,7 +69,7 @@ async function recordLedgerWriteFailedAfterSettle(ctx: PipelineContext, e: unkno
   } catch (outboxErr) {
     logger.error(
       { request_id: ctx.requestId, err: outboxErr },
-      'ledger.write_failed outbox row FAILED to write -- reconcile will miss this one',
+      'ledger.write_failed outbox row FAILED to write -- this failure is unrecorded',
     );
   }
 }
