@@ -245,6 +245,14 @@ export const x402LocalSettleTotal = new client.Counter({
   registers: [register],
 });
 
+/** T-0658: settles whose outcome is unknown and held for the chain reconcile, by why. */
+export const x402SettleUnknownTotal = new client.Counter({
+  name: 'x402_settle_unknown_total',
+  help: 'x402 settles recorded as pending (outcome unknown) instead of failed',
+  labelNames: ['kind'] as const, // timeout | thrown_unknown | settlement_pending | verify_rpc_retry | verify_rpc_pending
+  registers: [register],
+});
+
 export const x402LocalSettleDurationSeconds = new client.Histogram({
   name: 'x402_local_settle_duration_seconds',
   help: 'x402 local-facilitator settle duration in seconds, by outcome',

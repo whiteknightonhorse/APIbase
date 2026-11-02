@@ -125,3 +125,112 @@ describe('settleX402 unknown outcomes (T-0428)', () => {
     expect(types).toEqual(['x402_settle_failed', 'x402_settle_failed']);
   });
 });
+
+describe('settleX402 unknown vs known failures (T-0658)', () => {
+  const events = () => mockOutboxCreate.mock.calls.map((c) => c[0].data.event_type);
+  const future = () => String(Math.floor(Date.now() / 1000) + 120);
+  beforeEach(() => {
+    mockOutboxCreate.mockReset();
+    mockSettlePayment.mockReset();
+    const { decodePaymentSignatureHeader } = jest.requireMock('@x402/core/http');
+    decodePaymentSignatureHeader.mockReturnValue('decoded');
+    (parsePaymentPayload as jest.Mock).mockImplementation(() => ({
+      success: true,
+      data: {
+        scheme: 'exact',
+        payload: { authorization: { nonce: '0xnonce', validBefore: future() } },
+      },
+    }));
+    (isPaymentPayloadV1 as unknown as jest.Mock).mockReturnValue(false);
+    (getX402Config as jest.Mock).mockReturnValue({ network: 'eip155:8453' });
+    (buildServerX402Requirements as jest.Mock).mockReturnValue({});
+    (getSharedResourceServer as jest.Mock).mockReturnValue({ settlePayment: mockSettlePayment });
+  });
+
+  it('suffixed transaction_failed -> one pending row with nonce and validBefore, no failed row', async () => {
+    mockSettlePayment.mockResolvedValue({
+      success: false,
+      errorReason: 'invalid_exact_evm_transaction_failed: request timed out',
+    });
+    await settleX402(paidCtx());
+    expect(events()).toEqual(['x402_settle_pending']);
+    const p = mockOutboxCreate.mock.calls[0][0].data.payload;
+    expect(p.nonce).toBe('0xnonce');
+    expect(p.valid_before).toBeDefined();
+  });
+
+  it('bare transaction_failed stays failed', async () => {
+    mockSettlePayment.mockResolvedValue({
+      success: false,
+      errorReason: 'invalid_exact_evm_transaction_failed',
+    });
+    await settleX402(paidCtx());
+    expect(events()).toEqual(['x402_settle_failed']);
+  });
+
+  it('settle_threw with a timeout message -> pending; another message -> failed', async () => {
+    mockSettlePayment.mockRejectedValueOnce(new Error('fetch failed: ETIMEDOUT'));
+    await settleX402(paidCtx());
+    mockSettlePayment.mockRejectedValueOnce(new Error('boom'));
+    await settleX402(paidCtx());
+    expect(events()).toEqual(['x402_settle_pending', 'x402_settle_failed']);
+  });
+
+  it('signature verdict once then success -> settled, no failed/pending row (one retry)', async () => {
+    jest.useFakeTimers();
+    try {
+      mockSettlePayment
+        .mockResolvedValueOnce({ success: false, errorReason: 'invalid_exact_evm_signature' })
+        .mockResolvedValueOnce({ success: true, transaction: '0xtx' });
+      const c = paidCtx();
+      const p = settleX402(c);
+      await jest.advanceTimersByTimeAsync(2500);
+      await p;
+      expect(mockSettlePayment).toHaveBeenCalledTimes(2);
+      expect(c.x402SettleSucceeded).toBe(true);
+      expect(events()).toEqual([]);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('signature verdict twice -> one pending row without tx_hash, no failed row', async () => {
+    jest.useFakeTimers();
+    try {
+      mockSettlePayment.mockResolvedValue({
+        success: false,
+        errorReason: 'invalid_exact_evm_signature',
+      });
+      const p = settleX402(paidCtx());
+      await jest.advanceTimersByTimeAsync(2500);
+      await p;
+      expect(mockSettlePayment).toHaveBeenCalledTimes(2);
+      expect(events()).toEqual(['x402_settle_pending']);
+      expect(mockOutboxCreate.mock.calls[0][0].data.payload.tx_hash).toBeUndefined();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('signature verdict with validBefore in 5 s -> pending immediately, settle called once', async () => {
+    (parsePaymentPayload as jest.Mock).mockImplementation(() => ({
+      success: true,
+      data: {
+        scheme: 'exact',
+        payload: {
+          authorization: {
+            nonce: '0xnonce',
+            validBefore: String(Math.floor(Date.now() / 1000) + 5),
+          },
+        },
+      },
+    }));
+    mockSettlePayment.mockResolvedValue({
+      success: false,
+      errorReason: 'invalid_exact_evm_signature',
+    });
+    await settleX402(paidCtx());
+    expect(mockSettlePayment).toHaveBeenCalledTimes(1);
+    expect(events()).toEqual(['x402_settle_pending']);
+  });
+});

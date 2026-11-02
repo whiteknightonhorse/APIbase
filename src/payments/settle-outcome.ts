@@ -43,3 +43,39 @@ export function settleTxHash(result: unknown): string | undefined {
   const t = (result as { transaction?: unknown } | null)?.transaction;
   return typeof t === 'string' && t.length > 0 ? t : undefined;
 }
+
+/**
+ * T-0658: classify a settle FAILURE (`success:false` or a throw) by what it tells us about the chain.
+ * - 'pending': outcome unknown, the chain reconcile decides. Two SDK meanings of
+ *   `invalid_exact_evm_transaction_failed` (@x402/evm exact/facilitator/index.js): bare (:1231,
+ *   receipt reverted / Transfer mismatch) is KNOWN failed; suffixed `: <message>` from
+ *   mapSettleError (:1492-1516) is an exception while broadcasting/waiting, so the tx may have landed.
+ *   Also a `settle_threw` whose message is a timeout/transport error.
+ * - 'retry': settle-time `invalid_exact_evm_signature` after a verify that passed at ESCROW is an RPC
+ *   verdict (getCode error, :659-666), nothing was broadcast; one retry is allowed when the
+ *   validBefore window has >= 15 s left and the failed attempt returned in < 10 s. Otherwise 'pending'.
+ * - 'failed': everything else.
+ */
+export type SettleVerdict = 'retry' | 'pending' | 'failed';
+export const UNKNOWN_THROWN_RE = /^invalid_exact_evm_transaction_failed:\s/;
+const TRANSPORT_RE = /timeout|timed out|ETIMEDOUT|ECONNRESET|fetch failed/i;
+
+export function settleOutcomeIsUnknown(
+  reason: unknown,
+  message: unknown,
+  opts: { validBeforeSec?: number; nowSec?: number; elapsedMs?: number; retried?: boolean } = {},
+): SettleVerdict {
+  const r = typeof reason === 'string' ? reason : '';
+  const m = typeof message === 'string' ? message : '';
+  if (UNKNOWN_THROWN_RE.test(r)) return 'pending';
+  if (r === 'settle_threw' && TRANSPORT_RE.test(m)) return 'pending';
+  if (r === 'invalid_exact_evm_signature') {
+    const left =
+      opts.validBeforeSec !== undefined && opts.nowSec !== undefined
+        ? opts.validBeforeSec - opts.nowSec
+        : -1;
+    const fast = opts.elapsedMs !== undefined && opts.elapsedMs < 10_000;
+    return !opts.retried && left >= 15 && fast ? 'retry' : 'pending';
+  }
+  return 'failed';
+}

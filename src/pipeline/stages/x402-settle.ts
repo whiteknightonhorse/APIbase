@@ -31,11 +31,13 @@ import { toolSchemas } from '../../schemas/index';
 import { zodToJsonSchema } from '../../utils/zod-to-json-schema';
 import { logger } from '../../config/logger';
 import { getPrisma } from '../../services/prisma.service';
+import { x402SettleUnknownTotal } from '../../services/metrics.service';
 import type { PipelineContext } from '../types';
 import {
   extractAuthorization,
   isFacilitatorTimeout,
   isSettlementPending,
+  settleOutcomeIsUnknown,
   settleTxHash,
 } from '../../payments/settle-outcome';
 
@@ -158,6 +160,7 @@ function lookupToolDescription(toolId: string): string {
  * not a user-facing error.
  */
 export async function settleX402(ctx: PipelineContext): Promise<void> {
+  let authz: ReturnType<typeof extractAuthorization>;
   if (!ctx.x402PaymentHeader) return;
   // Free tools never settle on-chain — guard against an amount:0
   // transferWithAuthorization (issue #103 red-team).
@@ -177,6 +180,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
     const payload = parsed.data;
     const cfg = getX402Config();
     const auth = extractAuthorization(payload);
+    authz = auth;
 
     let requirements: {
       scheme: string;
@@ -250,8 +254,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       const inputSchema = toolZodSchema ? zodToJsonSchema(toolZodSchema) : { type: 'object' };
       bazaarExtensions = buildBazaarExtensions(ctx.toolId, inputSchema);
       const bazaarExt = bazaarExtensions[bazaarMod.BAZAAR.key] as
-        | { info: unknown; schema: unknown }
-        | undefined;
+        { info: unknown; schema: unknown } | undefined;
       if (bazaarExt) {
         const validation = bazaarValidateDiscoveryExtension(bazaarExt);
         if (!validation.valid) {
@@ -265,17 +268,32 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
 
     let result: Awaited<ReturnType<typeof server.settlePayment>>;
     try {
-      result = await server.settlePayment(
-        payload as never,
-        requirements as never,
-        bazaarExtensions as never,
-      );
+      const attempt = (): ReturnType<typeof server.settlePayment> =>
+        server.settlePayment(payload as never, requirements as never, bazaarExtensions as never);
+      const t0 = Date.now();
+      result = await attempt();
+      // T-0658 (REFUND-WALLET-1026 ruling-3): settle-time signature verdict after a passed verify
+      // is an RPC failure; one retry inside the validBefore window, same payload.
+      const r0 = result as unknown as Record<string, unknown>;
+      if (
+        !result.success &&
+        settleOutcomeIsUnknown(r0.errorReason ?? r0.error, result.errorMessage, {
+          validBeforeSec: Number(auth?.validBefore),
+          nowSec: Math.floor(Date.now() / 1000),
+          elapsedMs: Date.now() - t0,
+        }) === 'retry'
+      ) {
+        x402SettleUnknownTotal.inc({ kind: 'verify_rpc_retry' });
+        await new Promise((res) => setTimeout(res, 2000));
+        result = await attempt();
+      }
     } catch (e) {
       if (!isFacilitatorTimeout(e)) throw e;
       logger.warn(
         { requestId: ctx.requestId, error: (e as Error).message },
         'x402 settle: facilitator timed out — outcome unknown, chain reconcile decides',
       );
+      x402SettleUnknownTotal.inc({ kind: 'timeout' });
       await recordSettlePending(ctx, { nonce: auth?.nonce, validBefore: auth?.validBefore });
       return;
     }
@@ -285,6 +303,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
         { requestId: ctx.requestId, txHash: settleTxHash(result) },
         'x402 settle: settlement_pending — broadcast, receipt not seen; chain reconcile decides',
       );
+      x402SettleUnknownTotal.inc({ kind: 'settlement_pending' });
       await recordSettlePending(ctx, {
         txHash: settleTxHash(result),
         nonce: auth?.nonce,
@@ -309,6 +328,8 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       // making the revenue-leak alert (F1/C-7) undiagnosable.
       const resultAny = result as unknown as Record<string, unknown>;
       const errorReason = resultAny.errorReason ?? resultAny.error;
+      const verdict = settleOutcomeIsUnknown(errorReason, result.errorMessage);
+      const sigRpc = errorReason === 'invalid_exact_evm_signature';
       logger.warn(
         {
           requestId: ctx.requestId,
@@ -319,6 +340,18 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
         },
         'x402 settle: settlement returned failure',
       );
+      if (verdict === 'pending' || sigRpc) {
+        // Signature after a passed verify = RPC verdict (retry already spent or guard failed).
+        logger.warn(
+          { requestId: ctx.requestId, errorReason },
+          sigRpc
+            ? 'x402 settle: signature verdict after passed verify = RPC failure, chain reconcile decides'
+            : `x402 settle: outcome unknown (${String(errorReason)}), chain reconcile decides`,
+        );
+        x402SettleUnknownTotal.inc({ kind: sigRpc ? 'verify_rpc_pending' : 'thrown_unknown' });
+        await recordSettlePending(ctx, { nonce: auth?.nonce, validBefore: auth?.validBefore });
+        return;
+      }
       await recordSettleFailure(
         ctx,
         `settle_returned_failure: ${String(errorReason ?? result.errorMessage ?? 'unknown')}`,
@@ -329,6 +362,15 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       { requestId: ctx.requestId, error: (error as Error).message },
       'x402 settle: settlement call failed (best-effort)',
     );
+    if (settleOutcomeIsUnknown('settle_threw', (error as Error).message) === 'pending') {
+      logger.warn(
+        { requestId: ctx.requestId },
+        'x402 settle: outcome unknown (settle_threw transport error), chain reconcile decides',
+      );
+      x402SettleUnknownTotal.inc({ kind: 'timeout' });
+      await recordSettlePending(ctx, { nonce: authz?.nonce, validBefore: authz?.validBefore });
+      return;
+    }
     ctx.x402SettleSucceeded = false;
     await recordSettleFailure(ctx, `settle_threw: ${(error as Error).message}`);
   }

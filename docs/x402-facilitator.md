@@ -101,6 +101,16 @@ Solution: **Redis SETNX lock per operator address**, TTL 60s. Settle calls seria
 
 The SDK's `x402ResourceServer` does **not** iterate fallback clients automatically — it picks the first client that supports the `(version, network, scheme)` tuple. So our `LocalFacilitatorClient` does its own internal fallback: if local verify or settle throws, it delegates to a `HTTPFacilitatorClient` pointed at PayAI. This catches transient RPC outages without exposing fallback complexity to the SDK consumer.
 
+Settle failure table (what each result becomes in the ledger):
+
+| Result from settle | Recorded as | Why |
+|---|---|---|
+| `invalid_exact_evm_transaction_failed` (bare) | `x402_settle_failed` | the receipt says reverted: a reverted transaction is the only known failure |
+| `invalid_exact_evm_transaction_failed: <message>`, or a timeout (`settle_threw`, `FacilitatorTimeoutError`) | `x402_settle_pending` | the broadcast result is unknown (RPC timeout); it is held as pending and decided from the chain within minutes |
+| `invalid_exact_evm_signature` after a verify that passed | one retry within the validBefore window, then `x402_settle_pending` | rpc verdict: settle re-runs verify and a `getCode` RPC error reads as a bad signature; nothing was broadcast, the chain reconcile decides |
+
+Metric: `x402_settle_unknown_total{kind}`, kind in `timeout`, `thrown_unknown`, `settlement_pending`, `verify_rpc_retry`, `verify_rpc_pending`.
+
 ### Cost
 
 | Component | Cost per settle |
