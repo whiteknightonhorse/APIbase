@@ -1,16 +1,16 @@
 {
   "platform": "APIbase",
   "version": "2.2.0",
-  "updated_at": "2026-11-01T00:00:00Z",
-  "tools_count": 1373,
-  "providers_count": 397,
+  "updated_at": "2026-11-02T00:00:00Z",
+  "tools_count": 1378,
+  "providers_count": 398,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1373 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1378 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -87,8 +87,8 @@
     },
     {
       "name": "space",
-      "tools": 47,
-      "providers": "Celestrak, Cernopendata, Copernicus Sentinel, Firms, Iss, Jpl, Launch Library 2, NASA Cmr, Nasaexoplanet, Nasantrs, Solar, Sunrisesunset, Swpc, Usno",
+      "tools": 52,
+      "providers": "Celestrak, Cernopendata, Copernicus Sentinel, Firms, Iss, Jpl, Launch Library 2, NASA, NASA Cmr, Nasaexoplanet, Nasantrs, Solar, Sunrisesunset, Swpc, Usno",
       "examples": "Call apibase.discover with category=\"space\" for the current tool list and descriptions."
     },
     {

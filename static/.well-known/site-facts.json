@@ -652,6 +652,11 @@
     "namesilo.domain_list": "healthy",
     "namesilo.domain_register": "healthy",
     "namesilo.get_prices": "healthy",
+    "nasa.apod": "healthy",
+    "nasa.donki_flr": "healthy",
+    "nasa.epic": "healthy",
+    "nasa.image_search": "healthy",
+    "nasa.neo_feed": "healthy",
     "nasaexoplanet.habitable": "healthy",
     "nasaexoplanet.planet_detail": "healthy",
     "nasaexoplanet.search": "healthy",
@@ -1196,7 +1201,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 397,
+  "providers_count": 398,
   "rails": [
     "x402",
     "mpp",
@@ -1230,7 +1235,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1346,
+      "count": 1351,
       "max_usd": 0.008
     },
     "premium": {
@@ -1244,6 +1249,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1373,
+  "tools_count": 1378,
   "version": "2.2.0"
 }
