@@ -1,3 +1,4 @@
+import '../utils/zod3-errors'; // zod 3 validation wording, before any schema parses (T-0603 R2)
 import Redis from 'ioredis';
 import {
   registerJob as registerJobTracked,

@@ -1,0 +1,3214 @@
+{
+ "_comment": "T-0603 R2: client-visible validation errors captured under zod 3.25.76 at ed21b180 (stage = 400 code, message, SCHEMA_VALIDATION issues, precheck issues; mcp = SDK InvalidParams text). Selected from a 239922-case battery: up to two cases per distinct message/code pattern plus fixed tools with unions, enum order and an empty shape.",
+ "cases": {
+  "mcp rawg.games.screenshots {\"id\":null,\"page\":null,\"page_size\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.screenshots: Expected number, received null at page\nExpected number, received null at page_size\nInvalid input at id",
+  "mcp email.transactional.send {\"to\":\"x\",\"subject\":\"x\",\"text\":\"x\",\"html\":\"x\",\"from\":\"x\",\"reply_to\":\"x\"}": "MCP error -32602: Input validation error: Invalid arguments for tool email.transactional.send: Invalid email at reply_to\nInvalid email at to",
+  "mcp f1.races.results {\"season\":null,\"round\":null,\"limit\":null,\"offset\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool f1.races.results: Expected number, received null at limit\nExpected number, received null at offset\nInvalid input at season\nInvalid input at round",
+  "mcp statcan.catalogue.search {\"query\":null,\"subject_code\":null,\"archived\":null,\"limit\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool statcan.catalogue.search: Expected string, received null at query\nExpected string, received null at subject_code\nExpected number, received null at limit\nInvalid input at archived",
+  "mcp translate.text.translate {\"text\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.translate: Required at target\nInvalid input at text",
+  "mcp rawg.games.details {\"id\":1.5}": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.details: Expected integer, received float at id",
+  "stage rawg.game_details {\"id\":1.5}": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "id",
+     "message": "Expected integer, received float",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "id",
+     "message": "Expected integer, received float",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "mcp shop.merchant.deactivate \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool shop.merchant.deactivate: Invalid input: expected object, received string",
+  "stage weather.compare {\"locations\":[1.5]}": [
+   400,
+   "Request body validation failed. Expected params: locations, units",
+   [
+    {
+     "path": "locations",
+     "message": "Array must contain at least 2 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "locations.0",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "locations",
+     "message": "Array must contain at least 2 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "locations.0",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage weather.compare {\"locations\":\"x\"}": [
+   400,
+   "Request body validation failed. Expected params: locations, units",
+   [
+    {
+     "path": "locations",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "locations",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage aster.order_book {\"limit\":1.5}": [
+   400,
+   "Request body validation failed. Expected params: symbol, limit",
+   [
+    {
+     "path": "symbol",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "limit",
+     "message": "Expected integer, received float",
+     "code": "invalid_type"
+    },
+    {
+     "path": "limit",
+     "message": "Number must be greater than or equal to 5",
+     "code": "too_small"
+    }
+   ],
+   [
+    {
+     "path": "symbol",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "limit",
+     "message": "Expected integer, received float",
+     "code": "invalid_type"
+    },
+    {
+     "path": "limit",
+     "message": "Number must be greater than or equal to 5",
+     "code": "too_small"
+    }
+   ]
+  ],
+  "mcp aster.markets.orderbook {\"limit\":1.5}": "MCP error -32602: Input validation error: Invalid arguments for tool aster.markets.orderbook: Required at symbol\nExpected integer, received float at limit\nNumber must be greater than or equal to 5 at limit",
+  "stage nwis.daily_values {\"parameter_cd\":\"x\"}": [
+   400,
+   "Request body validation failed. Expected params: site_no, start_date, end_date, parameter_cd",
+   [
+    {
+     "path": "site_no",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "parameter_cd",
+     "message": "Invalid enum value. Expected '00060' | '00065' | '00010' | '00095' | '63680', received 'x'",
+     "code": "invalid_enum_value"
+    }
+   ],
+   [
+    {
+     "path": "site_no",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "parameter_cd",
+     "message": "Invalid enum value. Expected '00060' | '00065' | '00010' | '00095' | '63680', received 'x'",
+     "code": "invalid_enum_value"
+    }
+   ]
+  ],
+  "stage tides.predictions {\"interval\":\"x\"}": [
+   400,
+   "Request body validation failed. Expected params: station, begin_date, end_date, interval, datum, units",
+   [
+    {
+     "path": "station",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "begin_date",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_date",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "interval",
+     "message": "Invalid enum value. Expected 'hilo' | 'h' | '6', received 'x'",
+     "code": "invalid_enum_value"
+    }
+   ],
+   [
+    {
+     "path": "station",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "begin_date",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_date",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "interval",
+     "message": "Invalid enum value. Expected 'hilo' | 'h' | '6', received 'x'",
+     "code": "invalid_enum_value"
+    }
+   ]
+  ],
+  "stage aviasales.search_flights {\"currency\":[\"x\"]}": [
+   400,
+   "Request body validation failed. Expected params: origin, destination, departure_date, direct_only, currency, limit",
+   [
+    {
+     "path": "origin",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "currency",
+     "message": "Expected string, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "origin",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "currency",
+     "message": "Expected string, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "mcp abr.business.abn_lookup \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Expected object, received string",
+  "mcp abr.business.abn_lookup []": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Expected object, received array",
+  "mcp abr.business.abn_lookup null": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Required at abn",
+  "mcp abr.business.abn_lookup {\"abn\":\"\"}": "OK",
+  "mcp abr.business.abn_lookup {\"abn\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Expected string, received number at abn",
+  "mcp abr.business.abn_lookup {\"abn\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Expected string, received array at abn",
+  "mcp abr.business.abn_lookup {\"abn\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Expected string, received null at abn",
+  "mcp abr.business.abn_lookup {\"abn\":true}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Expected string, received boolean at abn",
+  "mcp abr.business.abn_lookup {\"abn\":{\"a\":1}}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.abn_lookup: Expected string, received object at abn",
+  "mcp abr.business.name_search {\"max_results\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nExpected number, received string at max_results",
+  "mcp abr.business.name_search {\"max_results\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nNumber must be greater than or equal to 1 at max_results",
+  "mcp abr.business.name_search {\"max_results\":1.5}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nExpected integer, received float at max_results",
+  "mcp abr.business.name_search {\"max_results\":123}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nNumber must be less than or equal to 50 at max_results",
+  "mcp abr.business.name_search {\"max_results\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nExpected number, received array at max_results",
+  "mcp abr.business.name_search {\"max_results\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nExpected number, received null at max_results",
+  "mcp abr.business.name_search {\"max_results\":true}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nExpected number, received boolean at max_results",
+  "mcp abr.business.name_search {\"max_results\":{\"a\":1}}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Required at name\nExpected number, received object at max_results",
+  "mcp abr.business.name_search {\"name\":\"\",\"max_results\":\"\",\"state\":\"\",\"postcode\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Expected number, received string at max_results\nInvalid enum value. Expected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received '' at state",
+  "mcp abr.business.name_search {\"name\":\"0x12\",\"max_results\":\"0x12\",\"state\":\"0x12\",\"postcode\":\"0x12\"}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Expected number, received string at max_results\nInvalid enum value. Expected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received '0x12' at state",
+  "mcp abr.business.name_search {\"name\":-5,\"max_results\":-5,\"state\":-5,\"postcode\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Expected string, received number at name\nNumber must be greater than or equal to 1 at max_results\nExpected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received number at state\nExpected string, received number at postcode",
+  "mcp abr.business.name_search {\"name\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"],\"max_results\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"],\"state\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"],\"postcode\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Expected string, received array at name\nExpected number, received array at max_results\nExpected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received array at state\nExpected string, received array at postcode",
+  "mcp abr.business.name_search {\"name\":null,\"max_results\":null,\"state\":null,\"postcode\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Expected string, received null at name\nExpected number, received null at max_results\nExpected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received null at state\nExpected string, received null at postcode",
+  "mcp abr.business.name_search {\"name\":true,\"max_results\":true,\"state\":true,\"postcode\":true}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Expected string, received boolean at name\nExpected number, received boolean at max_results\nExpected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received boolean at state\nExpected string, received boolean at postcode",
+  "mcp abr.business.name_search {\"name\":{\"a\":1},\"max_results\":{\"a\":1},\"state\":{\"a\":1},\"postcode\":{\"a\":1}}": "MCP error -32602: Input validation error: Invalid arguments for tool abr.business.name_search: Expected string, received object at name\nExpected number, received object at max_results\nExpected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received object at state\nExpected string, received object at postcode",
+  "mcp abs.economy.trade {\"items\":\"\",\"measure\":\"\",\"adjustment\":\"\",\"last_n\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool abs.economy.trade: Expected array, received string at items\nInvalid enum value. Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received '' at measure\nInvalid enum value. Expected 'seasonally_adjusted' | 'trend' | 'original', received '' at adjustment\nExpected number, received string at last_n",
+  "mcp abs.economy.trade {\"items\":-5,\"measure\":-5,\"adjustment\":-5,\"last_n\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool abs.economy.trade: Expected array, received number at items\nExpected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received number at measure\nExpected 'seasonally_adjusted' | 'trend' | 'original', received number at adjustment\nNumber must be greater than or equal to 1 at last_n",
+  "mcp abs.economy.trade {\"items\":null,\"measure\":null,\"adjustment\":null,\"last_n\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool abs.economy.trade: Expected array, received null at items\nExpected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received null at measure\nExpected 'seasonally_adjusted' | 'trend' | 'original', received null at adjustment\nExpected number, received null at last_n",
+  "mcp abs.economy.trade {\"items\":true,\"measure\":true,\"adjustment\":true,\"last_n\":true}": "MCP error -32602: Input validation error: Invalid arguments for tool abs.economy.trade: Expected array, received boolean at items\nExpected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received boolean at measure\nExpected 'seasonally_adjusted' | 'trend' | 'original', received boolean at adjustment\nExpected number, received boolean at last_n",
+  "mcp abs.economy.trade {\"items\":{\"a\":1},\"measure\":{\"a\":1},\"adjustment\":{\"a\":1},\"last_n\":{\"a\":1}}": "MCP error -32602: Input validation error: Invalid arguments for tool abs.economy.trade: Expected array, received object at items\nExpected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received object at measure\nExpected 'seasonally_adjusted' | 'trend' | 'original', received object at adjustment\nExpected number, received object at last_n",
+  "mcp account.analytics.timeseries {\"period\":\"\",\"granularity\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool account.analytics.timeseries: Invalid enum value. Expected '1d' | '7d' | '30d', received '' at period\nInvalid enum value. Expected 'hour' | 'day', received '' at granularity",
+  "mcp account.analytics.timeseries {\"period\":-5,\"granularity\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool account.analytics.timeseries: Expected '1d' | '7d' | '30d', received number at period\nExpected 'hour' | 'day', received number at granularity",
+  "mcp adbkidb.data.query {\"dataflow\":\"\",\"indicator_codes\":\"\",\"economy_codes\":\"\",\"start_year\":\"\",\"end_year\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool adbkidb.data.query: String must contain at least 1 character(s) at dataflow\nExpected array, received string at indicator_codes\nExpected array, received string at economy_codes\nExpected number, received string at start_year\nExpected number, received string at end_year",
+  "mcp adbkidb.data.query {\"dataflow\":[],\"indicator_codes\":[],\"economy_codes\":[],\"start_year\":[],\"end_year\":[]}": "MCP error -32602: Input validation error: Invalid arguments for tool adbkidb.data.query: Expected string, received array at dataflow\nArray must contain at least 1 element(s) at indicator_codes\nArray must contain at least 1 element(s) at economy_codes\nExpected number, received array at start_year\nExpected number, received array at end_year",
+  "mcp address.geocodio.reverse {\"lat\":-5,\"lon\":-5,\"limit\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool address.geocodio.reverse: Number must be greater than or equal to 24 at lat\nNumber must be less than or equal to -50 at lon\nNumber must be greater than or equal to 1 at limit",
+  "mcp africa.countries.signals {\"country_code\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool africa.countries.signals: String must contain exactly 2 character(s) at country_code",
+  "mcp ai.ocr.extract {\"detect_orientation\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool ai.ocr.extract: Required at url\nExpected boolean, received string at detect_orientation",
+  "mcp ai.ocr.extract {\"detect_orientation\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool ai.ocr.extract: Required at url\nExpected boolean, received number at detect_orientation",
+  "mcp ai.ocr.extract {\"detect_orientation\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": "MCP error -32602: Input validation error: Invalid arguments for tool ai.ocr.extract: Required at url\nExpected boolean, received array at detect_orientation",
+  "mcp ai.ocr.extract {\"detect_orientation\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool ai.ocr.extract: Required at url\nExpected boolean, received null at detect_orientation",
+  "mcp ai.ocr.extract {\"detect_orientation\":{\"a\":1}}": "MCP error -32602: Input validation error: Invalid arguments for tool ai.ocr.extract: Required at url\nExpected boolean, received object at detect_orientation",
+  "mcp ai.ocr.extract {\"url\":\"\",\"language\":\"\",\"filetype\":\"\",\"detect_orientation\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool ai.ocr.extract: Invalid url at url\nInvalid enum value. Expected 'eng' | 'ara' | 'chs' | 'cht' | 'dan' | 'dut' | 'fin' | 'fre' | 'ger' | 'gre' | 'hun' | 'ita' | 'jpn' | 'kor' | 'nor' | 'pol' | 'por' | 'rus' | 'spa' | 'swe' | 'tur', received '' at language\nInvalid enum value. Expected 'PNG' | 'JPG' | 'GIF' | 'BMP' | 'PDF' | 'TIFF', received '' at filetype\nExpected boolean, received string at detect_orientation",
+  "mcp aipush.market.report_status {\"report_id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool aipush.market.report_status: Invalid uuid at report_id",
+  "mcp amadeus.flights.price {\"flight_offer\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool amadeus.flights.price: Expected object, received number at flight_offer",
+  "mcp amadeus.flights.price {\"flight_offer\":null}": "MCP error -32602: Input validation error: Invalid arguments for tool amadeus.flights.price: Expected object, received null at flight_offer",
+  "mcp amadeus.flights.price {\"flight_offer\":true}": "MCP error -32602: Input validation error: Invalid arguments for tool amadeus.flights.price: Expected object, received boolean at flight_offer",
+  "mcp anime.titles.search {\"query\":\"\",\"type\":\"\",\"status\":\"\",\"rating\":\"\",\"genre\":\"\",\"order_by\":\"\",\"sort\":\"\",\"page\":\"\",\"limit\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool anime.titles.search: Invalid enum value. Expected 'tv' | 'movie' | 'ova' | 'special' | 'ona' | 'music' | 'cm' | 'pv' | 'tv_special', received '' at type\nInvalid enum value. Expected 'airing' | 'complete' | 'upcoming', received '' at status\nInvalid enum value. Expected 'g' | 'pg' | 'pg13' | 'r17' | 'r' | 'rx', received '' at rating\nExpected number, received string at genre\nInvalid enum value. Expected 'title' | 'start_date' | 'end_date' | 'episodes' | 'score' | 'rank' | 'popularity' | 'favorites' | 'members', received '' at order_by\nInvalid enum value. Expected 'asc' | 'desc', received '' at sort\nExpected number, received string at page\nExpected number, received string at limit",
+  "mcp anime.titles.search {\"query\":-5,\"type\":-5,\"status\":-5,\"rating\":-5,\"genre\":-5,\"order_by\":-5,\"sort\":-5,\"page\":-5,\"limit\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool anime.titles.search: Expected string, received number at query\nExpected 'tv' | 'movie' | 'ova' | 'special' | 'ona' | 'music' | 'cm' | 'pv' | 'tv_special', received number at type\nExpected 'airing' | 'complete' | 'upcoming', received number at status\nExpected 'g' | 'pg' | 'pg13' | 'r17' | 'r' | 'rx', received number at rating\nExpected 'title' | 'start_date' | 'end_date' | 'episodes' | 'score' | 'rank' | 'popularity' | 'favorites' | 'members', received number at order_by\nExpected 'asc' | 'desc', received number at sort\nNumber must be greater than or equal to 1 at page\nNumber must be greater than or equal to 1 at limit",
+  "mcp audio.transcribe.submit {\"duration_seconds\":\"\",\"audio_url\":\"\",\"model\":\"\",\"language_code\":\"\",\"speaker_labels\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool audio.transcribe.submit: Expected number, received string at duration_seconds\nInvalid url at audio_url\nInvalid enum value. Expected 'universal-2' | 'universal-3-pro', received '' at model\nExpected boolean, received string at speaker_labels",
+  "mcp audio.transcribe.submit {\"duration_seconds\":-5,\"audio_url\":-5,\"model\":-5,\"language_code\":-5,\"speaker_labels\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool audio.transcribe.submit: Number must be greater than or equal to 1 at duration_seconds\nExpected string, received number at audio_url\nExpected 'universal-2' | 'universal-3-pro', received number at model\nExpected string, received number at language_code\nExpected boolean, received number at speaker_labels",
+  "mcp bankofcanada.data.series {\"end_date\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool bankofcanada.data.series: Required at series_codes\nInvalid at end_date",
+  "mcp brightsky.stations.nearby {\"latitude\":-5,\"longitude\":-5,\"max_dist\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool brightsky.stations.nearby: Number must be greater than or equal to 47 at latitude\nNumber must be greater than or equal to 5 at longitude\nNumber must be greater than 0 at max_dist",
+  "mcp bundesbank-timeseries.reference.structure {\"dataflow_id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool bundesbank-timeseries.reference.structure: String must contain at least 1 character(s) at dataflow_id\ndataflow_id must contain only letters, digits, and underscores at dataflow_id",
+  "mcp bundesbank-timeseries.series.data {\"dataflow_id\":\"\",\"key\":\"\",\"start_period\":\"\",\"end_period\":\"\",\"last_n_observations\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool bundesbank-timeseries.series.data: String must contain at least 1 character(s) at dataflow_id\ndataflow_id must contain only letters, digits, and underscores at dataflow_id\nString must contain at least 1 character(s) at key\nkey must be a dot-separated SDMX series key with no empty segments at key\nExpected number, received string at last_n_observations",
+  "mcp cdc.health.query {\"dataset_id\":\"\",\"where\":\"\",\"select\":\"\",\"order\":\"\",\"group\":\"\",\"limit\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool cdc.health.query: Must be Socrata dataset ID like \"9bhg-hcku\" at dataset_id\nExpected number, received string at limit",
+  "mcp cdc_chronic.disease.indicators {\"stratification_id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool cdc_chronic.disease.indicators: Invalid enum value. Expected 'OVR' | 'SEXF' | 'SEXM' | 'AGE0_44' | 'AGE1844' | 'AGE4564' | 'AGE65P' | 'WHT' | 'BLK' | 'HIS' | 'ASN' | 'AIAN' | 'HAPI' | 'MRC', received '' at stratification_id",
+  "mcp cdc_chronic.disease.indicators {\"stratification_id\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool cdc_chronic.disease.indicators: Expected 'OVR' | 'SEXF' | 'SEXM' | 'AGE0_44' | 'AGE1844' | 'AGE4564' | 'AGE65P' | 'WHT' | 'BLK' | 'HIS' | 'ASN' | 'AIAN' | 'HAPI' | 'MRC', received number at stratification_id",
+  "mcp celestrak.satellite.group {\"group\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool celestrak.satellite.group: Invalid enum value. Expected 'stations' | 'weather' | 'noaa' | 'goes' | 'resource' | 'sarsat' | 'dmc' | 'tdrss' | 'argos' | 'planet' | 'spire' | 'geo' | 'intelsat' | 'ses' | 'iridium' | 'iridium-NEXT' | 'starlink' | 'oneweb' | 'orbcomm' | 'globalstar' | 'amateur' | 'cubesat' | 'other' | 'last-30-days' | 'active' | 'analyst' | 'gps-ops' | 'glo-ops' | 'galileo' | 'beidou' | 'sbas', received '' at group",
+  "mcp celestrak.satellite.group {\"group\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool celestrak.satellite.group: Expected 'stations' | 'weather' | 'noaa' | 'goes' | 'resource' | 'sarsat' | 'dmc' | 'tdrss' | 'argos' | 'planet' | 'spire' | 'geo' | 'intelsat' | 'ses' | 'iridium' | 'iridium-NEXT' | 'starlink' | 'oneweb' | 'orbcomm' | 'globalstar' | 'amateur' | 'cubesat' | 'other' | 'last-30-days' | 'active' | 'analyst' | 'gps-ops' | 'glo-ops' | 'galileo' | 'beidou' | 'sbas', received number at group",
+  "mcp celestrak.satellite.tle null": "MCP error -32602: Input validation error: Invalid arguments for tool celestrak.satellite.tle: Invalid input at catnr",
+  "mcp clinicaltrials.trials.recruiting {\"condition\":\"\",\"intervention\":\"\",\"phase\":\"\",\"limit\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool clinicaltrials.trials.recruiting: Invalid enum value. Expected 'PHASE1' | 'PHASE2' | 'PHASE3' | 'PHASE4' | 'EARLY_PHASE1' | 'NA', received '' at phase\nExpected number, received string at limit",
+  "mcp clinicaltrials.trials.recruiting {\"condition\":-5,\"intervention\":-5,\"phase\":-5,\"limit\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool clinicaltrials.trials.recruiting: Expected string, received number at condition\nExpected string, received number at intervention\nExpected 'PHASE1' | 'PHASE2' | 'PHASE3' | 'PHASE4' | 'EARLY_PHASE1' | 'NA', received number at phase\nNumber must be greater than or equal to 1 at limit",
+  "mcp comtrade.trade.availability {\"classification\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool comtrade.trade.availability: Invalid enum value. Expected 'HS' | 'B4' | 'B5' | 'EB' | 'S1' | 'S2' | 'S3' | 'S4' | 'SS', received '' at classification",
+  "mcp comtrade.trade.availability {\"classification\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool comtrade.trade.availability: Expected 'HS' | 'B4' | 'B5' | 'EB' | 'S1' | 'S2' | 'S3' | 'S4' | 'SS', received number at classification",
+  "mcp coops.tides.conditions \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.conditions: Expected object, received string",
+  "mcp coops.tides.conditions []": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.conditions: Expected object, received array",
+  "mcp coops.tides.conditions null": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.conditions: Required at station_id",
+  "mcp coops.tides.predictions \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.predictions: Expected object, received string",
+  "mcp coops.tides.predictions []": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.predictions: Expected object, received array",
+  "mcp coops.tides.predictions null": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.predictions: Required at station_id",
+  "mcp coops.tides.stations \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.stations: Expected object, received string",
+  "mcp coops.tides.stations []": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.stations: Expected object, received array",
+  "mcp coops.tides.stations null": "OK",
+  "mcp coops.tides.water_level \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.water_level: Expected object, received string",
+  "mcp coops.tides.water_level []": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.water_level: Expected object, received array",
+  "mcp coops.tides.water_level null": "MCP error -32602: Input validation error: Invalid arguments for tool coops.tides.water_level: Required at station_id",
+  "mcp copernicus-sentinel.imagery.search {\"bbox\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": "MCP error -32602: Input validation error: Invalid arguments for tool copernicus-sentinel.imagery.search: Array must contain exactly 4 element(s) at bbox\nExpected number, received string at bbox[0]\nRequired at start_date\nRequired at end_date",
+  "mcp crypto.dex.pools {\"query\":\"\",\"network\":\"\",\"sort_by\":\"\",\"limit\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool crypto.dex.pools: Invalid enum value. Expected 'ethereum' | 'bsc' | 'polygon' | 'arbitrum' | 'solana' | 'base' | 'avalanche' | 'optimism', received '' at network\nInvalid enum value. Expected 'volume_24h' | 'liquidity' | 'price_change_24h' | 'transactions_24h', received '' at sort_by\nExpected number, received string at limit",
+  "mcp crypto.dex.pools {\"query\":-5,\"network\":-5,\"sort_by\":-5,\"limit\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool crypto.dex.pools: Expected string, received number at query\nExpected 'ethereum' | 'bsc' | 'polygon' | 'arbitrum' | 'solana' | 'base' | 'avalanche' | 'optimism', received number at network\nExpected 'volume_24h' | 'liquidity' | 'price_change_24h' | 'transactions_24h', received number at sort_by",
+  "mcp crypto.market.overview {\"category\":\"\",\"sort_by\":\"\",\"limit\":\"\",\"include_sparkline\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool crypto.market.overview: Invalid enum value. Expected 'defi' | 'layer-1' | 'layer-2' | 'gaming' | 'ai-big-data' | 'meme-token' | 'stablecoins' | 'nft' | 'exchange-based-tokens' | 'real-world-assets', received '' at category\nInvalid enum value. Expected 'market_cap_desc' | 'market_cap_asc' | 'volume_desc' | 'price_desc' | 'price_change_24h_desc', received '' at sort_by\nExpected number, received string at limit\nExpected boolean, received string at include_sparkline",
+  "mcp crypto.market.overview {\"category\":-5,\"sort_by\":-5,\"limit\":-5,\"include_sparkline\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool crypto.market.overview: Expected 'defi' | 'layer-1' | 'layer-2' | 'gaming' | 'ai-big-data' | 'meme-token' | 'stablecoins' | 'nft' | 'exchange-based-tokens' | 'real-world-assets', received number at category\nExpected 'market_cap_desc' | 'market_cap_asc' | 'volume_desc' | 'price_desc' | 'price_change_24h_desc', received number at sort_by\nExpected boolean, received number at include_sparkline",
+  "mcp document.convert.to_pdf {\"page_size\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool document.convert.to_pdf: Required at source_url\nRequired at from_format\nInvalid enum value. Expected 'a4' | 'letter' | 'legal' | 'a3' | 'a5', received '' at page_size",
+  "mcp document.convert.to_pdf {\"page_size\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool document.convert.to_pdf: Required at source_url\nRequired at from_format\nExpected 'a4' | 'letter' | 'legal' | 'a3' | 'a5', received number at page_size",
+  "mcp earth.fires.detect {\"source\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool earth.fires.detect: Required at west\nRequired at south\nRequired at east\nRequired at north\nInvalid enum value. Expected 'VIIRS_SNPP_NRT' | 'VIIRS_NOAA20_NRT' | 'VIIRS_NOAA21_NRT' | 'MODIS_NRT', received '' at source",
+  "mcp earth.fires.detect {\"source\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool earth.fires.detect: Required at west\nRequired at south\nRequired at east\nRequired at north\nExpected 'VIIRS_SNPP_NRT' | 'VIIRS_NOAA20_NRT' | 'VIIRS_NOAA21_NRT' | 'MODIS_NRT', received number at source",
+  "mcp earthquake.events.feed {\"magnitude\":\"\",\"timeframe\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool earthquake.events.feed: Invalid enum value. Expected 'significant' | '4.5' | '2.5' | '1.0' | 'all', received '' at magnitude\nInvalid enum value. Expected 'hour' | 'day' | 'week' | 'month', received '' at timeframe",
+  "mcp earthquake.events.feed {\"magnitude\":-5,\"timeframe\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool earthquake.events.feed: Expected 'significant' | '4.5' | '2.5' | '1.0' | 'all', received number at magnitude\nExpected 'hour' | 'day' | 'week' | 'month', received number at timeframe",
+  "mcp ecdc-surveillance.covid.hospital_icu {\"country\":\"\",\"indicator\":\"\",\"limit\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool ecdc-surveillance.covid.hospital_icu: String must contain at least 2 character(s) at country\nInvalid enum value. Expected 'Daily hospital occupancy' | 'Daily ICU occupancy' | 'Weekly new hospital admissions per 100k' | 'Weekly new ICU admissions per 100k', received '' at indicator\nExpected number, received string at limit",
+  "mcp ecdc-surveillance.covid.hospital_icu {\"country\":-5,\"indicator\":-5,\"limit\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool ecdc-surveillance.covid.hospital_icu: Expected string, received number at country\nExpected 'Daily hospital occupancy' | 'Daily ICU occupancy' | 'Weekly new hospital admissions per 100k' | 'Weekly new ICU admissions per 100k', received number at indicator\nNumber must be greater than or equal to 1 at limit",
+  "mcp email.transactional.send \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool email.transactional.send: Expected object, received string",
+  "mcp email.transactional.send []": "MCP error -32602: Input validation error: Invalid arguments for tool email.transactional.send: Expected object, received array",
+  "mcp email.transactional.send null": "MCP error -32602: Input validation error: Invalid arguments for tool email.transactional.send: Required at subject\nInvalid input at to",
+  "mcp email.transactional.send {\"reply_to\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool email.transactional.send: Required at subject\nInvalid email at reply_to\nInvalid input at to",
+  "mcp eurostat2.demographics.fertility {\"country\":\"\",\"indicator\":\"\",\"since_year\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.demographics.fertility: String must contain at least 2 character(s) at country\nInvalid enum value. Expected 'TOTFERRT' | 'AGEMOTH' | 'AGEMOTH1' | 'MEDAGEMOTH' | 'NMARPCT', received '' at indicator\nExpected number, received string at since_year",
+  "mcp eurostat2.demographics.fertility {\"country\":-5,\"indicator\":-5,\"since_year\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.demographics.fertility: Expected string, received number at country\nExpected 'TOTFERRT' | 'AGEMOTH' | 'AGEMOTH1' | 'MEDAGEMOTH' | 'NMARPCT', received number at indicator\nNumber must be greater than or equal to 1960 at since_year",
+  "mcp eurostat2.employment.youth {\"age_group\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.employment.youth: Required at country\nInvalid enum value. Expected 'Y15-24' | 'Y15-19' | 'Y15-29' | 'Y20-24' | 'Y20-29', received '' at age_group",
+  "mcp eurostat2.employment.youth {\"age_group\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.employment.youth: Required at country\nExpected 'Y15-24' | 'Y15-19' | 'Y15-29' | 'Y20-24' | 'Y20-29', received number at age_group",
+  "mcp eurostat2.energy.renewable {\"country\":\"\",\"unit\":\"\",\"since_year\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.energy.renewable: String must contain at least 2 character(s) at country\nInvalid enum value. Expected 'MTOE' | 'I05' | 'TOE_HAB', received '' at unit\nExpected number, received string at since_year",
+  "mcp eurostat2.energy.renewable {\"country\":-5,\"unit\":-5,\"since_year\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.energy.renewable: Expected string, received number at country\nExpected 'MTOE' | 'I05' | 'TOE_HAB', received number at unit\nNumber must be greater than or equal to 2000 at since_year",
+  "mcp eurostat2.environment.ghg {\"country\":\"\",\"pollutant\":\"\",\"since_year\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.environment.ghg: String must contain at least 2 character(s) at country\nInvalid enum value. Expected 'GHG' | 'CO2' | 'CH4' | 'N2O' | 'HFC' | 'PFC' | 'SF6', received '' at pollutant\nExpected number, received string at since_year",
+  "mcp eurostat2.environment.ghg {\"country\":-5,\"pollutant\":-5,\"since_year\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool eurostat2.environment.ghg: Expected string, received number at country\nExpected 'GHG' | 'CO2' | 'CH4' | 'N2O' | 'HFC' | 'PFC' | 'SF6', received number at pollutant\nNumber must be greater than or equal to 1985 at since_year",
+  "mcp f1.races.results \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool f1.races.results: Expected object, received string",
+  "mcp f1.races.results []": "MCP error -32602: Input validation error: Invalid arguments for tool f1.races.results: Expected object, received array",
+  "mcp f1.races.results null": "OK",
+  "mcp f1.races.schedule \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool f1.races.schedule: Expected object, received string",
+  "mcp f1.races.schedule []": "MCP error -32602: Input validation error: Invalid arguments for tool f1.races.schedule: Expected object, received array",
+  "mcp f1.races.schedule null": "OK",
+  "mcp f1.standings.constructors \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool f1.standings.constructors: Expected object, received string",
+  "mcp f1.standings.constructors []": "MCP error -32602: Input validation error: Invalid arguments for tool f1.standings.constructors: Expected object, received array",
+  "mcp f1.standings.constructors null": "OK",
+  "mcp f1.standings.drivers \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool f1.standings.drivers: Expected object, received string",
+  "mcp f1.standings.drivers []": "MCP error -32602: Input validation error: Invalid arguments for tool f1.standings.drivers: Expected object, received array",
+  "mcp f1.standings.drivers null": "OK",
+  "mcp geoboundaries.boundary.detail {\"adm_level\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool geoboundaries.boundary.detail: Required at country\nInvalid enum value. Expected 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5', received '' at adm_level",
+  "mcp geoboundaries.boundary.detail {\"adm_level\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool geoboundaries.boundary.detail: Required at country\nExpected 'ADM0' | 'ADM1' | 'ADM2' | 'ADM3' | 'ADM4' | 'ADM5', received number at adm_level",
+  "mcp geodiva.geology.eruption_search {\"edate_end\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool geodiva.geology.eruption_search: must be a year, \"YYYY-MM-DD\", or \"YYYY-MM-DDTHH:MM:SS\" (negative years allowed for BCE) at edate_end",
+  "mcp geonet-nz.quakes.search {\"mmi\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool geonet-nz.quakes.search: Number must be greater than or equal to -1 at mmi",
+  "mcp hf.hub.model_details {\"model_id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool hf.hub.model_details: String must contain at least 1 character(s) at model_id\nInvalid model ID format (no path traversal) at model_id",
+  "mcp ine-portugal.stats.indicator_data {\"varcd\":\"\",\"dim1\":\"\",\"dim2\":\"\",\"dim3\":\"\",\"dim4\":\"\",\"dim5\":\"\",\"dim6\":\"\",\"lang\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool ine-portugal.stats.indicator_data: String must contain at least 1 character(s) at varcd\nvarcd must be numeric digits only at varcd\nInvalid enum value. Expected 'EN' | 'PT', received '' at lang",
+  "mcp ine-spain.reference.tables {\"operation_code\":\"\",\"lang\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool ine-spain.reference.tables: Invalid enum value. Expected 'ADRH' | 'ANES' | 'APEL' | 'CCM' | 'CDMGE' | 'CMEA' | 'CNE' | 'CNEAG' | 'CNTR2000' | 'CNTR2008' | 'CNTR2010' | 'CODEM' | 'CONA' | 'CONM' | 'CP' | 'CTNFSI' | 'DIR' | 'DPOD' | 'DPOH' | 'DPOP' | 'EACL' | 'EAES' | 'EAES:Q' | 'ECM' | 'ECP' | 'ECSE' | 'ECV' | 'ECVG' | 'EDES' | 'EEE:COM' | 'EEE:IND' | 'EEE:SER' | 'EFPA' | 'EG' | 'EH' | 'EI' | 'EIAP' | 'EJP' | 'EM' | 'EMCR' | 'EMLG' | 'EMN' | 'ENSD' | 'EOA' | 'EOAC' | 'EOAP' | 'EOH' | 'EOT' | 'EOTR' | 'EPA' | 'EPC' | 'EPF' | 'EPOBA' | 'EPOBC' | 'EPOBL' | 'ETCL' | 'ETDP' | 'ETR' | 'FR' | 'GDRE' | 'GDVE' | 'HPT' | 'IAS' | 'ICE' | 'ICES' | 'ICLA' | 'ICM' | 'ICN' | 'ICNE' | 'IDB' | 'IEP' | 'IGC' | 'IIH' | 'IMCV' | 'IMM' | 'IPAC' | 'IPAP' | 'IPC' | 'IPCA' | 'IPCO' | 'IPH' | 'IPI' | 'IPRI' | 'IPRX-M' | 'IPS' | 'IPSS' | 'IPT' | 'IPTR' | 'IPV' | 'IPVA' | 'IRSH' | 'MMOV' | 'MNPD' | 'MNPM' | 'MNPN' | 'MOS' | 'MYH' | 'OAT' | 'PERE' | 'SM' | 'STEC' | 'TF' | 'TM' | 'TMOV' | 'TNOM' | 'TV' | 'UA' | 'VGD' | 'VTE', received '' at operation_code\nInvalid enum value. Expected 'ES' | 'EN', received '' at lang",
+  "mcp ine-spain.reference.tables {\"operation_code\":-5,\"lang\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool ine-spain.reference.tables: Expected 'ADRH' | 'ANES' | 'APEL' | 'CCM' | 'CDMGE' | 'CMEA' | 'CNE' | 'CNEAG' | 'CNTR2000' | 'CNTR2008' | 'CNTR2010' | 'CODEM' | 'CONA' | 'CONM' | 'CP' | 'CTNFSI' | 'DIR' | 'DPOD' | 'DPOH' | 'DPOP' | 'EACL' | 'EAES' | 'EAES:Q' | 'ECM' | 'ECP' | 'ECSE' | 'ECV' | 'ECVG' | 'EDES' | 'EEE:COM' | 'EEE:IND' | 'EEE:SER' | 'EFPA' | 'EG' | 'EH' | 'EI' | 'EIAP' | 'EJP' | 'EM' | 'EMCR' | 'EMLG' | 'EMN' | 'ENSD' | 'EOA' | 'EOAC' | 'EOAP' | 'EOH' | 'EOT' | 'EOTR' | 'EPA' | 'EPC' | 'EPF' | 'EPOBA' | 'EPOBC' | 'EPOBL' | 'ETCL' | 'ETDP' | 'ETR' | 'FR' | 'GDRE' | 'GDVE' | 'HPT' | 'IAS' | 'ICE' | 'ICES' | 'ICLA' | 'ICM' | 'ICN' | 'ICNE' | 'IDB' | 'IEP' | 'IGC' | 'IIH' | 'IMCV' | 'IMM' | 'IPAC' | 'IPAP' | 'IPC' | 'IPCA' | 'IPCO' | 'IPH' | 'IPI' | 'IPRI' | 'IPRX-M' | 'IPS' | 'IPSS' | 'IPT' | 'IPTR' | 'IPV' | 'IPVA' | 'IRSH' | 'MMOV' | 'MNPD' | 'MNPM' | 'MNPN' | 'MOS' | 'MYH' | 'OAT' | 'PERE' | 'SM' | 'STEC' | 'TF' | 'TM' | 'TMOV' | 'TNOM' | 'TV' | 'UA' | 'VGD' | 'VTE', received number at operation_code\nExpected 'ES' | 'EN', received number at lang",
+  "mcp infra.browser.create_session {\"proxy\":\"\",\"region\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool infra.browser.create_session: Expected boolean, received string at proxy\nInvalid enum value. Expected 'us-west-2' | 'us-east-1' | 'eu-central-1' | 'ap-southeast-1', received '' at region",
+  "mcp infra.browser.create_session {\"proxy\":-5,\"region\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool infra.browser.create_session: Expected boolean, received number at proxy\nExpected 'us-west-2' | 'us-east-1' | 'eu-central-1' | 'ap-southeast-1', received number at region",
+  "mcp launch-library-2.launches.detail {\"id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool launch-library-2.launches.detail: must be a launch UUID, e.g. \"521f3a1c-f977-4306-9b7f-495858719adf\" at id",
+  "mcp lichess.players.top {\"nb\":\"\",\"perf_type\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool lichess.players.top: Expected number, received string at nb\nInvalid enum value. Expected 'bullet' | 'blitz' | 'rapid' | 'classical' | 'ultraBullet' | 'chess960' | 'crazyhouse' | 'antichess' | 'atomic' | 'horde' | 'kingOfTheHill' | 'racingKings' | 'threeCheck', received '' at perf_type",
+  "mcp lichess.players.top {\"nb\":-5,\"perf_type\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool lichess.players.top: Number must be greater than or equal to 1 at nb\nExpected 'bullet' | 'blitz' | 'rapid' | 'classical' | 'ultraBullet' | 'chess960' | 'crazyhouse' | 'antichess' | 'atomic' | 'horde' | 'kingOfTheHill' | 'racingKings' | 'threeCheck', received number at perf_type",
+  "mcp messaging.telegram.get_chat \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_chat: Expected object, received string",
+  "mcp messaging.telegram.get_chat []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_chat: Expected object, received array",
+  "mcp messaging.telegram.get_chat null": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_chat: Invalid input at chat_id",
+  "mcp messaging.telegram.get_updates \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_updates: Expected object, received string",
+  "mcp messaging.telegram.get_updates []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_updates: Expected object, received array",
+  "mcp messaging.telegram.get_updates null": "OK",
+  "mcp messaging.telegram.send_document \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_document: Expected object, received string",
+  "mcp messaging.telegram.send_document []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_document: Expected object, received array",
+  "mcp messaging.telegram.send_document null": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_document: Required at document\nInvalid input at chat_id",
+  "mcp messaging.telegram.send_message \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_message: Expected object, received string",
+  "mcp messaging.telegram.send_message []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_message: Expected object, received array",
+  "mcp messaging.telegram.send_message null": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_message: Required at text\nInvalid input at chat_id",
+  "mcp messaging.telegram.send_photo \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_photo: Expected object, received string",
+  "mcp messaging.telegram.send_photo []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_photo: Expected object, received array",
+  "mcp messaging.telegram.send_photo null": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_photo: Required at photo\nInvalid input at chat_id",
+  "mcp myvariant.variants.search {\"assembly\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool myvariant.variants.search: Required at q\nInvalid enum value. Expected 'hg19' | 'hg38', received '' at assembly",
+  "mcp myvariant.variants.search {\"assembly\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool myvariant.variants.search: Required at q\nExpected 'hg19' | 'hg38', received number at assembly",
+  "mcp ncbi-eutils.taxonomy.lineage {\"tax_id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool ncbi-eutils.taxonomy.lineage: must be a numeric NCBI Taxonomy ID at tax_id",
+  "mcp nwis.streamflow.annual_stats \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.annual_stats: Expected object, received string",
+  "mcp nwis.streamflow.annual_stats []": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.annual_stats: Expected object, received array",
+  "mcp nwis.streamflow.annual_stats null": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.annual_stats: Required at site_no",
+  "mcp nwis.streamflow.basin_conditions \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.basin_conditions: Expected object, received string",
+  "mcp nwis.streamflow.basin_conditions []": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.basin_conditions: Expected object, received array",
+  "mcp nwis.streamflow.basin_conditions null": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.basin_conditions: Required at huc_code",
+  "mcp nwis.streamflow.daily_values \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.daily_values: Expected object, received string",
+  "mcp nwis.streamflow.daily_values []": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.daily_values: Expected object, received array",
+  "mcp nwis.streamflow.daily_values null": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.daily_values: Required at site_no",
+  "mcp nwis.streamflow.site_info \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.site_info: Expected object, received string",
+  "mcp nwis.streamflow.site_info []": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.site_info: Expected object, received array",
+  "mcp nwis.streamflow.site_info null": "MCP error -32602: Input validation error: Invalid arguments for tool nwis.streamflow.site_info: Required at site_no",
+  "mcp opentopo.elevation.area {\"dataset\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool opentopo.elevation.area: Required at south\nRequired at north\nRequired at west\nRequired at east\nInvalid enum value. Expected 'SRTMGL1' | 'SRTMGL3' | 'SRTMGL1_E' | 'AW3D30' | 'AW3D30_E' | 'NASADEM' | 'COP30' | 'COP90' | 'EU_DTM' | 'SRTM15Plus' | 'GEDI_L3' | 'GEBCOIceTopo' | 'GEBCOSubIceTopo', received '' at dataset",
+  "mcp opentopo.elevation.area {\"dataset\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool opentopo.elevation.area: Required at south\nRequired at north\nRequired at west\nRequired at east\nExpected 'SRTMGL1' | 'SRTMGL3' | 'SRTMGL1_E' | 'AW3D30' | 'AW3D30_E' | 'NASADEM' | 'COP30' | 'COP90' | 'EU_DTM' | 'SRTM15Plus' | 'GEDI_L3' | 'GEBCOIceTopo' | 'GEBCOSubIceTopo', received number at dataset",
+  "mcp opentopodata.elevation.batch {\"dataset\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool opentopodata.elevation.batch: Required at locations\nInvalid enum value. Expected 'srtm90m' | 'srtm30m' | 'aster30m', received '' at dataset",
+  "mcp opentopodata.elevation.batch {\"dataset\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool opentopodata.elevation.batch: Required at locations\nExpected 'srtm90m' | 'srtm30m' | 'aster30m', received number at dataset",
+  "mcp opentopodata.elevation.high_res {\"dataset\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool opentopodata.elevation.high_res: Required at lat\nRequired at lon\nInvalid enum value. Expected 'ned10m' | 'eudem25m', received '' at dataset",
+  "mcp opentopodata.elevation.high_res {\"dataset\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool opentopodata.elevation.high_res: Required at lat\nRequired at lon\nExpected 'ned10m' | 'eudem25m', received number at dataset",
+  "mcp orcid.researcher.profile {\"orcid_id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool orcid.researcher.profile: ORCID iD must be in the form 0000-0000-0000-0000 (last character may be X) at orcid_id",
+  "mcp rawg.games.details \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.details: Expected object, received string",
+  "mcp rawg.games.details []": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.details: Expected object, received array",
+  "mcp rawg.games.details null": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.details: Invalid input at id",
+  "mcp rawg.games.screenshots \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.screenshots: Expected object, received string",
+  "mcp rawg.games.screenshots []": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.screenshots: Expected object, received array",
+  "mcp rawg.games.screenshots null": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.screenshots: Invalid input at id",
+  "mcp rawg.games.search \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.search: Expected object, received string",
+  "mcp rawg.games.search []": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.search: Expected object, received array",
+  "mcp rawg.games.search null": "OK",
+  "mcp rawg.games.series \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.series: Expected object, received string",
+  "mcp rawg.games.series []": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.series: Expected object, received array",
+  "mcp rawg.games.series null": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.series: Invalid input at id",
+  "mcp rawg.games.stores \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.stores: Expected object, received string",
+  "mcp rawg.games.stores []": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.stores: Expected object, received array",
+  "mcp rawg.games.stores null": "MCP error -32602: Input validation error: Invalid arguments for tool rawg.games.stores: Invalid input at id",
+  "mcp shop.merchant.check \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool shop.merchant.check: Invalid input: expected object, received string",
+  "mcp shop.merchant.check []": "MCP error -32602: Input validation error: Invalid arguments for tool shop.merchant.check: Invalid input: expected object, received array",
+  "mcp shop.merchant.deactivate []": "MCP error -32602: Input validation error: Invalid arguments for tool shop.merchant.deactivate: Invalid input: expected object, received array",
+  "mcp shop.merchant.deactivate null": "OK",
+  "mcp socrata.datasets.detail {\"dataset_id\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool socrata.datasets.detail: Required at domain\nmust be a Socrata 4x4 identifier, e.g. \"erm2-nwe9\" at dataset_id",
+  "mcp statcan.catalogue.search \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool statcan.catalogue.search: Expected object, received string",
+  "mcp statcan.catalogue.search []": "MCP error -32602: Input validation error: Invalid arguments for tool statcan.catalogue.search: Expected object, received array",
+  "mcp statcan.catalogue.search null": "OK",
+  "mcp tides.noaa.predictions \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool tides.noaa.predictions: Expected object, received string",
+  "mcp tides.noaa.predictions []": "MCP error -32602: Input validation error: Invalid arguments for tool tides.noaa.predictions: Expected object, received array",
+  "mcp tides.noaa.predictions null": "MCP error -32602: Input validation error: Invalid arguments for tool tides.noaa.predictions: Required at station\nRequired at begin_date\nRequired at end_date",
+  "mcp tides.noaa.predictions {\"begin_date\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool tides.noaa.predictions: Required at station\nMust be YYYYMMDD format at begin_date\nRequired at end_date",
+  "mcp tides.noaa.water_levels \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool tides.noaa.water_levels: Expected object, received string",
+  "mcp tides.noaa.water_levels []": "MCP error -32602: Input validation error: Invalid arguments for tool tides.noaa.water_levels: Expected object, received array",
+  "mcp tides.noaa.water_levels null": "MCP error -32602: Input validation error: Invalid arguments for tool tides.noaa.water_levels: Required at station",
+  "mcp translate.text.detect \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.detect: Expected object, received string",
+  "mcp translate.text.detect []": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.detect: Expected object, received array",
+  "mcp translate.text.detect null": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.detect: Invalid input at text",
+  "mcp translate.text.languages \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.languages: Expected object, received string",
+  "mcp translate.text.languages []": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.languages: Expected object, received array",
+  "mcp translate.text.languages null": "OK",
+  "mcp translate.text.translate \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.translate: Expected object, received string",
+  "mcp translate.text.translate []": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.translate: Expected object, received array",
+  "mcp translate.text.translate null": "MCP error -32602: Input validation error: Invalid arguments for tool translate.text.translate: Required at target\nInvalid input at text",
+  "mcp uk-landregistry-pricepaid.property.by_area {\"max_date\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool uk-landregistry-pricepaid.property.by_area: must be YYYY-MM-DD at max_date",
+  "mcp unesco-data.reference.geounit_list \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool unesco-data.reference.geounit_list: Expected object, received string",
+  "mcp unesco-data.reference.geounit_list []": "MCP error -32602: Input validation error: Invalid arguments for tool unesco-data.reference.geounit_list: Expected object, received array",
+  "mcp unesco-data.reference.geounit_list null": "OK",
+  "mcp unesco-data.reference.indicator_search \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool unesco-data.reference.indicator_search: Expected object, received string",
+  "mcp unesco-data.reference.indicator_search []": "MCP error -32602: Input validation error: Invalid arguments for tool unesco-data.reference.indicator_search: Expected object, received array",
+  "mcp unesco-data.reference.indicator_search null": "OK",
+  "mcp unesco-data.series.get_data \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool unesco-data.series.get_data: Expected object, received string",
+  "mcp unesco-data.series.get_data []": "MCP error -32602: Input validation error: Invalid arguments for tool unesco-data.series.get_data: Expected object, received array",
+  "mcp unesco-data.series.get_data null": "MCP error -32602: Input validation error: Invalid arguments for tool unesco-data.series.get_data: Invalid input at indicator",
+  "mcp world-bank-cckp.climate.extremes {\"index\":\"\",\"country\":\"\",\"scenario\":\"\",\"period\":\"\",\"aggregation\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool world-bank-cckp.climate.extremes: Invalid enum value. Expected 'hd35' | 'hd40' | 'fd' | 'cdd' | 'cwd' | 'r20mm' | 'tr23', received '' at index\nString must contain at least 1 character(s) at country\nInvalid enum value. Expected 'historical' | 'ssp126' | 'ssp245' | 'ssp370' | 'ssp585', received '' at scenario\nInvalid enum value. Expected '2020-2039' | '2040-2059' | '2060-2079' | '2080-2099', received '' at period\nInvalid enum value. Expected 'annual' | 'monthly' | 'seasonal', received '' at aggregation",
+  "mcp world-bank-cckp.climate.extremes {\"index\":-5,\"country\":-5,\"scenario\":-5,\"period\":-5,\"aggregation\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool world-bank-cckp.climate.extremes: Expected 'hd35' | 'hd40' | 'fd' | 'cdd' | 'cwd' | 'r20mm' | 'tr23', received number at index\nExpected string, received number at country\nExpected 'historical' | 'ssp126' | 'ssp245' | 'ssp370' | 'ssp585', received number at scenario\nExpected '2020-2039' | '2040-2059' | '2060-2079' | '2080-2099', received number at period\nExpected 'annual' | 'monthly' | 'seasonal', received number at aggregation",
+  "mcp world-bank-cckp.climate.projection {\"scenario\":\"\"}": "MCP error -32602: Input validation error: Invalid arguments for tool world-bank-cckp.climate.projection: Required at variable\nRequired at country\nInvalid enum value. Expected 'ssp126' | 'ssp245' | 'ssp370' | 'ssp585', received '' at scenario",
+  "mcp world-bank-cckp.climate.projection {\"scenario\":-5}": "MCP error -32602: Input validation error: Invalid arguments for tool world-bank-cckp.climate.projection: Required at variable\nRequired at country\nExpected 'ssp126' | 'ssp245' | 'ssp370' | 'ssp585', received number at scenario",
+  "mcp zenodo.records.files \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool zenodo.records.files: Expected object, received string",
+  "mcp zenodo.records.files []": "MCP error -32602: Input validation error: Invalid arguments for tool zenodo.records.files: Expected object, received array",
+  "mcp zenodo.records.files null": "MCP error -32602: Input validation error: Invalid arguments for tool zenodo.records.files: Invalid input at record_id",
+  "stage abr.abn_lookup \"str\"": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup []": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup null": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup undefined": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "",
+     "message": "Required",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Required",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup {\"abn\":\"\"}": "OK",
+  "stage abr.abn_lookup {\"abn\":-5}": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup {\"abn\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup {\"abn\":null}": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup {\"abn\":true}": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received boolean",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received boolean",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.abn_lookup {\"abn\":{\"a\":1}}": [
+   400,
+   "Request body validation failed. Expected params: abn",
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received object",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "abn",
+     "message": "Expected string, received object",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":-5}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":1.5}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected integer, received float",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected integer, received float",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":123}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Number must be less than or equal to 50",
+     "code": "too_big"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Number must be less than or equal to 50",
+     "code": "too_big"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":null}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":true}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received boolean",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received boolean",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"max_results\":{\"a\":1}}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received object",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Expected number, received object",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"name\":\"\",\"max_results\":\"\",\"state\":\"\",\"postcode\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "max_results",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "state",
+     "message": "Invalid enum value. Expected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received ''",
+     "code": "invalid_enum_value"
+    }
+   ],
+   [
+    {
+     "path": "max_results",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "state",
+     "message": "Invalid enum value. Expected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received ''",
+     "code": "invalid_enum_value"
+    }
+   ]
+  ],
+  "stage abr.name_search {\"name\":-5,\"max_results\":-5,\"state\":-5,\"postcode\":-5}": [
+   400,
+   "Request body validation failed. Expected params: name, max_results, state, postcode",
+   [
+    {
+     "path": "name",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    },
+    {
+     "path": "state",
+     "message": "Expected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "postcode",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "name",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "max_results",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    },
+    {
+     "path": "state",
+     "message": "Expected 'NSW' | 'VIC' | 'QLD' | 'SA' | 'WA' | 'TAS' | 'NT' | 'ACT', received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "postcode",
+     "message": "Expected string, received number",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abs.trade {\"items\":\"\",\"measure\":\"\",\"adjustment\":\"\",\"last_n\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: items, measure, adjustment, last_n",
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Invalid enum value. Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received ''",
+     "code": "invalid_enum_value"
+    },
+    {
+     "path": "adjustment",
+     "message": "Invalid enum value. Expected 'seasonally_adjusted' | 'trend' | 'original', received ''",
+     "code": "invalid_enum_value"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Invalid enum value. Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received ''",
+     "code": "invalid_enum_value"
+    },
+    {
+     "path": "adjustment",
+     "message": "Invalid enum value. Expected 'seasonally_adjusted' | 'trend' | 'original', received ''",
+     "code": "invalid_enum_value"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abs.trade {\"items\":-5,\"measure\":-5,\"adjustment\":-5,\"last_n\":-5}": [
+   400,
+   "Request body validation failed. Expected params: items, measure, adjustment, last_n",
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    }
+   ],
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received number",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    }
+   ]
+  ],
+  "stage abs.trade {\"items\":null,\"measure\":null,\"adjustment\":null,\"last_n\":null}": [
+   400,
+   "Request body validation failed. Expected params: items, measure, adjustment, last_n",
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received null",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received null",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received null",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received null",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received null",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received null",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abs.trade {\"items\":true,\"measure\":true,\"adjustment\":true,\"last_n\":true}": [
+   400,
+   "Request body validation failed. Expected params: items, measure, adjustment, last_n",
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received boolean",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received boolean",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received boolean",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received boolean",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received boolean",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received boolean",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received boolean",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received boolean",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage abs.trade {\"items\":{\"a\":1},\"measure\":{\"a\":1},\"adjustment\":{\"a\":1},\"last_n\":{\"a\":1}}": [
+   400,
+   "Request body validation failed. Expected params: items, measure, adjustment, last_n",
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received object",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received object",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received object",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received object",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "items",
+     "message": "Expected array, received object",
+     "code": "invalid_type"
+    },
+    {
+     "path": "measure",
+     "message": "Expected 'current_prices' | 'chain_volume' | 'implicit_price_index' | 'terms_of_trade', received object",
+     "code": "invalid_type"
+    },
+    {
+     "path": "adjustment",
+     "message": "Expected 'seasonally_adjusted' | 'trend' | 'original', received object",
+     "code": "invalid_type"
+    },
+    {
+     "path": "last_n",
+     "message": "Expected number, received object",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage adbkidb.data {\"dataflow\":\"\",\"indicator_codes\":\"\",\"economy_codes\":\"\",\"start_year\":\"\",\"end_year\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: dataflow, indicator_codes, economy_codes, start_year, end_year",
+   [
+    {
+     "path": "dataflow",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "indicator_codes",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "economy_codes",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "start_year",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_year",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "dataflow",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "indicator_codes",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "economy_codes",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "start_year",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_year",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage adbkidb.data {\"dataflow\":[],\"indicator_codes\":[],\"economy_codes\":[],\"start_year\":[],\"end_year\":[]}": [
+   400,
+   "Request body validation failed. Expected params: dataflow, indicator_codes, economy_codes, start_year, end_year",
+   [
+    {
+     "path": "dataflow",
+     "message": "Expected string, received array",
+     "code": "invalid_type"
+    },
+    {
+     "path": "indicator_codes",
+     "message": "Array must contain at least 1 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "economy_codes",
+     "message": "Array must contain at least 1 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "start_year",
+     "message": "Expected number, received array",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_year",
+     "message": "Expected number, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "dataflow",
+     "message": "Expected string, received array",
+     "code": "invalid_type"
+    },
+    {
+     "path": "indicator_codes",
+     "message": "Array must contain at least 1 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "economy_codes",
+     "message": "Array must contain at least 1 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "start_year",
+     "message": "Expected number, received array",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_year",
+     "message": "Expected number, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage adbkidb.data {\"economy_codes\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": [
+   400,
+   "Request body validation failed. Expected params: dataflow, indicator_codes, economy_codes, start_year, end_year",
+   [
+    {
+     "path": "dataflow",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "indicator_codes",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "economy_codes.0",
+     "message": "String must contain at most 3 character(s)",
+     "code": "too_big"
+    }
+   ],
+   [
+    {
+     "path": "dataflow",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "indicator_codes",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "economy_codes.0",
+     "message": "String must contain at most 3 character(s)",
+     "code": "too_big"
+    }
+   ]
+  ],
+  "stage adzuna.search {\"full_time\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: what, where, country, category, salary_min, salary_max, full_time, permanent, limit, page",
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage adzuna.search {\"full_time\":-5}": [
+   400,
+   "Request body validation failed. Expected params: what, where, country, category, salary_min, salary_max, full_time, permanent, limit, page",
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received number",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received number",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage adzuna.search {\"full_time\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": [
+   400,
+   "Request body validation failed. Expected params: what, where, country, category, salary_min, salary_max, full_time, permanent, limit, page",
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage adzuna.search {\"full_time\":null}": [
+   400,
+   "Request body validation failed. Expected params: what, where, country, category, salary_min, salary_max, full_time, permanent, limit, page",
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage adzuna.search {\"full_time\":{\"a\":1}}": [
+   400,
+   "Request body validation failed. Expected params: what, where, country, category, salary_min, salary_max, full_time, permanent, limit, page",
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received object",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "full_time",
+     "message": "Expected boolean, received object",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage africa.countries.signals {\"country_code\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: country_code",
+   [
+    {
+     "path": "country_code",
+     "message": "String must contain exactly 2 character(s)",
+     "code": "too_small"
+    }
+   ],
+   [
+    {
+     "path": "country_code",
+     "message": "String must contain exactly 2 character(s)",
+     "code": "too_small"
+    }
+   ]
+  ],
+  "stage africa.countries.signals {\"country_code\":\"0x12\"}": [
+   400,
+   "Request body validation failed. Expected params: country_code",
+   [
+    {
+     "path": "country_code",
+     "message": "String must contain exactly 2 character(s)",
+     "code": "too_big"
+    }
+   ],
+   [
+    {
+     "path": "country_code",
+     "message": "String must contain exactly 2 character(s)",
+     "code": "too_big"
+    }
+   ]
+  ],
+  "stage aipush.market_report {\"target_url\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: target_url",
+   [
+    {
+     "path": "target_url",
+     "message": "Invalid url",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "target_url",
+     "message": "Invalid url",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage aipush.market_report_status {\"report_id\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: report_id",
+   [
+    {
+     "path": "report_id",
+     "message": "Invalid uuid",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "report_id",
+     "message": "Invalid uuid",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage amadeus.flight_price {\"flight_offer\":-5}": [
+   400,
+   "Request body validation failed. Expected params: flight_offer",
+   [
+    {
+     "path": "flight_offer",
+     "message": "Expected object, received number",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "flight_offer",
+     "message": "Expected object, received number",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage amadeus.flight_price {\"flight_offer\":true}": [
+   400,
+   "Request body validation failed. Expected params: flight_offer",
+   [
+    {
+     "path": "flight_offer",
+     "message": "Expected object, received boolean",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "flight_offer",
+     "message": "Expected object, received boolean",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage aviasales.search_flights \"str\"": [
+   400,
+   "Request body validation failed. Expected params: origin, destination, departure_date, direct_only, currency, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage aviasales.search_flights []": [
+   400,
+   "Request body validation failed. Expected params: origin, destination, departure_date, direct_only, currency, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage aviasales.search_flights null": [
+   400,
+   "Request body validation failed. Expected params: origin, destination, departure_date, direct_only, currency, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage bankofcanada.fx_rates {\"currencies\":\"\",\"recent\":\"\",\"start_date\":\"\",\"end_date\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: currencies, recent, start_date, end_date",
+   [
+    {
+     "path": "currencies",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "recent",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "start_date",
+     "message": "Invalid",
+     "code": "invalid_string"
+    },
+    {
+     "path": "end_date",
+     "message": "Invalid",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "currencies",
+     "message": "Expected array, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "recent",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "start_date",
+     "message": "Invalid",
+     "code": "invalid_string"
+    },
+    {
+     "path": "end_date",
+     "message": "Invalid",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage brightsky.stations {\"latitude\":-5,\"longitude\":-5,\"max_dist\":-5}": [
+   400,
+   "Request body validation failed. Expected params: latitude, longitude, max_dist",
+   [
+    {
+     "path": "latitude",
+     "message": "Number must be greater than or equal to 47",
+     "code": "too_small"
+    },
+    {
+     "path": "longitude",
+     "message": "Number must be greater than or equal to 5",
+     "code": "too_small"
+    },
+    {
+     "path": "max_dist",
+     "message": "Number must be greater than 0",
+     "code": "too_small"
+    }
+   ],
+   [
+    {
+     "path": "latitude",
+     "message": "Number must be greater than or equal to 47",
+     "code": "too_small"
+    },
+    {
+     "path": "longitude",
+     "message": "Number must be greater than or equal to 5",
+     "code": "too_small"
+    },
+    {
+     "path": "max_dist",
+     "message": "Number must be greater than 0",
+     "code": "too_small"
+    }
+   ]
+  ],
+  "stage bundesbank-timeseries.data {\"dataflow_id\":\"\",\"key\":\"\",\"start_period\":\"\",\"end_period\":\"\",\"last_n_observations\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: dataflow_id, key, start_period, end_period, last_n_observations",
+   [
+    {
+     "path": "dataflow_id",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "dataflow_id",
+     "message": "dataflow_id must contain only letters, digits, and underscores",
+     "code": "invalid_string"
+    },
+    {
+     "path": "key",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "key",
+     "message": "key must be a dot-separated SDMX series key with no empty segments",
+     "code": "invalid_string"
+    },
+    {
+     "path": "last_n_observations",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "dataflow_id",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "dataflow_id",
+     "message": "dataflow_id must contain only letters, digits, and underscores",
+     "code": "invalid_string"
+    },
+    {
+     "path": "key",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "key",
+     "message": "key must be a dot-separated SDMX series key with no empty segments",
+     "code": "invalid_string"
+    },
+    {
+     "path": "last_n_observations",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage cdc.query {\"dataset_id\":\"\",\"where\":\"\",\"select\":\"\",\"order\":\"\",\"group\":\"\",\"limit\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: dataset_id, where, select, order, group, limit",
+   [
+    {
+     "path": "dataset_id",
+     "message": "Must be Socrata dataset ID like \"9bhg-hcku\"",
+     "code": "invalid_string"
+    },
+    {
+     "path": "limit",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "dataset_id",
+     "message": "Must be Socrata dataset ID like \"9bhg-hcku\"",
+     "code": "invalid_string"
+    },
+    {
+     "path": "limit",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage celestrak.tle {\"catnr\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": [
+   400,
+   "Request body validation failed. Expected params: catnr",
+   [
+    {
+     "path": "catnr",
+     "message": "Invalid input",
+     "code": "invalid_union"
+    }
+   ],
+   [
+    {
+     "path": "catnr",
+     "message": "Invalid input",
+     "code": "invalid_union"
+    }
+   ]
+  ],
+  "stage copernicus-sentinel.search_scenes {\"bbox\":[\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"]}": [
+   400,
+   "Request body validation failed. Expected params: collection, bbox, lat, lon, radius_km, start_date, end_date, max_cloud_cover, sort, limit",
+   [
+    {
+     "path": "bbox",
+     "message": "Array must contain exactly 4 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "bbox.0",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "start_date",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_date",
+     "message": "Required",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "bbox",
+     "message": "Array must contain exactly 4 element(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "bbox.0",
+     "message": "Expected number, received string",
+     "code": "invalid_type"
+    },
+    {
+     "path": "start_date",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "end_date",
+     "message": "Required",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage email.validate {\"email\":\"\",\"ip_address\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: email, ip_address",
+   [
+    {
+     "path": "email",
+     "message": "Invalid email",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "email",
+     "message": "Invalid email",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage geocodio.reverse {\"lat\":-5,\"lon\":-5,\"limit\":-5}": [
+   400,
+   "Request body validation failed. Expected params: lat, lon, limit",
+   [
+    {
+     "path": "lat",
+     "message": "Number must be greater than or equal to 24",
+     "code": "too_small"
+    },
+    {
+     "path": "lon",
+     "message": "Number must be less than or equal to -50",
+     "code": "too_big"
+    },
+    {
+     "path": "limit",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    }
+   ],
+   [
+    {
+     "path": "lat",
+     "message": "Number must be greater than or equal to 24",
+     "code": "too_small"
+    },
+    {
+     "path": "lon",
+     "message": "Number must be less than or equal to -50",
+     "code": "too_big"
+    },
+    {
+     "path": "limit",
+     "message": "Number must be greater than or equal to 1",
+     "code": "too_small"
+    }
+   ]
+  ],
+  "stage geodiva.eruption_search {\"edate_end\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: volcano_id, eruption_id, sdate_start, sdate_end, edate_start, edate_end",
+   [
+    {
+     "path": "edate_end",
+     "message": "must be a year, \"YYYY-MM-DD\", or \"YYYY-MM-DDTHH:MM:SS\" (negative years allowed for BCE)",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "edate_end",
+     "message": "must be a year, \"YYYY-MM-DD\", or \"YYYY-MM-DDTHH:MM:SS\" (negative years allowed for BCE)",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage geonet-nz.quake_search {\"mmi\":-5}": [
+   400,
+   "Request body validation failed. Expected params: mmi",
+   [
+    {
+     "path": "mmi",
+     "message": "Number must be greater than or equal to -1",
+     "code": "too_small"
+    }
+   ],
+   [
+    {
+     "path": "mmi",
+     "message": "Number must be greater than or equal to -1",
+     "code": "too_small"
+    }
+   ]
+  ],
+  "stage hf.model_details {\"model_id\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: model_id",
+   [
+    {
+     "path": "model_id",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "model_id",
+     "message": "Invalid model ID format (no path traversal)",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "model_id",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "model_id",
+     "message": "Invalid model ID format (no path traversal)",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage ine-portugal.indicator_data {\"varcd\":\"\",\"dim1\":\"\",\"dim2\":\"\",\"dim3\":\"\",\"dim4\":\"\",\"dim5\":\"\",\"dim6\":\"\",\"lang\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: varcd, dim1, dim2, dim3, dim4, dim5, dim6, lang",
+   [
+    {
+     "path": "varcd",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "varcd",
+     "message": "varcd must be numeric digits only",
+     "code": "invalid_string"
+    },
+    {
+     "path": "lang",
+     "message": "Invalid enum value. Expected 'EN' | 'PT', received ''",
+     "code": "invalid_enum_value"
+    }
+   ],
+   [
+    {
+     "path": "varcd",
+     "message": "String must contain at least 1 character(s)",
+     "code": "too_small"
+    },
+    {
+     "path": "varcd",
+     "message": "varcd must be numeric digits only",
+     "code": "invalid_string"
+    },
+    {
+     "path": "lang",
+     "message": "Invalid enum value. Expected 'EN' | 'PT', received ''",
+     "code": "invalid_enum_value"
+    }
+   ]
+  ],
+  "stage launch-library-2.launch_detail {\"id\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "id",
+     "message": "must be a launch UUID, e.g. \"521f3a1c-f977-4306-9b7f-495858719adf\"",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "id",
+     "message": "must be a launch UUID, e.g. \"521f3a1c-f977-4306-9b7f-495858719adf\"",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage ncbi-eutils.taxonomy_lineage {\"tax_id\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: tax_id",
+   [
+    {
+     "path": "tax_id",
+     "message": "must be a numeric NCBI Taxonomy ID",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "tax_id",
+     "message": "must be a numeric NCBI Taxonomy ID",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage nwis.annual_stats \"str\"": [
+   400,
+   "Request body validation failed. Expected params: site_no",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.annual_stats []": [
+   400,
+   "Request body validation failed. Expected params: site_no",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.annual_stats null": [
+   400,
+   "Request body validation failed. Expected params: site_no",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.basin_conditions \"str\"": [
+   400,
+   "Request body validation failed. Expected params: huc_code, period",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.basin_conditions []": [
+   400,
+   "Request body validation failed. Expected params: huc_code, period",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.basin_conditions null": [
+   400,
+   "Request body validation failed. Expected params: huc_code, period",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.daily_values \"str\"": [
+   400,
+   "Request body validation failed. Expected params: site_no, start_date, end_date, parameter_cd",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.daily_values []": [
+   400,
+   "Request body validation failed. Expected params: site_no, start_date, end_date, parameter_cd",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.daily_values null": [
+   400,
+   "Request body validation failed. Expected params: site_no, start_date, end_date, parameter_cd",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.site_info \"str\"": [
+   400,
+   "Request body validation failed. Expected params: site_no",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.site_info []": [
+   400,
+   "Request body validation failed. Expected params: site_no",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage nwis.site_info null": [
+   400,
+   "Request body validation failed. Expected params: site_no",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage orcid.get_person {\"orcid_id\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: orcid_id",
+   [
+    {
+     "path": "orcid_id",
+     "message": "ORCID iD must be in the form 0000-0000-0000-0000 (last character may be X)",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "orcid_id",
+     "message": "ORCID iD must be in the form 0000-0000-0000-0000 (last character may be X)",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage rawg.game_details \"str\"": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_details []": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_details null": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_search \"str\"": [
+   400,
+   "Request body validation failed. Expected params: search, genres, platforms, dates, ordering, metacritic, page_size, page",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_search []": [
+   400,
+   "Request body validation failed. Expected params: search, genres, platforms, dates, ordering, metacritic, page_size, page",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_search null": [
+   400,
+   "Request body validation failed. Expected params: search, genres, platforms, dates, ordering, metacritic, page_size, page",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_series \"str\"": [
+   400,
+   "Request body validation failed. Expected params: id, page, page_size",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_series []": [
+   400,
+   "Request body validation failed. Expected params: id, page, page_size",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.game_series null": [
+   400,
+   "Request body validation failed. Expected params: id, page, page_size",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.screenshots \"str\"": [
+   400,
+   "Request body validation failed. Expected params: id, page, page_size",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.screenshots []": [
+   400,
+   "Request body validation failed. Expected params: id, page, page_size",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.screenshots null": [
+   400,
+   "Request body validation failed. Expected params: id, page, page_size",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.store_links \"str\"": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.store_links []": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage rawg.store_links null": [
+   400,
+   "Request body validation failed. Expected params: id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage socrata.dataset_metadata {\"dataset_id\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: domain, dataset_id",
+   [
+    {
+     "path": "domain",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "dataset_id",
+     "message": "must be a Socrata 4x4 identifier, e.g. \"erm2-nwe9\"",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "domain",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "dataset_id",
+     "message": "must be a Socrata 4x4 identifier, e.g. \"erm2-nwe9\"",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage statcan.catalogue_search \"str\"": [
+   400,
+   "Request body validation failed. Expected params: query, subject_code, archived, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage statcan.catalogue_search []": [
+   400,
+   "Request body validation failed. Expected params: query, subject_code, archived, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage statcan.catalogue_search null": [
+   400,
+   "Request body validation failed. Expected params: query, subject_code, archived, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.get_chat \"str\"": [
+   400,
+   "Request body validation failed. Expected params: chat_id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.get_chat []": [
+   400,
+   "Request body validation failed. Expected params: chat_id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.get_chat null": [
+   400,
+   "Request body validation failed. Expected params: chat_id",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.get_updates \"str\"": [
+   400,
+   "Request body validation failed. Expected params: limit, offset",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.get_updates []": [
+   400,
+   "Request body validation failed. Expected params: limit, offset",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.get_updates null": [
+   400,
+   "Request body validation failed. Expected params: limit, offset",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_document \"str\"": [
+   400,
+   "Request body validation failed. Expected params: chat_id, document, caption",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_document []": [
+   400,
+   "Request body validation failed. Expected params: chat_id, document, caption",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_document null": [
+   400,
+   "Request body validation failed. Expected params: chat_id, document, caption",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_message \"str\"": [
+   400,
+   "Request body validation failed. Expected params: chat_id, text, parse_mode, disable_notification",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_message []": [
+   400,
+   "Request body validation failed. Expected params: chat_id, text, parse_mode, disable_notification",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_message null": [
+   400,
+   "Request body validation failed. Expected params: chat_id, text, parse_mode, disable_notification",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_photo \"str\"": [
+   400,
+   "Request body validation failed. Expected params: chat_id, photo, caption",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_photo []": [
+   400,
+   "Request body validation failed. Expected params: chat_id, photo, caption",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage telegram.send_photo null": [
+   400,
+   "Request body validation failed. Expected params: chat_id, photo, caption",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage tides.predictions \"str\"": [
+   400,
+   "Request body validation failed. Expected params: station, begin_date, end_date, interval, datum, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage tides.predictions []": [
+   400,
+   "Request body validation failed. Expected params: station, begin_date, end_date, interval, datum, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage tides.predictions null": [
+   400,
+   "Request body validation failed. Expected params: station, begin_date, end_date, interval, datum, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage tides.predictions {\"begin_date\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: station, begin_date, end_date, interval, datum, units",
+   [
+    {
+     "path": "station",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "begin_date",
+     "message": "Must be YYYYMMDD format",
+     "code": "invalid_string"
+    },
+    {
+     "path": "end_date",
+     "message": "Required",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "station",
+     "message": "Required",
+     "code": "invalid_type"
+    },
+    {
+     "path": "begin_date",
+     "message": "Must be YYYYMMDD format",
+     "code": "invalid_string"
+    },
+    {
+     "path": "end_date",
+     "message": "Required",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage tides.water_levels \"str\"": [
+   400,
+   "Request body validation failed. Expected params: station, date, datum, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage tides.water_levels []": [
+   400,
+   "Request body validation failed. Expected params: station, date, datum, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage tides.water_levels null": [
+   400,
+   "Request body validation failed. Expected params: station, date, datum, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage uk-landregistry-pricepaid.search_by_area {\"max_date\":\"\"}": [
+   400,
+   "Request body validation failed. Expected params: town, county, district, min_date, max_date, min_price, max_price, page, page_size",
+   [
+    {
+     "path": "max_date",
+     "message": "must be YYYY-MM-DD",
+     "code": "invalid_string"
+    }
+   ],
+   [
+    {
+     "path": "max_date",
+     "message": "must be YYYY-MM-DD",
+     "code": "invalid_string"
+    }
+   ]
+  ],
+  "stage unesco-data.geounit_list \"str\"": [
+   400,
+   "Request body validation failed. Expected params: query, type",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.geounit_list []": [
+   400,
+   "Request body validation failed. Expected params: query, type",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.geounit_list null": [
+   400,
+   "Request body validation failed. Expected params: query, type",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.get_data \"str\"": [
+   400,
+   "Request body validation failed. Expected params: indicator, geo_unit, geo_unit_type, start, end, footnotes, indicator_metadata",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.get_data []": [
+   400,
+   "Request body validation failed. Expected params: indicator, geo_unit, geo_unit_type, start, end, footnotes, indicator_metadata",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.get_data null": [
+   400,
+   "Request body validation failed. Expected params: indicator, geo_unit, geo_unit_type, start, end, footnotes, indicator_metadata",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.indicator_search \"str\"": [
+   400,
+   "Request body validation failed. Expected params: query, theme, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.indicator_search []": [
+   400,
+   "Request body validation failed. Expected params: query, theme, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage unesco-data.indicator_search null": [
+   400,
+   "Request body validation failed. Expected params: query, theme, limit",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage weather.compare \"str\"": [
+   400,
+   "Request body validation failed. Expected params: locations, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received string",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage weather.compare []": [
+   400,
+   "Request body validation failed. Expected params: locations, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received array",
+     "code": "invalid_type"
+    }
+   ]
+  ],
+  "stage weather.compare null": [
+   400,
+   "Request body validation failed. Expected params: locations, units",
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ],
+   [
+    {
+     "path": "",
+     "message": "Expected object, received null",
+     "code": "invalid_type"
+    }
+   ]
+  ]
+ }
+}

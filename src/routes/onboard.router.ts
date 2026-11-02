@@ -1,3 +1,4 @@
+import { zod3Issues } from '../utils/zod3-errors';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { logger } from '../config/logger';
@@ -226,7 +227,7 @@ onboardRouter.post('/onboard', async (req: Request, res: Response) => {
   // 2. Parse + validate
   const parsed = onboardSchema.safeParse(req.body);
   if (!parsed.success) {
-    const errors = parsed.error.issues.map((issue) => ({
+    const errors = zod3Issues(parsed.error.issues, onboardSchema, req.body).map((issue) => ({
       field: issue.path.join('.'),
       message: issue.message,
     }));

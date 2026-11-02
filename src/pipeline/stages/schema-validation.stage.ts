@@ -1,11 +1,13 @@
 import { type Stage, type PipelineContext, type PipelineError, ok, err } from '../types';
 import { toolSchemas } from '../../schemas';
 import { schemaFailureStatus } from '../../pricing/audio-minute';
+import { zod3Issues } from '../../utils/zod3-errors';
 
 /**
  * SCHEMA_VALIDATION stage (§12.43 stage 4).
  * Validates request body against tool-specific zod schema.
  * Uses .strip() to remove unknown keys (MCP agents may send extra fields).
+ * Issues keep the zod 3 wording and codes (T-0603 R2, src/utils/zod3-errors.ts).
  */
 export const schemaValidationStage: Stage = {
   name: 'SCHEMA_VALIDATION',
@@ -23,11 +25,13 @@ export const schemaValidationStage: Stage = {
     const result = schema.safeParse(ctx.body);
 
     if (!result.success) {
-      const issues = result.error.issues.slice(0, 10).map((issue) => ({
-        path: issue.path.join('.'),
-        message: issue.message,
-        code: issue.code,
-      }));
+      const issues = zod3Issues(result.error.issues, schema, ctx.body)
+        .slice(0, 10)
+        .map((issue) => ({
+          path: issue.path.join('.'),
+          message: issue.message,
+          code: issue.code,
+        }));
 
       // Extract expected params from schema for agent hints
       const shape = (schema as { shape?: Record<string, unknown> }).shape ?? {};

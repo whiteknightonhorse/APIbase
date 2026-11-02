@@ -1,3 +1,4 @@
+import { zod3Issues } from '../utils/zod3-errors';
 import { Router, type Request, type Response } from 'express';
 import { z } from 'zod';
 import { logger } from '../config/logger';
@@ -223,7 +224,10 @@ async function handleSubmit(req: Request, res: Response): Promise<void> {
   if (!parsed.success) {
     res.status(422).json({
       error: 'validation_error',
-      issues: parsed.error.issues.map((i) => ({ field: i.path.join('.'), message: i.message })),
+      issues: zod3Issues(parsed.error.issues, submitSchema, req.body).map((i) => ({
+        field: i.path.join('.'),
+        message: i.message,
+      })),
     });
     return;
   }

@@ -9,7 +9,8 @@
  * fingerprints (definition_sha256), the cache/dedup keys, the x402 bazaar inputSchema and the
  * OpenAPI spec, and must stay byte-identical to the zod 3 version; z.toJSONSchema differs
  * (anyOf for unions, propertyNames for records, safe-integer bounds for .int(), $schema,
- * additionalProperties:false). tests/unit/zod-to-json-schema-snapshot.test.ts pins the output.
+ * additionalProperties:false). tests/unit/zod3-tool-schema.test.ts pins the output
+ * (`converter` entries of tests/fixtures/zod3-tool-schema-baseline.json).
  */
 
 import { z } from 'zod';

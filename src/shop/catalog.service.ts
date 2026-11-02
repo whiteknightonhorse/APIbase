@@ -1,3 +1,4 @@
+import { zod3Issues } from '../utils/zod3-errors';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { config } from '../config';
@@ -292,7 +293,9 @@ function encKey(opts: CatalogOpts): string {
 }
 
 const issueText = (e: z.ZodError) =>
-  e.issues.map((i) => `${i.path.join('.') || 'item'}: ${i.message}`).join('; ');
+  zod3Issues(e.issues)
+    .map((i) => `${i.path.join('.') || 'item'}: ${i.message}`)
+    .join('; ');
 
 export async function review(
   tx: ShopTx,

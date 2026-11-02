@@ -1,3 +1,4 @@
+import { zod3Issues } from '../utils/zod3-errors';
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
 import { registerAgent, autoRegisterAnonymous } from '../services/agent.service';
@@ -36,11 +37,13 @@ agentsRouter.post(
       const parsed = registerSchema.safeParse(req.body);
 
       if (!parsed.success) {
-        const issues = parsed.error.issues.slice(0, 10).map((issue) => ({
-          path: issue.path.join('.'),
-          message: issue.message,
-          code: issue.code,
-        }));
+        const issues = zod3Issues(parsed.error.issues, registerSchema, req.body)
+          .slice(0, 10)
+          .map((issue) => ({
+            path: issue.path.join('.'),
+            message: issue.message,
+            code: issue.code,
+          }));
 
         throw new AppError(
           ErrorCode.BAD_REQUEST,

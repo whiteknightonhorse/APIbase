@@ -11,11 +11,21 @@
  * zod 4 schema; only the listing goes through the mirror.
  *
  * tests/unit/zod3-tool-schema.test.ts pins the output to the zod 3 baseline.
+ *
+ * The same wrapper keeps the zod 3 text of the SDK's `Input validation error: ...` (review R2):
+ * on a failed call it rebuilds the issue list with `zod3Issues` (src/utils/zod3-errors.ts).
  */
 import { z } from 'zod';
 import { z as z3 } from 'zod/v3';
 import { zodToJsonSchema as zod3ToJsonSchema } from 'zod-to-json-schema';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { ErrorCode, McpError } from '@modelcontextprotocol/sdk/types.js';
+import {
+  normalizeObjectSchema,
+  safeParseAsync,
+  type AnySchema,
+} from '@modelcontextprotocol/sdk/server/zod-compat.js';
+import { zod3Issues } from '../utils/zod3-errors';
 import { enumValues } from '../utils/zod-to-json-schema';
 import { logger } from '../config/logger';
 
@@ -275,6 +285,7 @@ export function withZod3ToolSchemas(server: McpServer): McpServer {
     ._requestHandlers;
   const registered = (server as unknown as { _registeredTools: Record<string, RegisteredTool> })
     ._registeredTools;
+  withZod3InputErrors(server);
   const inner = handlers.get('tools/list');
   if (!inner) return server;
   handlers.set('tools/list', async (request, extra) => {
@@ -298,4 +309,73 @@ export function withZod3ToolSchemas(server: McpServer): McpServer {
     return res;
   });
   return server;
+}
+
+/** The SDK's dotted issue path (`a.b[0]`; root = "object root"). */
+function dotPath(path: readonly PropertyKey[]): string {
+  if (path.length === 0) return 'object root';
+  return path.reduce<string>(
+    (acc, seg, i) =>
+      i === 0 ? String(seg) : typeof seg === 'number' ? `${acc}[${seg}]` : `${acc}.${String(seg)}`,
+    '',
+  );
+}
+
+/** The SDK's getParseErrorMessage: one line per issue, `<message> at <path>`. */
+function issueText(issues: ReadonlyArray<{ path: PropertyKey[]; message: string }>): string {
+  return issues
+    .map((i) => (i.path.length ? `${i.message} at ${dotPath(i.path)}` : i.message))
+    .join('\n');
+}
+
+type ValidateToolInput = (
+  tool: RegisteredTool,
+  args: unknown,
+  toolName: string,
+) => Promise<unknown>;
+
+/**
+ * Keep the zod 3 issue list in the SDK's `Input validation error: Invalid arguments for tool X: ...`
+ * text: the SDK joins zod 4's raw issues, which include checks zod 3 never ran (a length check on
+ * a value of the wrong type) and miss ones it did (range checks after a failed `.int()`).
+ */
+function withZod3InputErrors(server: McpServer): void {
+  const target = server as unknown as { validateToolInput: ValidateToolInput };
+  const original = target.validateToolInput.bind(server);
+  target.validateToolInput = async (tool, args, toolName) => {
+    try {
+      return await original(tool, args, toolName);
+    } catch (err) {
+      if (
+        !(err instanceof McpError) ||
+        err.code !== ErrorCode.InvalidParams ||
+        !err.message.includes('Input validation error:') ||
+        !tool.inputSchema
+      )
+        throw err;
+      const schema = (normalizeObjectSchema(tool.inputSchema as AnySchema) ??
+        tool.inputSchema) as Schema;
+      const input = args ?? {};
+      if (isEmptyShape(schema)) {
+        // An empty raw shape went to the SDK's zod 4 path even under zod 3: keep zod 4's text.
+        const own = await (schema as z.ZodType).safeParseAsync(input, {
+          error: z.locales.en().localeError,
+        });
+        if (own.success) throw err;
+        throw new McpError(
+          ErrorCode.InvalidParams,
+          `Input validation error: Invalid arguments for tool ${toolName}: ${issueText(own.error.issues)}`,
+        );
+      }
+      const parsed = await safeParseAsync(schema as AnySchema, input);
+      if (parsed.success) throw err;
+      const issues = zod3Issues((parsed.error as z.ZodError).issues, schema, input, {
+        async: true,
+      });
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Input validation error: Invalid arguments for tool ${toolName}: ${issueText(issues)}`,
+      );
+    }
+  };
 }

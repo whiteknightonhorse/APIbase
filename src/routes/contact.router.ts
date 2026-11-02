@@ -1,3 +1,4 @@
+import { zod3Issues } from '../utils/zod3-errors';
 import crypto from 'node:crypto';
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
@@ -88,7 +89,7 @@ contactRouter.post('/api/v1/contact', contactLimiter, async (req: Request, res: 
 
   const parsed = contactSchema.safeParse(req.body);
   if (!parsed.success) {
-    const errors = parsed.error.issues.map((issue) => ({
+    const errors = zod3Issues(parsed.error.issues, contactSchema, req.body).map((issue) => ({
       field: issue.path.join('.'),
       message: issue.message,
     }));

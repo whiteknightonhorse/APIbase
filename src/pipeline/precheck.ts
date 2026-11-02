@@ -2,6 +2,7 @@ import type { PipelineError } from './types';
 import { toolSchemas } from '../schemas';
 import { schemaFailureStatus } from '../pricing/audio-minute';
 import { checkToolAvailability } from './stages/tool-status.stage';
+import { zod3Issues } from '../utils/zod3-errors';
 
 /**
  * Pre-payment checks (T-0338), shared by AUTH's 402 branch and the MPP middleware:
@@ -24,11 +25,13 @@ export function bodySchemaFailure(toolId: string, body: unknown): BodySchemaFail
   const result = schema.safeParse(body);
   if (result.success) return null;
   return {
-    issues: result.error.issues.slice(0, 10).map((i) => ({
-      path: i.path.join('.'),
-      message: i.message,
-      code: i.code,
-    })),
+    issues: zod3Issues(result.error.issues, schema, body)
+      .slice(0, 10)
+      .map((i) => ({
+        path: i.path.join('.'),
+        message: i.message,
+        code: i.code,
+      })),
     expected_params: Object.keys((schema as { shape?: Record<string, unknown> }).shape ?? {}),
     received_params: Object.keys((body ?? {}) as Record<string, unknown>),
   };
