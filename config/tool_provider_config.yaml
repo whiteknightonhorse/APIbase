@@ -11537,3 +11537,31 @@ tools:
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 3600
+
+  # --- T-0655: Inferrail Web Read (upstream-paid pilot, MARKET-SIGNALS-1102 S21) ---
+  # APIbase pays Inferrail's own x402 402 per call from the upstream payer wallet (block below).
+  # price_usd = upstreamToolPriceUsd(listed 0.002, UPSTREAM_MARKUP_BPS 2000) = ceil_to_grid(0.0024) = 0.003.
+  - tool_id: inferrail.read_page
+    name: Inferrail Web Read
+    provider: inferrail
+    price_usd: "0.003"
+    upstream_cost_usd: "0.002"
+    upstream_cost_model: upstream_402
+    upstream_cost_note: "https://inferrail-cost-gateway.onrender.com/read/v1/page answers 402 (x402 v2 exact, eip155:8453 USDC, amount 2000 = $0.002 per delivered page) — 2026-11-03 — paid per call by APIbase from the upstream payer wallet"
+    cache_ttl: 0
+
+# T-0655: upstream-paid providers (docs/payments.md "Upstream-paid providers"). Validated at load by
+# src/adapters/_upstream-402 (zod, closed set); an invalid block disables every upstream-paid tool.
+upstream_pay:
+  inferrail:
+    rail: x402
+    network: "eip155:8453"
+    asset: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"
+    listed_price_usd: "0.002"
+    max_price_usd: "0.002"
+    pay_to_allowlist:
+      - "0xA45140E99E9482a50BC3fA5F6000c02FAAB6F65E"
+    tools:
+      inferrail.read_page:
+        method: GET
+        url: "https://inferrail-cost-gateway.onrender.com/read/v1/page"

@@ -1,4 +1,4 @@
-import { type ZodSchema } from 'zod';
+import { z, type ZodSchema } from 'zod';
 import { weatherSchemas } from './weather.schema';
 import { cryptoSchemas } from './crypto.schema';
 import { polymarketSchemas } from './polymarket.schema';
@@ -416,6 +416,20 @@ import { dataUsaSchemas } from './data-usa.schema';
 import { fbiwantedSchemas } from './fbiwanted.schema';
 import { itistaxonomySchemas } from './itistaxonomy.schema';
 import { orcidSchemas } from './orcid.schema';
+
+// T-0655: Inferrail Web Read (upstream-paid pilot; the adapter forwards `url` as the query string).
+const inferrailSchemas: Record<string, ZodSchema> = {
+  'inferrail.read_page': z
+    .object({
+      url: z
+        .string()
+        .url()
+        .max(2048)
+        .regex(/^https?:\/\//)
+        .describe('Public http(s) URL of the web page to read (e.g. "https://example.com/")'),
+    })
+    .strip(),
+};
 
 export const toolSchemas: Record<string, ZodSchema> = {
   ...weatherSchemas,
@@ -835,4 +849,5 @@ export const toolSchemas: Record<string, ZodSchema> = {
   ...itistaxonomySchemas,
   ...orcidSchemas,
   ...apibaseSchemas,
+  ...inferrailSchemas,
 };

@@ -12,6 +12,11 @@ import {
   recordSuccess as breakerSuccess,
 } from '../../services/tool-breaker.service';
 import { apibaseCallLostWithAlternativeTotal } from '../../services/metrics.service';
+import {
+  Upstream402Adapter,
+  type UpstreamOutcome,
+  type UpstreamRaw,
+} from '../../adapters/_upstream-402';
 
 /** 503/502/504 — the three codes R-2's alternatives[] contract names explicitly (03-SPECIFICATION.md).
  *  429/422/etc. are OUR routing/schema signals, not "the upstream is down", so they get no
@@ -55,13 +60,30 @@ export const providerCallStage: Stage = {
       });
     }
 
+    // T-0655: an upstream-paid tool pays the provider's own 402 from the payer wallet. Only
+    // after the buyer's x402 payment was verified or the MPP charge settled (ESCROW ran);
+    // anything else (prepaid balance, free) is refused here, nothing charged.
+    const upstreamPaid = adapter instanceof Upstream402Adapter;
+    if (upstreamPaid && !ctx.x402Paid && !ctx.mppPaid) {
+      return err({
+        code: 503,
+        error: 'tool_unavailable',
+        message: `Tool ${toolId} is paid per call over x402 or MPP only; you are not charged`,
+        retryAfter: 60,
+      });
+    }
+
     try {
-      const raw = await adapter.call({
+      const req = {
         toolId,
         params: ctx.body,
         requestId: ctx.requestId,
         agentId: ctx.agentId,
-      });
+      };
+      const raw =
+        adapter instanceof Upstream402Adapter
+          ? await adapter.callPaid(req, { x402Paid: ctx.x402Paid, mppPaid: ctx.mppPaid })
+          : await adapter.call(req);
 
       ctx.providerCalled = true;
       if (raw.status >= 200 && raw.status < 300) await breakerSuccess(toolId);
@@ -84,6 +106,12 @@ export const providerCallStage: Stage = {
       const body = raw.body as Record<string, unknown> | undefined;
       if (body && typeof body.cost_usd === 'number' && Number.isFinite(body.cost_usd)) {
         ctx.upstreamCostUsd = body.cost_usd;
+      }
+      // T-0655: what APIbase paid the provider's 402 (overrides any self-reported cost).
+      const up = (raw as Partial<UpstreamRaw>).upstream;
+      if (up) {
+        ctx.upstreamCostUsd = up.paidUsd;
+        if (up.tx) ctx.upstreamTx = up.tx;
       }
 
       logger.info(
@@ -128,6 +156,20 @@ export const providerCallStage: Stage = {
       // never an unhandled crash.
       await recordProviderCallFailure(providerError, toolId);
       await breakerFailure(toolId, providerError);
+
+      // T-0655: an MPP buyer was charged before the call; any upstream failure books the refund
+      // with reason upstream_failed:<code> (the x402 buyer is simply never settled: the pipeline
+      // stops here, before ESCROW_FINALIZE). A loss (paid upstream, no 200) goes into the note.
+      const up = (error as { upstream?: UpstreamOutcome }).upstream;
+      if (up && ctx.mppPaid) {
+        // Lazy: escrow-finalize pulls the x402 settle stack (ESM jose) into every importer.
+        const { recordMppRefundOwed } = await import('./escrow-finalize.stage');
+        await recordMppRefundOwed(ctx, `upstream_failed:${String(providerError.code)}`, {
+          upstream_result: up.result,
+          ...(up.lossUsd > 0 ? { upstream_loss: up.lossUsd } : {}),
+          ...(up.tx ? { upstream_tx: up.tx } : {}),
+        });
+      }
 
       const code = typeof providerError.httpStatus === 'number' ? providerError.httpStatus : 502;
 

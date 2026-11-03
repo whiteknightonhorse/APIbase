@@ -17628,4 +17628,14 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'world',
     annotations: READ_ONLY,
   },
+  // Inferrail Web Read (T-0655, upstream-paid pilot: APIbase pays the provider's x402 per call)
+  {
+    toolId: 'inferrail.read_page',
+    mcpName: 'inferrail.web.read_page',
+    title: 'Inferrail Web Read',
+    description:
+      'Read one public web page as clean Markdown (title, main text, headings, lists, links) with word count, a SHA-256 content hash and the provider receipt. APIbase pays the provider per call over x402; your payment is settled only when the page is delivered. Source: Inferrail Web Read.',
+    category: 'media',
+    annotations: READ_ONLY,
+  },
 ];

@@ -62,8 +62,10 @@ export function retiredLine(name: string, n: number, info: RetiredInfo): string 
   return `[seed] skipped retired provider ${name} (${n} tools, provider-limits.json retired.since ${info.since})`;
 }
 
-/** cost_source for a YAML-recorded cost: 'yaml:<model>', 'yaml' when the model is absent. */
+/** cost_source for a YAML-recorded cost: 'yaml:<model>', 'yaml' when the model is absent;
+ *  T-0655: 'upstream_402' for a tool whose provider's own 402 APIbase pays per call. */
 export function yamlCostSource(model: string | undefined): string {
+  if (model === 'upstream_402') return 'upstream_402';
   return model ? `yaml:${model}` : 'yaml';
 }
 

@@ -142,7 +142,7 @@ describe('receipt body schema', () => {
     for (const ctx of [billedX402(), billedMpp()]) {
       const body = JSON.parse((await planReceipt(ctx, 'x', NOW))!.body);
       expect(Object.keys(body).sort()).toEqual(
-        RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'status').sort(),
+        RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'status' && k !== 'upstream_tx').sort(),
       );
     }
   });
@@ -159,7 +159,7 @@ describe('receipt body schema', () => {
     });
     expect(body).not.toBeNull();
     expect(Object.keys(body!).sort()).toEqual(
-      RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'status').sort(),
+      RECEIPT_ALLOWED_KEYS.filter((k) => k !== 'status' && k !== 'upstream_tx').sort(),
     );
   });
 

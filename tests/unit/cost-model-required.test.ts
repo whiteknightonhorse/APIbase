@@ -4,7 +4,7 @@ import { parse } from 'yaml';
 
 // T-SITE-E: no paid tool enters the catalog without a cost model. Cost model notes live in the private repository apibase-internal.
 const ROOT = join(__dirname, '../..');
-const MODELS = ['free', 'free_tier', 'flat', 'subscription', 'metered'];
+const MODELS = ['free', 'free_tier', 'flat', 'subscription', 'metered', 'upstream_402'];
 
 interface Tool {
   tool_id: string;

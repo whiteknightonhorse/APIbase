@@ -182,3 +182,20 @@ declare module 'mppx-legacy/tempo' {
     };
   }
 }
+
+// T-0655: the upstream payer signs a provider's Tempo charge challenge (src/payments/upstream-payer.ts).
+declare module 'mppx/client' {
+  type ChargeClientParams = {
+    account: unknown;
+    currencies: string[];
+    maxAtomicAmount: string;
+    expectedRecipients: string[];
+    expectedChainId: number;
+    allowedChainIds: number[];
+  };
+  export const tempo: {
+    charge(p: ChargeClientParams): {
+      createCredential(a: { challenge: unknown; context: unknown }): Promise<string>;
+    };
+  };
+}

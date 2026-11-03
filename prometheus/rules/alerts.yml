@@ -441,3 +441,26 @@ groups:
           severity: critical
         annotations:
           summary: "the refund signer key does not match the wallet record; payouts are off for that rail"
+
+      # T-0655 upstream payer wallet (docs/payments.md "Upstream-paid providers")
+      - alert: UpstreamPayerLowBalance
+        expr: upstream_payer_balance_usd < 5
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "the upstream payer wallet is below UPSTREAM_PAYER_LOW_BALANCE_USD; upstream-paid tools stop below 2 x max price: fund it by hand (ceiling UPSTREAM_PAYER_CEILING_USD)"
+
+      - alert: UpstreamDailyCapHit
+        expr: increase(upstream_pay_total{result="refused_daily_cap"}[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "an upstream-paid provider reached UPSTREAM_DAILY_CAP_USD_PER_PROVIDER; its tools answer tool_unavailable until 00:00 UTC"
+
+      - alert: UpstreamLoss
+        expr: increase(upstream_pay_total{result="loss"}[1h]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "APIbase paid an upstream 402 without a delivered result (upstream_loss, bounded by max_price_usd); see the upstream_loss log line"

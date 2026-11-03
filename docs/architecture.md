@@ -3,7 +3,7 @@
 APIbase is a single Node.js/TypeScript API server in front of a 16-container Docker stack
 (API, Worker, Outbox, PostgreSQL, Redis, Nginx, Prometheus, Grafana, Loki, Promtail,
 Alertmanager, exporters) on a single Hetzner server, with automated health checks, graceful
-shutdown, and Prometheus alerting <!--alert-rules-->(41 alert rules)<!--/alert-rules-->. PostgreSQL is the append-only source of truth for
+shutdown, and Prometheus alerting <!--alert-rules-->(44 alert rules)<!--/alert-rules-->. PostgreSQL is the append-only source of truth for
 every financial record; Redis is cache, rate limiting, and single-flight deduplication only —
 it holds nothing that would need to survive a restart. Every tool call passes through the same
 14-stage pipeline in a fixed order:
@@ -18,6 +18,7 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 - **Quota-aware catalog**: a tool whose provider's free upstream quota is exhausted is withdrawn (`status_reason = quota_exhausted`) from `/api/v1/tools` and MCP `tools/list`; TOOL_STATUS answers a call to it with 503 `tool_unavailable` and `retry_after` before ESCROW, so no 402 challenge is issued and nothing is settled. It returns automatically once the quota resets and the provider probes healthy.
 - **Validate before you charge**: both rails run the same pre-payment check (tool status, schema, circuit breaker) before a 402 is issued or an MPP credential is charged. The response fields (`status_reason`, `retry_after`) are described in the [`tool_unavailable` entry of the agent guide](https://apibase.pro/integrator/agent-guide).
 - **Escrow-first**: funds are reserved before the provider call. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->x402: not settled on failure; MPP: refund owed, paid by the operator ([details](https://apibase.pro/pricing#refunds)).
+- **Upstream-paid adapters (T-0655)**: providers that are themselves paid per call over x402 or MPP are served by one adapter kind (`src/adapters/_upstream-402/`) that pays the provider's own 402 inside PROVIDER_CALL from a dedicated, capped payer wallet (`src/payments/upstream-payer.ts`), only after the buyer's payment was verified (x402) or settled (MPP); the buyer's price stays the tool's fixed `price_usd` ([rules and call order](payments.md#upstream-paid-providers)).
 - **Streamable HTTP transport**: a GET on /mcp without a session and without Accept: text/event-stream returns a 200 JSON server card for health checkers; MCP clients must initialize with POST and send Mcp-Session-Id.
 - **Idempotent**: same request + same key = same result, no double charges.
 - **Cache**: per-tool TTL (as short as 5s for stock prices, days for slow-changing data).

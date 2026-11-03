@@ -169,6 +169,8 @@ export interface PipelineContext {
    *  field). undefined when the provider didn't self-report one — never
    *  defaulted to 0, see execution_ledger.upstream_cost_usd doc comment. */
   upstreamCostUsd?: number;
+  /** T-0655: provider-side settlement tx of the upstream 402 APIbase paid (public receipt `upstream_tx`). */
+  upstreamTx?: string;
 
   // ESCROW_FINALIZE stage
   billingStatus?: string;

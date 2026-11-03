@@ -23,6 +23,7 @@ import { recordRefundOwed as recordRefundOwedLedger } from '../../services/refun
 export async function recordMppRefundOwed(
   ctx: import('../types').PipelineContext,
   reason: string,
+  extraNote: Record<string, unknown> = {},
 ): Promise<void> {
   // One refund-owed row per request (T-0259): the flag is set BEFORE the
   // write so a failed write is not retried (the ledger logs a failed write
@@ -41,7 +42,7 @@ export async function recordMppRefundOwed(
     source_kind: 'request',
     source_id: ctx.requestId,
     original_tx: ctx.mppTxHash ?? null,
-    note: { tool_id: ctx.toolId ?? null },
+    note: { tool_id: ctx.toolId ?? null, ...extraNote },
   });
 }
 

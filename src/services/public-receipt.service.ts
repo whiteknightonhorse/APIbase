@@ -44,6 +44,7 @@ export const RECEIPT_ALLOWED_KEYS = [
   'status',
   'tool',
   'upstream_status',
+  'upstream_tx',
 ] as const;
 
 export interface ReceiptBody {
@@ -70,6 +71,8 @@ export interface ReceiptBody {
   payment_tx?: string;
   /** T-0596: 'pending' = settle outcome unknown at call time; resolved at read time from the ledger. */
   status?: 'pending';
+  /** T-0655: settlement tx of the provider's own 402 that APIbase paid (upstream-paid tools only). */
+  upstream_tx?: string;
 }
 
 export interface ReceiptStore {
@@ -231,6 +234,7 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
         retrieve_url: retrieveUrl(inp.receiptId),
         result_retained_until: retainedUntil(inp),
         status: 'pending',
+        ...upstreamTxKey(ctx),
       };
     }
     if (ctx.x402SettleSucceeded !== true) return null;
@@ -270,7 +274,14 @@ export function buildReceiptBody(ctx: PipelineContext, inp: ReceiptInputs): Rece
     retrieve_url: retrieveUrl(inp.receiptId),
     result_retained_until: retainedUntil(inp),
     payment_tx: tx,
+    ...upstreamTxKey(ctx),
   };
+}
+
+/** T-0655: additive `upstream_tx` only when the call paid an upstream 402 with a known tx. */
+function upstreamTxKey(ctx: PipelineContext): { upstream_tx?: string } {
+  const t = lower(ctx.upstreamTx);
+  return TX_RE.test(t) ? { upstream_tx: t } : {};
 }
 
 let redisDownLogged = false;

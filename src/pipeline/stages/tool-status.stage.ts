@@ -1,3 +1,4 @@
+import { upstreamGateForTool } from '../../adapters/_upstream-402/config';
 import { resolveToolPriceUsd } from '../../pricing/audio-minute';
 import { type Stage, ok, err, type PipelineError } from '../types';
 import { getPrisma } from '../../services/prisma.service';
@@ -314,6 +315,19 @@ export async function checkToolAvailability(toolId: string): Promise<PipelineErr
         status_reason: 'circuit_open',
         ...(alternatives.length > 0 ? { alternatives } : {}),
       },
+    };
+  }
+
+  // T-0655: upstream-paid tool whose payer cannot pay now (key absent/mismatch, balance below
+  // 2 x max price, daily cap reached): answered before any 402 or MPP charge.
+  const upstream = await upstreamGateForTool(toolId);
+  if (upstream) {
+    return {
+      code: 503,
+      error: 'tool_unavailable',
+      message: `Tool ${toolId} cannot pay its upstream provider right now; you are not charged`,
+      retryAfter: upstream.retryAfter,
+      extra: { status_reason: upstream.reason },
     };
   }
 

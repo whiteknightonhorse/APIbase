@@ -107,8 +107,10 @@ describe('T-0566 T5: settle stays out of the root mppx lane', () => {
       }
     }
     expect(offenders).toEqual([]);
+    // T-0655: the upstream payer signs a provider's Tempo charge (client side, no settle code).
     expect(files.filter((f) => specifiers(read(f)).some(isRootMppx))).toEqual([
       'src/middleware/mpp.middleware.ts',
+      'src/payments/upstream-payer.ts',
     ]);
   });
 
