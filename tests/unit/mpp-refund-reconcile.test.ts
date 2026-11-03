@@ -180,6 +180,13 @@ dbDescribe('mpp-refund-reconcile (T-0652)', () => {
     expect(rows[0].processed).toBe(false);
   });
 
+  it('A4b: a malformed parked row (payer not a string) is marked processed, not retried', async () => {
+    const p = await parked({ payer: 42 });
+    await run({ chain: noChain(), cursor: cursorStore(String(HEAD)) });
+    expect(await refunds(p.request_id)).toHaveLength(0);
+    expect((await outboxRow(p.request_id))[0].processed).toBe(true);
+  });
+
   it('A5: the service parks a failed Tempo request-debt write in the outbox', async () => {
     const rid = `req-${uniq()}`;
     const r = await recordRefundOwed({
@@ -250,7 +257,12 @@ dbDescribe('mpp-refund-reconcile (T-0652)', () => {
     expect(out.unmatched).toBe(1);
     const rows = await unmatched(h);
     expect(rows).toHaveLength(1);
-    expect(rows[0].payload).toMatchObject({ tx_hash: h, from: PAYER, amount_usd: 0.002 });
+    expect(rows[0].payload).toMatchObject({
+      tx_hash: h,
+      from: PAYER,
+      payer: PAYER,
+      amount_usd: 0.002,
+    });
     expect(c1.value).toBe(String(HEAD - LAG));
     const out2 = await run({ chain, cursor: cursorStore(String(HEAD - LAG - 1000)) });
     expect(out2.unmatched).toBe(0);

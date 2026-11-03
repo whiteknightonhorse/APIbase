@@ -209,7 +209,12 @@ async function ledgerSide(out: ReconcileResult): Promise<void> {
       if (typeof p.request_id !== 'string' || typeof p.payer !== 'string') {
         logger.error(
           { job: 'mpp-refund-reconcile', outbox_id: String(r.id) },
-          'parked row malformed',
+          'parked row malformed; marked processed',
+        );
+        await db.$executeRawUnsafe(
+          `UPDATE outbox SET processed = true
+            WHERE id = $1 AND event_type = 'mpp_refund_write_failed'`,
+          r.id,
         );
         continue;
       }
@@ -295,6 +300,7 @@ async function judge(l: TransferLog, head: number, nowMs: number): Promise<boole
   const payload = {
     tx_hash: tx,
     from: l.from.toLowerCase(),
+    payer: l.from.toLowerCase(),
     amount_usd: Number(BigInt(l.amount_atomic)) / 1e6,
     block: l.block,
   };
