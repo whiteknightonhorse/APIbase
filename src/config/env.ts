@@ -47,7 +47,7 @@ export function getShopEnv(source: NodeJS.ProcessEnv = process.env): ShopEnv {
 // ---------------------------------------------------------------------------
 // T-0553 refund payout vars. Read per call (the dispatcher flips the two flags and restarts;
 // tests inject a source). Numbers are lenient: empty or malformed falls back to the default.
-// The refund signer keys are read by src/refunds/refund-keys.ts only and never logged.
+// The refund signer keys are read by src/refunds/refund-chains.ts only and never logged.
 // ---------------------------------------------------------------------------
 const boolOr = (d: boolean) =>
   z.preprocess(

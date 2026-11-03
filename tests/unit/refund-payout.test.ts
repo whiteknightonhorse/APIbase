@@ -2,9 +2,28 @@
  * T-0553: refund payout engine with a fake chain, fake store, fake signer and a fake clock.
  * Nothing here touches a network, a database or a real key.
  */
-import { mkdtempSync, writeFileSync } from 'node:fs';
+jest.mock('../../src/config/logger', () => ({
+  logger: { warn: jest.fn(), info: jest.fn(), error: jest.fn() },
+}));
+jest.mock('../../src/config/x402.config', () => ({ getX402Config: jest.fn() }));
+jest.mock('../../src/config/mpp.config', () => ({ getMppConfig: jest.fn() }));
+jest.mock('../../src/payments/operator-signer', () => ({ getOperatorWallet: jest.fn() }));
+jest.mock('../../src/payments/operator-lock', () => ({ withOperatorLock: jest.fn() }));
+jest.mock('../../src/payments/local-facilitator', () => ({
+  encodeTransferWithAuthorization: jest.fn(),
+}));
+
+import { spawnSync } from 'node:child_process';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import {
   recoverPayouts,
   runPayout,
@@ -22,8 +41,13 @@ import {
   type RefundCfg,
   type Store,
 } from '../../src/refunds/refund-payout.core';
-import { baseFeeUsd, refundNonce, tempoFeeUsd } from '../../src/refunds/refund-math';
-import { evaluateKeys, resetKeyLogMemo } from '../../src/refunds/refund-keys';
+import {
+  baseFeeUsd,
+  evaluateKeys,
+  refundNonce,
+  resetKeyLogMemo,
+  tempoFeeUsd,
+} from '../../src/refunds/refund-chains';
 import { FeeUnavailableError } from '../../src/refunds/refund-payout.core';
 
 const NOW = new Date('2026-11-09T07:00:00Z');
@@ -204,8 +228,8 @@ describe('threshold math', () => {
     expect(() => baseFeeUsd(1n, 1n, 1n, 100)).toThrow(FeeUnavailableError);
     expect(() => baseFeeUsd(1n, 1n, 1n, 50_000)).toThrow(FeeUnavailableError);
   });
-  it('tempo: attodollars per gas x 60000 / 1e18', () => {
-    expect(tempoFeeUsd(600_000_000n)).toBeCloseTo(3.6e-5, 12);
+  it('tempo: attodollars per gas x 400000 / 1e18', () => {
+    expect(tempoFeeUsd(600_000_000n)).toBeCloseTo(2.4e-4, 12);
   });
 });
 
@@ -453,7 +477,7 @@ describe('exactly-once', () => {
   });
 
   it('nonce is derived from the payout id (same payout -> same nonce)', async () => {
-    const { refundNonce } = await import('../../src/refunds/refund-math');
+    const { refundNonce } = await import('../../src/refunds/refund-chains');
     expect(refundNonce('p-1')).toBe(refundNonce('p-1'));
     expect(refundNonce('p-1')).not.toBe(refundNonce('p-2'));
   });
@@ -495,5 +519,62 @@ describe('key guard', () => {
     const r = ev({ REFUND_WALLET_RECORD: record, REFUND_SIGNER_KEY_BASE: TEST_KEY_1 }, [addr]);
     expect(r.base.state).toBe('mismatch');
     expect(r.base.reason).toBe('address_equals_operator_or_revenue');
+  });
+});
+
+const SCRIPT = resolve(__dirname, '../../scripts/server-wallet-init.sh');
+const KEY_RE_SCRIPT = /0x[0-9a-fA-F]{64}/;
+
+function setupSwi() {
+  const home = mkdtempSync(join(tmpdir(), 'swi-'));
+  mkdirSync(join(home, 'apibase'));
+  const env = join(home, 'apibase', '.env');
+  writeFileSync(env, 'FOO=bar', { mode: 0o600 }); // no trailing newline on purpose
+  return { home, env, record: join(home, 'apibase', '.server-wallets.json') };
+}
+const runSwi = (home: string, name: string, rail: string) =>
+  spawnSync('bash', [SCRIPT, name, rail], {
+    env: { PATH: process.env.PATH ?? '', HOME: home },
+    encoding: 'utf8',
+  });
+
+describe('scripts/server-wallet-init.sh', () => {
+  it('generates one key, prints only the address, writes env + record', () => {
+    const { home, env, record } = setupSwi();
+    const r = runSwi(home, 'REFUND_SIGNER_KEY_BASE', 'base');
+    expect(r.status).toBe(0);
+    expect(r.stdout + r.stderr).not.toMatch(KEY_RE_SCRIPT);
+    const addr = /address: (0x[0-9a-fA-F]{40})/.exec(r.stdout)?.[1];
+    expect(addr).toBeTruthy();
+    expect(statSync(env).mode & 0o777).toBe(0o600);
+    const lines = readFileSync(env, 'utf8').trim().split('\n');
+    expect(lines).toHaveLength(2);
+    expect(lines[0]).toBe('FOO=bar');
+    expect(lines[1]).toMatch(/^REFUND_SIGNER_KEY_BASE=0x[0-9a-f]{64}$/);
+    const rec = JSON.parse(readFileSync(record, 'utf8'));
+    expect(rec).toHaveLength(1);
+    expect(rec[0]).toMatchObject({ name: 'REFUND_SIGNER_KEY_BASE', rail: 'base', address: addr });
+    expect(statSync(record).mode & 0o777).toBe(0o600);
+    expect(readdirSync(join(home, 'apibase')).sort()).toEqual(['.env', '.server-wallets.json']);
+  });
+
+  it('refuses a second run and changes nothing', () => {
+    const { home, env, record } = setupSwi();
+    expect(runSwi(home, 'REFUND_SIGNER_KEY_TEMPO', 'tempo').status).toBe(0);
+    const envBefore = readFileSync(env, 'utf8');
+    const recBefore = readFileSync(record, 'utf8');
+    const r = runSwi(home, 'REFUND_SIGNER_KEY_TEMPO', 'tempo');
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain('replacing a funded key is a hand ceremony');
+    expect(r.stdout + r.stderr).not.toMatch(KEY_RE_SCRIPT);
+    expect(readFileSync(env, 'utf8')).toBe(envBefore);
+    expect(readFileSync(record, 'utf8')).toBe(recBefore);
+  });
+
+  it('has no replace flag and is referenced by no npm script or workflow', () => {
+    const src = readFileSync(SCRIPT, 'utf8');
+    expect(src).not.toMatch(/--replace/);
+    const pkg = readFileSync(resolve(__dirname, '../../package.json'), 'utf8');
+    expect(pkg).not.toContain('server-wallet-init');
   });
 });
