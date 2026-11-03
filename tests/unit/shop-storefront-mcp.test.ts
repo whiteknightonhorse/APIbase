@@ -155,14 +155,19 @@ describe('merchant storefront MCP server (INT-16)', () => {
     expect(storefrontCacheSize()).toBe(STOREFRONT_LRU_MAX);
   });
 
-  it('SF8b: a cold storefront builds in under 5 ms once the module is warm', () => {
-    createMerchantMcpServer(merchant('warm'));
-    const runs = Array.from({ length: 5 }, () => {
-      const t = process.hrtime.bigint();
+  it('SF8b: a cold storefront build repeats no expensive work once the module is warm', () => {
+    const spy = jest.spyOn(McpServer.prototype, 'registerTool');
+    try {
+      createMerchantMcpServer(merchant('warm'));
+      const warmCalls = spy.mock.calls.length;
+      spy.mockClear();
       createMerchantMcpServer(merchant('cold'));
-      return Number(process.hrtime.bigint() - t) / 1e6;
-    });
-    expect(Math.min(...runs)).toBeLessThan(5);
+      // Same fixed work every build: one registration per storefront tool, none extra.
+      expect(spy.mock.calls.length).toBe(warmCalls);
+      expect(spy.mock.calls.length).toBe(STOREFRONT_TOOL_NAMES.length);
+    } finally {
+      spy.mockRestore();
+    }
   });
 
   describe('SF9: /mcp/m/:slug', () => {
