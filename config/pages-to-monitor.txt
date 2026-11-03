@@ -117,6 +117,7 @@ https://apibase.pro/.well-known/security.txt
 https://apibase.pro/x402-vs-mpp.md
 https://apibase.pro/what-is-an-mcp-gateway.md
 https://apibase.pro/faq.md
+https://apibase.pro/pricing.md
 https://apibase.pro/llms-full.txt
 family /guides/<slug> 64 https://apibase.pro/guides/accept-payments-from-ai-agents https://apibase.pro/guides/mcp-servers https://apibase.pro/guides/uc-health-api
 family /guides/<YYYY-MM>/ 2 https://apibase.pro/guides/2026-09/index https://apibase.pro/guides/2026-10/index

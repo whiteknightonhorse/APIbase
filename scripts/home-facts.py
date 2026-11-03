@@ -22,7 +22,7 @@ MCP = "static/.well-known/mcp.json"
 SITE_FACTS = "static/.well-known/site-facts.json"
 FILES = [
     "static/connect.html", "docs/payments.md", "SECURITY.md", "docs/architecture.md",
-    "static/index.html", "static/index.md", "static/ai.txt", "static/llms.txt", "static/pricing.html",
+    "static/index.html", "static/index.md", "static/ai.txt", "static/llms.txt", "static/pricing.html", "static/pricing.md",
     "static/privacy.html", "static/terms.html", "static/policy-moderation.html",
     "static/.well-known/x402-payment.json",
     "static/.well-known/agent-skills/x402-payment.md",
