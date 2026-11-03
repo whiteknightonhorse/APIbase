@@ -42,6 +42,7 @@ fi
 [[ "$ARG" =~ ^(sha-[0-9a-f]{40}|t[0-9]+-[0-9a-f]{8})$ ]] || die "tag must match sha-<40hex> or t<card>-<sha8>"
 docker image inspect "$REPO:$ARG" >/dev/null 2>&1 || die "tag $ARG is not present in local docker images"
 
+[ -r "$ENVFILE" ] || die "sandbox env file is missing or unreadable"
 if [ ! -s "$STATE" ]; then
   CUR="$(docker inspect "$PROBE" --format '{{.Image}}')"
   [ -n "$CUR" ] || die "cannot read the running sandbox image"
