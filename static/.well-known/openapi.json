@@ -19442,19 +19442,19 @@
             "mpp"
           ],
           "pricingMode": "fixed",
-          "price": "0.005000",
+          "price": "0.009100",
           "offers": [
             {
               "method": "tempo",
               "intent": "charge",
-              "amount": "5000",
+              "amount": "9100",
               "currency": "0x20C000000000000000000000b9537d11c60E8b50",
               "chainId": 4217
             },
             {
               "method": "evm",
               "intent": "charge",
-              "amount": "5000",
+              "amount": "9100",
               "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
               "chainId": 8453
             }
@@ -38225,19 +38225,19 @@
             "mpp"
           ],
           "pricingMode": "fixed",
-          "price": "0.005000",
+          "price": "0.032000",
           "offers": [
             {
               "method": "tempo",
               "intent": "charge",
-              "amount": "5000",
+              "amount": "32000",
               "currency": "0x20C000000000000000000000b9537d11c60E8b50",
               "chainId": 4217
             },
             {
               "method": "evm",
               "intent": "charge",
-              "amount": "5000",
+              "amount": "32000",
               "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
               "chainId": 8453
             }
