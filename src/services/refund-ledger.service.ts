@@ -312,9 +312,11 @@ export async function bookOrderPaymentDebt(
   const legs = await tx.$queryRawUnsafe<Array<{ fee: string; seller: string }>>(
     `SELECT fee::text AS fee, (amount - fee)::text AS seller FROM (
        SELECT $2::numeric AS amount,
-              coalesce((SELECT sum((e->>'amount_usd')::numeric)
+              coalesce((SELECT CASE WHEN NOT coalesce(bool_or(e->>'mode' = 'receivable'), false)
+                                     AND (sp.rail = 'tempo' OR coalesce(bool_or(e->>'mode' = 'in_tx'), false))
+                                    THEN sum((e->>'amount_usd')::numeric) ELSE 0 END
                           FROM shop_payments sp, jsonb_array_elements(sp.splits) e
-                         WHERE sp.payment_id = $1::uuid AND e->>'mode' = 'in_tx'), 0) AS fee) t`,
+                         WHERE sp.payment_id = $1::uuid GROUP BY sp.rail), 0) AS fee) t`,
     p.payment_id,
     p.amount_usd,
   );

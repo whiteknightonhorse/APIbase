@@ -263,6 +263,26 @@ dbDescribe('refund_ledger', () => {
     expect(await orderState(o)).toBe('EXPIRED');
   });
 
+  it('RL5c: Tempo fee leg (no mode) is taken in-tx -> ledger = fee share; a receivable leg is owed, not taken -> no ledger row', async () => {
+    const TEMPO_LEG = [{ wallet: SELLER, amount_usd: '0.1' }];
+    const a = await mkPaying('EXPIRED');
+    const pa = await mkPayment(a.o, 'pending', { rail: 'tempo', splits: TEMPO_LEG });
+    await confirmPayment(deps, { order_id: a.o, payment_id: pa, tx_hash: tx(), payer: PAYER });
+    const led = await q(`SELECT * FROM refund_ledger WHERE payment_id = $1::uuid`, pa);
+    expect(led).toHaveLength(1);
+    expect(Number(led[0].amount_usd)).toBe(0.1);
+    expect(Number((await sysRows(a.o))[0].amount_usd)).toBe(0.9);
+
+    const b = await mkPaying('EXPIRED');
+    const pb = await mkPayment(b.o, 'pending', {
+      rail: 'tempo',
+      splits: [{ ...TEMPO_LEG[0], mode: 'receivable' }],
+    });
+    await confirmPayment(deps, { order_id: b.o, payment_id: pb, tx_hash: tx(), payer: PAYER });
+    expect(await q(`SELECT 1 FROM refund_ledger WHERE payment_id = $1::uuid`, pb)).toHaveLength(0);
+    expect(Number((await sysRows(b.o))[0].amount_usd)).toBe(1);
+  });
+
   it('RL10: overdue system request -> one moderation flag, a second sweep adds none, order untouched', async () => {
     const { m, o } = await mkPaying('PAID');
     await mkPayment(o, 'confirmed');
