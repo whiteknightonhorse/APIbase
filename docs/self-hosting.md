@@ -18,6 +18,8 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 
 ## Verify
 
+Run the full test suite, including the DB suites, with `bash scripts/with-test-db.sh npm test` (disposable Postgres 16 in Docker; the run fails if any DB suite is skipped).
+
 ```bash
 # Health check (Nginx on 8880)
 curl http://localhost:8880/health/ready
