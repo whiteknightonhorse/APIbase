@@ -1028,11 +1028,6 @@ rateapi.auto_loan	rateapi	0.002
 rateapi.heloc	rateapi	0.002
 rateapi.mortgage	rateapi	0.002
 rateapi.personal_loan	rateapi	0.002
-rawg.game_details	rawg	0.001
-rawg.game_search	rawg	0.001
-rawg.game_series	rawg	0.001
-rawg.screenshots	rawg	0.001
-rawg.store_links	rawg	0.001
 razorpayifsc.lookup	razorpayifsc	0.001
 reed.details	reed	0.001
 reed.search	reed	0.001

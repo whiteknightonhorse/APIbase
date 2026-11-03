@@ -823,11 +823,6 @@
     "rateapi.heloc": "healthy",
     "rateapi.mortgage": "healthy",
     "rateapi.personal_loan": "healthy",
-    "rawg.game_details": "healthy",
-    "rawg.game_search": "healthy",
-    "rawg.game_series": "healthy",
-    "rawg.screenshots": "healthy",
-    "rawg.store_links": "healthy",
     "razorpayifsc.lookup": "healthy",
     "reed.details": "healthy",
     "reed.search": "healthy",
@@ -1204,7 +1199,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 398,
+  "providers_count": 397,
   "rails": [
     "x402",
     "mpp",
@@ -1238,7 +1233,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1353,
+      "count": 1348,
       "max_usd": 0.008
     },
     "premium": {
@@ -1252,6 +1247,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1380,
+  "tools_count": 1375,
   "version": "2.2.0"
 }
