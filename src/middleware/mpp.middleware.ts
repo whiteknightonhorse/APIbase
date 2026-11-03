@@ -204,7 +204,7 @@ async function acquireQuoteLock(quoteId: string): Promise<(() => void) | null> {
 let mppxInstance: any = null;
 // T-0429: same secret/realm/store, but its challenges say header="Payment-Authorization" (mppx
 // `requiresAuth`), so an agent keeps `Authorization: Bearer <api key>` and sends the credential
-// separately. Used ONLY for /mcp challenges; credentials are verified by mppxInstance (the
+// separately. Reachable via buildMppChallengeHeader opts.mcp, but no route passes it today (T-0686); credentials are verified by mppxInstance (the
 // challenge id HMAC does not depend on the credential header).
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let mppxMcpInstance: any = null;
@@ -648,7 +648,7 @@ export async function buildMppChallengeHeader(
   if (!cfg.enabled) return null;
   assertChallengeChainId(cfg);
 
-  // T-0429: only the /mcp challenge names Payment-Authorization (header="..."); tool-call routes keep Authorization.
+  // T-0429/T-0686: only opts.mcp names Payment-Authorization (header="..."); no caller sets it, so all routes keep the default.
   const mppx = await getMppxInstance(opts.mcp ? 'mcp' : 'default');
   if (!mppx) return null;
 
