@@ -176,6 +176,27 @@ if ! bash "$APP_DIR/scripts/check-nginx-conf.sh"; then
   exit 1
 fi
 
+# T-0680: bring the host tree's node_modules + Prisma client in step with this commit's lockfile and
+# schema, verified with one host script. Still nothing pulled or restarted, so abort = no container touched.
+host_deps_src="$(git show "${NEW_SHA}:scripts/lib/host-deps.sh")" || {
+  echo "[deploy] ABORT: scripts/lib/host-deps.sh missing in sha-${NEW_SHA}" >&2
+  deploy_alert "[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED: host-deps lib missing in commit" "host deps"
+  git checkout --detach "$(cat "$LAST_GOOD_FILE")" 2>/dev/null || true
+  exit 1
+}
+eval "$host_deps_src"
+hd_err="$(mktemp)"
+if ! host_deps_sync "$APP_DIR" 2>"$hd_err"; then
+  hd_last="$(tail -n 1 "$hd_err")"
+  cat "$hd_err" >&2
+  rm -f "$hd_err"
+  echo "[deploy] ABORT: host deps sync failed for sha-${NEW_SHA}" >&2
+  deploy_alert "[apibase] 🔴 deploy sha-${NEW_SHA} ABORTED: host deps sync failed (${hd_last})" "host deps"
+  git checkout --detach "$(cat "$LAST_GOOD_FILE")" 2>/dev/null || true
+  exit 1
+fi
+rm -f "$hd_err"
+
 # ---------------------------------------------------------------------------
 # Pull new images from GHCR
 # ---------------------------------------------------------------------------
@@ -292,6 +313,13 @@ if [ -f "$LAST_GOOD_FILE" ]; then
   # exists to prevent, just relocated to the rollback path instead.
   git checkout --detach "$PREV_SHA" 2>/dev/null \
     || echo "[deploy] WARN: could not checkout sha-${PREV_SHA} -- nginx.conf may still be on the failed release"
+
+  # T-0680: the previous commit may carry a different lockfile/schema; best effort, result logged.
+  if host_deps_sync "$APP_DIR"; then
+    echo "[deploy] rollback host deps ok"
+  else
+    echo "[deploy] WARN: rollback host deps sync failed"
+  fi
 
   # Roll the static-asset symlink back with it. A pre-F2 deploy never
   # captured a versioned release dir, so an older PREV_SHA may have none --

@@ -202,7 +202,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.SERVER_HOST }} \
-            "cd /home/apibase/apibase && bash scripts/sync-counts.sh --check"
+            "cd /home/apibase/apibase && flock -w 900 \$HOME/.apibase-host-deps.lock bash scripts/sync-counts.sh --check"
 
       - name: Cleanup SSH key
         if: always()
