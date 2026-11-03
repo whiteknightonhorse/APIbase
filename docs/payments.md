@@ -66,7 +66,7 @@ Idempotency key on `/mcp` (T-0526): `params._meta["apibase/idempotency_key"]`, a
 
 Difference from x402 2.24 ("withhold the result when the after-call settle fails"): APIbase verifies before the call and settles after; an unsettled call is reconciled (T-0428), the result is not withheld.
 
-MPP: the credential is read from `Payment-Authorization: Payment <cred>` first, then `Authorization: Payment <cred>` (mppx < 0.9 clients); both present is a 400. No route advertises `header="Payment-Authorization"` in its challenge: every 402 `WWW-Authenticate: Payment` challenge (REST and `/mcp`) uses the mppx default, while a credential in `Payment-Authorization` is accepted on every lane, so agents keep `Authorization: Bearer <api key>` and send the credential in that header (T-0686).
+MPP exists only on `POST /api/v1/tools/{tool_id}/call` and `POST /api/v1/shop/quotes/{id}/pay`; `/mcp` pays by x402 only (`X-Payment` or `_meta`), returns no `WWW-Authenticate: Payment` challenge, and answers an MPP credential in either header with 400. On those two routes the credential is read from `Payment-Authorization: Payment <cred>` first, then `Authorization: Payment <cred>` (mppx < 0.9 clients); both present is a 400. No challenge advertises `header="Payment-Authorization"` (the mppx default is used), but a credential in `Payment-Authorization` is accepted, so agents keep `Authorization: Bearer <api key>` and send the credential in that header (T-0686).
 
 ## MPP (Machine Payments Protocol)
 

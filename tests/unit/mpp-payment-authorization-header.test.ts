@@ -1,7 +1,7 @@
 /**
  * T-0429: the MPP credential may travel in `Payment-Authorization: Payment <cred>` (mppx >= 0.9
  * `requiresAuth`) next to `Authorization: Bearer <api key>`; `Authorization: Payment <cred>` still
- * works (mppx < 0.9); a credential in both headers is a 400. Only the /mcp challenge instance is
+ * works (mppx < 0.9); a credential in both headers is a 400. Only the mcp challenge instance (opts.mcp, which no route passes today, T-0686) is
  * created with requiresAuth. mppx is fully mocked.
  */
 const mockCfg = jest.fn();
@@ -116,7 +116,7 @@ describe('MPP Payment-Authorization header (T-0429)', () => {
     ).toThrow(AppError);
   });
 
-  it('only the /mcp challenge instance is created with requiresAuth', async () => {
+  it('only the mcp challenge instance (opts.mcp) is created with requiresAuth', async () => {
     challengeCharge.mockReturnValue(async () => ({
       status: 402,
       challenge: {
