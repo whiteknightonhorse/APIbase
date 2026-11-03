@@ -346,8 +346,10 @@ else
   # them one generation behind whenever the live count moved).
   python3 scripts/home-facts.py render
   # T-0697: llms-full.txt embeds the final pricing.md / faq.md etc.; rebuild it after the last render.
-  npx tsx scripts/llms-full.ts > /tmp/llms-full.out 2>&1 \
-    || { echo "sync-counts: llms-full.ts FAILED"; cat /tmp/llms-full.out; exit 1; }
+  LLMS_TMP="$(mktemp)"
+  npx tsx scripts/llms-full.ts > "$LLMS_TMP" 2>&1 \
+    || { echo "sync-counts: llms-full.ts FAILED"; cat "$LLMS_TMP"; rm -f "$LLMS_TMP"; exit 1; }
+  rm -f "$LLMS_TMP"
   [ "$(md5sum static/pricing.html | cut -d" " -f1)" != "$b1" ] && CHANGED=$((CHANGED+1))
   [ "$(md5sum static/llms.txt | cut -d" " -f1)" != "$b2" ] && CHANGED=$((CHANGED+1))
 

@@ -146,4 +146,65 @@ describe('sync-counts-cron.sh page-parity gate', () => {
     expect(log).toContain('ABORT -- pre-dirty path rewritten by this run: notes.txt');
     expect(git(t.work, 'rev-parse', 'HEAD')).toBe(before);
   });
+
+  // T-0697 R1: mutation proofs for the third assertion, the derivation-failure ABORT and the llms-full ABORT.
+  const HF_STUB =
+    "FILES=['static/zzz.md']\nBAR_PAGES=[]\nBAR_PRICE_ONLY=[]\nINTEGRATOR_BAR='static/yyy.md'\n";
+
+  it('ABORTs when the generator-path append loop is removed (third assertion, T-0697)', () => {
+    const t = setup(false);
+    dir = t.dir;
+    writeFileSync(join(t.work, 'scripts/home-facts.py'), HF_STUB);
+    const p = join(t.work, 'scripts/sync-counts-cron.sh');
+    const src = readFileSync(p, 'utf8');
+    const mutated = src.replace('[ "$found" = 0 ] && FILES+=("$p")', ':');
+    expect(mutated).not.toBe(src);
+    writeFileSync(p, mutated);
+    git(t.work, 'add', '-A');
+    git(t.work, 'commit', '-q', '-m', 'stub');
+    git(t.work, 'push', '-q', 'origin', 'HEAD:ci-staging');
+    git(t.work, 'fetch', '-q', 'origin');
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, t.env);
+    expect(r.status).toBe(1);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    expect(log).toContain('generator write path(s) missing from this script');
+    expect(log).toContain('static/zzz.md');
+  });
+
+  it('ABORTs when the generator derivation crashes (T-0697)', () => {
+    const t = setup(false);
+    dir = t.dir;
+    writeFileSync(join(t.work, 'scripts/home-facts.py'), 'raise RuntimeError("boom")\n');
+    git(t.work, 'add', '-A');
+    git(t.work, 'commit', '-q', '-m', 'stub');
+    git(t.work, 'push', '-q', 'origin', 'HEAD:ci-staging');
+    git(t.work, 'fetch', '-q', 'origin');
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, t.env);
+    expect(r.status).toBe(1);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    expect(log).toContain('derivation failed');
+  });
+
+  it('with the append loop intact the stub generator paths are allowed (T-0697)', () => {
+    const t = setup(false);
+    dir = t.dir;
+    writeFileSync(join(t.work, 'scripts/home-facts.py'), HF_STUB);
+    const r = run('bash', ['scripts/sync-counts-cron.sh', '--print-files'], t.work, t.env);
+    expect(r.stdout).toContain('static/zzz.md');
+    expect(r.stdout).toContain('static/yyy.md');
+  });
+
+  it('ABORTs and commits nothing when llms-full.ts fails (T-0697)', () => {
+    const t = setup(false);
+    dir = t.dir;
+    const before = git(t.work, 'rev-parse', 'HEAD');
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, {
+      ...t.env,
+      SYNC_COUNTS_CRON_LLMS_CMD: 'false',
+    });
+    expect(r.status).toBe(1);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    expect(log).toContain('ABORT -- llms-full.ts exited 1');
+    expect(git(t.work, 'rev-parse', 'HEAD')).toBe(before);
+  });
 });
