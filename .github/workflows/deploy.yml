@@ -36,6 +36,37 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
+    # Disposable Postgres for the dbDescribe suites (major matches docker-compose.yml).
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: apibase_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d apibase_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+      # shop-stream-merchant-real-mppx opens a real ioredis connection (TEST_REDIS_URL).
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      TEST_DATABASE_URL: postgresql://test:test@localhost:5432/apibase_test
+      TEST_REDIS_URL: redis://localhost:6379
+
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,17 +86,35 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
+      - name: pg_dump 16 (shop-pii-never-plaintext dumps every shop_* table)
+        run: |
+          if ! pg_dump --version 2>/dev/null | grep -q ' 16\.'; then
+            sudo apt-get update -q
+            sudo apt-get install -y -q postgresql-client-16 || {
+              sudo install -d /usr/share/postgresql-common/pgdg
+              sudo curl -fsSL -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+              echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+              sudo apt-get update -q
+              sudo apt-get install -y -q postgresql-client-16
+            }
+            echo "PG_DUMP=$(ls /usr/lib/postgresql/16/bin/pg_dump)" >> "$GITHUB_ENV"
+          fi
+          "${PG_DUMP:-pg_dump}" --version
+
       - name: Lint
         run: npm run lint
 
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Unit tests
-        # F8: --passWithNoTests removed -- same reasoning as test.yml. This is the
-        # job that gates promotion to main; a config that silently collects 0 tests
-        # must never report green right before a deploy.
-        run: npm run test -- --ci
+      - name: Unit + DB tests
+        # F8: --passWithNoTests removed: a broken jest config that collects 0 tests should FAIL the
+        # build. The jest reporter prints "DB suites skipped: N" and fails the run when N > 0
+        # (T-0597). Schema migrations run once per process from tests/unit/helpers/shop-db.ts.
+        env:
+          # two jest workers on a 7 GB runner: a worker OOM-crashed (mpp-handler-status) with the default heap
+          NODE_OPTIONS: --max-old-space-size=4096
+        run: npm run test -- --ci --maxWorkers=2
 
   # -------------------------------------------------------------------------
   # Stage 2: Build Docker image + push to GHCR

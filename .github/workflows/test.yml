@@ -1,5 +1,6 @@
 # APIbase.pro — PR Validation (§12.12)
 # Runs on pull requests to main: lint, typecheck, unit + DB tests (disposable Postgres, T-0597).
+# The same services exist in deploy.yml validate (T-0682); change both together.
 
 name: Test
 
