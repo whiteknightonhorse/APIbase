@@ -1,6 +1,6 @@
 /**
  * T-0280 (TG-POLICY-1006 / MPP-REFUND-DIGEST): internal-wallets loader is fail-closed,
- * and the digest/page decision logic in scripts/mpp-refund-owed-alerts.py passes its selftest.
+ * and the page decision logic in scripts/refund-alerts.py passes its selftest.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -38,9 +38,9 @@ describe('internal-wallets (T-0280)', () => {
   });
 });
 
-describe('mpp-refund-owed-alerts.py digest/page logic', () => {
+describe('refund-alerts.py page logic', () => {
   it('selftest passes', () => {
-    const out = execFileSync('python3', ['scripts/mpp-refund-owed-alerts.py', '--selftest'], {
+    const out = execFileSync('python3', ['scripts/refund-alerts.py', '--selftest'], {
       cwd: ROOT,
     }).toString();
     expect(out).toContain('selftest ok');

@@ -427,7 +427,7 @@ function isReplayedCredential(result: {
 /**
  * T-0426: settlement whose outcome mppx could not confirm (broadcast confirmation timeout,
  * PaymentOutcomeUnknownError). The money may have moved: 503 + ONE `mpp_settle_unknown` outbox
- * event for the operator digest (scripts/mpp-refund-owed-alerts.py); the outbox worker ignores it.
+ * event for the operator digest (scripts/refund-alerts.py); the outbox worker ignores it.
  */
 function isSettleUnknown(err: unknown): boolean {
   if (!(err instanceof Error)) return false;

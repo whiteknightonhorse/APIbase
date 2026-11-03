@@ -40,7 +40,7 @@ single alert — never a stream of pages for one ongoing problem, and never
 silence for a second, unrelated one.
 
 Run via cron, e.g. (same `cd` + STATE shape as x402-settle-leak-alerts.py /
-mpp-refund-owed-alerts.py -- this is a read-only sibling of those, not a new
+refund-alerts.py -- this is a read-only sibling of those, not a new
 pattern):
     */10 * * * * cd /home/apibase/apibase && /usr/bin/python3 scripts/deploy-tree-dirty-alert.py >> scripts/night-orchestra/logs/deploy-tree-dirty-alert.log 2>&1
 
