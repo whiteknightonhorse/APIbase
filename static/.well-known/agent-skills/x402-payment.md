@@ -21,12 +21,13 @@ Tempo (pathUSD on the testnet). Other Tempo tokens are not accepted.
 
 ## Transports
 
-Both rails work on two transports, with the same 402 challenge and the same price:
+x402 works on two transports, with the same price; MPP works on REST only:
 
-- **HTTP header:** `X-PAYMENT` (x402), `Authorization: Payment` (MPP).
-- **MCP `/mcp`:** x402 in `params._meta["x402/payment"]` (receipt in result
-  `_meta["x402/payment-response"]`); MPP in `Authorization: Payment` or, next to a
-  Bearer API key, in `Payment-Authorization: Payment`.
+- **REST** (`POST /api/v1/tools/{tool_id}/call`): `X-PAYMENT` (x402), or MPP in
+  `Authorization: Payment` or, next to a Bearer API key, in `Payment-Authorization: Payment`.
+- **MCP `/mcp`:** x402 only, in `params._meta["x402/payment"]` (receipt in result
+  `_meta["x402/payment-response"]`). `/mcp` returns no MPP challenge and rejects an MPP
+  credential with 400. Details: `docs/payments.md` (MPP section).
 
 Full metadata: <https://apibase.pro/.well-known/x402-payment.json>
 
