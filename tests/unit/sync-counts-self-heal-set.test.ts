@@ -9,18 +9,41 @@ const py = (code: string, cwd: string) =>
   spawnSync('python3', ['-I', '-c', code], { cwd, encoding: 'utf8', timeout: 60000 });
 
 describe('sync-counts self-heal covers everything the check side compares', () => {
-  it('checked set (FILES, bar pages, integrator bar) is a subset of the rendered set', () => {
-    const r = py(
-      `import sys,json; sys.path.insert(0,'scripts'); import importlib.util as u
-s=u.spec_from_file_location('hf','scripts/home-facts.py'); m=u.module_from_spec(s); s.loader.exec_module(m)
-checked=set(m.FILES+m.BAR_PAGES+m.BAR_PRICE_ONLY+[m.INTEGRATOR_BAR])
-rendered=set(m.FILES+m.BAR_PAGES+m.BAR_PRICE_ONLY+[m.INTEGRATOR_BAR])
-import os
-print(json.dumps(sorted(p for p in checked if p not in rendered)))
-print('static/pricing.html' in checked)`,
+  it('every generator write path is in the cron FILES as printed by its own derivation (T-0697)', () => {
+    const r = spawnSync('bash', ['scripts/sync-counts-cron.sh', '--print-files'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      timeout: 60000,
+    });
+    expect(r.status).toBe(0);
+    const files = new Set(r.stdout.split('\n').filter(Boolean));
+    const py1 = py(
+      `import sys,json,importlib.util as u
+def L(n,p):
+    s=u.spec_from_file_location(n,p); m=u.module_from_spec(s); s.loader.exec_module(m); return m
+h=L('hf','scripts/home-facts.py'); i=L('itf','scripts/integrator-facts.py')
+print(json.dumps(sorted(set(h.FILES+h.BAR_PAGES+h.BAR_PRICE_ONLY+[h.INTEGRATOR_BAR]+i.RENDERED+list(i.TOKEN_FILES)+i.HOME_FILES))))`,
       ROOT,
     );
-    expect(r.stdout.trim().split('\n')).toEqual(['[]', 'True']);
+    expect(py1.status).toBe(0);
+    const declared: string[] = JSON.parse(py1.stdout);
+    // gen-discovery.ts: every static/ literal that is a write target (literal or via a resolved variable).
+    const src = readFileSync(join(ROOT, 'scripts/gen-discovery.ts'), 'utf8');
+    const vars = new Map<string, string>();
+    for (const m of src.matchAll(/(\w+)\s*=\s*resolve\(ROOT,\s*'(static\/[^']+)'\)/g))
+      vars.set(m[1], m[2]);
+    const gen: string[] = [];
+    for (const c of src.matchAll(/write(?:Text|Json)IfChanged\(\s*([^\n]*\n?[^\n]*)/g)) {
+      const lit = /resolve\(ROOT,\s*'(static\/[^']+)'\)/.exec(c[1]);
+      const rel = /resolve\((\w+),\s*'([^']+)'\)/.exec(c[1]);
+      const id = /^(\w+)\s*,/.exec(c[1].trim());
+      if (lit) gen.push(lit[1]);
+      else if (rel && vars.has(rel[1])) gen.push(`${vars.get(rel[1])}/${rel[2]}`);
+      else if (id && vars.has(id[1])) gen.push(vars.get(id[1]) as string);
+    }
+    expect(gen).toEqual(expect.arrayContaining(['static/.well-known/mcp.json']));
+    expect(declared).toContain('static/pricing.md');
+    for (const p of [...declared, ...gen]) expect([p, files.has(p)]).toEqual([p, true]);
   });
 
   it('sync-counts.sh renders home facts again after gen-site-facts.ts', () => {

@@ -63,6 +63,7 @@ function setup(mutate: boolean, selfHealWrite = '') {
     SYNC_COUNTS_CRON_CONFIG_ENV: join(dir, 'config.env'),
     SYNC_COUNTS_CRON_GEN_CMD: 'true',
     SYNC_COUNTS_CRON_HOME_CMD: 'true',
+    SYNC_COUNTS_CRON_LLMS_CMD: 'true',
   };
   return { dir, work, env };
 }
@@ -132,5 +133,17 @@ describe('sync-counts-cron.sh page-parity gate', () => {
     expect(r.status).toBe(1);
     const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
     expect(log).toContain('FILES is stale, update it first): SECURITY.md');
+  });
+
+  it('ABORTs and commits nothing when the run rewrites a path that was dirty at start (T-0697)', () => {
+    const t = setup(false, '  echo rewritten > notes.txt\n');
+    dir = t.dir;
+    writeFileSync(join(t.work, 'notes.txt'), 'dirty before the run\n');
+    const before = git(t.work, 'rev-parse', 'HEAD');
+    const r = run('bash', ['scripts/sync-counts-cron.sh'], t.work, t.env);
+    expect(r.status).toBe(1);
+    const log = readFileSync(join(t.dir, 'logs/sync-counts-cron.log'), 'utf8');
+    expect(log).toContain('ABORT -- pre-dirty path rewritten by this run: notes.txt');
+    expect(git(t.work, 'rev-parse', 'HEAD')).toBe(before);
   });
 });

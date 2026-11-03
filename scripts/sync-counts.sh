@@ -345,6 +345,9 @@ else
   # other rendered page match what the check side below compares (a single pre-site-facts pass left
   # them one generation behind whenever the live count moved).
   python3 scripts/home-facts.py render
+  # T-0697: llms-full.txt embeds the final pricing.md / faq.md etc.; rebuild it after the last render.
+  npx tsx scripts/llms-full.ts > /tmp/llms-full.out 2>&1 \
+    || { echo "sync-counts: llms-full.ts FAILED"; cat /tmp/llms-full.out; exit 1; }
   [ "$(md5sum static/pricing.html | cut -d" " -f1)" != "$b1" ] && CHANGED=$((CHANGED+1))
   [ "$(md5sum static/llms.txt | cut -d" " -f1)" != "$b2" ] && CHANGED=$((CHANGED+1))
 
@@ -729,11 +732,13 @@ fi
 [ -n "$STALE_ROADMAP" ] && { echo "sync-counts: STALE_ROADMAP — docs/ROADMAP.md format/SHA/freshness violation(s):"; echo "$STALE_ROADMAP"; FAIL=1; }
 if [ "$CHECK" = "1" ]; then
   [ "$GEN_DISCOVERY_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — gen-discovery.ts --check found byte-for-byte drift:"; echo "$GEN_DISCOVERY_CHECK_OUT"; FAIL=1; }
-  # T-0591: static/llms-full.txt is generated from llms.txt and the .md pages it links.
-  STALE_LLMS_FULL=$(npx tsx scripts/llms-full.ts --check 2>&1 >/dev/null) || { echo "sync-counts: $STALE_LLMS_FULL"; FAIL=1; }
   [ "$GEN_SITE_FACTS_CHECK_RC" != "0" ] && { echo "sync-counts: STALE_SITE_FACTS — gen-site-facts.ts --check found byte-for-byte drift:"; echo "$GEN_SITE_FACTS_CHECK_OUT"; FAIL=1; }
   [ "$GEN_OPENAPI_CHECK_RC" != "0" ] && { echo "sync-counts: STALE — generate-openapi.ts --check found byte-for-byte drift:"; echo "$GEN_OPENAPI_CHECK_OUT"; FAIL=1; }
 fi
+
+# T-0591 / T-0697: static/llms-full.txt is generated from llms.txt and the .md pages it links; checked in
+# BOTH modes so self-heal never reports OK on a tree whose --check would be red.
+STALE_LLMS_FULL=$(npx tsx scripts/llms-full.ts --check 2>&1 >/dev/null) || { echo "sync-counts: $STALE_LLMS_FULL"; FAIL=1; }
 
 if [ "$FAIL" = "0" ]; then
   if [ "$CHECK" = "1" ]; then

@@ -43,6 +43,103 @@ cd "$HERE"
 . "$HERE/scripts/lib/counts-ledger.sh"
 . "$HERE/scripts/lib/tree-hygiene.sh"   # T-0578
 
+# Every path sync-counts.sh's self-heal pass is known to write (kept in sync with its own
+# `for f in ...` loops and hand-written surfaces -- see git blame if this list needs updating).
+# T-0173 (ruling-2, attempt-2): static/why.html, static/why.md, static/flight-search-intent.html,
+# static/image-generation-intent.html, static/company-research-intent.html were missing here --
+# sync-counts.sh's own first self-heal loop (its "for f in ..." at the top of the else branch)
+# writes all five, but this list only had them via static/index.md's neighbors, not themselves.
+# Found only because ruling-2 asked for the assertion below to actually exist; before that this
+# gap was silent (these 5 pages happen not to have carried a stale count recently, so the
+# whitelist ABORT at the bottom of this script never fired on them -- it would have, the first
+# time one did, and self-heal for ALL files would have aborted with it, not just these 5).
+shopt -s nullglob
+FILES=(
+  static/index.html static/terms.html static/frameworks.html static/contact.html
+  static/privacy.html static/dashboard.html static/pricing.html static/connect.html
+  static/why.html static/why.md static/flight-search-intent.html
+  static/image-generation-intent.html static/company-research-intent.html
+  static/llms.txt static/llms-full.txt static/ai.txt static/policy-moderation.html static/index.md README.md
+  static/integrator/index.html static/integrator/llms.txt
+  static/.well-known/api-catalog static/.well-known/mcp.json
+  static/.well-known/mcp/server-card.json static/catalog.html static/sitemap.xml
+  static/.well-known/agent.json static/.well-known/ai-capabilities.json
+  static/.well-known/ucp static/.well-known/acp.json
+  static/.well-known/agent-skills/index.json static/.well-known/agent-skills/discover-tools.md
+  static/.well-known/openapi.json static/.well-known/openapi-discovery.json
+  scripts/discovery-snapshot.tsv
+  static/.well-known/x402-payment.json static/.well-known/agent-skills/x402-payment.md
+  static/.well-known/site-facts.json
+  provek.json
+  SECURITY.md
+  docs/*.md packages/*/README.md
+)
+shopt -u nullglob
+
+# T-0697: the literal list above is only the floor. Every generator declares its own write set;
+# append all of it at run time so a new generator path (T-0617, T-0664, T-0687, T-0674: four cards
+# of the same hole) can never again be missing from the allow-list. A crashing derivation is an
+# ABORT, never an empty set. Dedupe, keep first-seen order.
+derive_generator_paths() {
+  python3 -I - <<'PY'
+import importlib.util, os, re, sys
+
+def load(name, path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+out = []
+if os.path.isfile("scripts/home-facts.py"):
+    m = load("hf", "scripts/home-facts.py")
+    out += list(m.FILES) + list(m.BAR_PAGES) + list(m.BAR_PRICE_ONLY) + [m.INTEGRATOR_BAR]
+if os.path.isfile("scripts/integrator-facts.py"):
+    m = load("itf", "scripts/integrator-facts.py")
+    out += list(m.RENDERED) + list(m.TOKEN_FILES) + list(m.HOME_FILES)
+if os.path.isfile("scripts/gen-discovery.ts"):
+    src = open("scripts/gen-discovery.ts").read()
+    # var = resolve(ROOT, 'static/...')
+    var = dict(re.findall(r"(\w+)\s*=\s*resolve\(ROOT,\s*'(static/[^']+)'\)", src))
+    for call in re.finditer(r"write(?:Text|Json)IfChanged\(", src):
+        if src[call.start() - 9:call.start()] == "function ":
+            continue
+        win = src[call.end():call.end() + 160]
+        m1 = re.match(r"\s*resolve\(ROOT,\s*'(static/[^']+)'\)", win)
+        m2 = re.match(r"\s*resolve\((\w+),\s*'([^']+)'\)", win)
+        m3 = re.match(r"\s*(\w+)\s*,", win)
+        if m1:
+            out.append(m1.group(1))
+        elif m2 and m2.group(1) in var:
+            out.append(var[m2.group(1)] + "/" + m2.group(2))
+        elif m3 and m3.group(1) in var:
+            out.append(var[m3.group(1)])
+        else:
+            sys.stderr.write("unresolved gen-discovery write target: " + win[:60].replace("\n", " ") + "\n")
+            sys.exit(3)
+seen = set()
+for p in out:
+    if p not in seen:
+        seen.add(p)
+        print(p)
+PY
+}
+GEN_DERIVE_FAIL=0
+GEN_PATHS_OUT="$(derive_generator_paths)" || GEN_DERIVE_FAIL=1
+while IFS= read -r p; do
+  [ -z "$p" ] && continue
+  found=0
+  for a in "${FILES[@]}"; do [ "$p" = "$a" ] && found=1 && break; done
+  [ "$found" = 0 ] && FILES+=("$p")
+done <<<"$GEN_PATHS_OUT"
+GEN_DERIVED_COUNT="$(printf '%s\n' "$GEN_PATHS_OUT" | grep -c . || true)"
+
+if [ "${1:-}" = "--print-files" ]; then
+  [ "$GEN_DERIVE_FAIL" = 1 ] && { echo "sync-counts-cron: cannot derive the generators' write sets" >&2; exit 1; }
+  printf '%s\n' "${FILES[@]}"
+  exit 0
+fi
+
 # Durable logging + alerting, independent of whatever the crontab line redirects stdout to.
 # T-75 update (2026-09-03): the crontab's own redirect target
 # (apibase-fleet/scripts/night-orchestra/logs/sync-counts.log) lives under a path that's
@@ -194,38 +291,6 @@ if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
   fi
 fi
 
-# Every path sync-counts.sh's self-heal pass is known to write (kept in sync with its own
-# `for f in ...` loops and hand-written surfaces -- see git blame if this list needs updating).
-# T-0173 (ruling-2, attempt-2): static/why.html, static/why.md, static/flight-search-intent.html,
-# static/image-generation-intent.html, static/company-research-intent.html were missing here --
-# sync-counts.sh's own first self-heal loop (its "for f in ..." at the top of the else branch)
-# writes all five, but this list only had them via static/index.md's neighbors, not themselves.
-# Found only because ruling-2 asked for the assertion below to actually exist; before that this
-# gap was silent (these 5 pages happen not to have carried a stale count recently, so the
-# whitelist ABORT at the bottom of this script never fired on them -- it would have, the first
-# time one did, and self-heal for ALL files would have aborted with it, not just these 5).
-shopt -s nullglob
-FILES=(
-  static/index.html static/terms.html static/frameworks.html static/contact.html
-  static/privacy.html static/dashboard.html static/pricing.html static/connect.html
-  static/why.html static/why.md static/flight-search-intent.html
-  static/image-generation-intent.html static/company-research-intent.html
-  static/llms.txt static/llms-full.txt static/ai.txt static/policy-moderation.html static/index.md README.md
-  static/integrator/index.html static/integrator/llms.txt
-  static/.well-known/api-catalog static/.well-known/mcp.json
-  static/.well-known/mcp/server-card.json static/catalog.html static/sitemap.xml
-  static/.well-known/agent.json static/.well-known/ai-capabilities.json
-  static/.well-known/ucp static/.well-known/acp.json
-  static/.well-known/agent-skills/index.json static/.well-known/agent-skills/discover-tools.md
-  static/.well-known/openapi.json static/.well-known/openapi-discovery.json
-  scripts/discovery-snapshot.tsv
-  static/.well-known/x402-payment.json static/.well-known/agent-skills/x402-payment.md
-  static/.well-known/site-facts.json
-  provek.json
-  SECURITY.md
-  docs/*.md packages/*/README.md
-)
-shopt -u nullglob
 
 # T-0173 (ruling-2, attempt-2): FILES above is hand-maintained prose ("kept in sync with its own
 # for loops"), which is exactly how the 5 paths above went missing without anyone noticing --
@@ -276,6 +341,27 @@ if [ -n "$GLOB_MISSING" ]; then
   exit 1
 fi
 
+# T-0697 third assertion: the generators' declared write sets (re-derived here, independently of the
+# array built above) must all be in the final FILES, and the derivation must have succeeded.
+if [ "$GEN_DERIVE_FAIL" = 1 ]; then
+  clog "ABORT -- cannot derive the generators' write sets, refusing to run (FILES is stale, update it first): derivation failed"
+  calert "🔴 sync-counts-cron: FILES отстаёт от sync-counts.sh self-heal, отказ прибора -- see log." "files-stale"
+  exit 1
+fi
+GEN_MISSING=""
+while IFS= read -r p; do
+  [ -z "$p" ] && continue
+  found=0
+  for a in "${FILES[@]}"; do [ "$p" = "$a" ] && found=1 && break; done
+  [ "$found" = 0 ] && GEN_MISSING="$GEN_MISSING $p"
+done < <(derive_generator_paths 2>/dev/null || true)
+if [ -n "$GEN_MISSING" ]; then
+  clog "ABORT -- generator write path(s) missing from this script's FILES allow-list, refusing to run (FILES is stale, update it first):$GEN_MISSING"
+  calert "🔴 sync-counts-cron: FILES отстаёт от sync-counts.sh self-heal, отказ прибора -- see log." "files-stale"
+  exit 1
+fi
+clog "FILES: ${#FILES[@]} paths (${GEN_DERIVED_COUNT} declared by generators)"
+
 PRE_DIRTY="$(git status --porcelain -- "${FILES[@]}")"
 if [ -n "$PRE_DIRTY" ]; then
   # T-05 (2026-09-04, ruling-1): this is the ONE case this script cannot self-heal -- dirt on an
@@ -302,6 +388,14 @@ fi
 # construction -- caught live in this task's own mutation test: a stub that wrote an extra file
 # outside FILES got committed anyway because the check was filtering before it could see it).
 PRE_STATUS="$(git status --porcelain)"
+# T-0697: md5 of every path dirty at start (inside or outside FILES). A run that rewrites one of
+# them would build a commit from uncommitted inputs (the 19:11Z pricing.md case); ABORT below.
+declare -A PRE_DIRTY_MD5=()
+while IFS= read -r line; do
+  [ -z "$line" ] && continue
+  dp="${line:3}"
+  if [ -f "$dp" ]; then PRE_DIRTY_MD5["$dp"]="$(md5sum "$dp" | cut -d' ' -f1)"; else PRE_DIRTY_MD5["$dp"]="-"; fi
+done <<<"$PRE_STATUS"
 
 # T-05 (2026-09-04, ruling-1): owns cleanup of dirt THIS run produces if it dies before
 # committing (killed mid-run, a generator crash, an unhandled error) -- the class of "orphaned
@@ -370,6 +464,15 @@ for sub in render check check-bar check-range; do
   fi
 done
 
+# T-0697: llms-full.txt embeds pricing.md and the other rendered pages; rebuild it after the LAST
+# render so it never carries a previous generation. SYNC_COUNTS_CRON_LLMS_CMD overridable for tests.
+LLMS_OUT="$(${SYNC_COUNTS_CRON_LLMS_CMD:-npx tsx scripts/llms-full.ts} 2>&1)" && LLMS_RC=0 || LLMS_RC=$?
+if [ "$LLMS_RC" != 0 ]; then
+  clog "ABORT -- llms-full.ts exited $LLMS_RC, nothing committed: $(printf '%s\n' "$LLMS_OUT" | tail -n 3 | tr '\n' ';')"
+  calert "🔴 sync-counts-cron: llms-full упал с кодом $LLMS_RC -- ничего не закоммичено, see log." "llms-full-failed"
+  exit 1
+fi
+
 TOOLS="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ tools' | grep -oE '[0-9]+')"
 PROV="$(echo "$COUNTS_MSG" | grep -oE '[0-9]+ providers' | grep -oE '[0-9]+')"
 
@@ -385,6 +488,15 @@ if [ "$PARITY_RC" != 0 ]; then
   calert "🔴 sync-counts-cron: page-parity (PP2) красный на перегенерированном дереве -- отказ прибора, ничего не закоммичено, see log." "page-parity-red"
   exit 1
 fi
+
+for dp in "${!PRE_DIRTY_MD5[@]}"; do
+  if [ -f "$dp" ]; then now="$(md5sum "$dp" | cut -d' ' -f1)"; else now="-"; fi
+  if [ "$now" != "${PRE_DIRTY_MD5[$dp]}" ]; then
+    clog "ABORT -- pre-dirty path rewritten by this run: $dp (nothing committed)"
+    calert "🔴 sync-counts-cron: путь, грязный до запуска, переписан этим прогоном ($dp) -- отказ прибора, ничего не закоммичено." "pre-dirty-rewritten"
+    exit 1
+  fi
+done
 
 POST_STATUS="$(git status --porcelain)"
 if [ "$PRE_STATUS" = "$POST_STATUS" ]; then
