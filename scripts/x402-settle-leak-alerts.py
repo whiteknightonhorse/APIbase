@@ -33,15 +33,20 @@ CONFIG_DIR = os.environ.get("LEAK_ALERT_CONFIG_DIR", os.path.join(HERE, "..", "c
 
 def load_internal_wallets():
     """Fail-closed loader for config/autopilot/internal-wallets.json (lowercase addresses)."""
-    with open(os.path.join(CONFIG_DIR, "internal-wallets.json"), encoding="utf-8") as f:
-        raw = json.load(f)
-    assert isinstance(raw, list), "internal-wallets.json must be a JSON array"
+    try:
+        with open(os.path.join(CONFIG_DIR, "internal-wallets.json"), encoding="utf-8") as f:
+            raw = json.load(f)
+        assert isinstance(raw, list), "internal-wallets.json must be a JSON array"
+    except (OSError, ValueError, AssertionError) as e:
+        # A broken tag list must never silence the page itself: warn and page untagged.
+        print(f"WARNING: internal-wallets.json unusable ({e}); paging without internal tags")
+        return set()
     return {e["address"].lower() for e in raw if isinstance(e, dict) and isinstance(e.get("address"), str)}
 
 
 def psql(sql):
     out = subprocess.run(
-        ["docker", "exec", "apibase-postgres-1", "psql", "-U", "apibase", "-d", "apibase", "-tAF", "\x1f", "-c", sql],
+        ["docker", "exec", "apibase-postgres-1", "psql", "-U", os.environ.get("LEAK_ALERT_PSQL_USER", "apibase"), "-d", "apibase", "-tAF", "\x1f", "-c", sql],
         capture_output=True, text=True,
     )
     return out.stdout.strip(), out.returncode
@@ -113,11 +118,19 @@ def main():
     if pend_rc == 0 and pend_raw and '0600' <= hm < '0605':
         print(f"x402-settle-leak-alerts: {pend_raw.strip()} settles pending > 1 h")
 
+    # Dry-run replay: LEAK_ALERT_REPLAY="<from>,<to>" selects ALREADY-processed rows of that
+    # window (only honoured together with LEAK_ALERT_DRY_RUN=1; nothing is sent or marked).
+    replay = os.environ.get("LEAK_ALERT_REPLAY", "") if os.environ.get("LEAK_ALERT_DRY_RUN") == "1" else ""
+    if replay:
+        t_from, t_to = [x.strip().replace("'", "") for x in replay.split(",", 1)]
+        where = f"processed = true AND created_at >= '{t_from}'::timestamptz AND created_at < '{t_to}'::timestamptz"
+    else:
+        where = "processed = false"
     rows_raw, rc = psql(
-        """
+        f"""
         SELECT id, created_at, payload
         FROM outbox
-        WHERE event_type = 'x402_settle_failed' AND processed = false
+        WHERE event_type = 'x402_settle_failed' AND {where}
         ORDER BY created_at
         """
     )
@@ -137,7 +150,7 @@ def main():
     if len(rows) > 1:
         out, src = psql(
             "SELECT count(*) FROM execution_ledger WHERE x402_onchain_settled = true "
-            f"AND created_at >= '{rows[0][1]}'::timestamptz - interval '5 minutes' AND created_at <= now()"
+            f"AND created_at >= '{rows[0][1]}'::timestamptz - interval '5 minutes' AND created_at <= '{rows[-1][1]}'::timestamptz + interval '5 minutes'"
         )
         if src == 0 and out.strip().isdigit():
             successes = int(out.strip())
