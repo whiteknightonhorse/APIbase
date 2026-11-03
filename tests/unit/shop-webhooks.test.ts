@@ -354,6 +354,8 @@ dbDescribe('merchant webhooks (F-6)', () => {
     expect(HANDLED_EVENT_TYPES.filter((t) => !t.startsWith('shop.'))).toEqual([
       'cache_invalidate',
       'TOOL_CONFIG_UPDATED',
+      'stream.closed',
+      'stream.close_requested',
     ]);
   });
 
