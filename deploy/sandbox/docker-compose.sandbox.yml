@@ -4,6 +4,8 @@
 # Operator/dispatcher only; nothing here is started by a task:
 #   cd deploy/sandbox && cp sandbox.env.example .env.sandbox   # then fill in the blanks
 #   docker compose -p apibase-sandbox -f docker-compose.sandbox.yml --env-file .env.sandbox up -d
+# The one task-callable entry: deploy/sandbox/sandbox-image.sh <tag>|restore (T-0685) swaps the
+# api/worker/outbox-worker image to a local sha-<40hex> or t<card>-<sha8> tag and back; nothing else.
 #
 # Isolation vs docker-compose.yml:
 #   project name  apibase-sandbox (prod: directory default)

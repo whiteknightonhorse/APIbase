@@ -121,3 +121,6 @@ secrets/
 # UC-22 IP country database (DB-IP Country Lite): downloaded monthly by scripts/geo-db-refresh.sh
 data/geo/*.mmdb
 data/geo/.geo-refresh.*
+
+# T-0685 sandbox-image.sh runtime state
+deploy/sandbox/.sandbox-image-state
