@@ -327,6 +327,28 @@ groups:
           summary: "x402 local settle error rate > 5% over 10m — investigate RPC / operator signer"
 
       # -----------------------------------------------------------------------
+      # T-0652 MppRefundLedgerGap — warning
+      # The settlement-side reconcile job booked a refund-owed row the writer lost.
+      # -----------------------------------------------------------------------
+      - alert: MppRefundLedgerGap
+        expr: increase(mpp_refund_ledger_gap_total[1h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "a settled Tempo call failed and had no refund row - the writer missed it; the job booked it"
+
+      # -----------------------------------------------------------------------
+      # T-0652 MppSettleUnmatched — critical
+      # A USDC.e transfer into the revenue wallet matches no ledger/receipt/payment row.
+      # -----------------------------------------------------------------------
+      - alert: MppSettleUnmatched
+        expr: increase(mpp_settle_unmatched_total[1h]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "USDC.e reached the revenue wallet with no ledger row - see the mpp_settle_unmatched outbox rows"
+
+      # -----------------------------------------------------------------------
       # 30. ShopPaymentIdentifierConflict — warning (T-0525, MARKET-SIGNALS-1021 S7)
       # A payment identifier was reused for another payer or another request.
       # -----------------------------------------------------------------------

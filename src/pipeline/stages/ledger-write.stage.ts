@@ -37,6 +37,16 @@ function moneyMoved(ctx: PipelineContext): boolean {
   return ctx.mppPaid === true && ctx.billingStatus === 'PAID';
 }
 
+/**
+ * T-0652: the Tempo settlement hash as stored in execution_ledger.settle_tx_hash. mppx can leave
+ * the literal 'unknown' (no receipt reference); anything that is not a 32-byte hash becomes NULL.
+ */
+export function normalizeMppTxHash(h: unknown): string | undefined {
+  if (typeof h !== 'string') return undefined;
+  const v = h.toLowerCase();
+  return /^0x[0-9a-f]{64}$/.test(v) ? v : undefined;
+}
+
 async function recordLedgerWriteFailedAfterSettle(ctx: PipelineContext, e: unknown): Promise<void> {
   const rail = ctx.x402Paid ? 'x402' : 'mpp';
   const payer = ctx.x402Paid ? ctx.x402Payer : (ctx.mppPayer ?? 'tempo-agent');
@@ -62,7 +72,7 @@ async function recordLedgerWriteFailedAfterSettle(ctx: PipelineContext, e: unkno
           tool_id: ctx.toolId,
           rail,
           payer,
-          tx_hash: ctx.x402Paid ? ctx.x402SettleTxHash : undefined,
+          tx_hash: ctx.x402Paid ? ctx.x402SettleTxHash : normalizeMppTxHash(ctx.mppTxHash),
           amount_usd: ctx.finalCost ?? ctx.toolPrice,
         },
       },
@@ -122,7 +132,7 @@ async function executeLedgerWrite(ctx: PipelineContext): ReturnType<Stage['execu
           // MPP settles differently (at verification, no facilitator here).
           settleSucceeded: ctx.x402Paid ? ctx.x402SettleSucceeded : undefined,
           settleState: ctx.x402Paid ? ctx.x402SettleState : undefined,
-          settleTxHash: ctx.x402Paid ? ctx.x402SettleTxHash : undefined,
+          settleTxHash: ctx.x402Paid ? ctx.x402SettleTxHash : normalizeMppTxHash(ctx.mppTxHash),
           notChargedReason: ctx.billingStatus === 'NOT_CHARGED' ? ctx.notChargedReason : undefined,
           moderation: ctx.moderationBlocked
             ? {
