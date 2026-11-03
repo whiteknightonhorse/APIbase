@@ -3,6 +3,8 @@
  * written; an MPP charge in that case becomes a refund-owed row.
  */
 import { EventEmitter } from 'node:events';
+import http from 'node:http';
+import type { AddressInfo } from 'node:net';
 
 const mockRecord = jest.fn();
 jest.mock('../../src/services/refund-ledger.service', () => ({
@@ -47,9 +49,8 @@ function paidCtx(rail: 'x402' | 'mpp') {
 }
 
 function fake(writableFinished: boolean) {
-  const req = new EventEmitter() as EventEmitter & { once: EventEmitter['once'] };
-  const res = { writableFinished };
-  return { req, res };
+  const res = Object.assign(new EventEmitter(), { writableFinished });
+  return { req: res, res };
 }
 
 describe('client disconnect (T-0662)', () => {
@@ -62,7 +63,7 @@ describe('client disconnect (T-0662)', () => {
   it('x402: close before the result was written -> no settle, NOT_CHARGED, nonce released', async () => {
     const ctx = paidCtx('x402');
     const { req, res } = fake(false);
-    watchClientDisconnect(req as never, res, ctx);
+    watchClientDisconnect(res as never, ctx);
     req.emit('close');
     const r = await escrowFinalizeStage.execute(ctx);
     expect(r.ok).toBe(true);
@@ -76,7 +77,7 @@ describe('client disconnect (T-0662)', () => {
   it('x402: close after the response finished -> settle runs as today', async () => {
     const ctx = paidCtx('x402');
     const { req, res } = fake(true);
-    watchClientDisconnect(req as never, res, ctx);
+    watchClientDisconnect(res as never, ctx);
     req.emit('close');
     await escrowFinalizeStage.execute(ctx);
     expect(ctx.clientDisconnected).toBeUndefined();
@@ -88,7 +89,7 @@ describe('client disconnect (T-0662)', () => {
     mockRecord.mockResolvedValue({});
     const ctx = paidCtx('mpp');
     const { req, res } = fake(false);
-    watchClientDisconnect(req as never, res, ctx);
+    watchClientDisconnect(res as never, ctx);
     req.emit('close');
     await escrowFinalizeStage.execute(ctx);
     expect(mockRecord).toHaveBeenCalledTimes(1);
@@ -96,5 +97,46 @@ describe('client disconnect (T-0662)', () => {
       expect.objectContaining({ rail: 'tempo', reason: 'client_disconnected' }),
     );
     expect(ctx.billingStatus).toBe('PAID');
+  });
+
+  describe('real socket (Node http server)', () => {
+    async function run(abort: boolean): Promise<boolean | undefined> {
+      const ctx = createPipelineContext('req-cd-real', 'POST', '/x', {}, {});
+      let seen: boolean | undefined;
+      let release!: () => void;
+      const gate = new Promise<void>((r) => (release = r));
+      const handled = new Promise<void>((resolve) => {
+        const srv = http.createServer(async (req, res) => {
+          watchClientDisconnect(res, ctx);
+          req.resume();
+          await new Promise((r) => req.once('end', r)); // body consumed
+          await gate; // "provider call"
+          seen = ctx.clientDisconnected;
+          if (!abort) res.end('ok');
+          resolve();
+        });
+        srv.listen(0, () => {
+          const port = (srv.address() as AddressInfo).port;
+          const creq = http.request({ port, method: 'POST' }, (r) => r.resume());
+          creq.on('error', () => undefined);
+          creq.end('{"a":1}');
+          setTimeout(() => {
+            if (abort) creq.destroy();
+            setTimeout(release, 100);
+          }, 100);
+          void handled.then(() => srv.close());
+        });
+      });
+      await handled;
+      return seen;
+    }
+
+    it('client never abandoned the call -> flag stays unset after the body is consumed', async () => {
+      expect(await run(false)).toBeUndefined();
+    });
+
+    it('client aborted before the result -> flag set', async () => {
+      expect(await run(true)).toBe(true);
+    });
   });
 });

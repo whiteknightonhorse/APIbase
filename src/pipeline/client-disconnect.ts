@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { ServerResponse } from 'node:http';
 import { decodePaymentSignatureHeader } from '@x402/core/http';
 import * as client from 'prom-client';
 import { logger } from '../config/logger';
@@ -18,12 +18,13 @@ export const x402NotChargedTotal = new client.Counter({
  * and only setter; REST and MCP both call it.
  */
 export function watchClientDisconnect(
-  req: Pick<IncomingMessage, 'once'>,
-  res: Pick<ServerResponse, 'writableFinished'>,
+  res: Pick<ServerResponse, 'writableFinished' | 'once'>,
   ctx: Pick<PipelineContext, 'clientDisconnected'>,
 ): void {
-  if (typeof req.once !== 'function') return; // hand-built request doubles in tests
-  req.once('close', () => {
+  if (typeof res?.once !== 'function') return; // hand-built response doubles in tests
+  // The RESPONSE 'close' event, not req: on Node 20 IncomingMessage emits 'close' as soon as the
+  // request body is consumed, long before any result is written.
+  res.once('close', () => {
     if (!res.writableFinished) ctx.clientDisconnected = true;
   });
 }

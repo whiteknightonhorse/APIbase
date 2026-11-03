@@ -234,7 +234,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
     mppAmount: mpp?.amount ?? null,
     mppTxHash: mpp?.txHash ?? null,
     mppAsset: mpp?.asset ?? null,
-    watchClient: (ctx) => watchClientDisconnect(req, req.res as express.Response, ctx),
+    watchClient: (ctx) => watchClientDisconnect(req.res as express.Response, ctx),
     host: req.get('host') ?? null,
   };
 }

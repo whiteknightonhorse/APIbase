@@ -58,7 +58,7 @@ executeRouter.post(
         [X_API_KEY]: req.headers[X_API_KEY] as string | undefined,
       });
       ctx.toolId = toolId;
-      watchClientDisconnect(req, res, ctx);
+      watchClientDisconnect(res, ctx);
 
       if (req.x402Payment?.verified) {
         ctx.x402Paid = true;
