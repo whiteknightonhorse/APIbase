@@ -136,42 +136,7 @@ async function insertLedgerRow(
       },
       'refund ledger write FAILED — this refund will be missed unless caught manually',
     );
-    if (
-      row.rail === 'tempo' &&
-      row.source_kind === 'request' &&
-      !row.reason.startsWith('reconcile_missing:') // the reconcile job retries its own row
-    ) {
-      await parkFailedMppWrite(row);
-    }
     return null;
-  }
-}
-
-/**
- * T-0652: a failed Tempo request-debt write is parked as outbox `mpp_refund_write_failed`; the
- * mpp-refund-reconcile job re-books it. Goes through a fresh client (not the failed `db`) and
- * never throws: if even this fails the log line above is the only trace.
- */
-async function parkFailedMppWrite(row: RefundOwedInput): Promise<void> {
-  try {
-    await getPrisma().outbox.create({
-      data: {
-        event_type: 'mpp_refund_write_failed',
-        payload: {
-          request_id: row.source_id,
-          payer: typeof row.payer === 'string' ? row.payer.toLowerCase() : '',
-          amount_usd: String(row.amount_usd),
-          reason: row.reason,
-          original_tx: row.original_tx ?? null,
-          tool_id: (row.note?.tool_id as string | null | undefined) ?? null,
-        },
-      },
-    });
-  } catch (e) {
-    logger.error(
-      { event: 'mpp_refund_write_failed_park_failed', err: e, source_id: row.source_id },
-      'could not park the failed MPP refund write in the outbox',
-    );
   }
 }
 

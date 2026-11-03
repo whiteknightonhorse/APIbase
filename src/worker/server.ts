@@ -20,7 +20,6 @@ import {
   runDailySample as runShopPaymentSample,
 } from '../jobs/shop-payment-reconcile.job';
 import { run as runX402SettlePending } from '../jobs/x402-settle-pending.job';
-import { run as runMppRefundReconcile } from '../jobs/mpp-refund-reconcile.job';
 import { run as runLedgerWriteFailed } from '../jobs/ledger-write-failed.job';
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { backfillContentHashes, run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
@@ -243,14 +242,6 @@ registerJob({
   cron: '* * * * *',
   expect_every_s: 60,
   run: () => runX402SettlePending(),
-});
-// T-0652: settlement-side MPP refund check (parked writes re-booked, unmatched USDC.e transfers alerted);
-// read-only on chain, never pays. The runner's `running` flag is the single-flight guard.
-registerJob({
-  name: 'mpp-refund-reconcile',
-  cron: '*/15 * * * *',
-  expect_every_s: 900,
-  run: async () => ({ ...(await runMppRefundReconcile()) }),
 });
 // T-0646: books `ledger.write_failed` outbox rows (ledger write threw after money moved) into execution_ledger.
 registerJob({

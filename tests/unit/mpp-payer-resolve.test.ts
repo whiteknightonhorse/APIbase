@@ -53,9 +53,9 @@ describe('resolveRealPayer (T-0259)', () => {
     expect(out).toEqual({ payer: '0xPAYER', txHash: REF });
   });
 
-  it('P2: RPC failure → unknown payer but the valid receipt hash is kept (T-0652), one warn', async () => {
+  it('P2: RPC failure → fallback and one warn', async () => {
     mockGetTransaction.mockRejectedValue(new Error('rpc down'));
-    expect(await resolveRealPayer(result())).toMatchObject({ payer: FALLBACK.payer, txHash: REF });
+    expect(await resolveRealPayer(result())).toEqual(FALLBACK);
     expect(mockWarn).toHaveBeenCalledTimes(1);
   });
 

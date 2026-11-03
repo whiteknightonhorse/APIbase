@@ -81,8 +81,6 @@ MPP: the credential is read from `Payment-Authorization: Payment <cred>` first, 
 
 No subscriptions, no minimums. Paid tools are set at or above the provider's cost where the cost is known; tools whose provider is free carry no upstream cost (see [pricing](https://apibase.pro/pricing)). <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled; on MPP the payment is already settled when the call runs, so a failure leaves a refund owed to you, paid out by the operator (see [pricing](https://apibase.pro/pricing#refunds)).
 
-Settlement-side check: every 15 minutes a job re-books any MPP refund-owed row whose first write failed (reason `reconcile_missing:<original reason>`) and compares the USDC.e transfers into the revenue wallet of the last 24 hours, once they are 10 minutes old, with our ledger, refund, receipt and payment rows. A transfer that matches none raises the `MppSettleUnmatched` alert and is left to a human; no refund is booked for it. A failed call has no receipt: the debt is keyed by the request id and the payment transaction (`original_tx`).
-
 ### MPP Payment Flow
 
 MPP uses a **challenge–credential–receipt** cycle:

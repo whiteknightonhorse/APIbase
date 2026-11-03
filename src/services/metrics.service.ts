@@ -220,32 +220,6 @@ export const refundLedgerWriteFailuresTotal = new client.Counter({
   registers: [register],
 });
 
-/** T-0652: a settled Tempo call failed and had no refund row; the reconcile job booked it. */
-export const mppRefundLedgerGapTotal = new client.Counter({
-  name: 'mpp_refund_ledger_gap_total',
-  help: 'MPP refund-owed rows booked by the settlement-side reconcile job (the writer missed them)',
-  registers: [register],
-});
-
-/** T-0652: USDC.e reached the revenue wallet with no ledger row (a human decides). */
-export const mppSettleUnmatchedTotal = new client.Counter({
-  name: 'mpp_settle_unmatched_total',
-  help: 'Tempo USDC.e transfers into the revenue wallet with no ledger row',
-  registers: [register],
-});
-
-export const mppReconcileRpcErrorsTotal = new client.Counter({
-  name: 'mpp_reconcile_rpc_errors_total',
-  help: 'MPP reconcile runs whose chain side was skipped by an RPC failure',
-  registers: [register],
-});
-
-export const mppReconcileLastRunTimestamp = new client.Gauge({
-  name: 'mpp_reconcile_last_run_timestamp_seconds',
-  help: 'Unix time of the last completed mpp-refund-reconcile run',
-  registers: [register],
-});
-
 /** §14: share of active merchant storefronts the hourly probe reached (sample of 100 / active). */
 export const storefrontProbeCoverage = new client.Gauge({
   name: 'storefront_probe_coverage',
