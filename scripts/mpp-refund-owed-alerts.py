@@ -139,7 +139,7 @@ def render_due(due, tg):
 
 
 # One row shape for both sources: {id, created_at, alerted, payload}. Ledger ids are the refund_id
-# uuid; outbox mpp_settle_unknown ids are prefixed "o" so mark_alerted routes them to the right table.
+# uuid; outbox mpp_settle_unknown / mpp_settle_unmatched (T-0652) ids are prefixed "o" so mark_alerted routes them to the right table.
 LEDGER_SELECT = """
     SELECT json_build_object('id', refund_id::text,
              'created_at', to_char(detected_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
@@ -155,7 +155,7 @@ SETTLE_SELECT = """
     SELECT json_build_object('id', 'o' || id::text,
              'created_at', to_char(created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"+00:00"'),
              'alerted', payload->>'alerted_at' IS NOT NULL, 'payload', payload)
-    FROM outbox WHERE event_type = 'mpp_settle_unknown' {extra}
+    FROM outbox WHERE event_type IN ('mpp_settle_unknown', 'mpp_settle_unmatched') {extra}
 """
 
 
@@ -274,7 +274,7 @@ def mark_alerted(ids):
     if settle:
         _, rc = psql(
             "UPDATE outbox SET payload = payload || jsonb_build_object('alerted_at', now()::text) "
-            f"WHERE event_type = 'mpp_settle_unknown' AND id IN ({','.join(str(i) for i in settle)})"
+            f"WHERE event_type IN ('mpp_settle_unknown', 'mpp_settle_unmatched') AND id IN ({','.join(str(i) for i in settle)})"
         )
         rc_all = rc_all or rc
     return rc_all

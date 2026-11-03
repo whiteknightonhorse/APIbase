@@ -23,6 +23,7 @@ export async function resolveRealPayer(chargeResult: {
 }): Promise<{ payer: string; txHash: string; asset: string }> {
   const cfgAsset = getMppConfig().usdcAddress;
   const FALLBACK = { payer: 'unknown-mpp-payer', txHash: 'unknown', asset: cfgAsset };
+  let knownHash: string | undefined;
   try {
     const { Receipt } = await import('mppx');
     // The mppx handler result is NOT a Response: the receipt header lives on
@@ -31,6 +32,8 @@ export async function resolveRealPayer(chargeResult: {
     const txHash = receipt.reference;
     if (!txHash || !txHash.startsWith('0x')) return FALLBACK;
 
+    // T-0652: once the receipt gave a valid hash, an RPC failure below must not lose it.
+    knownHash = /^0x[0-9a-fA-F]{64}$/.test(txHash) ? txHash : undefined;
     const { createPublicClient, http } = await import('viem');
     const cfg = getMppConfig();
     const client = createPublicClient({ transport: http(cfg.rpcUrl) });
@@ -47,7 +50,7 @@ export async function resolveRealPayer(chargeResult: {
       { err: err instanceof Error ? err.message : String(err) },
       "mpp: could not resolve real payer address — refund-owed alerts for this charge will show 'unknown-mpp-payer' and need manual on-chain lookup",
     );
-    return FALLBACK;
+    return knownHash ? { ...FALLBACK, txHash: knownHash } : FALLBACK;
   }
 }
 

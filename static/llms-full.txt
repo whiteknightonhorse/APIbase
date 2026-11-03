@@ -60,6 +60,7 @@ news, podcasts, search, social, space, travel, weather, world
 - If using mppx SDK: set polyfill: false to avoid intercepting x402 requests
 - MPP client: mppx >= 0.6.16 (0.4 clients are not supported); the challenge lists one currency, USDC.e on Tempo mainnet (pathUSD on the testnet)
 - A replayed MPP credential gets 403 credential_replayed
+- MPP refunds owed are reconciled from the chain every 15 minutes, not only from our own writer.
 - Integrator (AI payment for merchants, https://apibase.pro/integrator): Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise. Merchants connected: 8.
 
 ## Agent Integration Guide

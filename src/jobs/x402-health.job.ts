@@ -65,6 +65,10 @@ export async function run(redis: Redis): Promise<void> {
   });
 
   // T-0372: MPP rail RPC probe.
+  await runMppReconcileHealthLine(redis).catch((err) => {
+    logger.warn({ err }, 'MPP reconcile health line threw — ignored');
+  });
+
   await runMppHealthCheck(redis).catch((err) => {
     logger.warn({ err }, 'MPP health check threw — ignored');
   });
@@ -343,6 +347,24 @@ export function mppStatus(input: MppStatusInput): HealthStatus {
   if (input.chainId !== input.expectedChainId) return 'orange';
   if (input.latencyMs > 2000) return 'orange';
   return 'green';
+}
+
+/** T-0652: age of the last mpp-refund-reconcile run and its counters (no URLs, no addresses). */
+export async function runMppReconcileHealthLine(redis: Redis): Promise<void> {
+  const h = await redis.hgetall('mpp:reconcile:status');
+  const last = Number(h.last_run);
+  logger.info(
+    {
+      job: 'x402-health',
+      mpp_reconcile_last_run_age_s: Number.isFinite(last)
+        ? Math.floor(Date.now() / 1000 - last)
+        : null,
+      mpp_refund_ledger_gap: Number(h.gaps ?? 0),
+      mpp_settle_unmatched: Number(h.unmatched ?? 0),
+      mpp_reconcile_rpc_errors: Number(h.rpc_errors ?? 0),
+    },
+    'MPP reconcile health',
+  );
 }
 
 async function runMppHealthCheck(redis: Redis): Promise<void> {
