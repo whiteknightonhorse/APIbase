@@ -176,6 +176,8 @@ export interface PipelineContext {
   billingStatus?: string;
   /** T-0338: PROVIDER_CALL failed because the upstream rejected the caller's input (422/400). */
   providerInputRejected?: boolean;
+  /** T-0662: the client connection closed before the result was written (see client-disconnect.ts). */
+  clientDisconnected?: boolean;
   /** T-0338: why billingStatus is NOT_CHARGED. */
   notChargedReason?: string;
   /** T-0526: x402 dedup hit. receiptId = public receipt id of the earlier charged call, or '-'. */

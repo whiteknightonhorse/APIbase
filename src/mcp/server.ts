@@ -25,6 +25,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
 import { mcpSessionsActive } from '../services/metrics.service';
+import { watchClientDisconnect } from '../pipeline/client-disconnect';
 import { registerTools, type PaymentContext } from './tool-adapter';
 import { withZod3ToolSchemas } from './zod3-tool-schema';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
@@ -233,6 +234,7 @@ function extractPaymentFromReq(req: express.Request): PaymentContext {
     mppAmount: mpp?.amount ?? null,
     mppTxHash: mpp?.txHash ?? null,
     mppAsset: mpp?.asset ?? null,
+    watchClient: (ctx) => watchClientDisconnect(req, req.res as express.Response, ctx),
     host: req.get('host') ?? null,
   };
 }

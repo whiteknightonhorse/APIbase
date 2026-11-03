@@ -23,7 +23,7 @@ Primary path: the self-hosted facilitator. PayAI is wired as a fallback used onl
 
 Order of events on a paid x402 call stays **verify before, deliver, settle after**: the payment is
 verified and bound to the tool price before the provider is called, the result is delivered, and the
-on-chain settle runs afterwards. If the ledger write fails after a successful settle, the result is still delivered and the failure is recorded as a `ledger.write_failed` outbox event (request id, payer, tx hash, amount) and the row is booked by the reconcile job into the ledger (counter `apibase_ledger_write_failed_booked_total`). Every 402 response carries `Cache-Control: no-store`.
+on-chain settle runs afterwards. REST calls have a 60-second gateway deadline (MCP 300 s); if the client connection closes before the result is written, the x402 authorization is not settled and the call is recorded NOT_CHARGED (client_disconnected); an MPP charge in that case becomes a refund-owed row. If the ledger write fails after a successful settle, the result is still delivered and the failure is recorded as a `ledger.write_failed` outbox event (request id, payer, tx hash, amount) and the row is booked by the reconcile job into the ledger (counter `apibase_ledger_write_failed_booked_total`). Every 402 response carries `Cache-Control: no-store`.
 
 ### Dedup window (T-0526)
 

@@ -81,6 +81,8 @@ export interface PaymentContext {
   mppAsset?: string | null;
   /** Host of the current HTTP request, for the absolute resource URL of a 402 body (T-0429). */
   host?: string | null;
+  /** T-0662: attaches the current HTTP request's close watcher to a tool call's pipeline context. */
+  watchClient?: (ctx: import('../pipeline/types').PipelineContext) => void;
 }
 
 /**
@@ -132,6 +134,7 @@ export function registerTools(
         }
         const ctx = createPipelineContext(requestId, 'POST', '/mcp', args, headers);
         ctx.toolId = toolId;
+        paymentCtx?.watchClient?.(ctx);
 
         // Set payment flags from the current HTTP request's payment context
         if (paymentCtx) {

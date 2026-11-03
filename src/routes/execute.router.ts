@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { encodePaymentRequiredHeader, encodePaymentResponseHeader } from '@x402/core/http';
 import type { PaymentRequired } from '@x402/core/types';
 import { createPipelineContext } from '../pipeline/types';
+import { watchClientDisconnect } from '../pipeline/client-disconnect';
 import { runPipeline } from '../pipeline/pipeline';
 import { logger } from '../config/logger';
 import { buildPaymentRequiredResponse } from '../middleware/x402.middleware';
@@ -57,6 +58,7 @@ executeRouter.post(
         [X_API_KEY]: req.headers[X_API_KEY] as string | undefined,
       });
       ctx.toolId = toolId;
+      watchClientDisconnect(req, res, ctx);
 
       if (req.x402Payment?.verified) {
         ctx.x402Paid = true;

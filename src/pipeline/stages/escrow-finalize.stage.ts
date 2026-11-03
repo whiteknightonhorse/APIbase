@@ -3,6 +3,7 @@ import { finalize, refund } from '../../services/escrow.service';
 import { logger } from '../../config/logger';
 import { settleX402 } from './x402-settle';
 import { createHash } from 'node:crypto';
+import { releaseX402NonceClaims, x402NotChargedTotal } from '../client-disconnect';
 import { recordRefundOwed as recordRefundOwedLedger } from '../../services/refund-ledger.service';
 
 /**
@@ -131,6 +132,42 @@ export const escrowFinalizeStage: Stage = {
             .slice(0, 12),
         },
         'dedup_hit',
+      );
+      return ok(ctx);
+    }
+
+    // T-0662: the client connection closed before the result was written (gateway 504, client
+    // timeout): nobody received a result, so an x402 authorization is not settled (never submitted)
+    // and an MPP charge (already taken at verification) becomes a refund-owed row.
+    if (ctx.x402Paid && ctx.clientDisconnected) {
+      ctx.billingStatus = 'NOT_CHARGED';
+      ctx.finalCost = 0;
+      ctx.notChargedReason = 'client_disconnected';
+      x402NotChargedTotal.inc({ reason: 'client_disconnected' });
+      await releaseX402NonceClaims(ctx);
+      logger.warn(
+        {
+          requestId: ctx.requestId,
+          toolId: ctx.toolId,
+          rail: 'x402',
+          elapsed_ms: Object.values(ctx.stageTimings ?? {}).reduce((a, b) => a + b, 0),
+        },
+        'client_disconnected: x402 not settled',
+      );
+      return ok(ctx);
+    }
+    if (ctx.mppPaid && ctx.clientDisconnected) {
+      ctx.billingStatus = 'PAID';
+      ctx.finalCost = ctx.toolPrice ?? 0;
+      await recordMppRefundOwed(ctx, 'client_disconnected');
+      logger.warn(
+        {
+          requestId: ctx.requestId,
+          toolId: ctx.toolId,
+          rail: 'mpp',
+          elapsed_ms: Object.values(ctx.stageTimings ?? {}).reduce((a, b) => a + b, 0),
+        },
+        'client_disconnected: mpp refund owed',
       );
       return ok(ctx);
     }
