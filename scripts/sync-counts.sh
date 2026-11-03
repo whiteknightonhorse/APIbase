@@ -340,6 +340,11 @@ else
   npx tsx scripts/gen-site-facts.ts > /tmp/gen-site-facts.out 2>&1 \
     || { echo "sync-counts: gen-site-facts.ts FAILED"; cat /tmp/gen-site-facts.out; exit 1; }
   [ "$(md5sum static/.well-known/site-facts.json | cut -d" " -f1)" != "$sf" ] && { echo "  updated static/.well-known/site-facts.json"; CHANGED=$((CHANGED+1)); }
+  # T-0687: the {{tiers}} / rate-limit / free-tools tokens (home-facts.py token_values) and the header
+  # bars read site-facts.json, which was only just regenerated. Render again so pricing.html and every
+  # other rendered page match what the check side below compares (a single pre-site-facts pass left
+  # them one generation behind whenever the live count moved).
+  python3 scripts/home-facts.py render
   [ "$(md5sum static/pricing.html | cut -d" " -f1)" != "$b1" ] && CHANGED=$((CHANGED+1))
   [ "$(md5sum static/llms.txt | cut -d" " -f1)" != "$b2" ] && CHANGED=$((CHANGED+1))
 
