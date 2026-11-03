@@ -36,18 +36,18 @@ on-chain settle runs afterwards. If the ledger write fails after a successful se
 
 ### Unknown settlement outcome (T-0428)
 
-A settle has three outcomes, not two:
+A settle has four outcomes, not two:
 
 | Outcome | Signal | Who resolves it | When |
 |---|---|---|---|
 | settled | `success:true` | nobody, done | immediately |
-| failed | `success:false` with any other `errorReason` (a bare `invalid_exact_evm_transaction_failed`, a reverted transaction), or any other throw | operator pages (`x402_settle_failed`) | immediately |
-| unknown | `success:false, errorReason:'settlement_pending', transaction:<hash>` (broadcast, receipt not seen) or `FacilitatorTimeoutError` (30 s, outcome indeterminate) | the chain reconcile, by reading the chain | within 60 s per tick |
+| failed | `success:false` with a bare `invalid_exact_evm_transaction_failed` (receipt reverted or Transfer mismatch) or a known-failed reason | operator pages (`x402_settle_failed`) | immediately |
+| unknown | `success:false, errorReason:'settlement_pending', transaction:<hash>` (broadcast, receipt not seen) or `FacilitatorTimeoutError` (30 s, outcome indeterminate), or a thrown `invalid_exact_evm_transaction_failed: <message>` / `settle_threw` timeout (outcome indeterminate) | the chain reconcile, by reading the chain | within 60 s per tick |
 | rpc verdict | `invalid_exact_evm_signature` returned by settle after a verify that passed | one retry within the validBefore window, then pending; the chain reconcile decides | within 60 s per tick |
 
-A settle whose broadcast result is unknown (RPC timeout) is held as pending and decided from the chain within minutes; only a reverted transaction is recorded as failed. The unknown row also covers `invalid_exact_evm_transaction_failed: <message>` (thrown while broadcasting) and a `settle_threw` timeout.
+A settle whose broadcast result is unknown (RPC timeout) is held as pending and decided from the chain within minutes; only a reverted transaction is recorded as failed.
 
-Law: unknown is resolved only by reading the chain, and nobody calls settle again for the same authorization.
+Law: unknown is resolved only by reading the chain, and nobody calls settle again for an authorization that may have been broadcast. The single rpc-verdict retry runs only when nothing was sent (verify failed before broadcast, `invalid_exact_evm_signature`).
 
 Base RPC: public primary with an optional reserve `X402_BASE_RPC_URL_FALLBACK`; settle fails only when both fail.
 
