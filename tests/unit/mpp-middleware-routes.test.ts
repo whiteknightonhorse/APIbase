@@ -8,10 +8,8 @@ jest.mock('../../src/config/logger', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn() },
 }));
 const mockPrice = jest.fn();
-const mockAvail = jest.fn();
 jest.mock('../../src/pipeline/stages/tool-status.stage', () => ({
   getToolPriceUsd: (id: string) => mockPrice(id),
-  checkToolAvailability: (id: string) => mockAvail(id),
 }));
 
 const mockCharge = jest.fn();
@@ -71,7 +69,6 @@ beforeEach(() => {
     .mockImplementation((id: string) => (id === 'known.tool' ? 0.25 : undefined));
   chargeInner = jest.fn().mockResolvedValue({ status: 200, headers: new Headers() });
   mockCharge.mockReset().mockImplementation(() => chargeInner);
-  mockAvail.mockReset().mockResolvedValue(null);
 });
 
 describe('mppMiddleware route/price gating (T-0256)', () => {
@@ -193,54 +190,6 @@ describe('mppMiddleware schema pre-check (T-0282)', () => {
     expect(mockCharge).not.toHaveBeenCalled();
     expect(chargeInner).not.toHaveBeenCalled();
     expect(next).not.toHaveBeenCalled();
-  });
-
-  it('T-0657: unavailable tool -> 503 charged:false, mppx.charge never called', async () => {
-    mockAvail.mockResolvedValue({
-      code: 503,
-      error: 'provider_unavailable',
-      message: 'Tool orcid.get_person is currently unavailable',
-      retryAfter: 30,
-      extra: { alternatives: [] },
-    });
-    const req = makeReq(URL, 'Payment x');
-    req.body = { orcid_id: '0000-0002-1825-0097' };
-    const res = makeRes();
-    const next = jest.fn();
-    mppMiddleware(req, res as never, next);
-    await new Promise((r) => setTimeout(r, 20));
-    expect(res.status).toHaveBeenCalledWith(503);
-    expect(res.json.mock.calls[0][0]).toMatchObject({
-      error: 'provider_unavailable',
-      retry_after: 30,
-      charged: false,
-    });
-    expect(mockCharge).not.toHaveBeenCalled();
-    expect(chargeInner).not.toHaveBeenCalled();
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it('T-0657: circuit_open from the shared pre-check -> 503 with retry_after, no charge', async () => {
-    mockAvail.mockResolvedValue({
-      code: 503,
-      error: 'tool_unavailable',
-      message: 'paused',
-      retryAfter: 42,
-      extra: { status_reason: 'circuit_open' },
-    });
-    const req = makeReq(URL, 'Payment x');
-    req.body = { orcid_id: '0000-0002-1825-0097' };
-    const res = makeRes();
-    mppMiddleware(req, res as never, jest.fn());
-    await new Promise((r) => setTimeout(r, 20));
-    expect(res.status).toHaveBeenCalledWith(503);
-    expect(res.json.mock.calls[0][0]).toMatchObject({
-      error: 'tool_unavailable',
-      status_reason: 'circuit_open',
-      retry_after: 42,
-      charged: false,
-    });
-    expect(mockCharge).not.toHaveBeenCalled();
   });
 
   it('S2: valid body -> charge proceeds', async () => {

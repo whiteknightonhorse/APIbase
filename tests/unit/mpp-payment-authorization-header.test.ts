@@ -11,7 +11,6 @@ jest.mock('../../src/config/logger', () => ({
 }));
 jest.mock('../../src/pipeline/stages/tool-status.stage', () => ({
   getToolPriceUsd: (id: string) => (id === 'known.tool' ? 0.25 : undefined),
-  checkToolAvailability: async () => null,
 }));
 
 const createCalls: Array<{ requiresAuth?: boolean }> = [];

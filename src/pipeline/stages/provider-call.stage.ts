@@ -7,10 +7,6 @@ import { getPrisma } from '../../services/prisma.service';
 import { getSharedRedis } from '../../services/redis.service';
 import { PASSIVE_CALL_FAILURE_DEBOUNCE_S } from '../../config/autopilot';
 import { getAlternativesForTool, getCapabilityForTool } from '../../services/alternatives.service';
-import {
-  recordFailure as breakerFailure,
-  recordSuccess as breakerSuccess,
-} from '../../services/tool-breaker.service';
 import { apibaseCallLostWithAlternativeTotal } from '../../services/metrics.service';
 
 /** 503/502/504 — the three codes R-2's alternatives[] contract names explicitly (03-SPECIFICATION.md).
@@ -64,7 +60,6 @@ export const providerCallStage: Stage = {
       });
 
       ctx.providerCalled = true;
-      if (raw.status >= 200 && raw.status < 300) await breakerSuccess(toolId);
       ctx.providerDurationMs = raw.durationMs;
       ctx.providerResponse = {
         data: raw.body,
@@ -127,7 +122,6 @@ export const providerCallStage: Stage = {
       // a future adapter with the same mistake fails into a generic 502,
       // never an unhandled crash.
       await recordProviderCallFailure(providerError, toolId);
-      await breakerFailure(toolId, providerError);
 
       const code = typeof providerError.httpStatus === 'number' ? providerError.httpStatus : 502;
 
