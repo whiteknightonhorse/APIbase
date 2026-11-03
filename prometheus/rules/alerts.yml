@@ -394,3 +394,50 @@ groups:
           severity: warning
         annotations:
           summary: "a tool failed repeatedly and was paused before payment"
+
+      # -----------------------------------------------------------------------
+      # 34-39. Refund wallets and weekly payout (T-0553, REFUND-WALLET-1026)
+      # -----------------------------------------------------------------------
+      - alert: RefundWalletLowBalance
+        expr: refund_wallet_balance_usd < 10
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "a refund wallet is below the low-balance threshold (REFUND_LOW_BALANCE_USD)"
+
+      - alert: RefundWalletOverCeiling
+        expr: refund_wallet_balance_usd > 100
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "a refund wallet is above the ceiling (REFUND_WALLET_CEILING_USD): stop funding it"
+
+      - alert: RefundPayoutRunStale
+        expr: time() - refund_payout_last_run_timestamp > 8 * 86400
+        labels:
+          severity: warning
+        annotations:
+          summary: "the weekly refund payout run is older than 8 days"
+
+      - alert: RefundPayoutFailedOrExpired
+        expr: increase(refund_payouts_total{result=~"failed|expired"}[24h]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: "a refund payout failed or expired in the last 24 h; its rows are owed again"
+
+      - alert: RefundRecipientMismatch
+        expr: increase(refund_alerts_total{kind="refund_recipient_mismatch"}[24h]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "a refund payout recipient differed from the ledger payer; the run was aborted"
+
+      - alert: RefundWalletKeyMismatch
+        expr: increase(refund_alerts_total{kind="refund_wallet_key_mismatch"}[24h]) > 0
+        labels:
+          severity: critical
+        annotations:
+          summary: "the refund signer key does not match the wallet record; payouts are off for that rail"

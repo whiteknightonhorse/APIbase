@@ -45,11 +45,58 @@ export function getShopEnv(source: NodeJS.ProcessEnv = process.env): ShopEnv {
 }
 
 // ---------------------------------------------------------------------------
+// T-0553 refund payout vars. Read per call (the dispatcher flips the two flags and restarts;
+// tests inject a source). Numbers are lenient: empty or malformed falls back to the default.
+// The refund signer keys are read by src/refunds/refund-keys.ts only and never logged.
+// ---------------------------------------------------------------------------
+const boolOr = (d: boolean) =>
+  z.preprocess(
+    (v) => (v === '' || v === undefined ? undefined : String(v).toLowerCase()),
+    z
+      .enum(['true', 'false', '1', '0'])
+      .default(d ? 'true' : 'false')
+      .catch(d ? 'true' : 'false')
+      .transform((v) => v === 'true' || v === '1'),
+  );
+const strOr = (d: string) =>
+  z
+    .string()
+    .optional()
+    .default(d)
+    .transform((v) => v || d);
+export const refundEnvShape = {
+  REFUND_SIGNER_KEY_BASE: z.string().optional().default(''),
+  REFUND_SIGNER_KEY_TEMPO: z.string().optional().default(''),
+  REFUND_PAYOUT_ENABLED: boolOr(false),
+  REFUND_PAYOUT_DRY_RUN: boolOr(true),
+  REFUND_PAYOUT_CRON: strOr('0 7 * * 1'),
+  REFUND_MIN_PAYOUT_USD: numOr(0.01),
+  REFUND_FEE_MULTIPLE: numOr(10),
+  REFUND_RUN_CAP_USD: numOr(50),
+  REFUND_PERIOD_CAP_USD: numOr(200),
+  REFUND_PAYER_RUN_CAP_USD: numOr(25),
+  REFUND_WALLET_CEILING_USD: numOr(100),
+  REFUND_LOW_BALANCE_USD: numOr(10),
+  REFUND_CARRY_MAX_DAYS: numOr(90),
+  REFUND_ETH_USD_FEED: strOr('0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70'),
+  REFUND_WALLET_RECORD: strOr('/home/apibase/apibase/.server-wallets.json'),
+  REFUND_PAYOUT_KILL_FILE: strOr('/home/apibase/apibase/REFUND-PAYOUT-KILL'),
+};
+export const refundEnvSchema = z.object(refundEnvShape);
+export type RefundEnv = z.infer<typeof refundEnvSchema>;
+
+/** Fresh, validated view of the refund vars; never throws. */
+export function getRefundEnv(source: NodeJS.ProcessEnv = process.env): RefundEnv {
+  return refundEnvSchema.parse(source);
+}
+
+// ---------------------------------------------------------------------------
 // App-level env vars (validated at startup)
 // ---------------------------------------------------------------------------
 export const appEnvSchema = z
   .object({
     ...shopEnvShape,
+    ...refundEnvShape,
     // Core
     NODE_ENV: z.enum(['production', 'development', 'test']).default('production'),
     PORT: z.coerce.number().int().min(1).max(65535).default(3000),

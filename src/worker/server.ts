@@ -6,6 +6,8 @@ import {
   type JobSpec,
 } from './job-runner';
 import { config } from '../config';
+import { getRefundEnv } from '../config/env';
+import { bootRefundWallet, runRefundPayoutSafe } from '../jobs/refund-payout.job';
 import { logger } from '../config/logger';
 import { createHealthServer, updateHeartbeatTimestamp } from './health';
 import { run as runReconciliation } from '../jobs/reconciliation.job';
@@ -164,6 +166,19 @@ registerJob({
     return runProviderHealth(r);
   },
 });
+// T-0553 weekly refund payout (disabled and dry-run by default; REFUND_PAYOUT_CRON).
+registerJob({
+  name: 'refund-payout',
+  cron: getRefundEnv().REFUND_PAYOUT_CRON,
+  expect_every_s: 8 * 86400,
+  run: async () => {
+    await runRefundPayoutSafe();
+  },
+});
+// Key-mismatch guard and crash recovery at boot.
+setTimeout(() => {
+  bootRefundWallet().catch(() => {});
+}, 20_000);
 // x402 facilitator health check every hour (§12.244).
 registerJob({
   name: 'x402-health',

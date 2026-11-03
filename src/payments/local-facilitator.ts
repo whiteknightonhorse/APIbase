@@ -57,7 +57,7 @@ const usdcTransferAbi = parseAbi([
 /** Receipt wait for the Multicall3 settle; on expiry the result is `transaction: ""` (as the SDK). */
 const FEE_SPLIT_RECEIPT_TIMEOUT_MS = 30_000;
 
-function encodeTransferWithAuthorization(a: Eip3009Authorization, signature: string): Hex {
+export function encodeTransferWithAuthorization(a: Eip3009Authorization, signature: string): Hex {
   const common = [
     getAddress(a.from),
     getAddress(a.to),

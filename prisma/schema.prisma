@@ -829,6 +829,26 @@ model RefundLedger {
   @@map("refund_ledger")
 }
 
+model RefundPayout {
+  payout_id    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rail         String    // base|tempo
+  payer        String
+  amount_usd   Decimal   @db.Decimal(18, 6)
+  status       String    @default("signing") // signing|signed|broadcast|sent|expired|failed
+  nonce        String?
+  tx_hash      String?
+  raw_tx       String?
+  valid_before DateTime? @db.Timestamptz()
+  fee_usd_est  Decimal   @default(0) @db.Decimal(18, 8)
+  created_at   DateTime  @default(now()) @db.Timestamptz()
+  sent_at      DateTime? @db.Timestamptz()
+  error        String?
+
+  @@index([status])
+  @@index([sent_at])
+  @@map("refund_payouts")
+}
+
 model ShopPiiEnvelope {
   envelope_id              String    @id @default(uuid()) @db.Uuid
   order_id                 String    @db.Uuid

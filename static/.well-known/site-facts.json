@@ -2,7 +2,7 @@
   "absent_endpoints": [
     "/api/v1/agents/rotate"
   ],
-  "alert_rules_count": 35,
+  "alert_rules_count": 41,
   "cache_ttl_seconds": {
     "max": 2592000,
     "max_days": 30,

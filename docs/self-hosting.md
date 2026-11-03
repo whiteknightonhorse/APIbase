@@ -40,6 +40,14 @@ For day-2 operations (container management, restarts, backups, monitoring), see 
 - `scripts/backup-verify.sh` runs `gzip -t` and the `.sha256` check on every dump in `daily/`; a failure appends a `backup_verify_failed` line to `backups/verify-outbox.jsonl`. `scripts/backup-offsite-check.sh --families` counts the staged files per family (apibase, fleet, orchestra, env).
 - Laptop pull and restore: [`backup-offsite.md`](backup-offsite.md).
 
+## Refund wallets
+
+Refunds owed to payers are paid by a weekly job from one refund wallet per rail. Payouts ship off.
+
+- Generate each key on the host, once per rail, in an interactive shell: `scripts/server-wallet-init.sh REFUND_SIGNER_KEY_BASE base` and `scripts/server-wallet-init.sh REFUND_SIGNER_KEY_TEMPO tempo`. The script writes the key only to `.env` (mode 600), prints only the address and appends it to the record file (`REFUND_WALLET_RECORD`, default `~/apibase/.server-wallets.json`). It refuses to run when the key or its record exists; replacing a funded key is a manual sweep. There is no backup copy: losing the host loses the wallet balance, so fund only what the ceiling allows.
+- If the key in `.env` does not match the record, payouts for that rail stay off and `GET /health/refund-wallet` shows `key: mismatch`.
+- Settings (defaults): `REFUND_PAYOUT_ENABLED=false`, `REFUND_PAYOUT_DRY_RUN=true`, `REFUND_PAYOUT_CRON=0 7 * * 1`, `REFUND_MIN_PAYOUT_USD=0.01`, `REFUND_FEE_MULTIPLE=10`, `REFUND_RUN_CAP_USD=50`, `REFUND_PERIOD_CAP_USD=200` (rolling 30 days), `REFUND_PAYER_RUN_CAP_USD=25`, `REFUND_WALLET_CEILING_USD=100`, `REFUND_LOW_BALANCE_USD=10`, `REFUND_CARRY_MAX_DAYS=90`, `REFUND_ETH_USD_FEED` (Chainlink ETH/USD on Base), `REFUND_PAYOUT_KILL_FILE` (create the file to stop payouts at once). The rules are described in [payments.md](payments.md#refunds-owed-by-apibase).
+
 ## Temporary servers
 
 A temporary `http.server` or database under `/tmp` carries a TTL in its start command (`timeout 48h python3 -m http.server …`) and is listed in reboot-readiness. `scripts/ops/reboot-readiness.sh` is read-only: it prints the enabled state of the boot units, containers whose restart policy is not `unless-stopped`/`always`, listening processes with PPID 1 started from `/tmp`, and the `/tmp` size. `/tmp` is cleared at boot, so cron logs go to the `logs/` directory of the install, never `/tmp`.

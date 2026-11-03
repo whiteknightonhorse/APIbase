@@ -1,5 +1,7 @@
 import { Router, type Request, type Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import { getReadiness } from '../services/health.service';
+import { refundWalletHealth } from '../refunds/refund-health';
 import { getStatusLine } from '../services/status-line.service';
 
 /**
@@ -25,3 +27,26 @@ healthRouter.get('/health/ready', async (_req: Request, res: Response) => {
 healthRouter.get('/health/status-line', async (_req: Request, res: Response) => {
   res.type('text/plain; charset=utf-8').send(await getStatusLine());
 });
+
+const refundHealthLimiter = rateLimit({
+  windowMs: 60_000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+/** T-0553: refund wallet addresses, balances, flags and last run. Never a key. */
+healthRouter.get(
+  '/health/refund-wallet',
+  refundHealthLimiter,
+  async (_req: Request, res: Response) => {
+    try {
+      res
+        .set('Cache-Control', 'no-store')
+        .status(200)
+        .json(await refundWalletHealth());
+    } catch {
+      res.status(503).json({ error: 'refund_wallet_health_unavailable' });
+    }
+  },
+);

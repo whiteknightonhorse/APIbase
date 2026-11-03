@@ -331,3 +331,49 @@ export const x402OperatorLockWaitSeconds = new client.Histogram({
   buckets: [0.001, 0.01, 0.1, 0.5, 1, 5, 30],
   registers: [register],
 });
+
+// ---------------------------------------------------------------------------
+// T-0553 refund payout engine
+// ---------------------------------------------------------------------------
+export const refundLedgerOwedUsd = new client.Gauge({
+  name: 'refund_ledger_owed_usd',
+  help: 'USD owed to payers in refund_ledger (status owed)',
+  labelNames: ['rail'] as const,
+  registers: [register],
+});
+export const refundLedgerOwedRows = new client.Gauge({
+  name: 'refund_ledger_owed_rows',
+  help: 'refund_ledger rows by rail and status',
+  labelNames: ['rail', 'status'] as const,
+  registers: [register],
+});
+export const refundWalletBalanceUsd = new client.Gauge({
+  name: 'refund_wallet_balance_usd',
+  help: 'Stable-coin balance of the refund wallet per rail',
+  labelNames: ['rail'] as const,
+  registers: [register],
+});
+export const refundPayoutLastRunTimestamp = new client.Gauge({
+  name: 'refund_payout_last_run_timestamp',
+  help: 'Unix time of the last completed refund payout run',
+  registers: [register],
+});
+export const refundPayoutsTotal = new client.Counter({
+  name: 'refund_payouts_total',
+  help: 'Refund payouts by rail and result (sent|failed|expired)',
+  labelNames: ['rail', 'result'] as const,
+  registers: [register],
+});
+export const refundPayoutFeeUsd = new client.Histogram({
+  name: 'refund_payout_fee_usd',
+  help: 'Live fee estimate of one refund payout, USD',
+  labelNames: ['rail'] as const,
+  buckets: [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5],
+  registers: [register],
+});
+export const refundAlertsTotal = new client.Counter({
+  name: 'refund_alerts_total',
+  help: 'Refund engine alerts by kind (refund_recipient_mismatch, refund_wallet_key_mismatch, ...)',
+  labelNames: ['kind', 'rail'] as const,
+  registers: [register],
+});

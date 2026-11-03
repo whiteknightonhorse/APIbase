@@ -186,6 +186,7 @@ That's the whole thing.
 
 - Operator key lives only in `.env` (chmod 600, `.gitignore`-d). Never logged, never echoed to stdout/`ps`. Loaded into memory once at startup, scoped to the WalletClient closure.
 - Operator wallet **never** holds USDC. If the key is compromised, attacker gets unspent gas (small dollar amount). Customer USDC is on the receiver wallet which has no private key in the runtime environment at all.
+- The operator wallet also broadcasts the refund authorizations that the Base refund wallet signs (EIP-3009 `transferWithAuthorization`, see [payments.md](payments.md#refunds-owed-by-apibase)). It still pays gas only and never holds or signs USDC.
 - Operator key rotation: generate new key, drain remaining ETH from old → new, swap value in `.env`, restart api+worker.
 - Public RPC (`https://mainnet.base.org`) has no SLA; the optional private reserve is described in [payments.md](payments.md) (Base RPC).
 
