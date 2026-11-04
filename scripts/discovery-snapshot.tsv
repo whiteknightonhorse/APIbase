@@ -603,7 +603,7 @@ holidays.next	nagerdate	0.001
 hungary-ksh.dataset_data	hungary-ksh	0.002
 hungary-ksh.dataset_metadata	hungary-ksh	0.001
 hungary-ksh.dataset_search	hungary-ksh	0.001
-hunter.company	hunter	0.005
+hunter.company	hunter	0.032
 hyperliquid.account	hyperliquid	0.005
 hyperliquid.klines	hyperliquid	0.003
 hyperliquid.market_data	hyperliquid	0.002
@@ -726,6 +726,9 @@ lmpr.cattle_slaughter_prices	lmpr	0.001
 lmpr.dairy_product_prices	lmpr	0.001
 lmpr.hog_slaughter_prices	lmpr	0.001
 lmpr.lamb_carcass_cutout	lmpr	0.001
+loc.collections	loc	0.001
+loc.item	loc	0.001
+loc.search	loc	0.002
 macrostrat.columns_search	macrostrat	0.002
 macrostrat.fossils_search	macrostrat	0.002
 macrostrat.geologic_map_units	macrostrat	0.001
@@ -799,7 +802,7 @@ myvariant.variant_info	myvariant	0.001
 namesilo.domain_check	namesilo	0.001
 namesilo.domain_info	namesilo	0.001
 namesilo.domain_list	namesilo	0.001
-namesilo.domain_register	namesilo	21
+namesilo.domain_register	namesilo	23
 namesilo.get_prices	namesilo	0.001
 nasa-cmr.collection_detail	nasa-cmr	0.001
 nasa-cmr.list_providers	nasa-cmr	0.001
@@ -1060,7 +1063,7 @@ samuni.officials	samuni	0.001
 scb.catalog	scb	0.001
 scb.table_metadata	scb	0.002
 scb.table_query	scb	0.003
-screenshot.capture	apiflash	0.005
+screenshot.capture	apiflash	0.0091
 sdwis.enforcement	sdwis	0.001
 sdwis.service_areas	sdwis	0.001
 sdwis.violations	sdwis	0.002

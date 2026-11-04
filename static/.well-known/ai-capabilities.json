@@ -1,16 +1,16 @@
 {
   "platform": "APIbase",
   "version": "2.2.0",
-  "updated_at": "2026-11-03T00:00:00Z",
-  "tools_count": 1369,
-  "providers_count": 395,
+  "updated_at": "2026-11-04T00:00:00Z",
+  "tools_count": 1372,
+  "providers_count": 396,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1369 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1372 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -99,8 +99,8 @@
     },
     {
       "name": "media",
-      "tools": 34,
-      "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Dpla, Europeana, Hathitrust Digital, Imgflip, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
+      "tools": 37,
+      "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Dpla, Europeana, Hathitrust Digital, Imgflip, Loc, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
       "examples": "Call apibase.discover with category=\"media\" for the current tool list and descriptions."
     },
     {
