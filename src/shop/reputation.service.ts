@@ -50,7 +50,13 @@ const queueMail = (tx: ShopTx, merchant_id: string, template: string, msg_id: st
 
 const round = (n: number, p = 10_000) => Math.round(n * p) / p;
 
-async function computeReputation(db: ShopTx, merchant_id: string, now: Date): Promise<Reputation> {
+/** `windowed`: only orders settled after the merchant's last operator lift of status_reason (T-0707). */
+async function computeReputation(
+  db: ShopTx,
+  merchant_id: string,
+  now: Date,
+  windowed = false,
+): Promise<Reputation> {
   const r = await db.$queryRawUnsafe<
     Array<{ closed: number; on_time: number; disputed: number; refunded: number }>
   >(
@@ -64,7 +70,9 @@ async function computeReputation(db: ShopTx, merchant_id: string, now: Date): Pr
        count(*) FILTER (WHERE EXISTS (SELECT 1 FROM shop_refunds f WHERE f.order_id = o.order_id
                                        AND f.verified AND f.reason <> 'duplicate'))::int AS refunded
        FROM shop_orders o
-      WHERE o.merchant_id = $1::uuid AND ${ELIGIBLE}`,
+       JOIN shop_merchants m ON m.merchant_id = o.merchant_id
+      WHERE o.merchant_id = $1::uuid AND ${ELIGIBLE}
+        ${windowed ? `AND o.settled_at > COALESCE(m.status_reason_cleared_at, '-infinity'::timestamptz)` : ''}`,
     merchant_id,
   );
   const { closed, on_time, disputed, refunded } = r[0];
@@ -108,7 +116,13 @@ export async function refreshReputations(
         JSON.stringify(rep),
       );
       if (rep.orders_closed < MIN_ORDERS_FOR_THRESHOLDS) return { warned: false, suspended: false };
-      if (rep.dispute_rate >= DISPUTE_SUSPEND_RATE) {
+      // The suspension decision counts only orders settled after the last operator lift (T-0707); the
+      // published reputation above stays all-time.
+      const win = await computeReputation(tx, m.merchant_id, now, true);
+      if (
+        win.orders_closed >= MIN_ORDERS_FOR_THRESHOLDS &&
+        win.dispute_rate >= DISPUTE_SUSPEND_RATE
+      ) {
         const upd = await tx.$executeRawUnsafe(
           `UPDATE shop_merchants SET status_reason = 'disputes'
             WHERE merchant_id = $1::uuid AND status_reason IS NULL`,
@@ -117,8 +131,8 @@ export async function refreshReputations(
         if (upd === 0) return { warned: false, suspended: false };
         await emit(tx, 'shop.merchant.disputes_suspended', {
           merchant_id: m.merchant_id,
-          dispute_rate: rep.dispute_rate,
-          orders_closed: rep.orders_closed,
+          dispute_rate: win.dispute_rate,
+          orders_closed: win.orders_closed,
         });
         await queueMail(
           tx,

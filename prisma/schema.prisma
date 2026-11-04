@@ -548,6 +548,7 @@ model ShopMerchant {
   domain_verified         Boolean  @default(false)
   status                  String   @default("pending") // pending|active|suspended|deactivated
   status_reason           String?
+  status_reason_cleared_at DateTime? @db.Timestamptz()
   limits                  Json     @default("{}") @db.JsonB
   policy                  Json     @default("{}") @db.JsonB
   reputation              Json     @default("{}") @db.JsonB

@@ -139,7 +139,9 @@ async function flagUnresponsive(tx: ShopTx, merchant_id: string): Promise<boolea
     `SELECT EXISTS (SELECT 1 FROM shop_order_events e
                      WHERE e.order_id = o.order_id AND e.reason = 'confirm_overdue') AS late
        FROM shop_orders o
+       JOIN shop_merchants m ON m.merchant_id = o.merchant_id
       WHERE o.merchant_id = $1::uuid AND o.settled_at IS NOT NULL
+        AND o.settled_at > COALESCE(m.status_reason_cleared_at, '-infinity'::timestamptz)
         AND (EXISTS (SELECT 1 FROM shop_order_events e
                       WHERE e.order_id = o.order_id AND e.reason = 'confirm_overdue')
           OR EXISTS (SELECT 1 FROM shop_order_events e
