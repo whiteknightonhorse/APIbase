@@ -92,12 +92,17 @@ export function getRefundEnv(source: NodeJS.ProcessEnv = process.env): RefundEnv
 }
 
 // ---------------------------------------------------------------------------
-// A-GD-01 dispute verdict lane (GENLAYER-DISPUTE-1102). GL_DISPUTE_CONTRACT unset = lane off.
+// A-GD-01 dispute verdict lane (GENLAYER-DISPUTE-1102). both contract addresses unset = lane off.
 // GL_DISPUTE_KEY is APIbase's own GenLayer testnet key (never the Provek deploy key, never logged);
 // without it the lane only reads.
 // ---------------------------------------------------------------------------
 export const disputeEnvShape = {
+  // ApibaseReceiptDispute (dispute_receipt) and ApibasePaymentDispute (dispute_payment) are two
+  // contracts at two addresses; each is read and filed on separately.
   GL_DISPUTE_CONTRACT: z.string().optional().default(''),
+  GL_DISPUTE_PAYMENT_CONTRACT: z.string().optional().default(''),
+  // confirm_refund is not in the merged contracts (Provek v1.1); set to 1 only once it is.
+  GL_DISPUTE_CONFIRM: z.string().optional().default(''),
   GL_DISPUTE_RPC_URL: strOr('https://rpc-bradbury.genlayer.com'),
   GL_DISPUTE_KEY: z.string().optional().default(''),
 };

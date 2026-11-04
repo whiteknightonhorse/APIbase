@@ -10,6 +10,7 @@ import {
   type Facts,
   type FlagRow,
   type GlPort,
+  type GlTarget,
   type RunSummary,
   type VerdictRow,
   type WorkerDeps,
@@ -47,7 +48,9 @@ export function disputeCfgFromEnv(source: NodeJS.ProcessEnv = process.env): Disp
   const d = getDisputeEnv(source);
   const r = getRefundEnv(source);
   return {
-    contract: d.GL_DISPUTE_CONTRACT.trim(),
+    receiptContract: d.GL_DISPUTE_CONTRACT.trim(),
+    paymentContract: d.GL_DISPUTE_PAYMENT_CONTRACT.trim(),
+    confirm: d.GL_DISPUTE_CONFIRM.trim() === '1',
     hasKey: /^0x[0-9a-fA-F]{64}$/.test(d.GL_DISPUTE_KEY.trim()),
     perRefundAtomic: capUsdToAtomic(r.REFUND_PAYER_RUN_CAP_USD),
     payee: getX402Config().paymentAddress.toLowerCase(),
@@ -57,16 +60,18 @@ export function disputeCfgFromEnv(source: NodeJS.ProcessEnv = process.env): Disp
 
 function makePort(source: NodeJS.ProcessEnv = process.env): GlPort {
   const d = getDisputeEnv(source);
+  const addr = (t: GlTarget) =>
+    (t === 'receipt' ? d.GL_DISPUTE_CONTRACT : d.GL_DISPUTE_PAYMENT_CONTRACT).trim();
   let read: Promise<GenReadClient> | null = null;
   let writer: Promise<GenWriteClient> | null = null;
   return {
-    call: async (fn, args) => {
+    call: async (target, fn, args) => {
       read ??= makeReadClient(d.GL_DISPUTE_RPC_URL);
-      return genCall(await read, d.GL_DISPUTE_CONTRACT, fn, args, 15_000);
+      return genCall(await read, addr(target), fn, args, 15_000);
     },
-    send: async (fn, args) => {
+    send: async (target, fn, args) => {
       writer ??= makeWriteClient(d.GL_DISPUTE_RPC_URL, d.GL_DISPUTE_KEY.trim());
-      return sendWrite(await writer, d.GL_DISPUTE_CONTRACT, fn, args);
+      return sendWrite(await writer, addr(target), fn, args);
     },
   };
 }
@@ -272,8 +277,8 @@ export async function flagPaymentWithoutReceipt(tx: string, flagLine: string): P
 
 export async function runDisputeVerdictsSafe(): Promise<RunSummary | null> {
   const cfg = disputeCfgFromEnv();
-  if (!cfg.contract) {
-    logger.info({}, 'dispute verdict lane disabled: GL_DISPUTE_CONTRACT is not set');
+  if (!cfg.receiptContract && !cfg.paymentContract) {
+    logger.info({}, 'dispute verdict lane disabled: no GL_DISPUTE_*CONTRACT is set');
     return null;
   }
   let redis;

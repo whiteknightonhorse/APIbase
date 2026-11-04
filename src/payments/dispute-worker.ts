@@ -24,7 +24,8 @@ import type { RefundOwedInput } from '../services/refund-ledger.service';
  *    the weekly payout (T-0553) pays it under its caps. Mismatch -> no row, an incident.
  *  - ONE refund per payment transaction, ever: a ledger row for the same original_tx (or receipt)
  *    makes a second verdict a no-op.
- *  - CONFIRM: when the booked row is `sent`, `confirm_refund(dispute_id)` closes the loop on chain.
+ *  - CONFIRM (off until Provek v1.1 ships `confirm_refund`; cfg.confirm): when the booked row is
+ *    `sent`, `confirm_refund(dispute_id)` closes the loop on chain.
  *  - FILE: billed-5xx receipts (and paid-without-receipt payments flagged by a watcher) are filed as
  *    `dispute_receipt` / `dispute_payment` from APIbase's own key. The flag line and its time are
  *    stored BEFORE the filing transaction. Filing never pays anything.
@@ -32,10 +33,14 @@ import type { RefundOwedInput } from '../services/refund-ledger.service';
  */
 
 export interface DisputeCfg {
-  /** Empty = the lane is off. */
-  contract: string;
-  /** Empty = reads only (no filing, no confirm). */
+  /** ApibaseReceiptDispute address (claim upstream_failed_but_billed). */
+  receiptContract: string;
+  /** ApibasePaymentDispute address (claim paid_without_receipt). Both empty = the lane is off. */
+  paymentContract: string;
+  /** Empty key = reads only (no filing, no confirm). */
   hasKey: boolean;
+  /** `confirm_refund` exists in neither merged contract (Provek v1.1); off until it ships. */
+  confirm: boolean;
   /** Per-refund cap, atomic USDC: a verdict above it waits for the operator. */
   perRefundAtomic: string;
   payee: string;
@@ -43,9 +48,11 @@ export interface DisputeCfg {
 }
 
 /** Contract port: reads and signed writes. Tests pass a stub; production uses genlayer-js. */
+export type GlTarget = 'receipt' | 'payment';
+
 export interface GlPort {
-  call(fn: string, args: unknown[]): Promise<unknown>;
-  send(fn: string, args: unknown[]): Promise<string>;
+  call(target: GlTarget, fn: string, args: unknown[]): Promise<unknown>;
+  send(target: GlTarget, fn: string, args: unknown[]): Promise<string>;
 }
 
 export interface Facts {
@@ -185,8 +192,13 @@ async function recompute(d: DisputeRecord, deps: WorkerDeps): Promise<RuleOutcom
 }
 
 /** Judge one dispute id. Returns the row to remember, or null to retry on the next pass. */
-async function judgeOne(id: string, deps: WorkerDeps, sum: RunSummary): Promise<VerdictRow | null> {
-  const d = toRecord(await deps.gl.call('get_dispute', [id]), id);
+async function judgeOne(
+  id: string,
+  target: GlTarget,
+  deps: WorkerDeps,
+  sum: RunSummary,
+): Promise<VerdictRow | null> {
+  const d = toRecord(await deps.gl.call(target, 'get_dispute', [id]), id);
   if (!d) {
     deps.log('warn', 'dispute: get_dispute returned no record', { dispute_id: id });
     return null;
@@ -287,9 +299,14 @@ async function fileLane(deps: WorkerDeps, sum: RunSummary): Promise<void> {
   if (!deps.cfg.hasKey) return;
   for (const f of await deps.store.unfiledFlags()) {
     try {
-      const fn = f.claim === 'upstream_failed_but_billed' ? 'dispute_receipt' : 'dispute_payment';
-      const args = fn === 'dispute_receipt' ? [f.subject] : ['8453', f.subject];
-      const tx = await deps.gl.send(fn, args);
+      const isReceipt = f.claim === 'upstream_failed_but_billed';
+      // A claim whose contract is not configured stays flagged (unfiled) until it is.
+      if (!(isReceipt ? deps.cfg.receiptContract : deps.cfg.paymentContract)) continue;
+      const tx = await deps.gl.send(
+        isReceipt ? 'receipt' : 'payment',
+        isReceipt ? 'dispute_receipt' : 'dispute_payment',
+        isReceipt ? [f.subject] : ['8453', f.subject],
+      );
       await deps.store.markFiled(f.flag_id, tx);
       sum.filed += 1;
     } catch (e) {
@@ -307,10 +324,10 @@ async function fileLane(deps: WorkerDeps, sum: RunSummary): Promise<void> {
 }
 
 async function confirmLane(deps: WorkerDeps, sum: RunSummary): Promise<void> {
-  if (!deps.cfg.hasKey) return;
+  if (!deps.cfg.hasKey || !deps.cfg.confirm) return;
   for (const id of await deps.store.confirmable()) {
     try {
-      await deps.gl.send('confirm_refund', [id]);
+      await deps.gl.send('receipt', 'confirm_refund', [id]);
       await deps.store.setConfirm(id, 'done');
       sum.confirmed += 1;
     } catch (e) {
@@ -331,28 +348,33 @@ async function confirmLane(deps: WorkerDeps, sum: RunSummary): Promise<void> {
 /** One pass of the lane. Never throws: a failing read ends the pass with a log line. */
 export async function runDisputeVerdicts(deps: WorkerDeps): Promise<RunSummary> {
   const sum = emptySummary();
-  if (!deps.cfg.contract) {
-    deps.log('info', 'dispute verdict lane disabled: GL_DISPUTE_CONTRACT is not set');
+  if (!deps.cfg.receiptContract && !deps.cfg.paymentContract) {
+    deps.log('info', 'dispute verdict lane disabled: no GL_DISPUTE_*CONTRACT is set');
     return { ...sum, disabled: true };
   }
   try {
     await fileLane(deps, sum);
-    const list = decode(await deps.gl.call('list_recent', []));
-    const ids = Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : [];
-    sum.seen = ids.length;
-    const known = await deps.store.judged(ids);
-    for (const id of ids.filter((i) => !known.has(i))) {
-      try {
-        const row = await judgeOne(id, deps, sum);
-        if (row) {
-          await deps.store.saveVerdict(row);
-          sum.judged += 1;
+    const targets: GlTarget[] = [];
+    if (deps.cfg.receiptContract) targets.push('receipt');
+    if (deps.cfg.paymentContract) targets.push('payment');
+    for (const target of targets) {
+      const list = decode(await deps.gl.call(target, 'list_recent', []));
+      const ids = Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : [];
+      sum.seen += ids.length;
+      const known = await deps.store.judged(ids);
+      for (const id of ids.filter((i) => !known.has(i))) {
+        try {
+          const row = await judgeOne(id, target, deps, sum);
+          if (row) {
+            await deps.store.saveVerdict(row);
+            sum.judged += 1;
+          }
+        } catch (e) {
+          deps.log('error', 'dispute: judging failed, retried next pass', {
+            dispute_id: id,
+            err: String((e as Error)?.message ?? e).slice(0, 200),
+          });
         }
-      } catch (e) {
-        deps.log('error', 'dispute: judging failed, retried next pass', {
-          dispute_id: id,
-          err: String((e as Error)?.message ?? e).slice(0, 200),
-        });
       }
     }
     await confirmLane(deps, sum);

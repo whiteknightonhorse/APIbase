@@ -21,7 +21,9 @@ const D2 = 'd2'.repeat(32);
 const RID = 'b'.repeat(32);
 
 const CFG: DisputeCfg = {
-  contract: '0x' + '1'.repeat(40),
+  receiptContract: '0x' + '1'.repeat(40),
+  paymentContract: '',
+  confirm: true,
   hasKey: true,
   perRefundAtomic: '25000000',
   payee: PAYEE,
@@ -30,7 +32,7 @@ const CFG: DisputeCfg = {
 
 interface Rig {
   deps: WorkerDeps;
-  sends: Array<{ fn: string; args: unknown[] }>;
+  sends: Array<{ target: string; fn: string; args: unknown[] }>;
   booked: RefundOwedInput[];
   alerts: Array<{ kind: string; payload: Record<string, unknown> }>;
   verdicts: Map<string, VerdictRow>;
@@ -61,13 +63,13 @@ function rig(
   const ledgerSent = new Set<string>();
   const ledger = new Map<string, string>(); // dispute_id -> refund_id
   const gl: GlPort = {
-    async call(fn, args) {
+    async call(_t, fn, args) {
       if (fn === 'list_recent') return JSON.stringify(Object.keys(disputes));
       if (fn === 'get_dispute') return JSON.stringify(disputes[String(args[0])]);
       throw new Error(`unexpected read ${fn}`);
     },
-    async send(fn, args) {
-      sends.push({ fn, args });
+    async send(target, fn, args) {
+      sends.push({ target, fn, args });
       return '0xgl';
     },
   };
@@ -284,13 +286,57 @@ describe('dispute verdict lane', () => {
     r.ledgerSent.add(D1);
     const s = await runDisputeVerdicts(r.deps);
     expect(s.confirmed).toBe(1);
-    expect(r.sends).toEqual([{ fn: 'confirm_refund', args: [D1] }]);
+    expect(r.sends).toEqual([{ target: 'receipt', fn: 'confirm_refund', args: [D1] }]);
     await runDisputeVerdicts(r.deps);
     expect(r.sends).toHaveLength(1);
   });
 
+  it('confirm_refund is never sent while cfg.confirm is off (not in the merged contracts)', async () => {
+    const r = rig({ [D1]: rec() }, { receipts: { [RID]: receiptBody() }, cfg: { confirm: false } });
+    await runDisputeVerdicts(r.deps);
+    r.ledgerSent.add(D1);
+    const s = await runDisputeVerdicts(r.deps);
+    expect(s.confirmed).toBe(0);
+    expect(r.sends).toEqual([]);
+  });
+
+  it('reads list_recent / get_dispute on each configured contract separately', async () => {
+    const r = rig({}, { cfg: { paymentContract: '0x' + '2'.repeat(40) } });
+    const calls: string[] = [];
+    r.deps.gl.call = async (target, fn, args) => {
+      calls.push(`${target}:${fn}`);
+      if (fn === 'list_recent') return JSON.stringify(target === 'receipt' ? [D1] : [D2]);
+      return JSON.stringify(
+        target === 'receipt'
+          ? rec({ verdict: 'RELEASE' })
+          : rec({ claim: 'paid_without_receipt', verdict: 'RELEASE', receipt_id: '' }),
+      );
+    };
+    const s = await runDisputeVerdicts(r.deps);
+    expect(s.seen).toBe(2);
+    expect(s.judged).toBe(2);
+    expect(calls).toEqual([
+      'receipt:list_recent',
+      'receipt:get_dispute',
+      'payment:list_recent',
+      'payment:get_dispute',
+    ]);
+  });
+
+  it('only the payment contract set: the receipt contract is never read', async () => {
+    const r = rig({}, { cfg: { receiptContract: '', paymentContract: '0x' + '2'.repeat(40) } });
+    const seen: string[] = [];
+    r.deps.gl.call = async (target, fn) => {
+      seen.push(target);
+      return fn === 'list_recent' ? '[]' : '{}';
+    };
+    const s = await runDisputeVerdicts(r.deps);
+    expect(s.disabled).toBeUndefined();
+    expect(seen).toEqual(['payment']);
+  });
+
   it('without GL_DISPUTE_CONTRACT the lane is off: no read, no write, no crash', async () => {
-    const r = rig({ [D1]: rec() }, { cfg: { contract: '' } });
+    const r = rig({ [D1]: rec() }, { cfg: { receiptContract: '' } });
     const call = jest.spyOn(r.deps.gl, 'call');
     const s = await runDisputeVerdicts(r.deps);
     expect(s.disabled).toBe(true);
@@ -309,7 +355,7 @@ describe('dispute verdict lane', () => {
 
 describe('filing lane', () => {
   function fileRig(hasKey: boolean, failSend = false) {
-    const r = rig({}, { cfg: { hasKey } });
+    const r = rig({}, { cfg: { hasKey, paymentContract: '0x' + '2'.repeat(40) } });
     const flags = [
       { flag_id: 'f1', claim: 'upstream_failed_but_billed' as const, subject: RID },
       { flag_id: 'f2', claim: 'paid_without_receipt' as const, subject: TX2 },
@@ -333,10 +379,18 @@ describe('filing lane', () => {
     expect(s.filed).toBe(2);
     expect(filed).toEqual(['f1', 'f2']);
     expect(r.sends).toEqual([
-      { fn: 'dispute_receipt', args: [RID] },
-      { fn: 'dispute_payment', args: ['8453', TX2] },
+      { target: 'receipt', fn: 'dispute_receipt', args: [RID] },
+      { target: 'payment', fn: 'dispute_payment', args: ['8453', TX2] },
     ]);
     expect(r.booked).toEqual([]);
+  });
+
+  it('a claim whose contract is not configured stays unfiled', async () => {
+    const { r, filed } = fileRig(true);
+    r.deps.cfg.paymentContract = '';
+    await runDisputeVerdicts(r.deps);
+    expect(filed).toEqual(['f1']);
+    expect(r.sends.map((x) => x.fn)).toEqual(['dispute_receipt']);
   });
 
   it('without GL_DISPUTE_KEY nothing is filed', async () => {

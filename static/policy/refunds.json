@@ -1,6 +1,6 @@
 {
   "schema": "apibase-refund-policy/1",
-  "version": "2026-11-04.1",
+  "version": "2026-11-04.2",
   "effective_from": "2026-11-04T00:00:00Z",
   "claims": [
     {
@@ -25,11 +25,12 @@
     "per_run_atomic": "50000000",
     "per_30_days_atomic": "200000000"
   },
-  "execution": "A REFUND verdict of the GenLayer dispute contract is executed by APIbase's refund worker: after recomputing the same rule from the same documents it books the debt in the refund ledger, which the weekly automatic payout pays under the published caps; a verdict above the per-refund cap waits for the operator; one refund per payment transaction, ever.",
+  "execution": "A REFUND verdict of either GenLayer dispute contract is executed by APIbase's refund worker: after recomputing the same rule from the same documents it books the debt in the refund ledger, which the weekly automatic payout pays under the published caps; a verdict above the per-refund cap waits for the operator; one refund per payment transaction, ever.",
   "dispute_contract": {
     "network": "GenLayer testnet Bradbury Phase 2",
     "chain_id": 4221,
-    "address": null
+    "receipt_contract_address": null,
+    "payment_contract_address": null
   },
   "not_covered": [
     "response_mismatch (not recomputable by validators)"
