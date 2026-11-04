@@ -8,7 +8,7 @@ import {
 import { config } from '../config';
 import { getRefundEnv } from '../config/env';
 import { bootRefundWallet, runRefundPayoutSafe } from '../jobs/refund-payout.job';
-import { runDisputeVerdictsSafe } from '../jobs/dispute-verdicts.job';
+import { disputeBootLines, runDisputeVerdictsSafe } from '../jobs/dispute-verdicts.job';
 import { logger } from '../config/logger';
 import { createHealthServer, updateHeartbeatTimestamp } from './health';
 import { run as runReconciliation } from '../jobs/reconciliation.job';
@@ -190,6 +190,7 @@ registerJob({
 setTimeout(() => {
   bootRefundWallet().catch(() => {});
 }, 20_000);
+for (const line of disputeBootLines()) logger.info({}, line);
 // x402 facilitator health check every hour (§12.244).
 registerJob({
   name: 'x402-health',

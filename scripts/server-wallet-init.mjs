@@ -24,8 +24,8 @@ if (mode === 'gen') {
   process.stdout.write(address + '\n');
 } else if (mode === 'record') {
   const [file, name, rail, address] = args;
-  if (!file || !name || !/^(base|tempo)$/.test(rail ?? '') || !/^0x[0-9a-fA-F]{40}$/.test(address ?? '')) {
-    console.error('usage: record <file> <name> <base|tempo> <address>');
+  if (!file || !name || !/^(base|tempo|genlayer)$/.test(rail ?? '') || !/^0x[0-9a-fA-F]{40}$/.test(address ?? '')) {
+    console.error('usage: record <file> <name> <base|tempo|genlayer> <address>');
     process.exit(64);
   }
   const cur = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8') || '[]') : [];

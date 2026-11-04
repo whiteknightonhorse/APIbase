@@ -1,3 +1,4 @@
+import { privateKeyToAccount } from 'viem/accounts';
 import { createPublicClient, decodeEventLog, parseAbiItem, type Hex } from 'viem';
 import { base } from 'viem/chains';
 import { getDisputeEnv, getRefundEnv } from '../config/env';
@@ -56,6 +57,30 @@ export function disputeCfgFromEnv(source: NodeJS.ProcessEnv = process.env): Disp
     payee: getX402Config().paymentAddress.toLowerCase(),
     refundWindowHours: REFUND_WINDOW_HOURS,
   };
+}
+
+/** Address of the dispute key (0x + 64 hex), or null. The key itself is never returned or logged. */
+export function disputeKeyAddress(source: NodeJS.ProcessEnv = process.env): string | null {
+  const k = getDisputeEnv(source).GL_DISPUTE_KEY.trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(k)) return null;
+  try {
+    return privateKeyToAccount(k as `0x${string}`).address;
+  } catch {
+    return null;
+  }
+}
+
+/** The two boot lines of the dispute lane (address and set/unset only). */
+export function disputeBootLines(source: NodeJS.ProcessEnv = process.env): string[] {
+  const d = getDisputeEnv(source);
+  const addr = disputeKeyAddress(source);
+  const set = (v: string) => (v.trim() ? 'set' : 'unset');
+  return [
+    addr
+      ? `dispute lane: key present, address ${addr}`
+      : 'dispute lane: no GL_DISPUTE_KEY (reads only)',
+    `contracts: receipt ${set(d.GL_DISPUTE_CONTRACT)}, payment ${set(d.GL_DISPUTE_PAYMENT_CONTRACT)}`,
+  ];
 }
 
 function makePort(source: NodeJS.ProcessEnv = process.env): GlPort {

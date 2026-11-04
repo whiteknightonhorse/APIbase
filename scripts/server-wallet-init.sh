@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # T-0553 (REFUND-WALLET-1026, operator decision 2 = B): generate one wallet key ON THE SERVER, store it
-# only in ~/apibase/.env and print only its ADDRESS. Run by hand, once per rail, as `apibase` in an
+# only in ~/apibase/.env and print only its ADDRESS. Run by hand, once per rail or lane, as `apibase` in an
 # interactive shell, on the operator's written order. Never from a card, CI, cron or taskloop.
 # Generic: 0655 reuses it for UPSTREAM_PAYER_KEY_*.
 #
-#   scripts/server-wallet-init.sh <ENV_NAME> <base|tempo>
+#   scripts/server-wallet-init.sh <ENV_NAME> <base|tempo|genlayer>
 #
 # There is no replace flag by design: replacing a funded key is a hand ceremony.
 set -euo pipefail
@@ -13,8 +13,8 @@ umask 077
 
 NAME="${1:-}"
 RAIL="${2:-}"
-if [[ ! "$NAME" =~ ^[A-Z][A-Z0-9_]*$ ]] || [[ "$RAIL" != "base" && "$RAIL" != "tempo" ]]; then
-  echo "usage: $0 <ENV_NAME> <base|tempo>" >&2
+if [[ ! "$NAME" =~ ^[A-Z][A-Z0-9_]*$ ]] || [[ "$RAIL" != "base" && "$RAIL" != "tempo" && "$RAIL" != "genlayer" ]]; then
+  echo "usage: $0 <ENV_NAME> <base|tempo|genlayer>" >&2
   exit 64
 fi
 
@@ -66,8 +66,14 @@ node "$HERE/server-wallet-init.mjs" record "$RECORD" "$NAME" "$RAIL" "$ADDR"
 echo "address: $ADDR"
 if [[ "$RAIL" == "base" ]]; then
   echo "fund: send USDC only to $ADDR on Base (chain 8453); no ETH needed, gas comes from the operator wallet"
+elif [[ "$RAIL" == "genlayer" ]]; then
+  echo "fund: send at least 5 test GEN from https://testnet-faucet.genlayer.foundation/ to $ADDR on GenLayer Bradbury Phase 2 (chain 4221); test GEN is not money; balance: https://scan.bradbury.genlayer.com/address/$ADDR"
 else
   echo "fund: send USDC.e only to $ADDR on Tempo (chain 4217); the fee is paid in the same token"
 fi
 echo "the directory is mounted read-only into api and worker at /app/wallets; recreate both containers if the directory did not exist before they started"
-echo "then restart the worker; GET /health/refund-wallet must show key: ok"
+if [[ "$RAIL" == "genlayer" ]]; then
+  echo "then recreate the worker (docker compose up -d --no-deps worker); the lane stays off until GL_DISPUTE_CONTRACT is set"
+else
+  echo "then restart the worker; GET /health/refund-wallet must show key: ok"
+fi

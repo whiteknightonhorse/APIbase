@@ -598,6 +598,50 @@ describe('scripts/server-wallet-init.sh', () => {
     expect(readFileSync(record, 'utf8')).toBe(recBefore);
   });
 
+  it('T-0705: GL_DISPUTE_KEY genlayer -> one env line, one record entry, address and faucet only', () => {
+    const { home, env, record } = setupSwi();
+    const r = runSwi(home, 'GL_DISPUTE_KEY', 'genlayer');
+    expect(r.status).toBe(0);
+    expect(r.stdout + r.stderr).not.toMatch(KEY_RE_SCRIPT);
+    expect(r.stdout).toContain('https://testnet-faucet.genlayer.foundation/');
+    const addr = /address: (0x[0-9a-fA-F]{40})/.exec(r.stdout)?.[1];
+    expect(addr).toBeTruthy();
+    const keyLines = readFileSync(env, 'utf8')
+      .split('\n')
+      .filter((l) => l.startsWith('GL_DISPUTE_KEY='));
+    expect(keyLines).toHaveLength(1);
+    expect(keyLines[0]).toMatch(/^GL_DISPUTE_KEY=0x[0-9a-f]{64}$/);
+    const rec = JSON.parse(readFileSync(record, 'utf8'));
+    expect(rec).toHaveLength(1);
+    expect(rec[0]).toMatchObject({ name: 'GL_DISPUTE_KEY', rail: 'genlayer', address: addr });
+    const envBefore = readFileSync(env, 'utf8');
+    const again = runSwi(home, 'GL_DISPUTE_KEY', 'genlayer');
+    expect(again.status).toBe(2);
+    expect(readFileSync(env, 'utf8')).toBe(envBefore);
+  });
+
+  it('T-0705: rail solana exits 64 and leaves .env untouched', () => {
+    const { home, env } = setupSwi();
+    const r = runSwi(home, 'GL_DISPUTE_KEY', 'solana');
+    expect(r.status).toBe(64);
+    expect(readFileSync(env, 'utf8')).toBe('FOO=bar');
+  });
+
+  it('T-0705: record mode accepts genlayer and rejects polygon', () => {
+    const { home } = setupSwi();
+    const file = join(home, 'rec.json');
+    const MJS = resolve(__dirname, '../../scripts/server-wallet-init.mjs');
+    const addr = '0x' + 'ab'.repeat(20);
+    const ok = spawnSync('node', [MJS, 'record', file, 'X', 'genlayer', addr], {
+      encoding: 'utf8',
+    });
+    expect(ok.status).toBe(0);
+    const bad = spawnSync('node', [MJS, 'record', file, 'X', 'polygon', addr], {
+      encoding: 'utf8',
+    });
+    expect(bad.status).toBe(64);
+  });
+
   it('has no replace flag and is referenced by no npm script or workflow', () => {
     const src = readFileSync(SCRIPT, 'utf8');
     expect(src).not.toMatch(/--replace/);
