@@ -91,6 +91,8 @@ services:
     volumes:
       # UC-22 IP country database, written monthly by the worker (geo-db-refresh job)
       - ./data/geo:/app/data/geo:ro
+      # T-0698 wallet record + refund kill file, written on the host only
+      - ./wallets:/app/wallets:ro
     depends_on:
       postgres:
         condition: service_healthy
@@ -141,6 +143,8 @@ services:
     volumes:
       # UC-22 IP country database: the geo-db-refresh job writes here (host dir owned by uid 1001)
       - ./data/geo:/app/data/geo
+      # T-0698 wallet record + refund kill file, written on the host only
+      - ./wallets:/app/wallets:ro
     depends_on:
       api:
         condition: service_healthy

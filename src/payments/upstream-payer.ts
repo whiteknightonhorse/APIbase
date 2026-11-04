@@ -95,7 +95,9 @@ export function payerState(rail: PayRail, source: NodeJS.ProcessEnv = process.en
     st = { rail, state: 'mismatch', reason: 'key_malformed', address: recAddr };
   } else {
     const address = deriveAddress(key);
-    if (recAddr && recAddr !== address) {
+    if (!recAddr) {
+      st = { rail, state: 'mismatch', reason: 'record_missing', address };
+    } else if (recAddr !== address) {
       st = { rail, state: 'mismatch', reason: 'address_differs_from_record', address };
     } else if (forbiddenPayerAddresses(source).includes(address)) {
       st = {

@@ -79,8 +79,9 @@ export const refundEnvShape = {
   REFUND_LOW_BALANCE_USD: numOr(10),
   REFUND_CARRY_MAX_DAYS: numOr(90),
   REFUND_ETH_USD_FEED: strOr('0x71041dddad3595F9CEd3DcCFBe3D1F4b0a16Bb70'),
-  REFUND_WALLET_RECORD: strOr('/home/apibase/apibase/.server-wallets.json'),
-  REFUND_PAYOUT_KILL_FILE: strOr('/home/apibase/apibase/REFUND-PAYOUT-KILL'),
+  // Container paths; the host directory ~/apibase/wallets is mounted read-only (docker-compose.yml).
+  REFUND_WALLET_RECORD: strOr('/app/wallets/server-wallets.json'),
+  REFUND_PAYOUT_KILL_FILE: strOr('/app/wallets/REFUND-PAYOUT-KILL'),
 };
 export const refundEnvSchema = z.object(refundEnvShape);
 export type RefundEnv = z.infer<typeof refundEnvSchema>;

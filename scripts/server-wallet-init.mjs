@@ -5,7 +5,7 @@
 //   node server-wallet-init.mjs gen <ENV_NAME> <tmpfile>   -> writes "<ENV_NAME>=0x..." into the
 //        0600 tmpfile (created exclusively), prints ONLY the address on stdout.
 //   node server-wallet-init.mjs record <file> <name> <rail> <address>
-//        -> appends {"name","rail","address","created_at"} to the JSON array record (0600).
+//        -> appends {"name","rail","address","created_at"} to the JSON array record (0644).
 import { chmodSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 
@@ -34,8 +34,9 @@ if (mode === 'gen') {
     process.exit(65);
   }
   cur.push({ name, rail, address, created_at: new Date().toISOString() });
-  writeFileSync(file, JSON.stringify(cur, null, 2) + '\n', { mode: 0o600 });
-  chmodSync(file, 0o600);
+  // 0644: the record holds public addresses only and the container (uid 1001) must read it.
+  writeFileSync(file, JSON.stringify(cur, null, 2) + '\n', { mode: 0o644 });
+  chmodSync(file, 0o644);
 } else {
   console.error('usage: gen|record');
   process.exit(64);

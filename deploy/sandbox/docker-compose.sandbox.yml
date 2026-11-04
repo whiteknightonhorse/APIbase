@@ -84,6 +84,9 @@ services:
     image: ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG:-latest}
     restart: unless-stopped
     command: ["node", "dist/api/server.js"]
+    volumes:
+      # T-0698 wallet record + refund kill file, written on the host only
+      - ./wallets:/app/wallets:ro
     env_file:
       - .env.sandbox
     environment:
@@ -120,6 +123,9 @@ services:
     image: ghcr.io/whiteknightonhorse/apibase:${IMAGE_TAG:-latest}
     restart: unless-stopped
     command: ["node", "dist/worker/server.js"]
+    volumes:
+      # T-0698 wallet record + refund kill file, written on the host only
+      - ./wallets:/app/wallets:ro
     env_file:
       - .env.sandbox
     environment:

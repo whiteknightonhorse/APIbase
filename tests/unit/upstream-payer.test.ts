@@ -8,7 +8,8 @@
  */
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { parse } from 'yaml';
 import { keccak256, toBytes, verifyTypedData } from 'viem';
@@ -80,6 +81,15 @@ const E = process['env'];
 // Runtime-derived throwaway key (no literal key material in this file).
 const TEST_KEY = keccak256(toBytes('t0655-upstream-payer-test-only'));
 const PAYER = privateKeyToAccount(TEST_KEY).address;
+let RECORD_DIR = '';
+function writeRecord(names: string[]): void {
+  writeFileSync(
+    E.REFUND_WALLET_RECORD as string,
+    JSON.stringify(
+      names.map((name) => ({ name, rail: 'base', address: PAYER, created_at: 'test' })),
+    ),
+  );
+}
 const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
 const USDCE = '0x20C000000000000000000000b9537d11c60E8b50';
 const PAY_TO = '0xA45140E99E9482a50BC3fA5F6000c02FAAB6F65E';
@@ -181,7 +191,10 @@ beforeEach(() => {
   setBalanceReader(async () => 10);
   E.UPSTREAM_PAYER_KEY_BASE = TEST_KEY;
   E.UPSTREAM_PAYER_KEY_TEMPO = TEST_KEY;
-  E.REFUND_WALLET_RECORD = '/nonexistent/t0655/.server-wallets.json';
+  // T-0698: the container never writes the record; the test writes it (addresses only).
+  RECORD_DIR = mkdtempSync(join(tmpdir(), 't0698-rec-'));
+  E.REFUND_WALLET_RECORD = join(RECORD_DIR, 'server-wallets.json');
+  writeRecord(['UPSTREAM_PAYER_KEY_BASE', 'UPSTREAM_PAYER_KEY_TEMPO']);
   delete E.UPSTREAM_DAILY_CAP_USD_PER_PROVIDER;
 });
 afterAll(() => {
@@ -469,7 +482,9 @@ describe('gates: daily cap and balance', () => {
 
   it('key absent or equal to a forbidden wallet -> gate refuses', async () => {
     delete E.UPSTREAM_PAYER_KEY_BASE;
+    writeRecord([]); // no key and no record entry = missing (a record entry without the key = mismatch)
     expect((await upstreamGate(g))?.reason).toBe('upstream_payer_key_missing');
+    writeRecord(['UPSTREAM_PAYER_KEY_BASE', 'UPSTREAM_PAYER_KEY_TEMPO']);
     E.UPSTREAM_PAYER_KEY_BASE = TEST_KEY;
     E.X402_PAYMENT_ADDRESS = PAYER;
     expect(payerState('x402').reason).toBe('address_equals_operator_revenue_or_refund');
@@ -479,6 +494,17 @@ describe('gates: daily cap and balance', () => {
     expect(payerState('x402').state).toBe('mismatch');
     delete E.REFUND_SIGNER_KEY_BASE;
     expect(payerState('x402')).toMatchObject({ state: 'ok', address: PAYER.toLowerCase() });
+  });
+
+  it('key without a record entry -> mismatch record_missing, and no file is created', () => {
+    writeRecord([]);
+    const before = readdirSync(RECORD_DIR).sort();
+    expect(payerState('x402')).toMatchObject({
+      state: 'mismatch',
+      reason: 'record_missing',
+      address: PAYER.toLowerCase(),
+    });
+    expect(readdirSync(RECORD_DIR).sort()).toEqual(before);
   });
 });
 

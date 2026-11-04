@@ -15,6 +15,7 @@ jest.mock('../../src/payments/local-facilitator', () => ({
 
 import { spawnSync } from 'node:child_process';
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -23,7 +24,8 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { privateKeyToAccount } from 'viem/accounts';
 import {
   recoverPayouts,
   runPayout,
@@ -495,18 +497,28 @@ describe('key guard', () => {
   const ev = (src: Record<string, string>, forbidden: string[] = []) =>
     evaluateKeys({ source: src as NodeJS.ProcessEnv, forbidden });
 
-  it('absent key and no record -> missing; key without record -> record written, ok', () => {
-    const { record } = mk();
+  // The container never writes the record; tests write it the way the init script does.
+  const writeRec = (record: string, name: string, key: string) => {
+    const address = privateKeyToAccount(key as `0x${string}`).address;
+    writeFileSync(record, JSON.stringify([{ name, rail: 'base', address, created_at: 'test' }]));
+    return address;
+  };
+  it('absent key and no record -> missing; key without record -> mismatch record_missing, nothing written', () => {
+    const { dir, record } = mk();
     expect(ev({ REFUND_WALLET_RECORD: record }).base.state).toBe('missing');
+    const before = readdirSync(dir).sort();
     const k = ev({ REFUND_WALLET_RECORD: record, REFUND_SIGNER_KEY_BASE: TEST_KEY_1 });
-    expect(k.base.state).toBe('ok');
-    expect(JSON.parse(require('node:fs').readFileSync(record, 'utf8'))[0].name).toBe(
-      'REFUND_SIGNER_KEY_BASE',
-    );
+    expect(k.base.state).toBe('mismatch');
+    expect(k.base.reason).toBe('record_missing');
+    expect(k.base.address).toBeTruthy();
+    expect(readdirSync(dir).sort()).toEqual(before);
   });
-  it('record present and key absent, or different key -> mismatch', () => {
+  it('record present: key ok; key absent or different key -> mismatch', () => {
     const { record } = mk();
-    ev({ REFUND_WALLET_RECORD: record, REFUND_SIGNER_KEY_BASE: TEST_KEY_1 });
+    writeRec(record, 'REFUND_SIGNER_KEY_BASE', TEST_KEY_1);
+    expect(
+      ev({ REFUND_WALLET_RECORD: record, REFUND_SIGNER_KEY_BASE: TEST_KEY_1 }).base.state,
+    ).toBe('ok');
     expect(ev({ REFUND_WALLET_RECORD: record }).base.state).toBe('mismatch');
     expect(
       ev({ REFUND_WALLET_RECORD: record, REFUND_SIGNER_KEY_BASE: TEST_KEY_2 }).base.state,
@@ -514,8 +526,7 @@ describe('key guard', () => {
   });
   it('refund address equal to the operator or revenue address refuses', () => {
     const { record } = mk();
-    const addr = ev({ REFUND_WALLET_RECORD: record, REFUND_SIGNER_KEY_BASE: TEST_KEY_1 }).base
-      .address!;
+    const addr = writeRec(record, 'REFUND_SIGNER_KEY_BASE', TEST_KEY_1);
     const r = ev({ REFUND_WALLET_RECORD: record, REFUND_SIGNER_KEY_BASE: TEST_KEY_1 }, [addr]);
     expect(r.base.state).toBe('mismatch');
     expect(r.base.reason).toBe('address_equals_operator_or_revenue');
@@ -530,7 +541,7 @@ function setupSwi() {
   mkdirSync(join(home, 'apibase'));
   const env = join(home, 'apibase', '.env');
   writeFileSync(env, 'FOO=bar', { mode: 0o600 }); // no trailing newline on purpose
-  return { home, env, record: join(home, 'apibase', '.server-wallets.json') };
+  return { home, env, record: join(home, 'apibase', 'wallets', 'server-wallets.json') };
 }
 const runSwi = (home: string, name: string, rail: string) =>
   spawnSync('bash', [SCRIPT, name, rail], {
@@ -554,8 +565,24 @@ describe('scripts/server-wallet-init.sh', () => {
     const rec = JSON.parse(readFileSync(record, 'utf8'));
     expect(rec).toHaveLength(1);
     expect(rec[0]).toMatchObject({ name: 'REFUND_SIGNER_KEY_BASE', rail: 'base', address: addr });
-    expect(statSync(record).mode & 0o777).toBe(0o600);
-    expect(readdirSync(join(home, 'apibase')).sort()).toEqual(['.env', '.server-wallets.json']);
+    expect(statSync(record).mode & 0o777).toBe(0o644);
+    expect(statSync(dirname(record)).mode & 0o777).toBe(0o755);
+    expect(readdirSync(join(home, 'apibase')).sort()).toEqual(['.env', 'wallets']);
+  });
+
+  it('a wallets directory the user cannot write -> exit 3, env untouched, no record', () => {
+    const { home, env, record } = setupSwi();
+    mkdirSync(dirname(record), { mode: 0o555 });
+    const envBefore = readFileSync(env);
+    const r = runSwi(home, 'REFUND_SIGNER_KEY_BASE', 'base');
+    // A superuser can write anywhere; the guard is meaningful for the real (non-root) operator.
+    if (process.getuid && process.getuid() !== 0) {
+      expect(r.status).toBe(3);
+      expect(r.stderr).toContain('is not writable');
+      expect(r.stdout + r.stderr).not.toMatch(KEY_RE_SCRIPT);
+      expect(readFileSync(env).equals(envBefore)).toBe(true);
+      expect(existsSync(record)).toBe(false);
+    }
   });
 
   it('refuses a second run and changes nothing', () => {

@@ -14,7 +14,7 @@ from autopilot_common import tg_send  # noqa: E402,F401
 ROOT = "/home/apibase/apibase"
 STATE_DIR = os.environ.get("REFUND_STATE_DIR", f"{ROOT}/scripts/night-orchestra/state")
 CONFIG_DIR = os.environ.get("REFUND_CONFIG_DIR", os.path.join(HERE, "..", "config", "autopilot"))
-KILL_FILE = os.environ.get("REFUND_PAYOUT_KILL_FILE", f"{ROOT}/REFUND-PAYOUT-KILL")
+KILL_FILE = os.environ.get("REFUND_PAYOUT_KILL_FILE", f"{ROOT}/wallets/REFUND-PAYOUT-KILL")
 HEALTH_URL = os.environ.get("REFUND_HEALTH_URL", "http://127.0.0.1:8880/health/refund-wallet")
 
 

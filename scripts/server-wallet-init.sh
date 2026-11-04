@@ -20,8 +20,21 @@ fi
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="${APIBASE_ENV_FILE:-$HOME/apibase/.env}"
-RECORD="${REFUND_WALLET_RECORD:-$HOME/apibase/.server-wallets.json}"
 ENV_DIR="$(dirname "$ENV_FILE")"
+RECORD="${REFUND_WALLET_RECORD:-$ENV_DIR/wallets/server-wallets.json}"
+RECORD_DIR="$(dirname "$RECORD")"
+
+# T-0698: check the record directory BEFORE any change to the env file. It is mounted read-only into
+# api and worker, so it must be traversable (755) and writable by the user running this script.
+# A directory that already exists is left as it is (never loosened); a new one is created 755 despite umask 077.
+if [[ ! -d "$RECORD_DIR" ]]; then
+  mkdir -p -m 755 "$RECORD_DIR" 2>/dev/null || true
+  chmod 755 "$RECORD_DIR" 2>/dev/null || true
+fi
+if [[ ! -d "$RECORD_DIR" || ! -w "$RECORD_DIR" ]]; then
+  echo "record directory $RECORD_DIR is not writable; create it as the user running this script (Docker creates a missing bind source as root) and run again" >&2
+  exit 3
+fi
 
 if { [[ -f "$ENV_FILE" ]] && grep -Eq "^${NAME}=" "$ENV_FILE"; } \
   || { [[ -f "$RECORD" ]] && grep -Eq "\"name\": *\"${NAME}\"" "$RECORD"; }; then
@@ -56,4 +69,5 @@ if [[ "$RAIL" == "base" ]]; then
 else
   echo "fund: send USDC.e only to $ADDR on Tempo (chain 4217); the fee is paid in the same token"
 fi
+echo "the directory is mounted read-only into api and worker at /app/wallets; recreate both containers if the directory did not exist before they started"
 echo "then restart the worker; GET /health/refund-wallet must show key: ok"
