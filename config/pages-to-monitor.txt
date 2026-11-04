@@ -97,7 +97,7 @@ https://apibase.pro/legal/refund-framework.md
 https://apibase.pro/llms.txt
 https://apibase.pro/logo.png
 https://apibase.pro/logo.svg
-https://apibase.pro/mcp 400
+https://apibase.pro/mcp 200
 https://apibase.pro/robots.txt
 https://apibase.pro/sitemap.xml
 https://apibase.pro/video/LICENSES.txt
@@ -119,7 +119,7 @@ https://apibase.pro/what-is-an-mcp-gateway.md
 https://apibase.pro/faq.md
 https://apibase.pro/pricing.md
 https://apibase.pro/llms-full.txt
-family /guides/<slug> 64 https://apibase.pro/guides/accept-payments-from-ai-agents https://apibase.pro/guides/mcp-servers https://apibase.pro/guides/uc-health-api
+family /guides/<slug> 68 https://apibase.pro/guides/accept-payments-from-ai-agents https://apibase.pro/guides/mcp-servers https://apibase.pro/guides/uc-health-api
 family /guides/<YYYY-MM>/ 2 https://apibase.pro/guides/2026-09/index https://apibase.pro/guides/2026-10/index
 family /integrator/check/<shop-slug> 7 https://apibase.pro/integrator/check/aegis-verifier https://apibase.pro/integrator/check/assay-verifier https://apibase.pro/integrator/check/imperium-workflows
 family /integrator/platforms/<platform> 10 https://apibase.pro/integrator/platforms/custom https://apibase.pro/integrator/platforms/tilda.md https://apibase.pro/integrator/platforms/woocommerce
