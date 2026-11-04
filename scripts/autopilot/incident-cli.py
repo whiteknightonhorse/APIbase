@@ -107,7 +107,7 @@ Commands:
       retired" lives entirely in RESOLVED + the attempts text.
 
   incident-cli.py close --id ID --actor A --reason "..."
-                        (--superseded-by INCIDENT_ID | --provider-healthy)
+                        (--superseded-by INCIDENT_ID | --provider-healthy | --human-decided)
       T-0235 (ruling HUMAN-CLOSE-STUCK-0929, "Task 0234 spec"): the operator's
       exit for a STUCK incident that is neither worth reopening nor tied to a
       retired provider. Exists because the runbook's old "resolve-request"
@@ -122,6 +122,16 @@ Commands:
                              and last_probe_at is newer than the ts of the
                              newest incident-engine fleet-stuck/verify-failed
                              attempts entry (no such entry = NOINFO = refuse).
+        --human-decided      T-0709 (TESTER-REDS-1104 ruling-2 c): the operator's answer
+                             to a kind whose answer IS the resolution (the engine's
+                             _HUMAN_DECISION_KINDS) is already recorded as an
+                             operator/human-done attempts entry, yet the incident is
+                             STUCK (a fleet task was filed from that answer before
+                             T-0709 and could only BLOCK). Refuses unless the kind is
+                             in that set, the human-done entry exists, and the incident's
+                             fleet task is neither in queue/ nor active/. The close
+                             note quotes the entry's ts: "operator decision recorded
+                             <ts>: <reason>".
       Records `close` (and, for superseded-by, `absorbs` on the target) notes
       before transitioning to RESOLVED, same order as retire. Operator/
       dispatcher tool: fleet executors are not pointed at it.
@@ -342,6 +352,28 @@ def _refuse(msg):
     return 1
 
 
+# T-0709: duplicate of incident-engine.py's _HUMAN_DECISION_KINDS; --selftest asserts equality.
+HUMAN_DECISION_KINDS = frozenset({"MODERATION_FLAG", "DISPUTE_UNANSWERED", "REFUND_OVERDUE"})
+
+
+def _close_human_decided(a, inc):
+    """T-0709: STUCK is already checked by the caller. Every refusal returns 1 before any write."""
+    if inc["kind"] not in HUMAN_DECISION_KINDS:
+        return _refuse(f"kind {inc['kind']} is not a human-decision kind "
+                       f"({'/'.join(sorted(HUMAN_DECISION_KINDS))})")
+    done = [e for e in inc["attempts"] if e.get("actor") == "operator" and e.get("action") == "human-done"]
+    if not done:
+        return _refuse(f"incident {a.id} has no operator human-done attempts entry (no recorded answer)")
+    loc = ap.fleet_task_location(inc.get("fleet_task_id"))
+    if loc in ("queue", "active"):
+        return _refuse(f"fleet task {inc.get('fleet_task_id')} is still in {loc}/ and owns the incident")
+    ts = done[-1].get("ts")
+    ap.note_incident(a.id, a.actor, "close", f"operator decision recorded {ts}: {a.reason}")
+    ap.transition_state(a.id, "RESOLVED")
+    print(f"{a.id} -> RESOLVED (operator decision of {ts})")
+    return 0
+
+
 def cmd_close(a):
     """T-0235: RESOLVE a STUCK incident on a code-verified ground (see module
     docstring). Every refusal returns 1 before any note/transition is written."""
@@ -373,6 +405,9 @@ def cmd_close(a):
         ap.transition_state(a.id, "RESOLVED")
         print(f"{a.id} -> RESOLVED (superseded by {tgt['incident_id']})")
         return 0
+
+    if getattr(a, "human_decided", False):
+        return _close_human_decided(a, inc)
 
     anchor = None
     for e in reversed(inc["attempts"]):
@@ -887,6 +922,13 @@ def selftest():
     finally:
         ap.get_incident, ap.wait_incident = _orig_get_incident, _orig_wait
 
+    # T-0709: the duplicated decision set equals the engine's literal.
+    import re as _re
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "incident-engine.py"), encoding="utf-8") as _f:
+        _m = _re.search(r"^_HUMAN_DECISION_KINDS = frozenset\(\{([^}]*)\}\)", _f.read(), _re.M)
+    assert _m and set(_re.findall(r'"([A-Z_]+)"', _m.group(1))) == set(HUMAN_DECISION_KINDS), (
+        "HUMAN_DECISION_KINDS drifted from incident-engine.py _HUMAN_DECISION_KINDS")
+
     print("incident-cli --selftest: OK")
 
 
@@ -968,6 +1010,7 @@ def main():
     g = pcl.add_mutually_exclusive_group(required=True)
     g.add_argument("--superseded-by", default=None)
     g.add_argument("--provider-healthy", action="store_true")
+    g.add_argument("--human-decided", action="store_true")
     pcl.set_defaults(func=cmd_close)
 
     args = p.parse_args()

@@ -405,6 +405,52 @@ class EngineWorlds(unittest.TestCase):
         tick()
         self.assertEqual(incidents("REFUND_OVERDUE")[0]["state"], "WAITING_HUMAN")
 
+    # T-0709 (l)/(m) -----------------------------------------------------------------------------
+    def _dispute_table(self):
+        q("CREATE TABLE IF NOT EXISTS shop_disputes (dispute_id uuid PRIMARY KEY DEFAULT gen_random_uuid(), "
+          "order_id uuid NOT NULL, status text NOT NULL DEFAULT 'open', resolved_at timestamptz)")
+        q("TRUNCATE shop_disputes")
+        self.addCleanup(q, "DROP TABLE IF EXISTS shop_disputes")
+
+    def _expired_dispute(self, slug, resolved_ago_h=48):
+        m = fx.new_merchant(slug)
+        order = fx.new_paid_order(m, overdue=False)
+        q(f"INSERT INTO shop_disputes (order_id, status, resolved_at) VALUES ('{order}', 'expired', "
+          f"now() - interval '{resolved_ago_h} hours')")
+        return m, order
+
+    def test_t0709_l_dispute_unanswered_human_answer_closes_without_a_task(self):
+        self._dispute_table()
+        self._expired_dispute("disp-shop-l")
+        e = engine()
+        tick()
+        q("UPDATE incidents SET created_at = now() - interval '8 days'")
+        tick()
+        inc = incidents("DISPUTE_UNANSWERED")[0]
+        self.assertEqual(inc["state"], "WAITING_HUMAN")
+        path = os.path.join(ap.HUMAN_DONE_DIR, f"INC-{ap.short_id(inc['id'])}.md")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write("## Handoff\n---\n" + ap._RESULT_MARKER + " no action required\n")
+        e.advance_waiting_human()
+        self.assertEqual(incidents("DISPUTE_UNANSWERED")[0]["state"], "RESOLVED")
+        self.assertEqual(queue_files(), [])
+        self.assertFalse(os.path.exists(path), "the human-done file is archived")
+        self.assertTrue(os.path.exists(os.path.join(ap.HUMAN_DONE_DIR, "processed", os.path.basename(path))))
+
+    def test_t0709_m_expired_dispute_signals_once_per_expiry(self):
+        self._dispute_table()
+        self._expired_dispute("disp-shop-m", resolved_ago_h=48)
+        tick()
+        self.assertEqual(len(incidents("DISPUTE_UNANSWERED")), 1)
+        q("UPDATE incidents SET state = 'RESOLVED', resolved_at = now() - interval '1 hour'")
+        tick()
+        self.assertEqual([r["state"] for r in incidents("DISPUTE_UNANSWERED")], ["RESOLVED"],
+                         "the same expiry must not reopen a closed incident")
+        q("UPDATE shop_disputes SET resolved_at = now()")
+        tick()
+        self.assertTrue(any(r["state"] != "RESOLVED" for r in incidents("DISPUTE_UNANSWERED")),
+                        "a dispute expired after the close signals again")
+
     def test_fi6_fee_invoice_overdue_is_human_only_one_incident_per_invoice(self):
         # T-INT-25: the wave-2 table is created here (the shared fixture stops before it, see the
         # missing-tables test); the shape is the migration's.

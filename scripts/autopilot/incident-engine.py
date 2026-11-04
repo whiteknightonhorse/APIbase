@@ -897,7 +897,7 @@ def advance_waiting_human():
                     # slot first makes this branch run at most once per
                     # incident.
                     if provider.startswith(MERCHANT_PREFIX) and (
-                            kind in ap._MONEY_KINDS or kind in _HUMAN_VERDICT_KINDS):
+                            kind in ap._MONEY_KINDS or kind in _HUMAN_DECISION_KINDS):
                         # C0.6 / T-0313: a merchant money/compliance answer or a MODERATION_FLAG verdict is a human decision — recorded
                         # and closed, never turned into a fleet task.
                         ap.note_incident(incident_id, "operator", "human-done", result[:2000])
@@ -1569,9 +1569,10 @@ def write_heartbeat():
 # merchant:* ceiling and the fleet pause.
 # ---------------------------------------------------------------------------
 MERCHANT_PREFIX = "merchant:"
-# T-0313: kinds whose operator answer is a catalog verdict applied by scripts/shop/moderation-human.ts;
-# recorded and closed like the money kinds, never turned into a fleet task.
-_HUMAN_VERDICT_KINDS = frozenset({"MODERATION_FLAG"})
+# T-0313 / T-0709: kinds whose operator answer IS the resolution (a catalog verdict applied by
+# scripts/shop/moderation-human.ts; for a dispute/refund the reputation and suspension work is done by the
+# shop jobs themselves). Recorded and closed like the money kinds, never turned into a fleet task.
+_HUMAN_DECISION_KINDS = frozenset({"MODERATION_FLAG", "DISPUTE_UNANSWERED", "REFUND_OVERDUE"})
 _UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 CONNECT_FAIL_THRESHOLD = 3          # F-15: >=3 refusals ...
 CONNECT_FAIL_WINDOW_MIN = 10        # ... within 10 min, one identity
@@ -1744,10 +1745,11 @@ def _src_refund_overdue():
 def _src_dispute_unanswered():
     # Source table arrives with INT-23; the query is ready, an absent table is a skip (caller).
     rows = _rows(
-        "SELECT d.order_id::text, o.merchant_id::text FROM shop_disputes d JOIN shop_orders o ON o.order_id = d.order_id "
-        "WHERE d.status = 'expired'")
+        f"SELECT d.order_id::text, o.merchant_id::text, {UTC_TS_EXPR('d.resolved_at')} FROM shop_disputes d "
+        "JOIN shop_orders o ON o.order_id = d.order_id WHERE d.status = 'expired'")
+    # T-0709: 'expired' is terminal; event_at = closeDispute's resolved_at keeps one signal per expiry.
     return [_sig("DISPUTE_UNANSWERED", mid, f"dispute for order {oid} has no merchant reply",
-                 merchant_id=mid, order_id=oid) for oid, mid in rows]
+                 merchant_id=mid, order_id=oid, event_at=at or None) for oid, mid, at in rows]
 
 
 def _src_fee_invoice_overdue():
@@ -1929,7 +1931,7 @@ def open_merchant_incidents(signals):
     for s in signals:
         if s.get("suppressed") or s["dedup_key"] in existing:
             continue  # same open dedup_key: no recurrence-note spam every 10 minutes
-        if s["kind"] in _EVENT_LIKE and s["event_at"]:
+        if s["event_at"]:
             last = _last_resolved_at(s["dedup_key"])
             ev_ts = _parse_ts(s["event_at"])
             if last is not None and ev_ts is not None and ev_ts <= last:

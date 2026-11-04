@@ -6,13 +6,15 @@ Run: python3 scripts/autopilot/test-close-healthy.py
 Mutation: drop the `epoch <= card_mtime` check -> CH2 red; drop the probe_log last-2 check -> CH3 red;
 drop the provider_is_retired guard in open_or_merge_incident -> CH4 red.
 """
+import argparse
+import importlib.util
 import io
 import os
 import sys
 import time
 import unittest
 import warnings
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -22,6 +24,18 @@ import autopilot_common as ap  # noqa: E402
 warnings.simplefilter("ignore", ResourceWarning)
 ENG = None
 ROOT = os.path.join(fx.SCRATCH, "taskloop")
+
+
+CLI = None
+
+
+def cli():
+    global CLI
+    if CLI is None:
+        spec = importlib.util.spec_from_file_location("incident_cli_t0709", os.path.join(HERE, "incident-cli.py"))
+        CLI = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(CLI)
+    return CLI
 
 
 def engine():
@@ -157,6 +171,65 @@ class CloseHealthy(unittest.TestCase):
         self.assertEqual(state_of(iid), "REMEDIATION_QUEUED")
         self.assertTrue(os.path.exists(os.path.join(ROOT, "queue", "9656-dpla.md")))
         self.assertFalse(os.path.exists(os.path.join(ROOT, "done", "9656-dpla.md")))
+
+    # T-0709 (g)-(k): incident-cli close --human-decided ------------------------------------
+    def _human_decided_incident(self, kind="DISPUTE_UNANSWERED", with_answer=True, state="STUCK", task="10102-x.md"):
+        iid, created = ap.open_or_merge_incident(kind, "merchant:e1148a02", {"x": 1}, "passive")
+        self.assertTrue(created)
+        fx.psql(f"UPDATE incidents SET state = '{state}', fleet_task_id = '{task}' WHERE incident_id = '{iid}'")
+        if with_answer:
+            ap.note_incident(iid, "operator", "human-done", "no action required")
+        return iid
+
+    def _close_hd(self, iid):
+        buf = io.StringIO()
+        with redirect_stdout(buf), redirect_stderr(io.StringIO()):
+            rc = cli().cmd_close(argparse.Namespace(id=iid, actor="dispatcher", reason="drill dispute, no action",
+                                                    superseded_by=None, provider_healthy=False, human_decided=True))
+        return rc, buf.getvalue()
+
+    def _attempt_count(self, iid):
+        return int(fx.psql(f"SELECT jsonb_array_length(attempts) FROM incidents WHERE incident_id = '{iid}'"))
+
+    def test_g_human_decided_closes_the_inc_8b660c_shape(self):
+        card("stuck", "10102-x.md")
+        iid = self._human_decided_incident()
+        rc, out = self._close_hd(iid)
+        self.assertEqual(rc, 0)
+        self.assertEqual(state_of(iid), "RESOLVED")
+        self.assertRegex(out, rf"{iid} -> RESOLVED \(operator decision of \S+\)")
+        notes = fx.psql(f"SELECT attempts::text FROM incidents WHERE incident_id = '{iid}'")
+        self.assertIn("operator decision recorded ", notes)
+        self.assertIn("drill dispute, no action", notes)
+
+    def test_h_human_decided_refuses_a_kind_outside_the_set(self):
+        iid = self._human_decided_incident(kind="PROVIDER_DOWN")
+        n = self._attempt_count(iid)
+        self.assertEqual(self._close_hd(iid)[0], 1)
+        self.assertEqual((state_of(iid), self._attempt_count(iid)), ("STUCK", n))
+
+    def test_i_human_decided_refuses_without_a_human_done_entry(self):
+        iid = self._human_decided_incident(with_answer=False)
+        n = self._attempt_count(iid)
+        self.assertEqual(self._close_hd(iid)[0], 1)
+        self.assertEqual((state_of(iid), self._attempt_count(iid)), ("STUCK", n))
+
+    def test_j_human_decided_refuses_while_the_task_is_in_queue_or_active(self):
+        for where in ("queue", "active"):
+            fx.reset()
+            os.makedirs(os.path.join(ROOT, where), exist_ok=True)
+            with open(os.path.join(ROOT, where, "10102-x.md"), "w") as f:
+                f.write("# card\n")
+            iid = self._human_decided_incident()
+            n = self._attempt_count(iid)
+            self.assertEqual(self._close_hd(iid)[0], 1, where)
+            self.assertEqual((state_of(iid), self._attempt_count(iid)), ("STUCK", n), where)
+
+    def test_k_human_decided_refuses_outside_stuck(self):
+        iid = self._human_decided_incident(state="WAITING_HUMAN")
+        n = self._attempt_count(iid)
+        self.assertEqual(self._close_hd(iid)[0], 1)
+        self.assertEqual((state_of(iid), self._attempt_count(iid)), ("WAITING_HUMAN", n))
 
 
 if __name__ == "__main__":
