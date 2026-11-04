@@ -78,6 +78,29 @@ def load_yaml_tools():
     return cfg.get("tools", [])
 
 
+def load_retired_providers():
+    """Providers whose provider-limits.json entry has a `retired` object (same rule as
+    scripts/seed-plan.ts retiredProviders). SEED-COSTS-1102 ruling-2 section 5."""
+    with open(f"{ROOT}/src/config/provider-limits.json") as f:
+        limits = json.load(f)
+    return {p for p, c in limits.items() if isinstance(c, dict) and isinstance(c.get("retired"), dict)}
+
+
+def drop_retired(rows, retired):
+    """rows: tuples whose element 1 is the provider. Returns rows of non-retired providers and
+    prints one `skipped retired: <provider> (<n> rows)` line per dropped provider."""
+    kept = []
+    skipped = {}
+    for r in rows:
+        if r[1] in retired:
+            skipped[r[1]] = skipped.get(r[1], 0) + 1
+        else:
+            kept.append(r)
+    for prov in sorted(skipped):
+        print(f"skipped retired: {prov} ({skipped[prov]} rows)")
+    return kept
+
+
 def load_provider_billing():
     with open(f"{ROOT}/src/config/provider-limits.json") as f:
         limits = json.load(f)
@@ -183,7 +206,7 @@ def check_margin_violations():
             tool_id, provider, price, cost = line.split("\t")
             rows.append((tool_id, provider, price, cost))
 
-    violations = find_margin_violations(rows)
+    violations = find_margin_violations(drop_retired(rows, load_retired_providers()))
     if not violations:
         print("margin-gate-alerts: 0 tools currently blocked — nothing to do")
         return
@@ -318,7 +341,7 @@ def check_price_below_floor():
             tool_id, provider, price, floor = line.split("\t")
             rows.append((tool_id, provider, price, floor))
 
-    violations = find_floor_violations(rows)
+    violations = find_floor_violations(drop_retired(rows, load_retired_providers()))
     if not violations:
         print("margin-gate-alerts: 0 tools priced below their floor — nothing to do")
         return
@@ -523,6 +546,19 @@ def selftest():
     assert floor_violations == [("scrape.screenshot", "zyte", "0.005", "0.024")], (
         f"expected only scrape.screenshot to violate its floor, got {floor_violations}"
     )
+
+    # --- drop_retired (T-0699): retired providers never reach checks 1 and 4 ---
+    retired = {"audd"}
+    ret_rows = [
+        ("audd.lyrics", "audd", "0.003", "0.005"),
+        ("scrape.browser", "zyte", "0.015", "0.01608"),
+    ]
+    assert find_margin_violations(drop_retired(ret_rows, retired)) == [ret_rows[1]]
+    assert find_floor_violations(drop_retired([("audd.lyrics", "audd", "0.003", "0.005")], retired)) == [], \
+        "retired provider below floor must not be reported"
+    live = [("x", "live", "0.003", "0.005")]
+    assert find_floor_violations(drop_retired(live, retired)) == live
+    assert "audd" in load_retired_providers(), "audd must be retired in provider-limits.json"
 
     # --- coverage_stats ---
     assert coverage_stats([("0.01", "0"), ("0.01", ""), ("0", ""), ("0.02", "0.005")]) == (2, 3, 100.0 * 2 / 3), \
