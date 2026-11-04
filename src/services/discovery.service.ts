@@ -18,7 +18,7 @@ import { getMppConfig } from '../config/mpp.config';
 import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
 import { toolSchemas } from '../schemas/index';
 import { extractKeywords, scoreTool } from '../mcp/keyword-match';
-import { getToolCacheEntries } from '../pipeline/stages/tool-status.stage';
+import { getToolCacheEntries, type ToolCacheEntry } from '../pipeline/stages/tool-status.stage';
 import type { McpToolDefinition } from '../mcp/types';
 import type { ShopTx } from '../shop/db';
 import { publicBase } from '../shop/storefront/storefront.service';
@@ -474,6 +474,29 @@ async function merchantCandidates(
 // discover()
 // ---------------------------------------------------------------------------
 
+/** The one candidate filter: tool-cache entries minus `unavailable` (unless asked), each paired
+ *  with its TOOL_DEFINITIONS entry. A cache/DB row with no matching definition is a broken catalog
+ *  (same invariant scripts/seed.ts's category backfill enforces at seed time) and is skipped rather
+ *  than guessed at. */
+async function candidateEntries(
+  includeUnavailable = false,
+): Promise<Array<{ entry: ToolCacheEntry; def: McpToolDefinition }>> {
+  const out: Array<{ entry: ToolCacheEntry; def: McpToolDefinition }> = [];
+  for (const entry of await getToolCacheEntries()) {
+    if (!includeUnavailable && entry.status === 'unavailable') continue;
+    const def = TOOL_DEF_BY_ID.get(entry.tool_id);
+    if (!def) continue;
+    out.push({ entry, def });
+  }
+  return out;
+}
+
+/** Definitions of the live candidate set discover() ranks over (available, defined). The
+ *  discover_tools prompt builds its category index from this so it matches discover(). */
+export async function activeCandidateDefs(): Promise<McpToolDefinition[]> {
+  return (await candidateEntries()).map((c) => c.def);
+}
+
 export async function discover(
   raw: DiscoverQueryInput,
   opts: { shopDb?: ShopTx } = {},
@@ -484,19 +507,11 @@ export async function discover(
   // already loaded for the hot pipeline path) plus TOOL_DEFINITIONS for
   // category/namespace/title — zero db.tool.findMany here, unlike the 66f526a3/0ad41c87
   // attempts this replaces.
-  const entries = await getToolCacheEntries();
+  const entries = await candidateEntries(q.include_unavailable);
   const keywords = q.intent ? extractKeywords(q.intent) : [];
 
   const candidates: Candidate[] = [];
-  for (const entry of entries) {
-    if (!q.include_unavailable && entry.status === 'unavailable') continue;
-
-    const def = TOOL_DEF_BY_ID.get(entry.tool_id);
-    // A yaml/DB row with no matching TOOL_DEFINITIONS entry is a broken catalog (same
-    // invariant scripts/seed.ts's category backfill enforces at seed time) — skip rather
-    // than guess a title/mcpName for it here.
-    if (!def) continue;
-
+  for (const { entry, def } of entries) {
     const category = def.category ?? 'uncategorized';
     if (q.category && category !== q.category) continue;
     if (typeof q.max_price_usd === 'number' && entry.price_usd > q.max_price_usd) continue;

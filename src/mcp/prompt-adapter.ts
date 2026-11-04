@@ -7,8 +7,7 @@
 
 import { z } from 'zod';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { TOOL_DEFINITIONS } from './tool-definitions';
-import { discover, type DiscoverResult } from '../services/discovery.service';
+import { activeCandidateDefs, discover, type DiscoverResult } from '../services/discovery.service';
 import type { McpToolDefinition } from './types';
 
 /* ------------------------------------------------------------------ */
@@ -23,27 +22,27 @@ import type { McpToolDefinition } from './types';
 /*  surface an agent can reach — see apibase.discover.                */
 /* ------------------------------------------------------------------ */
 
-/** Build category → tool[] index once at startup. Categories auto-derived from tool definitions.
- *  Used only for the "no args" category listing and to validate an unknown ?category= up front
- *  — the actual ranking/filtering below all goes through discover(). */
-function buildCategoryIndex(): Map<string, McpToolDefinition[]> {
-  const idx = new Map<string, McpToolDefinition[]>();
-  for (const t of TOOL_DEFINITIONS) {
+/** Category index over the live candidate set (the same set discover() ranks: tool cache minus
+ *  unavailable). Retired definitions stay in the static definitions file by design (T-0152a) but never show
+ *  up here, so the counts equal mcp.json categories_count and no listed category is empty. */
+async function liveCategoryIndex(): Promise<{
+  index: Map<string, McpToolDefinition[]>;
+  categories: string[];
+  total: number;
+}> {
+  const defs = await activeCandidateDefs();
+  const index = new Map<string, McpToolDefinition[]>();
+  for (const t of defs) {
     const cat = t.category ?? 'other';
-    let arr = idx.get(cat);
+    let arr = index.get(cat);
     if (!arr) {
       arr = [];
-      idx.set(cat, arr);
+      index.set(cat, arr);
     }
     arr.push(t);
   }
-  return idx;
+  return { index, categories: [...index.keys()].sort(), total: defs.length };
 }
-
-const categoryIndex = buildCategoryIndex();
-
-/** Sorted category names — auto-derived, no hardcoded list. */
-const CATEGORIES = [...categoryIndex.keys()].sort();
 
 const MAX_RESULTS = 18;
 
@@ -66,23 +65,24 @@ function formatDiscoverResult(r: DiscoverResult): string {
 async function discoverTools(args: { task?: string; category?: string }): Promise<string> {
   const task = args.task?.trim() || undefined;
   const category = args.category?.trim().toLowerCase() || undefined;
+  const { index, categories, total } = await liveCategoryIndex();
 
-  if (category && !categoryIndex.has(category)) {
+  if (category && !index.has(category)) {
     return [
       `No tools found for category "${category}".`,
       '',
-      `Available categories: ${CATEGORIES.join(', ')}`,
+      `Available categories: ${categories.join(', ')}`,
     ].join('\n');
   }
 
   // --- No args: return category index (pure browsing aid, no ranking involved) ---
   if (!task && !category) {
     const lines = [
-      `APIbase Tool Catalog — ${TOOL_DEFINITIONS.length} tools across ${CATEGORIES.length} categories:`,
+      `APIbase Tool Catalog — ${total} tools across ${categories.length} categories:`,
       '',
     ];
-    for (const cat of CATEGORIES) {
-      const count = categoryIndex.get(cat)?.length ?? 0;
+    for (const cat of categories) {
+      const count = index.get(cat)?.length ?? 0;
       if (count > 0) lines.push(`- ${cat}: ${count} tools`);
     }
     lines.push(
@@ -108,7 +108,7 @@ async function discoverTools(args: { task?: string; category?: string }): Promis
           ? `No tools found for category "${category}".`
           : `No tools matched "${task}".`,
       '',
-      `Try browsing by category: ${CATEGORIES.join(', ')}`,
+      `Try browsing by category: ${categories.join(', ')}`,
     ].join('\n');
   }
 
@@ -277,7 +277,7 @@ export function registerPrompts(server: McpServer): void {
   // --- Tool discovery (progressive disclosure) ---
   srv.prompt(
     PROMPT_NAMES.discover_tools,
-    `Browse ${TOOL_DEFINITIONS.length} tools by category or task description. Returns relevant tools without loading all definitions into context.`,
+    `Browse tools by category or task description. Returns relevant tools without loading all definitions into context.`,
     {
       task: z
         .string()
@@ -286,7 +286,7 @@ export function registerPrompts(server: McpServer): void {
       category: z
         .string()
         .optional()
-        .describe(`Filter by category: ${CATEGORIES.join(', ')}`),
+        .describe('Filter by category (call with no arguments to list the live categories)'),
     },
     async (args: { task?: string; category?: string }) => ({
       messages: [
