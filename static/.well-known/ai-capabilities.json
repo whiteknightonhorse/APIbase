@@ -2,15 +2,15 @@
   "platform": "APIbase",
   "version": "2.2.0",
   "updated_at": "2026-11-04T00:00:00Z",
-  "tools_count": 1372,
-  "providers_count": 396,
+  "tools_count": 1375,
+  "providers_count": 397,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1372 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1375 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -51,8 +51,8 @@
     },
     {
       "name": "education",
-      "tools": 105,
-      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
+      "tools": 108,
+      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Semanticscholar, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
       "examples": "Call apibase.discover with category=\"education\" for the current tool list and descriptions."
     },
     {
