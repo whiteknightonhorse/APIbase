@@ -104,7 +104,10 @@ describe('T-0669 every published sha256 is reproducible from source_url', () => 
       const src = await (await fetch(`${s.base}/legal/${id}.src.md`)).text();
       const md = await (await fetch(`${s.base}/legal/${id}.md`)).text();
       expect(md).not.toContain('V2 TEXT');
-      expect(md).toBe(src.replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, '0% during the pilot'));
+      // T-0695: the only other difference is the one scheduled-version notice line under the title.
+      const noMd = md.replace(/\n\nVersion 2\.0 of this document takes effect [^\n]*\n/, '');
+      expect(md).toContain('Version 2.0 of this document takes effect 2026-12-01; read it at');
+      expect(noMd).toBe(src.replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, '0% during the pilot'));
       const html = await (await fetch(`${s.base}/legal/${id}`)).text();
       expect(html).not.toContain('V2 TEXT');
     }

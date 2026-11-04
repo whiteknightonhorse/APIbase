@@ -149,6 +149,7 @@ function page(
   body: string,
   draft: boolean,
   meta: { version: string; effective: string },
+  notice = '',
 ): string {
   const docTitle = DOC_TITLES[docId] ?? docId;
   const title = fitTitle(`${docTitle} — APIbase legal`);
@@ -161,7 +162,11 @@ function page(
     `<title>${esc(title)}</title><style>${STYLE}${draft ? DRAFT_STYLE : ''}\n${SITE_NAV_CSS}</style></head><body>` +
     (draft ? DRAFT_BANNER : '') +
     SITE_NAV +
-    legalDocumentHtml(docTitle, body, meta) +
+    legalDocumentHtml(
+      docTitle,
+      notice ? body.replace('</h1>', `</h1><p class="lg-notice">${notice}</p>`) : body,
+      meta,
+    ) +
     SITE_FOOTER +
     '</body></html>\n'
   );
@@ -236,8 +241,27 @@ export function staticPageEntries(
   });
 }
 
+type Scheduled = { doc_id: string; version: string; effective_from: string; sha256?: string };
+
+/** `/legal/<id>.src.md?version=<v>` for a registry document; static pages have no registry source. */
+const scheduledSource = (d: { doc_id: string; version: string }): string =>
+  `/legal/${d.doc_id}.src.md?version=${d.version}`;
+
+/** The one-line notice of a scheduled version (outside the hashed bytes). Plain text. */
+export function scheduledNoticeText(d: Scheduled): string {
+  return `Version ${d.version} of this document takes effect ${d.effective_from.slice(0, 10)}; read it at ${scheduledSource(d)}.`;
+}
+
+function scheduledNoticeHtml(d: Scheduled): string {
+  const src = esc(scheduledSource(d));
+  return `Version ${esc(d.version)} of this document takes effect ${esc(d.effective_from.slice(0, 10))}; read it at <a href="${src}">${src}</a>.`;
+}
+
 /** Browser view of the /legal index: same chrome as the /legal/<doc> pages, one row per document. */
-export function indexPage(docs: ReadonlyArray<object>): string {
+export function indexPage(
+  docs: ReadonlyArray<object>,
+  scheduled: ReadonlyArray<object> = [],
+): string {
   const str = (v: unknown): string => (typeof v === 'string' ? v : '');
   const rows = (docs as Array<Record<string, unknown>>)
     .map((d) => {
@@ -253,6 +277,29 @@ export function indexPage(docs: ReadonlyArray<object>): string {
       );
     })
     .join('');
+  const sched = (scheduled as Array<Record<string, unknown>>)
+    .map((d) => {
+      const id = esc(str(d.doc_id));
+      const url = esc(str(d.url));
+      const title = esc(DOC_TITLES[str(d.doc_id)] ?? str(d.doc_id));
+      const src =
+        d.registry === false
+          ? ''
+          : ` · <a href="${esc(scheduledSource({ doc_id: str(d.doc_id), version: str(d.version) }))}">source</a>`;
+      return (
+        `<tr><td><a href="${url}">${title}</a>${src}<br><code>${id}</code></td>` +
+        `<td>${esc(str(d.version)) || '—'}</td>` +
+        `<td>${esc(str(d.effective_from).slice(0, 10)) || '—'}</td>` +
+        `<td><code>${esc(str(d.sha256))}</code></td></tr>`
+      );
+    })
+    .join('');
+  const schedSection = sched
+    ? '<h2>Scheduled versions</h2>' +
+      '<p>These versions take effect on the date shown; the current version stays in force until then. ' +
+      'Machine-readable: <a href="/legal/index.next.json">/legal/index.next.json</a>.</p>' +
+      `<div class="table-wrap"><table><thead><tr><th>Document</th><th>Version</th><th>Effective</th><th>SHA-256</th></tr></thead><tbody>${sched}</tbody></table></div>`
+    : '';
   const title = fitTitle('Legal documents — APIbase legal');
   return (
     '<!DOCTYPE html>\n<html lang="en"><head><meta charset="utf-8">' +
@@ -270,6 +317,7 @@ export function indexPage(docs: ReadonlyArray<object>): string {
     '<h1>Legal documents</h1>' +
     '<p>Current version of each document. The same list as JSON: <a href="/legal/index.json">/legal/index.json</a>.</p>' +
     `<div class="table-wrap"><table><thead><tr><th>Document</th><th>Version</th><th>Effective</th><th>SHA-256</th></tr></thead><tbody>${rows}</tbody></table></div>` +
+    schedSection +
     '<p class="attribution"><a href="https://db-ip.com">IP geolocation by DB-IP</a> (IP to Country Lite, CC BY 4.0).</p>' +
     '</main></div>' +
     SITE_FOOTER +
@@ -317,8 +365,13 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
         .set('Cache-Control', 'no-cache')
         .set('Vary', 'Accept')
         .set('Link', '</legal/index.next.json>; rel="next"');
-      if (html && req.accepts(['json', 'html']) === 'html') res.type('html').send(indexPage(docs));
-      else res.json(docs);
+      if (html && req.accepts(['json', 'html']) === 'html') {
+        const scheduled = [
+          ...(await nextLegalRows(db(), undefined, now())),
+          ...staticPageEntries(staticDir, REGISTER_FILE, { now: now(), scheduled: true }),
+        ];
+        res.type('html').send(indexPage(docs, scheduled));
+      } else res.json(docs);
     } catch {
       res.status(503).json({
         error: 'unavailable',
@@ -485,10 +538,21 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
       return;
     }
     res.set('Vary', 'Accept');
+    let next: Scheduled | undefined;
+    try {
+      next = (await nextLegalRows(db(), [id], now()))[0];
+    } catch {
+      next = undefined;
+    }
+    const notice = next ? scheduledNoticeText(next) : '';
     if (wantsMd || /text\/markdown/i.test(req.get('accept') ?? '')) {
-      res
-        .type('text/markdown; charset=utf-8')
-        .send(file.body_md.replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, feeText()));
+      let md = file.body_md.replace(/\{\{INTEGRATOR_FEE_PCT\}\}/g, feeText());
+      if (notice) {
+        const m = /^# .*$/m.exec(md);
+        const at = m ? m.index + m[0].length : 0;
+        md = `${md.slice(0, at)}\n\n${notice}\n${md.slice(at)}`;
+      }
+      res.type('text/markdown; charset=utf-8').send(md);
       return;
     }
     const body = renderMarkdown(file.body_md).replace(
@@ -496,10 +560,16 @@ export function createLegalRouter(opts: LegalRouterOptions = {}): Router {
       esc(feeText()),
     );
     res.type('html').send(
-      page(id, body, !isPublished(), {
-        version: file.version,
-        effective: file.effective_from.slice(0, 10),
-      }),
+      page(
+        id,
+        body,
+        !isPublished(),
+        {
+          version: file.version,
+          effective: file.effective_from.slice(0, 10),
+        },
+        next ? scheduledNoticeHtml(next) : '',
+      ),
     );
   });
 

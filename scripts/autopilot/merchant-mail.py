@@ -48,7 +48,9 @@ LANG = "en"
 KINDS = ("connect_failed", "webhook_failed", "merchant_unresponsive", "refund_overdue",
          "catalog_rejected", "payout_change", "key_rotated", "pii_delivered", "pii_undeliverable",
          "dispute_rate_warning", "merchant_disputes_suspended", "fee_invoice",
-         "stream_settle_overdue", "subscription_pull_failed")
+         "stream_settle_overdue", "subscription_pull_failed", "legal_version_notice")
+LEGAL_TITLES = {"merchant-agreement": "Merchant Agreement", "aup": "Acceptable Use Policy",
+                "dpa": "Data Processing Addendum", "refund-framework": "Refund Framework"}
 
 log = logging.getLogger("merchant-mail")
 
@@ -154,12 +156,14 @@ def _fmt(col):
     return f"to_char({col} AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI \"UTC\"')"
 
 
-def template_values(template, merchant_id, m):
+def template_values(template, merchant_id, m, msg_id=""):
     """Best-effort placeholders; the engine queues only (template, merchant_id)."""
     vals = {"merchant_name": m["name"], "slug": m["slug"], "order_id": "(see the check page)",
             "due_at": "(see the check page)", "category": "catalog review",
             "invoice_id": "(see your owner page)", "period": "the last month", "amount_usd": "(see your owner page)",
-            "fee_wallet": "(see your owner page)"}
+            "fee_wallet": "(see your owner page)", "doc_title": "legal document",
+            "doc_version": "(see the legal page)", "effective_date": "(see the legal page)",
+            "source_url": "/legal"}
     mid = ap.sql_literal(merchant_id)
     try:
         if template == "merchant_unresponsive":
@@ -181,6 +185,16 @@ def template_values(template, merchant_id, m):
             if r:
                 vals["invoice_id"], vals["period"], vals["amount_usd"], vals["due_at"] = r[0]
             vals["fee_wallet"] = os.environ.get("INTEGRATOR_FEE_WALLET_BASE") or "(see the fee invoices in your owner page)"
+        elif template == "legal_version_notice":
+            # msg_id = legal-notice:<merchant_id>:<doc_id>:<version> (written by src/jobs/legal-notice.job.ts)
+            parts = msg_id.split(":", 3)
+            if len(parts) == 4 and parts[2] in LEGAL_TITLES and re.fullmatch(r"[0-9][0-9A-Za-z.]*", parts[3]):
+                r = _rows("SELECT to_char(effective_from AT TIME ZONE 'UTC', 'YYYY-MM-DD') FROM shop_legal_docs "
+                          f"WHERE doc_id = {ap.sql_literal(parts[2])} AND version = {ap.sql_literal(parts[3])}")
+                vals["doc_title"], vals["doc_version"] = LEGAL_TITLES[parts[2]], parts[3]
+                vals["source_url"] = f"/legal/{parts[2]}.src.md?version={parts[3]}"
+                if r:
+                    vals["effective_date"] = r[0][0]
         elif template == "catalog_rejected":
             r = _rows("SELECT category FROM shop_moderation_reviews WHERE "
                       f"merchant_id = {mid}::uuid AND category IS NOT NULL ORDER BY at DESC LIMIT 1")
@@ -230,7 +244,7 @@ def send_one(key, msg_id, merchant_id, kind, template, attempts):
         return record_failure(msg_id, attempts, "merchant_missing")
     m = {"slug": r[0][0], "name": r[0][1]}
     try:
-        subject, text = render(template, LANG, template_values(template, merchant_id, m))
+        subject, text = render(template, LANG, template_values(template, merchant_id, m, msg_id))
     except (ValueError, OSError):
         return record_failure(msg_id, attempts, "template_missing")
     code, js = http_request("POST", "/emails", key, {

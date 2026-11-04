@@ -25,6 +25,7 @@ import {
 import { run as runX402SettlePending } from '../jobs/x402-settle-pending.job';
 import { run as runMppRefundReconcile } from '../jobs/mpp-refund-reconcile.job';
 import { run as runLedgerWriteFailed } from '../jobs/ledger-write-failed.job';
+import { runLegalNotice } from '../jobs/legal-notice.job';
 import { runShopFeeInvoice } from '../jobs/shop-fee-invoice.job';
 import { backfillContentHashes, run as runCatalogRemoderate } from '../jobs/catalog-remoderate.job';
 import { runShopSlaSweeper } from '../jobs/shop-sla-sweeper.job';
@@ -298,6 +299,13 @@ registerJob({
   cron: '10 3 1 * *',
   expect_every_s: 2678400,
   run: () => runShopFeeInvoice(),
+});
+// Scheduled legal versions (LEGAL-REGRESS-1104): one queued e-mail per active merchant per version, once a day.
+registerJob({
+  name: 'legal-notice',
+  cron: '10 5 * * *',
+  expect_every_s: 86400,
+  run: () => runLegalNotice(),
 });
 // UC-22 IP country database (DB-IP Country Lite, published monthly): the 3rd of each month, 03:40 UTC.
 registerJob({
