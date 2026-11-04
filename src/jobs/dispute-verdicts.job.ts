@@ -117,7 +117,17 @@ export function makePrismaStore(): WorkerStore {
     async judged(ids) {
       if (ids.length === 0) return new Set();
       const r = await db().$queryRawUnsafe<Row[]>(
-        `SELECT dispute_id FROM dispute_verdicts WHERE dispute_id = ANY($1::text[])`,
+        `SELECT dispute_id FROM dispute_verdicts
+          WHERE dispute_id = ANY($1::text[]) AND outcome <> 'over_cap'`,
+        ids,
+      );
+      return new Set(r.map((x) => String(x.dispute_id)));
+    },
+    async overCapIds(ids) {
+      if (ids.length === 0) return new Set();
+      const r = await db().$queryRawUnsafe<Row[]>(
+        `SELECT dispute_id FROM dispute_verdicts
+          WHERE dispute_id = ANY($1::text[]) AND outcome = 'over_cap'`,
         ids,
       );
       return new Set(r.map((x) => String(x.dispute_id)));
@@ -127,7 +137,10 @@ export function makePrismaStore(): WorkerStore {
         `INSERT INTO dispute_verdicts
            (dispute_id, claim, verdict, payment_tx, receipt_id, outcome, detail, refund_id, confirm_state)
          VALUES ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::uuid,$9)
-         ON CONFLICT (dispute_id) DO NOTHING`,
+         ON CONFLICT (dispute_id) DO UPDATE SET
+           outcome = EXCLUDED.outcome, detail = EXCLUDED.detail, refund_id = EXCLUDED.refund_id,
+           confirm_state = EXCLUDED.confirm_state, judged_at = now()
+           WHERE dispute_verdicts.outcome = 'over_cap'`,
         v.dispute_id,
         v.claim,
         v.verdict,
@@ -172,12 +185,12 @@ export function makePrismaStore(): WorkerStore {
     },
     async confirmable() {
       const r = await db().$queryRawUnsafe<Row[]>(
-        `SELECT v.dispute_id FROM dispute_verdicts v
+        `SELECT v.dispute_id, v.claim FROM dispute_verdicts v
            JOIN refund_ledger l ON l.refund_id = v.refund_id
           WHERE v.outcome = 'booked' AND v.confirm_state = 'pending' AND l.status = 'sent'
           ORDER BY v.judged_at LIMIT 20`,
       );
-      return r.map((x) => String(x.dispute_id));
+      return r.map((x) => ({ dispute_id: String(x.dispute_id), claim: String(x.claim) }));
     },
     async setConfirm(disputeId, state, detail) {
       await db().$executeRawUnsafe(
@@ -191,8 +204,8 @@ export function makePrismaStore(): WorkerStore {
     async overdue(hours) {
       const r = await db().$queryRawUnsafe<Row[]>(
         `SELECT v.dispute_id FROM dispute_verdicts v
-           JOIN refund_ledger l ON l.refund_id = v.refund_id
-          WHERE v.outcome = 'booked' AND l.status <> 'sent'
+           LEFT JOIN refund_ledger l ON l.refund_id = v.refund_id
+          WHERE v.outcome = 'booked' AND (l.refund_id IS NULL OR l.status = 'cancelled')
             AND v.judged_at < now() - make_interval(hours => $1::int)
             AND NOT (v.detail ? 'overdue_alerted') LIMIT 20`,
         hours,

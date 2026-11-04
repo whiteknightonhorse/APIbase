@@ -80,7 +80,10 @@ export interface FlagRow {
 }
 
 export interface WorkerStore {
+  /** Ids with a final verdict row. An `over_cap` row is not final: it is re-judged every pass. */
   judged(ids: string[]): Promise<Set<string>>;
+  /** Ids whose stored outcome is `over_cap` (already alerted once). */
+  overCapIds(ids: string[]): Promise<Set<string>>;
   saveVerdict(row: VerdictRow): Promise<void>;
   /** A live (non-cancelled) refund_ledger row for this payment tx or receipt id. */
   refundExistsFor(paymentTx: string | null, receiptId: string | null): Promise<boolean>;
@@ -89,7 +92,7 @@ export interface WorkerStore {
   /** Another booked verdict (different dispute id) on this payment tx. */
   otherBookedVerdict(paymentTx: string, disputeId: string): Promise<string | null>;
   book(row: RefundOwedInput): Promise<void>;
-  confirmable(): Promise<string[]>;
+  confirmable(): Promise<Array<{ dispute_id: string; claim: string }>>;
   setConfirm(disputeId: string, state: 'done' | 'failed', detail?: string): Promise<void>;
   overdue(hours: number): Promise<string[]>;
   markOverdueAlerted(disputeId: string): Promise<void>;
@@ -197,6 +200,7 @@ async function judgeOne(
   target: GlTarget,
   deps: WorkerDeps,
   sum: RunSummary,
+  reJudge = false,
 ): Promise<VerdictRow | null> {
   const d = toRecord(await deps.gl.call(target, 'get_dispute', [id]), id);
   if (!d) {
@@ -261,12 +265,15 @@ async function judgeOne(
   }
   if (BigInt(d.amount_atomic) > BigInt(deps.cfg.perRefundAtomic)) {
     sum.overCap += 1;
-    await deps.store.alert('dispute_over_cap', {
-      severity: 'warning',
-      dispute_id: id,
-      amount_atomic: d.amount_atomic,
-      cap_atomic: deps.cfg.perRefundAtomic,
-    });
+    // Alert once; later passes re-judge silently against the then-current cap.
+    if (!reJudge) {
+      await deps.store.alert('dispute_over_cap', {
+        severity: 'warning',
+        dispute_id: id,
+        amount_atomic: d.amount_atomic,
+        cap_atomic: deps.cfg.perRefundAtomic,
+      });
+    }
     deps.log('warn', 'dispute: verdict above the per-refund cap waits for the operator', {
       dispute_id: id,
     });
@@ -325,9 +332,11 @@ async function fileLane(deps: WorkerDeps, sum: RunSummary): Promise<void> {
 
 async function confirmLane(deps: WorkerDeps, sum: RunSummary): Promise<void> {
   if (!deps.cfg.hasKey || !deps.cfg.confirm) return;
-  for (const id of await deps.store.confirmable()) {
+  for (const { dispute_id: id, claim } of await deps.store.confirmable()) {
     try {
-      await deps.gl.send('receipt', 'confirm_refund', [id]);
+      // The target follows the claim: a payment-claim dispute lives in the payment contract.
+      const target: GlTarget = claim === 'paid_without_receipt' ? 'payment' : 'receipt';
+      await deps.gl.send(target, 'confirm_refund', [id]);
       await deps.store.setConfirm(id, 'done');
       sum.confirmed += 1;
     } catch (e) {
@@ -362,9 +371,10 @@ export async function runDisputeVerdicts(deps: WorkerDeps): Promise<RunSummary> 
       const ids = Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : [];
       sum.seen += ids.length;
       const known = await deps.store.judged(ids);
+      const capped = await deps.store.overCapIds(ids);
       for (const id of ids.filter((i) => !known.has(i))) {
         try {
-          const row = await judgeOne(id, target, deps, sum);
+          const row = await judgeOne(id, target, deps, sum, capped.has(id));
           if (row) {
             await deps.store.saveVerdict(row);
             sum.judged += 1;

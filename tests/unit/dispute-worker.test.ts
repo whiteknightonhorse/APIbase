@@ -27,7 +27,7 @@ const CFG: DisputeCfg = {
   hasKey: true,
   perRefundAtomic: '25000000',
   payee: PAYEE,
-  refundWindowHours: 192,
+  refundWindowHours: 72,
 };
 
 interface Rig {
@@ -74,7 +74,9 @@ function rig(
     },
   };
   const store: WorkerStore = {
-    judged: async (ids) => new Set(ids.filter((i) => verdicts.has(i))),
+    judged: async (ids) =>
+      new Set(ids.filter((i) => verdicts.has(i) && verdicts.get(i)!.outcome !== 'over_cap')),
+    overCapIds: async (ids) => new Set(ids.filter((i) => verdicts.get(i)?.outcome === 'over_cap')),
     saveVerdict: async (v) => void verdicts.set(v.dispute_id, v),
     refundExistsFor: async (tx, rid) =>
       (opts.existingRefundFor ?? []).some((k) => k === tx || k === rid),
@@ -93,7 +95,7 @@ function rig(
         .filter(
           (v) => v.outcome === 'booked' && !done.has(v.dispute_id) && ledgerSent.has(v.dispute_id),
         )
-        .map((v) => v.dispute_id),
+        .map((v) => ({ dispute_id: v.dispute_id, claim: v.claim })),
     setConfirm: async (id, state) => void (state === 'done' ? done.add(id) : done.add(id)),
     overdue: async () => [],
     markOverdueAlerted: async () => undefined,
@@ -250,6 +252,22 @@ describe('dispute verdict lane', () => {
     expect(r.verdicts.get(D1)?.outcome).toBe('over_cap');
   });
 
+  it('an over-cap verdict is re-judged against the current cap: raised -> booked next pass', async () => {
+    const r = rig(
+      { [D1]: rec({ amount_atomic: '25000001' }) },
+      { receipts: { [RID]: receiptBody({ amount_atomic: '25000001' }) } },
+    );
+    await runDisputeVerdicts(r.deps);
+    await runDisputeVerdicts(r.deps); // still over the cap: silent, no second alert
+    expect(r.alerts).toHaveLength(1);
+    expect(r.booked).toEqual([]);
+    r.deps.cfg.perRefundAtomic = '30000000';
+    const s = await runDisputeVerdicts(r.deps);
+    expect(s.booked).toBe(1);
+    expect(r.booked).toHaveLength(1);
+    expect(r.verdicts.get(D1)?.outcome).toBe('booked');
+  });
+
   it('exactly the cap is booked', async () => {
     const r = rig(
       { [D1]: rec({ amount_atomic: '25000000' }) },
@@ -289,6 +307,17 @@ describe('dispute verdict lane', () => {
     expect(r.sends).toEqual([{ target: 'receipt', fn: 'confirm_refund', args: [D1] }]);
     await runDisputeVerdicts(r.deps);
     expect(r.sends).toHaveLength(1);
+  });
+
+  it('confirm_refund goes to the contract of the claim (payment claim -> payment contract)', async () => {
+    const r = rig(
+      { [D1]: rec({ claim: 'paid_without_receipt', receipt_id: '', amount_atomic: '250000' }) },
+      { chain: PAID, cfg: { receiptContract: '', paymentContract: '0x' + '2'.repeat(40) } },
+    );
+    await runDisputeVerdicts(r.deps);
+    r.ledgerSent.add(D1);
+    await runDisputeVerdicts(r.deps);
+    expect(r.sends).toEqual([{ target: 'payment', fn: 'confirm_refund', args: [D1] }]);
   });
 
   it('confirm_refund is never sent while cfg.confirm is off (not in the merged contracts)', async () => {

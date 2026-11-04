@@ -69,7 +69,7 @@ describe('static/policy/refunds.json', () => {
     expect(/^[\x00-\x7f]*$/.test(raw)).toBe(true);
     expect(createHash('sha256').update(raw).digest('hex')).toBe(
       // split in two: the commit hook greps 64-hex literals
-      '7492559e29312571cea1acb593bd0e1c' + '838710359be0e33feb373ed2ae2d6ff3',
+      'd1cb13c3fa7ac84fcac3762caba66d20' + '8e2d1f9e95f934f4913a82b287b9d4fb',
     );
   });
 

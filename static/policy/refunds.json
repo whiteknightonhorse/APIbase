@@ -1,6 +1,6 @@
 {
   "schema": "apibase-refund-policy/1",
-  "version": "2026-11-04.2",
+  "version": "2026-11-04.3",
   "effective_from": "2026-11-04T00:00:00Z",
   "claims": [
     {
@@ -13,7 +13,7 @@
       "grace_seconds": 3600
     }
   ],
-  "refund_window_hours": 192,
+  "refund_window_hours": 72,
   "refund_wallet": {
     "8453": "0x4b10460F41f272bbD4C8d2149C87F22E4d494894"
   },
@@ -25,7 +25,8 @@
     "per_run_atomic": "50000000",
     "per_30_days_atomic": "200000000"
   },
-  "execution": "A REFUND verdict of either GenLayer dispute contract is executed by APIbase's refund worker: after recomputing the same rule from the same documents it books the debt in the refund ledger, which the weekly automatic payout pays under the published caps; a verdict above the per-refund cap waits for the operator; one refund per payment transaction, ever.",
+  "execution": "A REFUND verdict of either GenLayer dispute contract is executed by APIbase's refund worker: after recomputing the same rule from the same documents it books the debt in the refund ledger within refund_window_hours of the verdict, and the weekly automatic payout pays it under the published caps; a verdict above the per-refund cap waits for the operator; one refund per payment transaction, ever.",
+  "payout": "The weekly payout runs every Monday at 07:00 UTC and pays a payer once the owed total is at least $0.01 and ten times the live network fee; a row younger than 24 hours waits for the next run; smaller amounts carry forward and never expire. Canonical text: https://apibase.pro/docs/payments.md#refunds-owed-by-apibase",
   "dispute_contract": {
     "network": "GenLayer testnet Bradbury Phase 2",
     "chain_id": 4221,

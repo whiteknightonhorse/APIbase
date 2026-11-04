@@ -14,7 +14,7 @@
  * The published refund window (static/policy/refunds.json): the weekly payout (Monday) plus the
  * 24 h a young row waits. A booked verdict still unpaid after it raises an alert.
  */
-export const REFUND_WINDOW_HOURS = 192;
+export const REFUND_WINDOW_HOURS = 72;
 
 export type ClaimType = 'upstream_failed_but_billed' | 'paid_without_receipt';
 export const CLAIM_TYPES: readonly ClaimType[] = [
