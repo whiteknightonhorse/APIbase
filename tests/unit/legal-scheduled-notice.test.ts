@@ -82,7 +82,10 @@ function fakeDeps(merchants: Array<{ merchant_id: string; status: string }>, ver
             version,
             effective_from: '2026-12-01T00:00:00.000Z',
           }))
-        : merchants.filter((m) => m.status === 'active'),
+        : // Mirrors the database: the status filter applies only if the job's own SQL asks for it.
+          /status = 'active'/.test(sql)
+          ? merchants.filter((m) => m.status === 'active')
+          : merchants,
     $executeRawUnsafe: async (sql: string, ...a: unknown[]) => {
       if (/INTO email_events/.test(sql)) {
         const k = String(a[0]);

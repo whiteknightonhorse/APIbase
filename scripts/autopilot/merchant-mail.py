@@ -52,6 +52,10 @@ KINDS = ("connect_failed", "webhook_failed", "merchant_unresponsive", "refund_ov
 LEGAL_TITLES = {"merchant-agreement": "Merchant Agreement", "aup": "Acceptable Use Policy",
                 "dpa": "Data Processing Addendum", "refund-framework": "Refund Framework"}
 
+# Placeholder defaults of legal_version_notice; render() applies them under any caller-supplied values.
+LEGAL_DEFAULTS = {"doc_title": "legal document", "doc_version": "(see the legal page)",
+                  "effective_date": "(see the legal page)", "source_url": "/legal"}
+
 log = logging.getLogger("merchant-mail")
 
 
@@ -140,7 +144,7 @@ def render(template, lang, values):
         raw = f.read()
     head, _, body = raw.partition("\n\n")
     subject = head[len("Subject:"):].strip() if head.startswith("Subject:") else head.strip()
-    for k, v in values.items():
+    for k, v in {**LEGAL_DEFAULTS, **values}.items():
         body = body.replace("{" + k + "}", _clean(v))
     return subject, body
 
@@ -161,9 +165,7 @@ def template_values(template, merchant_id, m, msg_id=""):
     vals = {"merchant_name": m["name"], "slug": m["slug"], "order_id": "(see the check page)",
             "due_at": "(see the check page)", "category": "catalog review",
             "invoice_id": "(see your owner page)", "period": "the last month", "amount_usd": "(see your owner page)",
-            "fee_wallet": "(see your owner page)", "doc_title": "legal document",
-            "doc_version": "(see the legal page)", "effective_date": "(see the legal page)",
-            "source_url": "/legal"}
+            "fee_wallet": "(see your owner page)"}
     mid = ap.sql_literal(merchant_id)
     try:
         if template == "merchant_unresponsive":
