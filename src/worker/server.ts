@@ -8,6 +8,7 @@ import {
 import { config } from '../config';
 import { getRefundEnv } from '../config/env';
 import { bootRefundWallet, runRefundPayoutSafe } from '../jobs/refund-payout.job';
+import { runDisputeVerdictsSafe } from '../jobs/dispute-verdicts.job';
 import { logger } from '../config/logger';
 import { createHealthServer, updateHeartbeatTimestamp } from './health';
 import { run as runReconciliation } from '../jobs/reconciliation.job';
@@ -173,6 +174,15 @@ registerJob({
   expect_every_s: 8 * 86400,
   run: async () => {
     await runRefundPayoutSafe();
+  },
+});
+// A-GD-01 GenLayer dispute verdicts every 10 min (off while GL_DISPUTE_CONTRACT is unset).
+registerJob({
+  name: 'dispute-verdicts',
+  cron: '*/10 * * * *',
+  expect_every_s: 30 * 60,
+  run: async () => {
+    await runDisputeVerdictsSafe();
   },
 });
 // Key-mismatch guard and crash recovery at boot.

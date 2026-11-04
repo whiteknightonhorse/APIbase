@@ -233,6 +233,23 @@ export async function refundForReceipt(
   return rows[0] ? toPublic(rows[0]) : null;
 }
 
+/**
+ * A-GD-01: the public refund object of a GenLayer dispute (the debt booked for a REFUND verdict:
+ * source_kind 'request', source_id = dispute id). Same shape as the receipt's refund, one key apart.
+ */
+export async function refundForDispute(
+  disputeId: string,
+  db: LedgerDb = getPrisma() as unknown as LedgerDb,
+): Promise<PublicRefund | null> {
+  const rows = await db.$queryRawUnsafe<PublicRow[]>(
+    `SELECT ${PUBLIC_COLS} FROM refund_ledger
+      WHERE source_kind = 'request' AND source_id = $1 AND status NOT IN ('internal','cancelled')
+      ORDER BY detected_at DESC LIMIT 1`,
+    disputeId,
+  );
+  return rows[0] ? toPublic(rows[0]) : null;
+}
+
 /** The public refund object for an order (APIbase-owed), or null. */
 export async function refundForOrder(
   orderId: string,

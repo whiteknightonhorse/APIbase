@@ -1,7 +1,12 @@
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { logger } from '../config/logger';
-import { refundForReceipt, type PublicRefund } from '../services/refund-ledger.service';
+import {
+  refundForDispute,
+  refundForReceipt,
+  type PublicRefund,
+} from '../services/refund-ledger.service';
+import { receiptIndexForTx, type ReceiptIndex } from '../services/receipt-index.service';
 import {
   canonicalJson,
   executionIdFromReceiptId,
@@ -86,19 +91,70 @@ async function withSettle(
   return { text: body, final: false };
 }
 
+/** A-GD-01: a dispute id is the sha256 of the dispute's key: 64 lowercase hex. */
+export const DISPUTE_ID_RE = /^[0-9a-f]{64}$/;
+const TX_FILE_RE = /^(0x[0-9a-fA-F]{64})\.json$/;
+
+/** The lowercase tx hash from `<tx>.json`, or null for anything else. */
+export function parseTxFile(file: unknown): string | null {
+  if (typeof file !== 'string') return null;
+  const m = TX_FILE_RE.exec(file);
+  return m ? m[1].toLowerCase() : null;
+}
+
 export function createReceiptRouter(
   store: ReceiptStore = pgReceiptStore,
   refunds: (receiptId: string) => Promise<PublicRefund | null> = (id) => refundForReceipt(id),
   settles: (receiptId: string) => Promise<PendingSettle> = ledgerPendingSettle,
+  indexForTx: (tx: string) => Promise<ReceiptIndex> = (tx) => receiptIndexForTx(tx),
+  disputeRefunds: (disputeId: string) => Promise<PublicRefund | null> = (id) =>
+    refundForDispute(id),
 ): Router {
   const router = Router();
+
+  // A-GD-01: receipts by payment transaction. 400 for a malformed hash; otherwise always 200: a
+  // transaction APIbase never saw is the honest answer (empty list), not a 404.
+  router.get('/r/by-tx/:file', receiptLimiter, async (req: Request, res: Response) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'no-store');
+    const tx = parseTxFile(req.params.file);
+    if (!tx) {
+      res.status(400).json({ error: 'malformed_payment_tx' });
+      return;
+    }
+    try {
+      res.status(200).json(await indexForTx(tx));
+    } catch (err) {
+      logger.error({ err }, 'receipt: by-tx lookup failed');
+      res.status(503).json({ error: 'receipt index unavailable' });
+    }
+  });
 
   // T-0659: the refund state lives beside the receipt, never inside it. Registered first so that
   // `<id>.refund.json` is not taken by the `/r/:file` receipt route.
   router.get('/r/:id.refund.json', receiptLimiter, async (req: Request, res: Response) => {
     const raw: unknown = req.params.id;
     const id = typeof raw === 'string' && RECEIPT_ID_RE.test(raw) ? raw : null;
+    const disputeId = typeof raw === 'string' && DISPUTE_ID_RE.test(raw) ? raw : null;
     res.setHeader('Access-Control-Allow-Origin', '*');
+    if (disputeId) {
+      // A-GD-01: the refund of a GenLayer dispute, the same PublicRefund shape keyed by dispute_id.
+      try {
+        const refund = await disputeRefunds(disputeId);
+        if (!refund) {
+          res.setHeader('Cache-Control', 'no-store');
+          res.status(404).json({ error: 'no_refund', dispute_id: disputeId });
+          return;
+        }
+        res.setHeader('Cache-Control', 'public, max-age=60');
+        res.status(200).json({ dispute_id: disputeId, ...refund });
+      } catch (err) {
+        logger.error({ err, dispute_id: disputeId }, 'receipt: dispute refund lookup failed');
+        res.setHeader('Cache-Control', 'no-store');
+        res.status(503).json({ error: 'refund lookup unavailable', dispute_id: disputeId });
+      }
+      return;
+    }
     if (!id) {
       res.setHeader('Cache-Control', 'no-store');
       res.status(404).json({ error: 'no_refund' });

@@ -1,0 +1,37 @@
+{
+  "schema": "apibase-refund-policy/1",
+  "version": "2026-11-04.1",
+  "effective_from": "2026-11-04T00:00:00Z",
+  "claims": [
+    {
+      "type": "upstream_failed_but_billed",
+      "rule": "A receipt with billed true and upstream_status of 500 or above is refunded in full to its payer."
+    },
+    {
+      "type": "paid_without_receipt",
+      "rule": "A successful USDC transfer to the APIbase payee wallet on Base that has no receipt and no refund in the receipt index is refunded in full to its sender after the grace period.",
+      "grace_seconds": 3600
+    }
+  ],
+  "refund_window_hours": 192,
+  "refund_wallet": {
+    "8453": "0x4b10460F41f272bbD4C8d2149C87F22E4d494894"
+  },
+  "payee_wallets": {
+    "8453": "0x50EbDa9dA5dC19c302Ca059d7B9E06e264936480"
+  },
+  "caps": {
+    "per_refund_atomic": "25000000",
+    "per_run_atomic": "50000000",
+    "per_30_days_atomic": "200000000"
+  },
+  "execution": "A REFUND verdict of the GenLayer dispute contract is executed by APIbase's refund worker: after recomputing the same rule from the same documents it books the debt in the refund ledger, which the weekly automatic payout pays under the published caps; a verdict above the per-refund cap waits for the operator; one refund per payment transaction, ever.",
+  "dispute_contract": {
+    "network": "GenLayer testnet Bradbury Phase 2",
+    "chain_id": 4221,
+    "address": null
+  },
+  "not_covered": [
+    "response_mismatch (not recomputable by validators)"
+  ]
+}

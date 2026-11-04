@@ -5,6 +5,8 @@
  */
 import { createClient } from 'genlayer-js';
 import { testnetBradbury as presetBradbury } from 'genlayer-js/chains';
+import { bradburyChain } from '../../src/genlayer/gen-chain';
+import { genCall, withTimeout, type GenReadClient } from '../../src/genlayer/gen-call';
 import { quote, send, type FeeQuote, type WriteClient } from './write';
 import { CHAIN_ID, CONTRACT_ADDRESS, EXPLORER_BASE, RPC_TIMEOUT_MS, RPC_URL } from './attest-view';
 
@@ -21,48 +23,24 @@ function injected(): EthProvider | null {
 
 export const hasWallet = (): boolean => injected() !== null;
 
-// The 2.0.0-rc.2 preset points at rpc.testnet-chain.genlayer.com, which does not serve gen_call; reads
-// need RPC_URL, so the chain object is the preset with this page's RPC and explorer.
-const testnetBradbury = {
-  ...presetBradbury,
-  rpcUrls: { default: { http: [RPC_URL] } },
-  blockExplorers: { default: { name: 'GenLayer Scan', url: EXPLORER_BASE } },
-};
+// The shared chain object and the gen_call transport live in src/genlayer (A-GD-01); this page
+// supplies its own RPC and explorer and the injected wallet only for the write.
+const testnetBradbury = bradburyChain(presetBradbury, RPC_URL, EXPLORER_BASE);
 
 const readClient = createClient({ chain: testnetBradbury });
 
-/** Reject after RPC_TIMEOUT_MS so a silent network shows a failure state instead of hanging. */
-function withTimeout<T>(call: Promise<T>): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(
-      () => reject(new Error(`The network did not answer within ${RPC_TIMEOUT_MS / 1000} s.`)),
-      RPC_TIMEOUT_MS,
-    );
-    call.then(
-      (v) => {
-        clearTimeout(timer);
-        resolve(v);
-      },
-      (e) => {
-        clearTimeout(timer);
-        reject(e);
-      },
-    );
-  });
-}
-
 export function readView(functionName: string, args: unknown[] = []): Promise<unknown> {
-  return withTimeout(
-    readClient.readContract({
-      address: CONTRACT_ADDRESS as Hex,
-      functionName,
-      args: args as never,
-    }),
+  return genCall(
+    readClient as unknown as GenReadClient,
+    CONTRACT_ADDRESS,
+    functionName,
+    args,
+    RPC_TIMEOUT_MS,
   );
 }
 
 export function readTransaction(hash: string): Promise<unknown> {
-  return withTimeout(readClient.getTransaction({ hash: hash as never }));
+  return withTimeout(readClient.getTransaction({ hash: hash as never }), RPC_TIMEOUT_MS);
 }
 
 /** Connect the browser wallet, put it on Bradbury (4221) and return the selected account. */
@@ -109,7 +87,7 @@ function writeClient(account: Hex, provider: unknown): WriteClient {
 
 /** Ask the node what `attest(receipt_id)` costs. */
 export function quoteAttest(account: Hex, receiptId: string): Promise<FeeQuote> {
-  return withTimeout(quote(writeClient(account, injected()), receiptId));
+  return withTimeout(quote(writeClient(account, injected()), receiptId), RPC_TIMEOUT_MS);
 }
 
 /** Send `attest(receipt_id)` with the quoted fee; genlayer-js hands the transaction to the browser wallet. */
