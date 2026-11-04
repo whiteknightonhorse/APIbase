@@ -82,6 +82,9 @@ news, podcasts, search, social, space, travel, weather, world
 4. Use input_schema to build valid params — avoids 400 schema validation errors.
 5. Cache the tool list — it changes only on provider onboards (rare).
 
+## Guides
+- Guides (https://apibase.pro/guides/): every guide has a plain markdown twin at https://apibase.pro/guides/<slug>.md, and the machine-readable list is https://apibase.pro/guides/pages.json (JSON array: url, title, type, date_published, date_modified, words, medium_eligible).
+
 ---
 
 <!-- source: https://apibase.pro/why.md -->
