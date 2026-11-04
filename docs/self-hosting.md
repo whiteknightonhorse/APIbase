@@ -42,6 +42,10 @@ For day-2 operations (container management, restarts, backups, monitoring), see 
 - `scripts/backup-verify.sh` runs `gzip -t` and the `.sha256` check on every dump in `daily/`; a failure appends a `backup_verify_failed` line to `backups/verify-outbox.jsonl`. `scripts/backup-offsite-check.sh --families` counts the staged files per family (apibase, fleet, orchestra, env).
 - Laptop pull and restore: [`backup-offsite.md`](backup-offsite.md).
 
+## Optional provider keys
+
+Provider keys are read from `PROVIDER_KEY_<PROVIDER>` variables. `PROVIDER_KEY_SEMANTICSCHOLAR=` (default empty) is the Semantic Scholar Graph API key, sent as `x-api-key` on adapter calls and on the health probe; with it the introductory limit is 1 request/second per key (the adapter keeps a process-wide 1 req/s gate and backs off exponentially on 429), empty means the shared anonymous pool.
+
 ## Refund wallets
 
 Refunds owed to payers are paid by a weekly job from one refund wallet per rail. Payouts ship off.

@@ -92,6 +92,11 @@ interface ProbeConfig {
    *  (e.g. `x-api-key`) to send the key verbatim under that header instead,
    *  no `Bearer` prefix. */
   auth_header?: string;
+  /** when true and `process.env[auth_env]` is empty, probeOne runs the keyless
+   *  achievability probe (probeHead on health_url) instead of probeAuth. Default
+   *  false: a configured auth_env with an empty key is a misconfiguration and
+   *  must still surface. */
+  auth_optional?: boolean;
   /** also honoured on the achievability path (T-0489b); set only from a measured `curl -sI` status of the health_url */
   expect_status?: number[];
   cost_class?: 'free' | 'cheap' | 'paid';
@@ -1023,14 +1028,14 @@ async function probeAuth(
       'User-Agent': 'APIbase-HealthCheck/2.0',
       ...authHeaders(key, probeCfg.auth_header),
     },
-    HEALTH_CHECK_TIMEOUT_MS,
+    probeTimeoutMs(probeCfg),
     provider,
   );
   const result = classifyAuthResult(outcome, expectStatus);
   const detail =
     result === 'FAIL_DETERMINISTIC'
       ? `${httpStatus} with configured key`
-      : probeDetail(outcome, HEALTH_CHECK_TIMEOUT_MS);
+      : probeDetail(outcome, probeTimeoutMs(probeCfg));
   await recordProbeResult(db, redis, provider, 'auth', result, {
     httpStatus,
     latencyMs,
@@ -1059,7 +1064,11 @@ async function probeOne(db: PrismaClient, redis: Redis, provider: string): Promi
       const budget = await checkAndConsumeBudget(redis, provider, costClass, probeCfg?.max_per_day);
       if (!budget.allowed) {
         await recordSkippedBudget(db, provider, budget);
-      } else if (probeCfg?.auth_env && probeCfg.url) {
+      } else if (
+        probeCfg?.auth_env &&
+        probeCfg.url &&
+        !(probeCfg.auth_optional === true && !process.env[probeCfg.auth_env])
+      ) {
         await probeAuth(
           db,
           redis,

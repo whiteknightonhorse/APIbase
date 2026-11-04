@@ -2135,9 +2135,12 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
     case 'semanticscholar':
       // Semantic Scholar Graph API (UC-675) — api.semanticscholar.org/graph/v1:
       // 200M+ paper search + author search + full paper detail (incl. AI-
-      // generated tldr summaries). No auth; public endpoints share a 1000
-      // req/s pool across all unauthenticated callers per S2's own docs.
-      return getOrCreate('semanticscholar', () => new SemanticScholarAdapter());
+      // generated tldr summaries). Key optional (x-api-key); without it the
+      // shared anonymous pool applies.
+      return getOrCreate(
+        'semanticscholar',
+        () => new SemanticScholarAdapter(process.env.PROVIDER_KEY_SEMANTICSCHOLAR ?? ''),
+      );
     case 'sepa-scotland':
       // SEPA Scotland Rainfall Data API (UC-676) — www2.sepa.org.uk/rainfall/api:
       // ~280-gauge live rainfall telemetry network (station list, latest

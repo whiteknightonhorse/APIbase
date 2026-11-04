@@ -841,3 +841,87 @@ describe('run() — retired provider is skipped on every path (T-0152a)', () => 
     expect(alpha[0].seconds).toBe(Math.max(7200, 2 * written));
   });
 });
+
+describe('run() — optional-key auth probe (T-0701)', () => {
+  const KEY_ENV = 'T0701_OPTIONAL_KEY';
+  const PROBE_URL = 'https://alpha.test/keyed';
+
+  async function runAlpha(probe: Record<string, unknown>) {
+    const fetchMock = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
+    globalThis.fetch = fetchMock;
+    const t0 = new Date('2026-09-03T00:00:00Z');
+    const seed: Record<string, Record<string, unknown>> = {};
+    SEVEN_PROVIDERS.forEach((name, i) => {
+      seed[name] = {
+        provider: name,
+        state: 'HEALTHY',
+        state_since: t0,
+        next_probe_at: new Date(t0.getTime() + i * 1000),
+        probe_interval_s: 21600,
+        consecutive_failures: 0,
+        risk: 'NORMAL',
+      };
+    });
+    const db = createFakeDb(seed);
+    const redis = createFakeRedis();
+    const { run } = loadJobModule(
+      db,
+      mockProviderLimits({ alpha: { health_url: 'https://alpha.test/health', probe } }),
+    );
+    const timeoutSpy = jest.spyOn(AbortSignal, 'timeout');
+    await run(redis as never);
+    return { fetchMock, db, timeoutSpy };
+  }
+
+  afterEach(() => {
+    delete process.env[KEY_ENV];
+    jest.restoreAllMocks();
+  });
+
+  const optionalProbe = {
+    url: PROBE_URL,
+    auth_env: KEY_ENV,
+    auth_header: 'x-api-key',
+    auth_optional: true,
+  };
+
+  it('env set: one GET to probe.url carrying x-api-key, kind auth', async () => {
+    process.env[KEY_ENV] = 'test-key-value';
+    const { fetchMock, db } = await runAlpha(optionalProbe);
+    const calls = fetchMock.mock.calls.filter(([u]) => String(u) === PROBE_URL);
+    expect(calls).toHaveLength(1);
+    const init = calls[0][1] as RequestInit;
+    expect(init.method).toBe('GET');
+    expect((init.headers as Record<string, string>)['x-api-key']).toBe('test-key-value');
+    expect(db.probeLogs.some((l) => l.provider === 'alpha' && l.kind === 'auth')).toBe(true);
+  });
+
+  it('env empty: no x-api-key header, achievability probe on health_url', async () => {
+    const { fetchMock, db } = await runAlpha(optionalProbe);
+    expect(fetchMock.mock.calls.some(([u]) => String(u) === PROBE_URL)).toBe(false);
+    const withKey = fetchMock.mock.calls.filter(([, init]) =>
+      Object.keys(((init as RequestInit)?.headers ?? {}) as Record<string, string>).includes(
+        'x-api-key',
+      ),
+    );
+    expect(withKey).toHaveLength(0);
+    expect(fetchMock.mock.calls.some(([u]) => String(u).includes('alpha.test/health'))).toBe(true);
+    expect(db.probeLogs.some((l) => l.provider === 'alpha' && l.kind === 'auth')).toBe(false);
+  });
+
+  it('auth_optional absent and env empty: probeAuth still runs', async () => {
+    const { fetchMock, db } = await runAlpha({
+      url: PROBE_URL,
+      auth_env: KEY_ENV,
+      auth_header: 'x-api-key',
+    });
+    expect(fetchMock.mock.calls.some(([u]) => String(u) === PROBE_URL)).toBe(true);
+    expect(db.probeLogs.some((l) => l.provider === 'alpha' && l.kind === 'auth')).toBe(true);
+  });
+
+  it('probeAuth passes probe.timeout_ms (10000) to the fetch timeout', async () => {
+    process.env[KEY_ENV] = 'test-key-value';
+    const { timeoutSpy } = await runAlpha({ ...optionalProbe, timeout_ms: 10000 });
+    expect(timeoutSpy).toHaveBeenCalledWith(10000);
+  });
+});

@@ -13,6 +13,15 @@ import type {
   S2PaperDetailOutput,
 } from './types';
 
+const S2_MIN_INTERVAL_MS = 1100;
+const S2_MAX_QUEUE_WAIT_MS = 5000;
+const S2_RATE_LIMIT_RETRIES = 2;
+const S2_BACKOFF_BASE_MS = 1000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const S2_BASE = 'https://api.semanticscholar.org/graph/v1';
 const SEARCH_FIELDS = 'title,year,venue,authors,externalIds,citationCount,openAccessPdf';
 const DETAIL_FIELDS =
@@ -27,16 +36,54 @@ const DETAIL_FIELDS =
  *   semanticscholar.authors_search -> /author/search    researcher/author search
  *   semanticscholar.get_paper      -> /paper/{id}       full paper detail by S2 ID, DOI, or ArXiv ID
  *
- * Auth: None. Public endpoints are open to unauthenticated callers, shared
- * 1000 req/s pool across all anonymous users per Semantic Scholar's own docs
- * (https://www.semanticscholar.org/product/api — "Do I need an API Key?").
+ * Auth: key optional via PROVIDER_KEY_SEMANTICSCHOLAR, sent as x-api-key;
+ * introductory limit 1 req/s per key (application form, 2026-11-04). A
+ * process-wide 1 req/s gate plus exponential backoff on 429 live in this
+ * adapter. Without a key the shared anonymous pool applies.
  * Data is a mix of licenses per-paper; API responses themselves carry no
  * blanket redistribution restriction for metadata (titles/abstracts/counts).
  * Docs: https://api.semanticscholar.org/api-docs/graph
  */
 export class SemanticScholarAdapter extends BaseAdapter {
-  constructor() {
+  private readonly apiKey: string;
+  private nextSlotAt = 0;
+
+  constructor(apiKey: string) {
     super({ provider: 'semanticscholar', baseUrl: S2_BASE });
+    this.apiKey = apiKey;
+  }
+
+  /** Reserve the next 1 req/s slot; throws RATE_LIMIT when the local queue is too long. */
+  private async acquireSlot(toolId: string): Promise<void> {
+    const now = Date.now();
+    const startAt = Math.max(now, this.nextSlotAt);
+    const wait = startAt - now;
+    if (wait > S2_MAX_QUEUE_WAIT_MS) {
+      throw {
+        code: ProviderErrorCode.RATE_LIMIT,
+        httpStatus: 429,
+        retryAfter: Math.ceil(wait / 1000),
+        message: 'semanticscholar local 1 req/s queue is full',
+        provider: this.provider,
+        toolId,
+        durationMs: 0,
+      };
+    }
+    this.nextSlotAt = startAt + S2_MIN_INTERVAL_MS;
+    if (wait > 0) await sleep(wait);
+  }
+
+  override async call(req: ProviderRequest): Promise<ProviderRawResponse> {
+    for (let attempt = 0; ; attempt++) {
+      await this.acquireSlot(req.toolId);
+      try {
+        return await super.call(req);
+      } catch (e) {
+        const code = (e as { code?: unknown } | null)?.code;
+        if (code !== ProviderErrorCode.RATE_LIMIT || attempt >= S2_RATE_LIMIT_RETRIES) throw e;
+        await sleep(S2_BACKOFF_BASE_MS * 2 ** attempt);
+      }
+    }
   }
 
   protected buildRequest(req: ProviderRequest): {
@@ -46,6 +93,7 @@ export class SemanticScholarAdapter extends BaseAdapter {
   } {
     const params = req.params as Record<string, unknown>;
     const headers: Record<string, string> = { Accept: 'application/json' };
+    if (this.apiKey.length > 0) headers['x-api-key'] = this.apiKey;
 
     switch (req.toolId) {
       case 'semanticscholar.papers_search': {

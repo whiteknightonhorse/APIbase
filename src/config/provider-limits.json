@@ -4697,9 +4697,20 @@
     "free_limit": 0,
     "reset_period": "none",
     "docs_url": "https://www.semanticscholar.org/product/api",
-    "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' \u2014 a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared.",
+    "limit_proof": "No authentication or API key required for public endpoints. Docs (2026-09-03, 'Do I need an API Key?' section): 'Most Semantic Scholar endpoints are available to the public without authentication, but they are rate-limited to 1000 requests per second shared among all unauthenticated users' \u2014 a shared global pool, not a per-caller quota; observed live 429 with a shared-pool message during testing, confirming the throttle is real and shared. 2026-11-04 (S2-KEY-1104): a per-key API key is in use (x-api-key), introductory limit 1 request/second per the application form; keyless calls remain possible on the shared anonymous pool.",
     "probe": {
+      "url": "https://api.semanticscholar.org/graph/v1/paper/search?query=test&limit=1",
+      "auth_env": "PROVIDER_KEY_SEMANTICSCHOLAR",
+      "auth_header": "x-api-key",
+      "auth_optional": true,
+      "expect_status": [200],
       "timeout_ms": 10000
+    },
+    "key_expiry": {
+      "PROVIDER_KEY_SEMANTICSCHOLAR": {
+        "date": "unknown",
+        "source": "unknown"
+      }
     },
     "moderation_class": "data",
     "moderation_class_reviewed": true
