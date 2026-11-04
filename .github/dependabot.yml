@@ -42,6 +42,18 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "@prisma/client"
         update-types: ["version-update:semver-major"]
+      # node-cron 4 is a major on the worker scheduler; node-cron is jest.mock'ed in both worker tests,
+      # so CI never exercises it, and every money job (refund payout, stream settle) runs on it.
+      # Stay on 3.0.3 until a security advisory or a Node engine change forces the move (T-0703, 2026-11-04).
+      - dependency-name: "node-cron"
+        update-types: ["version-update:semver-major"]
+      # mppx 0.x minors are breaking on the MPP payment rail (0.16 attestation->identity, 0.17 identity nonce);
+      # they go through a money card (T-0566, T-0704). Patches still flow (T-0703, 2026-11-04).
+      - dependency-name: "mppx"
+        update-types: ["version-update:semver-minor"]
+      # viem >= 2.57.16 declares peerOptional mppx >= 0.17 (TESTER-CI-1104). Remove this entry in T-0704.
+      - dependency-name: "viem"
+        versions: [">=2.57.16"]
     groups:
       minor-and-patch:
         applies-to: version-updates
