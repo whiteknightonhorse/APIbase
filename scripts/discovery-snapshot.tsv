@@ -975,6 +975,8 @@ osv.query	osv	0.001
 p2pquake.quake_history	p2pquake	0.001
 p2pquake.recent_quakes	p2pquake	0.001
 p2pquake.tsunami_warnings	p2pquake	0.001
+paleoclimate.study_detail	paleoclimate	0.001
+paleoclimate.study_search	paleoclimate	0.002
 pdb.ligand	rcsb	0.001
 pdb.search	rcsb	0.001
 pdb.sequence	rcsb	0.001
