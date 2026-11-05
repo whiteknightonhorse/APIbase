@@ -1,5 +1,34 @@
 # Connect AI payment (human form)
 
-This page is a browser form: fill in the shop details, tick the box for the four documents and sign with a browser wallet. Smart-contract wallets (ERC-1271) are accepted.
+This page is a browser form: three steps, about five minutes, free. Smart-contract wallets (ERC-1271) are accepted.
+
+## Step 1. Your store
+
+Fill in six fields:
+
+- Shop name: shown to buyers and AI agents.
+- Website: your store's address, starting with https://
+- Contact email: never shown to buyers. We write only about your shop.
+- Category: what you mainly sell. Helps agents find you.
+- Country: where your business is registered.
+- Shop address: filled in from your shop name. Lowercase letters, numbers and dashes. Your page will be apibase.pro/m/<address>. If the address is taken, the form says so under the field; pick another one.
+
+## Step 2. Agreements
+
+Tick the box to accept the Merchant Agreement, Acceptable Use Policy, Data Processing Addendum and Refund Framework (each opens in a new tab; the versions are listed at /legal/index.json). You confirm this with a free wallet signature in step 3, no payment.
+
+## Step 3. Connect wallet
+
+Your wallet asks for 3 free signatures. No gas, no money leaves your wallet:
+
+1. Register your encryption key: lets only you read buyers' order details.
+2. Sign in: proves this wallet is yours.
+3. Accept the documents: records your agreement from step 2.
+
+Network: Base. Payouts go to this wallet in USDC (you can pick a different payout wallet in the form). If a signature is rejected, nothing is charged: press Try again and approve it in your wallet. No wallet yet? See /integrator/wallet.
+
+## When your store is connected
+
+The page shows your API key and your decryption key once. Shown once: save both now in a password manager; they cannot be shown again, and if you lose them you have to reconnect your store. Then work through the next steps: add your catalog, set your webhook, pay the $0.01 test order, and check your store at /integrator/check/<address>. The steps are described in /integrator/agent-guide.
 
 No wallet in the browser? Use your agent: see /integrator/agent-guide.

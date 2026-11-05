@@ -65,6 +65,24 @@ describe('connect page steps', () => {
     expect([...order].sort((x, y) => x - y)).toEqual(order);
   });
 
+  it('T-0711: carries the design copy, hints and signature explainer', () => {
+    for (const t of [
+      'Three steps, about five minutes. It costs nothing.',
+      'Shown once',
+      'free wallet signature',
+      '3 free signatures',
+      'Waiting for your wallet',
+      'Signature rejected',
+      'Wrong network',
+      'Your store is connected',
+      'Next steps',
+      'apibase.pro/m/',
+      'href="/legal/index.json"',
+    ])
+      expect(page).toContain(t);
+    expect(page).toContain('Registering through an AI agent or the API? See the');
+  });
+
   it('has the no-wallet block with both deep links and the copy link', () => {
     expect(page).toContain('https://metamask.app.link/dapp/apibase.pro/integrator/connect');
     expect(page).toContain(

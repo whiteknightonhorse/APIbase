@@ -3,3 +3,11 @@ apibase@prod:~$ cat /srv/apibase/integrator/connect | render
 # T-0534: published sentence now reads "Current versions and hashes: /legal/index.json (latest effective ...)" (LEGAL_LATEST_EFFECTIVE).
 Published on <ISO-DATE>; the hashes are in
 .
+# T-0711: connect page rebuilt from the operator's design (new lead, hints under fields, signature explainer); these baseline sentences are replaced.
+quick steps. No payment, no gas. Registering through an AI agent or the API? See the agent guide .
+(never
+buyers)
+(slug)
+You sign three short messages with
+prove it's yours — no payment, no gas.
+Continue

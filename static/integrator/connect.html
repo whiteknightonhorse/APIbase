@@ -1,27 +1,101 @@
 <div class="lp cn">
+<style>
+.ig .cn{max-width:560px;margin:0 auto}
+.ig .cn .cn-eye{margin:var(--s4) 0 var(--s2);font-family:var(--mono);font-size:var(--fs-caption);letter-spacing:.04em;color:var(--ink-3)}
+.ig .cn h1{font-size:clamp(32px,6vw,44px);margin:0 0 var(--s3)}
+.ig .cn h2{font-size:24px;margin:var(--s5) 0 var(--s2)}
+.ig .cn .lp-sub{font-size:18px}
+.ig .cn-bar li.done::before{content:"\2713\00a0";color:var(--accent)}
+.ig .cn-bar li.on{font-weight:700}
+.ig .cn .hint{display:block;margin:var(--s1) 0 0;font-size:var(--fs-small);color:var(--ink-3)}
+.ig .cn .err{min-height:0;margin-top:var(--s1)}
+.ig .cn .err:not(:empty)::before{content:"\26A0\00a0"}
+.ig .cn input.bad{border-color:var(--bad)}
+.ig .cn-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s4)}
+.ig .cn-pre{display:flex;align-items:center;margin-top:var(--s1);background:var(--bg);border:1px solid var(--line-2);border-radius:var(--r-ctl)}
+.ig .cn-pre:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,210,131,.25)}
+.ig .cn-pre i{padding-left:14px;font-style:normal;font-family:var(--mono);font-size:15px;color:var(--ink-3);white-space:nowrap}
+.ig .cn-pre input{margin:0;border:0;box-shadow:none!important;background:transparent;padding-left:2px}
+.ig .cn #pv{font-family:var(--mono);color:var(--accent);font-weight:400}
+.ig .cn-box{margin:var(--s4) 0;padding:var(--s4);border:1px solid var(--line-2);border-radius:var(--r-card)}
+.ig .cn-info{display:flex;gap:var(--s2);align-items:flex-start;margin:var(--s4) 0;color:var(--ink-2);font-size:var(--fs-small)}
+.ig .cn-sig{list-style:none;margin:var(--s4) 0;padding:0;border:1px solid var(--line-2);border-radius:var(--r-card)}
+.ig .cn-sig li{display:flex;gap:var(--s3);align-items:flex-start;margin:0;padding:var(--s3) var(--s4);border-top:1px solid var(--line)}
+.ig .cn-sig li:first-child{border-top:0}
+.ig .cn-sig li::before{content:attr(data-n);flex:none;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line-2);border-radius:50%;font-size:14px;color:var(--ink-2)}
+.ig .cn-sig li.now{background:var(--surf)}
+.ig .cn-sig li.now::before{border-color:var(--accent);color:var(--accent)}
+.ig .cn-sig li.done::before{content:"\2713";background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.ig .cn-sig li.rej::before{content:"\00d7";border-color:var(--bad);color:var(--bad)}
+.ig .cn-sig b{display:block}
+.ig .cn-sig span{font-size:var(--fs-small);color:var(--ink-3)}
+.ig .cn-cards{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin:var(--s4) 0}
+.ig .cn-cards div{padding:var(--s3) var(--s4);border:1px solid var(--line);border-radius:var(--r-card);background:var(--surf)}
+.ig .cn-cards small{display:block;color:var(--ink-3);font-size:var(--fs-caption)}
+.ig .cn-cards b::before{content:"\25CF\00a0";color:var(--accent)}
+.ig .cn-cards div+div b::before{content:""}
+.ig .cn-wait{margin:var(--s4) 0;padding:var(--s4);border:1px solid var(--accent);border-radius:var(--r-card)}
+.ig .cn-wait small{display:block;margin-top:var(--s1);color:var(--ink-3)}
+.ig .cn-error{border-color:var(--bad)}
+.ig .cn-error b{display:block;color:var(--bad)}
+.ig .cn-error small,.ig .cn-net small{display:block;margin:var(--s1) 0 var(--s3);color:var(--ink-2)}
+.ig .cn-net{margin:var(--s4) 0;padding:var(--s4);border:1px solid var(--warn);border-radius:var(--r-card)}
+.ig .cn-net b{display:block;color:var(--warn)}
+.ig .cn-nav{flex-direction:column;align-items:stretch;text-align:center}
+.ig .cn-nav .lp-cta{width:100%}
+.ig .cn-nav .cn-ghost{border:0;min-height:44px;order:2;background:transparent}
+.ig .cn-nav .cn-ghost[hidden]{display:none!important}
+.ig .cn-foot{margin:var(--s6) 0 0;text-align:center;font-size:var(--fs-small);color:var(--ink-3)}
+.ig .cn-ok{display:flex;width:56px;height:56px;margin:var(--s4) 0;align-items:center;justify-content:center;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:30px;font-weight:700}
+.ig .cn-warnbox{margin:var(--s4) 0;padding:var(--s4);border:1px solid var(--warn);border-radius:var(--r-card)}
+.ig .cn-warnbox b{display:block;color:var(--warn)}
+.ig .cn-key{display:flex;gap:var(--s2);align-items:center;margin-top:var(--s1);padding:var(--s2);border:1px solid var(--line-2);border-radius:var(--r-ctl);background:var(--bg)}
+.ig .cn-key code{flex:1;min-width:0;font-family:var(--mono);font-size:14px;overflow-wrap:anywhere;word-break:break-all;max-height:6.5em;overflow:auto}
+.ig .cn-key .lp-cta{min-height:40px;padding:0 16px}
+.ig #out{white-space:normal;overflow-wrap:normal}
+.ig .cn-todo{list-style:none;margin:var(--s3) 0;padding:0;border:1px solid var(--line-2);border-radius:var(--r-card)}
+.ig .cn-todo li{display:flex;gap:var(--s3);margin:0;padding:var(--s3) var(--s4);border-top:1px solid var(--line)}
+.ig .cn-todo li:first-child{border-top:0}
+.ig .cn-todo li::before{content:"";flex:none;width:18px;height:18px;margin-top:3px;border:1px solid var(--line-2);border-radius:4px}
+.ig .cn-todo a{text-decoration:underline;font-weight:650}
+.ig .cn-todo small{display:block;color:var(--ink-3)}
+@media (max-width:600px){.ig .cn-row,.ig .cn-cards{grid-template-columns:1fr}}
+</style>
+<div id="hd">
+<p class="cn-eye">INTEGRATOR · CONNECT</p>
 <h1>Connect your store</h1>
-<p class="lp-sub">Three quick steps. No payment, no gas. Registering through an AI agent or the API? See the <a href="/integrator/agent-guide">agent guide</a>.</p>
+<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>
+</div>
 <ol class="cn-bar" id="bar"><li class="on">1 Your store</li><li>2 Agreements</li><li>3 Connect wallet</li></ol>
 <form id="f" novalidate>
 <div class="cn-step" id="s1">
 <h2>Your store</h2>
-<label>Shop name<input name="name" autocomplete="organization" placeholder="My Shop"></label><small class="err" data-for="name"></small>
-<label>Website<input name="site_url" type="url" inputmode="url" autocomplete="url" placeholder="https://my-shop.example"></label><small class="err" data-for="site_url"></small>
-<label>Contact email (never shown to buyers)<input name="contact_email" type="email" autocomplete="email" placeholder="you@my-shop.example"></label><small class="err" data-for="contact_email"></small>
-<label>Category<select name="category">{{CATEGORY_OPTIONS}}</select></label>
-<label>Country<select name="country" id="country"></select></label><small class="err" data-for="country"></small>
-<label>Shop address (slug)<input name="slug" autocapitalize="none" placeholder="my-shop"></label><small class="err" data-for="slug"></small>
-<p class="muted">Your page: apibase.pro/m/<b id="pv">my-shop</b></p>
+<label>Shop name<input name="name" autocomplete="organization" placeholder="Northside Kicks"></label><small class="hint">Shown to buyers and AI agents.</small><small class="err" data-for="name"></small>
+<label>Website<input name="site_url" type="url" inputmode="url" autocomplete="url" placeholder="https://northsidekicks.com"></label><small class="hint">Your store's address, starting with https://</small><small class="err" data-for="site_url"></small>
+<label>Contact email<input name="contact_email" type="email" autocomplete="email" placeholder="you@northsidekicks.com"></label><small class="hint">Never shown to buyers. We write only about your shop.</small><small class="err" data-for="contact_email"></small>
+<div class="cn-row">
+<div><label>Category<select name="category">{{CATEGORY_OPTIONS}}</select></label><small class="hint">What you mainly sell. Helps agents find you.</small></div>
+<div><label>Country<select name="country" id="country"></select></label><small class="hint">Where your business is registered.</small><small class="err" data-for="country"></small></div>
+</div>
+<label>Shop address<span class="cn-pre"><i>apibase.pro/m/</i><input name="slug" autocapitalize="none" placeholder="my-shop"></span></label><small class="hint">Filled in from your shop name. Lowercase letters, numbers and dashes.</small><small class="err" data-for="slug"></small>
+<p class="hint">Your page: apibase.pro/m/<b id="pv">my-shop</b></p>
 </div>
 <div class="cn-step" id="s2" hidden>
 <h2>Agreements</h2>
-<label class="cn-check"><input type="checkbox" name="accept"> <span>I have read and accept the <a href="/legal/merchant-agreement" target="_blank" rel="noopener">Merchant Agreement</a>, <a href="/legal/aup" target="_blank" rel="noopener">Acceptable Use Policy</a>, <a href="/legal/dpa" target="_blank" rel="noopener">Data Processing Addendum</a> and <a href="/legal/refund-framework" target="_blank" rel="noopener">Refund Framework</a></span></label><small class="err" data-for="accept"></small>
-<details><summary>Document versions</summary><pre id="docs">loading /legal/index.json ...</pre></details>
+<div class="cn-box"><label class="cn-check"><input type="checkbox" name="accept"> <span>I have read and accept the <a href="/legal/merchant-agreement" target="_blank" rel="noopener">Merchant Agreement</a>, <a href="/legal/aup" target="_blank" rel="noopener">Acceptable Use Policy</a>, <a href="/legal/dpa" target="_blank" rel="noopener">Data Processing Addendum</a> and <a href="/legal/refund-framework" target="_blank" rel="noopener">Refund Framework</a>.<small class="hint">Each document opens in a new tab.</small></span></label></div><small class="err" data-for="accept"></small>
+<p class="cn-info"><span aria-hidden="true">ⓘ</span><span>You confirm this with a free wallet signature in step 3 — no payment.</span></p>
+<details><summary>Document versions</summary><p><a href="/legal/index.json">/legal/index.json</a></p><pre id="docs">loading /legal/index.json ...</pre></details>
 <p class="muted">{{LEGAL_STATUS_HTML}}</p>
 </div>
 <div class="cn-step" id="s3" hidden>
 <h2>Connect wallet</h2>
-<p>You sign three short messages with your wallet to prove it's yours — no payment, no gas.</p>
+<p>Your wallet will ask for <b>3 free signatures</b>. No gas, no money leaves your wallet.</p>
+<ol class="cn-sig" id="sig">
+<li data-n="1"><div><b>Register your encryption key</b><span>Lets only you read buyers' order details.</span></div></li>
+<li data-n="2"><div><b>Sign in</b><span>Proves this wallet is yours.</span></div></li>
+<li data-n="3"><div><b>Accept the documents</b><span>Records your agreement from step 2.</span></div></li>
+</ol>
+<div class="cn-cards"><div><small>Network</small><b>Base</b></div><div><small>Payouts</small><b>USDC to this wallet</b></div></div>
 <div id="nw" hidden class="cn-card">
 <h3>Open this page in your wallet app</h3>
 <p class="muted">This browser has no wallet. If this page reloads inside the wallet app, your answers are kept.</p>
@@ -35,19 +109,21 @@
 <label>Payout wallet on Base (empty = the signing wallet)<input name="payout_wallet_base" placeholder="0x..."></label>
 <label>Payout wallet on Tempo (empty = the signing wallet)<input name="payout_wallet_tempo" placeholder="0x..."></label>
 </details>
-<div id="er" class="cn-error" hidden></div>
+<div id="wn" hidden class="cn-net"><b>⚠ Wrong network</b><small id="wnt"></small></div>
+<div id="wt" hidden class="cn-wait"><b>Waiting for your wallet — signature <span id="wtn">1</span> of 3</b><small>Check your wallet — the request may be in another window or on your phone.</small></div>
+<div id="er" class="cn-box cn-error" hidden></div>
+<p class="hint" id="wh">Your wallet app or browser extension will open. <a href="/integrator/wallet">Don't have a wallet? Get one in 2 minutes →</a></p>
 </div>
-<p class="cn-nav"><button type="button" id="bk" class="cn-ghost" hidden>Back</button> <button type="button" id="nx" class="lp-cta">Continue</button></p>
+<p class="cn-nav"><button type="button" id="nx" class="lp-cta">Continue</button> <button type="button" id="bk" class="cn-ghost" hidden>← Back</button></p>
 </form>
 <div id="out" hidden></div>
+<p class="cn-foot" id="ft">Registering through an AI agent or the API? See the <a href="/integrator/agent-guide">agent guide</a></p>
 <script>
 const $ = (id) => document.getElementById(id), f = $('f'), F = f.elements, S = ['s1', 's2', 's3'], T = (n, p) => window.apibaseTrack && apibaseTrack(n, p);
 const hex = (m) => '0x' + [...new TextEncoder().encode(m)].map((b) => b.toString(16).padStart(2, '0')).join('');
 const b64 = (b) => btoa(String.fromCharCode(...new Uint8Array(b)));
 const call = async (u, method, body) => {
-  const r = await fetch(u, { method, headers: { 'content-type': 'application/json' }, body: body && JSON.stringify(body) });
-  const d = await r.json(); if (!r.ok) throw new Error((d.error_code || r.status) + ': ' + (d.message || ''));
-  return d;
+  const r = await fetch(u, { method, headers: { 'content-type': 'application/json' }, body: body && JSON.stringify(body) }); const d = await r.json(); if (!r.ok) throw new Error((d.error_code || r.status) + ': ' + (d.message || '')); return d;
 };
 const sign = (a, m) => ethereum.request({ method: 'personal_sign', params: [hex(m), a] });
 const nonce = (a, p) => call('/api/v1/shop/auth/nonce?wallet=' + a + '&purpose=' + p, 'GET');
@@ -56,12 +132,8 @@ const CC = 'AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO BR
 const dn = window.Intl && Intl.DisplayNames ? new Intl.DisplayNames(['en'], { type: 'region' }) : null;
 CC.forEach((c) => { const o = new Option(c + (dn ? ' — ' + dn.of(c) : ''), c); F.country.add(o); }); F.country.value = 'US';
 const V = {
-  name: (v) => v.trim() ? '' : 'Enter your shop name.',
-  site_url: (v) => /^https?:\/\/[^\s.]+\.\S+$/i.test(v.trim()) ? '' : 'Enter the full website address, starting with http:// or https://',
-  contact_email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.',
-  slug: (v) => /^[a-z0-9-]{3,40}$/.test(v) ? '' : 'Use 3-40 characters: lowercase letters, digits and dashes.',
-  country: (v) => /^[A-Z]{2}$/.test(v) ? '' : 'Choose a country.',
-  accept: () => F.accept.checked ? '' : 'Tick the box to accept the agreements.'
+  name: (v) => v.trim() ? '' : 'Enter your shop name.', site_url: (v) => /^https?:\/\/[^\s.]+\.\S+$/i.test(v.trim()) ? '' : 'Enter the full website address, starting with http:// or https://', contact_email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.',
+  slug: (v) => /^[a-z0-9-]{3,40}$/.test(v) ? '' : 'Use 3-40 characters: lowercase letters, digits and dashes.', country: (v) => /^[A-Z]{2}$/.test(v) ? '' : 'Choose a country.', accept: () => F.accept.checked ? '' : 'Tick the box to accept the agreements.'
 };
 const chk = (n, show) => { const m = V[n](F[n].type === 'checkbox' ? '' : F[n].value); if (show) f.querySelector('[data-for=' + n + ']').textContent = m; return !m; };
 const STEP = [['name', 'site_url', 'contact_email', 'country', 'slug'], ['accept'], []];
@@ -70,39 +142,56 @@ const ok = (i, show) => STEP[i].map((n) => chk(n, show)).every(Boolean);
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 const show = (i) => {
   cur = i; S.forEach((s, j) => { $(s).hidden = j !== i; }); [...$('bar').children].forEach((li, j) => li.className = j === i ? 'on' : j < i ? 'done' : '');
-  $('bk').hidden = !i; $('nx').textContent = i === 2 ? 'Connect wallet and finish' : 'Continue'; $('nx').hidden = i === 2 && nw; $('nw').hidden = !(i === 2 && nw);
-  $('nx').classList.toggle('off', i < 2 && !ok(i, false)); $('er').hidden = true;
+  $('bk').hidden = !i; $('nx').textContent = i === 2 ? 'Connect wallet' : 'Continue'; $('nx').hidden = i === 2 && nw; $('nw').hidden = !(i === 2 && nw); $('nx').classList.toggle('off', i < 2 && !ok(i, false)); $('er').hidden = true; $('wt').hidden = true; $('wn').hidden = true; F.slug.classList.remove('bad');
 };
 const save = () => { try { sessionStorage.setItem('apibase_connect', JSON.stringify(Object.fromEntries(['name', 'site_url', 'contact_email', 'category', 'country', 'slug'].map((n) => [n, F[n].value])))); } catch (e) {} };
 try { const d = JSON.parse(sessionStorage.getItem('apibase_connect') || 'null'); if (d) { for (const n in d) if (F[n] && typeof d[n] === 'string') F[n].value = d[n]; edited = !!F.slug.value; } } catch (e) {}
 const pv = () => { $('pv').textContent = F.slug.value || 'my-shop'; $('nx').classList.toggle('off', cur < 2 && !ok(cur, false)); save(); };
 F.name.addEventListener('input', () => { if (!edited) F.slug.value = slugify(F.name.value); pv(); });
-F.slug.addEventListener('input', () => { edited = true; pv(); });
+F.slug.addEventListener('input', () => { edited = true; F.slug.classList.remove('bad'); pv(); });
 f.addEventListener('input', pv); f.addEventListener('change', pv);
 f.addEventListener('focusout', (e) => { if (e.target.name in V) chk(e.target.name, true); });
 f.addEventListener('submit', (e) => e.preventDefault());
 document.addEventListener('click', (e) => { const c = e.target.closest && e.target.closest('[data-copy]'); if (c) { try { navigator.clipboard.writeText(c.dataset.copy).then(() => { c.textContent = 'Copied'; }); } catch (x) {} } });
 $('bk').onclick = () => show(cur - 1);
 const done = async (r, slug, k) => {
-  const box = (t, v) => { const d = document.createElement('div'), p = document.createElement('pre'), b = document.createElement('button'); d.className = 'cn-card'; d.append(Object.assign(document.createElement('h3'), { textContent: t })); p.textContent = v; b.type = 'button'; b.className = 'cn-ghost'; b.textContent = 'Copy'; b.dataset.copy = v; d.append(p, b); return d; };
-  const a = Object.assign(document.createElement('a'), { className: 'lp-cta', href: '/integrator/check/' + slug, textContent: 'Check your store' }), w = document.createElement('p');
-  w.className = 'cn-warn'; w.textContent = 'Shown once — save both now (password manager).';
-  $('out').replaceChildren(Object.assign(document.createElement('h2'), { textContent: 'Your store is connected' }), a, w, box('API key', r.api_key), box('Decryption key', b64(await crypto.subtle.exportKey('pkcs8', k.privateKey))));
-  f.hidden = true; $('bar').hidden = true; $('out').hidden = false; try { sessionStorage.removeItem('apibase_connect'); } catch (e) {} T('sign_up', { method: 'wallet' });
+  const key = (t, v, h) => { const d = document.createElement('div'), c = el('div', 'cn-key'), b = el('button', 'lp-cta', 'Copy'); b.type = 'button'; b.dataset.copy = v; c.append(el('code', '', v), b); d.append(el('label', '', t), c, el('small', 'hint', h)); return d; };
+  const td = (u, t, x) => { const li = document.createElement('li'), a = el('a', '', t), d = document.createElement('div'); a.href = u; d.append(a, el('small', '', x)); li.append(d); return li; };
+  const pg = el('p', '', 'Page: '), pa = el('a', '', 'apibase.pro/m/' + slug), W = el('div', 'cn-warnbox'), G = '/integrator/agent-guide#';
+  pa.href = '/m/' + slug; pa.style.fontFamily = 'var(--mono)'; pg.append(pa);
+  W.append(el('b', '', 'Shown once — save both now in a password manager'), el('small', 'hint', "We can't show these keys again. If you lose them you'll have to reconnect your store."));
+  const todo = el('ul', 'cn-todo');
+  todo.append(td(G + 'step-4-catalog_upsert', 'Add your catalog', 'List what you sell so agents can order it.'), td(G + 'step-5-webhook_set', 'Set your webhook', 'Where we send new orders.'), td(G + 'step-7-pay-test-sku', 'Pay the $0.01 test order', 'Checks that payments reach your wallet.'), td('/integrator/check/' + slug, 'Check your store', 'apibase.pro/integrator/check/' + slug));
+  $('out').replaceChildren(el('div', 'cn-ok', '✓'), el('h1', '', 'Your store is connected'), pg, W, key('API key', r.api_key, 'Your shop uses it to talk to APIbase.'), key('Decryption key', b64(await crypto.subtle.exportKey('pkcs8', k.privateKey)), "Opens buyers' encrypted order details. Never share it."), el('h2', '', 'Next steps'), todo);
+  f.hidden = true; $('bar').hidden = true; $('hd').hidden = true; $('ft').hidden = true; $('out').hidden = false; try { sessionStorage.removeItem('apibase_connect'); } catch (e) {} T('sign_up', { method: 'wallet' });
+};
+let sg = 0;
+const SIGN = ['', 'Register your encryption key', 'Sign in', 'Accept the documents'];
+const mark = (n, c) => [...$('sig').children].forEach((li, j) => { li.className = j + 1 < n ? 'done' : j + 1 === n ? c : ''; });
+const P = (n) => { sg = n; mark(n, 'now'); $('wtn').textContent = n; $('wt').hidden = false; $('er').hidden = true; };
+const el = (t, c, x) => Object.assign(document.createElement(t), { className: c || '', textContent: x || '' });
+const BASE = '0x2105', NET = { '0x1': 'Ethereum', '0xa': 'Optimism', '0x89': 'Polygon', '0xa4b1': 'Arbitrum', '0x38': 'BNB Chain' };
+const net = () => { const c = window.ethereum && ethereum.chainId; $('wn').hidden = !c || c === BASE; if (c && c !== BASE) $('wnt').textContent = 'Your wallet is on ' + (NET[c] || 'another network') + '. Switch it to Base — switching is free.'; };
+const fail = (err) => {
+  const rej = err && (err.code === 4001 || err.code === 'ACTION_REJECTED' || /reject|denied/i.test(err.message || '')), er = $('er'), nm = SIGN[sg] || '';
+  $('wt').hidden = true; if (/slug_taken/i.test(err.message)) { show(0); F.slug.classList.add('bad'); f.querySelector('[data-for=slug]').textContent = 'This address is taken — try ' + F.slug.value + '-shop'; return; } if (rej) mark(sg, 'rej');
+  const t = el('b', '', rej ? '⊗ Signature rejected' : 'Something went wrong'), m = el('small', '', rej ? 'Signature ' + sg + ' of 3 (' + nm + ') was not approved. Nothing was charged. Press Try again and approve it in your wallet.' : err.message), b = el('button', 'lp-cta', 'Try again');
+  b.type = 'button'; b.onclick = () => { er.hidden = true; mark(0, ''); if (sg < 3) $('nx').click(); };
+  er.replaceChildren(t, m, b); er.hidden = false;
 };
 const run = async () => {
   const x = Object.fromEntries(new FormData(f)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0];
-  const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
+  P(1); const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
   const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
-  const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
+  P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
   const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
-  const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
+  P(3); const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
   await done(await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' }), x.slug, k);
 };
 $('nx').onclick = async () => {
   if (cur < 2) { if (!ok(cur, true)) return; T('connect_step', { step: cur + 2 }); return show(cur + 1); }
-  const bt = $('nx'); bt.disabled = true; $('er').hidden = true;
-  try { await run(); } catch (err) { $('er').replaceChildren(document.createTextNode(err.message + ' '), Object.assign(document.createElement('button'), { type: 'button', className: 'cn-ghost', textContent: 'Try again', onclick: () => { $('er').hidden = true; } })); $('er').hidden = false; }
+  const bt = $('nx'); bt.disabled = true; $('er').hidden = true; $('wt').hidden = true; net();
+  try { await run(); } catch (err) { fail(err); }
   bt.disabled = false;
 };
 pv(); show(0);
