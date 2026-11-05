@@ -36,7 +36,7 @@ HOME_FILES = ["static/index.html", "static/index.md"]
 HOME_FEE_RE = re.compile(r"<!--fee-->.*?<!--/fee-->")
 HOME_MERCH_RE = re.compile(r"<!--merchants-->.*?<!--/merchants-->", re.S)
 SENTENCE_RE = re.compile(r"Integrator: [^<\n]*? invoiced(?: otherwise)?\.")
-MERCHANTS_RE = re.compile(r"Merchants connected: [0-9]+\.")
+MERCHANTS_RE = re.compile(r"Merchants connected: [0-9]+\.(?: \(the public /shops index lists only shops with a verified domain\)\.?)?")
 FEE_STATE_RE = re.compile(r"<!--fee-state-->.*?<!--/fee-state-->")
 
 
@@ -66,7 +66,7 @@ def fee_state(f):
 
 
 def merchants_line(f):
-    return "Merchants connected: %d." % f["merchants"]
+    return "Merchants connected: %d. (the public /shops index lists only shops with a verified domain)." % f["merchants"]
 
 
 def home_fee(f):

@@ -154,7 +154,7 @@ gen_travel_table() {
 
 gen_ai_agents_2026() {
   local descs=(
-    "Universal MCP gateway — 200+ tools across flights, stocks, news, maps, legal, OCR, image gen, email, SMS. x402 USDC micropayments on Base. One endpoint for any AI agent."
+    "Universal MCP gateway — 200+ tools across flights, stocks, news, maps, legal, OCR, image gen, email, SMS. Pay-per-call in USDC via x402 on Base (MCP and REST) or MPP on Tempo (REST). One endpoint for any AI agent."
     "MCP API hub with 200+ tools (Amadeus, Finnhub, Serper, Tavily, NASA, USGS, Twilio). Pay-per-call via x402, no subscriptions. Production-ready, open source."
     "Single MCP endpoint giving AI agents access to 200+ real-world APIs — travel, finance, search, legal, real estate, and more. x402 micropayments, auto-registration."
   )

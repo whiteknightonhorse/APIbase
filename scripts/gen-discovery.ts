@@ -438,7 +438,7 @@ async function main(): Promise<void> {
       },
       () => ({
         name: 'APIbase',
-        description: `Unified MCP gateway to ${TOOLS} API tools from ${PROV} providers across ${CATS} categories. Pay-per-call via x402 USDC micropayments on Base.`,
+        description: `Unified MCP gateway to ${TOOLS} API tools from ${PROV} providers across ${CATS} categories. Pay-per-call in USDC via x402 on Base (MCP and REST) or MPP on Tempo (REST).`,
         url: 'https://apibase.pro',
         version: PACKAGE_VERSION,
         protocol: 'MCP',

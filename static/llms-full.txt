@@ -62,7 +62,7 @@ news, podcasts, search, social, space, travel, weather, world
 - A replayed MPP credential gets 403 credential_replayed
 - MPP refunds owed are reconciled from the chain every 15 minutes, not only from our own writer.
 - Upstream-paid tools: APIbase pays the provider's own x402/MPP 402 per call; you pay only APIbase's fixed price, x402 is settled only when the result is delivered (MPP: refund owed otherwise); x402 or MPP payment only. Rules: https://github.com/whiteknightonhorse/APIbase/blob/main/docs/payments.md#upstream-paid-providers
-- Integrator (AI payment for merchants, https://apibase.pro/integrator): Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise. Merchants connected: 8.
+- Integrator (AI payment for merchants, https://apibase.pro/integrator): Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise. Merchants connected: 8. (the public /shops index lists only shops with a verified domain).
 
 ## Agent Integration Guide
 1. Match price to wallet — fetch only tools you can afford:
