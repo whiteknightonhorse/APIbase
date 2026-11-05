@@ -1062,7 +1062,11 @@
     "wger.exercise_search": "healthy",
     "wger.ingredients": "healthy",
     "who.countries": "healthy",
+    "who.country_health": "healthy",
     "who.data": "healthy",
+    "who.dimension_values": "healthy",
+    "who.indicator_data": "healthy",
+    "who.indicator_search": "healthy",
     "who.indicators": "healthy",
     "whois.availability": "healthy",
     "whois.dns_lookup": "healthy",
@@ -1196,7 +1200,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 397,
+  "providers_count": 398,
   "rails": [
     "x402",
     "mpp",
@@ -1230,7 +1234,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1347,
+      "count": 1351,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1244,6 +1248,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1375,
+  "tools_count": 1379,
   "version": "2.2.0"
 }
