@@ -174,13 +174,13 @@ const BASE = '0x2105', NET = { '0x1': 'Ethereum', '0xa': 'Optimism', '0x89': 'Po
 const net = () => { const c = window.ethereum && ethereum.chainId; $('wn').hidden = !c || c === BASE; if (c && c !== BASE) $('wnt').textContent = 'Your wallet is on ' + (NET[c] || 'another network') + '. Switch it to Base — switching is free.'; };
 const fail = (err) => {
   const rej = err && (err.code === 4001 || err.code === 'ACTION_REJECTED' || /reject|denied/i.test(err.message || '')), er = $('er'), nm = SIGN[sg] || '';
-  $('wt').hidden = true; if (/slug_taken/i.test(err.message)) { show(0); F.slug.classList.add('bad'); f.querySelector('[data-for=slug]').textContent = 'This address is taken — try ' + F.slug.value + '-shop'; return; } if (rej) mark(sg, 'rej');
-  const t = el('b', '', rej ? '⊗ Signature rejected' : 'Something went wrong'), m = el('small', '', rej ? 'Signature ' + sg + ' of 3 (' + nm + ') was not approved. Nothing was charged. Press Try again and approve it in your wallet.' : err.message), b = el('button', 'lp-cta', 'Try again');
+  $('wt').hidden = true; if (/slug_taken/i.test(err.message)) { show(0); F.slug.classList.add('bad'); f.querySelector('[data-for=slug]').textContent = 'This address is taken — try ' + F.slug.value + '-shop'; return; } if (rej && sg) mark(sg, 'rej');
+  const msg = sg === 0 ? 'Wallet connection was not approved. Nothing was charged. Press Try again and approve the connection in your wallet.' : sg === 3 ? 'Signature 3 of 3 (' + nm + ') was not approved. Your store is already registered; it only needs the documents accepted. Follow the accept-terms step in the agent guide: https://apibase.pro/integrator/agent-guide' : 'Signature ' + sg + ' of 3 (' + nm + ') was not approved. Nothing was charged. Press Try again and approve it in your wallet.', t = el('b', '', rej ? (sg === 0 ? '⊗ Wallet connection rejected' : '⊗ Signature rejected') : 'Something went wrong'), m = el('small', '', rej ? msg : err.message), b = el('button', 'lp-cta', 'Try again');
   b.type = 'button'; b.onclick = () => { er.hidden = true; mark(0, ''); if (sg < 3) $('nx').click(); };
   er.replaceChildren(t, m, b); er.hidden = false;
 };
 const run = async () => {
-  const x = Object.fromEntries(new FormData(f)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0];
+  sg = 0; const x = Object.fromEntries(new FormData(f)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0];
   P(1); const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
   const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
   P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
