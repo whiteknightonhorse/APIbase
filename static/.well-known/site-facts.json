@@ -222,10 +222,6 @@
     "code.execute": "healthy",
     "code.languages": "healthy",
     "coingecko.get_market": "healthy",
-    "col.children": "healthy",
-    "col.detail": "healthy",
-    "col.search": "healthy",
-    "col.suggest": "healthy",
     "comtrade.availability": "healthy",
     "comtrade.metadata": "healthy",
     "comtrade.reporters": "healthy",
@@ -1197,7 +1193,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 397,
+  "providers_count": 396,
   "rails": [
     "x402",
     "mpp",
@@ -1231,7 +1227,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1348,
+      "count": 1344,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1245,6 +1241,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1376,
+  "tools_count": 1372,
   "version": "2.2.0"
 }
