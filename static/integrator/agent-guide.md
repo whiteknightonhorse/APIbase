@@ -46,6 +46,32 @@ Errors: `terms_not_accepted` (428), `merchant_unavailable` (410), `merchant_inac
 
 Call `PUT /api/v1/shop/merchants/me/webhooks` with `{url, events[]}` (MCP tool `shop.merchant.webhook_set`). The reply shows the `whsec_` signing secret once. Deliveries carry `X-APIbase-Signature: t=<unix>,v1=<hex>` where `v1` is HMAC-SHA256 of `t + "." + body` with that secret. Answer any 2xx within 10 seconds.
 
+### The `order.paid` delivery and the reply that delivers
+
+The body of every delivery is `{"id": "<outbox id>", "event": "order.paid", "created_at": "<ISO 8601>", "data": {...}}`. For `order.paid`, `data` has these fields:
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `order_id`, `quote_id`, `merchant_id` | string (UUID) | The order, its quote and your shop. |
+| `total_usd` | string | Order total in USD. |
+| `tx_hash` | string | The settlement transaction. |
+| `payer_address` | string | The wallet the USDC was debited from: the buyer's signing wallet (the x402 authorization `from` on Base, the MPP payer on Tempo), not the facilitator or relayer. |
+| `network` | string | `base` or `tempo`; a test network is named as such (for example `base-sepolia`, `tempo-testnet`). |
+| `livemode` | boolean | `true` for real money, `false` on a test network. |
+| `request_id` | string or null | The buyer's request id. |
+| `items` | array | `[{sku, quantity}]` from the quote. |
+| `subscription_id`, `period_no` | string, integer | Only for a subscription period. |
+| `pii` | array | Only when the buyer sent delivery data: `[{kind, kid, alg, ciphertext_b64, sha256}]`. |
+
+To fulfil the order in the same call, answer HTTP `200` (another 2xx never delivers) to `order.paid` with exactly one of these bodies:
+
+```json
+{"fulfillment": "<text, 1 byte to 16 KB>"}
+{"fulfillment": {"type": "url", "urls": ["https://example.com/a", "https://example.com/b"]}}
+```
+
+`urls` holds 1 to 20 absolute `https` URLs of up to 2 KB each, and `fulfillment` has no keys other than `type` and `urls`. The first valid answer moves the order `PAID -> CONFIRMED -> FULFILLED`. Any other body (an empty body, `{"fulfillment": {"type": "url", "urls": []}}`, an `http` URL, extra keys) leaves the order `PAID` and undelivered; the delivery itself still counts as answered if the status is 2xx, so confirm or ship the order with the merchant tools.
+
 Errors: `validation_failed` (422, for example a private address or a non-https URL), `merchant_unavailable` (410), `merchant_inactive` (410).
 
 ## Step 6. check

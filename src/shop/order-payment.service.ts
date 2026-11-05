@@ -65,6 +65,18 @@ export interface PaidInput {
 }
 
 /**
+ * T-0713: the network the payment settled on and whether it is real money. Base follows
+ * X402_NETWORK (`base` = live); Tempo follows MPP_TESTNET.
+ */
+export function paidNetwork(rail: string): { network: string; livemode: boolean } {
+  if (rail === 'tempo') {
+    const testnet = config.MPP_TESTNET === 'true';
+    return { network: testnet ? 'tempo-testnet' : 'tempo', livemode: !testnet };
+  }
+  return { network: config.X402_NETWORK, livemode: config.X402_NETWORK === 'base' };
+}
+
+/**
  * Receipt seen (settle with `transaction`, or the reconcile job): payment -> confirmed, order
  * PAYING|PAYMENT_FAILED -> PAID (§5.3 needs the confirmed row first), quote -> paid, the
  * reservation becomes a sale (UC-16), outbox `shop.order.paid`. One transaction; a no-op when the
@@ -195,6 +207,8 @@ export async function confirmPayment(deps: ShopDeps, p: PaidInput): Promise<bool
         merchant_id: o.merchant_id,
         total_usd: o.total_usd,
         tx_hash: p.tx_hash,
+        payer_address: p.payer,
+        ...paidNetwork(rail),
         request_id: p.request_id ?? null,
         items,
         ...(sub ? { subscription_id: sub.subscription_id, period_no: sub.period_no } : {}),
