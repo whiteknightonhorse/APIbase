@@ -554,6 +554,9 @@ global-health-covid.location_search	global-health-covid	0.001
 govuk.content	govuk	0.002
 govuk.organisations	govuk	0.001
 govuk.search	govuk	0.002
+gus-poland.data	gus-poland	0.002
+gus-poland.subjects	gus-poland	0.001
+gus-poland.variables	gus-poland	0.001
 gutendex.book	gutendex	0.001
 gutendex.by_author	gutendex	0.001
 gutendex.popular	gutendex	0.001
