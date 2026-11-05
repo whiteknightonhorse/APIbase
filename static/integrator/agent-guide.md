@@ -70,7 +70,7 @@ To fulfil the order in the same call, answer HTTP `200` (another 2xx never deliv
 {"fulfillment": {"type": "url", "urls": ["https://example.com/a", "https://example.com/b"]}}
 ```
 
-`urls` holds 1 to 20 absolute `https` URLs of up to 2 KB each, and `fulfillment` has no keys other than `type` and `urls`. The first valid answer moves the order `PAID -> CONFIRMED -> FULFILLED`. Any other body (an empty body, an empty `urls` list, an `http` URL, extra keys) leaves the order `PAID` and undelivered; the delivery itself still counts as answered if the status is 2xx, so confirm or ship the order with the merchant tools.
+`urls` holds 1 to 20 absolute `https` URLs of up to 2 KB each, and `fulfillment` has no keys other than `type` and `urls`. The first valid answer moves the order `PAID -> CONFIRMED -> FULFILLED`. Any other body (an empty body, an empty `urls` list, an `http` URL, extra keys) leaves the order `PAID` and undelivered; the delivery itself still counts as answered (see the delivery rules in [docs](/integrator/docs)), so confirm or ship the order with the merchant tools.
 
 Errors: `validation_failed` (422, for example a private address or a non-https URL), `merchant_unavailable` (410), `merchant_inactive` (410).
 
