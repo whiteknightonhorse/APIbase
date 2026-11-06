@@ -233,10 +233,6 @@ cocktail.search	cocktaildb	0.001
 code.execute	judge0	0.005
 code.languages	judge0	0.001
 coingecko.get_market	coingecko	0.001
-col.children	col	0.001
-col.detail	col	0.001
-col.search	col	0.001
-col.suggest	col	0.001
 comtrade.availability	comtrade	0.001
 comtrade.metadata	comtrade	0.001
 comtrade.reporters	comtrade	0.001
