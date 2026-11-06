@@ -917,6 +917,8 @@ openaire.search	openaire	0.002
 openalex.authors_search	openalex	0.001
 openalex.get_work	openalex	0.002
 openalex.works_search	openalex	0.002
+openbeautyfacts.barcode	openbeautyfacts	0.001
+openbeautyfacts.search	openbeautyfacts	0.001
 openbrewery.list	openbrewery	0.002
 openbrewery.random	openbrewery	0.001
 openbrewery.search	openbrewery	0.002

@@ -714,6 +714,8 @@
     "openalex.authors_search": "healthy",
     "openalex.get_work": "healthy",
     "openalex.works_search": "healthy",
+    "openbeautyfacts.barcode": "healthy",
+    "openbeautyfacts.search": "healthy",
     "openbrewery.list": "healthy",
     "openbrewery.random": "healthy",
     "openbrewery.search": "healthy",
@@ -1204,7 +1206,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 399,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1238,7 +1240,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1355,
+      "count": 1357,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1252,6 +1254,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1383,
+  "tools_count": 1385,
   "version": "2.2.0"
 }
