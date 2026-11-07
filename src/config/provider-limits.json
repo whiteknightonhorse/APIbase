@@ -725,7 +725,12 @@
       }
     },
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-11-07",
+      "task": "T-0715",
+      "reason": "operator decision 2026-11-07: upstream down since 2026-11-02 (Cloudflare 522), 0 paid calls; retire"
+    }
   },
   "igdb": {
     "display_name": "IGDB Video Games",
