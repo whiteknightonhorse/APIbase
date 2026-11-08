@@ -906,6 +906,10 @@ ons.stats.cpih	ons-uk-stats	0.001
 ons.stats.gdp	ons-uk-stats	0.001
 ons.stats.population	ons-uk-stats	0.002
 ons.stats.unemployment	ons-uk-stats	0.001
+open-canada.dataset_detail	open-canada	0.002
+open-canada.dataset_search	open-canada	0.002
+open-canada.organization_list	open-canada	0.001
+open-canada.subject_list	open-canada	0.001
 openaire.organization_search	openaire	0.002
 openaire.product_details	openaire	0.001
 openaire.project_search	openaire	0.002
