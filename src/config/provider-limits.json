@@ -135,7 +135,12 @@
       }
     },
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-11-08",
+      "task": "T-0716",
+      "reason": "operator decision 2026-11-08: RATE_LIMITED stuck since Sep-Oct, 0 paid calls; retire"
+    }
   },
   "finance": {
     "display_name": "Finance / Banking",
@@ -686,7 +691,12 @@
     "pricing_url": "https://api.data.gov/docs/developer-manual/",
     "limit_proof": "api.data.gov default: 1,000 requests/hour per API key (hourly-resetting)",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-11-08",
+      "task": "T-0716",
+      "reason": "operator decision 2026-11-08: RATE_LIMITED stuck since Sep-Oct, 0 paid calls; retire"
+    }
   },
   "jpl": {
     "display_name": "NASA JPL SSD",
@@ -1139,7 +1149,12 @@
     "docs_url": "https://calendarific.com/api-documentation",
     "limit_proof": "https://calendarific.com/pricing 2026-10-14: Free $0.00/Month, 500 Calls/month",
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-11-08",
+      "task": "T-0716",
+      "reason": "operator decision 2026-11-08: RATE_LIMITED stuck since Sep-Oct, 0 paid calls; retire"
+    }
   },
   "shortio": {
     "display_name": "Short.io URL Shortener",
