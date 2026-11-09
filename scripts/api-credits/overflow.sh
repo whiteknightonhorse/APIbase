@@ -9,7 +9,14 @@ API_OVERFLOW_LIMIT_RE='hit your session limit|weekly limit'
 api_key_assert_unset(){ [ -z "${ANTHROPIC_API_KEY:-}" ]; }
 
 # api_overflow_limit_text <answer-file> -> rc 0 iff the answer is real limit text.
-api_overflow_limit_text(){ [ -f "$1" ] && grep -qiE "$API_OVERFLOW_LIMIT_RE" "$1" 2>/dev/null; }
+# Same shape gate as the card-0590 review_outage: no verdict and <= 5 non-empty lines, so a full review that merely
+# mentions "weekly limit" is never taken for a limit hit.
+api_overflow_limit_text(){
+  [ -f "$1" ] || return 1
+  if declare -F review_verdict >/dev/null; then [ "$(review_verdict "$1")" = NONE ] || return 1; fi
+  [ "$(grep -cv '^[[:space:]]*$' "$1" 2>/dev/null)" -le 5 ] || return 1
+  grep -qiE "$API_OVERFLOW_LIMIT_RE" "$1" 2>/dev/null
+}
 
 # api_overflow_run <answer-file> <prompt-file> <model-id> <state-dir> <card-id> <today> <label>
 # Re-runs the identical prompt once per card through `api-call --lane overflow --max-turns 1`.

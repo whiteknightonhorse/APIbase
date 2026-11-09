@@ -2,6 +2,7 @@
 # API-CREDITS-1108/2 acceptance tests: Fable acceptance overflow + key-unset assertion. Fake api-call / fake claude; no network.
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+. /home/apibase/taskloop/lib/review-verdict.sh
 . "$ROOT/scripts/api-credits/overflow.sh"
 T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
 FAIL=0; ok(){ echo "PASS $1"; }; bad(){ echo "FAIL $1"; FAIL=1; }
@@ -41,6 +42,12 @@ grep -q 'weekly limit' "$T/ans" && ok "answer untouched on 75" || bad "answer ch
 echo "ACCEPT" > "$T/ans"; rm -f "$T/args"
 API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-3 "$TODAY" fable && bad "overflowed a normal answer" || ok "normal answer not overflowed"
 
+# 4b. full review that merely mentions "weekly limit" (verdict present): never overflowed, marker not consumed
+printf 'R1 [Noted] x - 0590 parks on weekly limit text\nfine\nACCEPT\n' > "$T/ans"; rm -f "$T/args"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-4 "$TODAY" fable && bad "overflowed a real verdict" || ok "real verdict mentioning weekly limit kept"
+[ -e "$STATE/T-4.overflow-used" ] && bad "once-marker consumed" || ok "once-marker not consumed"
+[ -e "$T/args" ] && bad "api-call ran on real verdict" || ok "no api-call on real verdict"
+
 # 5. ANTHROPIC_API_KEY set -> claude_print aborts the tick with the log line, no claude call
 cat > "$T/fn.sh" <<X
 log(){ echo "\$*" >> "$T/tick.log"; }
@@ -52,4 +59,19 @@ printf '#!/usr/bin/env bash\ntouch "%s/claude-ran"\n' "$T" > "$T/claude"; chmod 
 [ "$rc" != 0 ] && ok "tick aborted (rc=$rc)" || bad "not aborted"
 grep -q 'API key present in OAuth path — tick aborted' "$T/tick.log" && ok "tick.log line written" || bad "tick.log line"
 [ -e "$T/claude-ran" ] && bad "claude was called" || ok "no claude call"
+# 6. R5: the preflight ping path (no creds file, no preflight.ok -> UNKNOWN, no fallback -> haiku ping) is guarded by the same assertion
+cat > "$T/pf.sh" <<X
+log(){ echo "\$*" >> "$T/tick.log"; }
+HERE=/nonexistent; CLAUDE_BIN="$T/claude"; STATE="$T/pfstate"; mkdir -p "\$STATE"; AUTH_PREFLIGHT_CREDS="$T/nocreds"
+. /home/apibase/taskloop/lib/auth-preflight.sh
+$(grep -n 'T-0745 R5' -A1 /home/apibase/taskloop/taskloop.sh | sed -n 2p | sed 's/^[0-9]*-//')
+auth_preflight_gate "\$STATE"
+X
+rm -f "$T/claude-ran" "$T/tick.log"
+( . "$ROOT/scripts/api-credits/overflow.sh"; export ANTHROPIC_API_KEY=x; . "$T/pf.sh" ) >/dev/null 2>&1; rc=$?
+[ "$rc" != 0 ] && ok "preflight path aborted (rc=$rc)" || bad "preflight not aborted"
+grep -q 'API key present in OAuth path — tick aborted' "$T/tick.log" && ok "preflight tick.log line" || bad "preflight log line"
+[ -e "$T/claude-ran" ] && bad "ping ran claude" || ok "no ping claude call"
+rm -f "$T/tick.log"; ( . "$ROOT/scripts/api-credits/overflow.sh"; unset ANTHROPIC_API_KEY; . "$T/pf.sh" ) >/dev/null 2>&1
+[ -e "$T/claude-ran" ] && ok "control: ping reachable without key" || bad "control: ping path not reached"
 exit $FAIL

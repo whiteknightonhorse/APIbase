@@ -107,14 +107,16 @@ are described under Batch lane. The ledger never holds the key, prompt text or a
 
 ## overflow plug-in: ~/taskloop/taskloop.sh:claude_print
 
-`claude_print` is the single function that runs `claude --print` (executor, review, dispute and repair calls); the per-model counter
+`claude_print` is the single function that runs `claude --print` in the tick (executor, review, dispute and repair calls) apart from the
+auth-preflight ping (`auth_preflight_gate`, haiku, only on EXPIRED or an hour-old UNKNOWN), which `taskloop.sh` guards with the same assertion
+just before the gate; the per-model counter
 `state/passes-<date>.<label>` is written by `count_model_call` right after it. The logic lives in `scripts/api-credits/overflow.sh`,
 sourced by `taskloop.sh`.
 
-- Key-unset assertion: before every `claude --print`, `claude_print` checks `ANTHROPIC_API_KEY` is unset. If it is set, no claude
+- Key-unset assertion: before every `claude --print` of the tick (the preflight ping and `claude_print`), `taskloop.sh` checks `ANTHROPIC_API_KEY` is unset. If it is set, no claude
   call is made, tick.log gets `API key present in OAuth path — tick aborted` and the tick exits.
-- Fable acceptance overflow: right after the acceptance review call, when the answer matches `hit your session limit` or
-  `weekly limit`, `api_overflow_run` re-runs the identical prompt once per card through
+- Fable acceptance overflow: right after the acceptance review call, when the answer is a limit hit (no verdict, at most 5 non-empty lines, matching `hit your session limit` or
+  `weekly limit`; a full review that merely mentions the phrase is never overflowed), `api_overflow_run` re-runs the identical prompt once per card through
   `api-call --lane overflow --model claude-fable-5-1 --max-turns 1`. On success the answer is the acceptance answer and
   `state/passes-<date>.fable.api` is incremented; on exit 75 or any failure nothing changes and the card-0590 outage branch
   (host-wide marker, park) runs as before. Sonnet work passes and dispatcher calls are never overflowed.
