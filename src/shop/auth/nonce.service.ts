@@ -12,12 +12,7 @@ export interface NonceRedis {
 }
 
 export type SignPurpose =
-  | 'register'
-  | 'accept_terms'
-  | 'rotate_key'
-  | 'payout_change'
-  | 'reissue'
-  | 'owner';
+  'register' | 'accept_terms' | 'rotate_key' | 'payout_change' | 'reissue' | 'owner' | 'grant';
 
 export const NONCE_TTL_S = 300;
 const NONCE_PREFIX = 'shop:nonce:';
@@ -45,6 +40,62 @@ export function buildSignInMessage(p: {
 
 const MESSAGE_RE =
   /^apibase\.pro wants you to sign in with your wallet\.\nAddress: (\S+)\nPurpose: (\w+)\nNonce: ([0-9a-f]+)\nIssued At: (\S+)$/;
+
+/** T-0740: the exact text a merchant wallet signs to grant a partner (purpose grant). */
+export function grantMessage(p: {
+  partnerName: string;
+  partnerId: string;
+  wallet: string;
+  nonce: string;
+  issuedAt: string;
+}): string {
+  return (
+    `apibase.pro: allow ${p.partnerName} to act for your store\n` +
+    `Address: ${p.wallet}\n` +
+    `Partner: ${p.partnerId}\n` +
+    `Allows: upload and import your catalog; register its own webhook endpoint and receive your order events\n` +
+    `Does not allow: payouts, keys, orders, refunds\n` +
+    `Revoke any time: DELETE /api/v1/shop/merchants/me/grants/${p.partnerId}\n` +
+    `Nonce: ${p.nonce}\n` +
+    `Issued At: ${p.issuedAt}`
+  );
+}
+
+const GRANT_RE =
+  /^apibase\.pro: allow ([^\n]{1,80}) to act for your store\nAddress: (0x[0-9a-fA-F]{40})\nPartner: ([a-z0-9-]{2,40})\nAllows: upload and import your catalog; register its own webhook endpoint and receive your order events\nDoes not allow: payouts, keys, orders, refunds\nRevoke any time: DELETE \/api\/v1\/shop\/merchants\/me\/grants\/([a-z0-9-]{2,40})\nNonce: ([0-9a-f]+)\nIssued At: (\S+)$/;
+
+/**
+ * T-0740: verify the grant message. The text must parse exactly, name `partner` (both the Partner
+ * line and the revoke route), carry the partner's registry name and `expectedAddress`; then the
+ * shared nonce/freshness/signature tail. Any mismatch -> 401.
+ */
+export async function verifyGrantSignature(
+  args: {
+    message: string;
+    signature: string;
+    expectedAddress: string;
+    partner: { id: string; name: string };
+  },
+  opts: { redis?: NonceRedis; now?: () => number } = {},
+): Promise<{ signer_kind: SignerKind }> {
+  const { message, signature, expectedAddress, partner } = args;
+  const m = GRANT_RE.exec(message);
+  if (!m) throw new ShopAuthError(401, 'malformed grant message');
+  const [, name, addr, pid, revokeId, nonce, issuedAt] = m;
+  const expected = expectedAddress.toLowerCase();
+  if (
+    addr.toLowerCase() !== expected ||
+    pid !== partner.id ||
+    revokeId !== partner.id ||
+    name !== partner.name
+  ) {
+    throw new ShopAuthError(401, 'grant message does not match address/partner');
+  }
+  return verifyBoundNonceSignature(
+    { message, signature, address: addr, nonce, issuedAt, expected },
+    opts,
+  );
+}
 
 /** Issue a one-time nonce bound to `wallet`, TTL 300 s. Redis down -> 503. */
 export async function issueNonce(wallet: string, redis?: NonceRedis): Promise<string> {

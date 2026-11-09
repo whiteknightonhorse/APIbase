@@ -48,6 +48,8 @@ Call `PUT /api/v1/shop/merchants/me/webhooks` with `{url, events[]}` (MCP tool `
 
 Lost the secret, or want an endpoint gone? See [Webhooks](/integrator/docs#webhooks): `GET /merchants/me/webhooks` lists your endpoints, `DELETE /merchants/me/webhooks/:endpoint_id` removes one (`shop.merchant.webhook_list`, `shop.merchant.webhook_delete`).
 
+Selling through a marketplace that answers `order.paid` for you? One wallet signature gives it its own key limited to your catalog and its own webhook endpoint, revocable any time; see [Partner grants](/integrator/docs#partner-grants).
+
 ### The `order.paid` delivery and the reply that delivers
 
 The body of every delivery is `{"id": "<outbox id>", "event": "order.paid", "created_at": "<ISO 8601>", "data": {...}}`. For `order.paid`, `data` has these fields:

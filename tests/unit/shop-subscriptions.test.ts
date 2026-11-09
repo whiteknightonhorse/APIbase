@@ -545,7 +545,7 @@ dbDescribe('subscriptions: agent-renewed on both rails', () => {
       'shop.subscription.get',
       'shop.subscription.preauthorize',
     ]);
-    expect(names).toHaveLength(27);
+    expect(names).toHaveLength(29);
     const defs = await shopToolDefinitions();
     for (const t of defs.filter((d) => String(d.name).startsWith('shop.subscription.'))) {
       expect(t.outputSchema).toBeDefined();

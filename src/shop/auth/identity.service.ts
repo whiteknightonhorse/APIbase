@@ -5,6 +5,7 @@ import {
   type EncryptionKey,
 } from '../merchant.service';
 import { screenWallet } from '../moderation/wallet-screen';
+import { revokeAllGrants } from '../partner/grant.service';
 import { flagUndeliverable } from '../pii/pii.service';
 import { QuoteError } from '../quote.errors';
 import { ShopAuthError } from './errors';
@@ -55,6 +56,8 @@ async function revokeAll(db: ShopTx, merchant_id: string): Promise<void> {
     `UPDATE shop_merchant_keys SET revoked_at = now() WHERE merchant_id = $1::uuid AND revoked_at IS NULL`,
     merchant_id,
   );
+  // T-0740: every partner grant goes with the keys (its endpoints stop, its handoff key is dropped).
+  await revokeAllGrants(db, merchant_id);
 }
 
 async function verifyOwner(
@@ -85,7 +88,8 @@ export async function rotateKey(
   const key_hash = 'key_hash' in auth ? auth.key_hash : null;
   await d.db.$executeRawUnsafe(
     `UPDATE shop_merchant_keys SET revoked_at = now()
-      WHERE merchant_id = $1::uuid AND revoked_at IS NULL AND ($2::text IS NULL OR key_hash = $2)`,
+      WHERE merchant_id = $1::uuid AND revoked_at IS NULL AND ($2::text IS NULL OR key_hash = $2)
+        AND NOT EXISTS (SELECT 1 FROM shop_partner_grants g WHERE g.key_hash = shop_merchant_keys.key_hash)`,
     merchant_id,
     key_hash,
   );

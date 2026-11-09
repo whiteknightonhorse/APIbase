@@ -35,8 +35,8 @@ const TABLES_WAVE3 = [
 /** Added by migration 0042_mpp_subscription (T-0431). */
 const TABLES_MPP_SUBSCRIPTION = ['shop_subscription_mpp', 'shop_subscription_mpp_renewals'];
 
-/** Added by migration 0053_partner_handoffs (T-0739). */
-const TABLES_PARTNER = ['shop_partner_handoffs'];
+/** Added by migration 0053_partner_handoffs (T-0739) and 0054_partner_grants (T-0740). */
+const TABLES_PARTNER = ['shop_partner_handoffs', 'shop_partner_grants'];
 
 const TABLES_5_1 = [
   'shop_acceptances',

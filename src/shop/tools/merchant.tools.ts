@@ -5,10 +5,12 @@ import { ShopAuthError } from '../auth/errors';
 import { rotateKey } from '../auth/identity.service';
 import {
   authenticateMerchantKey,
+  grantKeyNotAllowed,
   isInactiveMerchant,
   merchantInactiveError,
   type AuthedMerchant,
 } from '../auth/merchant-key.service';
+import { listGrants, revokeGrant } from '../partner/grant.service';
 import { termsStatus } from '../auth/terms.guard';
 import {
   addMerchantDocument,
@@ -67,7 +69,18 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.webhook_delete',
   'shop.merchant.check',
   'shop.merchant.stats',
+  'shop.merchant.grants_list',
+  'shop.merchant.grant_revoke',
 ] as const;
+
+/** T-0740: the only merchant tools a partner grant key may call (everything else: grant_key_not_allowed). */
+export const GRANT_KEY_TOOLS: readonly string[] = [
+  'shop.merchant.catalog_upsert',
+  'shop.merchant.webhook_set',
+  'shop.merchant.webhook_list',
+  'shop.merchant.webhook_delete',
+  'shop.merchant.check',
+];
 
 type Result = {
   content: Array<{ type: 'text'; text: string }>;
@@ -85,16 +98,31 @@ function fail(err: unknown, request_id: string): Result {
   return { isError: true, content: [{ type: 'text', text: JSON.stringify(body) }] };
 }
 
+/** `ownerOnly` (T-0740): a partner grant key is refused with 403 grant_key_not_allowed. */
 async function bearer(
   d: ShopDeps,
   apiKey: string,
   scope?: string,
   activeOnly = false,
+  ownerOnly = true,
 ): Promise<AuthedMerchant> {
   const m = await authenticateMerchantKey(d.db, `Bearer ${apiKey}`);
+  if (ownerOnly && m.grant_id) throw grantKeyNotAllowed(m.partner_id);
   if (activeOnly && isInactiveMerchant(m)) throw merchantInactiveError();
   if (scope && !m.scopes.includes(scope)) throw new ShopAuthError(403, `missing scope ${scope}`);
   return m;
+}
+
+/** Wallet-signed tools (register, accept_terms): a session opened with a grant key is refused too. */
+async function refuseGrantSession(d: ShopDeps, apiKey: string): Promise<void> {
+  if (!/^mk_live_[0-9a-f]{32}$/.test(apiKey)) return;
+  let m: AuthedMerchant | undefined;
+  try {
+    m = await authenticateMerchantKey(d.db, `Bearer ${apiKey}`);
+  } catch {
+    return;
+  }
+  if (m.grant_id) throw grantKeyNotAllowed(m.partner_id);
 }
 
 async function bannerFor(d: ShopDeps, merchant_id: string) {
@@ -167,6 +195,7 @@ export function registerMerchantTools(
     },
     async (a: Record<string, unknown>) => {
       try {
+        await refuseGrantSession(deps, apiKey);
         const { message, signature, ...rest } = a;
         const r = await registerWithDocs(
           deps,
@@ -204,6 +233,7 @@ export function registerMerchantTools(
     },
     async (a: Record<string, unknown>) => {
       try {
+        await refuseGrantSession(deps, apiKey);
         return ok(await acceptTerms(deps, a as never));
       } catch (err) {
         return fail(err, requestId);
@@ -442,8 +472,8 @@ export function registerMerchantTools(
     },
     async (a: Record<string, unknown>) => {
       try {
-        const m = await bearer(deps, apiKey, 'webhooks:write', true);
-        return ok({ ...(await setWebhook(deps, m.merchant_id, a)) });
+        const m = await bearer(deps, apiKey, 'webhooks:write', true, false);
+        return ok({ ...(await setWebhook(deps, m.merchant_id, a, { grant_id: m.grant_id })) });
       } catch (err) {
         return fail(err, requestId);
       }
@@ -455,7 +485,7 @@ export function registerMerchantTools(
     {
       title: 'List webhook endpoints',
       description:
-        'Your webhook endpoints (needs webhooks:write), deleted ones excluded, signing secrets never returned: endpoint_id, url, events, status, failures_in_row, created_at.',
+        'Your webhook endpoints (needs webhooks:write), deleted ones excluded, signing secrets never returned: endpoint_id, url, events, status, failures_in_row, created_at, partner. A partner grant key sees only the endpoints it created.',
       inputSchema: {},
       outputSchema: {
         endpoints: z.array(
@@ -466,6 +496,10 @@ export function registerMerchantTools(
             status: z.string(),
             failures_in_row: z.number(),
             created_at: z.string(),
+            partner: z
+              .string()
+              .nullable()
+              .describe('Partner whose grant created the endpoint; null = your own.'),
           }),
         ),
       },
@@ -473,8 +507,8 @@ export function registerMerchantTools(
     },
     async () => {
       try {
-        const m = await bearer(deps, apiKey, 'webhooks:write');
-        return ok({ ...(await listWebhooks(deps, m.merchant_id)) });
+        const m = await bearer(deps, apiKey, 'webhooks:write', false, false);
+        return ok({ ...(await listWebhooks(deps, m.merchant_id, { grant_id: m.grant_id })) });
       } catch (err) {
         return fail(err, requestId);
       }
@@ -493,8 +527,10 @@ export function registerMerchantTools(
     },
     async (a: Record<string, unknown>) => {
       try {
-        const m = await bearer(deps, apiKey, 'webhooks:write', true);
-        return ok({ ...(await deleteWebhook(deps, m.merchant_id, a.endpoint_id)) });
+        const m = await bearer(deps, apiKey, 'webhooks:write', true, false);
+        return ok({
+          ...(await deleteWebhook(deps, m.merchant_id, a.endpoint_id, { grant_id: m.grant_id })),
+        });
       } catch (err) {
         return fail(err, requestId);
       }
@@ -528,7 +564,7 @@ export function registerMerchantTools(
     },
     async () => {
       try {
-        const m = await bearer(deps, apiKey);
+        const m = await bearer(deps, apiKey, undefined, false, false);
         return ok({ ...(await runCheck(deps, m.merchant_id)) });
       } catch (err) {
         return fail(err, requestId);
@@ -576,6 +612,59 @@ export function registerMerchantTools(
       try {
         const m = await bearer(deps, apiKey, 'stats:read');
         return ok({ ...(await getMerchantStats(deps, m.merchant_id, a)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+
+  reg.call(
+    server,
+    'shop.merchant.grants_list',
+    {
+      title: 'List partner grants',
+      description:
+        'The partners you allowed to act for your store (merchant key only; a grant key is 403 grant_key_not_allowed): grant_id, partner, scopes (catalog:write, webhooks:write), created_at and the ids of the webhook endpoints each partner created. Revoked grants are not listed.',
+      inputSchema: {},
+      outputSchema: {
+        grants: z.array(
+          z.object({
+            grant_id: z.string(),
+            partner: z.string(),
+            scopes: z.array(z.string()),
+            created_at: z.string(),
+            endpoints: z.array(z.string()),
+          }),
+        ),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async () => {
+      try {
+        const m = await bearer(deps, apiKey);
+        return ok({ ...(await listGrants(deps.db, m.merchant_id)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+  reg.call(
+    server,
+    'shop.merchant.grant_revoke',
+    {
+      title: 'Revoke a partner grant',
+      description:
+        "Revoke the partner's grant (merchant key only): its key stops working at once (401), the webhook endpoints it created are deleted (no further deliveries) and an undelivered key is dropped from its handoff. Unknown or already revoked partner is 404.",
+      inputSchema: { partner: z.string().describe('Partner id, e.g. soukbase.') },
+      outputSchema: { partner: z.string(), revoked: z.boolean() },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
+    },
+    async (a: { partner: string }) => {
+      try {
+        const m = await bearer(deps, apiKey);
+        return ok({
+          ...(await deps.transaction((tx) => revokeGrant(tx, m.merchant_id, a.partner))),
+        });
       } catch (err) {
         return fail(err, requestId);
       }

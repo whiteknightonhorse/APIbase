@@ -1569,6 +1569,8 @@ dbDescribe('stream sessions (INT-40)', () => {
         "shop.merchant.catalog_upsert",
         "shop.merchant.check",
         "shop.merchant.deactivate",
+        "shop.merchant.grant_revoke",
+        "shop.merchant.grants_list",
         "shop.merchant.order_confirm",
         "shop.merchant.order_document",
         "shop.merchant.order_ship",

@@ -24,6 +24,9 @@ export interface AuthedMerchant {
   scopes: string[];
   /** shop_merchants.status at authentication time (T-0599). */
   status: string;
+  /** T-0740: set when the key is a partner grant key (shop_partner_grants); absent for the owner's keys. */
+  grant_id?: string;
+  partner_id?: string;
 }
 
 declare module 'express-serve-static-core' {
@@ -71,7 +74,8 @@ const readLimiter = limited(READ_LIMIT_PER_MIN);
 
 export const MALFORMED_KEY_MESSAGE = 'missing or malformed merchant key';
 
-/** Bearer mk_live_ -> hash -> shop_merchant_keys (not revoked) -> req.merchant. */
+/** Bearer mk_live_ -> hash -> shop_merchant_keys (not revoked) -> req.merchant. A grant key (T-0740)
+ *  carries grant_id + partner_id; its grant must be active (a revoked grant = a revoked key, 401). */
 export async function authenticateMerchantKey(
   db: ShopTx,
   authorization: string | undefined,
@@ -80,20 +84,75 @@ export async function authenticateMerchantKey(
   if (!m) throw new ShopAuthError(401, MALFORMED_KEY_MESSAGE);
   const key_hash = hashApiKey(m[1]);
   const rows = await db.$queryRawUnsafe<
-    Array<{ merchant_id: string; scopes: string[]; status: string | null }>
+    Array<{
+      merchant_id: string;
+      scopes: string[];
+      status: string | null;
+      grant_id: string | null;
+      partner_id: string | null;
+      grant_revoked: boolean | null;
+    }>
   >(
-    `SELECT k.merchant_id, k.scopes, m.status
+    `SELECT k.merchant_id, k.scopes, m.status, g.grant_id::text AS grant_id, g.partner_id,
+            (g.revoked_at IS NOT NULL) AS grant_revoked
        FROM shop_merchant_keys k
        LEFT JOIN shop_merchants m ON m.merchant_id = k.merchant_id
+       LEFT JOIN shop_partner_grants g ON g.key_hash = k.key_hash
       WHERE k.key_hash = $1 AND k.revoked_at IS NULL`,
     key_hash,
   );
-  if (!rows[0]) throw new ShopAuthError(401, 'invalid or revoked merchant key');
+  const r = rows[0];
+  if (!r || (r.grant_id && r.grant_revoked)) {
+    throw new ShopAuthError(401, 'invalid or revoked merchant key');
+  }
   return {
-    merchant_id: rows[0].merchant_id,
+    merchant_id: r.merchant_id,
     key_hash,
-    scopes: rows[0].scopes,
-    status: rows[0].status ?? 'active',
+    scopes: r.scopes,
+    status: r.status ?? 'active',
+    ...(r.grant_id ? { grant_id: r.grant_id, partner_id: r.partner_id ?? '' } : {}),
+  };
+}
+
+/** T-0740: what a partner grant key may never do (keys, deactivation, payouts, terms, grants, orders...). */
+export function grantKeyNotAllowed(partner_id: string | undefined): ShopAuthError {
+  return new ShopAuthError(
+    403,
+    `this key was granted to ${partner_id ?? 'a partner'}; use the merchant key`,
+    'fix_request',
+    'grant_key_not_allowed',
+  );
+}
+
+const grantKeyNotAllowedBody = (partner_id: string | undefined) => ({
+  error: 'grant_key_not_allowed',
+  error_code: 'grant_key_not_allowed',
+  message: grantKeyNotAllowed(partner_id).message,
+  suggested_action: 'fix_request',
+  documentation_url: '/integrator/docs#partner-grants',
+});
+
+/**
+ * T-0740 guard, listed after requireMerchantKey: a partner grant key is refused with 403
+ * grant_key_not_allowed. On a wallet-signed route without requireMerchantKey (acceptances) a
+ * presented grant key is looked up and refused the same way; no key or an owner key passes.
+ */
+export function ownerKeyOnly(getDb: () => ShopTx | Promise<ShopTx>): RequestHandler {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    let m = req.merchant;
+    const h: unknown = req.headers.authorization;
+    if (!m && typeof h === 'string' && h.startsWith('Bearer mk_live_')) {
+      try {
+        m = await authenticateMerchantKey(await getDb(), h);
+      } catch {
+        m = undefined;
+      }
+    }
+    if (m?.grant_id) {
+      res.status(403).json(grantKeyNotAllowedBody(m.partner_id));
+      return;
+    }
+    next();
   };
 }
 
@@ -164,6 +223,11 @@ export function requireMerchantKey(
     }
     const have = new Set(req.merchant.scopes);
     const missing = scopes.filter((s) => !have.has(s));
+    if (missing.length > 0 && req.merchant.grant_id) {
+      // T-0740: a partner grant key outside its two scopes gets the grant answer, not a scope list.
+      res.status(403).json(grantKeyNotAllowedBody(req.merchant.partner_id));
+      return;
+    }
     if (missing.length > 0) {
       res.status(403).json({ error: 'insufficient_scope', missing });
       return;

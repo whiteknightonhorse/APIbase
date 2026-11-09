@@ -4,9 +4,10 @@ import { geoOf } from '../geo-headers';
 import { limiter, PROBE_LIMIT_PER_MIN } from './address-limiter';
 import { ShopAuthError } from '../auth/errors';
 import { reissueKeys, rotateKey } from '../auth/identity.service';
-import { requireMerchantKey } from '../auth/merchant-key.service';
+import { ownerKeyOnly, requireMerchantKey } from '../auth/merchant-key.service';
 import {
   buildSignInMessage,
+  grantMessage,
   issueNonce,
   NONCE_TTL_S,
   type SignPurpose,
@@ -28,6 +29,7 @@ import { merchantRefund } from '../refund.service';
 import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { deleteWebhook, listEvents, listWebhooks, setWebhook } from '../webhook/webhook.service';
+import { createGrant, findPartner, listGrants, revokeGrant } from '../partner/grant.service';
 import {
   confirmMerchantSettled,
   listSettleQueue,
@@ -57,6 +59,7 @@ const PURPOSES: readonly SignPurpose[] = [
   'payout_change',
   'reissue',
   'owner',
+  'grant',
 ];
 
 export { PROBE_LIMIT_PER_MIN };
@@ -100,6 +103,18 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
           });
           return;
         }
+        // T-0740: purpose grant names a registered partner; its message is the grant text.
+        const partner = purpose === 'grant' ? await findPartner(req.query.partner) : undefined;
+        if (purpose === 'grant' && !partner) {
+          res.status(422).json({
+            error: 'validation_failed',
+            error_code: 'validation_failed',
+            message: 'partner must be a registered partner id',
+            suggested_action: 'fix_request',
+            documentation_url: '/integrator/docs#partner-grants',
+          });
+          return;
+        }
         const nonce = await issueNonce(wallet, deps.redis);
         const issued_at = new Date((deps.now ?? Date.now)()).toISOString();
         const message =
@@ -109,7 +124,15 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
                 nonce,
                 time: issued_at,
               })
-            : buildSignInMessage({ address: wallet, purpose, nonce, issuedAt: issued_at });
+            : partner
+              ? grantMessage({
+                  partnerName: partner.name,
+                  partnerId: partner.id,
+                  wallet,
+                  nonce,
+                  issuedAt: issued_at,
+                })
+              : buildSignInMessage({ address: wallet, purpose, nonce, issuedAt: issued_at });
         res.json({ nonce, issued_at, expires_in: NONCE_TTL_S, message });
       } catch (err) {
         send(res, err);
@@ -143,6 +166,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   router.post(
     '/api/v1/shop/merchants/me/acceptances',
     limiter(60_000, 10),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         res.json(await acceptTerms(deps, (req.body ?? {}) as never, ctxOf(req)));
@@ -167,6 +191,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     '/api/v1/shop/merchants/me/keys/rotate',
     probeLimiter,
     requireMerchantKey([], () => deps.db),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         const m = req.merchant;
@@ -215,6 +240,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     '/api/v1/shop/merchants/me/deactivate',
     probeLimiter,
     requireMerchantKey(['orders:write'], () => deps.db),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         const r = await deactivateMerchant(deps, req.merchant?.merchant_id ?? '');
@@ -245,6 +271,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     '/api/v1/shop/merchants/me/catalog',
     probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         res.json(await deleteCatalog(deps, req.merchant?.merchant_id ?? '', req.body?.skus));
@@ -259,6 +286,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     '/api/v1/shop/merchants/me/provek',
     probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         res.json(await patchProvek(deps, req.merchant?.merchant_id ?? '', req.body));
@@ -283,6 +311,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     '/api/v1/shop/merchants/me/stream-settings',
     probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         res.json(await patchStreamSettings(deps, req.merchant?.merchant_id ?? '', req.body));
@@ -504,7 +533,11 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     requireMerchantKey(['webhooks:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
-        res.json(await setWebhook(deps, req.merchant?.merchant_id ?? '', req.body ?? {}));
+        res.json(
+          await setWebhook(deps, req.merchant?.merchant_id ?? '', req.body ?? {}, {
+            grant_id: req.merchant?.grant_id,
+          }),
+        );
       } catch (err) {
         send(res, err);
       }
@@ -517,7 +550,11 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     requireMerchantKey(['webhooks:write'], () => deps.db),
     async (req: Request, res: Response) => {
       try {
-        res.json(await listWebhooks(deps, req.merchant?.merchant_id ?? ''));
+        res.json(
+          await listWebhooks(deps, req.merchant?.merchant_id ?? '', {
+            grant_id: req.merchant?.grant_id,
+          }),
+        );
       } catch (err) {
         send(res, err);
       }
@@ -531,8 +568,52 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(
-          await deleteWebhook(deps, req.merchant?.merchant_id ?? '', req.params.endpoint_id),
+          await deleteWebhook(deps, req.merchant?.merchant_id ?? '', req.params.endpoint_id, {
+            grant_id: req.merchant?.grant_id,
+          }),
         );
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-0740 (A-2): one wallet signature (purpose grant) gives a registered partner a key limited to
+  // catalog:write + webhooks:write. No Bearer; the key is never in this answer (the partner reads it
+  // once through its handoff).
+  router.post(
+    '/api/v1/shop/merchants/me/grants',
+    limiter(60_000, 10),
+    async (req: Request, res: Response) => {
+      try {
+        res.status(201).json(await createGrant(deps, req.body));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.get(
+    '/api/v1/shop/merchants/me/grants',
+    probeLimiter,
+    requireMerchantKey([], () => deps.db),
+    ownerKeyOnly(() => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await listGrants(deps.db, req.merchant?.merchant_id ?? ''));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+  router.delete(
+    '/api/v1/shop/merchants/me/grants/:partner',
+    probeLimiter,
+    requireMerchantKey([], () => deps.db),
+    ownerKeyOnly(() => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        const merchant_id = req.merchant?.merchant_id ?? '';
+        res.json(await deps.transaction((tx) => revokeGrant(tx, merchant_id, req.params.partner)));
       } catch (err) {
         send(res, err);
       }
@@ -595,6 +676,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     '/api/v1/shop/merchants/me/renewer-key',
     probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         res.json(await putRenewerKey(deps, req.merchant?.merchant_id ?? '', req.body));
@@ -607,6 +689,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     '/api/v1/shop/merchants/me/renewer-key',
     probeLimiter,
     requireMerchantKey(['catalog:write'], () => deps.db),
+    ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
         res.json(await deleteRenewerKey(deps, req.merchant?.merchant_id ?? ''));

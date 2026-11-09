@@ -22,10 +22,15 @@ export interface Prefill {
   country?: string;
   slug?: string;
 }
+export type HandoffMode = 'register' | 'grant';
 export interface HandoffInput {
   seller_ref: string | null;
   prefill: Prefill | null;
   expected_wallet: string | null;
+  /** T-0740: `grant` = a store already on APIbase only signs the grant; `register` (default) connects first. */
+  mode: HandoffMode;
+  /** T-0740: in mode register, ask for the grant as a fourth signature after the documents. */
+  grant_requested: boolean;
 }
 
 /** 422 validation_failed naming the field. */
@@ -59,7 +64,7 @@ export function validateHandoffInput(body: unknown): HandoffInput {
     throw new HandoffValidationError('body');
   const b = body as Record<string, unknown>;
   for (const k of Object.keys(b))
-    if (!['seller_ref', 'prefill', 'expected_wallet'].includes(k))
+    if (!['seller_ref', 'prefill', 'expected_wallet', 'mode', 'grant_requested'].includes(k))
       throw new HandoffValidationError(k);
   let seller_ref: string | null = null;
   if (b.seller_ref !== undefined && b.seller_ref !== null) {
@@ -88,7 +93,17 @@ export function validateHandoffInput(body: unknown): HandoffInput {
       throw new HandoffValidationError('expected_wallet');
     expected_wallet = b.expected_wallet.toLowerCase();
   }
-  return { seller_ref, prefill, expected_wallet };
+  let mode: HandoffMode = 'register';
+  if (b.mode !== undefined && b.mode !== null) {
+    if (b.mode !== 'register' && b.mode !== 'grant') throw new HandoffValidationError('mode');
+    mode = b.mode;
+  }
+  let grant_requested = false;
+  if (b.grant_requested !== undefined && b.grant_requested !== null) {
+    if (typeof b.grant_requested !== 'boolean') throw new HandoffValidationError('grant_requested');
+    grant_requested = b.grant_requested;
+  }
+  return { seller_ref, prefill, expected_wallet, mode, grant_requested };
 }
 
 export async function createHandoff(
@@ -97,13 +112,16 @@ export async function createHandoff(
   input: HandoffInput,
 ): Promise<{ handoff_id: string; url: string; expires_at: string }> {
   const rows = await db.$queryRawUnsafe<Array<{ handoff_id: string; expires_at: Date }>>(
-    `INSERT INTO shop_partner_handoffs (partner_id, seller_ref, prefill, expected_wallet)
-     VALUES ($1, $2, $3::jsonb, $4)
+    `INSERT INTO shop_partner_handoffs
+       (partner_id, seller_ref, prefill, expected_wallet, mode, grant_requested)
+     VALUES ($1, $2, $3::jsonb, $4, $5, $6)
      RETURNING handoff_id::text, expires_at`,
     partner_id,
     input.seller_ref,
     input.prefill ? JSON.stringify(input.prefill) : null,
     input.expected_wallet,
+    input.mode ?? 'register',
+    input.grant_requested ?? false,
   );
   const r = rows[0];
   return {
@@ -115,7 +133,7 @@ export async function createHandoff(
 
 interface HandoffRow {
   handoff_id: string;
-  state: 'created' | 'opened' | 'registered';
+  state: 'created' | 'opened' | 'registered' | 'granted';
   seller_ref: string | null;
   slug: string | null;
   merchant_id: string | null;
@@ -125,19 +143,43 @@ interface HandoffRow {
   opened_at: Date | null;
   registered_at: Date | null;
   expired: boolean;
+  grant_id: string | null;
+  grant_revoked: boolean | null;
+  grant_scopes: string[] | null;
+  grant_delivered: boolean;
+  grant_key_enc: string | null;
 }
 
-/** The partner's view: never the prefill, a merchant key, the wallet or the e-mail. Another partner's id = null. */
+/**
+ * The partner's view: never the prefill, the wallet or the e-mail. Another partner's id = null.
+ * T-0740: `grant` carries the partner's grant key in exactly ONE answer (`decrypt`): the read that
+ * takes it NULLs grant_key_enc and stamps grant_delivered_at in the same statement.
+ */
 export async function readHandoff(
   db: ShopTx,
   partner_id: string,
   handoff_id: unknown,
+  decrypt?: (enc: string) => string,
 ): Promise<Record<string, unknown> | null> {
   if (typeof handoff_id !== 'string' || !UUID_RE.test(handoff_id)) return null;
+  // Take the parked key (if any) atomically: a concurrent read sees NULL and gets no key.
+  const taken = await db.$queryRawUnsafe<Array<{ enc: string }>>(
+    `UPDATE shop_partner_handoffs h SET grant_key_enc = NULL, grant_delivered_at = now()
+       FROM (SELECT handoff_id, grant_key_enc AS enc FROM shop_partner_handoffs
+              WHERE handoff_id = $1::uuid AND partner_id = $2 AND grant_key_enc IS NOT NULL
+              FOR UPDATE) old
+      WHERE h.handoff_id = old.handoff_id
+      RETURNING old.enc`,
+    handoff_id,
+    partner_id,
+  );
   const rows = await db.$queryRawUnsafe<HandoffRow[]>(
-    `SELECT handoff_id::text, state, seller_ref, slug, merchant_id::text, wallet_match, created_at,
-            expires_at, opened_at, registered_at, (expires_at <= now()) AS expired
-       FROM shop_partner_handoffs WHERE handoff_id = $1::uuid AND partner_id = $2`,
+    `SELECT h.handoff_id::text, h.state, h.seller_ref, h.slug, h.merchant_id::text, h.wallet_match,
+            h.created_at, h.expires_at, h.opened_at, h.registered_at, (h.expires_at <= now()) AS expired,
+            h.grant_id::text AS grant_id, (g.revoked_at IS NOT NULL) AS grant_revoked,
+            g.scopes AS grant_scopes, (h.grant_delivered_at IS NOT NULL) AS grant_delivered
+       FROM shop_partner_handoffs h LEFT JOIN shop_partner_grants g ON g.grant_id = h.grant_id
+      WHERE h.handoff_id = $1::uuid AND h.partner_id = $2`,
     handoff_id,
     partner_id,
   );
@@ -146,7 +188,7 @@ export async function readHandoff(
   const iso = (d: Date | null) => (d ? new Date(d).toISOString() : undefined);
   const out: Record<string, unknown> = {
     handoff_id: r.handoff_id,
-    state: r.state !== 'registered' && r.expired ? 'expired' : r.state,
+    state: r.state !== 'registered' && r.state !== 'granted' && r.expired ? 'expired' : r.state,
     seller_ref: r.seller_ref,
   };
   if (r.slug !== null) out.slug = r.slug;
@@ -156,6 +198,14 @@ export async function readHandoff(
   out.expires_at = iso(r.expires_at);
   if (r.opened_at) out.opened_at = iso(r.opened_at);
   if (r.registered_at) out.registered_at = iso(r.registered_at);
+  if (!r.grant_id) out.grant = { state: 'none' };
+  else if (r.grant_revoked) out.grant = { state: 'revoked' };
+  else {
+    const g: Record<string, unknown> = { state: 'granted', scopes: r.grant_scopes ?? [] };
+    if (taken[0] && decrypt) g.key = decrypt(taken[0].enc);
+    else if (r.grant_delivered) g.delivered = true;
+    out.grant = g;
+  }
   return out;
 }
 
@@ -167,16 +217,28 @@ export async function openHandoff(
   db: ShopTx,
   partner_id: string,
   handoff_id: unknown,
-): Promise<{ handoff_id: string; prefill: Prefill | null; expected_wallet: string | null } | null> {
+): Promise<{
+  handoff_id: string;
+  prefill: Prefill | null;
+  expected_wallet: string | null;
+  mode: HandoffMode;
+  grant_requested: boolean;
+} | null> {
   if (typeof handoff_id !== 'string' || !UUID_RE.test(handoff_id)) return null;
   const rows = await db.$queryRawUnsafe<
-    Array<{ handoff_id: string; prefill: Prefill | null; expected_wallet: string | null }>
+    Array<{
+      handoff_id: string;
+      prefill: Prefill | null;
+      expected_wallet: string | null;
+      mode: HandoffMode;
+      grant_requested: boolean;
+    }>
   >(
     `UPDATE shop_partner_handoffs
         SET state = 'opened', opened_at = COALESCE(opened_at, now())
       WHERE handoff_id = $1::uuid AND partner_id = $2
         AND state IN ('created', 'opened') AND expires_at > now()
-      RETURNING handoff_id::text, prefill, expected_wallet`,
+      RETURNING handoff_id::text, prefill, expected_wallet, mode, grant_requested`,
     handoff_id,
     partner_id,
   );

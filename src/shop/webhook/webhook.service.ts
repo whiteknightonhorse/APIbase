@@ -56,12 +56,21 @@ export interface WebhookSetResult {
   secret?: string;
 }
 
+/** T-0740: who calls. A partner grant key (`grant_id`) sees only the endpoints it created; the owner's key (null) sees all. */
+export interface EndpointScope {
+  grant_id?: string | null;
+}
+/** SQL fragment: parameter n is the scope's grant_id (NULL for the owner = every endpoint). */
+const scoped = (n: number) => `($${n}::uuid IS NULL OR grant_id = $${n}::uuid)`;
+
 /** §6.2 shop.merchant.webhook_set / §6.3 PUT /merchants/me/webhooks. The merchant is the key's. */
 export async function setWebhook(
   d: WebhookDeps,
   merchant_id: string,
   input: { url?: unknown; events?: unknown; endpoint_id?: unknown; rotate_secret?: unknown },
+  scope: EndpointScope = {},
 ): Promise<WebhookSetResult> {
+  const grant_id = scope.grant_id ?? null;
   const events = input.events;
   if (
     !Array.isArray(events) ||
@@ -76,9 +85,11 @@ export async function setWebhook(
   if (input.endpoint_id !== undefined && input.endpoint_id !== null) {
     if (typeof input.endpoint_id !== 'string' || !UUID_RE.test(input.endpoint_id)) throw notFound();
     const own = await d.db.$queryRawUnsafe<unknown[]>(
-      `SELECT 1 FROM shop_webhook_endpoints WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid AND status <> 'deleted'`,
+      `SELECT 1 FROM shop_webhook_endpoints
+        WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid AND status <> 'deleted' AND ${scoped(3)}`,
       input.endpoint_id,
       merchant_id,
+      grant_id,
     );
     if (own.length === 0) throw notFound();
     endpoint_id = input.endpoint_id;
@@ -100,13 +111,14 @@ export async function setWebhook(
       `UPDATE shop_webhook_endpoints
           SET url = $3, events = $4::text[], status = 'active', failures_in_row = 0,
               secret_hash = COALESCE($5, secret_hash), secret_enc = COALESCE($6, secret_enc)
-        WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid`,
+        WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid AND ${scoped(7)}`,
       endpoint_id,
       merchant_id,
       url,
       uniqEvents,
       secret ? sha256hex(secret) : null,
       secret ? encryptSecret(secret, config.ENCRYPTION_KEY) : null,
+      grant_id,
     );
     return { endpoint_id, url, events: uniqEvents, ...(secret ? { secret } : {}) };
   }
@@ -122,13 +134,14 @@ export async function setWebhook(
   }
   const secret = newSecret();
   const rows = await d.db.$queryRawUnsafe<Array<{ endpoint_id: string }>>(
-    `INSERT INTO shop_webhook_endpoints (merchant_id, url, secret_hash, secret_enc, events)
-     VALUES ($1::uuid, $2, $3, $4, $5::text[]) RETURNING endpoint_id`,
+    `INSERT INTO shop_webhook_endpoints (merchant_id, url, secret_hash, secret_enc, events, grant_id)
+     VALUES ($1::uuid, $2, $3, $4, $5::text[], $6::uuid) RETURNING endpoint_id`,
     merchant_id,
     url,
     sha256hex(secret),
     encryptSecret(secret, config.ENCRYPTION_KEY),
     uniqEvents,
+    grant_id,
   );
   return { endpoint_id: rows[0].endpoint_id, url, events: uniqEvents, secret };
 }
@@ -140,21 +153,28 @@ export interface WebhookListItem {
   status: string;
   failures_in_row: number;
   created_at: string;
+  /** T-0740: the partner whose grant created the endpoint, null for the merchant's own. */
+  partner: string | null;
 }
 
 /** shop.merchant.webhook_list / GET /merchants/me/webhooks: the key's endpoints, never a secret. */
 export async function listWebhooks(
   d: ShopDeps,
   merchant_id: string,
+  scope: EndpointScope = {},
 ): Promise<{ endpoints: WebhookListItem[] }> {
   const rows = await d.db.$queryRawUnsafe<
     Array<Omit<WebhookListItem, 'created_at'> & { created_at: Date }>
   >(
-    `SELECT endpoint_id::text AS endpoint_id, url, events, status, failures_in_row::int AS failures_in_row, created_at
-       FROM shop_webhook_endpoints
-      WHERE merchant_id = $1::uuid AND status <> 'deleted'
-      ORDER BY created_at, endpoint_id`,
+    `SELECT e.endpoint_id::text AS endpoint_id, e.url, e.events, e.status,
+            e.failures_in_row::int AS failures_in_row, e.created_at, g.partner_id AS partner
+       FROM shop_webhook_endpoints e
+       LEFT JOIN shop_partner_grants g ON g.grant_id = e.grant_id
+      WHERE e.merchant_id = $1::uuid AND e.status <> 'deleted'
+        AND ($2::uuid IS NULL OR e.grant_id = $2::uuid)
+      ORDER BY e.created_at, e.endpoint_id`,
     merchant_id,
+    scope.grant_id ?? null,
   );
   return {
     endpoints: rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() })),
@@ -166,13 +186,15 @@ export async function deleteWebhook(
   d: ShopDeps,
   merchant_id: string,
   endpoint_id: unknown,
+  scope: EndpointScope = {},
 ): Promise<{ endpoint_id: string; deleted: true }> {
   if (typeof endpoint_id !== 'string' || !UUID_RE.test(endpoint_id)) throw notFound();
   const n = await d.db.$executeRawUnsafe(
     `UPDATE shop_webhook_endpoints SET status = 'deleted'
-      WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid AND status <> 'deleted'`,
+      WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid AND status <> 'deleted' AND ${scoped(3)}`,
     endpoint_id,
     merchant_id,
+    scope.grant_id ?? null,
   );
   if (n === 0) throw notFound();
   return { endpoint_id, deleted: true };

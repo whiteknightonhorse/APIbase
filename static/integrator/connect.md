@@ -27,7 +27,7 @@ Your wallet asks for 3 free signatures. No gas, no money leaves your wallet:
 
 Network: Base. Payouts go to this wallet in USDC (you can pick a different payout wallet in the form; leave it empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet). If a signature is rejected, nothing is charged: press Try again and approve it in your wallet. No wallet yet? See /integrator/wallet.
 
-Arrived from a marketplace link? The form is prefilled from it (check the values, every field stays editable), and if your wallet differs from the one the marketplace has on file you see a "Different wallet" notice: switch the wallet or continue with this one (see /integrator/docs#partner-handoff).
+Arrived from a marketplace link? The form is prefilled from it (check the values, every field stays editable), and if your wallet differs from the one the marketplace has on file you see a "Different wallet" notice: switch the wallet or continue with this one (see /integrator/docs#partner-handoff). If the marketplace asked to sell for you, a fourth free signature, "Allow <marketplace> to sell for you", lets it upload your catalog and receive your orders (never payouts, keys, orders or refunds) and is revocable any time; rejecting it keeps your store connected (see /integrator/docs#partner-grants).
 
 ## When your store is connected
 

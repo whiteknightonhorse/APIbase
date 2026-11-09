@@ -80,6 +80,53 @@ const lazyDb = (): ShopTx => {
 const scriptJson = (v: unknown) =>
   JSON.stringify(v).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
+/**
+ * T-0740: the connect page states of a live partner handoff, composed from the existing components
+ * (copy from the card; no new CSS). Each `from` must be in the template: a missing one is a startup
+ * bug caught by the tests, never a silent half-rendered page.
+ */
+const SIG_ROW = (n: number, partner: string) =>
+  `<li data-n="${n}"><div><b>Allow ${partner} to sell for you</b><span>Uploads your catalog and receives your orders. Revocable any time.</span></div></li>`;
+const SIG_LIST_RE = /(<ol class="cn-sig" id="sig">\n)([\s\S]*?)(<\/ol>)/;
+export function grantVariant(
+  body: string,
+  partnerName: string,
+  v: { mode: 'register' | 'grant'; grant_requested: boolean },
+): string {
+  const pn = esc(partnerName);
+  const swap = (s: string, from: string | RegExp, to: string | ((...m: string[]) => string)) => {
+    if (typeof from === 'string' ? !s.includes(from) : !from.test(s))
+      throw new Error(`connect.html: grant variant anchor missing: ${String(from)}`);
+    return s.replace(from, to as never);
+  };
+  if (v.mode === 'grant') {
+    let b = swap(
+      body,
+      '<h1>Connect your store</h1>',
+      `<h1>Allow ${pn} to sell for your store</h1>`,
+    );
+    b = swap(
+      b,
+      '<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>',
+      `<p class="lp-sub">${pn} will upload and import your catalog, register its own webhook endpoint and receive your order events. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>`,
+    );
+    b = swap(b, '<ol class="cn-bar" id="bar">', '<ol class="cn-bar" id="bar" hidden>');
+    b = swap(b, '<b>3 free signatures</b>', '<b>1 free signature</b>');
+    b = swap(b, SIG_LIST_RE, (_m, a, _rows, c) => `${a}${SIG_ROW(1, pn)}\n${c}`);
+    b = swap(b, /<div class="cn-cards">.*<\/div>\n/, '');
+    b = swap(
+      b,
+      /<details><summary>Use a different payout wallet<\/summary>[\s\S]*?<\/details>\n/,
+      '',
+    );
+    return swap(b, '<span id="wtn">1</span> of 3', '<span id="wtn">1</span> of 1');
+  }
+  if (!v.grant_requested) return body;
+  let b = swap(body, '<b>3 free signatures</b>', '<b>4 free signatures</b>');
+  b = swap(b, SIG_LIST_RE, (_m, a, rows, c) => `${a}${rows}${SIG_ROW(4, pn)}\n${c}`);
+  return swap(b, '<span id="wtn">1</span> of 3', '<span id="wtn">1</span> of 4');
+}
+
 const mdPage = (md: string, path: string): string =>
   layout({
     title: `${titleOf(md)} — APIbase`,
@@ -172,6 +219,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       : '';
     // T-0739: a handoff link of a known partner. Live -> prefill; anything else -> one hint line, no echo.
     let hint = '';
+    let grantView: { mode: 'register' | 'grant'; grant_requested: boolean } | null = null;
     const handoff: unknown = req.query.handoff;
     if (partner && handoff !== undefined) {
       res.set('Cache-Control', 'private, no-store');
@@ -182,16 +230,21 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         logger.warn({ err, partner: partner.id }, 'handoff open failed');
       }
       if (live) {
-        hint = `<p class="hint">Prefilled from ${esc(partner.name)}. Check the values and continue.</p>`;
-        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet })}</script>`;
+        grantView = { mode: live.mode, grant_requested: live.grant_requested };
+        hint =
+          live.mode === 'grant'
+            ? ''
+            : `<p class="hint">Prefilled from ${esc(partner.name)}. Check the values and continue.</p>`;
+        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested })}</script>`;
       } else {
         hint = `<p class="hint">This link from ${esc(partner.name)} is no longer valid. You can still connect your store and return there.</p>`;
       }
     }
-    const body = renderTokens(read('connect.html'))
+    let body = renderTokens(read('connect.html'))
       .replace('{{CATEGORY_OPTIONS}}', () => options)
       .replace('{{HANDOFF_HINT}}', () => hint)
       .replace('{{PARTNER}}', () => partnerHtml);
+    if (partner && grantView) body = grantVariant(body, partner.name, grantView);
     res.type('html').send(
       layout({
         title: 'Connect AI payment | APIbase Integrator',

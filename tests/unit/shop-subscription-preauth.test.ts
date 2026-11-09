@@ -651,7 +651,7 @@ dbDescribe('subscriptions: Base pull with pre-signed authorizations', () => {
       'shop.subscription.get',
       'shop.subscription.preauthorize',
     ]);
-    expect(names).toHaveLength(27);
+    expect(names).toHaveLength(29);
     const t = defs.find((d) => d.name === 'shop.subscription.preauthorize')!;
     expect(t.outputSchema).toBeDefined();
   });

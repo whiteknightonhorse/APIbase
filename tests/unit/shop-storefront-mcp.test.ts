@@ -338,6 +338,6 @@ describe('merchant storefront MCP server (INT-16)', () => {
     registerTools(base, '', 'req', {} as never);
     const baseNames = await listOf(base);
     expect(full.filter((n) => !n.startsWith('shop.')).sort()).toEqual(baseNames.sort());
-    expect(shopNames).toHaveLength(27);
+    expect(shopNames).toHaveLength(29);
   });
 });

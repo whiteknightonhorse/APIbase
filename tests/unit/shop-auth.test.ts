@@ -67,6 +67,7 @@ function fakeDb(seed: { merchant: Record<string, unknown>; sanctioned?: string[]
     if (sql.includes('FROM shop_sanctioned_addresses'))
       return (seed.sanctioned ?? []).includes(v[0] as string) ? [{ x: 1 }] : [];
     if (sql.includes('FROM outbox')) return [];
+    if (sql.includes('UPDATE shop_partner_grants')) return []; // T-0740: no grants in this fake
     if (sql.includes('FROM shop_merchants')) return [merchant];
     throw new Error('unexpected ' + sql);
   };

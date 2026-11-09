@@ -468,7 +468,8 @@ dbDescribe('merchant webhooks (F-6)', () => {
     const listed = await listWebhooks(deps, a);
     expect(listed.endpoints.map((e) => e.endpoint_id)).toEqual([e1.id, e2.id]);
     expect(Object.keys(listed.endpoints[0]).sort()).toEqual(
-      ['created_at', 'endpoint_id', 'events', 'failures_in_row', 'status', 'url'].sort(),
+      // T-0740: `partner` names the partner whose grant created the endpoint (null = the merchant's own)
+      ['created_at', 'endpoint_id', 'events', 'failures_in_row', 'partner', 'status', 'url'].sort(),
     );
     expect(JSON.stringify(listed)).not.toMatch(/secret|whsec_/);
     await expect(deleteWebhook(deps, a, eb.id)).rejects.toMatchObject({ status: 404 });

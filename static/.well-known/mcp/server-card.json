@@ -19,9 +19,9 @@
   "hasTools": false,
   "toolsManifestUrl": "https://apibase.pro/api/v1/tools/manifest",
   "shop_tools": {
-    "version": "14",
-    "count": 27,
-    "sha256": "eded5321bdbd4e1152005d8469f9122a806163e0c067f86bfdf58eb28f3181c0"
+    "version": "15",
+    "count": 29,
+    "sha256": "3c069ce2dacd7d15419c52278ce81bc81d15d611b43642249347f67d8b933e57"
   },
   "prompts": [
     {

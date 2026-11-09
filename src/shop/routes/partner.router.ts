@@ -5,6 +5,8 @@
 import { timingSafeEqual } from 'node:crypto';
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import { hashApiKey } from '../../services/api-key.service';
+import { decryptSecret } from '../../services/secret-crypto.service';
+import { config } from '../../config';
 import { logger } from '../../config/logger';
 import type { ShopTx } from '../db';
 import { limiter, PROBE_LIMIT_PER_MIN } from './address-limiter';
@@ -62,6 +64,8 @@ export function requirePartnerKey(list: () => readonly Partner[] = registry) {
 export interface PartnerRouterOptions {
   db?: ShopTx;
   partners?: () => readonly Partner[];
+  /** T-0740: key of the parked grant keys (default: config.ENCRYPTION_KEY). */
+  encryptionKey?: string;
 }
 
 const lazyDb = (): ShopTx => {
@@ -75,6 +79,9 @@ const lazyDb = (): ShopTx => {
 export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
   const router = Router();
   const db = opts.db ?? lazyDb();
+  // T-0740: the partner's grant key is parked encrypted on the handoff; decrypted for that one answer only.
+  const decryptKey = (enc: string): string =>
+    decryptSecret(enc, opts.encryptionKey ?? config.ENCRYPTION_KEY);
   const guard = requirePartnerKey(opts.partners);
   // CodeQL js/missing-rate-limiting: the per-address failure limiter caps key probing; the per-key
   // limiters (keyed by the key hash) cap a partner's own traffic. Both run before the guard.
@@ -109,7 +116,7 @@ export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
     guard,
     async (req: Request, res: Response) => {
       try {
-        const h = await readHandoff(db, req.partner?.id ?? '', req.params.id);
+        const h = await readHandoff(db, req.partner?.id ?? '', req.params.id, decryptKey);
         if (!h) {
           err(res, 404, 'not_found', 'no such handoff for this partner');
           return;

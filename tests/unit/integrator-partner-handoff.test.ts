@@ -254,6 +254,8 @@ dbDescribe('T-0739 partner handoff', () => {
       expect(JSON.parse(pf![1])).toEqual({
         prefill: { name: '</script><b>x', contact_email: 'a@b.example' },
         expected_wallet: '0x' + 'cd'.repeat(20),
+        mode: 'register', // T-0740
+        grant_requested: false,
       });
       expect(html).toContain('Prefilled from Soukbase. Check the values and continue.');
       expect(html).not.toContain('no longer valid');

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ShopAuthError } from '../auth/errors';
 import {
   authenticateMerchantKey,
+  grantKeyNotAllowed,
   isInactiveMerchant,
   merchantInactiveError,
   WRITE_LIMIT_PER_MIN,
@@ -68,8 +69,10 @@ export function registerCatalogTools(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK generics recurse on complex Zod shapes
   const reg = server.registerTool as any;
 
-  const writer = async () => {
+  // T-0740: a partner grant key may upsert (catalog:write) but never delete (`ownerOnly`).
+  const writer = async (ownerOnly = false) => {
     const m = await authenticateMerchantKey(deps.db, `Bearer ${apiKey}`);
+    if (ownerOnly && m.grant_id) throw grantKeyNotAllowed(m.partner_id);
     if (isInactiveMerchant(m)) throw merchantInactiveError();
     if (!m.scopes.includes('catalog:write'))
       throw new ShopAuthError(403, 'missing scope catalog:write');
@@ -122,7 +125,7 @@ export function registerCatalogTools(
     },
     async (a: { skus: unknown }) => {
       try {
-        const m = await writer();
+        const m = await writer(true);
         return ok({ ...(await deleteCatalog(deps, m.merchant_id, a.skus)) });
       } catch (err) {
         return fail(err, requestId);
