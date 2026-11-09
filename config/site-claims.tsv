@@ -142,3 +142,5 @@ static/integrator/buyers.md	https://apibase.pro/integrator/buyers.md	must-contai
 static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-contain	live marketplace that sells through APIbase	-	T-0728
 static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-not-contain	example merchant (in development)	-	T-0728
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-contain	may require the payout wallet to equal the signing wallet	-	T-0728
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	## Partner handoff	-	T-0739
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	a warning, never a refusal	-	T-0739

@@ -10,6 +10,7 @@ import { purgePii } from '../shop/pii/pii.service';
 import { releaseReservation } from '../shop/repository';
 import { refreshReputations } from '../shop/reputation.service';
 import { screenWallet, suspendForSanctions } from '../shop/moderation/wallet-screen';
+import { sweepHandoffs } from '../shop/partner/handoff.service';
 
 /** §5.3 / §12.2: a second `confirm_overdue` for the same order only after this long. */
 export const OVERDUE_REPEAT_MS = 24 * 3_600_000;
@@ -33,6 +34,8 @@ export interface SweepResult {
   fee_invoices_overdue: number;
   fee_merchants_restricted: number;
   payment_identifiers_deleted: number;
+  handoff_prefills_nulled: number;
+  handoffs_deleted: number;
 }
 
 const emit = (db: ShopTx, event_type: string, payload: Record<string, unknown>) =>
@@ -395,6 +398,8 @@ export async function runShopSlaSweeper(
     fee_invoices_overdue: 0,
     fee_merchants_restricted: 0,
     payment_identifiers_deleted: 0,
+    handoff_prefills_nulled: 0,
+    handoffs_deleted: 0,
   };
   const step = async (name: string, fn: () => Promise<void>) => {
     try {
@@ -448,5 +453,11 @@ export async function runShopSlaSweeper(
         now,
       )),
   );
+  // T-0739: a handoff prefill (may hold an e-mail) lives at most 24 h; rows go after 30 days.
+  await step('partner_handoffs', async () => {
+    const r = await sweepHandoffs(d.db, now);
+    out.handoff_prefills_nulled = r.prefill_nulled;
+    out.handoffs_deleted = r.deleted;
+  });
   return out;
 }

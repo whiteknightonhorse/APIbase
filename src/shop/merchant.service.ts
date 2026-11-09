@@ -13,6 +13,7 @@ import { getShopEnv } from '../config/env';
 import { moderateTexts } from './moderation/product-rules';
 import { isRestrictedEntityCountry, isRestrictedIp } from './moderation/countries';
 import { screenWallet } from './moderation/wallet-screen';
+import { bindHandoff, UUID_RE } from './partner/handoff.service';
 import { isPlatformWallet, PAYOUT_WALLET_PLATFORM_MSG } from './platform-wallets';
 
 export const REGISTRATIONS_PER_IP_PER_HOUR = 5;
@@ -66,6 +67,8 @@ export interface RegisterInput {
   payout_wallet_tempo?: string;
   recovery_wallet?: string;
   encryption_key: EncryptionKey;
+  /** T-0739: a partner handoff to bind (uuid); unknown, expired or malformed is never an error. */
+  handoff_id?: unknown;
   /** EIP-191 sign-in message, purpose `register` (INT-02). */
   signed: { message: string; signature: string };
 }
@@ -482,6 +485,16 @@ export async function registerMerchant(
        VALUES ($1::uuid, 'merchant', 'rules', 'ok')`,
       merchant_id,
     );
+    // T-0739: bind the partner handoff; a stale one leaves the registration intact (one handoff_stale event).
+    if (typeof input.handoff_id === 'string' && UUID_RE.test(input.handoff_id)) {
+      let bound = false;
+      try {
+        bound = await bindHandoff(ctx.db, input.handoff_id, merchant_id, input.slug, wallet);
+      } catch (err) {
+        logger.warn({ err, merchant_id }, 'handoff bind failed');
+      }
+      if (!bound) await emitConnectEvent(ctx, wallet, 'handoff_stale');
+    }
     await countIpRegistration(ctx);
     logger.info({ merchant_id, slug: input.slug, signer_kind }, 'merchant registered (pending)');
     return { merchant_id, status: 'pending', agent_id: agent[0].agent_id };

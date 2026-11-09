@@ -7,6 +7,8 @@ import { docToHtml, leadOf, titleOf } from '../integrator/md';
 import { renderTokens } from '../integrator/tokens';
 import { INTEGRATOR_DIR, layout } from '../integrator/layout';
 import { logger } from '../../config/logger';
+import type { ShopTx } from '../db';
+import { openHandoff } from '../partner/handoff.service';
 import {
   X_APIBASE_DELIVERY_ID,
   X_APIBASE_EVENT,
@@ -21,6 +23,8 @@ export interface IntegratorRouterOptions {
   dir?: string;
   /** requests per minute per address (default 120): static content, no database. */
   limit?: number;
+  /** T-0739: handoff store for `/integrator/connect?from=<partner>&handoff=<id>` (default: the app database, lazily). */
+  db?: ShopTx;
 }
 
 const esc = (s: string) =>
@@ -31,6 +35,8 @@ export interface Partner {
   name: string;
   site: string;
   return_url: string;
+  /** T-0739: sha256 (hex) of the partner's `pk_live_` key; the key itself is never in git. */
+  key_sha256: string;
 }
 
 /** T-0728: partner registry for the connect page "Continue on <partner>" button; invalid file = startup error. */
@@ -40,12 +46,13 @@ export function loadPartners(file: string): Partner[] {
   const seen = new Set<string>();
   return v.map((raw: unknown) => {
     const r = (raw ?? {}) as Record<string, unknown>;
-    for (const k of ['id', 'name', 'site', 'return_url'])
+    for (const k of ['id', 'name', 'site', 'return_url', 'key_sha256'])
       if (typeof r[k] !== 'string' || !r[k]) throw new Error(`partners.json: bad field ${k}`);
     const p = r as unknown as Partner;
     if (!/^[a-z0-9-]{2,40}$/.test(p.id) || seen.has(p.id))
       throw new Error('partners.json: bad or duplicate id');
     seen.add(p.id);
+    if (!/^[0-9a-f]{64}$/.test(p.key_sha256)) throw new Error('partners.json: bad key_sha256');
     for (const u of [p.site, p.return_url])
       if (new URL(u).protocol !== 'https:') throw new Error('partners.json: https required');
     return p;
@@ -53,10 +60,25 @@ export function loadPartners(file: string): Partner[] {
 }
 
 const PARTNERS = loadPartners(resolve(__dirname, '../../../config/integrator/partners.json'));
+/** T-0739: the same registry, for the partner key guard. */
+export const partners = (): readonly Partner[] => PARTNERS;
 
 const INDEX_DESCRIPTION =
   "Agentic commerce for merchants: one link on your site, a buyer's AI agent places and pays the order, USDC settles to your wallet. Agentic checkout, any store.";
 const CONNECT_HEAD = '<meta name="robots" content="noindex, follow">';
+
+/** Lazy database handle: the page routes import no database code until a handoff link is opened. */
+const lazyDb = (): ShopTx => {
+  const prisma = async () => (await import('../../services/prisma.service')).getPrisma();
+  return {
+    $queryRawUnsafe: async (q, ...v) => (await prisma()).$queryRawUnsafe(q, ...v),
+    $executeRawUnsafe: async (q, ...v) => (await prisma()).$executeRawUnsafe(q, ...v),
+  };
+};
+
+/** JSON inside <script type="application/json">: `<`, `>` and `&` written as \u escapes. */
+const scriptJson = (v: unknown) =>
+  JSON.stringify(v).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
 const mdPage = (md: string, path: string): string =>
   layout({
@@ -80,6 +102,8 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
     }
     return s;
   };
+  let db = opts.db;
+  const handoffDb = (): ShopTx => (db ??= lazyDb());
   const wantsMd = (req: Request) => /text\/markdown/i.test(req.get('accept') ?? '');
 
   const limiter = rateLimit({
@@ -134,7 +158,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
   router.get('/integrator/llms.txt', limiter, (_req, res) => {
     res.type('text/plain; charset=utf-8').send(renderTokens(read('llms.txt')));
   });
-  router.get('/integrator/connect', limiter, (req, res) => {
+  router.get('/integrator/connect', limiter, async (req, res) => {
     res.set('Vary', 'Accept').set('Cache-Control', 'public, max-age=300');
     if (wantsMd(req)) {
       res.type('text/markdown; charset=utf-8').send(read('connect.md'));
@@ -143,11 +167,30 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
     const options = ALLOWED_CATEGORIES.map((c) => `<option>${esc(c)}</option>`).join('');
     const from: unknown = req.query.from;
     const partner = typeof from === 'string' ? PARTNERS.find((p) => p.id === from) : undefined;
-    const partnerHtml = partner
+    let partnerHtml = partner
       ? `<input type="hidden" name="partner" value="${esc(partner.id)}" form="f"><a id="pt" class="lp-cta" data-return="${esc(partner.return_url)}" hidden>Continue on ${esc(partner.name)}</a>`
       : '';
+    // T-0739: a handoff link of a known partner. Live -> prefill; anything else -> one hint line, no echo.
+    let hint = '';
+    const handoff: unknown = req.query.handoff;
+    if (partner && handoff !== undefined) {
+      res.set('Cache-Control', 'private, no-store');
+      let live: Awaited<ReturnType<typeof openHandoff>> = null;
+      try {
+        live = await openHandoff(handoffDb(), partner.id, handoff);
+      } catch (err) {
+        logger.warn({ err, partner: partner.id }, 'handoff open failed');
+      }
+      if (live) {
+        hint = `<p class="hint">Prefilled from ${esc(partner.name)}. Check the values and continue.</p>`;
+        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet })}</script>`;
+      } else {
+        hint = `<p class="hint">This link from ${esc(partner.name)} is no longer valid. You can still connect your store and return there.</p>`;
+      }
+    }
     const body = renderTokens(read('connect.html'))
       .replace('{{CATEGORY_OPTIONS}}', () => options)
+      .replace('{{HANDOFF_HINT}}', () => hint)
       .replace('{{PARTNER}}', () => partnerHtml);
     res.type('html').send(
       layout({

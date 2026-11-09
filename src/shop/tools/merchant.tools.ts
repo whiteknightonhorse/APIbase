@@ -147,6 +147,13 @@ export function registerMerchantTools(
         payout_wallet_tempo: z.string().optional(),
         recovery_wallet: z.string().optional(),
         encryption_key: ENC_KEY,
+        handoff_id: z
+          .string()
+          .uuid()
+          .optional()
+          .describe(
+            'Partner handoff id from the link you were sent (/integrator/docs#partner-handoff); the partner learns your slug.',
+          ),
         message: z.string().describe('Signed sign-in message (purpose register).'),
         signature: z.string(),
       },

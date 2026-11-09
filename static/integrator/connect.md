@@ -27,6 +27,8 @@ Your wallet asks for 3 free signatures. No gas, no money leaves your wallet:
 
 Network: Base. Payouts go to this wallet in USDC (you can pick a different payout wallet in the form; leave it empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet). If a signature is rejected, nothing is charged: press Try again and approve it in your wallet. No wallet yet? See /integrator/wallet.
 
+Arrived from a marketplace link? The form is prefilled from it (check the values, every field stays editable), and if your wallet differs from the one the marketplace has on file you see a "Different wallet" notice: switch the wallet or continue with this one (see /integrator/docs#partner-handoff).
+
 ## When your store is connected
 
 The page shows your API key and your decryption key once. Shown once: save both now in a password manager; they cannot be shown again, and if you lose them you have to reconnect your store. Then work through the next steps: add your catalog, set your webhook, pay the $0.01 test order, and check your store at /integrator/check/<address>. The steps are described in /integrator/agent-guide.

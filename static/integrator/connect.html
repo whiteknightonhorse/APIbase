@@ -64,7 +64,7 @@
 <div id="hd">
 <p class="cn-eye">INTEGRATOR · CONNECT</p>
 <h1>Connect your store</h1>
-<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>
+<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>{{HANDOFF_HINT}}
 </div>
 <ol class="cn-bar" id="bar"><li class="on">1 Your store</li><li>2 Agreements</li><li>3 Connect wallet</li></ol>
 <form id="f" novalidate>
@@ -140,13 +140,14 @@ const chk = (n, show) => { const m = V[n](F[n].type === 'checkbox' ? '' : F[n].v
 const STEP = [['name', 'site_url', 'contact_email', 'country', 'slug'], ['accept'], []];
 let cur = 0, edited = false, nw = !window.ethereum || !(window.crypto && crypto.subtle);
 const ok = (i, show) => STEP[i].map((n) => chk(n, show)).every(Boolean);
-const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 const show = (i) => {
   cur = i; S.forEach((s, j) => { $(s).hidden = j !== i; }); [...$('bar').children].forEach((li, j) => li.className = j === i ? 'on' : j < i ? 'done' : '');
   $('bk').hidden = !i; $('nx').textContent = i === 2 ? 'Connect wallet' : 'Continue'; $('nx').hidden = i === 2 && nw; $('nw').hidden = !(i === 2 && nw); $('nx').classList.toggle('off', i < 2 && !ok(i, false)); $('er').hidden = true; $('wt').hidden = true; $('wn').hidden = true; F.slug.classList.remove('bad');
 };
+const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 const save = () => { try { sessionStorage.setItem('apibase_connect', JSON.stringify(Object.fromEntries(['name', 'site_url', 'contact_email', 'category', 'country', 'slug'].map((n) => [n, F[n].value])))); } catch (e) {} };
-try { const d = JSON.parse(sessionStorage.getItem('apibase_connect') || 'null'); if (d) { for (const n in d) if (F[n] && typeof d[n] === 'string') F[n].value = d[n]; edited = !!F.slug.value; } } catch (e) {}
+const R = {}; try { const d = JSON.parse(sessionStorage.getItem('apibase_connect') || 'null'); if (d) { for (const n in d) if (F[n] && typeof d[n] === 'string') { F[n].value = d[n]; R[n] = 1; } edited = !!F.slug.value; } } catch (e) {}
+let PF = null; try { PF = $('pf') && JSON.parse($('pf').textContent); } catch (e) {} if (PF && PF.prefill) { for (const n of ['name', 'site_url', 'contact_email', 'category', 'country', 'slug']) { const v = PF.prefill[n], e = F[n]; if (typeof v !== 'string' || !v || !e) continue; if (e.tagName === 'SELECT' ? !R[n] && [...e.options].some((o) => o.value === v) : !e.value) e.value = v; } edited = !!F.slug.value; if (!edited && F.name.value) F.slug.value = slugify(F.name.value); }
 const pv = () => { $('pv').textContent = F.slug.value || 'my-shop'; $('nx').classList.toggle('off', cur < 2 && !ok(cur, false)); save(); };
 F.name.addEventListener('input', () => { if (!edited) F.slug.value = slugify(F.name.value); pv(); });
 F.slug.addEventListener('input', () => { edited = true; F.slug.classList.remove('bad'); pv(); });
@@ -164,7 +165,7 @@ const done = async (r, slug, k) => {
   const todo = el('ul', 'cn-todo');
   todo.append(td(G + 'step-4-catalog_upsert', 'Add your catalog', 'List what you sell so agents can order it.'), td(G + 'step-5-webhook_set', 'Set your webhook', 'Where we send new orders.'), td(G + 'step-7-pay-test-sku', 'Pay the $0.01 test order', 'Checks that payments reach your wallet.'), td('/integrator/check/' + slug, 'Check your store', 'apibase.pro/integrator/check/' + slug));
   $('out').replaceChildren(el('div', 'cn-ok', '✓'), el('h1', '', 'Your store is connected'), pg, W, key('API key', r.api_key, 'Your shop uses it to talk to APIbase.'), key('Decryption key', b64(await crypto.subtle.exportKey('pkcs8', k.privateKey)), "Opens buyers' encrypted order details. Never share it."), el('h2', '', 'Next steps'), todo);
-  const pt = $('pt'); if (pt) { pt.href = pt.dataset.return + '?apibase_slug=' + encodeURIComponent(slug); pt.hidden = false; $('out').append(pt); }
+  const pt = $('pt'); if (pt) { pt.href = pt.dataset.return + '?apibase_slug=' + encodeURIComponent(slug) + (F.handoff ? '&handoff=' + encodeURIComponent(F.handoff.value) : ''); pt.hidden = false; $('out').append(pt); }
   f.hidden = true; $('bar').hidden = true; $('hd').hidden = true; $('ft').hidden = true; $('out').hidden = false; try { sessionStorage.removeItem('apibase_connect'); } catch (e) {} T('sign_up', { method: 'wallet' });
 };
 let sg = 0;
@@ -181,11 +182,13 @@ const fail = (err) => {
   b.type = 'button'; b.onclick = () => { er.hidden = true; mark(0, ''); if (sg < 3) $('nx').click(); };
   er.replaceChildren(t, m, b); er.hidden = false;
 };
+let dw = null, wok = ''; const differ = (ew) => { const pn = F.handoff.dataset.partner, b1 = el('button', 'lp-cta', 'Try again'), b2 = el('button', 'cn-ghost', 'Continue with this wallet'); b1.type = b2.type = 'button'; b1.onclick = () => { dw.hidden = true; $('nx').click(); }; b2.onclick = () => { wok = dw.dataset.w; dw.hidden = true; $('nx').click(); }; if (!dw) { dw = el('div', 'cn-net'); $('wn').after(dw); } dw.replaceChildren(el('b', '', '⚠ Different wallet'), el('small', '', pn + ' has another wallet on file for you (' + ew.slice(0, 6) + '…' + ew.slice(-4) + '). Payouts go to the wallet you register here; ' + pn + ' may require them to match. Switch the wallet in your wallet app, or continue with this one.'), b1, document.createTextNode(' '), b2); dw.hidden = false; };
 const run = async () => {
-  sg = 0; const x = Object.fromEntries(new FormData(f)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0];
+  sg = 0; const x = Object.fromEntries(new FormData(f)), w = (await ethereum.request({ method: 'eth_requestAccounts' }))[0], ew = PF && PF.expected_wallet;
+  if (dw) dw.hidden = true; if (ew && F.handoff && ew.toLowerCase() !== w.toLowerCase() && wok !== w.toLowerCase()) { differ(ew); dw.dataset.w = w.toLowerCase(); return; }
   P(1); const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
   const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
-  P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
+  P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, handoff_id: x.handoff, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
   const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
   P(3); const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
   await done(await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' }), x.slug, k);

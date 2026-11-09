@@ -4,7 +4,7 @@
 
 A merchant goes `pending` → `active` in three calls. Everything is authenticated by the merchant
 wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
-A marketplace partner listed in `config/integrator/partners.json` can send merchants to `/integrator/connect?from=<partner>`; after registration the page shows a "Continue on <partner>" button carrying only the slug as `apibase_slug`.
+A marketplace partner can send merchants to a prefilled connect page and learn their slug: see [Partner handoff](#partner-handoff).
 
 | Step | REST (`/api/v1/shop`)                                           | MCP tool                       |
 | ---- | --------------------------------------------------------------- | ------------------------------ |
@@ -23,6 +23,8 @@ A marketplace partner listed in `config/integrator/partners.json` can send merch
 | —    | `GET /merchants/me/webhooks` (`webhooks:write`)                 | `shop.merchant.webhook_list`   |
 | —    | `DELETE /merchants/me/webhooks/:endpoint_id` (`webhooks:write`) | `shop.merchant.webhook_delete` |
 | —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`)       | —                              |
+| —    | `POST /partners/handoffs` (partner key)                         | —                              |
+| —    | `GET /partners/handoffs/:id` (partner key)                      | —                              |
 
 1. **Nonce.** `GET /auth/nonce` returns `{nonce, issued_at, expires_in, message}`; `message` is the exact
    text to sign for that purpose. A nonce is single-use and lives 300 s.
@@ -358,6 +360,18 @@ Monthly plans never get `mpp_subscription` (the MPP specification accepts day an
 9. `shop.subscription.cancel` (or the end of the term) stops all renewals. It does **not** touch the chain: the payer revokes the key from the paying account (`accessKey.revoke` from viem/tempo, for the address in `renewal_key`). A revoked key never renews again.
 
 The renewal key is generated and held by APIbase; the payer's authorization expires on its own at `subscriptionExpires`, after which the buyer subscribes again.
+
+## Partner handoff {#partner-handoff}
+
+A marketplace partner listed in `config/integrator/partners.json` sends merchants to APIbase and gets them back with their shop address. The partner authenticates with its own key, `Authorization: Bearer pk_live_<32 hex>`; APIbase keeps only its SHA-256. A missing, malformed or unknown key is `401 partner_key_invalid`. Creating is limited to 60 requests/min and reading to 600 requests/min per key.
+
+1. **Create.** `POST /api/v1/shop/partners/handoffs` with `{seller_ref?, prefill?: {name?, site_url?, contact_email?, category?, country?, slug?}, expected_wallet?}`. `seller_ref` is your own reference (up to 128 characters, opaque to APIbase). Prefill fields follow the registration rules (non-empty name, `https` site URL, e-mail, an allowed category, ISO 3166-1 alpha-2 country, slug `[a-z0-9-]{3,40}`; whether the slug is free is checked only at registration, as `slug_taken`). `expected_wallet` is the EVM address you have on file for the seller. A bad field is `422 validation_failed` with `field` naming it. The answer is `201 {handoff_id, url, expires_at}`, where `url` is `https://apibase.pro/integrator/connect?from=<partner>&handoff=<handoff_id>` and the handoff lives 24 hours.
+2. **Connect page.** Send the seller to `url`. A live handoff prefills the form; values the seller already typed in this browser win, and every field stays editable. An expired, already registered or foreign handoff shows the plain connect page with one line saying the link is no longer valid. After the wallet connects, the page compares it with `expected_wallet` (case-insensitive): a different wallet shows a "Different wallet" notice with the choice to switch or continue. It is a warning, never a refusal: payouts go to the wallet the seller registers, and your marketplace decides whether it must match.
+3. **Registration.** The page sends `handoff_id` in the register body. An agent registering for a seller passes the same optional `handoff_id` (uuid) to `POST /api/v1/shop/merchants` or `shop.merchant.register`. A live handoff is bound to the new merchant; an unknown, expired or already used one never fails the registration.
+4. **Return.** After registration the "Continue on <partner>" button opens `<return_url>?apibase_slug=<slug>&handoff=<handoff_id>`, built from the registry `return_url`; nothing else is in the URL.
+5. **Read.** `GET /api/v1/shop/partners/handoffs/:id` returns `{handoff_id, state, seller_ref, slug?, merchant_id?, wallet_match?, created_at, expires_at, opened_at?, registered_at?}`. `state` moves `created` → `opened` (the page was opened) → `registered`; a handoff not registered within 24 hours reads `expired`. `wallet_match` is `false` when the seller registered a wallet other than `expected_wallet`. Another partner's id or an unknown id is `404`. The read never returns the prefill, a merchant key, a wallet or an e-mail.
+
+**Retention.** The prefill is deleted when the handoff is registered or expires (at most 24 hours); handoff rows are deleted after 30 days. The handoff link carries the prefill: treat it like a password-reset link and send it only to the seller.
 
 ## Webhooks
 

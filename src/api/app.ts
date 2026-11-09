@@ -18,6 +18,7 @@ import { onboardRouter } from '../routes/onboard.router';
 import { contactRouter } from '../routes/contact.router';
 import { appealsRouter } from '../routes/appeals.router';
 import { createMerchantRouter } from '../shop/routes/merchant.router';
+import { createPartnerRouter } from '../shop/routes/partner.router';
 import { createOrderRouter } from '../shop/routes/order.router';
 import { createLegalRouter } from '../shop/routes/legal.router';
 import { createIntegratorRouter } from '../shop/routes/integrator.router';
@@ -128,6 +129,7 @@ export function createApp(): express.Express {
   // --- API routes ---
   app.use(agentsRouter);
   app.use(createMerchantRouter());
+  app.use(createPartnerRouter());
   app.use(createModerationInternalRouter());
   app.use(createOrderRouter());
   app.use(toolsRouter);
