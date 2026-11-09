@@ -32,7 +32,7 @@ api-call --lane {overflow|demo|batch|sweep} --model <id> --max-turns N [-- claud
 ```
 
 Prints the result text on stdout. Runs `claude -p --output-format json --model <id> --max-turns N` with the key in the child
-environment only. Callers cannot pass `--output-format`, `--model` or `--max-turns` after `--`.
+environment only. Callers cannot pass `--output-format`, `--model` or `--max-turns` after `--`, in either the `--flag value` or the `--flag=value` form.
 
 Exit 75 means refused (one line on stderr, no child process, no network call). A refusal is never an error: the caller falls back to
 subscription behaviour. Other non-zero codes are call failures. Refusal reasons, in check order:

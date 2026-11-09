@@ -70,7 +70,11 @@ API_CREDITS_NOW="2026-12-06T00:00:00Z" expect_rc 75 "after cycle end" "${CALL[@]
 API_CREDITS_NOW="2026-11-07T23:59:59Z" expect_rc 75 "before cycle start" "${CALL[@]}"
 echo '{"ts":"2026-11-20T01:00:00Z","lane":"overflow","cost_usd":8}' > "$LEDGER"
 expect_rc 75 "overflow daily cap 8" "$D/api-call" --lane overflow --model claude-fable-5-1 --max-turns 1 -- claude -p x
-rm -f "$LEDGER"; touch "$API_LEDGER_DIR/HALT"
+rm -f "$LEDGER"
+expect_rc 75 "--model= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --model=claude-opus-5-5
+expect_rc 75 "--output-format= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --output-format=text
+expect_rc 75 "--max-turns= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --max-turns=99
+touch "$API_LEDGER_DIR/HALT"
 expect_rc 75 "HALT refuses batch" "${CALL[@]}"
 expect_rc 0 "HALT does not stop overflow" "$D/api-call" --lane overflow --model claude-fable-5-1 --max-turns 1 -- claude -p x
 rm -f "$API_LEDGER_DIR/HALT" "$LEDGER"
@@ -79,7 +83,7 @@ rm -f "$API_LEDGER_DIR/HALT" "$LEDGER"
 echo '{"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":91}' > "$LEDGER"
 "$D/api-spend" > "$T/spend"; grep -q 'batch .*91.00 / \$55' "$T/spend" && grep -q 'days left' "$T/spend" && ok "api-spend report" || bad "api-spend"
 "$D/api-spend-cron" "$T/tick.log"
-[ -e "$API_LEDGER_DIR/ALERT-90" ] && [ ! -e "$API_LEDGER_DIR/ALERT-135" ] && [ -e "$API_LEDGER_DIR/ALERT-lane-batch" ] && grep -q "reached \$90" "$T/tick.log" && ok "alert markers + tick.log line" || bad "alerts"
+[ -e "$API_LEDGER_DIR/ALERT-90" ] && [ ! -e "$API_LEDGER_DIR/ALERT-135" ] && [ -e "$API_LEDGER_DIR/ALERT-lane-batch" ] && grep -q "reached \$90" "$T/tick.log" && grep -Eq 'reached your .* limit|usage limit|rate limit|hit your limit|limit reached' "$T/tick.log" && ok "alert markers + tick.log line" || bad "alerts"
 API_CREDITS_NOW="2026-12-06T00:05:00Z" "$D/api-cycle-rollover"
 [ "$(jq -r .start "$API_LEDGER_DIR/cycle.json")" = 2026-12-06 ] && [ "$(jq -r .end "$API_LEDGER_DIR/cycle.json")" = 2027-01-06 ] && [ ! -e "$API_LEDGER_DIR/ALERT-90" ] && ok "rollover opens 2026-12-06 -> 2027-01-06, clears alerts" || bad "rollover"
 exit $FAIL

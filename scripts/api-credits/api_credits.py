@@ -183,7 +183,7 @@ def cmd_call(argv):
         extra = extra[1:]
     # Callers may not override the flags the wrapper owns.
     for f in ("--output-format", "--max-turns", "--model"):
-        if f in extra:
+        if f in extra or any(isinstance(a, str) and a.startswith(f + "=") for a in extra):
             return refuse("caller may not pass " + f)
     cmd = [CLAUDE_BIN, "-p", "--output-format", "json", "--model", model, "--max-turns", str(max_turns)] + extra
     env = dict(os.environ)
@@ -271,7 +271,7 @@ def cmd_alerts(argv):
             f.write(msg + "\n")
         if tick:
             with open(tick, "a") as f:
-                f.write("%s API credits alert: %s (reached your api credit threshold)\n"
+                f.write("%s API credits alert: %s (reached your api credit limit)\n"
                         % (now().strftime("%Y-%m-%dT%H:%M:%SZ"), msg))
     return 0
 
