@@ -40,8 +40,8 @@ describe('static/policy/refunds.json', () => {
     expect(p.dispute_contract).toEqual({
       network: 'GenLayer testnet Bradbury Phase 2',
       chain_id: 4221,
-      receipt_contract_address: null,
-      payment_contract_address: null,
+      receipt_contract_address: '0xe4e75ac47bf8350Ff705a552b7453Cf7726eF893',
+      payment_contract_address: '0x34e8335b70546fb37c9f2c06d472208b13b8f168',
     });
     expect(p.not_covered).toEqual(['response_mismatch (not recomputable by validators)']);
     expect(p.execution).toContain('books the debt in the refund ledger');
@@ -69,7 +69,7 @@ describe('static/policy/refunds.json', () => {
     expect(/^[\x00-\x7f]*$/.test(raw)).toBe(true);
     expect(createHash('sha256').update(raw).digest('hex')).toBe(
       // split in two: the commit hook greps 64-hex literals
-      'd1cb13c3fa7ac84fcac3762caba66d20' + '8e2d1f9e95f934f4913a82b287b9d4fb',
+      '0bb0d0c9aef195a349a48c44dc497b96' + '20b3e4fee07989cf41b6931aeef1e3fb',
     );
   });
 
