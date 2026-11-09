@@ -27,7 +27,7 @@ import { getMerchantStats } from '../stats.service';
 import { merchantRefund } from '../refund.service';
 import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
 import { merchantEnvelopes } from '../pii/pii.service';
-import { listEvents, setWebhook } from '../webhook/webhook.service';
+import { deleteWebhook, listEvents, listWebhooks, setWebhook } from '../webhook/webhook.service';
 import {
   confirmMerchantSettled,
   listSettleQueue,
@@ -505,6 +505,34 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(await setWebhook(deps, req.merchant?.merchant_id ?? '', req.body ?? {}));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  router.get(
+    '/api/v1/shop/merchants/me/webhooks',
+    probeLimiter,
+    requireMerchantKey(['webhooks:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await listWebhooks(deps, req.merchant?.merchant_id ?? ''));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  router.delete(
+    '/api/v1/shop/merchants/me/webhooks/:endpoint_id',
+    probeLimiter,
+    requireMerchantKey(['webhooks:write'], () => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(
+          await deleteWebhook(deps, req.merchant?.merchant_id ?? '', req.params.endpoint_id),
+        );
       } catch (err) {
         send(res, err);
       }

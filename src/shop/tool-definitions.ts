@@ -12,7 +12,7 @@ import { withZod3ToolSchemas } from '../mcp/zod3-tool-schema';
  * version when a definition changes on purpose; the hash moves on any change at all (name,
  * description, schema, annotations), so a silent edit cannot go unnoticed.
  */
-export const SHOP_TOOLS_VERSION = '12';
+export const SHOP_TOOLS_VERSION = '13';
 
 const canon = (v: unknown): unknown =>
   Array.isArray(v)

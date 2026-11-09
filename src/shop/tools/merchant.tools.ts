@@ -19,7 +19,12 @@ import {
 import { runCheck } from '../check.service';
 import { getMerchantStats } from '../stats.service';
 import { merchantRefund } from '../refund.service';
-import { setWebhook, WEBHOOK_EVENTS } from '../webhook/webhook.service';
+import {
+  deleteWebhook,
+  listWebhooks,
+  setWebhook,
+  WEBHOOK_EVENTS,
+} from '../webhook/webhook.service';
 import {
   acceptTerms,
   defaultShopDeps,
@@ -58,6 +63,8 @@ export const MERCHANT_TOOL_NAMES = [
   'shop.merchant.order_document',
   'shop.merchant.refund',
   'shop.merchant.webhook_set',
+  'shop.merchant.webhook_list',
+  'shop.merchant.webhook_delete',
   'shop.merchant.check',
   'shop.merchant.stats',
 ] as const;
@@ -430,6 +437,57 @@ export function registerMerchantTools(
       try {
         const m = await bearer(deps, apiKey, 'webhooks:write', true);
         return ok({ ...(await setWebhook(deps, m.merchant_id, a)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+  reg.call(
+    server,
+    'shop.merchant.webhook_list',
+    {
+      title: 'List webhook endpoints',
+      description:
+        'Your webhook endpoints (needs webhooks:write), deleted ones excluded, signing secrets never returned: endpoint_id, url, events, status, failures_in_row, created_at.',
+      inputSchema: {},
+      outputSchema: {
+        endpoints: z.array(
+          z.object({
+            endpoint_id: z.string(),
+            url: z.string(),
+            events: z.array(z.string()),
+            status: z.string(),
+            failures_in_row: z.number(),
+            created_at: z.string(),
+          }),
+        ),
+      },
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    async () => {
+      try {
+        const m = await bearer(deps, apiKey, 'webhooks:write');
+        return ok({ ...(await listWebhooks(deps, m.merchant_id)) });
+      } catch (err) {
+        return fail(err, requestId);
+      }
+    },
+  );
+  reg.call(
+    server,
+    'shop.merchant.webhook_delete',
+    {
+      title: 'Delete a webhook endpoint',
+      description:
+        "Delete one of your webhook endpoints (needs webhooks:write): deliveries to it stop after the current attempt. Another merchant's endpoint_id, or an already deleted one, is 404.",
+      inputSchema: { endpoint_id: z.string() },
+      outputSchema: { endpoint_id: z.string(), deleted: z.boolean() },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
+    },
+    async (a: Record<string, unknown>) => {
+      try {
+        const m = await bearer(deps, apiKey, 'webhooks:write', true);
+        return ok({ ...(await deleteWebhook(deps, m.merchant_id, a.endpoint_id)) });
       } catch (err) {
         return fail(err, requestId);
       }

@@ -76,7 +76,7 @@ export async function setWebhook(
   if (input.endpoint_id !== undefined && input.endpoint_id !== null) {
     if (typeof input.endpoint_id !== 'string' || !UUID_RE.test(input.endpoint_id)) throw notFound();
     const own = await d.db.$queryRawUnsafe<unknown[]>(
-      `SELECT 1 FROM shop_webhook_endpoints WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid`,
+      `SELECT 1 FROM shop_webhook_endpoints WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid AND status <> 'deleted'`,
       input.endpoint_id,
       merchant_id,
     );
@@ -112,7 +112,7 @@ export async function setWebhook(
   }
 
   const count = await d.db.$queryRawUnsafe<Array<{ c: number }>>(
-    `SELECT count(*)::int AS c FROM shop_webhook_endpoints WHERE merchant_id = $1::uuid`,
+    `SELECT count(*)::int AS c FROM shop_webhook_endpoints WHERE merchant_id = $1::uuid AND status <> 'deleted'`,
     merchant_id,
   );
   if ((count[0]?.c ?? 0) >= MAX_ENDPOINTS) {
@@ -131,6 +131,51 @@ export async function setWebhook(
     uniqEvents,
   );
   return { endpoint_id: rows[0].endpoint_id, url, events: uniqEvents, secret };
+}
+
+export interface WebhookListItem {
+  endpoint_id: string;
+  url: string;
+  events: string[];
+  status: string;
+  failures_in_row: number;
+  created_at: string;
+}
+
+/** shop.merchant.webhook_list / GET /merchants/me/webhooks: the key's endpoints, never a secret. */
+export async function listWebhooks(
+  d: ShopDeps,
+  merchant_id: string,
+): Promise<{ endpoints: WebhookListItem[] }> {
+  const rows = await d.db.$queryRawUnsafe<
+    Array<Omit<WebhookListItem, 'created_at'> & { created_at: Date }>
+  >(
+    `SELECT endpoint_id::text AS endpoint_id, url, events, status, failures_in_row::int AS failures_in_row, created_at
+       FROM shop_webhook_endpoints
+      WHERE merchant_id = $1::uuid AND status <> 'deleted'
+      ORDER BY created_at, endpoint_id`,
+    merchant_id,
+  );
+  return {
+    endpoints: rows.map((r) => ({ ...r, created_at: new Date(r.created_at).toISOString() })),
+  };
+}
+
+/** shop.merchant.webhook_delete / DELETE /merchants/me/webhooks/:endpoint_id. Another merchant's id is 404. */
+export async function deleteWebhook(
+  d: ShopDeps,
+  merchant_id: string,
+  endpoint_id: unknown,
+): Promise<{ endpoint_id: string; deleted: true }> {
+  if (typeof endpoint_id !== 'string' || !UUID_RE.test(endpoint_id)) throw notFound();
+  const n = await d.db.$executeRawUnsafe(
+    `UPDATE shop_webhook_endpoints SET status = 'deleted'
+      WHERE endpoint_id = $1::uuid AND merchant_id = $2::uuid AND status <> 'deleted'`,
+    endpoint_id,
+    merchant_id,
+  );
+  if (n === 0) throw notFound();
+  return { endpoint_id, deleted: true };
 }
 
 export interface PulledEvent {

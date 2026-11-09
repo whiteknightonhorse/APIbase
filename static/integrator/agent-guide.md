@@ -46,6 +46,8 @@ Errors: `terms_not_accepted` (428), `merchant_unavailable` (410), `merchant_inac
 
 Call `PUT /api/v1/shop/merchants/me/webhooks` with `{url, events[]}` (MCP tool `shop.merchant.webhook_set`). The reply shows the `whsec_` signing secret once. Deliveries carry `X-APIbase-Signature: t=<unix>,v1=<hex>` where `v1` is HMAC-SHA256 of `t + "." + body` with that secret. Answer any 2xx within 10 seconds.
 
+Lost the secret, or want an endpoint gone? See [Webhooks](/integrator/docs#webhooks): `GET /merchants/me/webhooks` lists your endpoints, `DELETE /merchants/me/webhooks/:endpoint_id` removes one (`shop.merchant.webhook_list`, `shop.merchant.webhook_delete`).
+
 ### The `order.paid` delivery and the reply that delivers
 
 The body of every delivery is `{"id": "<outbox id>", "event": "order.paid", "created_at": "<ISO 8601>", "data": {...}}`. For `order.paid`, `data` has these fields:

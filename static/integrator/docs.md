@@ -5,21 +5,23 @@
 A merchant goes `pending` → `active` in three calls. Everything is authenticated by the merchant
 wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
 
-| Step | REST (`/api/v1/shop`)                                        | MCP tool                       |
-| ---- | ------------------------------------------------------------ | ------------------------------ |
-| 1    | `GET /auth/nonce?wallet=0x…&purpose=register`                | —                              |
-| 2    | `POST /merchants`                                            | `shop.merchant.register`       |
-| 3    | `GET /auth/nonce?wallet=0x…&purpose=accept_terms`            | —                              |
-| 4    | `POST /merchants/me/acceptances`                             | `shop.merchant.accept_terms`   |
-| —    | `POST /merchants/me/keys/rotate` (Bearer)                    | `shop.merchant.rotate_key`     |
-| —    | `POST /merchants/me/keys/reissue` (no Bearer, wallet-signed) | —                              |
-| —    | `POST /merchants/me/deactivate` (Bearer, `orders:write`)     | `shop.merchant.deactivate`     |
-| —    | `GET /merchants/me/orders` (Bearer, `orders:read`)           | `shop.merchant.orders_list`    |
-| —    | `POST /merchants/me/orders/:id/confirm` (`orders:write`)     | `shop.merchant.order_confirm`  |
-| —    | `POST /merchants/me/orders/:id/ship` (`orders:write`)        | `shop.merchant.order_ship`     |
-| —    | `POST /merchants/me/orders/:id/document` (`orders:write`)    | `shop.merchant.order_document` |
-| —    | `PUT /merchants/me/webhooks` (`webhooks:write`)              | `shop.merchant.webhook_set`    |
-| —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`)    | —                              |
+| Step | REST (`/api/v1/shop`)                                           | MCP tool                       |
+| ---- | --------------------------------------------------------------- | ------------------------------ |
+| 1    | `GET /auth/nonce?wallet=0x…&purpose=register`                   | —                              |
+| 2    | `POST /merchants`                                               | `shop.merchant.register`       |
+| 3    | `GET /auth/nonce?wallet=0x…&purpose=accept_terms`               | —                              |
+| 4    | `POST /merchants/me/acceptances`                                | `shop.merchant.accept_terms`   |
+| —    | `POST /merchants/me/keys/rotate` (Bearer)                       | `shop.merchant.rotate_key`     |
+| —    | `POST /merchants/me/keys/reissue` (no Bearer, wallet-signed)    | —                              |
+| —    | `POST /merchants/me/deactivate` (Bearer, `orders:write`)        | `shop.merchant.deactivate`     |
+| —    | `GET /merchants/me/orders` (Bearer, `orders:read`)              | `shop.merchant.orders_list`    |
+| —    | `POST /merchants/me/orders/:id/confirm` (`orders:write`)        | `shop.merchant.order_confirm`  |
+| —    | `POST /merchants/me/orders/:id/ship` (`orders:write`)           | `shop.merchant.order_ship`     |
+| —    | `POST /merchants/me/orders/:id/document` (`orders:write`)       | `shop.merchant.order_document` |
+| —    | `PUT /merchants/me/webhooks` (`webhooks:write`)                 | `shop.merchant.webhook_set`    |
+| —    | `GET /merchants/me/webhooks` (`webhooks:write`)                 | `shop.merchant.webhook_list`   |
+| —    | `DELETE /merchants/me/webhooks/:endpoint_id` (`webhooks:write`) | `shop.merchant.webhook_delete` |
+| —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`)       | —                              |
 
 1. **Nonce.** `GET /auth/nonce` returns `{nonce, issued_at, expires_in, message}`; `message` is the exact
    text to sign for that purpose. A nonce is single-use and lives 300 s.
@@ -359,6 +361,8 @@ The renewal key is generated and held by APIbase; the payer's authorization expi
 ## Webhooks
 
 Register an endpoint with `PUT /merchants/me/webhooks` (`shop.merchant.webhook_set`) — body `{url, events[], endpoint_id?, rotate_secret?}`. `events` is a non-empty subset of `order.paid`, `order.confirmed`, `order.shipped`, `order.delivered`, `order.cancelled`, `refund.requested`, `refund.verified`, `dispute.opened`, `catalog.rejected`, `merchant.key_rotated`, `merchant.keys_reissued`, `subscription.started`, `subscription.renewed`, `subscription.past_due`, `subscription.canceled`, `subscription.expired`, `subscription.pull_failed`, `stream.settle_due`. A new endpoint returns its signing `secret` (`whsec_` + 32 hex) **once**; APIbase keeps only its SHA-256 and an encrypted copy for signing. Pass `endpoint_id` to change an endpoint of yours (another merchant's id is `404`; `rotate_secret: true` issues a new secret).
+
+`GET /merchants/me/webhooks` lists your endpoints without secrets; `DELETE /merchants/me/webhooks/:endpoint_id` stops deliveries to it; a lost secret is replaced with `rotate_secret: true` or by deleting the endpoint and registering a new one. A deleted endpoint is `404` for `endpoint_id` updates and a second delete (another merchant's id is `404` too), does not count towards the endpoint limit, and receives no new deliveries; retries already scheduled stop after the current attempt. A suspended or deactivated shop may still list, but not delete.
 
 **URL rules.** `https://` only; every address the host resolves to must be public — RFC 1918, loopback, link-local (`169.254.169.254` included), CGNAT and IPv6 equivalents are `422`. The name is resolved again at every delivery and the connection is pinned to that address; redirects are never followed (a `3xx` counts as a failed attempt).
 

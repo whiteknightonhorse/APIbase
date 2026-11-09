@@ -15,7 +15,12 @@ import { registerMerchantTools } from '../../src/shop/tools/merchant.tools';
 import { RETRY_DELAYS_MS } from '../../src/shop/webhook/constants';
 import { deliverDue, redeliver, type DeliveryDeps } from '../../src/shop/webhook/delivery.service';
 import type { WebhookTransport } from '../../src/shop/webhook/transport';
-import { listEvents, setWebhook } from '../../src/shop/webhook/webhook.service';
+import {
+  deleteWebhook,
+  listEvents,
+  listWebhooks,
+  setWebhook,
+} from '../../src/shop/webhook/webhook.service';
 import { client, dbDescribe, migrate, mkMerchant, mkOrder, mkQuote } from './helpers/shop-db';
 
 jest.mock('../../src/config/index', () => ({
@@ -452,5 +457,77 @@ dbDescribe('merchant webhooks (F-6)', () => {
     );
     const bogus = await call({ url: 'https://hook.example/x', events: ['order.exploded'] });
     expect(bogus.isError).toBe(true);
+  });
+
+  it('WH11: list hides secrets; delete then list = gone; delete twice and another merchant are 404', async () => {
+    const a = await merchant();
+    const b = await merchant();
+    const e1 = await endpoint(a);
+    const e2 = await endpoint(a, ['order.shipped']);
+    const eb = await endpoint(b);
+    const listed = await listWebhooks(deps, a);
+    expect(listed.endpoints.map((e) => e.endpoint_id)).toEqual([e1.id, e2.id]);
+    expect(Object.keys(listed.endpoints[0]).sort()).toEqual(
+      ['created_at', 'endpoint_id', 'events', 'failures_in_row', 'status', 'url'].sort(),
+    );
+    expect(JSON.stringify(listed)).not.toMatch(/secret|whsec_/);
+    await expect(deleteWebhook(deps, a, eb.id)).rejects.toMatchObject({ status: 404 });
+    expect((await listWebhooks(deps, b)).endpoints).toHaveLength(1);
+    await expect(deleteWebhook(deps, a, e1.id)).resolves.toMatchObject({ deleted: true });
+    expect((await listWebhooks(deps, a)).endpoints.map((e) => e.endpoint_id)).toEqual([e2.id]);
+    await expect(deleteWebhook(deps, a, e1.id)).rejects.toMatchObject({ status: 404 });
+    await expect(deleteWebhook(deps, a, 'not-a-uuid')).rejects.toMatchObject({ status: 404 });
+    await expect(
+      setWebhook(deps, a, {
+        url: 'https://hook.example/x',
+        events: ['order.paid'],
+        endpoint_id: e1.id,
+      }),
+    ).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('WH12: a deleted endpoint gets no delivery for a later order.paid; the cap counts active endpoints only', async () => {
+    const m = await merchant();
+    const gone = await endpoint(m);
+    const kept = await endpoint(m);
+    await deleteWebhook(deps, m, gone.id);
+    await emit('shop.order.paid', { order_id: randomUUID(), merchant_id: m });
+    expect(await deliveries(gone.id)).toHaveLength(0);
+    expect(await deliveries(kept.id)).toHaveLength(1);
+    // fill to the cap with active endpoints, delete one, a new one fits again
+    const ids = [kept.id];
+    for (let i = 0; i < 50; i++) {
+      try {
+        ids.push((await endpoint(m)).id);
+      } catch (e: any) {
+        expect(e.status).toBe(422);
+        break;
+      }
+    }
+    await expect(endpoint(m)).rejects.toMatchObject({ status: 422 });
+    await deleteWebhook(deps, m, ids[ids.length - 1]);
+    await expect(endpoint(m)).resolves.toBeDefined();
+  });
+
+  it('WH13: webhook_list / webhook_delete tools work on the same services', async () => {
+    const a = await merchant();
+    const e = await endpoint(a);
+    const srv = new McpServer({ name: 't', version: '0' });
+    registerMerchantTools(srv, await deps.transaction((tx) => issueKey(tx, a)), 'req-1', deps);
+    const c = new Client({ name: 'c', version: '0' });
+    const [t1, t2] = InMemoryTransport.createLinkedPair();
+    await Promise.all([srv.connect(t1), c.connect(t2)]);
+    const l: any = await c.callTool({ name: 'shop.merchant.webhook_list', arguments: {} });
+    expect(JSON.parse(l.content[0].text).endpoints[0].endpoint_id).toBe(e.id);
+    const d: any = await c.callTool({
+      name: 'shop.merchant.webhook_delete',
+      arguments: { endpoint_id: e.id },
+    });
+    expect(d.isError).toBeFalsy();
+    const d2: any = await c.callTool({
+      name: 'shop.merchant.webhook_delete',
+      arguments: { endpoint_id: e.id },
+    });
+    expect(d2.isError).toBe(true);
   });
 });

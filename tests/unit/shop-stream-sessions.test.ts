@@ -1577,6 +1577,8 @@ dbDescribe('stream sessions (INT-40)', () => {
         "shop.merchant.register",
         "shop.merchant.rotate_key",
         "shop.merchant.stats",
+        "shop.merchant.webhook_delete",
+        "shop.merchant.webhook_list",
         "shop.merchant.webhook_set",
         "shop.order.cancel",
         "shop.order.dispute",
