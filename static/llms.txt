@@ -3,7 +3,7 @@
 
 > One MCP + REST endpoint to 1383 tools from 399 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
 
-Why this endpoint instead of individual providers, and how discover/evaluate/pay/execute
+Why this endpoint instead of individual providers, and how discover/evaluate/pay/execute (ranking once per task server-side (apibase.discover), not a per-call tax of a 1000-tool catalog)
 actually work: https://apibase.pro/why (Markdown: https://apibase.pro/why.md). Answers for
 specific needs (flight search, image generation, company research):
 https://apibase.pro/flight-search-intent, https://apibase.pro/image-generation-intent,
