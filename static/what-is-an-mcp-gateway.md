@@ -29,7 +29,7 @@ A priced call without payment gets an HTTP 402 challenge with the exact price. T
 - A different provider's answer is never substituted for the one that was requested. A failed call returns an error.
 - A tool whose free upstream quota is exhausted is withdrawn until it resets, and answers 503 `tool_unavailable` with `retry_after` before any payment challenge.
 - There is no self-service top-up balance. A balance exists only as refund credit.
-- On MPP a provider failure means a refund owed and paid by the operator, not an automatic refund. See [/pricing#refunds](/pricing#refunds).
+- On MPP a provider failure means a refund owed to you, sent automatically in a weekly batch. See [/pricing#refunds](/pricing#refunds).
 - Content sent to action tools (messages, calls, posts) is screened first. See [/policy/moderation](/policy/moderation).
 
 ## Related

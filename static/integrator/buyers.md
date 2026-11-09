@@ -60,7 +60,7 @@ Integrator never asks for your private keys or seed phrase, in any tool, page or
 - Spending limits are set and enforced by your wallet.
 - Human confirmation is done by your agent's client.
 - Safekeeping of a seller's key is the seller's.
-- Refunds are the seller's duty under its stated policy and the refund framework: /legal/refund-framework.
+- Shop refunds for returns or cancellations are the seller's duty under its policy and /legal/refund-framework; so is the seller's part of an order payment that arrived twice or late (refunded to your wallet within 7 days). Money APIbase itself owes you (a charged call without a result, its own fee share of such a payment) is refunded automatically — see /pricing#refunds.
 - USDC is issued by Circle, which can block addresses under its terms; a lost key means lost funds; stablecoin balances are not insured deposits. Keep agent wallets small and funded from a treasury you control.
 
 ## Streams: pay by the second
@@ -90,3 +90,7 @@ To stop it, cancel the subscription (`shop.subscription.cancel` ends all renewal
 ## If a payment is slow
 
 The order stays in `PAYING` and the call answers 202 `payment_pending`. Do not pay twice: read the order with `shop.order.get` until its state changes.
+
+## Refunds {#refunds}
+
+Refunds owed by APIbase are sent weekly (Mondays, UTC), to the wallet that paid. You can see what is owed on the receipt (`refund_url`) or in `shop.order.get`. A refund is sent once the amount owed exceeds ten times the network fee of sending it; smaller amounts carry forward and never expire. Details: /pricing#refunds.

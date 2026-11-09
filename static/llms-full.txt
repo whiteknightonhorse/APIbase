@@ -61,7 +61,8 @@ news, podcasts, search, social, space, travel, weather, world
 - MPP client: mppx >= 0.6.16 (0.4 clients are not supported); the challenge lists one currency, USDC.e on Tempo mainnet (pathUSD on the testnet)
 - A replayed MPP credential gets 403 credential_replayed
 - MPP refunds owed are reconciled from the chain every 15 minutes, not only from our own writer.
-- Upstream-paid tools: APIbase pays the provider's own x402/MPP 402 per call; you pay only APIbase's fixed price, x402 is settled only when the result is delivered (MPP: refund owed otherwise); x402 or MPP payment only. Rules: https://github.com/whiteknightonhorse/APIbase/blob/main/docs/payments.md#upstream-paid-providers
+- Refunds owed by APIbase are automatic on both rails (weekly, to the paying wallet, receipt field refund_url): https://apibase.pro/pricing#refunds
+- Upstream-paid tools: APIbase pays the provider's own x402/MPP 402 per call; you pay only APIbase's fixed price, x402 is settled only when the result is delivered (MPP: automatic refund otherwise); x402 or MPP payment only. Rules: https://github.com/whiteknightonhorse/APIbase/blob/main/docs/payments.md#upstream-paid-providers
 - Integrator (AI payment for merchants, https://apibase.pro/integrator): Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise. Merchants connected: 9. (the public /shops index lists only shops with a verified domain).
 
 ## Agent Integration Guide
@@ -143,8 +144,8 @@ create agent credentials. Full mechanics: <https://apibase.pro/connect>.
 ## 4. EXECUTE
 
 `tools/call` (MCP) or the equivalent REST call runs the request against the upstream
-provider. Payment is escrow-first and the call is idempotent by design; x402: not settled on failure; MPP: refund owed, paid by the operator
-([details](/pricing#refunds)). <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->
+provider. Payment is escrow-first and the call is idempotent by design; x402: not settled on failure; Refunds owed by APIbase are automatic on both rails
+([details](/pricing#refunds)). <!-- refund-truth: see /pricing#refunds -->
 
 ## How this compares by class
 
@@ -189,7 +190,7 @@ Use one rail per request, never both. Prices are on [/pricing](/pricing); the co
 | Header | `X-PAYMENT` | `Authorization: Payment` |
 | Client | An x402 client | `mppx` 0.6.16 or newer, with `polyfill: false` |
 | Settlement | After a delivered response, by the self-hosted facilitator | Before the provider call |
-| Provider fails | Not settled: nothing leaves the wallet | Refund owed, paid out by the operator |
+| Provider fails | Not settled: nothing leaves the wallet | Refund owed, sent automatically (weekly) |
 | Same lookup again within 2 minutes | Answered from cache and not charged | Charged again |
 | First payment from a new wallet | Creates the agent identity | Creates the agent identity |
 | Receipt | Public, `X-APIbase-Receipt` header | Public, `X-APIbase-Receipt` header |
@@ -206,7 +207,7 @@ A replayed MPP credential is refused with 403 `credential_replayed`.
 
 ## Refunds per rail
 
-<!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in [/pricing#refunds](/pricing#refunds).
+<!-- refund-truth: see /pricing#refunds -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in [/pricing#refunds](/pricing#refunds).
 
 ## Receipts
 
@@ -253,7 +254,7 @@ A priced call without payment gets an HTTP 402 challenge with the exact price. T
 - A different provider's answer is never substituted for the one that was requested. A failed call returns an error.
 - A tool whose free upstream quota is exhausted is withdrawn until it resets, and answers 503 `tool_unavailable` with `retry_after` before any payment challenge.
 - There is no self-service top-up balance. A balance exists only as refund credit.
-- On MPP a provider failure means a refund owed and paid by the operator, not an automatic refund. See [/pricing#refunds](/pricing#refunds).
+- On MPP a provider failure means a refund owed to you, sent automatically in a weekly batch. See [/pricing#refunds](/pricing#refunds).
 - Content sent to action tools (messages, calls, posts) is screened first. See [/policy/moderation](/policy/moderation).
 
 ## Related
@@ -300,7 +301,7 @@ The free tier allows 10 requests per second and 100 per day. Paid and enterprise
 
 ## What happens when the provider fails?
 
-<!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled, so nothing leaves your wallet. On MPP a refund is owed and paid out by the operator. Details: [/pricing#refunds](/pricing#refunds).
+<!-- refund-truth: see /pricing#refunds -->On x402 a failed provider call is not settled, so nothing leaves your wallet. Refunds owed by APIbase are automatic on both rails — see [/pricing#refunds](/pricing#refunds).
 
 ## Are payments screened for sanctions?
 
@@ -384,4 +385,4 @@ Orders placed through a merchant storefront are priced by the merchant, not by t
 - No overage fee — the price per call is the price per call at any volume.
 - No markup surprise at settlement — the price is locked at the moment of the HTTP 402 challenge, not renegotiated after the call runs.
 - A tool whose free upstream quota is exhausted is withdrawn until it resets; you are not charged (the call answers 503 `tool_unavailable` with `retry_after` before any payment challenge).
-- <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled: nothing leaves your wallet. On MPP the payment is already settled when the call runs; if the provider fails, a refund is owed to you and is paid out by the operator (automatic refunds are being designed, see REFUND-WALLET). Calls paid from the credit balance are credited back.
+- <!-- refund-truth: canonical -->If APIbase owes you money — a call that was charged but not delivered, or APIbase's own fee share of an order payment that arrived twice or after the order had closed — the debt is recorded the moment we detect it and shown next to your receipt (`/r/<id>.refund.json`, linked from the receipt's `refund_url`) or in `shop.order.get`. Refunds are sent automatically, to the wallet that paid, in a weekly batch (Mondays, UTC), from a dedicated APIbase refund wallet, once the amount owed to your wallet exceeds ten times the network fee of sending it (about $0.01 on Base, less on Tempo). Smaller amounts carry forward and stay visible; they never expire. The rest of a duplicate or late order payment sits with the seller, who refunds it to the paying wallet within 7 days under the [refund framework](/legal/refund-framework); shop refunds for returns or cancellations remain the seller's duty as well. APIbase never holds your keys or your balance: the refund wallet holds APIbase's own money. On x402 a failed provider call is not settled: nothing leaves your wallet. Calls paid from the credit balance are credited back. The first live weekly run is Monday 2026-11-16 07:00 UTC.

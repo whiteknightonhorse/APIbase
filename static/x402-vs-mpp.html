@@ -115,7 +115,7 @@ pre{overflow-x:auto}
 <tr><td>Header</td><td><code>X-PAYMENT</code></td><td><code>Authorization: Payment</code></td></tr>
 <tr><td>Client</td><td>An x402 client</td><td><code>mppx</code> 0.6.16 or newer, with <code>polyfill: false</code></td></tr>
 <tr><td>Settlement</td><td>After a delivered response, by the self-hosted facilitator</td><td>Before the provider call</td></tr>
-<tr><td>Provider fails</td><td>Not settled: nothing leaves the wallet</td><td>Refund owed, paid out by the operator</td></tr>
+<tr><td>Provider fails</td><td>Not settled: nothing leaves the wallet</td><td>Refund owed, sent automatically (weekly)</td></tr>
 <tr><td>Same lookup again within 2 minutes</td><td>Answered from cache and not charged</td><td>Charged again</td></tr>
 <tr><td>First payment from a new wallet</td><td>Creates the agent identity</td><td>Creates the agent identity</td></tr>
 <tr><td>Receipt</td><td>Public, <code>X-APIbase-Receipt</code> header</td><td>Public, <code>X-APIbase-Receipt</code> header</td></tr>
@@ -137,7 +137,7 @@ pre{overflow-x:auto}
 
 <h2>Refunds per rail</h2>
 
-<p><!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in <a href="/pricing#refunds">/pricing#refunds</a>.</p>
+<p><!-- refund-truth: see /pricing#refunds -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in <a href="/pricing#refunds">/pricing#refunds</a>.</p>
 
 <h2>Receipts</h2>
 

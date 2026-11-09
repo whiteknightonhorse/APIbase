@@ -196,9 +196,10 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 <li>Webhooks are signed with HMAC-SHA256 over the raw body; URLs must be https and public, redirects are not followed.</li>
 <li>Your API key is shown once; APIbase stores only its hash. APIbase takes no card data.</li>
 <li>Every product passes rule-based moderation before buyers see it.</li>
+<li>Duplicate and late order payments are detected on chain within minutes; the seller is asked to refund them and APIbase's fee share is refunded automatically.</li>
 </ul>
 <h3>What stays outside our guarantees</h3>
-<p>Spending limits belong to the buyer's wallet. Human confirmation belongs to the buyer's agent client. Safekeeping of your key is yours. Refunds are the seller's duty (see the refund framework below).</p>
+<p>Spending limits belong to the buyer's wallet. Human confirmation belongs to the buyer's agent client. Safekeeping of your key is yours. Shop refunds are the seller's duty (see the refund framework below); money APIbase itself owes a payer is refunded automatically (see <a href="/pricing#refunds">/pricing#refunds</a>).</p>
 </section>
 
 <section id="faq">
@@ -208,6 +209,7 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 <details><summary>Which wallet do I need?</summary><p>One that receives USDC on Base or Tempo. APIbase issues no wallets: see <a href="/integrator/wallet">wallet help</a>.</p></details>
 <details><summary>Which countries are served?</summary><p>The list is in the AUP. Others get <code>country_not_supported</code> (403).</p></details>
 <details><summary>What if a payment is slow?</summary><p>The order stays <code>PAYING</code> (202 <code>payment_pending</code>) and a job reconciles it against the chain.</p></details>
+<details><summary>What if a buyer's agent pays my order twice, or a payment lands after the order expired?</summary><p>The money reached your payout wallet, so you refund it: APIbase opens a refund request marked 'duplicate payment' on the order, payable to the paying wallet within 7 days from your payout wallet (the same flow as any refund; the buyer sees it on the order). APIbase returns its own fee share of that payment automatically, if a fee was taken. Your order and your sale are untouched.</p></details>
 <details><summary>Who is APIbase in this deal?</summary><p>Read the <a href="/legal/merchant-agreement">merchant agreement</a>: APIbase is a technology intermediary, and the fee is charged to the seller.</p></details>
 </section>
 

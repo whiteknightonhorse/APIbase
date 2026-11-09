@@ -40,3 +40,5 @@ for near-static data).
 set from
 real
 cost plus margin.
+# T-0555: refund wording (automatic refunds, canonical block in /pricing#refunds); old sequence:
+a

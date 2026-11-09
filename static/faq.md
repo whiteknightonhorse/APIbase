@@ -32,7 +32,7 @@ The free tier allows 10 requests per second and 100 per day. Paid and enterprise
 
 ## What happens when the provider fails?
 
-<!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->On x402 a failed provider call is not settled, so nothing leaves your wallet. On MPP a refund is owed and paid out by the operator. Details: [/pricing#refunds](/pricing#refunds).
+<!-- refund-truth: see /pricing#refunds -->On x402 a failed provider call is not settled, so nothing leaves your wallet. Refunds owed by APIbase are automatic on both rails — see [/pricing#refunds](/pricing#refunds).
 
 ## Are payments screened for sanctions?
 

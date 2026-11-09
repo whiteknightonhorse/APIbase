@@ -10,6 +10,7 @@
 - [Spending control recipe](https://apibase.pro/integrator/buyers#set-limits-in-your-wallet): per-agent caps and the budget sum are set in the wallet
 - [Several agents, one budget](https://apibase.pro/integrator/buyers): fund one wallet per agent; the server sees wallets, not agents
 - [Before you send a payment](https://apibase.pro/integrator/agent-guide): persist the payment identifier and signed payload first; re-send, never re-sign
+- [Refunds](https://apibase.pro/integrator/buyers#refunds): refunds owed by APIbase are automatic and weekly; the seller refunds duplicate and late order payments within 7 days
 - [Why Base and Tempo](https://apibase.pro/integrator/why-base-tempo): the two payment rails
 - [Wallet help](https://apibase.pro/integrator/wallet): getting a wallet with USDC; APIbase issues none
 - [Shopify](https://apibase.pro/integrator/platforms/shopify)

@@ -399,7 +399,7 @@ details p{color:#b7beb8;margin:0.3rem 0 1rem}
 </details>
 <details>
 <summary>How do x402 payments work?</summary>
-<p>x402 is a machine-native payment protocol using USDC stablecoins on the Base network. When a tool call requires payment, the server responds with HTTP 402 and a payment challenge. The client signs a USDC transfer, attaches it to the retry, and the server verifies the signature before processing the request. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->x402: not settled on failure; MPP: refund owed, paid by the operator (<a href="/pricing#refunds">details</a>).</p>
+<p>x402 is a machine-native payment protocol using USDC stablecoins on the Base network. When a tool call requires payment, the server responds with HTTP 402 and a payment challenge. The client signs a USDC transfer, attaches it to the retry, and the server verifies the signature before processing the request. <!-- refund-truth: see /pricing#refunds -->x402: not settled on failure; Refunds owed by APIbase are automatic on both rails (<a href="/pricing#refunds">details</a>).</p>
 </details>
 <details>
 <summary>What is MPP and how does it work?</summary>

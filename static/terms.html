@@ -113,10 +113,10 @@ pre{overflow-x:auto}
 <ul>
 <li>Tool calls are billed per call via x402 (USDC on Base), MPP (USDC.e on Tempo), or a refund credit balance (no top-up), exactly the rails listed on the <a href="/pricing">pricing page</a>.</li>
 <li>Prices are listed in the <a href="https://apibase.pro/api/v1/tools">tool catalog</a>.</li>
-<li><!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->Escrow model (platform tool calls only). x402: USDC is settled only after a delivered response. MPP: payment settles before the call; on provider failure a refund is owed and paid by the operator. Balance: credited back.</li>
+<li><!-- refund-truth: see /pricing#refunds -->Escrow model (platform tool calls only). x402: USDC is settled only after a delivered response. MPP: payment settles before the call; on provider failure the refund owed by APIbase is automatic on both rails &mdash; see <a href="/pricing#refunds">/pricing#refunds</a>. Balance: credited back.</li>
 <li>Merchant orders: see the <a href="/legal/merchant-agreement">Merchant Agreement</a>.</li>
 <li>Domain registration fees include the upstream registrar cost plus a service markup.</li>
-<li>All payments are final. <!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->Refunds for provider failure are owed on every rail; on x402 they take the form of no settlement.</li>
+<li>All payments are final. <!-- refund-truth: see /pricing#refunds -->Refunds for provider failure are owed on every rail; on x402 they take the form of no settlement. Refunds owed by APIbase are automatic on both rails &mdash; see <a href="/pricing#refunds">/pricing#refunds</a>.</li>
 </ul>
 
 <h2 id="prohibited-uses">5. Prohibited Uses</h2>

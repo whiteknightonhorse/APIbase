@@ -19,7 +19,7 @@ Use one rail per request, never both. Prices are on [/pricing](/pricing); the co
 | Header | `X-PAYMENT` | `Authorization: Payment` |
 | Client | An x402 client | `mppx` 0.6.16 or newer, with `polyfill: false` |
 | Settlement | After a delivered response, by the self-hosted facilitator | Before the provider call |
-| Provider fails | Not settled: nothing leaves the wallet | Refund owed, paid out by the operator |
+| Provider fails | Not settled: nothing leaves the wallet | Refund owed, sent automatically (weekly) |
 | Same lookup again within 2 minutes | Answered from cache and not charged | Charged again |
 | First payment from a new wallet | Creates the agent identity | Creates the agent identity |
 | Receipt | Public, `X-APIbase-Receipt` header | Public, `X-APIbase-Receipt` header |
@@ -36,7 +36,7 @@ A replayed MPP credential is refused with 403 `credential_replayed`.
 
 ## Refunds per rail
 
-<!-- refund-truth: re-word when REFUND-WALLET-1026 lands -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in [/pricing#refunds](/pricing#refunds).
+<!-- refund-truth: see /pricing#refunds -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in [/pricing#refunds](/pricing#refunds).
 
 ## Receipts
 

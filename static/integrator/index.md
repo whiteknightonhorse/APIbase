@@ -106,8 +106,9 @@ Why Base and Tempo: Base: USDC is native; x402 is an open protocol (x402 Foundat
 - Webhooks are signed with HMAC-SHA256 over the raw body; URLs must be https and public, redirects are not followed.
 - Your API key is shown once; APIbase stores only its hash. APIbase takes no card data.
 - Every product passes rule-based moderation before buyers see it.
+- Duplicate and late order payments are detected on chain within minutes; the seller is asked to refund them and APIbase's fee share is refunded automatically.
 
-What stays outside our guarantees: spending limits belong to the buyer's wallet; human confirmation belongs to the buyer's agent client; safekeeping of your key is yours; refunds are the seller's duty (see the refund framework).
+What stays outside our guarantees: spending limits belong to the buyer's wallet; human confirmation belongs to the buyer's agent client; safekeeping of your key is yours; shop refunds are the seller's duty (see the refund framework); money APIbase itself owes a payer is refunded automatically (see /pricing#refunds).
 
 ## Questions
 
@@ -117,7 +118,8 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 - Do I need Shopify? No. Integrator connects any shop with a product feed, on any platform or none; buyers' agents pay USDC straight to your wallet. Shopify stores have Shopify's own agentic checkout (Shop Pay, WebMCP), which works only for Shopify checkouts; Integrator is the path for everyone else.
 - Which countries are served? The list is in the AUP. Others get `country_not_supported` (403).
 - What if a payment is slow? The order stays `PAYING` (202 `payment_pending`) and a job reconciles it against the chain.
-- What if the buyer's agent pays twice or retries? One order accepts one payment; a retry with the same payment identifier gets the same answer; a stuck attempt resolves itself within minutes; a failed attempt is re-checked on chain for a few minutes; if it did land after all, the buyer is refunded automatically (see /integrator/buyers#refunds); you do nothing.
+- What if the buyer's agent pays twice or retries? One order accepts one payment; a retry with the same payment identifier gets the same answer; a stuck attempt resolves itself within minutes; a failed attempt is re-checked on chain for a few minutes; if it did land after all, see the next question.
+- What if a buyer's agent pays my order twice, or a payment lands after the order expired? The money reached your payout wallet, so you refund it: APIbase opens a refund request marked 'duplicate payment' on the order, payable to the paying wallet within 7 days from your payout wallet (the same flow as any refund; the buyer sees it on the order). APIbase returns its own fee share of that payment automatically, if a fee was taken. Your order and your sale are untouched.
 - When does my shop appear in the public shop index? Your shop appears in the public index once your domain is verified; before that its storefront page works by direct link.
 - Who is APIbase in this deal? Read /legal/merchant-agreement: APIbase is a technology intermediary, and the fee is charged to the seller.
 
