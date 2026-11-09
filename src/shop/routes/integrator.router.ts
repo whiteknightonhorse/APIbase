@@ -26,6 +26,34 @@ export interface IntegratorRouterOptions {
 const esc = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+export interface Partner {
+  id: string;
+  name: string;
+  site: string;
+  return_url: string;
+}
+
+/** T-0728: partner registry for the connect page "Continue on <partner>" button; invalid file = startup error. */
+export function loadPartners(file: string): Partner[] {
+  const v: unknown = JSON.parse(readFileSync(file, 'utf-8'));
+  if (!Array.isArray(v)) throw new Error('partners.json: expected an array');
+  const seen = new Set<string>();
+  return v.map((raw: unknown) => {
+    const r = (raw ?? {}) as Record<string, unknown>;
+    for (const k of ['id', 'name', 'site', 'return_url'])
+      if (typeof r[k] !== 'string' || !r[k]) throw new Error(`partners.json: bad field ${k}`);
+    const p = r as unknown as Partner;
+    if (!/^[a-z0-9-]{2,40}$/.test(p.id) || seen.has(p.id))
+      throw new Error('partners.json: bad or duplicate id');
+    seen.add(p.id);
+    for (const u of [p.site, p.return_url])
+      if (new URL(u).protocol !== 'https:') throw new Error('partners.json: https required');
+    return p;
+  });
+}
+
+const PARTNERS = loadPartners(resolve(__dirname, '../../../config/integrator/partners.json'));
+
 const INDEX_DESCRIPTION =
   "Agentic commerce for merchants: one link on your site, a buyer's AI agent places and pays the order, USDC settles to your wallet. Agentic checkout, any store.";
 const CONNECT_HEAD = '<meta name="robots" content="noindex, follow">';
@@ -113,7 +141,14 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       return;
     }
     const options = ALLOWED_CATEGORIES.map((c) => `<option>${esc(c)}</option>`).join('');
-    const body = renderTokens(read('connect.html')).replace('{{CATEGORY_OPTIONS}}', () => options);
+    const from: unknown = req.query.from;
+    const partner = typeof from === 'string' ? PARTNERS.find((p) => p.id === from) : undefined;
+    const partnerHtml = partner
+      ? `<input type="hidden" name="partner" value="${esc(partner.id)}" form="f"><a id="pt" class="lp-cta" data-return="${esc(partner.return_url)}" hidden>Continue on ${esc(partner.name)}</a>`
+      : '';
+    const body = renderTokens(read('connect.html'))
+      .replace('{{CATEGORY_OPTIONS}}', () => options)
+      .replace('{{PARTNER}}', () => partnerHtml);
     res.type('html').send(
       layout({
         title: 'Connect AI payment | APIbase Integrator',

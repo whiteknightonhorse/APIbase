@@ -25,7 +25,7 @@ Your wallet asks for 3 free signatures. No gas, no money leaves your wallet:
 2. Sign in: proves this wallet is yours.
 3. Accept the documents: records your agreement from step 2.
 
-Network: Base. Payouts go to this wallet in USDC (you can pick a different payout wallet in the form). If a signature is rejected, nothing is charged: press Try again and approve it in your wallet. No wallet yet? See /integrator/wallet.
+Network: Base. Payouts go to this wallet in USDC (you can pick a different payout wallet in the form; leave it empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet). If a signature is rejected, nothing is charged: press Try again and approve it in your wallet. No wallet yet? See /integrator/wallet.
 
 ## When your store is connected
 

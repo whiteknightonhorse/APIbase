@@ -26,7 +26,7 @@ Errors: `country_not_supported` (403), `category_prohibited` (403, with `alterna
 
 The payout wallet must be the merchant's own; platform addresses are refused with `payout_wallet_platform` (400).
 
-Example: `site_url: "https://soukbase.com"`, an example merchant (in development). The live, payable demo shop is `/m/apibase-demo`.
+Soukbase (soukbase.com) is a live marketplace that sells through APIbase; a shop that arrives from Soukbase returns there with the Continue button after registration. The payable demo shop is `/m/apibase-demo`.
 
 ## Step 3. accept_terms
 

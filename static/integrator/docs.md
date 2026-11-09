@@ -4,6 +4,7 @@
 
 A merchant goes `pending` → `active` in three calls. Everything is authenticated by the merchant
 wallet's EIP-191 signature; the `mk_live_` API key is issued once, at the end.
+A marketplace partner listed in `config/integrator/partners.json` can send merchants to `/integrator/connect?from=<partner>`; after registration the page shows a "Continue on <partner>" button carrying only the slug as `apibase_slug`.
 
 | Step | REST (`/api/v1/shop`)                                           | MCP tool                       |
 | ---- | --------------------------------------------------------------- | ------------------------------ |

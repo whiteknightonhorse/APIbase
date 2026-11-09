@@ -74,7 +74,7 @@ You, by hand:
 4. Paste link A, B, C or D into your site.
 5. Run the check (next section).
 
-soukbase.com is an example merchant (in development). The live, payable demo shop is /m/apibase-demo.
+Soukbase and the payable demo shop /m/apibase-demo: see /integrator/agent-guide.
 
 Your agent: give it /integrator/agent-guide. Every step is an exact call with its error codes. It needs a wallet with USDC on Base or Tempo and an x402/MPP client for the last step.
 
