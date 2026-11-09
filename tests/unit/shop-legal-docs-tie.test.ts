@@ -7,6 +7,7 @@ import {
   LEGAL_DIR,
   LEGAL_DOC_IDS,
   type LegalIndexEntry,
+  LegalDocChangedError,
   LegalEffectiveFromError,
   legalIndex,
   syncLegalDocs,
@@ -36,9 +37,13 @@ dbDescribe('legal current version tie-break on real Postgres (T-0369)', () => {
     r.map(({ doc_id, version, sha256, url }) => ({ doc_id, version, sha256, url }));
 
   beforeAll(() => migrate());
-  beforeEach(() => db.$executeRawUnsafe(`DELETE FROM shop_legal_docs`));
+  beforeEach(async () => {
+    await db.$executeRawUnsafe(`DELETE FROM shop_legal_docs`);
+    await db.$executeRawUnsafe(`DELETE FROM email_events WHERE msg_id LIKE 'legal-notice:%'`);
+  });
   afterAll(async () => {
     await db.$executeRawUnsafe(`DELETE FROM shop_legal_docs`);
+    await db.$executeRawUnsafe(`DELETE FROM email_events WHERE msg_id LIKE 'legal-notice:%'`);
     await db.$disconnect();
   });
 
@@ -91,5 +96,57 @@ dbDescribe('legal current version tie-break on real Postgres (T-0369)', () => {
     expect((await legalIndex(tx, later)).find((d) => d.doc_id === 'aup')!.version).toBe(
       nextVersion,
     );
+  });
+
+  // T-0722: the re-issue guard SQL against the real schema (shop_acceptances, email_events).
+  async function scheduledAup(): Promise<{ dir: string; aup: string; shipped: string }> {
+    const dir = mkdtempSync(join(tmpdir(), 'legal-reissue-'));
+    for (const id of LEGAL_DOC_IDS)
+      copyFileSync(join(LEGAL_DIR, `${id}.md`), join(dir, `${id}.md`));
+    const aup = join(dir, 'aup.md');
+    const shipped = readFileSync(aup, 'utf-8');
+    await insert('aup', '1.0', '2026-10-05T00:00:00Z');
+    writeFileSync(
+      aup,
+      shipped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-11-26'),
+    );
+    await syncLegalDocs(tx, dir, NOW);
+    writeFileSync(
+      aup,
+      shipped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-12-24'),
+    );
+    return { dir, aup, shipped };
+  }
+  const notice = (msg_id: string, status: string) =>
+    db.$executeRawUnsafe(
+      `INSERT INTO email_events (msg_id, received_at, from_domain, class, action_required, direction, status, kind, template)
+       VALUES ($1, now(), 'apibase.pro', 'UNMATCHED', FALSE, 'out', $2, 'legal_version_notice', 'legal_version_notice')`,
+      msg_id,
+      status,
+    );
+  const aupRows = () =>
+    db.$queryRawUnsafe<Array<{ version: string; effective_from: Date; sha256: string }>>(
+      `SELECT version, effective_from, sha256 FROM shop_legal_docs WHERE doc_id = 'aup' ORDER BY version`,
+    );
+
+  it('TR1 scheduled, never accepted, only queued/other-version notices: re-issued in place', async () => {
+    const { dir, aup } = await scheduledAup();
+    const v = /version: ([0-9.]+);/.exec(readFileSync(aup, 'utf-8'))![1];
+    await notice(`legal-notice:00000000-0000-0000-0000-000000000001:aup:${v}`, 'queued');
+    await notice('legal-notice:00000000-0000-0000-0000-000000000001:aup:1.0', 'sent');
+    await notice(`legal-notice:00000000-0000-0000-0000-000000000001:dpa:${v}`, 'sent');
+    await syncLegalDocs(tx, dir, NOW);
+    const rows = await aupRows();
+    expect(rows.map((r) => r.version)).toEqual(['1.0', v]);
+    expect(new Date(rows[1].effective_from).toISOString()).toBe('2026-12-24T00:00:00.000Z');
+  });
+
+  it('TR2 a sent notice for that exact version blocks the re-issue', async () => {
+    const { dir, aup } = await scheduledAup();
+    const v = /version: ([0-9.]+);/.exec(readFileSync(aup, 'utf-8'))![1];
+    await notice(`legal-notice:00000000-0000-0000-0000-000000000001:aup:${v}`, 'sent');
+    await expect(syncLegalDocs(tx, dir, NOW)).rejects.toBeInstanceOf(LegalDocChangedError);
+    const rows = await aupRows();
+    expect(new Date(rows[1].effective_from).toISOString()).toBe('2026-11-26T00:00:00.000Z');
   });
 });

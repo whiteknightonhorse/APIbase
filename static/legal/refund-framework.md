@@ -1,4 +1,4 @@
-<!-- version: 1.4; effective_from: 2026-11-26; status: in force; drafted by the operator without legal review -->
+<!-- version: 1.4; effective_from: 2026-12-10; status: in force; drafted by the operator without legal review -->
 # Refund Framework v1.4
 
 ## 1. What the merchant must publish

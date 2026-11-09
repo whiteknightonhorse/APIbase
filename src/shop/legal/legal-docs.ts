@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { logger } from '../../config/logger';
 import type { ShopTx } from '../db';
 
 /** The four documents a merchant accepts (§11.1); terms/privacy are static pages, not registry docs here. */
@@ -88,32 +89,98 @@ export class LegalDocChangedError extends Error {
 }
 
 /**
+ * A later version must carry a strictly later effective_from than every other registered version
+ * of the doc (a tie makes "current" depend on the version tie-break only); a same-day re-release
+ * needs the next day's date. `except` excludes the row being re-issued from the comparison.
+ */
+async function assertLaterThanRegistered(db: ShopTx, f: LegalFile, except?: string): Promise<void> {
+  const latest = await db.$queryRawUnsafe<Array<{ max_from: Date | string | null }>>(
+    except === undefined
+      ? `SELECT max(effective_from) AS max_from FROM shop_legal_docs WHERE doc_id = $1`
+      : `SELECT max(effective_from) AS max_from FROM shop_legal_docs WHERE doc_id = $1 AND version <> $2`,
+    ...(except === undefined ? [f.doc_id] : [f.doc_id, except]),
+  );
+  const maxFrom = latest[0]?.max_from;
+  if (maxFrom && Date.parse(f.effective_from) <= new Date(maxFrom).getTime()) {
+    throw new LegalEffectiveFromError(f.doc_id, f.version);
+  }
+}
+
+const countOf = (rows: Array<{ n: bigint | number | string }>): number => Number(rows[0]?.n ?? 0);
+
+/**
+ * T-0722: a registered (doc_id, version) may be re-issued in place only while nobody can have
+ * relied on it: still scheduled (registered effective_from > now, and the new date too), never
+ * accepted, and no legal-version notice for it ever sent.
+ */
+async function mayReissue(
+  db: ShopTx,
+  f: LegalFile,
+  registeredFrom: Date | string,
+  now: number,
+): Promise<boolean> {
+  if (new Date(registeredFrom).getTime() <= now) return false;
+  if (Date.parse(f.effective_from) <= now) return false;
+  const accepted = await db.$queryRawUnsafe<Array<{ n: bigint }>>(
+    `SELECT count(*) AS n FROM shop_acceptances WHERE doc_id = $1 AND version = $2`,
+    f.doc_id,
+    f.version,
+  );
+  if (countOf(accepted) !== 0) return false;
+  const notified = await db.$queryRawUnsafe<Array<{ n: bigint }>>(
+    `SELECT count(*) AS n FROM email_events
+      WHERE status = 'sent' AND msg_id LIKE 'legal-notice:%:' || $1::text || ':' || $2::text`,
+    f.doc_id,
+    f.version,
+  );
+  return countOf(notified) === 0;
+}
+
+/**
  * Upsert the registry (append-only: a new version adds a row, old rows stay). A file whose
  * (doc_id, version) is already registered with a different sha256 is a silent edit of a
- * document merchants may have accepted — refuse (startup error).
+ * document merchants may have accepted — refuse (startup error), unless the registered version
+ * is still scheduled, never accepted and never notified (T-0722): then it is re-issued in place.
  */
-export async function syncLegalDocs(db: ShopTx, dir: string = LEGAL_DIR): Promise<LegalFile[]> {
+export async function syncLegalDocs(
+  db: ShopTx,
+  dir: string = LEGAL_DIR,
+  now: number = Date.now(),
+): Promise<LegalFile[]> {
   const files = readAllLegalFiles(dir);
   for (const f of files) {
-    const rows = await db.$queryRawUnsafe<Array<{ sha256: string }>>(
-      `SELECT sha256 FROM shop_legal_docs WHERE doc_id = $1 AND version = $2`,
+    const rows = await db.$queryRawUnsafe<Array<{ sha256: string; effective_from: Date | string }>>(
+      `SELECT sha256, effective_from FROM shop_legal_docs WHERE doc_id = $1 AND version = $2`,
       f.doc_id,
       f.version,
     );
     if (rows.length > 0) {
-      if (rows[0].sha256.trim() !== f.sha256) throw new LegalDocChangedError(f.doc_id, f.version);
+      if (rows[0].sha256.trim() === f.sha256) continue;
+      if (!(await mayReissue(db, f, rows[0].effective_from, now))) {
+        throw new LegalDocChangedError(f.doc_id, f.version);
+      }
+      await assertLaterThanRegistered(db, f, f.version);
+      await db.$executeRawUnsafe(
+        `UPDATE shop_legal_docs SET sha256 = $3, body_md = $4, effective_from = $5::timestamptz
+          WHERE doc_id = $1 AND version = $2`,
+        f.doc_id,
+        f.version,
+        f.sha256,
+        f.body_md,
+        f.effective_from,
+      );
+      logger.warn(
+        {
+          doc_id: f.doc_id,
+          version: f.version,
+          from: new Date(rows[0].effective_from).toISOString(),
+          to: f.effective_from,
+        },
+        'legal doc re-issued before effect',
+      );
       continue;
     }
-    // A later version must carry a strictly later effective_from (a tie makes "current" depend on
-    // the version tie-break only); a same-day re-release needs the next day's date.
-    const latest = await db.$queryRawUnsafe<Array<{ max_from: Date | string | null }>>(
-      `SELECT max(effective_from) AS max_from FROM shop_legal_docs WHERE doc_id = $1`,
-      f.doc_id,
-    );
-    const maxFrom = latest[0]?.max_from;
-    if (maxFrom && Date.parse(f.effective_from) <= new Date(maxFrom).getTime()) {
-      throw new LegalEffectiveFromError(f.doc_id, f.version);
-    }
+    await assertLaterThanRegistered(db, f);
     await db.$executeRawUnsafe(
       `INSERT INTO shop_legal_docs (doc_id, version, sha256, url, effective_from, body_md)
        VALUES ($1, $2, $3, $4, $5::timestamptz, $6)`,

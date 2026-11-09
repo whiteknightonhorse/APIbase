@@ -91,7 +91,7 @@ describe('T-0669 every published sha256 is reproducible from source_url', () => 
       const e = next.find((x) => x.doc_id === id)!;
       expect(e).toMatchObject({
         version: '2.0',
-        effective_from: '2026-11-26',
+        effective_from: '2026-12-10',
         hash_of: 'legal-body',
       });
     }

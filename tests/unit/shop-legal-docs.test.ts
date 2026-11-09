@@ -19,6 +19,7 @@ import {
   stripHtmlComments,
 } from '../../src/shop/routes/legal.router';
 
+import { logger } from '../../src/config/logger';
 import { fixtureDb } from './helpers/legal-fixture-db';
 
 const FAR = () => Date.parse('2030-01-01');
@@ -28,9 +29,19 @@ jest.mock('../../src/config', () => ({ config: {} }));
 const ROOT = resolve(__dirname, '../..');
 type Row = { doc_id: string; version: string; sha256: string; url: string; effective_from: string };
 
-function fakeDb(rows: Row[] = []): ShopTx & { rows: Row[] } {
+type Extra = {
+  rows: Row[];
+  acceptances: Array<{ doc_id: string; version: string }>;
+  emails: Array<{ msg_id: string; status: string }>;
+};
+
+function fakeDb(rows: Row[] = []): ShopTx & Extra {
+  const acceptances: Extra['acceptances'] = [];
+  const emails: Extra['emails'] = [];
   return {
     rows,
+    acceptances,
+    emails,
     async $queryRawUnsafe(q: string, ...v: unknown[]) {
       if (q.includes('DISTINCT ON')) {
         const ids = v[0] as string[];
@@ -48,14 +59,36 @@ function fakeDb(rows: Row[] = []): ShopTx & { rows: Row[] } {
         return [...out.values()] as never;
       }
       if (q.includes('max(effective_from)')) {
-        const ts = rows.filter((r) => r.doc_id === v[0]).map((r) => Date.parse(r.effective_from));
+        const ts = rows
+          .filter((r) => r.doc_id === v[0] && (!q.includes('version <> $2') || r.version !== v[1]))
+          .map((r) => Date.parse(r.effective_from));
         return [{ max_from: ts.length ? new Date(Math.max(...ts)).toISOString() : null }] as never;
+      }
+      if (q.includes('FROM shop_acceptances')) {
+        const n = acceptances.filter((a) => a.doc_id === v[0] && a.version === v[1]).length;
+        return [{ n: BigInt(n) }] as never;
+      }
+      if (q.includes('FROM email_events')) {
+        // msg_id LIKE 'legal-notice:%:<doc_id>:<version>' AND status = 'sent'
+        const n = emails.filter(
+          (e) =>
+            e.status === 'sent' &&
+            e.msg_id.startsWith('legal-notice:') &&
+            e.msg_id.endsWith(`:${v[0]}:${v[1]}`),
+        ).length;
+        return [{ n: BigInt(n) }] as never;
       }
       return rows
         .filter((r) => r.doc_id === v[0] && r.version === v[1])
-        .map((r) => ({ sha256: r.sha256 })) as never;
+        .map((r) => ({ sha256: r.sha256, effective_from: r.effective_from })) as never;
     },
-    async $executeRawUnsafe(_q: string, ...v: unknown[]) {
+    async $executeRawUnsafe(q: string, ...v: unknown[]) {
+      if (q.trim().startsWith('UPDATE shop_legal_docs')) {
+        const r = rows.find((x) => x.doc_id === v[0] && x.version === v[1])!;
+        r.sha256 = v[2] as string;
+        r.effective_from = v[4] as string;
+        return 1;
+      }
       rows.push({
         doc_id: v[0] as string,
         version: v[1] as string,
@@ -65,7 +98,7 @@ function fakeDb(rows: Row[] = []): ShopTx & { rows: Row[] } {
       });
       return 1;
     },
-  } as ShopTx & { rows: Row[] };
+  } as ShopTx & Extra;
 }
 
 function tmpLegalDir(): string {
@@ -123,13 +156,14 @@ describe('T-INT-05 legal documents', () => {
     await syncLegalDocs(db, dir);
     const aup = join(dir, 'aup.md');
     writeFileSync(aup, read(aup) + 'x');
-    await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalDocChangedError);
+    // In force (now after effective_from): a text change is refused.
+    await expect(syncLegalDocs(db, dir, FAR())).rejects.toBeInstanceOf(LegalDocChangedError);
     const bumped = read(aup).replace('version: 1.5;', 'version: 1.6;');
     writeFileSync(aup, bumped);
     await expect(syncLegalDocs(db, dir)).rejects.toBeInstanceOf(LegalEffectiveFromError);
     writeFileSync(
       aup,
-      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-11-27'),
+      bumped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-12-11'),
     );
     await syncLegalDocs(db, dir);
     expect(
@@ -142,6 +176,109 @@ describe('T-INT-05 legal documents', () => {
     const idx = (await (await fetch(`${s.base}/legal/index.json`)).json()) as Row[];
     await s.close();
     expect(idx.find((e) => e.doc_id === 'aup')!.version).toBe('1.6');
+  });
+
+  describe('T-0722 re-issue of a scheduled, never-accepted, never-notified version', () => {
+    const NOW = Date.parse('2026-11-09T00:00:00Z');
+    const REISSUED = '2026-12-24';
+    // Registry as of the T-0695 release: aup 1.3 in force, aup 1.5 scheduled for 2026-11-26.
+    async function setup() {
+      const dir = tmpLegalDir();
+      const aup = join(dir, 'aup.md');
+      const shipped = read(aup);
+      writeFileSync(
+        aup,
+        shipped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-11-26'),
+      );
+      const db = fakeDb([
+        {
+          doc_id: 'aup',
+          version: '1.3',
+          sha256: 'a'.repeat(64),
+          url: '/legal/aup',
+          effective_from: '2026-10-12T00:00:00.000Z',
+        },
+      ]);
+      await syncLegalDocs(db, dir, NOW);
+      writeFileSync(
+        aup,
+        shipped.replace(/effective_from: \d{4}-\d{2}-\d{2}/, `effective_from: ${REISSUED}`),
+      );
+      return { dir, db, aup };
+    }
+    const aupRows = (db: { rows: Row[] }) => db.rows.filter((r) => r.doc_id === 'aup');
+
+    it('RI1 all three guards green: the row is updated in place, one row per version, one warn line', async () => {
+      const { dir, db, aup } = await setup();
+      const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined as never);
+      // Another merchant's notice for a different version, and a queued (unsent) notice for 1.5.
+      db.emails.push({ msg_id: 'legal-notice:m1:aup:1.3', status: 'sent' });
+      db.emails.push({ msg_id: 'legal-notice:m1:aup:1.5', status: 'queued' });
+      db.acceptances.push({ doc_id: 'aup', version: '1.3' });
+      await syncLegalDocs(db, dir, NOW);
+      const sum = execFileSync('sha256sum', [aup]).toString().split(' ')[0];
+      expect(aupRows(db).map((r) => r.version)).toEqual(['1.3', '1.5']);
+      const r15 = aupRows(db).find((r) => r.version === '1.5')!;
+      expect(r15.sha256).toBe(sum);
+      expect(r15.effective_from).toBe(`${REISSUED}T00:00:00.000Z`);
+      const lines = warn.mock.calls.filter((c) => c[1] === 'legal doc re-issued before effect');
+      expect(lines).toHaveLength(1);
+      expect(lines[0][0]).toEqual({
+        doc_id: 'aup',
+        version: '1.5',
+        from: '2026-11-26T00:00:00.000Z',
+        to: `${REISSUED}T00:00:00.000Z`,
+      });
+      warn.mockRestore();
+      // Idempotent: a second start with the same file changes nothing.
+      await syncLegalDocs(db, dir, NOW);
+      expect(aupRows(db)).toHaveLength(2);
+    });
+
+    it('RI2a registered version already in effect -> LegalDocChangedError, row untouched', async () => {
+      const { dir, db } = await setup();
+      const before = JSON.stringify(db.rows);
+      await expect(
+        syncLegalDocs(db, dir, Date.parse('2026-11-26T00:00:00Z')),
+      ).rejects.toBeInstanceOf(LegalDocChangedError);
+      expect(JSON.stringify(db.rows)).toBe(before);
+    });
+
+    it('RI2b an acceptance of the version exists -> LegalDocChangedError, row untouched', async () => {
+      const { dir, db } = await setup();
+      const before = JSON.stringify(db.rows);
+      db.acceptances.push({ doc_id: 'aup', version: '1.5' });
+      await expect(syncLegalDocs(db, dir, NOW)).rejects.toBeInstanceOf(LegalDocChangedError);
+      expect(JSON.stringify(db.rows)).toBe(before);
+    });
+
+    it('RI2c a notice for the version was sent -> LegalDocChangedError, row untouched', async () => {
+      const { dir, db } = await setup();
+      const before = JSON.stringify(db.rows);
+      db.emails.push({ msg_id: 'legal-notice:0b5e-merchant:aup:1.5', status: 'sent' });
+      await expect(syncLegalDocs(db, dir, NOW)).rejects.toBeInstanceOf(LegalDocChangedError);
+      expect(JSON.stringify(db.rows)).toBe(before);
+    });
+
+    it('RI2d the re-issued date is not later than another registered version -> LegalEffectiveFromError', async () => {
+      const { dir, db, aup } = await setup();
+      writeFileSync(
+        aup,
+        read(aup).replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-10-12'),
+      );
+      await expect(
+        syncLegalDocs(db, dir, Date.parse('2026-10-01T00:00:00Z')),
+      ).rejects.toBeInstanceOf(LegalEffectiveFromError);
+    });
+
+    it('RI2e the re-issued date is already past -> LegalDocChangedError (never re-issued into force)', async () => {
+      const { dir, db, aup } = await setup();
+      writeFileSync(
+        aup,
+        read(aup).replace(/effective_from: \d{4}-\d{2}-\d{2}/, 'effective_from: 2026-11-01'),
+      );
+      await expect(syncLegalDocs(db, dir, NOW)).rejects.toBeInstanceOf(LegalDocChangedError);
+    });
   });
 
   it('LG3 DRAFT banner + noindex until legal-published.json exists; .md never has the banner', async () => {
@@ -211,7 +348,7 @@ describe('T-INT-05 legal documents', () => {
     for (const id of LEGAL_DOC_IDS) {
       const t = read(join(ROOT, 'static/legal', `${id}.md`));
       const head = new RegExp(
-        `^<!-- version: ${{ 'merchant-agreement': '1\\.5', aup: '1\\.5', dpa: '1\\.4', 'refund-framework': '1\\.4' }[id]}; effective_from: 2026-11-26; status: in force; drafted by the operator without legal review -->$`,
+        `^<!-- version: ${{ 'merchant-agreement': '1\\.5', aup: '1\\.5', dpa: '1\\.4', 'refund-framework': '1\\.4' }[id]}; effective_from: 2026-12-10; status: in force; drafted by the operator without legal review -->$`,
       );
       expect(t.split('\n')[0]).toMatch(head);
     }

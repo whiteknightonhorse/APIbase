@@ -85,7 +85,7 @@ describe('T-0343 /legal page chrome', () => {
           .update(legalBodyOf(readFileSync(join(ROOT, `static/${id}.html`), 'utf-8')))
           .digest('hex'),
       );
-      // 2.0 is scheduled (effective 2026-11-26): not marked current here, listed in index.next.json
+      // 2.0 is scheduled (effective 2026-12-10): not marked current here, listed in index.next.json
       expect(e).not.toHaveProperty('version');
       expect(e).toMatchObject({ hash_of: 'legal-body', source_url: `/legal/${id}.body.txt` });
     }

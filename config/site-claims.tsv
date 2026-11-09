@@ -136,5 +136,5 @@ static/attest/index.html	https://apibase.pro/attest/	must-contain	immutable	-	T-
 static/pricing.md	https://apibase.pro/pricing.md	must-contain	<!--tiers-->	-	T-0674
 static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-contain	/r/by-tx/<payment_tx>.json	-	A-GD-01
 static/policy/refunds.json	https://apibase.pro/policy/refunds.json	must-contain	apibase-refund-policy/1	-	A-GD-01
-src/shop/routes/legal.router.ts	https://apibase.pro/legal	must-contain	Scheduled versions	-	T-0695 until 2026-11-26; card 0696 retires it
+src/shop/routes/legal.router.ts	https://apibase.pro/legal	must-contain	Scheduled versions	-	T-0695 until 2026-12-10; card 0696 retires it
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	scripts/shop/merchant-status.ts --clear-reason	-	T-0707
