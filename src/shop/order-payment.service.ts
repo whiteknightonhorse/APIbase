@@ -36,6 +36,10 @@ export interface OrderView {
   state: string;
   tx_hash: string | null;
   fulfillment?: string;
+  /** T-0724: who is looking; `public` sees state and events only. */
+  viewer?: 'payer' | 'public';
+  /** T-0724: set on a public view of an order that has a payer credential; names the credential. */
+  hint?: string;
   events?: OrderEventView[];
   /** T-INT-22: set by `order_ship`; null until a physical order is shipped. */
   tracking?: { carrier: string; number: string; url?: string } | null;
@@ -282,6 +286,9 @@ export function isPayer(
   return Boolean(o.payer_wallet && identity === `wallet:${sha(o.payer_wallet.toLowerCase())}`);
 }
 
+const PUBLIC_VIEW_HINT =
+  "send the quote's buyer_token as Authorization: Bearer (REST) or call from the paying identity to read fulfillment, documents and merchant_contact";
+
 interface ViewRow {
   order_id: string;
   state: string;
@@ -339,6 +346,10 @@ export async function getOrderView(
   if (!r) throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
   const payer = isPayer(r, identity);
   const view = toView(r, payer);
+  view.viewer = payer ? 'payer' : 'public';
+  if (!payer && (r.buyer_identity?.startsWith('token:') || r.payer_wallet)) {
+    view.hint = PUBLIC_VIEW_HINT;
+  }
   view.events = await db.$queryRawUnsafe<OrderEventView[]>(
     `SELECT seq, from_state, to_state, actor, reason, at FROM shop_order_events
       WHERE order_id = $1::uuid ORDER BY seq`,

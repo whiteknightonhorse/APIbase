@@ -233,13 +233,15 @@ export function registerOrderTools(
     {
       title: 'Get an order',
       description:
-        'Order state, events, tracking {carrier, number, url?} and delivery_eta (null until the merchant ships), refund_policy and tx_hash. For the identity that paid also: fulfillment (the delivered content, repeatable), documents (merchant links), merchant_contact {email, site_url} while the order is open (not once CLOSED). Poll this after a payment_pending answer.',
+        'Order state, events, tracking {carrier, number, url?} and delivery_eta (null until the merchant ships), refund_policy and tx_hash. For the identity that paid also: fulfillment (the delivered content, repeatable), documents (merchant links), merchant_contact {email, site_url} while the order is open (not once CLOSED). Poll this after a payment_pending answer. viewer says whether you are seen as the payer.',
       inputSchema: { order_id: z.string() },
       outputSchema: {
         order_id: z.string(),
         state: z.string(),
         tx_hash: z.string().nullable(),
         fulfillment: z.string().optional(),
+        viewer: z.enum(['payer', 'public']),
+        hint: z.string().optional(),
         events: z.array(z.record(z.string(), z.unknown())),
         tracking: z
           .object({ carrier: z.string(), number: z.string(), url: z.string().optional() })

@@ -41,7 +41,7 @@ Integrator never asks for your private keys or seed phrase, in any tool, page or
 - No card number, CVV or open address is stored by APIbase. Personal data a product needs is encrypted under the seller's key before it is sent.
 - The payment is an authorization for the exact quoted amount to the exact payout address; you can check the transfer on a block explorer.
 - Goods are delivered only after the transfer has a successful receipt.
-- Every claim above can be checked in your own orders: `shop.order.get` returns the state, the transaction hash and the refund policy.
+- Every claim above can be checked in your own orders: `shop.order.get` returns the state, the transaction hash and the refund policy. What each caller sees (`viewer`: `payer` or `public`) is defined in [the Orders section of the integrator docs](/integrator/docs).
 
 ## What stays outside our guarantees
 
