@@ -6,6 +6,7 @@
 - [Agent guide](https://apibase.pro/integrator/agent-guide): step-by-step connection for a merchant's agent, with error codes
 - [Integrator guide](https://apibase.pro/integrator/docs): the full merchant reference (registration, catalog, quotes, orders, webhooks, subscriptions)
 - [For buyers](https://apibase.pro/integrator/buyers): limits, quotes, what is and is not guaranteed
+- [Buy step by step (REST)](https://apibase.pro/integrator/buyers#buy-step-by-step-rest): quote, 402, pay, poll the order, fulfillment string, already_placed, waive_withdrawal
 - [Spending control recipe](https://apibase.pro/integrator/buyers#set-limits-in-your-wallet): per-agent caps and the budget sum are set in the wallet
 - [Several agents, one budget](https://apibase.pro/integrator/buyers): fund one wallet per agent; the server sees wallets, not agents
 - [Before you send a payment](https://apibase.pro/integrator/agent-guide): persist the payment identifier and signed payload first; re-send, never re-sign

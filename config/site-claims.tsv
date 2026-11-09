@@ -138,3 +138,4 @@ static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	m
 static/policy/refunds.json	https://apibase.pro/policy/refunds.json	must-contain	apibase-refund-policy/1	-	A-GD-01
 src/shop/routes/legal.router.ts	https://apibase.pro/legal	must-contain	Scheduled versions	-	T-0695 until 2026-12-10; card 0696 retires it
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	scripts/shop/merchant-status.ts --clear-reason	-	T-0707
+static/integrator/buyers.md	https://apibase.pro/integrator/buyers.md	must-contain	send it as `Authorization: Bearer <buyer_token>`	-	T-0726

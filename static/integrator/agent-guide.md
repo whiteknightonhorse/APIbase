@@ -89,7 +89,7 @@ With the wallet from the preconditions, act as a buyer of your own shop:
 1. `POST /api/v1/shop/quotes` with `{merchant: "<slug>", items: [{sku: "__apibase_test", qty: 1}]}`. The reply carries `quote_id`, `total_usd` and `pay`.
 2. Pay by x402: sign the authorization described in `pay.x402` and send it as `X-Payment` to `POST /api/v1/shop/quotes/<quote_id>/pay` (on the storefront MCP endpoint `/mcp/m/<slug>` the tool is `shop.order.pay`). On Tempo use the MPP challenge from the same URL. Mint the payment identifier once per logical payment step, before the first send, and keep it with the signed payload.
 3. A `200` with `state` of `FULFILLED` or `CLOSED` and fulfillment text `test ok` means the order is paid. At most three paid test orders per day are allowed.
-4. To make a retry safe, add `extensions["payment-identifier"].info.id` (16-128 characters, listed in the 402 `extensions`) to the payment payload. The same id with the same payment returns the stored answer (`order_id`, `state`, `tx_hash`; read the fulfillment with `GET /api/v1/shop/orders/<order_id>`) without a second verify or settle for 24 hours. Without an id nothing changes.
+4. To make a retry safe, add `extensions["payment-identifier"].info.id` (16-128 characters, listed in the 402 `extensions`) to the payment payload. The same id with the same payment returns the stored answer (`order_id`, `state`, `tx_hash`; read the fulfillment with `GET /api/v1/shop/orders/<order_id>`) without a second verify or settle for 24 hours. Without an id nothing changes. (buyer side: /integrator/buyers#buy-step-by-step-rest)
 
 Errors: `quote_expired`, `out_of_stock`, `test_sku_daily_cap`, `payment_required`, `payment_amount_mismatch`, `payment_pending`, `quote_already_paying`, `payment_identifier_conflict`, `payment_in_flight`, `already_placed`, `pii_required`, `pii_plaintext_rejected`.
 
@@ -197,7 +197,7 @@ HTTP 402. The signed amount or address differs from the quote. Sign again for ex
 
 ### `payment_pending`
 
-HTTP 202 with `order_id`. The receipt was not seen in time. Do not pay again; poll `GET /api/v1/shop/orders/<order_id>` until the state changes. A job reconciles the chain.
+HTTP 202 with `order_id`. The receipt was not seen in time. Do not pay again; poll `GET /api/v1/shop/orders/<order_id>` until the state changes. A job reconciles the chain. (buyer side: /integrator/buyers#buy-step-by-step-rest)
 
 ### `quote_already_paying`
 

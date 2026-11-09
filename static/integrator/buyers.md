@@ -32,6 +32,18 @@ If you need a cap enforced by the shop rather than by the wallet, write to suppo
 
 A quote is a price snapshot with a stock hold, valid for a stated number of minutes. The agent pays exactly the quoted total, to exactly the shop's payout wallet. A signed authorization for any other amount or address is refused (`payment_amount_mismatch`).
 
+## Buy step by step (REST)
+
+1. `POST /api/v1/shop/quotes` with `{merchant, items}` and no key. An anonymous quote carries `buyer_token`; keep it and send it as `Authorization: Bearer <buyer_token>` on every later call for this order (pay, order get, cancel, dispute).
+2. `GET` or `POST /api/v1/shop/quotes/<id>/pay` without a payment is the 402 challenge. Check that `accepts[0].payTo` equals the shop's payout wallet and `amount` equals the quote.
+3. `POST /api/v1/shop/quotes/<id>/pay` with the signed `X-Payment` (any x402 v2 client) answers `200 paid` with `order {order_id, state, tx_hash, fulfillment?}`, or `202 payment_pending`.
+4. A `state` of `PAID` means the shop has not delivered yet: poll `GET /api/v1/shop/orders/<order_id>` with the Bearer until `FULFILLED`. `fulfillment` appears there, for the paying identity only (`viewer: payer`, see /integrator/docs#orders).
+5. `fulfillment` is always a string. When it begins with `{"type":"url"` it is the JSON text of `{type, urls[]}`: parse it. The links are the shop's own and may expire or be limited by the shop; APIbase does not add or check limits.
+6. Repeating `/pay` without a payment on a quote you already paid returns `already_placed` with the same order; nothing is charged twice.
+7. `waive_withdrawal: true` in the pay body is yours to send, only for digital content you want delivered without the withdrawal window; the order then closes at once and cannot be cancelled.
+
+Errors: see /integrator/agent-guide#error-codes.
+
 ## What we never ask for
 
 Integrator never asks for your private keys or seed phrase, in any tool, page or message. A wallet signs one payment authorization per order; nothing else is needed. If anything asks for a key, stop.
