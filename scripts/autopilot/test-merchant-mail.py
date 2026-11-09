@@ -246,7 +246,7 @@ class TestTemplates(unittest.TestCase):
                 with self.subTest(kind=kind, lang=lang):
                     subject, text = MM.render(kind, lang, vals)
                     full = subject + "\n" + text
-                    urls = [u for u in re.findall(r"https?://\S+", full) if not u.startswith("https://apibase.pro/legal")]
+                    urls = [u for u in re.findall(r"https?://\S+", full) if not (kind == "legal_version_notice" and u.startswith("https://apibase.pro/legal"))]
                     self.assertEqual(urls, ["https://apibase.pro/integrator/check/drill-shop"])
                     self.assertNotIn("```", full)
                     self.assertNotIn("<script", full.lower())
@@ -257,7 +257,7 @@ class TestTemplates(unittest.TestCase):
         # raw files: exactly one URL, and it is the check URL placeholder form
         for kind in MM.KINDS:
             raw = open(os.path.join(MM.TEMPLATES_DIR, f"{kind}.en.md"), encoding="utf-8").read()
-            self.assertEqual([u for u in re.findall(r"https?://\S+", raw) if not u.startswith("https://apibase.pro/legal")], ["https://apibase.pro/integrator/check/{slug}"])
+            self.assertEqual([u for u in re.findall(r"https?://\S+", raw) if not (kind == "legal_version_notice" and u.startswith("https://apibase.pro/legal"))], ["https://apibase.pro/integrator/check/{slug}"])
 
 
 class TestIntake(MailBase):
