@@ -36,8 +36,8 @@
     "mpp": {
       "value": "refund owed, sent automatically in a weekly batch",
       "source": "src/pipeline/stages/escrow-finalize.stage.ts",
-      "anchor": "still made by hand by the operator",
-      "ruling": "REFUND-WALLET-1026 ruling-1 (escrow-finalize.stage.ts header); manual until the refund payout job (0553) ships"
+      "anchor": "refunds are paid automatically by the",
+      "ruling": "REFUND-WALLET-1026 ruling-1 (escrow-finalize.stage.ts header); paid by the refund payout job (0553)"
     },
     "x402": {
       "value": "not settled",
