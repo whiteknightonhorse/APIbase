@@ -678,10 +678,6 @@ irail.vehicle	irail	0.001
 irctc.station_search	irctc	0.001
 irctc.train_search	irctc	0.005
 irctc.train_status	irctc	0.005
-irena.capacity_country	irena	0.002
-irena.capacity_region	irena	0.001
-irena.generation_country	irena	0.002
-irena.share_renewables	irena	0.001
 iss.position	iss	0.001
 iss.tle	iss	0.001
 itistaxonomy.get_full_record	itistaxonomy	0.002
