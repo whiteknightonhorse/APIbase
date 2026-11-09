@@ -598,6 +598,36 @@ def advance_remediation_queued():
             ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) fleet task "
                       f"{fleet_task_id} stuck -> STUCK")
         # else: still in queue/ or active/ -- genuinely no outcome yet (NOINFO), leave queued.
+    retire_queued_cards_of_moved_on_incidents()
+
+
+def _retire_queued_card(incident_id, fleet_task_id, state):
+    """T-0734: retire a card still in queue/ (never active/) because its incident is already `state`;
+    one note on the incident. Returns True iff the card was moved."""
+    if ap.fleet_task_location(fleet_task_id) != "queue":
+        return False
+    if ap.fleet_task_retire(fleet_task_id, incident_id) is None:
+        return False
+    ap.note_incident(incident_id, "incident-engine", "card-retired",
+                     f"card retired: incident {state} before the card ran ({fleet_task_id})")
+    ap.notice(f"incident-engine: {incident_id} {state} before card {fleet_task_id} ran -> done/")
+    return True
+
+
+def retire_queued_cards_of_moved_on_incidents():
+    """T-0734 (FLEET-DEBTS-1109 ruling-1 s10): an incident that left REMEDIATION_QUEUED (wait -> VERIFYING,
+    resolved by hand, ...) while its card is still waiting in queue/ would spend an attempt on a no-op.
+    Retire such cards to done/ with the AUTO-CLOSED-BY trailer. active/ is never touched."""
+    out, rc = ap.psql(
+        "SELECT incident_id, state, fleet_task_id FROM incidents "
+        "WHERE state IN ('VERIFYING','RESOLVED') AND fleet_task_id IS NOT NULL"
+    )
+    n = 0
+    for line in (out.splitlines() if rc == 0 and out else []):
+        incident_id, state, fleet_task_id = line.split(ap.SEP)
+        if _retire_queued_card(incident_id, fleet_task_id, state):
+            n += 1
+    return n
 
 
 PARKED_MAX_AGE_S = 14 * 86400
@@ -676,6 +706,9 @@ def close_healthy_remediations(dry_run=False):
             continue
         if loc != "done" and ap.fleet_task_retire(fleet_task_id, incident_id) is None:
             continue  # card changed under us (taken by taskloop?) -- retry next tick
+        if loc == "queue":  # T-0734: say why the card never ran
+            ap.note_incident(incident_id, "incident-engine", "card-retired",
+                             f"card retired: incident RESOLVED before the card ran ({fleet_task_id})")
         ap.transition_state(incident_id, "RESOLVED", extra_set=", next_recheck_at = NULL")
         ap.note_incident(incident_id, "incident-engine", "auto-closed", text)
         ap.notice(f"incident-engine: {incident_id} ({provider}/{kind}) {text}; card {fleet_task_id} -> done/")
@@ -2528,6 +2561,41 @@ def selftest():
         globals()["claim_task_slot"] = _t70_orig_claim
         _shutil_t70.rmtree(_t70_root, ignore_errors=True)
     print("T-0370 R1-R4 G1-G2 (JOB_STALE self-close + age gate): OK")
+
+    # T-0734: a card still in queue/ whose incident already left REMEDIATION_QUEUED is retired; active/ is untouched.
+    import tempfile as _tempfile_t734
+    import shutil as _shutil_t734
+    _t734_root = _tempfile_t734.mkdtemp(prefix="t0734-")
+    for _d in ("queue", "active", "done", "stuck"):
+        os.makedirs(os.path.join(_t734_root, _d), exist_ok=True)
+    _t734_notes = []
+    _t734_rows = []
+    _t734_names = ("psql", "note_incident", "notice", "TASKLOOP_ROOT", "TASKLOOP_QUEUE_DIR")
+    _t734_orig = [getattr(ap, n) for n in _t734_names]
+    try:
+        ap.psql = lambda q: ("\n".join(ap.SEP.join(r) for r in _t734_rows), 0)
+        ap.note_incident = lambda iid, who, action, result: _t734_notes.append((iid, action, result))
+        ap.notice = lambda *a, **k: None
+        ap.TASKLOOP_ROOT = _t734_root
+        ap.TASKLOOP_QUEUE_DIR = os.path.join(_t734_root, "queue")
+        for _where, _card, _iid in (("queue", "9701-q.md", "i-queue"), ("active", "9702-a.md", "i-active")):
+            with open(os.path.join(_t734_root, _where, _card), "w", encoding="utf-8") as _f:
+                _f.write("card\n")
+            _t734_rows.append([_iid, "VERIFYING", _card])
+        assert retire_queued_cards_of_moved_on_incidents() == 1
+        _done = os.path.join(_t734_root, "done", "9701-q.md")
+        assert os.path.isfile(_done) and not os.path.exists(os.path.join(_t734_root, "queue", "9701-q.md"))
+        assert "AUTO-CLOSED-BY: incident-engine i-queue" in open(_done, encoding="utf-8").read()
+        assert os.path.isfile(os.path.join(_t734_root, "active", "9702-a.md")), "active/ must stay untouched"
+        assert not os.path.exists(os.path.join(_t734_root, "done", "9702-a.md"))
+        assert _t734_notes == [("i-queue", "card-retired",
+                                "card retired: incident VERIFYING before the card ran (9701-q.md)")], _t734_notes
+        assert retire_queued_cards_of_moved_on_incidents() == 0, "second pass: card is in done/ already"
+    finally:
+        for _n, _v in zip(_t734_names, _t734_orig):
+            setattr(ap, _n, _v)
+        _shutil_t734.rmtree(_t734_root, ignore_errors=True)
+    print("T-0734 (queued card retired when incident moved on): OK")
 
     print("incident-engine --selftest: OK")
 

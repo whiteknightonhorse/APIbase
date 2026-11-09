@@ -802,7 +802,7 @@ def human_ask(incident: dict, route: str) -> tuple:
                 tg("after_you.HUMAN_ONLY", human_done_dir=HUMAN_DONE_DIR))
     if route == "HUMAN_KEY":
         return tg("need_from_you.HUMAN_KEY"), tg("after_you.HUMAN_KEY")
-    return tg("need_from_you.NO_FILE", sid=short_id(incident["incident_id"])), tg("after_you.NO_FILE")
+    return tg("need_from_you.NO_FILE", incident_id=incident["incident_id"]), tg("after_you.NO_FILE")
 
 
 def merchant_variant_lines(kind: str) -> list:
@@ -1871,7 +1871,7 @@ outage window without a cited line = REJECT. This applies to `--reason`, the inc
 Knowledge section.
 
 ### Three allowed outcomes (exactly one, each ends with `VERDICT: DONE`, except (c))
-(a) The provider recovers on its own (maintenance, window, limit resets):
+(a) The provider recovers on its own (maintenance, window, limit resets). `show` may already say VERIFYING (your earlier attempt or the engine put it there): `wait` is still the right command and re-stamps the deadline.
 `{cli} wait --id {incident_id} --actor fleet --until <ISO-8601 UTC, from +1h to +72h> --reason "<observation from the proofs, e.g. probe OK since <ts>, N FAIL_TRANSIENT before; a cause only per ### Cause>"` → `VERDICT: DONE`
 (b) The failure reproduces, the cause is in our code/probe config:
 `{cli} propose-fix --id {incident_id} --actor fleet --cause "<one sentence>" --repro "<command that produced the failure>" --paths <path[,path]> --fix "<one sentence>" --proof <abs. path to the PROOF file>` → `VERDICT: DONE`

@@ -57,6 +57,16 @@ Commands:
       VERIFYING. advance_verifying() then leaves the incident alone until the
       deadline; after it, OK -> RESOLVED, FAIL -> one auto-extension of 24h
       (total of 2 `wait` entries), then STUCK.
+      T-0734: also accepted from VERIFYING as a repeat verdict, iff fleet_task_id is
+      set and the incident has fewer than WAIT_MAX_NOTES (2) action="wait" entries
+      (an earlier attempt or the engine already put it there): re-stamps
+      next_recheck_at, note "wait re-issued (attempt repeat): until <ISO>: <reason>".
+      At or above the ceiling it refuses ("wait ceiling reached; the engine's
+      re-probe decides"), so a wait cannot be extended forever.
+
+  Every --id (and `show ID`, close --superseded-by) also accepts INC-<hex6+> or a
+  bare <hex6+> prefix (T-0734): a unique prefix resolves, unknown or ambiguous
+  refuses with exit 1.
 
   incident-cli.py propose-fix --id ID --actor A --cause "..." --repro "<cmd>" --paths P[,P]
                               --fix "..." --proof <abs path>
@@ -146,6 +156,7 @@ Commands:
 import argparse
 import json
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 
@@ -259,6 +270,8 @@ def cmd_retire(a):
 WAIT_MIN = timedelta(hours=1)
 WAIT_MAX = timedelta(hours=72)
 WAIT_FROM_STATES = ("REMEDIATION_QUEUED", "OPEN")
+# T-0734: duplicate of incident-engine.py's WAIT_MAX_NOTES; --selftest asserts equality.
+WAIT_MAX_NOTES = 2
 
 # T-0265: sha256 of the API_CHANGED task body (fix.md bullets pinned, filename-derived id masked) as
 # generated BEFORE the two-phase split -- single-phase kinds must stay byte-identical. Re-pinned by
@@ -286,6 +299,10 @@ def parse_wait_until(raw, now=None):
     return dt, None
 
 
+def _wait_count(inc):
+    return sum(1 for e in inc.get("attempts") or [] if e.get("action") == "wait")
+
+
 def cmd_wait(a):
     """T-0263: see module docstring. Every refusal returns 1 with zero writes."""
     until, err = parse_wait_until(a.until)
@@ -295,12 +312,27 @@ def cmd_wait(a):
     if inc is None:
         print(f"no such incident: {a.id}", file=sys.stderr)
         return 1
-    if inc["state"] not in WAIT_FROM_STATES:
+    from_states = WAIT_FROM_STATES
+    reissue = False
+    if inc["state"] == "VERIFYING":
+        # T-0734 (FLEET-DEBTS-1109 ruling-1 s10): a fleet card's earlier attempt (or the engine) may already have
+        # put the incident in VERIFYING; `wait` there re-stamps the deadline, bounded by the engine's ceiling.
+        if not inc.get("fleet_task_id"):
+            return _refuse(f"incident {a.id} is in state VERIFYING without a fleet task; wait is only allowed from "
+                           f"{'/'.join(WAIT_FROM_STATES)}")
+        if _wait_count(inc) >= WAIT_MAX_NOTES:
+            return _refuse(f"incident {a.id} is in state VERIFYING; wait is only allowed from "
+                           f"{'/'.join(WAIT_FROM_STATES)}; wait ceiling reached; the engine's re-probe decides")
+        from_states, reissue = ("VERIFYING",), True
+    elif inc["state"] not in WAIT_FROM_STATES:
         return _refuse(f"incident {a.id} is in state {inc['state']}; wait is only allowed from "
                        f"{'/'.join(WAIT_FROM_STATES)}")
     until_iso = until.strftime("%Y-%m-%dT%H:%M:%SZ")
+    note = f"until {until_iso}: {a.reason}"
+    if reissue:
+        note = f"wait re-issued (attempt repeat): {note}"
     try:
-        done = ap.wait_incident(a.id, a.actor, until_iso, f"until {until_iso}: {a.reason}", WAIT_FROM_STATES)
+        done = ap.wait_incident(a.id, a.actor, until_iso, note, from_states)
     except RuntimeError as e:
         print(f"DB write failed: {e}", file=sys.stderr)
         return 1
@@ -342,6 +374,36 @@ def cmd_propose_fix(a):
         return 1
     print(f"proposed fix noted for {a.id} (state unchanged; engine files phase B after this task lands in done/)")
     return 0
+
+
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I)
+_SHORT_RE = re.compile(r"^(?:INC-)?([0-9a-f]{6,32})$", re.I)
+
+
+def resolve_incident_id(raw, lookup=None):
+    """T-0734: full uuid as is; `INC-<hex6+>` or bare `<hex6+>` -> unique prefix of incidents.incident_id.
+    Returns (uuid, None) or (None, error_text). `lookup(prefix) -> [uuid, ...]` is injectable for --selftest."""
+    if not isinstance(raw, str):
+        return None, "no such incident: (not a string)"
+    raw = raw.strip()
+    if _UUID_RE.match(raw):
+        return raw.lower(), None
+    m = _SHORT_RE.match(raw)
+    if not m:
+        return None, f"no such incident: {raw}"
+    prefix = m.group(1).lower()
+    if lookup is None:
+        def lookup(pfx):
+            out, rc = ap.psql(f"SELECT incident_id FROM incidents WHERE "
+                              f"replace(incident_id::text, '-', '') LIKE {ap.sql_literal(pfx + '%')} "
+                              f"ORDER BY created_at DESC LIMIT 20")
+            return [x for x in out.splitlines() if x] if rc == 0 and out else []
+    hits = lookup(prefix)
+    if not hits:
+        return None, f"no such incident: {raw}"
+    if len(hits) > 1:
+        return None, f"ambiguous incident id {raw}: matches {', '.join(hits)}; give more hex digits or the full uuid"
+    return hits[0], None
 
 
 LIVE_TARGET_STATES = ("OPEN", "REMEDIATION_QUEUED", "WAITING_HUMAN", "VERIFYING")
@@ -628,13 +690,13 @@ def selftest():
              "attempts": [{"ts": "t", "actor": "a", "action": "FLAPPING", "result": "flap-reason-marker"}]}
     msg3 = ap.format_tg_message({**_base, "operator_file": None})
     assert ap.OPERATOR_DIR not in msg3 and "/INC-" not in msg3.replace("INC-7ce77f", "")
-    assert ap.tg("need_from_you.NO_FILE", sid="7ce77f") in msg3
+    assert ap.tg("need_from_you.NO_FILE", incident_id=_base["incident_id"]) in msg3
     assert ap.tg("after_you.NO_FILE") in msg3 and "flap-reason-marker" in msg3
     msg3b = ap.format_tg_message({**_base, "attempts": []})
     assert ap.tg("parked_why_missing") in msg3b
     _real = "/tmp/operator-selftest/INC-7ce77f.md"
     msg4 = ap.format_tg_message({**_base, "operator_file": _real})
-    assert _real in msg4 and ap.tg("need_from_you.NO_FILE", sid="7ce77f") not in msg4
+    assert _real in msg4 and ap.tg("need_from_you.NO_FILE", incident_id=_base["incident_id"]) not in msg4
     msg5 = ap.format_tg_message({**_base, "kind": "AUTH_FAILED", "route": "HUMAN_KEY", "operator_file": None})
     assert ap.tg("need_from_you.HUMAN_KEY") in msg5 and ap.tg("after_you.HUMAN_KEY") in msg5
     # human-done parsing: marker required, empty-after-marker is "not filled yet"
@@ -929,6 +991,45 @@ def selftest():
     assert _m and set(_re.findall(r'"([A-Z_]+)"', _m.group(1))) == set(HUMAN_DECISION_KINDS), (
         "HUMAN_DECISION_KINDS drifted from incident-engine.py _HUMAN_DECISION_KINDS")
 
+    # T-0734: WAIT_MAX_NOTES mirrors the engine's literal.
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "incident-engine.py"), encoding="utf-8") as _f:
+        _mw = _re.search(r"^WAIT_MAX_NOTES = (\d+)", _f.read(), _re.M)
+    assert _mw and int(_mw.group(1)) == WAIT_MAX_NOTES, "WAIT_MAX_NOTES drifted from incident-engine.py"
+    # T-0734: wait from VERIFYING (repeat verdict), bounded.
+    _wc = []
+    _orig_gi, _orig_wi = ap.get_incident, ap.wait_incident
+    _fut = (datetime.now(timezone.utc) + timedelta(hours=5)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    try:
+        ap.wait_incident = lambda *args: (_wc.append(args), True)[1]
+        def _wait_inc(n_waits, fleet_task="9749-x.md", state="VERIFYING"):
+            ap.get_incident = lambda iid: {"incident_id": iid, "state": state, "fleet_task_id": fleet_task,
+                                           "attempts": [{"action": "wait"}] * n_waits + [{"action": "note"}]}
+            return cmd_wait(_argparse.Namespace(id="w", actor="fleet", until=_fut, reason="r"))
+        assert _wait_inc(1) == 0 and len(_wc) == 1, "VERIFYING with one wait entry accepts wait"
+        assert _wc[0][4] == ("VERIFYING",) and _wc[0][3] == f"wait re-issued (attempt repeat): until {_fut}: r", _wc[0]
+        assert _wait_inc(2) == 1 and len(_wc) == 1, "two wait entries -> refused, zero writes"
+        assert _wait_inc(1, fleet_task=None) == 1 and len(_wc) == 1, "VERIFYING without fleet_task_id refused"
+        assert _wait_inc(0, state="STUCK") == 1 and len(_wc) == 1
+        assert _wait_inc(0, state="OPEN") == 0 and _wc[-1][4] == WAIT_FROM_STATES and _wc[-1][3] == f"until {_fut}: r"
+    finally:
+        ap.get_incident, ap.wait_incident = _orig_gi, _orig_wi
+    # T-0734: short ids.
+    _u1, _u2 = "70284a11-1111-4111-8111-111111111111", "70284a22-2222-4222-8222-222222222222"
+    _db = [_u1, _u2]
+    _lk = lambda pfx: [u for u in _db if u.replace("-", "").startswith(pfx)]
+    assert resolve_incident_id(_u1, _lk) == (_u1, None), "full uuid as is"
+    assert resolve_incident_id("INC-70284a1", _lk) == (_u1, None) and resolve_incident_id("70284A2", _lk) == (_u2, None)
+    _r, _e = resolve_incident_id("INC-70284a", _lk)
+    assert _r is None and _u1 in _e and _u2 in _e and "ambiguous" in _e
+    _r, _e = resolve_incident_id("INC-ffffff", _lk)
+    assert _r is None and "no such incident" in _e
+    assert resolve_incident_id("INC-12", _lk)[0] is None and resolve_incident_id(["x"], _lk)[0] is None
+    # T-0734: the WAITING_HUMAN Telegram line names the commands that work, with the full uuid.
+    _ask = ap.tg("need_from_you.NO_FILE", incident_id=_u1)
+    assert _u1 in _ask and "resolve-request" in _ask and "retire" in _ask and "reopen" in _ask, _ask
+    assert "close " + "INC-" not in _ask
+    assert ap.human_ask({"incident_id": _u1}, "HUMAN_ONLY")[0] == _ask
+
     print("incident-cli --selftest: OK")
 
 
@@ -1020,6 +1121,13 @@ def main():
     if not getattr(args, "func", None):
         p.print_help()
         return 2
+    for _attr in ("id", "superseded_by"):  # T-0734: every incident id argument accepts INC-<short>
+        if getattr(args, _attr, None):
+            full, err = resolve_incident_id(getattr(args, _attr))
+            if err:
+                print(err, file=sys.stderr)
+                return 1
+            setattr(args, _attr, full)
     return args.func(args)
 
 
