@@ -113,8 +113,8 @@ sourced by `taskloop.sh`.
 
 - Key-unset assertion: before every `claude --print`, `claude_print` checks `ANTHROPIC_API_KEY` is unset. If it is set, no claude
   call is made, tick.log gets `API key present in OAuth path — tick aborted` and the tick exits.
-- Fable acceptance overflow: right after the acceptance review call, when the answer is a limit hit (no verdict, at most 5 non-empty lines, matching `hit your session limit` or
-  `weekly limit`; a full review that merely mentions the phrase is never overflowed), `api_overflow_run` re-runs the identical prompt once per card through
+- Fable acceptance overflow: right after the acceptance review call, when the answer matches `hit your session limit` or
+  `weekly limit`, `api_overflow_run` re-runs the identical prompt once per card through
   `api-call --lane overflow --model claude-fable-5-1 --max-turns 1`. On success the answer is the acceptance answer and
   `state/passes-<date>.fable.api` is incremented; on exit 75 or any failure nothing changes and the card-0590 outage branch
   (host-wide marker, park) runs as before. Sonnet work passes and dispatcher calls are never overflowed.

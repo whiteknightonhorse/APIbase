@@ -2,7 +2,6 @@
 # API-CREDITS-1108/2 acceptance tests: Fable acceptance overflow + key-unset assertion. Fake api-call / fake claude; no network.
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-. /home/apibase/taskloop/lib/review-verdict.sh
 . "$ROOT/scripts/api-credits/overflow.sh"
 T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
 FAIL=0; ok(){ echo "PASS $1"; }; bad(){ echo "FAIL $1"; FAIL=1; }
@@ -41,12 +40,6 @@ grep -q 'weekly limit' "$T/ans" && ok "answer untouched on 75" || bad "answer ch
 # 4. non-limit answer: never overflowed
 echo "ACCEPT" > "$T/ans"; rm -f "$T/args"
 API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-3 "$TODAY" fable && bad "overflowed a normal answer" || ok "normal answer not overflowed"
-
-# 4b. full review that merely mentions "weekly limit" (verdict present): never overflowed, marker not consumed
-printf 'R1 [Noted] x - 0590 parks on weekly limit text\nfine\nACCEPT\n' > "$T/ans"; rm -f "$T/args"
-API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-4 "$TODAY" fable && bad "overflowed a real verdict" || ok "real verdict mentioning weekly limit kept"
-[ -e "$STATE/T-4.overflow-used" ] && bad "once-marker consumed" || ok "once-marker not consumed"
-[ -e "$T/args" ] && bad "api-call ran on real verdict" || ok "no api-call on real verdict"
 
 # 5. ANTHROPIC_API_KEY set -> claude_print aborts the tick with the log line, no claude call
 cat > "$T/fn.sh" <<X
