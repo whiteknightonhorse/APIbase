@@ -69,13 +69,17 @@ describe('gen-site-facts.ts', () => {
       'src/pipeline/stages/escrow-finalize.stage.ts',
       'src/pipeline/stages/idempotency.stage.ts',
       'src/services/tool-registry.service.ts',
+      'src/services/public-receipt.service.ts',
+      'src/shop/routes/legal.router.ts',
     ]) {
       put(root, rel, readFileSync(join(ROOT, rel), 'utf8'));
     }
     const efs = join(root, 'src/pipeline/stages/escrow-finalize.stage.ts');
     writeFileSync(
       efs,
-      readFileSync(efs, 'utf8').split('still made by hand by the operator').join('made elsewhere'),
+      readFileSync(efs, 'utf8')
+        .split('refunds are paid automatically by the')
+        .join('made elsewhere'),
     );
     const r = spawnSync('npx', ['tsx', GEN, '--check'], {
       cwd: ROOT,
