@@ -6,15 +6,27 @@ placed in the child environment only, and never printed, logged or written to th
 Refusal = exit 75 with a one-line reason and no child process (so no network call).
 """
 import datetime as dt
+import hashlib
 import json
 import os
+import re
+import shlex
 import stat
 import subprocess
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CONFIG = os.environ.get("API_CREDITS_CONFIG", os.path.join(HERE, "..", "..", "config", "api-credits.json"))
+REPO_CONFIG = os.path.join(HERE, "..", "..", "config", "api-credits.json")
 HOME = os.path.expanduser("~")
+# Per-tenant layout (T-0746): a copy installed under ~/bin/api-credits carries its config next to itself.
+_NEXT = os.path.join(HERE, "api-credits.json")
+CONFIG = os.environ.get("API_CREDITS_CONFIG") or (_NEXT if os.path.exists(_NEXT) else REPO_CONFIG)
+HOME_BASE = os.environ.get("API_HOME_BASE", "/home")
+# Elevated reads/writes across tenants: cron/dispatcher context only; tests override API_SUDO (empty = no elevation).
+PRIV = shlex.split(os.environ.get("API_SUDO", "sudo -n"))
 LEDGER_DIR = os.environ.get("API_LEDGER_DIR", os.path.join(HOME, "api-ledger"))
 KEY_FILE = os.environ.get("API_KEY_FILE", os.path.join(HOME, ".anthropic-api.env"))
 CLAUDE_BIN = os.environ.get("API_CALL_CLAUDE_BIN", "claude")
@@ -73,15 +85,27 @@ def cost(r):
     return float(v) if isinstance(v, (int, float)) else 0.0
 
 
+def tenant_name():
+    return os.environ.get("API_CALL_TENANT") or os.environ.get("TENANT") or os.path.basename(HOME.rstrip("/")) or "unknown"
+
+
+def is_apibase():
+    return os.path.basename(HOME.rstrip("/")) == "apibase"
+
+
 def totals(rows):
+    """An estimate row counts only while no actual row with the same batch_id exists (fail-closed metering)."""
+    actual = set(r.get("batch_id") for r in rows if r.get("kind") == "actual")
     lanes = {}
     for r in rows:
+        if r.get("kind") == "estimate" and r.get("batch_id") in actual:
+            continue
         lanes[r.get("lane")] = lanes.get(r.get("lane"), 0.0) + cost(r)
     return lanes, sum(lanes.values())
 
 
-def refuse(reason):
-    print("api-call refused: " + reason, file=sys.stderr)
+def refuse(reason, prog="api-call"):
+    print(prog + " refused: " + reason, file=sys.stderr)
     return EX_REFUSED
 
 
@@ -96,6 +120,13 @@ def key_value():
                 v = line.split("=", 1)[1].strip().strip("'\"")
                 return v or None
     return None
+
+
+def _listdir(d):
+    try:
+        return os.listdir(d)
+    except OSError:
+        return []
 
 
 def check_guards(cfg, lane, model, max_turns):
@@ -114,7 +145,7 @@ def check_guards(cfg, lane, model, max_turns):
         return "model not on the %s allowlist" % lane
     if max_turns is None or max_turns < 1:
         return "--max-turns required"
-    if lane != "overflow" and os.path.exists(os.path.join(LEDGER_DIR, "HALT")):
+    if lane != "overflow" and any(n == "HALT" or n.startswith("HALT-") for n in _listdir(LEDGER_DIR)):
         return "HALT marker present"
     cyc = read_cycle()
     if cyc is None:
@@ -201,7 +232,7 @@ def cmd_call(argv):
     c = out.get("total_cost_usd")
     row = {
         "ts": now().strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "tenant": os.environ.get("API_CALL_TENANT") or os.environ.get("TENANT") or "unknown",
+        "tenant": tenant_name(),
         "lane": lane,
         "model": model,
         "input_tokens": u.get("input_tokens", 0),
@@ -221,13 +252,342 @@ def cmd_call(argv):
     return p.returncode
 
 
-def report():
+BATCH_PROG = "api-batch"
+ID_RE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+
+
+class BatchError(Exception):
+    pass
+
+
+def api_base(cfg):
+    base = cfg.get("anthropic_base", "https://api.anthropic.com")
+    o = os.environ.get("API_BATCH_BASE_URL")  # test hook: loopback only, so the key can never be sent elsewhere
+    if o and urllib.parse.urlparse(o).hostname in ("127.0.0.1", "localhost"):
+        base = o
+    return base.rstrip("/")
+
+
+def http(cfg, method, path, body=None):
+    """One call to the Batches API. Returns the response bytes. Errors carry only the status and error type."""
+    req = urllib.request.Request(api_base(cfg) + path, data=body, method=method)
+    req.add_header("anthropic-version", cfg["anthropic_version"])
+    req.add_header("content-type", "application/json")
+    req.add_unredirected_header("x-api-key", key_value())  # never forwarded on a redirect
+    try:
+        with urllib.request.urlopen(req, timeout=120) as r:
+            return r.read()
+    except urllib.error.HTTPError as e:
+        kind = ""
+        try:
+            kind = str(json.loads(e.read().decode("utf-8", "replace")).get("error", {}).get("type", ""))[:60]
+        except Exception:
+            pass
+        raise BatchError("HTTP %d %s" % (e.code, kind))
+    except (urllib.error.URLError, OSError) as e:
+        raise BatchError("network error (%s)" % type(e).__name__)
+
+
+def price_of(cfg, model, tokens):
+    """USD per MTok at the batch rate for a request whose prompt had `tokens` tokens."""
+    p = cfg["pricing"][model]
+    if "long" in p and tokens > cfg.get("long_prompt_tokens", 100000):
+        p = p["long"]
+    d = cfg["batch_discount"]
+    return dict((k, p[k] * d) for k in ("input", "output", "cache_read", "cache_write"))
+
+
+def load_jobs(path, model):
+    """Returns (list of request dicts as the API wants them, list of per-request (chars, max_tokens)) or raises BatchError."""
+    reqs, meta, seen = [], [], set()
+    try:
+        f = open(path)
+    except OSError:
+        raise BatchError("--jobs file unreadable")
+    with f:
+        for n, line in enumerate(f, 1):
+            if not line.strip():
+                continue
+            try:
+                o = json.loads(line)
+            except ValueError:
+                raise BatchError("--jobs line %d is not JSON" % n)
+            if not isinstance(o, dict) or not isinstance(o.get("custom_id"), str) or not ID_RE.match(o["custom_id"]):
+                raise BatchError("--jobs line %d needs a custom_id matching [A-Za-z0-9_-]{1,64}" % n)
+            params = o["params"] if isinstance(o.get("params"), dict) else dict((k, v) for k, v in o.items() if k != "custom_id")
+            if o["custom_id"] in seen:
+                raise BatchError("--jobs line %d repeats a custom_id" % n)
+            seen.add(o["custom_id"])
+            if params.get("model", model) != model:
+                raise BatchError("--jobs line %d model differs from --model" % n)
+            mt = params.get("max_tokens")
+            if not isinstance(mt, int) or isinstance(mt, bool) or mt < 1 or not isinstance(params.get("messages"), list):
+                raise BatchError("--jobs line %d needs messages and an integer max_tokens >= 1" % n)
+            params["model"] = model
+            if params.get("stream"):
+                raise BatchError("--jobs line %d: stream is not allowed in a batch" % n)
+            body = dict((k, v) for k, v in params.items() if k not in ("model", "max_tokens"))
+            meta.append((len(json.dumps(body, ensure_ascii=False)), mt))
+            reqs.append({"custom_id": o["custom_id"], "params": params})
+    if not reqs:
+        raise BatchError("--jobs is empty")
+    if len(reqs) > 100000:
+        raise BatchError("--jobs has more than 100000 requests")
+    return reqs, meta
+
+
+def estimate_usd(cfg, model, meta):
+    """sum(input chars / 3) x input batch price + sum(max_tokens) x output batch price, USD."""
+    total = 0.0
+    for chars, mt in meta:
+        tok = chars / 3.0
+        pr = price_of(cfg, model, tok)
+        total += tok / 1e6 * pr["input"] + mt / 1e6 * pr["output"]
+    return round(total, 6)
+
+
+def parse_flags(argv, allowed):
+    out = {}
+    i = 0
+    while i < len(argv):
+        a = argv[i]
+        if a in allowed and i + 1 < len(argv):
+            out[a] = argv[i + 1]
+            i += 2
+            continue
+        return None
+    return out
+
+
+def cmd_batch(argv):
+    if not argv or argv[0] not in ("estimate", "submit", "poll", "collect"):
+        return refuse("usage: api-batch estimate|submit|poll|collect --lane L --model M ...", BATCH_PROG)
+    sub = argv[0]
+    fl = parse_flags(argv[1:], ("--lane", "--model", "--jobs", "--out", "--batch-id"))
+    if fl is None:
+        return refuse("bad argument", BATCH_PROG)
+    lane, model = fl.get("--lane"), fl.get("--model")
+    cfg = load_config()
+    if lane not in ("batch", "sweep"):
+        return refuse("lane must be batch or sweep", BATCH_PROG)
+    reason = check_guards(cfg, lane, model, 1)
+    if reason:
+        return refuse(reason, BATCH_PROG)
+    if model not in cfg.get("pricing", {}):
+        return refuse("no pricing for model", BATCH_PROG)
+    cyc = read_cycle()
+    bid = fl.get("--batch-id")
+    if sub in ("poll", "collect") and not (bid and ID_RE.match(bid)):
+        return refuse("--batch-id required", BATCH_PROG)
+    try:
+        if sub in ("estimate", "submit"):
+            if not fl.get("--jobs"):
+                return refuse("--jobs required", BATCH_PROG)
+            reqs, meta = load_jobs(fl["--jobs"], model)
+            est = estimate_usd(cfg, model, meta)
+            cap = cfg["per_unit_caps"][lane]
+            if est >= cap:
+                return refuse("batch estimate $%.2f over the $%s cap" % (est, cap), BATCH_PROG)
+            if sub == "estimate":
+                print("estimate $%.4f for %d requests (cap $%s)" % (est, len(reqs), cap))
+                return 0
+            body = json.dumps({"requests": reqs}, ensure_ascii=False).encode("utf-8")
+            out = json.loads(http(cfg, "POST", "/v1/messages/batches", body).decode("utf-8", "replace"))
+            nid = out.get("id") if isinstance(out, dict) else None
+            if not isinstance(nid, str) or not ID_RE.match(nid):
+                raise BatchError("create returned no batch id")
+            append_ledger(cyc[0], {"ts": now().strftime("%Y-%m-%dT%H:%M:%SZ"), "tenant": tenant_name(), "kind": "estimate",
+                                   "lane": lane, "model": model, "batch_id": nid, "cost_usd": est, "n_requests": len(reqs)})
+            print(nid)
+            return 0
+        info = json.loads(http(cfg, "GET", "/v1/messages/batches/" + bid).decode("utf-8", "replace"))
+        status = info.get("processing_status") if isinstance(info, dict) else None
+        if sub == "poll":
+            print(status if isinstance(status, str) else "unknown")
+            return 0
+        return collect(cfg, cyc, lane, model, bid, status, fl.get("--out"))
+    except BatchError as e:
+        print("api-batch failed: %s" % e, file=sys.stderr)
+        return 1
+
+
+def collect(cfg, cyc, lane, model, bid, status, out_path):
+    if not out_path:
+        return refuse("--out required", BATCH_PROG)
+    if status != "ended":
+        print("api-batch: batch not ended (status %s)" % (status if isinstance(status, str) else "unknown"), file=sys.stderr)
+        return 3
+    raw = http(cfg, "GET", "/v1/messages/batches/" + bid + "/results").decode("utf-8", "replace")
+    n = 0
+    sums = {"input_tokens": 0, "output_tokens": 0, "cache_read": 0, "cache_write": 0}
+    usd = 0.0
+    lines = []
+    for line in raw.splitlines():
+        if not line.strip():
+            continue
+        try:
+            o = json.loads(line)
+        except ValueError:
+            continue
+        if not isinstance(o, dict):
+            continue
+        n += 1
+        lines.append(line)
+        res = o.get("result") if isinstance(o.get("result"), dict) else {}
+        msg = res.get("message") if isinstance(res.get("message"), dict) else {}
+        u = msg.get("usage") if isinstance(msg.get("usage"), dict) else {}
+        if res.get("type") != "succeeded":
+            continue  # errored, canceled and expired requests are not billed
+
+        def num(k):
+            v = u.get(k, 0)
+            return v if isinstance(v, int) and not isinstance(v, bool) else 0
+        i, o_, cr, cw = num("input_tokens"), num("output_tokens"), num("cache_read_input_tokens"), num("cache_creation_input_tokens")
+        pr = price_of(cfg, model, i + cr + cw)
+        usd += (i * pr["input"] + o_ * pr["output"] + cr * pr["cache_read"] + cw * pr["cache_write"]) / 1e6
+        sums["input_tokens"] += i
+        sums["output_tokens"] += o_
+        sums["cache_read"] += cr
+        sums["cache_write"] += cw
+    tmp = out_path + ".tmp.%d" % os.getpid()
+    with open(tmp, "w") as f:
+        f.write("".join(l + "\n" for l in lines))
+    os.replace(tmp, out_path)
+    if any(r.get("kind") == "actual" and r.get("batch_id") == bid for r in read_ledger(cyc[0])):
+        print("api-batch: batch already collected; ledger unchanged", file=sys.stderr)
+        return 0
+    row = {"ts": now().strftime("%Y-%m-%dT%H:%M:%SZ"), "tenant": tenant_name(), "kind": "actual", "lane": lane, "model": model,
+           "batch_id": bid, "cost_usd": round(usd, 6), "n_results": n}
+    row.update(sums)
+    append_ledger(cyc[0], row)
+    print("collected %d results, cost $%.4f" % (n, usd))
+    return 0
+
+
+def privileged(args):
+    """Run a command through the elevation prefix. Returns (rc, stdout bytes)."""
+    try:
+        p = subprocess.run(PRIV + args, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=30)
+        return p.returncode, p.stdout
+    except (OSError, subprocess.SubprocessError):
+        return 1, b""
+
+
+def tenant_ledger_dir(t):
+    return os.path.join(HOME_BASE, t, "api-ledger")
+
+
+def tenant_rows(t, start):
+    """Rows of tenant t for the cycle, or None when unreadable. Our own ledger is read directly."""
+    name = start.strftime("%Y-%m-%d") + ".jsonl"
+    if t == os.path.basename(HOME.rstrip("/")):
+        return read_ledger(start)
+    d = tenant_ledger_dir(t)
+    if privileged(["test", "-d", d])[0] != 0:
+        return None
+    path = os.path.join(d, name)
+    if privileged(["test", "-e", path])[0] != 0:
+        return []
+    rc, out = privileged(["cat", path])
+    if rc != 0:
+        return None
+    rows = []
+    for line in out.decode("utf-8", "replace").splitlines():
+        try:
+            r = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(r, dict):
+            rows.append(r)
+    return rows
+
+
+def fleet_view(cfg, start):
+    """Returns (per_tenant {t: (lanes, total) | None}, fleet_lanes, fleet_total)."""
+    per, flanes, ftotal = {}, {}, 0.0
+    for t in cfg.get("tenants", []):
+        rows = tenant_rows(t, start)
+        if rows is None:
+            per[t] = None
+            continue
+        lanes, total = totals(rows)
+        per[t] = (lanes, total)
+        for k, v in lanes.items():
+            flanes[k] = flanes.get(k, 0.0) + v
+        ftotal += total
+    return per, flanes, ftotal
+
+
+def fleet_marker(cfg, action):
+    """Write (touch) or remove HALT-fleet-total in every configured tenant's ledger directory."""
+    for t in cfg.get("tenants", []):
+        d = tenant_ledger_dir(t)
+        if t == os.path.basename(HOME.rstrip("/")):
+            d = LEDGER_DIR
+        path = os.path.join(d, "HALT-fleet-total")
+        if action == "write":
+            if d == LEDGER_DIR:
+                os.makedirs(d, exist_ok=True)
+            if d == LEDGER_DIR or privileged(["test", "-d", d])[0] == 0:
+                privileged(["touch", path])
+        else:
+            privileged(["rm", "-f", path])
+
+
+DRIFT_FILES = ("api-call", "api-batch", "api-spend", "api-key-install", "api-cycle-rollover", "api_credits.py", "api-credits.json")
+
+
+def md5_of(path):
+    try:
+        with open(path, "rb") as f:
+            return hashlib.md5(f.read()).hexdigest()
+    except OSError:
+        return None
+
+
+def check_drift(cfg, tick):
+    for t in cfg.get("tenants", []):
+        if t == os.path.basename(HOME.rstrip("/")):
+            continue
+        d = os.path.join(HOME_BASE, t, "bin", "api-credits")
+        if privileged(["test", "-d", d])[0] != 0:
+            continue  # not installed on this tenant
+        bad = []
+        for f in DRIFT_FILES:
+            want = md5_of(os.path.join(os.path.dirname(REPO_CONFIG), f) if f.endswith(".json") else os.path.join(HERE, f))
+            rc, out = privileged(["md5sum", os.path.join(d, f)])
+            got = out.decode("utf-8", "replace").split(" ")[0] if rc == 0 else None
+            if want != got:
+                bad.append(f + ("(missing)" if got is None else "(differs)"))
+        marker = os.path.join(LEDGER_DIR, "DRIFT-" + t)
+        if not bad:
+            if os.path.exists(marker):
+                os.remove(marker)
+            continue
+        text = " ".join(bad) + "\n"
+        try:
+            same = open(marker).read() == text
+        except OSError:
+            same = False
+        if same:
+            continue
+        os.makedirs(LEDGER_DIR, exist_ok=True)
+        with open(marker, "w") as f:
+            f.write(text)
+        if tick:
+            with open(tick, "a") as f:
+                f.write("%s API credits copy drift on %s: %s" % (now().strftime("%Y-%m-%dT%H:%M:%SZ"), t, text))
+
+
+def report(fleet=False):
     cfg = load_config()
     cyc = read_cycle()
     if cyc is None:
         return None
     rows = read_ledger(cyc[0])
     lanes, total = totals(rows)
+    if fleet:
+        _per, _fl, total = fleet_view(cfg, cyc[0])
     t = now()
     elapsed = max((t - cyc[0]).total_seconds() / 86400.0, 0.01)
     length = (cyc[1] - cyc[0]).total_seconds() / 86400.0
@@ -235,7 +595,34 @@ def report():
     return cfg, cyc, lanes, total, left, total / elapsed * length
 
 
-def cmd_spend(_argv):
+def cmd_fleet():
+    if not is_apibase():
+        print("api-spend --fleet runs on apibase only", file=sys.stderr)
+        return 1
+    cfg = load_config()
+    cyc = read_cycle()
+    if cyc is None:
+        print("no cycle file in " + LEDGER_DIR, file=sys.stderr)
+        return 1
+    per, flanes, ftotal = fleet_view(cfg, cyc[0])
+    print("cycle %s -> %s (fleet)" % (cyc[0].strftime("%Y-%m-%d"), cyc[1].strftime("%Y-%m-%d")))
+    for t in cfg.get("tenants", []):
+        if per[t] is None:
+            print("tenant %-14s unreadable" % t)
+            continue
+        lanes, total = per[t]
+        for lane in cfg["lane_caps"]:
+            print("tenant %-14s %-9s $%7.2f" % (t, lane, lanes.get(lane, 0.0)))
+        print("tenant %-14s %-9s $%7.2f" % (t, "total", total))
+    for lane, cap in cfg["lane_caps"].items():
+        print("fleet  %-14s %-9s $%7.2f / $%d" % ("", lane, flanes.get(lane, 0.0), cap))
+    print("fleet  %-14s %-9s $%7.2f / $%d (soft)" % ("", "total", ftotal, cfg["total_soft"]))
+    return 0
+
+
+def cmd_spend(argv):
+    if argv == ["--fleet"]:
+        return cmd_fleet()
     rep = report()
     if rep is None:
         print("no cycle file in " + LEDGER_DIR, file=sys.stderr)
@@ -251,7 +638,8 @@ def cmd_spend(_argv):
 
 def cmd_alerts(argv):
     """Hourly: write ALERT-<n> markers and a tick.log line. argv[0] = optional tick.log path."""
-    rep = report()
+    fleet = is_apibase()
+    rep = report(fleet)
     if rep is None:
         return 1
     cfg, _cyc, lanes, total, _left, _proj = rep
@@ -273,6 +661,10 @@ def cmd_alerts(argv):
             with open(tick, "a") as f:
                 f.write("%s API credits alert: %s (reached your api credit limit)\n"
                         % (now().strftime("%Y-%m-%dT%H:%M:%SZ"), msg))
+    if fleet:
+        if total >= cfg["non_overflow_total_stop"]:
+            fleet_marker(cfg, "write")
+        check_drift(cfg, tick)
     return 0
 
 
@@ -304,13 +696,15 @@ def cmd_rollover(_argv):
     for n in os.listdir(LEDGER_DIR):
         if n.startswith("ALERT-"):
             os.remove(os.path.join(LEDGER_DIR, n))
+    if is_apibase():
+        fleet_marker(load_config(), "remove")  # only HALT-fleet-total; a plain HALT is never touched
     return 0
 
 
 def main():
-    cmds = {"call": cmd_call, "spend": cmd_spend, "alerts": cmd_alerts, "rollover": cmd_rollover}
+    cmds = {"call": cmd_call, "spend": cmd_spend, "alerts": cmd_alerts, "rollover": cmd_rollover, "batch": cmd_batch}
     if len(sys.argv) < 2 or sys.argv[1] not in cmds:
-        print("usage: api_credits.py call|spend|alerts|rollover ...", file=sys.stderr)
+        print("usage: api_credits.py call|batch|spend|alerts|rollover ...", file=sys.stderr)
         return 2
     return cmds[sys.argv[1]](sys.argv[2:])
 

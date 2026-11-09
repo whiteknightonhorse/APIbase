@@ -1,6 +1,7 @@
 {
-  "_comment": "API-CREDITS-1108 caps, one file. Lane caps are per cycle in USD; total_soft is the sum of the lane caps; alerts are total-spend thresholds. Changing a number here needs a Fable ruling.",
+  "_comment": "API-CREDITS-1108 caps, one file. Lane caps are per cycle in USD; total_soft is the sum of the lane caps; alerts are total-spend thresholds. Changing a number here needs a Fable ruling. Pricing is USD per MTok, copied from pricing_source on pricing_as_of; batch rate = price x batch_discount.",
   "lane_caps": {"overflow": 45, "demo": 30, "batch": 55, "sweep": 50},
+  "per_unit_caps": {"overflow": 8, "demo": 1.5, "batch": 5, "sweep": 5},
   "total_soft": 180,
   "alerts": [90, 135, 162],
   "lane_alert_fraction": 0.9,
@@ -13,5 +14,17 @@
     "sweep": ["claude-haiku-5-5", "claude-sonnet-5-5"]
   },
   "default_max_turns": {"overflow": 1, "demo": 12},
-  "first_cycle": {"start": "2026-11-08", "end": "2026-12-06"}
+  "first_cycle": {"start": "2026-11-08", "end": "2026-12-06"},
+  "tenants": ["apibase", "cryptocardhub", "sales"],
+  "anthropic_version": "2026-10-21",
+  "batch_discount": 0.5,
+  "long_prompt_tokens": 100000,
+  "pricing_source": "https://platform.claude.com/docs/en/about-claude/pricing",
+  "pricing_as_of": "2026-11-09",
+  "pricing": {
+    "claude-fable-5-1": {"input": 10, "output": 50, "cache_read": 0.25, "cache_write": 12.5},
+    "claude-sonnet-5-5": {"input": 2, "output": 10, "cache_read": 0.1, "cache_write": 2.5},
+    "claude-haiku-5-5": {"input": 0.1, "output": 0.5, "cache_read": 0.01, "cache_write": 0.125,
+      "long": {"input": 0.5, "output": 2.5, "cache_read": 0.05, "cache_write": 0.625}}
+  }
 }

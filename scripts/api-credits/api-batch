@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+set +x
+exec python3 -I "$(dirname "$(readlink -f "$0")")/api_credits.py" batch "$@"
