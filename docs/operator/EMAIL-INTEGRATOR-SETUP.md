@@ -1,6 +1,6 @@
 # Integrator mail setup (T-INT-18)
 
-Merchant mail is sent by `scripts/autopilot/merchant-mail.py` (hourly cron candidate, **not installed**)
+Merchant mail is sent by `scripts/autopilot/merchant-mail.py` (hourly cron at :15 every hour, log `logs/merchant-mail.log`)
 from `integrator@apibase.pro` through Resend. Replies are read by `email-intake.py` (class `MERCHANT_REPLY`).
 No letter leaves until every step below is done.
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""merchant-mail.py — T-INT-18 (spec §12.2 "Outgoing mail"). Hourly cron CANDIDATE (not installed).
+"""merchant-mail.py — T-INT-18 (spec §12.2 "Outgoing mail"). Hourly cron, installed 2026-11-10 (T-0723).
 
 Sends the transactional merchant mail that incident-engine.py only QUEUES (email_events,
 direction='out', status='queued'; see queue_merchant_email()). Resend API only, sender
@@ -54,7 +54,7 @@ LEGAL_TITLES = {"merchant-agreement": "Merchant Agreement", "aup": "Acceptable U
 
 # Placeholder defaults of legal_version_notice; render() applies them under any caller-supplied values.
 LEGAL_DEFAULTS = {"doc_title": "legal document", "doc_version": "(see the legal page)",
-                  "effective_date": "(see the legal page)", "source_url": "/legal"}
+                  "effective_date": "(see the legal page)", "source_url": "https://apibase.pro/legal"}
 
 log = logging.getLogger("merchant-mail")
 
@@ -194,7 +194,7 @@ def template_values(template, merchant_id, m, msg_id=""):
                 r = _rows("SELECT to_char(effective_from AT TIME ZONE 'UTC', 'YYYY-MM-DD') FROM shop_legal_docs "
                           f"WHERE doc_id = {ap.sql_literal(parts[2])} AND version = {ap.sql_literal(parts[3])}")
                 vals["doc_title"], vals["doc_version"] = LEGAL_TITLES[parts[2]], parts[3]
-                vals["source_url"] = f"/legal/{parts[2]}.src.md?version={parts[3]}"
+                vals["source_url"] = f"https://apibase.pro/legal/{parts[2]}.src.md?version={parts[3]}"
                 if r:
                     vals["effective_date"] = r[0][0]
         elif template == "catalog_rejected":

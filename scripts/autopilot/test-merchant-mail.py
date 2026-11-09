@@ -150,6 +150,20 @@ class TestSender(MailBase):
         self.assertIn("integrator@apibase.pro", payload["from"])
         self.assertIn("https://apibase.pro/integrator/check/mail-shop", payload["text"])
 
+    def test_ml9_legal_notice_absolute_url_and_effective_date(self):
+        approve()
+        q("CREATE TABLE IF NOT EXISTS shop_legal_docs (doc_id text, version text, sha256 char(64), url text, "
+          "effective_from timestamptz, body_md text, PRIMARY KEY (doc_id, version))")
+        q("DELETE FROM shop_legal_docs WHERE doc_id = 'aup' AND version = '2'")
+        q("INSERT INTO shop_legal_docs VALUES ('aup', '2', repeat('a', 64), 'u', '2026-12-10T00:00:00Z', 'b')")
+        queue_row(self.mid, template="legal_version_notice", msg_id=f"legal-notice:{self.mid}:aup:2")
+        rc, _ = run_mm()
+        self.assertEqual(rc, 0)
+        self.assertEqual(len(self.resend.posts()), 1)
+        text = self.resend.posts()[0][3]["text"]
+        self.assertIn("https://apibase.pro/legal/aup.src.md?version=2", text)
+        self.assertIn("2026-12-10", text)
+
     def test_ml3_resend_500_requeues_then_fails_on_24th(self):
         approve()
         MM.http_request = self.resend = FakeResend(post_code=500)
@@ -232,7 +246,7 @@ class TestTemplates(unittest.TestCase):
                 with self.subTest(kind=kind, lang=lang):
                     subject, text = MM.render(kind, lang, vals)
                     full = subject + "\n" + text
-                    urls = re.findall(r"https?://\S+", full)
+                    urls = [u for u in re.findall(r"https?://\S+", full) if not u.startswith("https://apibase.pro/legal")]
                     self.assertEqual(urls, ["https://apibase.pro/integrator/check/drill-shop"])
                     self.assertNotIn("```", full)
                     self.assertNotIn("<script", full.lower())
@@ -243,7 +257,7 @@ class TestTemplates(unittest.TestCase):
         # raw files: exactly one URL, and it is the check URL placeholder form
         for kind in MM.KINDS:
             raw = open(os.path.join(MM.TEMPLATES_DIR, f"{kind}.en.md"), encoding="utf-8").read()
-            self.assertEqual(re.findall(r"https?://\S+", raw), ["https://apibase.pro/integrator/check/{slug}"])
+            self.assertEqual([u for u in re.findall(r"https?://\S+", raw) if not u.startswith("https://apibase.pro/legal")], ["https://apibase.pro/integrator/check/{slug}"])
 
 
 class TestIntake(MailBase):

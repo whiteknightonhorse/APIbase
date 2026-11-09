@@ -2,6 +2,7 @@
   "ruling": "disputes/INT-18-merchant-mail-templates.ruling-1.md",
   "approved_at": "2026-10-05T22:55:17Z",
   "approved_by": "fable",
-  "templates_sha256": "3542d8243f3130b6707c4d9265ba62fe8da526c2abfb52a85f3d0e39878c1504",
-  "amended_by": "disputes/ENGLISH-ONLY-1006.ruling-1.md"
+  "templates_sha256": "1e3a412a75c2de9599c333f1dbd264422b06baf7c96419f8197c80ee5288d240",
+  "amended_by": "disputes/ENGLISH-ONLY-1006.ruling-1.md",
+  "amended_by_2": "disputes/APIBASE-BUYER-1109.ruling-1.md"
 }
