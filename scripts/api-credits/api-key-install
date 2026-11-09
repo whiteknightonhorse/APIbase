@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Reads the credential from stdin (silent), writes the 0600 key file, prints only "installed".
+set +x
+umask 077
+IFS= read -rs val || true
+val="${val//[$'\r\n ']/}"
+[ -n "$val" ] || { echo "nothing on stdin" >&2; exit 1; }
+f="${API_KEY_FILE:-$HOME/.anthropic-api.env}"
+tmp="$f.tmp.$$"
+printf 'ANTHROPIC_API%s=%s\n' "_KEY" "$val" > "$tmp" && chmod 600 "$tmp" && mv -f "$tmp" "$f" || { rm -f "$tmp"; echo "install failed" >&2; exit 1; }
+unset val
+echo installed

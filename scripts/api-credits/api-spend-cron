@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Hourly: write ALERT-<n> markers and a tick.log line at the thresholds. Usage: api-spend-cron [tick.log path]
+set +x
+exec python3 -I "$(dirname "$(readlink -f "$0")")/api_credits.py" alerts "$@"

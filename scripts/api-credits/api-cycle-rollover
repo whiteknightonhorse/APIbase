@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Cron 5 0 6 * * (UTC): open the next credit cycle once the current one has ended; clears ALERT markers.
+set +x
+exec python3 -I "$(dirname "$(readlink -f "$0")")/api_credits.py" rollover "$@"
