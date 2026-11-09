@@ -4,7 +4,7 @@ test-merchant-kinds.py (merchant_fixture.py). Resend is a mock (merchant-mail.ht
 replaced); not one real letter, no real key, no network.
 
 Run: python3 scripts/autopilot/test-merchant-mail.py
-Mutations: drop the approval gate -> ML1 red; drop the domain check -> ML5 red;
+Mutations: drop the approval gate -> ML1 red; drop the domain check -> ML5 red; drop the 403 mapping -> ML5b red;
 drop the MERCHANT_REPLY branch in email-intake.py -> ML6 red.
 """
 import contextlib
@@ -69,16 +69,22 @@ FORBIDDEN = [
 
 
 class FakeResend:
-    def __init__(self, domain_status="verified", post_code=200):
+    def __init__(self, domain_status="verified", post_code=200, domains_code=200):
         self.domain_status, self.post_code, self.calls = domain_status, post_code, []
+        self.domains_code = domains_code
 
     def __call__(self, method, path, key, payload=None, idem=None):
         self.calls.append((method, path, key, payload))
         if method == "GET" and path == "/domains":
+            if self.domains_code == 401:
+                return 401, {"name": "restricted_api_key", "message": "This API key is restricted to only send emails"}
             return 200, {"data": [{"name": "apibase.pro", "status": self.domain_status}]}
         if method == "POST" and path == "/emails":
             if self.post_code == 200:
                 return 200, {"id": "re_msg_0001"}
+            if self.post_code == 403:
+                return 403, {"name": "validation_error", "message": "The apibase.pro domain is not verified. "
+                             "Please, add and verify your domain on https://resend.com/domains"}
             return self.post_code, {"message": "boom"}
         return 404, None
 
@@ -192,6 +198,53 @@ class TestSender(MailBase):
         self.assertEqual(len(self.resend.posts()), 0)
         st = row()
         self.assertEqual((st[0], st[1]), ("queued", "domain_unverified"))
+
+    def test_ml5b_sending_only_key_403_not_verified_holds_all(self):
+        approve()
+        MM.http_request = self.resend = FakeResend(domains_code=401, post_code=403)
+        queue_row(self.mid)
+        queue_row(self.mid, msg_id="out:inc:1")
+        rc, out = run_mm()
+        self.assertEqual(rc, 2)
+        self.assertEqual(len(self.resend.posts()), 1)
+        for m in ("out:inc:0", "out:inc:1"):
+            st = row(m)
+            self.assertEqual((st[0], st[1], st[2], st[4]), ("queued", "domain_unverified", "0", ""))
+        self.assertIn("checked by the first send", out)
+        self.assertNotIn("@", out)
+
+    def test_ml5c_sending_only_key_first_send_ok(self):
+        approve()
+        MM.http_request = self.resend = FakeResend(domains_code=401, post_code=200)
+        queue_row(self.mid)
+        records = []
+
+        class H(logging.Handler):
+            def emit(self, rec):
+                records.append(rec.getMessage())
+        h = H()
+        MM.log.addHandler(h)
+        MM.log.setLevel(logging.INFO)
+        try:
+            rc, _ = run_mm()
+        finally:
+            MM.log.removeHandler(h)
+        self.assertEqual(rc, 0)
+        st = row()
+        self.assertEqual((st[0], st[3]), ("sent", "re_msg_0001"))
+        self.assertEqual(len(self.resend.posts()), 1)
+        self.assertTrue(any("the first send is the gate" in r for r in records), records)
+        for r in records:
+            self.assertNotIn("@", r)
+
+    def test_ml5d_sending_only_key_500_is_not_a_domain_verdict(self):
+        approve()
+        MM.http_request = self.resend = FakeResend(domains_code=401, post_code=500)
+        queue_row(self.mid)
+        rc, _ = run_mm()
+        self.assertEqual(rc, 0)
+        st = row()
+        self.assertEqual((st[0], st[1], st[2]), ("queued", "resend_http_500", "1"))
 
     def test_ml7_key_via_connected_db_not_environ(self):
         approve()

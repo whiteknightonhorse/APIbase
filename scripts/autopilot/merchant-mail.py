@@ -11,7 +11,10 @@ Gates, in order, BEFORE any send:
       Fable's ruling on the templates. Missing/invalid -> every queued row stays queued with
       reason='ruling_missing'; Resend is never called.
   (b) the Resend key: PROVIDER_KEY_RESEND through the connected_db.py contour (never os.environ).
-  (c) Resend domain apibase.pro has status 'verified' (GET /domains). Otherwise rows get
+  (c) Resend domain apibase.pro has status 'verified' (GET /domains). A sending-only key answers
+      401 restricted_api_key there; then the first send is the gate: Resend refuses a send from an
+      unverified domain with 403 'domain is not verified' and the script stops exactly as if GET
+      had said so (rows reason=domain_unverified, exit 2). Otherwise rows get
       reason='domain_unverified', a report is printed and the script exits 2 (the operator's
       stop-and-report decision of 2026-10-05).
 
@@ -125,7 +128,12 @@ def http_request(method, path, key, payload=None, idem=None):
 
 
 def domain_verified(key):
+    """True: GET /domains answered 200 and apibase.pro is 'verified'.
+    None: 401 restricted_api_key, the key may only send, so the status cannot be read (the first send is the gate).
+    False: every other answer (the domain is treated as unverified)."""
     code, js = http_request("GET", "/domains", key)
+    if code == 401 and isinstance(js, dict) and js.get("name") == "restricted_api_key":
+        return None
     if code != 200 or not isinstance(js, dict):
         return False
     return any(d.get("name") == MAIL_DOMAIN and d.get("status") == "verified" for d in (js.get("data") or []))
@@ -236,7 +244,7 @@ def record_failure(msg_id, attempts, reason):
 
 
 def send_one(key, msg_id, merchant_id, kind, template, attempts):
-    """Returns the resulting status: sent | queued | failed."""
+    """Returns the resulting status: sent | queued | failed | domain_unverified (row untouched)."""
     try:
         r = _rows("SELECT slug, name, contact_email FROM shop_merchants "
                   f"WHERE merchant_id = {ap.sql_literal(merchant_id)}::uuid")
@@ -257,6 +265,8 @@ def send_one(key, msg_id, merchant_id, kind, template, attempts):
         _set(msg_id, f"status = 'sent', provider_message_id = {ap.sql_literal(mid)}, "
                      f"attempts = {attempts + 1}, next_attempt_at = NULL, reason = NULL")
         return "sent"
+    if code == 403 and isinstance(js, dict) and "not verified" in str(js.get("message") or "").lower():
+        return "domain_unverified"
     return record_failure(msg_id, attempts, f"resend_http_{code}")
 
 
@@ -273,7 +283,10 @@ def run():
         n = hold_all("key_missing")
         print(f"merchant-mail: STOP — no Resend key ({why}); {n} queued row(s) marked reason=key_missing.")
         return 3
-    if not domain_verified(key):
+    dv = domain_verified(key)
+    if dv is None:
+        log.info("domain status not readable with a sending-only key (401 restricted_api_key); the first send is the gate")
+    if dv is False:
         n = hold_all("domain_unverified")
         print(f"merchant-mail: STOP — Resend domain {MAIL_DOMAIN} is not 'verified'; {n} queued row(s) "
               "marked reason=domain_unverified; nothing sent. Operator: see "
@@ -281,6 +294,13 @@ def run():
         return 2
     for msg_id, merchant_id, kind, template, attempts in due_rows():
         st = send_one(key, msg_id, merchant_id, kind, template or kind, int(attempts or 0))
+        if st == "domain_unverified":
+            n = hold_all("domain_unverified")
+            print(f"merchant-mail: STOP — Resend refused the send: domain {MAIL_DOMAIN} is not verified in the team "
+                  f"that owns {KEY_NAME} (sending-only key, checked by the first send); {n} queued row(s) marked "
+                  f"reason=domain_unverified; sent={counts['sent']} before the stop. Operator: see "
+                  "docs/operator/EMAIL-INTEGRATOR-SETUP.md (Resend domain + DKIM/SPF/DMARC).")
+            return 2
         counts[st] += 1
         log.info("msg_id=%s merchant_id=%s kind=%s status=%s", msg_id, merchant_id, kind, st)
     print(f"merchant-mail: OK sent={counts['sent']} requeued={counts['queued']} failed={counts['failed']}")

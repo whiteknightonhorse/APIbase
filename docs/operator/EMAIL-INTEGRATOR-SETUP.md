@@ -13,7 +13,7 @@ No letter leaves until every step below is done.
 3. **DMARC.** Publish `_dmarc.apibase.pro` TXT, e.g. `v=DMARC1; p=none; rua=mailto:integrator@apibase.pro`;
    tighten the policy only after reports are clean.
 4. **Resend key.** The `resend` provider must already be connected through `connected_db.py`. The script
-   takes the key from that contour and never from the process environment.
+   takes the key from that contour and never from the process environment. A sending-only key is enough and is the one the fleet holds; no full-access key is created for this script.
 5. **IMAP for `integrator@apibase.pro`.** Create the mailbox, enable IMAP, and give the dispatcher the host,
    user and an app password. `email-intake.py` reads its mailbox from `AUTOPILOT_IMAP_ENV_PATH`
    (default `~/.config/autopilot/imap.env`, today the Gmail box); switching to `integrator@` is a change of
@@ -29,13 +29,14 @@ No letter leaves until every step below is done.
 |---|---|---|
 | `mail-approval.json` present with `ruling` and `approved_at` | every queued row keeps `status='queued'`, `reason='ruling_missing'`; Resend not called | 0 |
 | Resend key via `connected_db.py` | rows `reason='key_missing'` | 3 |
-| Resend `GET /domains` shows `apibase.pro` = `verified` | rows `reason='domain_unverified'`, nothing sent | 2 |
+| Resend `GET /domains` shows `apibase.pro` = `verified`; with a sending-only key (401 `restricted_api_key`) the status cannot be read and the first send is the gate: a 403 "domain is not verified" answer | rows `reason='domain_unverified'`, nothing delivered, exit 2 | 2 |
 
 ## Reading the report (stdout)
 
 - `merchant-mail: HOLD — ... ruling_missing` — waiting for the dispatcher's approval file.
 - `merchant-mail: STOP — Resend domain apibase.pro is not 'verified'` — steps 1–3 are not finished; this is
   the "stop and report" decision of 2026-10-05.
+- `merchant-mail: STOP — Resend refused the send: domain apibase.pro is not verified` — same meaning and same operator steps as the line above.
 - `merchant-mail: OK sent=N requeued=M failed=K` — `sent`: `status='sent'`, `provider_message_id` stored;
   `requeued`: Resend error, `attempts+1`, retried after one hour; `failed`: the 24th failure,
   `status='failed'`, which `incident-engine.py` turns into a WEBHOOK_FAILED incident for `merchant:<id>`.
