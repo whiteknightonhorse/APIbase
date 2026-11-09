@@ -87,6 +87,10 @@ Full prerequisites, verification steps, and config reference: [`docs/self-hostin
 
 Single Node.js/TypeScript API server, PostgreSQL as the append-only financial source of truth, Redis for cache/rate-limiting only, multi-container Docker stack on one Hetzner server. Every tool call runs the same multi-stage pipeline (escrow-first, idempotent, content-moderated, fail-closed on payment, cache and rate limit; the idempotency stage fails open on Redis errors) — dual-rail payments (self-hosted x402 facilitator + MPP), error-code contract, and full container/pipeline detail (exact counts, live): [`docs/architecture.md`](docs/architecture.md).
 
+## API lane
+
+Fleet-internal: a prepaid Anthropic API credit lane overflows Fable acceptance reviews that hit a real subscription limit, through one capped wrapper. Lanes, caps, ledger, revocation and the plug-in site: [`docs/api-credits.md`](docs/api-credits.md).
+
 ## License
 
 [MIT](LICENSE)
