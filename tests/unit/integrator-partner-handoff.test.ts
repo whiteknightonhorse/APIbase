@@ -37,6 +37,7 @@ const PARTNERS: Partner[] = [
     site: 'https://soukbase.com',
     return_url: 'https://soukbase.com/sell/apibase/return',
     key_sha256: hashApiKey(KEY),
+    grant_mode: 'key',
   },
   {
     id: 'otherco',
@@ -44,6 +45,7 @@ const PARTNERS: Partner[] = [
     site: 'https://other.example',
     return_url: 'https://other.example/r',
     key_sha256: hashApiKey(OTHER_KEY),
+    grant_mode: 'key',
   },
 ];
 const CONNECT_HTML = readFileSync(

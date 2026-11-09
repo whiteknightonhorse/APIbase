@@ -9,6 +9,7 @@ import { INTEGRATOR_DIR, layout } from '../integrator/layout';
 import { logger } from '../../config/logger';
 import type { ShopTx } from '../db';
 import { openHandoff } from '../partner/handoff.service';
+import { WEBHOOK_EVENTS } from '../webhook/constants';
 import {
   X_APIBASE_DELIVERY_ID,
   X_APIBASE_EVENT,
@@ -37,6 +38,16 @@ export interface Partner {
   return_url: string;
   /** T-0739: sha256 (hex) of the partner's `pk_live_` key; the key itself is never in git. */
   key_sha256: string;
+  /**
+   * T-0747 (SOUKBASE-A2B-1109 ruling-1): what a grant gives this partner. `key`: a per-store
+   * `mk_live_` key (T-0740). `partner`: no key; the partner pushes the catalog with its own partner
+   * key and APIbase creates one grant-owned webhook endpoint at `delivery_webhook_url`.
+   */
+  grant_mode: 'key' | 'partner';
+  /** mode partner only (https): where the grant-owned endpoint delivers. */
+  delivery_webhook_url?: string;
+  /** mode partner only: the events of that endpoint (non-empty, each in WEBHOOK_EVENTS). */
+  delivery_events?: string[];
 }
 
 /** T-0728: partner registry for the connect page "Continue on <partner>" button; invalid file = startup error. */
@@ -55,6 +66,22 @@ export function loadPartners(file: string): Partner[] {
     if (!/^[0-9a-f]{64}$/.test(p.key_sha256)) throw new Error('partners.json: bad key_sha256');
     for (const u of [p.site, p.return_url])
       if (new URL(u).protocol !== 'https:') throw new Error('partners.json: https required');
+    // T-0747: grant_mode is required; the delivery fields exist exactly in mode partner.
+    if (r.grant_mode === 'key') {
+      if (r.delivery_webhook_url !== undefined || r.delivery_events !== undefined)
+        throw new Error('partners.json: delivery fields are for grant_mode partner only');
+    } else if (r.grant_mode === 'partner') {
+      const u = r.delivery_webhook_url;
+      if (typeof u !== 'string' || !u || new URL(u).protocol !== 'https:')
+        throw new Error('partners.json: bad field delivery_webhook_url (https required)');
+      const ev = r.delivery_events;
+      if (
+        !Array.isArray(ev) ||
+        ev.length === 0 ||
+        !ev.every((e) => (WEBHOOK_EVENTS as readonly string[]).includes(e as string))
+      )
+        throw new Error('partners.json: bad field delivery_events');
+    } else throw new Error('partners.json: bad field grant_mode');
     return p;
   });
 }

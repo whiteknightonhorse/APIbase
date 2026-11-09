@@ -1,6 +1,8 @@
 /**
  * T-0739 (SOUKBASE-A16-1109 ruling-1 A-1): partner handoff routes, authenticated by the partner's
  * `pk_live_` key (sha256 in config/integrator/partners.json). Never logs the key, the prefill or the wallet.
+ * T-0747 (A-2b): per-store partner routes (catalog push, grant read, webhook secret rotation); each
+ * needs a live grant of THIS partner for the slug's store (grant.service liveGrantFor).
  */
 import { timingSafeEqual } from 'node:crypto';
 import { Router, type NextFunction, type Request, type Response } from 'express';
@@ -11,6 +13,16 @@ import { logger } from '../../config/logger';
 import type { ShopTx } from '../db';
 import { limiter, PROBE_LIMIT_PER_MIN } from './address-limiter';
 import { partners as registry, type Partner } from './integrator.router';
+import { isInactiveMerchant, merchantInactiveError } from '../auth/merchant-key.service';
+import { upsertCatalog } from '../catalog.service';
+import { defaultShopDeps, toApiError } from '../merchant-lifecycle.service';
+import type { WebhookDeps } from '../webhook/webhook.service';
+import {
+  liveGrantFor,
+  partnerGrants,
+  rotatePartnerWebhookSecret,
+  type PartnerRef,
+} from '../partner/grant.service';
 import {
   createHandoff,
   HandoffValidationError,
@@ -20,7 +32,7 @@ import {
 
 declare module 'express-serve-static-core' {
   interface Request {
-    partner?: { id: string; name: string; return_url: string };
+    partner?: { id: string; name: string; return_url: string } & PartnerRef;
   }
 }
 
@@ -56,7 +68,14 @@ export function requirePartnerKey(list: () => readonly Partner[] = registry) {
       err(res, 401, 'partner_key_invalid', 'a valid partner key is required (Bearer pk_live_...)');
       return;
     }
-    req.partner = { id: p.id, name: p.name, return_url: p.return_url };
+    req.partner = {
+      id: p.id,
+      name: p.name,
+      return_url: p.return_url,
+      grant_mode: p.grant_mode,
+      delivery_webhook_url: p.delivery_webhook_url,
+      delivery_events: p.delivery_events ? [...p.delivery_events] : undefined,
+    };
     next();
   };
 }
@@ -66,6 +85,8 @@ export interface PartnerRouterOptions {
   partners?: () => readonly Partner[];
   /** T-0740: key of the parked grant keys (default: config.ENCRYPTION_KEY). */
   encryptionKey?: string;
+  /** T-0747: deps of the per-store routes (catalog writes, webhook rotation); default: the app's. */
+  deps?: WebhookDeps;
 }
 
 const lazyDb = (): ShopTx => {
@@ -88,6 +109,21 @@ export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
   const probeLimiter = limiter(60_000, PROBE_LIMIT_PER_MIN, { skipSuccessfulRequests: true });
   const createLimiter = limiter(60_000, 60, { keyGenerator: keyOf });
   const readLimiter = limiter(60_000, 600, { keyGenerator: keyOf });
+  // T-0747: per-store writes (catalog push, secret rotation) have their own per-key budget.
+  const writeLimiter = limiter(60_000, 60, { keyGenerator: keyOf });
+  let shopDeps: WebhookDeps | undefined = opts.deps;
+  const deps = (): WebhookDeps => (shopDeps ??= defaultShopDeps());
+  /** Service refusals (QuoteError, CatalogError, ShopAuthError) answer as the merchant routes do. */
+  const send = (req: Request, res: Response, e: unknown, what: string) => {
+    const { status, body } = toApiError(e, req.requestId);
+    if (status >= 500) logger.error({ err: e, partner: req.partner?.id }, what);
+    const ra = (body as { retry_after?: unknown }).retry_after;
+    if (status === 429 && typeof ra === 'number' && Number.isFinite(ra))
+      res.setHeader('Retry-After', String(Math.ceil(ra)));
+    res.status(status).json(body);
+  };
+  const me = (req: Request): PartnerRef & { id: string; name: string } =>
+    req.partner ?? { id: '', name: '', grant_mode: 'key' };
 
   router.post(
     '/api/v1/shop/partners/handoffs',
@@ -125,6 +161,55 @@ export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
       } catch (e) {
         logger.error({ err: e, partner: req.partner?.id }, 'partner handoff read failed');
         res.status(500).json({ error: 'internal_error', error_code: 'internal_error' });
+      }
+    },
+  );
+
+  // T-0747 5a: the partner pushes a store's catalog with its own key while its grant is live (any
+  // mode). Same service, report and gate as PUT /merchants/me/catalog.
+  router.put(
+    '/api/v1/shop/partners/merchants/:slug/catalog',
+    probeLimiter,
+    writeLimiter,
+    guard,
+    async (req: Request, res: Response) => {
+      try {
+        const g = await liveGrantFor(deps().db, me(req), req.params.slug);
+        // an inactive store answers as PUT /merchants/me/catalog does (410 merchant_inactive)
+        if (isInactiveMerchant(g)) throw merchantInactiveError();
+        res.json(await upsertCatalog(deps(), g.merchant_id, req.body?.items));
+      } catch (e) {
+        send(req, res, e, 'partner catalog push failed');
+      }
+    },
+  );
+
+  // T-0747 5b: this partner's grants for one store; 200 with an empty list when there are none.
+  router.get(
+    '/api/v1/shop/partners/merchants/:slug/grants',
+    probeLimiter,
+    readLimiter,
+    guard,
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await partnerGrants(deps().db, me(req).id, req.params.slug));
+      } catch (e) {
+        send(req, res, e, 'partner grants read failed');
+      }
+    },
+  );
+
+  // T-0747 5c: new secret for the grant-owned endpoint (mode partner), once; re-applies the registry url/events.
+  router.post(
+    '/api/v1/shop/partners/merchants/:slug/webhook/rotate-secret',
+    probeLimiter,
+    writeLimiter,
+    guard,
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await rotatePartnerWebhookSecret(deps(), me(req), req.params.slug));
+      } catch (e) {
+        send(req, res, e, 'partner webhook rotate failed');
       }
     },
   );

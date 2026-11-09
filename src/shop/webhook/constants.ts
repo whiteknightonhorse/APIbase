@@ -35,3 +35,25 @@ export const OUTBOX_TO_WEBHOOK: Record<string, string> = {
   // T-INT-46: a merchant-settled stream channel waits for the merchant's settle for over an hour
   'shop.stream.settle_due': 'stream.settle_due',
 };
+
+/** F-6: the events a merchant can subscribe to (the partner registry validates `delivery_events` against it). */
+export const WEBHOOK_EVENTS = [
+  'order.paid',
+  'order.confirmed',
+  'order.shipped',
+  'order.delivered',
+  'order.cancelled',
+  'refund.requested',
+  'refund.verified',
+  'dispute.opened',
+  'catalog.rejected',
+  'merchant.key_rotated',
+  'merchant.keys_reissued',
+  'subscription.started',
+  'subscription.renewed',
+  'subscription.past_due',
+  'subscription.canceled',
+  'subscription.expired',
+  'subscription.pull_failed',
+  'stream.settle_due',
+] as const;

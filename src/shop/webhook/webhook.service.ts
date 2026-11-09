@@ -3,34 +3,15 @@ import { config } from '../../config';
 import { encryptSecret } from '../../services/secret-crypto.service';
 import type { ShopDeps } from '../merchant-lifecycle.service';
 import { QuoteError } from '../quote.errors';
-import { OUTBOX_TO_WEBHOOK } from './constants';
+import { OUTBOX_TO_WEBHOOK, WEBHOOK_EVENTS } from './constants';
 import { defaultResolver, resolvePublicTarget, WebhookUrlError, type HostResolver } from './ssrf';
 
 const DOCS = '/integrator/docs#webhooks';
 const MAX_ENDPOINTS = 5;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** F-6: the events a merchant can subscribe to. */
-export const WEBHOOK_EVENTS = [
-  'order.paid',
-  'order.confirmed',
-  'order.shipped',
-  'order.delivered',
-  'order.cancelled',
-  'refund.requested',
-  'refund.verified',
-  'dispute.opened',
-  'catalog.rejected',
-  'merchant.key_rotated',
-  'merchant.keys_reissued',
-  'subscription.started',
-  'subscription.renewed',
-  'subscription.past_due',
-  'subscription.canceled',
-  'subscription.expired',
-  'subscription.pull_failed',
-  'stream.settle_due',
-] as const;
+/** F-6: the events a merchant can subscribe to (T-0747: defined in ./constants, dependency-free). */
+export { WEBHOOK_EVENTS };
 
 export const sha256hex = (s: string) => createHash('sha256').update(s).digest('hex');
 

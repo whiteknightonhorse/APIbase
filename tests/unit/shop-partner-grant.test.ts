@@ -33,6 +33,23 @@ jest.mock('../../src/config/index', () => ({ config: { ENCRYPTION_KEY: 'k'.repea
 jest.mock('../../src/config/logger', () => ({
   logger: { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() },
 }));
+// T-0747: the committed soukbase entry is grant_mode partner; this suite pins mode key (T-0740 as
+// shipped) with the same id and name. Mode partner: tests/unit/shop-partner-grant-mode.test.ts.
+jest.mock('../../src/shop/routes/integrator.router', () => {
+  const actual = jest.requireActual('../../src/shop/routes/integrator.router');
+  return {
+    ...actual,
+    partners: () =>
+      actual.partners().map((p: Record<string, unknown>) => ({
+        id: p.id,
+        name: p.name,
+        site: p.site,
+        return_url: p.return_url,
+        key_sha256: p.key_sha256,
+        grant_mode: 'key',
+      })),
+  };
+});
 jest.mock('../../src/services/moderation-ban.service', () => ({
   checkBan: async () => ({ banned: false, retryAfterSecs: 0 }),
   recordBlock: async () => undefined,
@@ -50,6 +67,7 @@ const PARTNERS: Partner[] = [
     site: 'https://soukbase.com',
     return_url: 'https://soukbase.com/sell/apibase/return',
     key_sha256: hashApiKey(PKEY),
+    grant_mode: 'key',
   },
 ];
 
@@ -381,6 +399,7 @@ dbDescribe('T-0740 partner grants', () => {
       const second = await readHandoff(h);
       expect(second.grant).toEqual({
         state: 'granted',
+        mode: 'key',
         scopes: ['catalog:write', 'webhooks:write'],
         delivered: true,
       });
@@ -746,6 +765,7 @@ dbDescribe('T-0740 partner grants', () => {
           {
             grant_id: g.grant_id,
             partner: 'soukbase',
+            mode: 'key',
             scopes: ['catalog:write', 'webhooks:write'],
             created_at: expect.any(String),
             endpoints: [pe.body.endpoint_id],
@@ -799,7 +819,7 @@ dbDescribe('T-0740 partner grants', () => {
         g.id,
       );
       expect(dl).toEqual([{ id: own.body.endpoint_id }]);
-      expect((await readHandoff(g.handoff_id)).grant).toEqual({ state: 'revoked' });
+      expect((await readHandoff(g.handoff_id)).grant).toEqual({ state: 'revoked', mode: 'key' });
       expect(
         (await json(await http('GET', '/api/v1/shop/merchants/me/grants', undefined, g.owner)))
           .body,
@@ -832,7 +852,7 @@ dbDescribe('T-0740 partner grants', () => {
         (await http('DELETE', '/api/v1/shop/merchants/me/grants/soukbase', undefined, m.owner))
           .status,
       ).toBe(200);
-      expect((await readHandoff(h)).grant).toEqual({ state: 'revoked' });
+      expect((await readHandoff(h)).grant).toEqual({ state: 'revoked', mode: 'key' });
     });
 
     it('rotating the owner key keeps the grant key working', async () => {

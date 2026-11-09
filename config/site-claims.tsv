@@ -146,3 +146,5 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	##
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	a warning, never a refusal	-	T-0739
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	## Partner grants	-	T-0740
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	grant_key_not_allowed	-	T-0740
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	### Partner mode	-	T-0747
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	grant_missing	-	T-0747

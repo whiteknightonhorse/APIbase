@@ -146,14 +146,16 @@ interface HandoffRow {
   grant_id: string | null;
   grant_revoked: boolean | null;
   grant_scopes: string[] | null;
+  grant_mode: 'key' | 'partner' | null;
   grant_delivered: boolean;
-  grant_key_enc: string | null;
 }
 
 /**
  * The partner's view: never the prefill, the wallet or the e-mail. Another partner's id = null.
  * T-0740: `grant` carries the partner's grant key in exactly ONE answer (`decrypt`): the read that
  * takes it NULLs grant_key_enc and stamps grant_delivered_at in the same statement.
+ * T-0747: `grant.mode` says which parcel: `key` (mode key, grant_key_enc) or `webhook_secret` (mode
+ * partner, grant_webhook_secret_enc: the secret of the grant-owned endpoint). Same one-read rule.
  */
 export async function readHandoff(
   db: ShopTx,
@@ -162,14 +164,17 @@ export async function readHandoff(
   decrypt?: (enc: string) => string,
 ): Promise<Record<string, unknown> | null> {
   if (typeof handoff_id !== 'string' || !UUID_RE.test(handoff_id)) return null;
-  // Take the parked key (if any) atomically: a concurrent read sees NULL and gets no key.
-  const taken = await db.$queryRawUnsafe<Array<{ enc: string }>>(
-    `UPDATE shop_partner_handoffs h SET grant_key_enc = NULL, grant_delivered_at = now()
-       FROM (SELECT handoff_id, grant_key_enc AS enc FROM shop_partner_handoffs
-              WHERE handoff_id = $1::uuid AND partner_id = $2 AND grant_key_enc IS NOT NULL
+  // Take the parked parcel (if any) atomically: a concurrent read sees NULL and gets nothing.
+  const taken = await db.$queryRawUnsafe<Array<{ enc: string | null; wenc: string | null }>>(
+    `UPDATE shop_partner_handoffs h
+        SET grant_key_enc = NULL, grant_webhook_secret_enc = NULL, grant_delivered_at = now()
+       FROM (SELECT handoff_id, grant_key_enc AS enc, grant_webhook_secret_enc AS wenc
+               FROM shop_partner_handoffs
+              WHERE handoff_id = $1::uuid AND partner_id = $2
+                AND (grant_key_enc IS NOT NULL OR grant_webhook_secret_enc IS NOT NULL)
               FOR UPDATE) old
       WHERE h.handoff_id = old.handoff_id
-      RETURNING old.enc`,
+      RETURNING old.enc, old.wenc`,
     handoff_id,
     partner_id,
   );
@@ -177,7 +182,8 @@ export async function readHandoff(
     `SELECT h.handoff_id::text, h.state, h.seller_ref, h.slug, h.merchant_id::text, h.wallet_match,
             h.created_at, h.expires_at, h.opened_at, h.registered_at, (h.expires_at <= now()) AS expired,
             h.grant_id::text AS grant_id, (g.revoked_at IS NOT NULL) AS grant_revoked,
-            g.scopes AS grant_scopes, (h.grant_delivered_at IS NOT NULL) AS grant_delivered
+            g.scopes AS grant_scopes, g.mode AS grant_mode,
+            (h.grant_delivered_at IS NOT NULL) AS grant_delivered
        FROM shop_partner_handoffs h LEFT JOIN shop_partner_grants g ON g.grant_id = h.grant_id
       WHERE h.handoff_id = $1::uuid AND h.partner_id = $2`,
     handoff_id,
@@ -199,10 +205,16 @@ export async function readHandoff(
   if (r.opened_at) out.opened_at = iso(r.opened_at);
   if (r.registered_at) out.registered_at = iso(r.registered_at);
   if (!r.grant_id) out.grant = { state: 'none' };
-  else if (r.grant_revoked) out.grant = { state: 'revoked' };
+  else if (r.grant_revoked) out.grant = { state: 'revoked', mode: r.grant_mode };
   else {
-    const g: Record<string, unknown> = { state: 'granted', scopes: r.grant_scopes ?? [] };
-    if (taken[0] && decrypt) g.key = decrypt(taken[0].enc);
+    const g: Record<string, unknown> = {
+      state: 'granted',
+      mode: r.grant_mode,
+      scopes: r.grant_scopes ?? [],
+    };
+    const t = taken[0];
+    if (t && decrypt && t.enc) g.key = decrypt(t.enc);
+    else if (t && decrypt && t.wenc) g.webhook_secret = decrypt(t.wenc);
     else if (r.grant_delivered) g.delivered = true;
     out.grant = g;
   }
