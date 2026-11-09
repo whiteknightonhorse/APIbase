@@ -39,7 +39,12 @@ import { registerMerchantTools } from '../shop/tools/merchant.tools';
 import { withDefinitionSha256 } from '../shop/tool-fingerprint';
 import { createMerchantMcpServer, loadStorefront } from '../shop/merchant-mcp-server';
 import { defaultShopDeps, type ShopDeps } from '../shop/merchant-lifecycle.service';
-import { StorefrontError } from '../shop/storefront/storefront.service';
+import {
+  StorefrontError,
+  mcpUrl,
+  publicBase,
+  restBase,
+} from '../shop/storefront/storefront.service';
 
 // ---------------------------------------------------------------------------
 // Session state
@@ -582,7 +587,31 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
 
   router.get('/mcp/m/:slug', async (req: express.Request, res: express.Response) => {
     try {
-      if (!(await storefrontOr404(req, res))) return;
+      const merchant = await storefrontOr404(req, res);
+      if (!merchant) return;
+      // Same branches as GET /mcp: only a request carrying a session reaches the SSE stream.
+      if (!req.headers['mcp-session-id']) {
+        if (req.accepts(['text/event-stream', 'application/json', 'text/html']) === 'text/html') {
+          res.redirect(302, `/m/${merchant.slug}`);
+          return;
+        }
+        const acceptHeader: unknown = req.headers.accept;
+        if (!(typeof acceptHeader === 'string' && acceptHeader.includes('text/event-stream'))) {
+          res
+            .status(200)
+            .set('Cache-Control', 'no-store')
+            .json({
+              name: `${merchant.name} via APIbase`,
+              transport: 'streamable-http',
+              endpoint: mcpUrl(merchant.slug),
+              connect:
+                'POST the endpoint with a JSON-RPC initialize request and Accept: application/json, text/event-stream; then send Mcp-Session-Id on every request',
+              rest: { quote: `${restBase()}/quotes`, method: 'POST' },
+              storefront: `${publicBase()}/m/${merchant.slug}`,
+            });
+          return;
+        }
+      }
       const s = storefrontSession(req, res);
       if (s) await s.transport.handleRequest(req, res);
     } catch (error) {

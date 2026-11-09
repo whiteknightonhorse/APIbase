@@ -226,6 +226,31 @@ describe('merchant storefront MCP server (INT-16)', () => {
       }
     });
 
+    it('T-0725: GET without a session -> redirect / card / 400-style session answer; 410 and 404 come first', async () => {
+      const get = (slug: string, headers: Record<string, string> = {}) =>
+        fetch(`${base}/mcp/m/${slug}`, { method: 'GET', headers, redirect: 'manual' });
+      const html = await get('live-shop', { accept: 'text/html,*/*;q=0.8' });
+      expect(html.status).toBe(302);
+      expect(html.headers.get('location')).toBe('/m/live-shop');
+      for (const headers of [{}, { accept: '*/*' }] as Array<Record<string, string>>) {
+        const card = await get('live-shop', headers);
+        expect(card.status).toBe(200);
+        expect(card.headers.get('cache-control')).toBe('no-store');
+        const body = await card.json();
+        expect(body.name).toBe('Live via APIbase');
+        expect(body.endpoint).toMatch(/\/mcp\/m\/live-shop$/);
+        expect(body.connect).toContain('initialize');
+        expect(body.rest.quote).toMatch(/\/api\/v1\/shop\/quotes$/);
+      }
+      const sse = await get('live-shop', { accept: 'text/event-stream' });
+      expect(sse.status).toBe(404);
+      expect((await sse.json()).error.message).toMatch(/Session not found/);
+      for (const accept of ['text/html', 'text/event-stream', '*/*']) {
+        expect((await get('gone-shop', { accept })).status).toBe(410);
+        expect((await get('no-such-shop', { accept })).status).toBe(404);
+      }
+    });
+
     it('active slug: initialize opens a session that works on its own slug only', async () => {
       const r = await post('live-shop');
       expect(r.status).toBe(200);
