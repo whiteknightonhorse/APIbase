@@ -2,15 +2,15 @@
   "platform": "APIbase",
   "version": "2.2.0",
   "updated_at": "2026-11-09T00:00:00Z",
-  "tools_count": 1379,
-  "providers_count": 398,
+  "tools_count": 1381,
+  "providers_count": 399,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1379 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1381 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -57,8 +57,8 @@
     },
     {
       "name": "weather",
-      "tools": 101,
-      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
+      "tools": 103,
+      "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
       "examples": "Call apibase.discover with category=\"weather\" for the current tool list and descriptions."
     },
     {
