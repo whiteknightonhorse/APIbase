@@ -266,10 +266,17 @@ function capMicro(): number {
   return Math.round(getUpstreamEnv().UPSTREAM_DAILY_CAP_USD_PER_PROVIDER * 1e6);
 }
 
-/** Reserve `micro` of today's cap. false = cap would be exceeded or the store failed (fail closed). */
-export async function reserveDailySpend(provider: string, micro: number): Promise<boolean> {
+/**
+ * Reserve `micro` of today's cap. false = cap would be exceeded or the store failed (fail closed).
+ * `cap` (T-0758): the provider block's daily_cap_usd in micro-USD; absent = the env cap.
+ */
+export async function reserveDailySpend(
+  provider: string,
+  micro: number,
+  cap?: number,
+): Promise<boolean> {
   try {
-    return (await spendStore.reserve(spendKey(provider), micro, capMicro())) >= 0;
+    return (await spendStore.reserve(spendKey(provider), micro, cap ?? capMicro())) >= 0;
   } catch (e) {
     logger.warn(
       { provider, err: e instanceof Error ? e.name : 'error' },
@@ -289,6 +296,8 @@ export interface GateInput {
   chainId: number;
   asset: string;
   maxPriceMicro: number;
+  /** T-0758: the provider block's daily_cap_usd in micro-USD; absent = the env cap. */
+  dailyCapMicro?: number;
 }
 
 export interface GateRefusal {
@@ -321,7 +330,7 @@ export async function upstreamGate(g: GateInput): Promise<GateRefusal | null> {
   } catch {
     return { reason: 'upstream_daily_cap_reached', retryAfter: 60 };
   }
-  if (spent + g.maxPriceMicro > capMicro()) {
+  if (spent + g.maxPriceMicro > (g.dailyCapMicro ?? capMicro())) {
     upstreamPayTotal.inc({ provider: g.provider, result: 'refused_daily_cap' });
     return { reason: 'upstream_daily_cap_reached', retryAfter: secondsToUtcMidnight() };
   }

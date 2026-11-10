@@ -59,6 +59,8 @@ import {
   parseUpstreamConfig,
   setUpstreamConfig,
   upstreamToolPriceUsd,
+  upstreamToolLimits,
+  upstreamGateForTool,
   parseMppChallenges,
   type UpstreamPayConfig,
 } from '../../src/adapters/_upstream-402';
@@ -67,11 +69,13 @@ import {
   setSpendStore,
   upstreamGate,
   reserveDailySpend,
+  spendKey,
   payerState,
   realPayerPort,
   type PayerPort,
   type SpendStore,
 } from '../../src/payments/upstream-payer';
+import { getUpstreamEnv } from '../../src/config/env';
 import { providerCallStage } from '../../src/pipeline/stages/provider-call.stage';
 import { runPipeline, PIPELINE_STAGES } from '../../src/pipeline/pipeline';
 import { createPipelineContext, ok, type PipelineContext } from '../../src/pipeline/types';
@@ -253,12 +257,20 @@ describe('config and locked price', () => {
       for (const toolId of Object.keys(cfg.tools)) {
         const t = doc.tools.find((x: { tool_id: string }) => x.tool_id === toolId);
         expect(t.provider).toBe(provider);
-        expect(t.price_usd).toBe(upstreamToolPriceUsd(Number(cfg.listed_price_usd), 2000));
+        const { listedUsd } = upstreamToolLimits(cfg, toolId);
+        expect(t.price_usd).toBe(upstreamToolPriceUsd(Number(listedUsd), 3000));
+        // T-0758: the upstream-paid price always clears the margin gate (listed x 1.3).
+        expect(Number(t.price_usd)).toBeGreaterThanOrEqual(
+          Math.round(Number(listedUsd) * 1.3 * 1e8) / 1e8,
+        );
         expect(t.upstream_cost_model).toBe('upstream_402');
       }
     }
-    expect(upstreamToolPriceUsd(0.002, 2000)).toBe('0.003');
-    expect(upstreamToolPriceUsd(0.005, 2000)).toBe('0.006');
+    expect(upstreamToolPriceUsd(0.002, 3000)).toBe('0.003');
+    expect(upstreamToolPriceUsd(0.005, 3000)).toBe('0.007');
+    expect(upstreamToolPriceUsd(0.3, 3000)).toBe('0.390');
+    expect(upstreamToolPriceUsd(2.5, 3000)).toBe('3.250');
+    expect(getUpstreamEnv({}).UPSTREAM_MARKUP_BPS).toBe(3000);
   });
 
   it('rejects a block outside the closed set or priced above our price', () => {
@@ -607,5 +619,116 @@ describe('sandbox end to end: local x402 402 mock, real EIP-3009 signature', () 
     const all = JSON.stringify(everLogged).toLowerCase();
     expect(all).not.toContain(TEST_KEY.slice(2).toLowerCase());
     expect(all).toContain(PAYER.toLowerCase());
+  });
+});
+
+describe('T-0758: per-tool listed/max price and per-provider daily cap', () => {
+  const CHEAP = 'upmock.read';
+  const DEAR = 'upmock.deep';
+  const URL = 'https://up.example/read';
+  function twoToolBlock(extra: Partial<UpstreamPayConfig> = {}): UpstreamPayConfig {
+    return {
+      ...cfgFor('x402', URL),
+      listed_price_usd: '0.30',
+      max_price_usd: '0.30',
+      tools: {
+        [CHEAP]: { method: 'GET', url: URL },
+        [DEAR]: { method: 'GET', url: URL, listed_price_usd: '2.50', max_price_usd: '2.50' },
+      },
+      ...extra,
+    };
+  }
+  const yamlTools = [
+    { tool_id: CHEAP, provider: 'upmock', price_usd: '0.390' },
+    { tool_id: DEAR, provider: 'upmock', price_usd: '3.250' },
+  ];
+  const ctxFor = (toolId: string): PipelineContext => {
+    const ctx = paidCtx('x402');
+    ctx.toolId = toolId;
+    return ctx;
+  };
+
+  it('a 2.50 challenge on the 0.30 tool is refused upstream_price_exceeded, nothing signed', async () => {
+    const port = fakePort();
+    const s = fetchStub({ 'payment-required': x402Header([accept({ amount: '2500000' })]) });
+    setUpstreamConfig(new Map([['upmock', twoToolBlock()]]));
+    mockResolve.mockReturnValue(new Upstream402Adapter('upmock', port, s.f));
+    const r = await providerCallStage.execute(ctxFor(CHEAP));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.error.error).toBe('upstream_price_exceeded');
+    expect(port.x).not.toHaveBeenCalled();
+    // The same challenge on the 2.50 tool is paid.
+    const s2 = fetchStub({ 'payment-required': x402Header([accept({ amount: '2500000' })]) });
+    mockResolve.mockReturnValue(new Upstream402Adapter('upmock', port, s2.f));
+    expect((await providerCallStage.execute(ctxFor(DEAR))).ok).toBe(true);
+    expect(port.x).toHaveBeenCalledTimes(1);
+  });
+
+  it("the gate's balance and cap checks use the tool's max", async () => {
+    setUpstreamConfig(new Map([['upmock', twoToolBlock()]]));
+    E.UPSTREAM_DAILY_CAP_USD_PER_PROVIDER = '5';
+    setBalanceReader(async () => 1); // 2 x 0.30 fits, 2 x 2.50 does not
+    expect(await upstreamGateForTool(CHEAP)).toBeNull();
+    expect((await upstreamGateForTool(DEAR))?.reason).toBe('upstream_payer_balance_low');
+    setBalanceReader(async () => 100);
+    store.m.set(spendKey('upmock'), 4_000_000); // 4.00 spent: 0.30 fits under 5, 2.50 does not
+    expect(await upstreamGateForTool(CHEAP)).toBeNull();
+    expect((await upstreamGateForTool(DEAR))?.reason).toBe('upstream_daily_cap_reached');
+  });
+
+  it('block daily_cap_usd 10 admits a call the env cap 5 refuses; a block cap below env refuses earlier', async () => {
+    E.UPSTREAM_DAILY_CAP_USD_PER_PROVIDER = '5';
+    setBalanceReader(async () => 100);
+    store.m.set(spendKey('upmock'), 4_000_000);
+    setUpstreamConfig(new Map([['upmock', twoToolBlock()]]));
+    expect((await upstreamGateForTool(DEAR))?.reason).toBe('upstream_daily_cap_reached');
+    expect(await reserveDailySpend('upmock', 2_500_000)).toBe(false);
+    setUpstreamConfig(new Map([['upmock', twoToolBlock({ daily_cap_usd: '10' })]]));
+    expect(await upstreamGateForTool(DEAR)).toBeNull();
+    const port = fakePort();
+    const s = fetchStub({ 'payment-required': x402Header([accept({ amount: '2500000' })]) });
+    mockResolve.mockReturnValue(new Upstream402Adapter('upmock', port, s.f));
+    expect((await providerCallStage.execute(ctxFor(DEAR))).ok).toBe(true);
+    expect(store.m.get(spendKey('upmock'))).toBe(6_500_000);
+
+    store.m.set(spendKey('upmock'), 0);
+    setUpstreamConfig(new Map([['upmock', twoToolBlock({ daily_cap_usd: '0.5' })]]));
+    expect(await upstreamGateForTool(CHEAP)).toBeNull();
+    expect((await upstreamGateForTool(DEAR))?.reason).toBe('upstream_daily_cap_reached');
+    const port2 = fakePort();
+    const s2 = fetchStub({ 'payment-required': x402Header([accept({ amount: '300000' })]) });
+    mockResolve.mockReturnValue(new Upstream402Adapter('upmock', port2, s2.f));
+    expect((await providerCallStage.execute(ctxFor(CHEAP))).ok).toBe(true);
+    const s3 = fetchStub({ 'payment-required': x402Header([accept({ amount: '300000' })]) });
+    mockResolve.mockReturnValue(new Upstream402Adapter('upmock', port2, s3.f));
+    expect((await providerCallStage.execute(ctxFor(CHEAP))).ok).toBe(false); // 0.60 > 0.50 < env 5
+    expect(port2.x).toHaveBeenCalledTimes(1);
+  });
+
+  it('parse: per-tool pair, daily_cap_usd bounds, price >= tool max and >= max x margin', () => {
+    const block = twoToolBlock();
+    const parse1 = (b: unknown, tools = yamlTools) =>
+      parseUpstreamConfig({ tools, upstream_pay: { upmock: b } });
+    expect(() => parse1(block)).not.toThrow();
+    expect(() => parse1({ ...block, daily_cap_usd: '25' })).not.toThrow();
+    expect(() => parse1({ ...block, daily_cap_usd: '26' })).toThrow();
+    expect(() => parse1({ ...block, daily_cap_usd: '0' })).toThrow();
+    const withTool = (t: Record<string, unknown>) => ({
+      ...block,
+      tools: { ...block.tools, [DEAR]: { method: 'GET', url: URL, ...t } },
+    });
+    expect(() => parse1(withTool({ listed_price_usd: '2.50' }))).toThrow(/both or neither/);
+    expect(() => parse1(withTool({ max_price_usd: '2.50' }))).toThrow(/both or neither/);
+    expect(() => parse1(withTool({ listed_price_usd: '2.50', max_price_usd: '2.40' }))).toThrow(
+      /below listed_price_usd/,
+    );
+    // price below the tool's own max
+    const low = [yamlTools[0], { ...yamlTools[1], price_usd: '2.49' }];
+    expect(() => parse1(block, low)).toThrow(/price_usd below max_price_usd/);
+    // price >= max but below max x 1.3 (the 20 % markup price 3.000 for listed 2.50)
+    const under = [yamlTools[0], { ...yamlTools[1], price_usd: '3.000' }];
+    expect(() => parse1(block, under)).toThrow(/below max x margin/);
+    const cheapUnder = [{ ...yamlTools[0], price_usd: '0.360' }, yamlTools[1]];
+    expect(() => parse1(block, cheapUnder)).toThrow(/upmock.read price_usd below max x margin/);
   });
 });

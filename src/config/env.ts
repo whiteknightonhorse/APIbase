@@ -123,7 +123,7 @@ export function getDisputeEnv(source: NodeJS.ProcessEnv = process.env): DisputeE
 export const upstreamEnvShape = {
   UPSTREAM_PAYER_KEY_BASE: z.string().optional().default(''),
   UPSTREAM_PAYER_KEY_TEMPO: z.string().optional().default(''),
-  UPSTREAM_MARKUP_BPS: numOr(2000),
+  UPSTREAM_MARKUP_BPS: numOr(3000),
   UPSTREAM_DAILY_CAP_USD_PER_PROVIDER: numOr(5),
   UPSTREAM_PAYER_CEILING_USD: numOr(100),
   UPSTREAM_PAYER_LOW_BALANCE_USD: numOr(5),

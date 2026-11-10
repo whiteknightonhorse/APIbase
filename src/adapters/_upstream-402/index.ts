@@ -17,7 +17,14 @@ import {
   type X402Accept,
   type X402PaymentRequired,
 } from '../../payments/upstream-payer';
-import { chainOf, toMicro, upstreamConfigFor, type UpstreamPayConfig } from './config';
+import {
+  chainOf,
+  toMicro,
+  upstreamConfigFor,
+  upstreamDailyCapMicro,
+  upstreamToolLimits,
+  type UpstreamPayConfig,
+} from './config';
 
 export * from './config';
 
@@ -73,8 +80,13 @@ export function decodeX402Required(header: string | null): X402PaymentRequired |
   }
 }
 
-export function pickX402(required: X402PaymentRequired, cfg: UpstreamPayConfig): Pick<X402Accept> {
-  const max = BigInt(toMicro(cfg.max_price_usd));
+/** `maxUsd`: the tool's max price (upstreamToolLimits), never the block default alone. */
+export function pickX402(
+  required: X402PaymentRequired,
+  cfg: UpstreamPayConfig,
+  maxUsd: string,
+): Pick<X402Accept> {
+  const max = BigInt(toMicro(maxUsd));
   return narrow(
     required.accepts.filter((a) => a && a.scheme === 'exact' && /^\d+$/.test(String(a.amount))),
     [
@@ -134,8 +146,12 @@ export function parseMppChallenges(header: string | null): MppChallenge[] {
   return out;
 }
 
-export function pickMpp(all: MppChallenge[], cfg: UpstreamPayConfig): Pick<MppChallenge> {
-  const max = BigInt(toMicro(cfg.max_price_usd));
+export function pickMpp(
+  all: MppChallenge[],
+  cfg: UpstreamPayConfig,
+  maxUsd: string,
+): Pick<MppChallenge> {
+  const max = BigInt(toMicro(maxUsd));
   return narrow(
     all.filter(
       (c) =>
@@ -185,7 +201,7 @@ export interface UpstreamOutcome {
   result: string;
   /** USD actually paid upstream (0 when nothing was paid). */
   paidUsd: number;
-  /** USD paid without a delivered 200 (bounded by max_price_usd). */
+  /** USD paid without a delivered 200 (bounded by the tool's max price). */
   lossUsd: number;
   tx: string | null;
 }
@@ -319,12 +335,15 @@ export class Upstream402Adapter extends BaseAdapter {
     if (!cfg || !route) {
       throw this.fail(req, 'upstream_not_configured', 503, 'refused_config', 0, null);
     }
+    const { maxUsd } = upstreamToolLimits(cfg, req.toolId);
+    const dailyCapMicro = upstreamDailyCapMicro(cfg);
     const gate = await upstreamGate({
       provider,
       rail: cfg.rail,
       chainId: chainOf(cfg.network),
       asset: cfg.asset,
-      maxPriceMicro: toMicro(cfg.max_price_usd),
+      maxPriceMicro: toMicro(maxUsd),
+      dailyCapMicro,
     });
     if (gate) {
       const e = this.fail(req, 'tool_unavailable', 503, 'refused_gate', 0, null);
@@ -388,11 +407,11 @@ export class Upstream402Adapter extends BaseAdapter {
           null,
         );
       }
-      const pick = pickX402(required, cfg);
+      const pick = pickX402(required, cfg, maxUsd);
       if (!pick.ok)
         throw this.fail(req, pick.refusal, 502, `refused_${pick.refusal.slice(9)}`, 0, null);
       amountMicro = Number(pick.choice.amount);
-      if (!(await reserveDailySpend(provider, amountMicro))) {
+      if (!(await reserveDailySpend(provider, amountMicro, dailyCapMicro))) {
         throw this.fail(req, 'tool_unavailable', 503, 'refused_daily_cap', 0, null);
       }
       header = {
@@ -400,18 +419,22 @@ export class Upstream402Adapter extends BaseAdapter {
         value: await this.port.signX402(required, pick.choice),
       };
     } else {
-      const pick = pickMpp(parseMppChallenges(first.res.headers.get('www-authenticate')), cfg);
+      const pick = pickMpp(
+        parseMppChallenges(first.res.headers.get('www-authenticate')),
+        cfg,
+        maxUsd,
+      );
       if (!pick.ok)
         throw this.fail(req, pick.refusal, 502, `refused_${pick.refusal.slice(9)}`, 0, null);
       amountMicro = Number(pick.choice.amount);
-      if (!(await reserveDailySpend(provider, amountMicro))) {
+      if (!(await reserveDailySpend(provider, amountMicro, dailyCapMicro))) {
         throw this.fail(req, 'tool_unavailable', 503, 'refused_daily_cap', 0, null);
       }
       const value = await this.port.signMpp(first.res.headers, pick.choice.id, {
         chainId: chainOf(cfg.network),
         currency: cfg.asset,
         recipients: cfg.pay_to_allowlist,
-        maxAtomic: BigInt(toMicro(cfg.max_price_usd)),
+        maxAtomic: BigInt(toMicro(maxUsd)),
       });
       header = { name: 'Authorization', value };
     }

@@ -4,6 +4,7 @@ import { parse } from 'yaml';
 import { z } from 'zod';
 import { logger } from '../../config/logger';
 import { upstreamGate, type GateRefusal } from '../../payments/upstream-payer';
+import marginConfig from '../../config/margin.json';
 
 /**
  * T-0655: `upstream_pay` config, locked price and the pre-payment gate of the upstream-paid
@@ -27,17 +28,38 @@ export const upstreamPaySchema = z
     /** CAIP-2: eip155:8453 / eip155:84532 (x402 on Base), eip155:4217 / eip155:42431 (MPP on Tempo). */
     network: z.enum(['eip155:8453', 'eip155:84532', 'eip155:4217', 'eip155:42431']),
     asset: ADDR,
-    /** The provider's listed per-call price (input of upstreamToolPriceUsd). */
+    /** The provider's listed per-call price (input of upstreamToolPriceUsd); default for tools. */
     listed_price_usd: USD,
-    /** The most APIbase pays per call; a challenge above it is refused. */
+    /** The most APIbase pays per call; a challenge above it is refused. Default for tools. */
     max_price_usd: USD,
+    /** T-0758: optional per-provider daily cap (USD); absent = UPSTREAM_DAILY_CAP_USD_PER_PROVIDER. */
+    daily_cap_usd: USD.refine((s) => Number(s) <= 25, 'must be <= 25').optional(),
     pay_to_allowlist: z.array(ADDR).min(1).max(5),
     tools: z
       .record(
         z.string().regex(/^[a-z0-9-]+\.[a-z0-9_]+$/),
         z
-          .object({ method: z.enum(['GET', 'POST']), url: z.string().url().startsWith('https://') })
-          .strict(),
+          .object({
+            method: z.enum(['GET', 'POST']),
+            url: z.string().url().startsWith('https://'),
+            /** T-0758: this tool's own listed/max price pair (both or neither). */
+            listed_price_usd: USD.optional(),
+            max_price_usd: USD.optional(),
+          })
+          .strict()
+          .superRefine((t, ctx) => {
+            if ((t.listed_price_usd === undefined) !== (t.max_price_usd === undefined)) {
+              ctx.addIssue({
+                code: 'custom',
+                message: 'listed_price_usd and max_price_usd: both or neither',
+              });
+            } else if (
+              t.listed_price_usd !== undefined &&
+              Number(t.max_price_usd) < Number(t.listed_price_usd)
+            ) {
+              ctx.addIssue({ code: 'custom', message: 'max_price_usd below listed_price_usd' });
+            }
+          }),
       )
       .refine((t) => Object.keys(t).length > 0, 'at least one tool'),
   })
@@ -61,10 +83,30 @@ interface YamlTool {
   price_usd?: unknown;
 }
 
+const MARGIN_MULTIPLIER: number = marginConfig.MARGIN_MULTIPLIER;
+
+/** T-0758: the tool's own listed/max pair, else the block's. */
+export function upstreamToolLimits(
+  cfg: UpstreamPayConfig,
+  toolId: string,
+): { listedUsd: string; maxUsd: string } {
+  const t = cfg.tools[toolId];
+  if (t?.listed_price_usd !== undefined && t.max_price_usd !== undefined) {
+    return { listedUsd: t.listed_price_usd, maxUsd: t.max_price_usd };
+  }
+  return { listedUsd: cfg.listed_price_usd, maxUsd: cfg.max_price_usd };
+}
+
+/** T-0758: the block's daily cap in micro-USD, or undefined (= the env cap). */
+export function upstreamDailyCapMicro(cfg: UpstreamPayConfig): number | undefined {
+  return cfg.daily_cap_usd === undefined ? undefined : toMicro(cfg.daily_cap_usd);
+}
+
 /**
  * Parse and validate every `upstream_pay` block. Throws on any invalid block, on a tool that
- * is not in `tools:` with the same provider, or on a tool whose price_usd is below max_price_usd
- * (APIbase never pays upstream more than it charges).
+ * is not in `tools:` with the same provider, or on a tool whose price_usd is below that tool's
+ * max price (APIbase never pays upstream more than it charges) or below max x MARGIN_MULTIPLIER
+ * (the TOOL_STATUS margin gate, same 8 dp rounding as failsMarginGate).
  */
 export function parseUpstreamConfig(doc: {
   tools?: YamlTool[];
@@ -83,8 +125,14 @@ export function parseUpstreamConfig(doc: {
       if (!t || t.provider !== provider || toolId.split('.')[0] !== provider) {
         throw new Error(`upstream_pay.${provider}: tool ${toolId} missing or not of this provider`);
       }
-      if (!(Number(t.price_usd) >= Number(cfg.max_price_usd))) {
+      const max = Number(upstreamToolLimits(cfg, toolId).maxUsd);
+      const price = Number(t.price_usd);
+      if (!(price >= max)) {
         throw new Error(`upstream_pay.${provider}: ${toolId} price_usd below max_price_usd`);
+      }
+      const floor = Math.round(max * MARGIN_MULTIPLIER * 1e8) / 1e8;
+      if (!(price >= floor - 1e-9)) {
+        throw new Error(`upstream_pay.${provider}: ${toolId} price_usd below max x margin`);
       }
     }
     out.set(provider, cfg);
@@ -143,6 +191,7 @@ export async function upstreamGateForTool(toolId: string): Promise<GateRefusal |
     rail: cfg.rail,
     chainId: chainOf(cfg.network),
     asset: cfg.asset,
-    maxPriceMicro: toMicro(cfg.max_price_usd),
+    maxPriceMicro: toMicro(upstreamToolLimits(cfg, toolId).maxUsd),
+    dailyCapMicro: upstreamDailyCapMicro(cfg),
   });
 }

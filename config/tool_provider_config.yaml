@@ -11540,7 +11540,7 @@ tools:
 
   # --- T-0655: Inferrail Web Read (upstream-paid pilot, MARKET-SIGNALS-1102 S21) ---
   # APIbase pays Inferrail's own x402 402 per call from the upstream payer wallet (block below).
-  # price_usd = upstreamToolPriceUsd(listed 0.002, UPSTREAM_MARKUP_BPS 2000) = ceil_to_grid(0.0024) = 0.003.
+  # price_usd = upstreamToolPriceUsd(listed 0.002, UPSTREAM_MARKUP_BPS 3000) = ceil_to_grid(0.0026) = 0.003.
   - tool_id: inferrail.read_page
     name: Inferrail Web Read
     provider: inferrail
