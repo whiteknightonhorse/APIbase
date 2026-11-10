@@ -11,7 +11,7 @@ import { hashApiKey } from '../../src/services/api-key.service';
 import { buildSignInMessage, issueNonce } from '../../src/shop/auth/nonce.service';
 import { encryptionKeyMessage, registerMerchant } from '../../src/shop/merchant.service';
 import { ALLOWED_CATEGORIES } from '../../src/shop/moderation/categories';
-import { sweepHandoffs } from '../../src/shop/partner/handoff.service';
+import { sweepHandoffs, validateHandoffInput } from '../../src/shop/partner/handoff.service';
 import { createIntegratorRouter, type Partner } from '../../src/shop/routes/integrator.router';
 import { createPartnerRouter } from '../../src/shop/routes/partner.router';
 import { client, dbDescribe, migrate } from './helpers/shop-db';
@@ -473,5 +473,49 @@ dbDescribe('T-0739 partner handoff', () => {
       expect(by[old.handoff_id]).toBeNull();
       expect(ancient.handoff_id in by).toBe(false);
     });
+  });
+});
+
+describe('validateHandoffInput prefill key handling (T-0748)', () => {
+  const fieldOf = (body: unknown): string | undefined => {
+    try {
+      validateHandoffInput(body);
+    } catch (e) {
+      return (e as { field?: string }).field;
+    }
+    return undefined;
+  };
+  const clean = () => {
+    expect(({} as Record<string, unknown>).x).toBeUndefined();
+    expect(Object.prototype.hasOwnProperty.call(Object.prototype, 'x')).toBe(false);
+  };
+
+  it.each([
+    ['__proto__', JSON.parse('{"prefill":{"__proto__":"x"}}')],
+    ['constructor', { prefill: { constructor: 'x' } }],
+    ['toString', { prefill: { toString: 'x' } }],
+  ])('rejects prefill.%s without touching the prototype', (name, body) => {
+    expect(fieldOf(body)).toBe('prefill.' + name);
+    clean();
+  });
+
+  it('returns exactly the six own keys for a fully valid prefill', () => {
+    const prefill = {
+      name: 'Northside Kicks',
+      site_url: 'https://northside.example',
+      contact_email: 'owner@northside.example',
+      category: ALLOWED_CATEGORIES[0],
+      country: 'DE',
+      slug: 'northside-kicks',
+    };
+    const out = validateHandoffInput({ prefill }).prefill;
+    expect(Object.keys(out ?? {}).sort()).toEqual(Object.keys(prefill).sort());
+    expect(out).toEqual(prefill);
+    clean();
+  });
+
+  it('names the first offending key in input order', () => {
+    expect(fieldOf({ prefill: { colour: 'red', name: 7 } })).toBe('prefill.colour');
+    expect(fieldOf({ prefill: { name: 7, colour: 'red' } })).toBe('prefill.name');
   });
 });

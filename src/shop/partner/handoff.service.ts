@@ -59,6 +59,8 @@ const PREFILL_RULES: Record<keyof Prefill, (v: string) => boolean> = {
   slug: (v) => SLUG_RE.test(v),
 };
 
+const PREFILL_KEYS = Object.keys(PREFILL_RULES) as Array<keyof Prefill>;
+
 export function validateHandoffInput(body: unknown): HandoffInput {
   if (body === null || typeof body !== 'object' || Array.isArray(body))
     throw new HandoffValidationError('body');
@@ -79,11 +81,11 @@ export function validateHandoffInput(body: unknown): HandoffInput {
     const p = b.prefill as Record<string, unknown>;
     const out: Prefill = {};
     for (const [k, v] of Object.entries(p)) {
-      if (!Object.prototype.hasOwnProperty.call(PREFILL_RULES, k))
-        throw new HandoffValidationError(`prefill.${k}`);
-      const rule = PREFILL_RULES[k as keyof Prefill];
-      if (typeof v !== 'string' || !rule(v)) throw new HandoffValidationError(`prefill.${k}`);
-      out[k as keyof Prefill] = v;
+      const key = PREFILL_KEYS.find((x) => x === k);
+      if (key === undefined) throw new HandoffValidationError('prefill.' + k);
+      if (typeof v !== 'string' || !PREFILL_RULES[key](v))
+        throw new HandoffValidationError('prefill.' + key);
+      out[key] = v;
     }
     prefill = Object.keys(out).length > 0 ? out : null;
   }
