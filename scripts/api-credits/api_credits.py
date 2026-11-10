@@ -219,6 +219,7 @@ def cmd_call(argv):
     cmd = [CLAUDE_BIN, "-p", "--output-format", "json", "--model", model, "--max-turns", str(max_turns)] + extra
     env = dict(os.environ)
     env[VAR] = key_value()
+    env["API_CALL_CHILD"] = "1"  # T-KEY-1: marks the api-call child, the only process allowed to carry the key
     p = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     cyc = read_cycle()
     try:
