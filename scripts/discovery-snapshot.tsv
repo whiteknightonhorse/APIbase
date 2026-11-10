@@ -817,10 +817,6 @@ nasa.donki_flr	nasa	0.001
 nasa.epic	nasa	0.001
 nasa.image_search	nasa	0.001
 nasa.neo_feed	nasa	0.001
-nasaexoplanet.habitable	nasaexoplanet	0.002
-nasaexoplanet.planet_detail	nasaexoplanet	0.001
-nasaexoplanet.search	nasaexoplanet	0.001
-nasaexoplanet.stats	nasaexoplanet	0.001
 nasantrs.recent	nasantrs	0.001
 nasantrs.report	nasantrs	0.001
 nasantrs.search	nasantrs	0.001
