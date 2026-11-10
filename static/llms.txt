@@ -1,16 +1,25 @@
 # APIbase — Universal API Hub for AI Agents
-# https://apibase.pro
 
 > One MCP + REST endpoint to 1382 tools from 400 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
 
-Why this endpoint instead of individual providers, and how discover/evaluate/pay/execute (ranking once per task server-side (apibase.discover), not a per-call tax of a 1000-tool catalog)
-actually work: https://apibase.pro/why (Markdown: https://apibase.pro/why.md). Answers for
-specific needs (flight search, image generation, company research):
-https://apibase.pro/flight-search-intent, https://apibase.pro/image-generation-intent,
-https://apibase.pro/company-research-intent.
-Concept pages, in Markdown: https://apibase.pro/x402-vs-mpp.md,
-https://apibase.pro/what-is-an-mcp-gateway.md, https://apibase.pro/faq.md, https://apibase.pro/pricing.md.
-Full text of every linked Markdown page in one file: https://apibase.pro/llms-full.txt.
+Site: https://apibase.pro. MCP endpoint: https://apibase.pro/mcp (Streamable HTTP).
+
+## Docs
+- [Why one endpoint](https://apibase.pro/why.md): how discover, evaluate, pay and execute work; discovery (apibase.discover) ranks by relevance, then quality, then price
+- [Pricing](https://apibase.pro/pricing.md): prices, payment rails and refunds
+- [FAQ](https://apibase.pro/faq.md): short answers on identity, keys, payment, receipts, caching, limits and refunds
+- [x402 vs MPP](https://apibase.pro/x402-vs-mpp.md): the two payment protocols compared
+- [What is an MCP gateway](https://apibase.pro/what-is-an-mcp-gateway.md): concept page
+- [Agent registration](https://apibase.pro/auth.md): how to get an optional API key
+- [Merchants selling to AI agents](https://apibase.pro/integrator): the merchant storefront product
+
+## Machine-readable
+- [Tool catalog](https://apibase.pro/api/v1/tools): JSON, every tool with price and input schema
+- [OpenAPI spec](https://apibase.pro/.well-known/openapi.json)
+- [MCP server card](https://apibase.pro/.well-known/mcp/server-card.json)
+- [Payment details](https://apibase.pro/.well-known/x402-payment.json): x402 and MPP
+- [Site facts](https://apibase.pro/.well-known/site-facts.json): the facts the pages are checked against
+- [API catalog](https://apibase.pro/.well-known/api-catalog)
 
 ## Quick Start for Agents
 - Connect: POST https://apibase.pro/mcp (MCP Streamable HTTP)
@@ -77,3 +86,10 @@ news, podcasts, search, social, space, travel, weather, world
 
 ## Guides
 - Guides (https://apibase.pro/guides/): every guide has a plain markdown twin at https://apibase.pro/guides/<slug>.md, and the machine-readable list is https://apibase.pro/guides/pages.json (JSON array: url, title, type, date_published, date_modified, words, medium_eligible).
+
+## Optional
+- [llms-full.txt](https://apibase.pro/llms-full.txt): this file followed by the full text of every Markdown page it links
+- [Flight search](https://apibase.pro/flight-search-intent): answer page for one need
+- [Image generation](https://apibase.pro/image-generation-intent): answer page for one need
+- [Company research](https://apibase.pro/company-research-intent): answer page for one need
+- [Source](https://github.com/whiteknightonhorse/APIbase): GitHub repository

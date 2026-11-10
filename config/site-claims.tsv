@@ -150,3 +150,5 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	##
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	grant_missing	-	T-0747
 static/partners.html	https://apibase.pro/partners	must-contain	Open for endpoints that answer x402 on Base	-	T-0655
 static/partners.html	https://apibase.pro/partners	must-not-contain	not yet open	-	T-0655
+static/llms.txt	https://apibase.pro/llms.txt	must-contain	[Pricing](https://apibase.pro/pricing.md)	-	T-0763
+static/llms.txt	https://apibase.pro/llms.txt	must-not-contain	# https://apibase.pro	-	T-0763
