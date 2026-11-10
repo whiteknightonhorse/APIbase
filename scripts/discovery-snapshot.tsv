@@ -660,6 +660,7 @@ ine.operations	ine	0.001
 ine.series_data	ine	0.001
 ine.series_metadata	ine	0.001
 ine.tables	ine	0.001
+inferrail.read_page	inferrail	0.003
 insee.company_by_siren	insee	0.001
 insee.establishment_by_siret	insee	0.001
 insee.search_companies	insee	0.002

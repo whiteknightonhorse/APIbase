@@ -152389,6 +152389,105 @@
           }
         ]
       }
+    },
+    "/api/v1/tools/inferrail.read_page/call": {
+      "post": {
+        "operationId": "inferrail_read_page",
+        "summary": "Inferrail Web Read",
+        "description": "Read one public web page as clean Markdown (title, main text, headings, lists, links) with word count, a SHA-256 content hash and the provider receipt. APIbase pays the provider per call over x402; your payment is settled only when the page is delivered. Source: Inferrail Web Read.",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.003000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "3000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "3000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "inferrail.read_page"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Public http(s) URL of the web page to read (e.g. \"https://example.com/\")",
+                    "maxLength": 2048
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
     }
   },
   "externalDocs": {

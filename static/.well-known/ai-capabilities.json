@@ -1,16 +1,16 @@
 {
   "platform": "APIbase",
   "version": "2.2.0",
-  "updated_at": "2026-11-09T00:00:00Z",
-  "tools_count": 1381,
-  "providers_count": 399,
+  "updated_at": "2026-11-10T00:00:00Z",
+  "tools_count": 1382,
+  "providers_count": 400,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1381 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1382 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -92,16 +92,16 @@
       "examples": "Call apibase.discover with category=\"space\" for the current tool list and descriptions."
     },
     {
+      "name": "media",
+      "tools": 38,
+      "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Dpla, Europeana, Hathitrust Digital, Imgflip, Inferrail, Loc, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
+      "examples": "Call apibase.discover with category=\"media\" for the current tool list and descriptions."
+    },
+    {
       "name": "travel",
       "tools": 37,
       "providers": "Adsbdb, Aviasales, Irail, IRCTC, Nps, Opensky, Sabre, Tfl, Transport Rest",
       "examples": "Call apibase.discover with category=\"travel\" for the current tool list and descriptions."
-    },
-    {
-      "name": "media",
-      "tools": 37,
-      "providers": "Apiflash, Archiveorg, Artic, Assemblyai, Dpla, Europeana, Hathitrust Digital, Imgflip, Loc, Ocrspace, Pexels, Stability, Vam, Wikimedia Commons",
-      "examples": "Call apibase.discover with category=\"media\" for the current tool list and descriptions."
     },
     {
       "name": "crypto",
