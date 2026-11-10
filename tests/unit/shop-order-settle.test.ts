@@ -791,4 +791,40 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     expect(payaiSettle).not.toHaveBeenCalled();
     expect((await order(f)).state).toBe('QUOTED');
   });
+
+  it('SE9b: pays the quoted total after a catalog price change; an authorization for the new price is refused', async () => {
+    const f = await fixture(10);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET price_usd = 15 WHERE merchant_id = $1::uuid AND sku = $2`,
+      f.m,
+      f.sku,
+    );
+    const bad = await pay(f, { header: header({ value: toMicroUsdc(15) }) });
+    expect(bad.status).toBe(402);
+    expect(bad.body.error_code).toBe('payment_amount_mismatch');
+    expect(localSettle).not.toHaveBeenCalled();
+    expect(payaiSettle).not.toHaveBeenCalled();
+    const r = await pay(f, { header: header({ value: toMicroUsdc(10) }) });
+    expect(r.status).toBe(200);
+    expect(r.body.status).toBe('paid');
+    expect(localSettle).toHaveBeenCalledTimes(1);
+    expect(JSON.stringify(localSettle.mock.calls[0])).toContain(toMicroUsdc(10));
+    const o = await order(f);
+    expect(['PAID', 'CONFIRMED', 'FULFILLED']).toContain(o.state);
+    expect(Number(o.total_usd)).toBe(10);
+  });
+
+  it('SE10b: an expired quote cannot be paid -> 410 quote_expired, settle not called', async () => {
+    const f = await fixture(10);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_quotes SET expires_at = now() - interval '1 minute' WHERE quote_id = $1::uuid`,
+      f.quote.quote_id,
+    );
+    const r = await pay(f);
+    expect(r.status).toBe(410);
+    expect(r.body.error_code).toBe('quote_expired');
+    expect(localSettle).not.toHaveBeenCalled();
+    expect(payaiSettle).not.toHaveBeenCalled();
+    expect(['PAID', 'CONFIRMED', 'FULFILLED']).not.toContain((await order(f)).state);
+  });
 });

@@ -430,4 +430,58 @@ dbDescribe('shop quotes', () => {
     );
     expect(ev.c).toBe(1);
   });
+
+  it('QT13: price change inside the window -> the open quote keeps its snapshot; a new quote sees the new price', async () => {
+    const m = await shop();
+    const sku = await product(m, { price: 10 });
+    const r = await q(m, [{ sku }]);
+    expect(r.total_usd).toBe(10);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET price_usd = 15 WHERE merchant_id = $1::uuid AND sku = $2`,
+      m,
+      sku,
+    );
+    const g = await getQuote(deps, r.quote_id);
+    expect(g.quote_id).toBe(r.quote_id);
+    expect(g.total_usd).toBe(10);
+    expect(g.items[0].unit_price_usd).toBe(10);
+    expect(g.pay.x402?.amount).toBe(r.pay.x402?.amount);
+    expect(
+      (
+        await row(
+          `SELECT total_usd::float8 AS t FROM shop_quotes WHERE quote_id = $1::uuid`,
+          r.quote_id,
+        )
+      ).t,
+    ).toBe(10);
+    const fresh = await q(m, [{ sku }], buyer());
+    expect(fresh.total_usd).toBe(15);
+  });
+
+  it('QT14: expired after a price change -> 410 with a fresh quote at the current price', async () => {
+    const m = await shop();
+    const sku = await product(m, { price: 10 });
+    const r = await q(m, [{ sku }]);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET price_usd = 15 WHERE merchant_id = $1::uuid AND sku = $2`,
+      m,
+      sku,
+    );
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_quotes SET expires_at = now() - interval '1 minute' WHERE quote_id = $1::uuid`,
+      r.quote_id,
+    );
+    const e = await fail(getQuote(deps, r.quote_id));
+    expect(e).toBeInstanceOf(QuoteError);
+    expect([e.status, e.error_code]).toEqual([410, 'quote_expired']);
+    expect(e.extra.quote.quote_id).not.toBe(r.quote_id);
+    expect(e.extra.quote.total_usd).toBe(15);
+    expect(e.extra.quote.items[0].unit_price_usd).toBe(15);
+    expect(
+      (await row(`SELECT status FROM shop_quotes WHERE quote_id = $1::uuid`, r.quote_id)).status,
+    ).toBe('expired');
+    expect(
+      (await row(`SELECT state FROM shop_orders WHERE order_id = $1::uuid`, r.order_id)).state,
+    ).toBe('EXPIRED');
+  });
 });
