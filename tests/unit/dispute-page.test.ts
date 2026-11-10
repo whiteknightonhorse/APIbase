@@ -18,6 +18,7 @@ import {
   previewPayment,
   previewReceipt,
 } from '../../src/routes/dispute-page.router';
+import { judgePayment } from '../../src/payments/dispute-rules';
 import {
   MCP_DISPUTE_URL_META_KEY,
   disputeUrl,
@@ -95,20 +96,38 @@ describe('policy constants match the published file', () => {
   });
 });
 
+describe('previewPayment parity with judgePayment', () => {
+  const payee = '0x' + '22'.repeat(20);
+  const cases: Array<[string, Partial<ReceiptIndex>]> = [
+    ['refund_tx set', { refund_tx: '0x' + 'cd'.repeat(32) }],
+    ['receipt_ids non-empty', { receipt_ids: [ID] }],
+  ];
+  it.each(cases)('%s: same verdict as the contract rule', (_n, over) => {
+    const i = ix(over);
+    const rule = judgePayment({ tx: TX, index: i, chain: null, payee });
+    expect(rule.verdict).toBe('RELEASE');
+    expect(previewPayment(i).verdict).toBe(rule.verdict);
+  });
+  it('neither: not_measured, sentence names REFUND and RELEASE', () => {
+    const p = previewPayment(ix({}));
+    expect(p.verdict).toBe('not_measured');
+    expect(p.sentence).toContain('REFUND');
+    expect(p.sentence).toContain('RELEASE');
+  });
+});
+
 describe('HTTP handlers', () => {
   const store = (body: string | null) => ({
     insert: jest.fn(),
     get: jest.fn(async () => body),
   });
 
-  it('answers < 1 s while a GenLayer RPC mock delayed 30 s is never awaited', async () => {
-    const slowRpc = jest.fn(() => new Promise((r) => setTimeout(r, 30_000)));
+  it('answers < 1 s without any chain read', async () => {
     const s = await serve({ store: store(receipt({})), indexForTx: async () => ix({}) });
     const t0 = Date.now();
     const res = await fetch(`${s.base}/dispute/?r=${ID}`);
     const html = await res.text();
     expect(Date.now() - t0).toBeLessThan(1000);
-    expect(slowRpc).not.toHaveBeenCalled();
     expect(res.status).toBe(200);
     expect(html).toContain('validators would RELEASE');
     expect(html).toContain(POLICY_VERSION);
@@ -157,6 +176,7 @@ describe('HTTP handlers', () => {
     const s = await serve({ store: store(receipt({})) });
     const page = await (await fetch(`${s.base}/r/${ID}`)).text();
     expect((page.match(/Dispute this receipt/g) ?? []).length).toBe(1);
+    expect(page).not.toContain('/dispute/?tx=');
     expect(page).toContain(`/dispute/?r=${ID}`);
     expect((await fetch(`${s.base}/r/${ID}.json`)).status).toBe(418);
     expect(await (await fetch(`${s.base}/r/`)).text()).toContain('Paid but no receipt?');
