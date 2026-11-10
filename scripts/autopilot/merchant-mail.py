@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""merchant-mail.py — T-INT-18 (spec §12.2 "Outgoing mail"). Hourly cron, installed 2026-11-10 (T-0723).
+"""merchant-mail.py — T-INT-18 (spec §12.2 "Outgoing mail"). Run by the hourly cron with --send (cron line in docs/operator/EMAIL-INTEGRATOR-SETUP.md); without --send the script is a dry run and writes nothing; any other argument exits 64.
 
 Sends the transactional merchant mail that incident-engine.py only QUEUES (email_events,
 direction='out', status='queued'; see queue_merchant_email()). Resend API only, sender
@@ -22,7 +22,15 @@ Failure policy: attempts++ and next_attempt_at=+1h; the 24th failure -> status='
 incident-engine.py already reads for WEBHOOK_FAILED provider=merchant:<id>). Logs carry msg_id /
 merchant_id / kind / status only — never an address or a body.
 
-Exit codes: 0 ok (incl. ruling_missing: nothing to do yet), 2 domain not verified, 3 no usable key.
+Skip policy: a queued row is never sent, and gets status='skipped' (never an incident), when: stale_7d
+(operational notice queued more than 7 days ago; legal_version_notice is ageless), in_force (legal
+version already in force), merchant_missing (no merchant row or no contact e-mail), resolved (the
+condition behind merchant_unresponsive / refund_overdue / fee_invoice is no longer true), digest_7d
+(a pii_delivered / pii_undeliverable mail was already sent to this merchant in the last 7 days).
+A Resend 422 is final: one attempt, status='failed'.
+
+Exit codes: 0 ok (incl. ruling_missing: nothing to do yet), 2 domain not verified, 3 no usable key,
+64 bad argument (nothing read, nothing sent).
 """
 import importlib.util
 import json
@@ -52,6 +60,10 @@ KINDS = ("connect_failed", "webhook_failed", "merchant_unresponsive", "refund_ov
          "catalog_rejected", "payout_change", "key_rotated", "pii_delivered", "pii_undeliverable",
          "dispute_rate_warning", "merchant_disputes_suspended", "fee_invoice",
          "stream_settle_overdue", "subscription_pull_failed", "legal_version_notice")
+STALE_DAYS = 7
+AGELESS = ("legal_version_notice",)
+DIGEST_KINDS = ("pii_delivered", "pii_undeliverable")
+CONDITIONAL = ("merchant_unresponsive", "refund_overdue", "fee_invoice")
 LEGAL_TITLES = {"merchant-agreement": "Merchant Agreement", "aup": "Acceptable Use Policy",
                 "dpa": "Data Processing Addendum", "refund-framework": "Refund Framework"}
 
@@ -174,6 +186,7 @@ def template_values(template, merchant_id, m, msg_id=""):
             "due_at": "(see the check page)", "category": "catalog review",
             "invoice_id": "(see your owner page)", "period": "the last month", "amount_usd": "(see your owner page)",
             "fee_wallet": "(see your owner page)"}
+    vals["found"] = False
     mid = ap.sql_literal(merchant_id)
     try:
         if template == "merchant_unresponsive":
@@ -181,18 +194,21 @@ def template_values(template, merchant_id, m, msg_id=""):
                       f"merchant_id = {mid}::uuid AND state = 'PAID' AND confirm_due_at < now() "
                       "ORDER BY confirm_due_at LIMIT 1")
             if r:
+                vals["found"] = True
                 vals["order_id"], vals["due_at"] = r[0]
         elif template == "refund_overdue":
             r = _rows("SELECT o.order_id::text, " + _fmt("r.due_at") + " FROM shop_refunds r JOIN shop_orders o "
                       f"ON o.order_id = r.order_id WHERE o.merchant_id = {mid}::uuid AND r.status = 'overdue' "
                       "AND r.due_at IS NOT NULL ORDER BY r.due_at LIMIT 1")
             if r:
+                vals["found"] = True
                 vals["order_id"], vals["due_at"] = r[0]
         elif template == "fee_invoice":
             r = _rows("SELECT invoice_id::text, period, amount_usd::text, " + _fmt("due_at") + " FROM shop_fee_invoices "
                       f"WHERE merchant_id = {mid}::uuid AND status IN ('open', 'overdue') "
                       "ORDER BY created_at DESC LIMIT 1")
             if r:
+                vals["found"] = True
                 vals["invoice_id"], vals["period"], vals["amount_usd"], vals["due_at"] = r[0]
             vals["fee_wallet"] = os.environ.get("INTEGRATOR_FEE_WALLET_BASE") or "(see the fee invoices in your owner page)"
         elif template == "legal_version_notice":
@@ -228,10 +244,33 @@ def hold_all(reason):
     return len(out.splitlines()) if out else 0
 
 
+_DUE_WHERE = ("direction = 'out' AND status = 'queued' AND merchant_id IS NOT NULL "
+              "AND (next_attempt_at IS NULL OR next_attempt_at <= now())")
+
+
+def _stale_pred():
+    ageless = ", ".join(ap.sql_literal(t) for t in AGELESS)
+    return f"COALESCE(template, kind) NOT IN ({ageless}) AND received_at < now() - interval '{STALE_DAYS} days'"
+
+
 def due_rows():
     return _rows("SELECT msg_id, merchant_id::text, kind, template, attempts::text FROM email_events "
-                 "WHERE direction = 'out' AND status = 'queued' AND merchant_id IS NOT NULL "
-                 "AND (next_attempt_at IS NULL OR next_attempt_at <= now()) ORDER BY received_at, msg_id")
+                 f"WHERE {_DUE_WHERE} ORDER BY received_at, msg_id")
+
+
+def skip_stale():
+    """Skips stale_7d and in_force rows; returns how many."""
+    n = 0
+    out, _ = ap.psql("UPDATE email_events SET status = 'skipped', reason = 'stale_7d', next_attempt_at = NULL "
+                     f"WHERE direction = 'out' AND status = 'queued' AND {_stale_pred()} RETURNING msg_id")
+    n += len(out.splitlines()) if out else 0
+    out, _ = ap.psql("UPDATE email_events e SET status = 'skipped', reason = 'in_force', next_attempt_at = NULL "
+                     "WHERE e.direction = 'out' AND e.status = 'queued' AND e.template = 'legal_version_notice' "
+                     "AND EXISTS (SELECT 1 FROM shop_legal_docs d WHERE e.msg_id = 'legal-notice:' || "
+                     "e.merchant_id::text || ':' || d.doc_id || ':' || d.version AND d.effective_from <= now()) "
+                     "RETURNING msg_id")
+    n += len(out.splitlines()) if out else 0
+    return n
 
 
 def record_failure(msg_id, attempts, reason):
@@ -244,17 +283,34 @@ def record_failure(msg_id, attempts, reason):
 
 
 def send_one(key, msg_id, merchant_id, kind, template, attempts):
-    """Returns the resulting status: sent | queued | failed | domain_unverified (row untouched)."""
+    """Returns the resulting status: sent | queued | failed | skipped | domain_unverified (row untouched)."""
     try:
         r = _rows("SELECT slug, name, contact_email FROM shop_merchants "
                   f"WHERE merchant_id = {ap.sql_literal(merchant_id)}::uuid")
     except RuntimeError:
         r = []
     if not r or not r[0][2]:
-        return record_failure(msg_id, attempts, "merchant_missing")
+        _set(msg_id, "status = 'skipped', reason = 'merchant_missing', next_attempt_at = NULL")
+        return "skipped"
     m = {"slug": r[0][0], "name": r[0][1]}
+    vals = template_values(template, merchant_id, m, msg_id)
+    found = vals.pop("found", False)
+    if template in CONDITIONAL and not found:
+        _set(msg_id, "status = 'skipped', reason = 'resolved', next_attempt_at = NULL")
+        return "skipped"
+    if template in DIGEST_KINDS:
+        try:
+            dup = _rows("SELECT 1 FROM email_events WHERE direction = 'out' AND status = 'sent' "
+                        f"AND merchant_id = {ap.sql_literal(merchant_id)}::uuid "
+                        f"AND template = {ap.sql_literal(template)} "
+                        f"AND received_at > now() - interval '{STALE_DAYS} days' LIMIT 1")
+        except RuntimeError:
+            dup = []
+        if dup:
+            _set(msg_id, "status = 'skipped', reason = 'digest_7d', next_attempt_at = NULL")
+            return "skipped"
     try:
-        subject, text = render(template, LANG, template_values(template, merchant_id, m, msg_id))
+        subject, text = render(template, LANG, vals)
     except (ValueError, OSError):
         return record_failure(msg_id, attempts, "template_missing")
     code, js = http_request("POST", "/emails", key, {
@@ -265,13 +321,32 @@ def send_one(key, msg_id, merchant_id, kind, template, attempts):
         _set(msg_id, f"status = 'sent', provider_message_id = {ap.sql_literal(mid)}, "
                      f"attempts = {attempts + 1}, next_attempt_at = NULL, reason = NULL")
         return "sent"
+    if code == 422:
+        return record_failure(msg_id, MAX_ATTEMPTS - 1, "resend_http_422")
     if code == 403 and isinstance(js, dict) and "not verified" in str(js.get("message") or "").lower():
         return "domain_unverified"
     return record_failure(msg_id, attempts, f"resend_http_{code}")
 
 
-def run():
-    counts = {"sent": 0, "queued": 0, "failed": 0}
+def dry_run():
+    """Reads only: reports the gates and what a --send run would look at. Writes and calls nothing."""
+    approval = "ok" if load_approval() is not None else "missing"
+    key = "present" if load_resend_key()[0] else "missing"
+    rows = _rows(f"SELECT COALESCE(template, kind), ({_stale_pred()})::text FROM email_events WHERE {_DUE_WHERE}")
+    by = {}
+    for t, _st in rows:
+        by[t] = by.get(t, 0) + 1
+    stale = sum(1 for _t, st in rows if st == "true")
+    print(f"merchant-mail: DRY-RUN approval={approval} key={key} due={len(rows)} stale={stale} "
+          f"by_template={','.join(f'{k}={v}' for k, v in sorted(by.items())) or '-'}; "
+          "nothing sent, nothing written; use --send to send.")
+    return 0
+
+
+def run(send=True):
+    if not send:
+        return dry_run()
+    counts = {"sent": 0, "queued": 0, "failed": 0, "skipped": 0}
     if load_approval() is None:
         n = hold_all("ruling_missing")
         print(f"merchant-mail: HOLD — {APPROVAL_PATH} missing or invalid; {n} queued row(s) marked "
@@ -292,6 +367,7 @@ def run():
               "marked reason=domain_unverified; nothing sent. Operator: see "
               "docs/operator/EMAIL-INTEGRATOR-SETUP.md (Resend domain + DKIM/SPF/DMARC).")
         return 2
+    counts["skipped"] += skip_stale()
     for msg_id, merchant_id, kind, template, attempts in due_rows():
         st = send_one(key, msg_id, merchant_id, kind, template or kind, int(attempts or 0))
         if st == "domain_unverified":
@@ -303,10 +379,22 @@ def run():
             return 2
         counts[st] += 1
         log.info("msg_id=%s merchant_id=%s kind=%s status=%s", msg_id, merchant_id, kind, st)
-    print(f"merchant-mail: OK sent={counts['sent']} requeued={counts['queued']} failed={counts['failed']}")
+    print(f"merchant-mail: OK sent={counts['sent']} requeued={counts['queued']} failed={counts['failed']} skipped={counts['skipped']}")
     return 0
+
+
+USAGE = "usage: merchant-mail.py [--send | --dry-run]  (no argument = dry run; nothing is sent without --send)"
+
+
+def main(argv):
+    if argv == ["--send"]:
+        return run(send=True)
+    if argv in ([], ["--dry-run"]):
+        return run(send=False)
+    print(USAGE, file=sys.stderr)
+    return 64
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(message)s")
-    sys.exit(run())
+    sys.exit(main(sys.argv[1:]))

@@ -256,9 +256,9 @@ At most 16 KB decoded per envelope. The platform accepts nothing else: a string,
 - shipping address, phone, company: 30 days after the order is `CLOSED`;
 - logs never contain an envelope or its hash; metrics are counters only.
 
-The merchant gets a "stored temporarily, keep your own copy" e-mail on the first delivery. There is no early-purge request route: data is purged by rule only. Terms: the data-processing agreement at [/legal/dpa](/legal/dpa) (APIbase acts as a processor on the merchant's behalf).
+The merchant gets a "stored temporarily, keep your own copy" e-mail on the first delivery (at most one such e-mail per merchant in 7 days; every order still carries its own `pii` route). There is no early-purge request route: data is purged by rule only. Terms: the data-processing agreement at [/legal/dpa](/legal/dpa) (APIbase acts as a processor on the merchant's behalf).
 
-**6. Rotation.** `POST /merchants/me/keys/rotate` / `shop.merchant.rotate_key` with `encryption_key {kid, alg, pub, sig_by_wallet}` (a NEW `kid`, signature as in step 2; this call also rotates the API key as before) replaces the published key and emits `merchant.key_rotated`. Stored envelopes are not re-encrypted: those not yet delivered get a `pii.undeliverable` order event and a `pii_undeliverable` e-mail (one per order) — fetch them and open them with the OLD private key. Open quotes keep their `requires_pii`; paying one with the old `kid` is `409 merchant_key_rotated`.
+**6. Rotation.** `POST /merchants/me/keys/rotate` / `shop.merchant.rotate_key` with `encryption_key {kid, alg, pub, sig_by_wallet}` (a NEW `kid`, signature as in step 2; this call also rotates the API key as before) replaces the published key and emits `merchant.key_rotated`. Stored envelopes are not re-encrypted: those not yet delivered get a `pii.undeliverable` order event and one `pii_undeliverable` e-mail per merchant (at most one in 7 days; the `pii.undeliverable` order event lists every affected order) — fetch them and open them with the OLD private key. Open quotes keep their `requires_pii`; paying one with the old `kid` is `409 merchant_key_rotated`.
 
 ### For buyer agents
 

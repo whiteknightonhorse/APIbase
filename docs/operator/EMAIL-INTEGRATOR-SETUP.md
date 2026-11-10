@@ -1,6 +1,6 @@
 # Integrator mail setup (T-INT-18)
 
-Merchant mail is sent by `scripts/autopilot/merchant-mail.py` (hourly cron at :15 every hour, log `logs/merchant-mail.log`)
+Merchant mail is sent by `scripts/autopilot/merchant-mail.py` (hourly cron at :15 with `--send`; without the flag the script only reports, log `logs/merchant-mail.log`)
 from `integrator@apibase.pro` through Resend. Replies are read by `email-intake.py` (class `MERCHANT_REPLY`).
 No letter leaves until every step below is done.
 
@@ -37,9 +37,14 @@ No letter leaves until every step below is done.
 - `merchant-mail: STOP — Resend domain apibase.pro is not 'verified'` — steps 1–3 are not finished; this is
   the "stop and report" decision of 2026-10-05.
 - `merchant-mail: STOP — Resend refused the send: domain apibase.pro is not verified` — same meaning and same operator steps as the line above.
-- `merchant-mail: OK sent=N requeued=M failed=K` — `sent`: `status='sent'`, `provider_message_id` stored;
+- `merchant-mail: DRY-RUN ...` — no flag given; nothing sent, nothing written.
+- `merchant-mail: OK sent=N requeued=M failed=K skipped=S` — `sent`: `status='sent'`, `provider_message_id` stored;
   `requeued`: Resend error, `attempts+1`, retried after one hour; `failed`: the 24th failure,
   `status='failed'`, which `incident-engine.py` turns into a WEBHOOK_FAILED incident for `merchant:<id>`.
+  `skipped=S` — rows never sent on purpose: operational notice older than 7 days (`stale_7d`), legal version
+  already in force (`in_force`), merchant or contact e-mail missing (`merchant_missing`), condition no longer
+  true (`resolved`), a pii mail already sent to this merchant in the last 7 days (`digest_7d`); a skipped row
+  never opens an incident. A Resend 422 is final: one attempt, `status='failed'`.
 
 Logs hold `msg_id`, `merchant_id`, `kind`, `status` only — never an address or a letter body.
 Language is always `en`; the `*.ru.md` templates are for a manual reply by the dispatcher.

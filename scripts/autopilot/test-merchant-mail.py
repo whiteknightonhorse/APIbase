@@ -5,7 +5,7 @@ replaced); not one real letter, no real key, no network.
 
 Run: python3 scripts/autopilot/test-merchant-mail.py
 Mutations: drop the approval gate -> ML1 red; drop the domain check -> ML5 red; drop the 403 mapping -> ML5b red;
-drop the MERCHANT_REPLY branch in email-intake.py -> ML6 red.
+drop the MERCHANT_REPLY branch in email-intake.py -> ML6 red; drop the --send guard -> ML10 red.
 """
 import contextlib
 import importlib.util
@@ -115,6 +115,18 @@ def run_mm():
     with contextlib.redirect_stdout(buf):
         rc = MM.run()
     return rc, buf.getvalue()
+
+
+def main_mm(argv):
+    out, err = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        rc = MM.main(argv)
+    return rc, out.getvalue(), err.getvalue()
+
+
+def queue_old(mid, days, template="webhook_failed", msg_id="out:inc:0"):
+    queue_row(mid, template=template, msg_id=msg_id)
+    q(f"UPDATE email_events SET received_at = now() - interval '{days} days' WHERE msg_id = '{msg_id}'")
 
 
 def approve():
@@ -287,6 +299,98 @@ class TestSender(MailBase):
             self.assertNotIn("owner@drill.invalid", line)
             self.assertNotIn("Hello", line)
             self.assertIn(self.mid, line)
+
+    def test_ml10_no_argument_is_a_dry_run(self):
+        approve()
+        queue_row(self.mid)
+        rc, out, _ = main_mm([])
+        self.assertEqual(rc, 0)
+        self.assertEqual(len(self.resend.calls), 0)
+        self.assertEqual(row()[:3], ["queued", "", "0"])
+        self.assertIn("DRY-RUN", out)
+        self.assertIn("nothing sent", out)
+        self.assertIn("approval=ok key=present due=1 stale=0", out)
+        self.assertNotIn("@", out)
+
+    def test_ml10b_bad_argument_exits_64(self):
+        approve()
+        queue_row(self.mid)
+        for argv in (["--help"], ["--sendd"]):
+            rc, out, err = main_mm(argv)
+            self.assertEqual(rc, 64)
+            self.assertEqual(out, "")
+            self.assertIn("usage: merchant-mail.py", err)
+        self.assertEqual(len(self.resend.calls), 0)
+        self.assertEqual(row()[:3], ["queued", "", "0"])
+
+    def test_ml10c_send_flag_sends(self):
+        approve()
+        queue_row(self.mid)
+        rc, _, _ = main_mm(["--send"])
+        self.assertEqual(rc, 0)
+        st = row()
+        self.assertEqual((st[0], st[3]), ("sent", "re_msg_0001"))
+        self.assertEqual(len(self.resend.posts()), 1)
+
+    def test_ml11_stale_and_in_force(self):
+        approve()
+        queue_old(self.mid, 8)
+        queue_old(self.mid, 6, msg_id="out:inc:1")
+        rc, out = run_mm()
+        self.assertEqual(rc, 0)
+        self.assertEqual(row()[:2], ["skipped", "stale_7d"])
+        self.assertEqual(row("out:inc:1")[0], "sent")
+        self.assertEqual(len(self.resend.posts()), 1)
+        self.assertIn("skipped=1", out)
+        # legal notices: ageless, skipped only once the version is in force
+        q("DELETE FROM shop_legal_docs")
+        q("INSERT INTO shop_legal_docs VALUES ('aup', '3', repeat('a', 64), 'u', now() + interval '30 days', 'b')")
+        q("INSERT INTO shop_legal_docs VALUES ('aup', '4', repeat('b', 64), 'u', now() - interval '1 day', 'b')")
+        queue_old(self.mid, 8, template="legal_version_notice", msg_id=f"legal-notice:{self.mid}:aup:3")
+        queue_old(self.mid, 8, template="legal_version_notice", msg_id=f"legal-notice:{self.mid}:aup:4")
+        run_mm()
+        self.assertEqual(row(f"legal-notice:{self.mid}:aup:3")[0], "sent")
+        self.assertEqual(row(f"legal-notice:{self.mid}:aup:4")[:2], ["skipped", "in_force"])
+        self.assertEqual(len(self.resend.posts()), 2)
+
+    def test_ml12_merchant_missing_is_skipped(self):
+        approve()
+        queue_row("00000000-0000-0000-0000-000000000001")
+        run_mm()
+        st = row()
+        self.assertEqual((st[0], st[1], st[2]), ("skipped", "merchant_missing", "0"))
+        self.assertEqual(len(self.resend.posts()), 0)
+
+    def test_ml13_conditional_resolved(self):
+        approve()
+        queue_row(self.mid, template="merchant_unresponsive")
+        run_mm()
+        self.assertEqual(row()[:2], ["skipped", "resolved"])
+        self.assertEqual(len(self.resend.posts()), 0)
+        oid = fx.new_paid_order(self.mid, overdue=True)
+        queue_row(self.mid, template="merchant_unresponsive", msg_id="out:inc:1")
+        run_mm()
+        self.assertEqual(row("out:inc:1")[0], "sent")
+        self.assertEqual(len(self.resend.posts()), 1)
+        self.assertIn(oid, self.resend.posts()[0][3]["text"])
+
+    def test_ml14_pii_digest_once_per_week(self):
+        approve()
+        queue_row(self.mid, template="pii_delivered")
+        queue_row(self.mid, template="pii_delivered", msg_id="out:inc:1")
+        run_mm()
+        self.assertEqual(row()[0], "sent")
+        self.assertEqual(row("out:inc:1")[:2], ["skipped", "digest_7d"])
+        self.assertEqual(len(self.resend.posts()), 1)
+
+    def test_ml15_resend_422_is_final(self):
+        approve()
+        MM.http_request = self.resend = FakeResend(post_code=422)
+        queue_row(self.mid)
+        run_mm()
+        st = row()
+        self.assertEqual((st[0], st[1]), ("failed", "resend_http_422"))
+        self.assertEqual(len(self.resend.posts()), 1)
 
 
 class TestTemplates(unittest.TestCase):

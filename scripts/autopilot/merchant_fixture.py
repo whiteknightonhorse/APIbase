@@ -22,7 +22,8 @@ SCRATCH = "/tmp/autopilot-int13"
 MIGRATIONS = ["0009_autopilot_schema", "0010_provider_status_pause_anchor",
               "0022_email_events_limit_change_partner_reply", "0025_integrator_shop",
               "0026_shop_quote_buyer_company", "0027_shop_quote_mpp_challenge_header",
-              "0028_email_events_outbound", "0027_wave3", "0033_stream_merchant_settler"]
+              "0028_email_events_outbound", "0027_wave3", "0033_stream_merchant_settler",
+              "0056_email_events_out_status_skipped"]
 
 
 def configure_env():
@@ -67,7 +68,9 @@ def ensure_pg():
     """Starts the container once per process (reused if already up and migrated)."""
     chk = sh(["docker", "exec", CONTAINER, "psql", "-U", "apibase", "-d", "apibase", "-tAc",
               "SELECT to_regclass('public.shop_merchants') IS NOT NULL AND to_regclass('public.shop_stream_sessions') IS NOT NULL "
-              "AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='email_events' AND column_name='direction')"])
+              "AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='email_events' AND column_name='direction') "
+              "AND EXISTS (SELECT 1 FROM pg_constraint WHERE conname='email_events_out_status_check' "
+              "AND pg_get_constraintdef(oid) LIKE '%skipped%')"])
     if chk.returncode == 0 and chk.stdout.strip() == "t":
         return
     sh(["docker", "rm", "-f", CONTAINER])
