@@ -54,6 +54,10 @@ updates:
       # viem >= 2.57.16 declares peerOptional mppx >= 0.17 (TESTER-CI-1104). Remove this entry in T-0704.
       - dependency-name: "viem"
         versions: [">=2.57.16"]
+      # jsdom >= 30 requires Node >= 22 (engines); CI (test.yml:62) and the image (Dockerfile:1) are on Node 20.
+      # Dev-only, one consumer: tests/unit/dashboard-m-fields.test.ts. Remove with the Node >= 22 image card (T-0749, 2026-11-10).
+      - dependency-name: "jsdom"
+        update-types: ["version-update:semver-major"]
     groups:
       minor-and-patch:
         applies-to: version-updates
