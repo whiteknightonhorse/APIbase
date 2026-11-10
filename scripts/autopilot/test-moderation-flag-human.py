@@ -82,7 +82,7 @@ class ModerationFlagHuman(unittest.TestCase):
         tick()
         self.assertEqual([r["state"] for r in incidents("CATALOG_REJECTED")], ["RESOLVED"])
         rows = q("SELECT template FROM email_events WHERE direction = 'out'").splitlines()
-        self.assertEqual(rows, ["catalog_rejected"], "a human reject mails the merchant through the same chain")
+        self.assertEqual(rows, [], "MERCHANT-MAIL-1110: a human reject queues no merchant mail")
         self.assertEqual(queue_files(), [])
 
 

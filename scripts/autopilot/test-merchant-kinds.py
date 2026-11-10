@@ -131,7 +131,10 @@ class RoutingSchema(unittest.TestCase):
             self.assertIn(kind, ap.KINDS)
             self.assertIn(kind, ap.MERCHANT_KINDS)
             self.assertNotIn(kind, ap.FLEET_TASK_KINDS)
-            self.assertTrue(os.path.exists(os.path.join(templates, cfg["template"] + ".en.md")), kind)
+            if cfg.get("template"):  # MERCHANT-MAIL-1110: SUBSCRIPTION_PULL_FAILED has template null, its file stays dormant
+                self.assertTrue(os.path.exists(os.path.join(templates, cfg["template"] + ".en.md")), kind)
+            else:
+                self.assertTrue(os.path.exists(os.path.join(templates, kind.lower() + ".en.md")), kind)
 
     def test_ap1_old_12_unchanged(self):
         for kind, cfg in OLD_KINDS.items():
@@ -541,7 +544,7 @@ class EngineWorlds(unittest.TestCase):
         self.assertEqual(len(rows), 1, "one incident for the one failed period (the fee leg and the pending row add none)")
         self.assertEqual(rows[0]["state"], "VERIFYING")
         self.assertEqual(rows[0]["task"], "", "AUTO_NO_MODEL: no fleet task")
-        self.assertEqual([r[1] for r in out_mail()], ["subscription_pull_failed"])
+        self.assertEqual(out_mail(), [], "MERCHANT-MAIL-1110: no merchant mail for this kind")
         tick()
         self.assertEqual(len(incidents("SUBSCRIPTION_PULL_FAILED")), 1, "a second tick opens nothing")
         q("UPDATE shop_subscription_authorizations SET status = 'canceled'")
@@ -557,10 +560,10 @@ class EngineWorlds(unittest.TestCase):
         self.assertEqual([r["state"] for r in incidents("CATALOG_REJECTED")], ["RESOLVED"])
         self.assertEqual([r["state"] for r in incidents("MODERATION_FLAG")], ["WAITING_HUMAN"])
         self.assertEqual([r["state"] for r in incidents("PAYMENT_MISMATCH")], ["WAITING_HUMAN"])
-        self.assertEqual([r[1] for r in out_mail()], ["catalog_rejected"])
+        self.assertEqual(out_mail(), [], "MERCHANT-MAIL-1110: no merchant mail for this kind")
         self.assertEqual(queue_files(), [])
         tick()
-        self.assertEqual(len(out_mail()), 1)
+        self.assertEqual(out_mail(), [])
         self.assertEqual(len(incidents("CATALOG_REJECTED")), 1)
 
     def test_injected_client_name_is_inert(self):
