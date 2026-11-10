@@ -39,21 +39,12 @@ No letter leaves until every step below is done.
 - `merchant-mail: STOP — Resend refused the send: domain apibase.pro is not verified` — same meaning and same operator steps as the line above.
 - `merchant-mail: DRY-RUN ...` — no flag given; nothing sent, nothing written.
 - `merchant-mail: OK sent=N requeued=M failed=K skipped=S` — `sent`: `status='sent'`, `provider_message_id` stored;
-  `requeued`: Resend error or database error, `attempts+1`, retried after one hour; `failed`: the 24th
-  failure, or a Resend 422 (final after one attempt), `status='failed'`, which `incident-engine.py` turns
-  into a WEBHOOK_FAILED incident for `merchant:<id>`.
-- `skipped` — rows never sent on purpose: operational notice older than 7 days (`stale_7d`), legal version
+  `requeued`: Resend error, `attempts+1`, retried after one hour; `failed`: the 24th failure,
+  `status='failed'`, which `incident-engine.py` turns into a WEBHOOK_FAILED incident for `merchant:<id>`.
+  `skipped=S` — rows never sent on purpose: operational notice older than 7 days (`stale_7d`), legal version
   already in force (`in_force`), merchant or contact e-mail missing (`merchant_missing`), condition no longer
   true (`resolved`), a pii mail already sent to this merchant in the last 7 days (`digest_7d`); a skipped row
-  never opens an incident.
-
-## Schedule line
-
-```
-15 * * * * cd /home/apibase/apibase-fleet && set -a && . /home/apibase/apibase/.env && set +a && /usr/bin/python3 scripts/autopilot/merchant-mail.py --send >> /home/apibase/apibase-fleet/logs/merchant-mail.log 2>&1
-```
-
-Install it only after the dispatcher confirms the routing card (0754) is live.
+  never opens an incident. A Resend 422 is final: one attempt, `status='failed'`.
 
 Logs hold `msg_id`, `merchant_id`, `kind`, `status` only — never an address or a letter body.
 Language is always `en`; the `*.ru.md` templates are for a manual reply by the dispatcher.

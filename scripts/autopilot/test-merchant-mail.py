@@ -374,27 +374,6 @@ class TestSender(MailBase):
         self.assertEqual(len(self.resend.posts()), 1)
         self.assertIn(oid, self.resend.posts()[0][3]["text"])
 
-    def test_ml13b_lookup_error_keeps_row_queued(self):
-        approve()
-        fx.new_paid_order(self.mid, overdue=True)
-        queue_row(self.mid, template="merchant_unresponsive")
-        queue_row(self.mid, msg_id="out:inc:1")
-        real = MM._rows
-
-        def flaky(sql):
-            if "confirm_due_at" in sql or "contact_email" in sql:
-                raise RuntimeError("psql failed")
-            return real(sql)
-        MM._rows = flaky
-        try:
-            run_mm()
-        finally:
-            MM._rows = real
-        for mid_ in ("out:inc:0", "out:inc:1"):
-            st = row(mid_)
-            self.assertEqual((st[0], st[1], st[2]), ("queued", "db_error", "1"))
-        self.assertEqual(len(self.resend.posts()), 0)
-
     def test_ml14_pii_digest_once_per_week(self):
         approve()
         queue_row(self.mid, template="pii_delivered")

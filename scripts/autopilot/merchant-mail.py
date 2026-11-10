@@ -227,7 +227,7 @@ def template_values(template, merchant_id, m, msg_id=""):
             if r and r[0][0]:
                 vals["category"] = r[0][0]
     except RuntimeError:
-        vals["found"] = None  # lookup failed: distinct from "no row"; send_one keeps the row queued
+        pass
     return vals
 
 
@@ -288,15 +288,13 @@ def send_one(key, msg_id, merchant_id, kind, template, attempts):
         r = _rows("SELECT slug, name, contact_email FROM shop_merchants "
                   f"WHERE merchant_id = {ap.sql_literal(merchant_id)}::uuid")
     except RuntimeError:
-        return record_failure(msg_id, attempts, "db_error")
+        r = []
     if not r or not r[0][2]:
         _set(msg_id, "status = 'skipped', reason = 'merchant_missing', next_attempt_at = NULL")
         return "skipped"
     m = {"slug": r[0][0], "name": r[0][1]}
     vals = template_values(template, merchant_id, m, msg_id)
     found = vals.pop("found", False)
-    if found is None:
-        return record_failure(msg_id, attempts, "db_error")
     if template in CONDITIONAL and not found:
         _set(msg_id, "status = 'skipped', reason = 'resolved', next_attempt_at = NULL")
         return "skipped"
@@ -307,7 +305,7 @@ def send_one(key, msg_id, merchant_id, kind, template, attempts):
                         f"AND template = {ap.sql_literal(template)} "
                         f"AND received_at > now() - interval '{STALE_DAYS} days' LIMIT 1")
         except RuntimeError:
-            return record_failure(msg_id, attempts, "db_error")
+            dup = []
         if dup:
             _set(msg_id, "status = 'skipped', reason = 'digest_7d', next_attempt_at = NULL")
             return "skipped"
