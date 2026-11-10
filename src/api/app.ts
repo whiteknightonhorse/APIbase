@@ -29,6 +29,7 @@ import { createCheckRouter } from '../shop/routes/check.router';
 import { createModerationInternalRouter } from '../shop/routes/moderation-internal.router';
 import { executeRouter } from '../routes/execute.router';
 import { createReceiptRouter } from '../routes/receipt.router';
+import { createDisputePageRouter } from '../routes/dispute-page.router';
 import { batchRouter } from '../routes/batch.router';
 import { dashboardRouter } from '../routes/dashboard.router';
 import { incidentsRouter } from '../routes/incidents.router';
@@ -79,6 +80,8 @@ export function createApp(): express.Express {
   app.use(apiEntryRouter);
 
   // --- Public immutable call receipts: GET /r/<id>.json (A-GA-01, own rate limit) ---
+  // A-GD-02: /dispute/ and the /r/<id> page; bare ids only, `.json` falls through to the receipt router.
+  app.use(createDisputePageRouter());
   app.use(createReceiptRouter());
 
   // --- Public legal documents (GET only, own rate limit) ---

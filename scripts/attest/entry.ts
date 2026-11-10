@@ -285,6 +285,7 @@ async function main(): Promise<void> {
       );
     return;
   }
+  ($('dispute-link') as HTMLAnchorElement).href = `/dispute/?r=${receiptId}`;
   void showReceipt(receiptId);
   void loadAttestations(receiptId);
 

@@ -334,6 +334,8 @@ describe('/mcp idempotency key (T-0526)', () => {
     const m = r._meta as Record<string, unknown>;
     expect(m['apibase/charged']).toBe(false);
     expect(String(m['apibase/receipt_url'])).toContain('rcpt_orig');
+    // A-GD-02: dispute_url sits next to receipt_url, for the same receipt id.
+    expect(String(m['apibase/dispute_url'])).toBe('https://apibase.pro/dispute/?r=rcpt_orig');
   });
 
   it('charged call adds no charged key', async () => {

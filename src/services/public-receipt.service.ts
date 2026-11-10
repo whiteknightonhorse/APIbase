@@ -16,6 +16,9 @@ export const RECEIPT_SCHEMA = 'apibase-receipt/1';
 /** MCP tool-result `_meta` key carrying the receipt URL. */
 export const MCP_RECEIPT_URL_META_KEY = 'apibase/receipt_url';
 export const RECEIPT_BASE_URL = 'https://apibase.pro/r/';
+/** A-GD-02: MCP tool-result `_meta` key carrying the dispute page URL of the receipt. */
+export const MCP_DISPUTE_URL_META_KEY = 'apibase/dispute_url';
+export const DISPUTE_BASE_URL = 'https://apibase.pro/dispute/?r=';
 /** T-0554: MCP tool-result `_meta` key carrying the signed-retrieve URL. */
 export const MCP_RETRIEVE_URL_META_KEY = 'apibase/retrieve_url';
 const RETRIEVE_BASE_URL = 'https://apibase.pro/x402/retrieve/';
@@ -138,6 +141,10 @@ export function refundUrl(receiptId: string): string {
 
 function retrieveUrl(receiptId: string): string {
   return `${RETRIEVE_BASE_URL}${receiptId}`;
+}
+
+export function disputeUrl(receiptId: string): string {
+  return `${DISPUTE_BASE_URL}${receiptId}`;
 }
 
 export function receiptUrl(receiptId: string): string {

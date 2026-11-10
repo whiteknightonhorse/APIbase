@@ -11,24 +11,42 @@ export interface FeeQuote {
   distribution: unknown;
 }
 
-/** The receipt id goes in as a plain string argument, the same shape for the estimate and the write. */
-export async function quote(client: WriteClient, receiptId: string): Promise<FeeQuote> {
+/** A-GD-02: any contract call, the same shape for the estimate and the write (plain string arguments). */
+export async function quoteCall(
+  client: WriteClient,
+  address: string,
+  functionName: string,
+  args: string[],
+): Promise<FeeQuote> {
   const est = await client.estimateTransactionFeesForWrite({
-    address: CONTRACT_ADDRESS,
-    functionName: 'attest',
-    args: [receiptId],
+    address,
+    functionName,
+    args,
     value: 0n,
   });
   return { feeValue: est.feeValue, distribution: est.distribution };
 }
 
-export async function send(client: WriteClient, receiptId: string, q: FeeQuote): Promise<string> {
+export async function sendCall(
+  client: WriteClient,
+  address: string,
+  functionName: string,
+  args: string[],
+  q: FeeQuote,
+): Promise<string> {
   const hash = await client.writeContract({
-    address: CONTRACT_ADDRESS,
-    functionName: 'attest',
-    args: [receiptId],
+    address,
+    functionName,
+    args,
     value: 0n,
     fees: { distribution: q.distribution, feeValue: q.feeValue },
   });
   return String(hash);
 }
+
+/** The receipt id goes in as a plain string argument, the same shape for the estimate and the write. */
+export const quote = (client: WriteClient, receiptId: string): Promise<FeeQuote> =>
+  quoteCall(client, CONTRACT_ADDRESS, 'attest', [receiptId]);
+
+export const send = (client: WriteClient, receiptId: string, q: FeeQuote): Promise<string> =>
+  sendCall(client, CONTRACT_ADDRESS, 'attest', [receiptId], q);

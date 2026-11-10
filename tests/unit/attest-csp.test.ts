@@ -21,10 +21,11 @@ const siteCsp = directives(cspLines.length > 0 ? cspLines[0][1] : '');
 const attestCsp = directives(attestMatch ? attestMatch[1] : '');
 
 describe('host nginx CSP (T-0510z)', () => {
-  it('has exactly one site-wide CSP and one /attest/ CSP', () => {
+  it('has exactly one site-wide CSP, one /attest/ CSP and one /dispute/ CSP (A-GD-02)', () => {
     expect(attestStart).toBeGreaterThan(0);
     expect(attestMatch).not.toBeNull();
-    expect(cspLines).toHaveLength(2);
+    expect(cspLines).toHaveLength(3);
+    expect(cspLines[2][1]).toBe(cspLines[1][1]);
   });
 
   it('site-wide CSP is unchanged', () => {

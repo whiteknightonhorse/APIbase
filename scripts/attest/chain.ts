@@ -7,7 +7,7 @@ import { createClient } from 'genlayer-js';
 import { testnetBradbury as presetBradbury } from 'genlayer-js/chains';
 import { bradburyChain } from '../../src/genlayer/gen-chain';
 import { genCall, withTimeout, type GenReadClient } from '../../src/genlayer/gen-call';
-import { quote, send, type FeeQuote, type WriteClient } from './write';
+import { quote, quoteCall, send, sendCall, type FeeQuote, type WriteClient } from './write';
 import { CHAIN_ID, CONTRACT_ADDRESS, EXPLORER_BASE, RPC_TIMEOUT_MS, RPC_URL } from './attest-view';
 
 interface EthProvider {
@@ -93,4 +93,41 @@ export function quoteAttest(account: Hex, receiptId: string): Promise<FeeQuote> 
 /** Send `attest(receipt_id)` with the quoted fee; genlayer-js hands the transaction to the browser wallet. */
 export function sendAttest(account: Hex, receiptId: string, q: FeeQuote): Promise<string> {
   return send(writeClient(account, injected()), receiptId, q);
+}
+
+// A-GD-02: the same read helper, wallet connection and fee procedure for the dispute contracts.
+export function readViewAt(
+  address: string,
+  functionName: string,
+  args: unknown[] = [],
+): Promise<unknown> {
+  return genCall(
+    readClient as unknown as GenReadClient,
+    address,
+    functionName,
+    args,
+    RPC_TIMEOUT_MS,
+  );
+}
+
+export function quoteFn(
+  account: Hex,
+  address: string,
+  fn: string,
+  args: string[],
+): Promise<FeeQuote> {
+  return withTimeout(
+    quoteCall(writeClient(account, injected()), address, fn, args),
+    RPC_TIMEOUT_MS,
+  );
+}
+
+export function sendFn(
+  account: Hex,
+  address: string,
+  fn: string,
+  args: string[],
+  q: FeeQuote,
+): Promise<string> {
+  return sendCall(writeClient(account, injected()), address, fn, args, q);
 }

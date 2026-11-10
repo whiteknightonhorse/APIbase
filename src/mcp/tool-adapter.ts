@@ -14,6 +14,7 @@ import { toolSchemas } from '../schemas/index';
 import { createPipelineContext } from '../pipeline/types';
 import { runPipeline } from '../pipeline/pipeline';
 import {
+  MCP_DISPUTE_URL_META_KEY,
   MCP_RECEIPT_URL_META_KEY,
   MCP_RETRIEVE_URL_META_KEY,
   planReceipt,
@@ -21,7 +22,7 @@ import {
   x402SettleStatus,
 } from '../services/public-receipt.service';
 import { NO_RECEIPT, recordDedupAfterCharge } from '../services/cache.service';
-import { receiptUrl } from '../services/public-receipt.service';
+import { disputeUrl, receiptUrl } from '../services/public-receipt.service';
 import { getDefinitionSha256 } from './tool-fingerprint';
 import { servedToolDefinitions } from './served-tools';
 import { X_PAYMENT, X_IDEMPOTENCY_KEY } from '../config/http-headers';
@@ -201,6 +202,7 @@ export function registerTools(
             ...(publicReceipt
               ? {
                   [MCP_RECEIPT_URL_META_KEY]: publicReceipt.url,
+                  [MCP_DISPUTE_URL_META_KEY]: disputeUrl(publicReceipt.receiptId),
                   [MCP_RETRIEVE_URL_META_KEY]: publicReceipt.retrieveUrl,
                 }
               : {}),
@@ -208,7 +210,10 @@ export function registerTools(
               ? {
                   [MCP_CHARGED_META_KEY]: false,
                   ...(dedup.receiptId !== NO_RECEIPT
-                    ? { [MCP_RECEIPT_URL_META_KEY]: receiptUrl(dedup.receiptId) }
+                    ? {
+                        [MCP_RECEIPT_URL_META_KEY]: receiptUrl(dedup.receiptId),
+                        [MCP_DISPUTE_URL_META_KEY]: disputeUrl(dedup.receiptId),
+                      }
                     : {}),
                 }
               : {}),
