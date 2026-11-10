@@ -338,6 +338,24 @@ describe('/mcp idempotency key (T-0526)', () => {
     expect(String(m['apibase/dispute_url'])).toBe('https://apibase.pro/dispute/?r=rcpt_orig');
   });
 
+  it('primary paid path -> _meta carries receipt_url and dispute_url for the same id', async () => {
+    const svc = jest.requireActual('../../src/services/public-receipt.service');
+    const spy = jest.spyOn(svc, 'planReceipt').mockResolvedValue({
+      receiptId: 'rcpt_new',
+      url: 'https://apibase.pro/r/rcpt_new.json',
+      retrieveUrl: 'https://apibase.pro/r/rcpt_new.json',
+    } as never);
+    try {
+      mockRun.mockResolvedValue({ ok: true, value: { responseBody: { a: 1 } } });
+      const r = await call();
+      const m = r._meta as Record<string, unknown>;
+      expect(m['apibase/receipt_url']).toBe('https://apibase.pro/r/rcpt_new.json');
+      expect(m['apibase/dispute_url']).toBe('https://apibase.pro/dispute/?r=rcpt_new');
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
   it('charged call adds no charged key', async () => {
     mockRun.mockResolvedValue({ ok: true, value: { responseBody: { a: 1 } } });
     const r = await call();

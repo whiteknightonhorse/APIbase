@@ -278,8 +278,12 @@ ${walletBlock('payment', tx)}`,
 
 export function renderReceiptPage(id: string, body: string): string {
   let rows: Array<[string, string]> = [];
+  let noReceiptHref = '/dispute/';
   try {
     const doc = JSON.parse(body) as Record<string, unknown>;
+    if (typeof doc.payment_tx === 'string' && /^0x[0-9a-fA-F]{64}$/.test(doc.payment_tx)) {
+      noReceiptHref = `/dispute/?tx=${doc.payment_tx}`;
+    }
     rows = Object.keys(doc)
       .sort()
       .map((k) => [k, typeof doc[k] === 'string' ? (doc[k] as string) : JSON.stringify(doc[k])]);
@@ -295,7 +299,7 @@ export function renderReceiptPage(id: string, body: string): string {
 ${pairs(rows)}
 <p><a href="/r/${esc(id)}.json">Receipt JSON</a> (immutable) · <a href="/r/${esc(id)}.refund.json">Refund state</a> · <a href="/attest/?r=${esc(id)}">Attest on GenLayer</a></p>
 <p><a class="btn" href="/dispute/?r=${esc(id)}">Dispute this receipt</a></p>
-<p>Paid but got no receipt? <a href="/dispute/">Paid but no receipt?</a></p>`,
+<p>Paid for a call that has no receipt? <a href="${esc(noReceiptHref)}">Dispute the payment transaction</a>.</p>`,
   });
 }
 
