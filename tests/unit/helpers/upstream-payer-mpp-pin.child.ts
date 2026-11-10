@@ -115,8 +115,8 @@ async function main(): Promise<void> {
   };
 
   // (c) a 402 without a Payment challenge (x402 only) makes the real signMpp throw, never sign.
-  // The root `Challenge.fromHeadersList` throws on it (0.15.0 and 0.17.x alike); a Payment
-  // challenge with another id reaches the repo's own `mpp challenge vanished`.
+  // The root `Challenge.fromHeadersList` throws on it; signMpp reports that, and a Payment
+  // challenge with another id, as the repo's own `mpp challenge vanished`.
   const x402Only = new Headers({
     'payment-required': Buffer.from('{"x402Version":2,"accepts":[]}').toString('base64'),
     'www-authenticate': 'Bearer realm="upstream"',
@@ -127,9 +127,12 @@ async function main(): Promise<void> {
   } catch (err) {
     parseX402Only = err instanceof Error ? err.message : String(err);
   }
-  const c: { parseX402Only: string; signX402Only?: string; signOtherId?: string } = {
-    parseX402Only,
-  };
+  const c: {
+    parseX402Only: string;
+    signX402Only?: string;
+    signX402OnlyCause?: string;
+    signOtherId?: string;
+  } = { parseX402Only };
   if (!root) {
     const dir = mkdtempSync(join(tmpdir(), 't0704-rec-'));
     const rec = join(dir, 'server-wallets.json');
@@ -147,15 +150,20 @@ async function main(): Promise<void> {
     process.env.REFUND_WALLET_RECORD = rec;
     process.env.UPSTREAM_PAYER_KEY_TEMPO = PAYER_KEY;
     const { realPayerPort } = await import('../../../src/payments/upstream-payer');
+    let lastCause: string | undefined;
     const attempt = async (h: Headers): Promise<string> => {
+      lastCause = undefined;
       try {
         await realPayerPort.signMpp(h, String(ch.id), policy);
         return 'no throw';
       } catch (err) {
+        const cause = err instanceof Error ? err.cause : undefined;
+        if (cause !== undefined) lastCause = cause instanceof Error ? cause.message : String(cause);
         return err instanceof Error ? err.message : String(err);
       }
     };
     c.signX402Only = await attempt(x402Only);
+    c.signX402OnlyCause = lastCause;
     c.signOtherId = await attempt(
       new Headers({ 'www-authenticate': www.replace(/\bid="[^"]+"/, 'id="another-challenge"') }),
     );
