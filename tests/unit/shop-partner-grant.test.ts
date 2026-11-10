@@ -416,6 +416,35 @@ dbDescribe('T-0740 partner grants', () => {
       expect(kh.key_hash).toBe(hashApiKey(first.grant.key));
     });
 
+    it('T-0764: a grant that binds a handoff sets wallet_match; a registered handoff keeps its value', async () => {
+      const other = privateKeyToAccount(generatePrivateKey()).address;
+      const m1 = await merchant();
+      const equal = await handoff({ mode: 'grant', expected_wallet: m1.acct.address });
+      expect((await grant(m1.acct, equal)).status).toBe(201);
+      expect(await readHandoff(equal)).toMatchObject({ state: 'granted', wallet_match: true });
+      const m2 = await merchant();
+      const differ = await handoff({ mode: 'grant', expected_wallet: other });
+      expect((await grant(m2.acct, differ)).status).toBe(201);
+      const d = await readHandoff(differ);
+      expect(d).toMatchObject({ state: 'granted', wallet_match: false });
+      expect(d.registered_at).toBeUndefined();
+      const m3 = await merchant();
+      const none = await handoff({ mode: 'grant' });
+      expect((await grant(m3.acct, none)).status).toBe(201);
+      expect(await readHandoff(none)).toMatchObject({ wallet_match: true });
+      const m4 = await merchant();
+      const reg = await handoff({ grant_requested: true, expected_wallet: m4.acct.address });
+      await x(
+        `UPDATE shop_partner_handoffs SET state = 'registered', merchant_id = $2::uuid, slug = $3,
+                wallet_match = false, registered_at = now() WHERE handoff_id = $1::uuid`,
+        reg,
+        m4.id,
+        m4.slug,
+      );
+      expect((await grant(m4.acct, reg)).status).toBe(201);
+      expect(await readHandoff(reg)).toMatchObject({ state: 'granted', wallet_match: false });
+    });
+
     it('a handoff without a grant says none; a handoff bound to another merchant is not taken', async () => {
       const h0 = await handoff();
       expect((await readHandoff(h0)).grant).toEqual({ state: 'none' });

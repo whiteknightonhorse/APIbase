@@ -166,7 +166,7 @@ describe('integrator pages', () => {
     }
   });
 
-  it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 80 lines (T-0377: 3-step flow)', async () => {
+  it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 110 lines (T-0377: 3-step flow; T-0764 done page return)', async () => {
     const { text: raw } = await get('/integrator/connect');
     const text = stripMeta(raw);
     expect(text).toContain('<input type="checkbox"');
@@ -177,7 +177,7 @@ describe('integrator pages', () => {
     expect(text).not.toMatch(/<script[^>]*\ssrc=/i);
     const js = [...text.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1].trim());
     expect(js).toHaveLength(1);
-    expect(js[0].split('\n').length).toBeLessThanOrEqual(80);
+    expect(js[0].split('\n').length).toBeLessThanOrEqual(110);
     expect(text).toContain('<option>digital-goods</option>');
     expect(text).toContain('agent-guide');
   });

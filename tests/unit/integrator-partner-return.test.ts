@@ -35,7 +35,7 @@ describe('partner return', () => {
       expect(h).toBe(plain);
       expect(h).not.toContain('evil');
     }
-    expect(plain).not.toContain('Continue on');
+    expect(plain).not.toContain('id="pt"');
     expect(plain).not.toContain('{{PARTNER}}');
   });
   it('keeps Vary and noindex', async () => {

@@ -154,7 +154,8 @@ export async function createGrant(d: WebhookDeps, body: unknown): Promise<GrantR
         await tx.$executeRawUnsafe(
           `UPDATE shop_partner_handoffs
               SET merchant_id = $3::uuid, slug = $4, grant_id = $5::uuid, grant_key_enc = $6,
-                  grant_webhook_secret_enc = $7, state = 'granted', prefill = NULL
+                  grant_webhook_secret_enc = $7, state = 'granted', prefill = NULL,
+                  wallet_match = COALESCE(wallet_match, expected_wallet IS NULL OR expected_wallet = $8)
             WHERE handoff_id = $1::uuid AND partner_id = $2 AND expires_at > now()
               AND grant_id IS NULL AND (merchant_id IS NULL OR merchant_id = $3::uuid)`,
           hid,
@@ -164,6 +165,7 @@ export async function createGrant(d: WebhookDeps, body: unknown): Promise<GrantR
           grant.grant_id,
           enc(key),
           enc(secret),
+          wallet.toLowerCase(),
         );
       }
       return {
