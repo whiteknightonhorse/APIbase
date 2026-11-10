@@ -107,14 +107,16 @@ are described under Batch lane. The ledger never holds the key, prompt text or a
 
 ## overflow plug-in: ~/taskloop/taskloop.sh:claude_print
 
-`claude_print` is the single function that runs `claude --print` in the tick (executor, review, dispute and repair calls) apart from the
-auth-preflight ping (`auth_preflight_gate`, haiku, only on EXPIRED or an hour-old UNKNOWN), which `taskloop.sh` guards with the same assertion
-just before the gate; the per-model counter
+Every headless `claude --print` call passes the shared guard `~/taskloop/lib/api-key-guard.sh`: the wrapper `~/bin/claude` (any `--print` or `-p` call, rc 78 on refusal or
+when the helper is missing) and the direct sites (`fable-arbiter.sh`, `auth-preflight.sh`, the night-orchestra run/review/supervisor calls, `layer3_review.py`, `email-intake.py`).
+Only the `api-call` child carries the key (`API_CALL_CHILD=1`). In the tick, `claude_print` runs the executor, review, dispute and repair calls and the preflight ping
+(`auth_preflight_gate`, haiku, only on EXPIRED or an hour-old UNKNOWN) runs through the same gate; the per-model counter
 `state/passes-<date>.<label>` is written by `count_model_call` right after it. The logic lives in `scripts/api-credits/overflow.sh`,
 sourced by `taskloop.sh`.
 
-- Key-unset assertion: before every `claude --print` of the tick (the preflight ping and `claude_print`), `taskloop.sh` checks `ANTHROPIC_API_KEY` is unset. If it is set, no claude
-  call is made, tick.log gets `API key present in OAuth path — tick aborted` and the tick exits.
+- Key-unset assertion: before every headless call, `api_key_guard` (one definition, `lib/api-key-guard.sh`, sourced by `overflow.sh`) checks that `ANTHROPIC_API_KEY` and
+  `ANTHROPIC_AUTH_TOKEN` are unset (or `API_CALL_CHILD=1`). If one is set, no claude call is made, `logs/api-key-guard.log` gets one line with the variable name (never the value),
+  Telegram is told at most once per hour, and the site aborts (the tick logs `API key present in OAuth path — tick aborted` and exits). `tests/api-key-guard-coverage.test.sh` fails on any `claude --print` site without the guard.
 - Fable acceptance overflow: right after the acceptance review call, when the answer is a limit hit (no verdict, at most 5 non-empty lines, matching `hit your session limit` or
   `weekly limit`; a full review that merely mentions the phrase is never overflowed), `api_overflow_run` re-runs the identical prompt once per card through
   `api-call --lane overflow --model claude-fable-5-1 --max-turns 1`. On success the answer is the acceptance answer and
