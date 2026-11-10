@@ -7,11 +7,10 @@
  *  (b) tempo.charge with the payer's policy signs it; the credential starts with the same scheme
  *      and prefix as on mppx 0.15.0 ("Payment eyJjaGFsbGVuZ2UiOnsiZXhw"), echoes the id and
  *      carries a `transaction` payload;
- *  (c) a 402 without a Payment challenge never yields a credential: signMpp throws
- *      "mpp challenge vanished" both when no Payment challenge is present (the root parser's own
- *      "No Payment schemes found." is caught and kept as the cause) and when a Payment challenge
- *      carries another id. The 0.17.0 client change ("no longer throws on a 402 without a Payment
- *      challenge") is in the mppx fetch wrapper, which this repo does not use.
+ *  (c) a 402 without a Payment challenge never yields a credential: the root parser throws
+ *      "No Payment schemes found." (same text on 0.15.0), and a Payment challenge with another id
+ *      gives the repo's "mpp challenge vanished". The 0.17.0 client change ("no longer throws on a
+ *      402 without a Payment challenge") is in the mppx fetch wrapper, which this repo does not use.
  */
 import { execFileSync } from 'child_process';
 import { readdirSync, readFileSync, statSync } from 'fs';
@@ -33,12 +32,7 @@ interface ChildResult {
   version: string;
   a: { count: number; id: string; realm: string; method: string; intent: string; request: unknown };
   b: { scheme: string; prefix: string; echoedId: string; payloadType: string; source: string };
-  c: {
-    parseX402Only: string;
-    signX402Only?: string;
-    signX402OnlyCause?: string;
-    signOtherId?: string;
-  };
+  c: { parseX402Only: string; signX402Only?: string; signOtherId?: string };
 }
 
 let r: ChildResult;
@@ -83,10 +77,8 @@ describe('T-0704 T7: upstream payer on the installed mppx', () => {
   });
 
   it('(c) a 402 without a Payment challenge never yields a credential', () => {
-    // mppx's own parser refuses it; signMpp turns that into the repo's one refusal.
     expect(r.c.parseX402Only).toBe('No Payment schemes found.');
-    expect(r.c.signX402Only).toBe('mpp challenge vanished');
-    expect(r.c.signX402OnlyCause).toBe('No Payment schemes found.');
+    expect(r.c.signX402Only).toBe('No Payment schemes found.');
     expect(r.c.signOtherId).toBe('mpp challenge vanished');
   });
 

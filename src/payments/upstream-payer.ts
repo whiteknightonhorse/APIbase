@@ -381,16 +381,7 @@ export const realPayerPort: PayerPort = {
     const account = payerAccount('mpp');
     const { Challenge } = await import('mppx');
     const { tempo } = await import('mppx/client');
-    // The root parser throws ("No Payment schemes found.") when the 402 carries no Payment
-    // challenge at all; that is the same refusal as a missing id, so both end in one error that
-    // does not depend on mppx's wording (T-0704 T7c). Nothing is signed in either case.
-    let challenges: ReturnType<typeof Challenge.fromHeadersList>;
-    try {
-      challenges = Challenge.fromHeadersList(headers);
-    } catch (cause) {
-      throw new Error('mpp challenge vanished', { cause });
-    }
-    const challenge = challenges.find((c) => c.id === challengeId);
+    const challenge = Challenge.fromHeadersList(headers).find((c) => c.id === challengeId);
     if (!challenge) throw new Error('mpp challenge vanished');
     // mppx enforces the same policy again (chain, currency, recipients incl. splits, max amount).
     const method = tempo.charge({
