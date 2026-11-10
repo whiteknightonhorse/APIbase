@@ -148,3 +148,5 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	##
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	grant_key_not_allowed	-	T-0740
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	### Partner mode	-	T-0747
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	grant_missing	-	T-0747
+static/partners.html	https://apibase.pro/partners	must-contain	Open for endpoints that answer x402 on Base	-	T-0655
+static/partners.html	https://apibase.pro/partners	must-not-contain	not yet open	-	T-0655
