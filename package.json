@@ -36,7 +36,7 @@
     "fast-json-stable-stringify": "^2.1.0",
     "ioredis": "^5.4.2",
     "mmdb-lib": "3.0.4",
-    "mppx": "^0.15.0",
+    "mppx": "^0.17.1",
     "mppx-legacy": "npm:mppx@0.8.2",
     "node-cron": "^3.0.3",
     "pg": "^8.23.1",

@@ -45,7 +45,7 @@ describe('mppx lane separation (T-0426)', () => {
   it('package.json pins the alias to the exact 0.8.2', () => {
     const pkg = JSON.parse(read('package.json'));
     expect(pkg.dependencies['mppx-legacy']).toBe('npm:mppx@0.8.2');
-    expect(pkg.dependencies['mppx']).toMatch(/^\^0\.15\./);
+    expect(pkg.dependencies['mppx']).toMatch(/^\^0\.17\./);
   });
 });
 

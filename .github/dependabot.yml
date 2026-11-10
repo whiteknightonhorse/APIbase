@@ -34,7 +34,7 @@ updates:
       # Remove when a tsx release passes that test (T-0518, T-0519).
       - dependency-name: "tsx"
         versions: [">=4.22.0"]
-      # zod 4 migration is not planned; T-0517 measured 60 tsc errors in 8 files (T-0519).
+      # zod is 4.6.x since T-0603; a zod major (5) goes through a card (T-0704, 2026-11-10).
       - dependency-name: "zod"
         update-types: ["version-update:semver-major"]
       # prisma 7 is a migration, not a bump; checks fail on #394 (T-0519).
@@ -51,9 +51,6 @@ updates:
       # they go through a money card (T-0566, T-0704). Patches still flow (T-0703, 2026-11-04).
       - dependency-name: "mppx"
         update-types: ["version-update:semver-minor"]
-      # viem >= 2.57.16 declares peerOptional mppx >= 0.17 (TESTER-CI-1104). Remove this entry in T-0704.
-      - dependency-name: "viem"
-        versions: [">=2.57.16"]
       # jsdom >= 30 requires Node >= 22 (engines); CI (test.yml:62) and the image (Dockerfile:1) are on Node 20.
       # Dev-only, one consumer: tests/unit/dashboard-m-fields.test.ts. Remove with the Node >= 22 image card (T-0749, 2026-11-10).
       - dependency-name: "jsdom"
