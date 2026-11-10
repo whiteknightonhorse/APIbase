@@ -374,6 +374,38 @@ class TestSender(MailBase):
         self.assertEqual(len(self.resend.posts()), 1)
         self.assertIn(oid, self.resend.posts()[0][3]["text"])
 
+    def _lookup_fails(self, marker, template, setup=None):
+        """One queued row while every _rows SQL containing `marker` raises; the row must stay queued."""
+        approve()
+        if setup:
+            setup()
+        queue_row(self.mid, template=template)
+        real = MM._rows
+
+        def flaky(sql):
+            if marker in sql:
+                raise RuntimeError("lookup failed")
+            return real(sql)
+        MM._rows = flaky
+        try:
+            run_mm()
+        finally:
+            MM._rows = real
+        st = row()
+        self.assertEqual((st[0], st[1], st[2]), ("queued", "db_error", "1"))
+        self.assertEqual(len(self.resend.posts()), 0)
+
+    def test_ml13b_merchant_lookup_error_keeps_row_queued(self):
+        self._lookup_fails("contact_email", "webhook_failed")
+
+    def test_ml13c_condition_lookup_error_keeps_row_queued(self):
+        # merchant lookup works; only the confirm_due_at SELECT raises (must not become skipped/resolved)
+        self._lookup_fails("confirm_due_at", "merchant_unresponsive",
+                           setup=lambda: fx.new_paid_order(self.mid, overdue=True))
+
+    def test_ml13d_digest_lookup_error_keeps_row_queued(self):
+        self._lookup_fails("status = 'sent'", "pii_delivered")
+
     def test_ml14_pii_digest_once_per_week(self):
         approve()
         queue_row(self.mid, template="pii_delivered")
