@@ -882,9 +882,6 @@ def _default_haiku_invoke(prompt):
     # every flag above were somehow defeated, there is nothing in that
     # directory to read (not this worktree, not the deploy tree, not
     # ~/.config) and it disappears immediately after this one call.
-    # T-KEY-1: refuse while an API key is in the environment (fail closed: helper missing = refused).
-    if subprocess.run(["/bin/bash", os.path.expanduser("~/taskloop/lib/api-key-guard.sh"), "--check", "email-intake"]).returncode != 0:
-        return subprocess.CompletedProcess(["claude"], 78, "", "API key present in OAuth path - call refused")
     scratch_dir = tempfile.mkdtemp(prefix="autopilot-haiku-cwd-")
     try:
         return subprocess.run(

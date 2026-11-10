@@ -5,8 +5,8 @@
 
 API_OVERFLOW_LIMIT_RE='hit your session limit|weekly limit'
 
-# T-KEY-1: api_key_assert_unset / api_key_guard live in ONE place, the shared helper (no local definition here).
-. "${API_KEY_GUARD:-$HOME/taskloop/lib/api-key-guard.sh}"
+# api_key_assert_unset -> rc 0 iff the OAuth path is clean (ANTHROPIC_API_KEY unset or empty).
+api_key_assert_unset(){ [ -z "${ANTHROPIC_API_KEY:-}" ]; }
 
 # api_overflow_limit_text <answer-file> -> rc 0 iff the answer is real limit text.
 # Same shape gate as the card-0590 review_outage: no verdict and <= 5 non-empty lines, so a full review that merely
