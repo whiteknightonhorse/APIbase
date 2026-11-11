@@ -34,7 +34,7 @@ A quote is a price snapshot with a stock hold, valid for a stated number of minu
 
 ## Buy step by step (REST)
 
-1. `POST /api/v1/shop/quotes` with `{merchant, items}` and no key. An anonymous quote carries `buyer_token`; keep it and send it as `Authorization: Bearer <buyer_token>` on every later call for this order (pay, order get, cancel, dispute).
+1. `POST /api/v1/shop/quotes` with `{merchant, items}` and no key. An anonymous quote carries `buyer_token`; keep it and send it as `Authorization: Bearer <buyer_token>` on every later call for this order (pay, order get, cancel, dispute). If you lose the buyer_token, the paying wallet can still read the order (see [/integrator/docs#orders](/integrator/docs#orders)).
 2. `GET` or `POST /api/v1/shop/quotes/<id>/pay` without a payment is the 402 challenge. Check that `accepts[0].payTo` equals the shop's payout wallet and `amount` equals the quote.
 3. `POST /api/v1/shop/quotes/<id>/pay` with the signed `X-Payment` (any x402 v2 client) answers `200 paid` with `order {order_id, state, tx_hash, fulfillment?}`, or `202 payment_pending`. Both carry `order_url`, the absolute URL of the order; without `order.fulfillment` they also carry `next`: the delivery is in the order, not in this reply (GET `order_url` with the Bearer of step 1 until `FULFILLED`).
 4. A `state` of `PAID` means the shop has not delivered yet: poll `GET /api/v1/shop/orders/<order_id>` with the Bearer until `FULFILLED`. `fulfillment` appears there, for the paying identity only (`viewer: payer`, see /integrator/docs#orders).

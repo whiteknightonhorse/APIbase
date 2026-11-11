@@ -1,9 +1,16 @@
 import { Router, type Request, type Response } from 'express';
-import { randomUUID } from 'node:crypto';
-import { X_IDEMPOTENCY_KEY } from '../../config/http-headers';
+import { createHash, randomUUID } from 'node:crypto';
+import { X_IDEMPOTENCY_KEY, X_PAYER_ADDRESS, X_PAYER_SIGNATURE } from '../../config/http-headers';
 import { idempotencyStage } from '../../pipeline/stages/idempotency.stage';
 import type { PipelineContext } from '../../pipeline/types';
 import { clearIdempotency, finalizeIdempotency } from '../../services/idempotency.service';
+import {
+  defaultVerifier,
+  PAYER_ADDR_RE,
+  PAYER_SIG_RE,
+  signedWithinMinute,
+  type SignatureVerifier,
+} from '../../services/payer-signature';
 import { resolveBuyer } from '../buyer';
 import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycle.service';
 import { resolveX402PaymentHeader } from '../../config/http-headers';
@@ -15,9 +22,45 @@ import { confirmPull } from '../subscription-keychain.service';
 import { preauthorizeSubscription } from '../subscription-preauth.service';
 import { limiter, PROBE_LIMIT_PER_MIN } from './address-limiter';
 
+/** T-0770: what the paying wallet signs to read its order (bound to the order id). */
+export function orderMessage(orderId: string, minute: number): string {
+  return `apibase-order:${orderId}:${minute}`;
+}
+
+/**
+ * T-0770: the identity proven by X-Payer-Address + X-Payer-Signature on GET /orders/:id.
+ * null = neither header present (today's behaviour); 'invalid' = present but not a valid
+ * signature of orderMessage(orderId, current or previous minute) by that address.
+ */
+export async function signedOrderIdentity(
+  addrHeader: unknown,
+  sigHeader: unknown,
+  orderId: string,
+  verify: SignatureVerifier,
+  nowMs: number,
+): Promise<string | null | 'invalid'> {
+  if (addrHeader === undefined && sigHeader === undefined) return null;
+  if (typeof addrHeader !== 'string' || typeof sigHeader !== 'string') return 'invalid';
+  const address = addrHeader.toLowerCase();
+  if (!PAYER_ADDR_RE.test(address) || !PAYER_SIG_RE.test(sigHeader)) return 'invalid';
+  const ok = await signedWithinMinute(
+    verify,
+    address,
+    sigHeader,
+    (m) => orderMessage(orderId, m),
+    nowMs,
+  );
+  return ok ? `wallet:${createHash('sha256').update(address).digest('hex')}` : 'invalid';
+}
+
 /** §6.3 buyer routes (quotes, cancel), mounted at /api/v1/shop/*. Same services as the /mcp tools. */
-export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
+export function createOrderRouter(
+  deps: ShopDeps = defaultShopDeps(),
+  sig: { verify?: SignatureVerifier; now?: () => number } = {},
+): Router {
   const router = Router();
+  const verify = sig.verify ?? defaultVerifier;
+  const now = sig.now ?? Date.now;
   // CodeQL js/missing-rate-limiting (CODEQL-OPEN-ALERTS-1006 rule 2): every route resolves the buyer
   // (DB/auth lookup), so each carries this per-address limiter literally in its own handler chain.
   // Only failed responses count; legitimate traffic is not throttled.
@@ -152,10 +195,31 @@ export function createOrderRouter(deps: ShopDeps = defaultShopDeps()): Router {
   router.post('/api/v1/shop/quotes/:id/pay', probeLimiter, payRoute);
   router.get('/api/v1/shop/quotes/:id/pay', probeLimiter, payRoute);
 
+  // T-0770: read-only; a signature by the paying wallet stands in for a lost buyer_token here only.
   router.get('/api/v1/shop/orders/:id', probeLimiter, async (req: Request, res: Response) => {
+    res.setHeader('Cache-Control', 'no-store');
     try {
-      const buyer = await buyerOf(req);
-      res.json(await getOrderView(deps.db, String(req.params.id), buyer.identity));
+      const orderId = String(req.params.id);
+      const signed = await signedOrderIdentity(
+        req.headers[X_PAYER_ADDRESS],
+        req.headers[X_PAYER_SIGNATURE],
+        orderId,
+        verify,
+        now(),
+      );
+      if (signed === 'invalid') {
+        res.status(401).json({
+          error: 'order_signature_invalid',
+          error_code: 'order_signature_invalid',
+          message:
+            'X-Payer-Address and X-Payer-Signature must both be present: personal_sign of apibase-order:<order_id>:<unix minute> (current or previous minute)',
+          ...(req.requestId ? { request_id: req.requestId } : {}),
+          suggested_action: 'fix_request',
+        });
+        return;
+      }
+      const identity = signed ?? (await buyerOf(req)).identity;
+      res.json(await getOrderView(deps.db, orderId, identity));
     } catch (err) {
       send(res, err);
     }

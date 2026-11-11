@@ -1,8 +1,14 @@
 import { Router, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
-import { verifyMessage } from 'viem';
 import { X_PAYER_ADDRESS, X_PAYER_SIGNATURE } from '../config/http-headers';
 import { logger } from '../config/logger';
+import {
+  defaultVerifier,
+  PAYER_ADDR_RE as ADDR_RE,
+  PAYER_SIG_RE as RETRIEVE_SIG_RE,
+  signedWithinMinute,
+  type SignatureVerifier,
+} from '../services/payer-signature';
 import {
   pgReceiptStore,
   RECEIPT_ID_RE,
@@ -24,9 +30,6 @@ const retrieveLimiter = rateLimit({
   message: { error: 'rate limited' },
 });
 
-const RETRIEVE_SIG_RE = /^0x[0-9a-fA-F]{130}$/;
-const ADDR_RE = /^0x[0-9a-f]{40}$/;
-
 export function retrieveMessage(receiptId: string, minute: number): string {
   return `apibase-retrieve:${receiptId}:${minute}`;
 }
@@ -43,13 +46,7 @@ const redisResultReader: ResultReader = {
   },
 };
 
-export type SignatureVerifier = (a: {
-  address: `0x${string}`;
-  message: string;
-  signature: `0x${string}`;
-}) => Promise<boolean>;
-
-const defaultVerifier: SignatureVerifier = (a) => verifyMessage(a);
+export type { SignatureVerifier };
 
 function header(req: Request, name: string): string | null {
   const v: unknown = req.headers[name];
@@ -112,24 +109,7 @@ export function createX402Router(
         }
         return;
       }
-      const minute = Math.floor(now() / 60_000);
-      let ok = false;
-      for (const m of [minute, minute - 1]) {
-        try {
-          if (
-            await verify({
-              address: payer as `0x${string}`,
-              message: retrieveMessage(id, m),
-              signature: sig as `0x${string}`,
-            })
-          ) {
-            ok = true;
-            break;
-          }
-        } catch {
-          // a malformed signature is simply not valid
-        }
-      }
+      const ok = await signedWithinMinute(verify, payer, sig, (m) => retrieveMessage(id, m), now());
       if (!ok) {
         fail(res, 401, 'retrieve_signature_invalid', 'signature does not match the receipt payer');
         return;

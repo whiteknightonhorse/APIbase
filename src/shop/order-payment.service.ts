@@ -288,7 +288,7 @@ export function isPayer(
 }
 
 const PUBLIC_VIEW_HINT =
-  "send the quote's buyer_token as Authorization: Bearer (REST) or call from the paying identity to read fulfillment, documents and merchant_contact";
+  "send the quote's buyer_token as Authorization: Bearer (REST), call from the paying identity, or sign apibase-order:<order_id>:<unix minute> with the paying wallet (X-Payer-Address, X-Payer-Signature) to read fulfillment, documents and merchant_contact";
 
 interface ViewRow {
   order_id: string;

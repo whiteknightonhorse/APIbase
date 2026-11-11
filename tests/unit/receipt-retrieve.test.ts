@@ -192,6 +192,15 @@ describe('GET /x402/retrieve/:receiptId', () => {
     expect((await r.json()).error).toBe('retrieve_signature_invalid');
   });
 
+  it('T-0770: an order-read signature (apibase-order:...) never opens retrieve -> 401', async () => {
+    const signature = await account.signMessage({ message: `apibase-order:${ID}:${minute}` });
+    const r = await fetch(`${base}/x402/retrieve/${ID}`, {
+      headers: { 'X-Payer-Address': account.address, 'X-Payer-Signature': signature },
+    });
+    expect(r.status).toBe(401);
+    expect((await r.json()).error).toBe('retrieve_signature_invalid');
+  });
+
   it('wrong signer -> 401', async () => {
     const r = await get(other, minute);
     expect(r.status).toBe(401);
