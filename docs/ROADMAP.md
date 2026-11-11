@@ -56,7 +56,7 @@ Last reviewed: 2026-10-26
 - [SHIPPED 2026-10-13 038aff37] Q22 — DOC-2 (internal part): remove hardcoded "13-stage" wording from internal comments and docs (now "14-stage (STAGE_NAMES, src/pipeline/types.ts)")
 - [SHIPPED 2026-09-22 011120ba] Q23 — GH-1: GitHub repo description + topics aligned to canonical positioning
 - [PLANNED] Q24 — SVC-2: internal demand audit of `execution_ledger` (read-only, informs future Services decisions)
-- [PLANNED] Arc settlement rail (planned) — x402 on Arc as a third settlement network next to Base (x402) and Tempo (MPP), testnet in the sandbox first; refunds follow the paying rail; Integrator merchant payouts on Arc after that. Blocked on multi-network support in our code (single `X402_NETWORK`); an Arc-only testnet switch through the self-hosted facilitator is feasible now. No mainnet date.
+- [PLANNED] Q36 — Arc settlement rail (planned): x402 on Arc as a third settlement network next to Base (x402) and Tempo (MPP), testnet in the sandbox first; refunds follow the paying rail; Integrator merchant payouts on Arc after that. Blocked on multi-network support in our code (single `X402_NETWORK`); an Arc-only testnet switch through the self-hosted facilitator is feasible now. No mainnet date.
 
 ## P2
 
