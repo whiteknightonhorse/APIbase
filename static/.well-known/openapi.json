@@ -64221,6 +64221,481 @@
         ]
       }
     },
+    "/api/v1/tools/nasaexoplanet.search/call": {
+      "post": {
+        "operationId": "nasaexoplanet_search",
+        "summary": "Search Exoplanets",
+        "description": "Search NASA Exoplanet Archive for confirmed exoplanets by name, host star, discovery method, year range, radius, or mass. Returns orbital period, radius, mass, equilibrium temperature, discovery year and facility, and system distance. 6,298+ confirmed planets from Transit, Radial Velocity, Imaging, and Microlensing surveys (NASA Exoplanet Archive).",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "planet_name": {
+                    "type": "string",
+                    "description": "Planet name or partial name to search (e.g. \"Kepler-22 b\", \"TOI-700\")"
+                  },
+                  "host_name": {
+                    "type": "string",
+                    "description": "Host star name or partial name (e.g. \"51 Peg\", \"Kepler-442\")"
+                  },
+                  "discovery_method": {
+                    "type": "string",
+                    "enum": [
+                      "Transit",
+                      "Radial Velocity",
+                      "Microlensing",
+                      "Imaging",
+                      "Astrometry",
+                      "Transit Timing Variations",
+                      "Orbital Brightness Modulation",
+                      "Pulsar Timing",
+                      "Pulsation Timing Variations",
+                      "Disk Kinematics",
+                      "Eclipse Timing Variations"
+                    ],
+                    "description": "Discovery method filter (e.g. \"Transit\", \"Radial Velocity\", \"Imaging\")"
+                  },
+                  "disc_year_min": {
+                    "type": "integer",
+                    "minimum": 1988,
+                    "maximum": 2030,
+                    "description": "Minimum discovery year (e.g. 2010 to filter planets found in 2010 or later)"
+                  },
+                  "disc_year_max": {
+                    "type": "integer",
+                    "minimum": 1988,
+                    "maximum": 2030,
+                    "description": "Maximum discovery year (e.g. 2020 to filter planets found before 2021)"
+                  },
+                  "radius_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum planet radius in Earth radii (e.g. 0.5 for sub-Earths and above)"
+                  },
+                  "radius_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum planet radius in Earth radii (e.g. 2.0 for super-Earths; 11 ≈ Jupiter)"
+                  },
+                  "mass_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum planet mass in Earth masses (e.g. 0.1 for sub-Earths)"
+                  },
+                  "mass_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum planet mass in Earth masses (e.g. 318 ≈ 1 Jupiter mass)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of results to return (default 20, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasaexoplanet.planet_detail/call": {
+      "post": {
+        "operationId": "nasaexoplanet_planet_detail",
+        "summary": "Exoplanet Detail",
+        "description": "Get full parameters for a specific exoplanet by exact name from NASA Exoplanet Archive. Returns orbital period, radius, mass, equilibrium temperature, insolation flux, semi-major axis, host star spectral type and temperature, sky coordinates (RA/Dec), and last parameter update date. Example planets: \"HD 209458 b\", \"TRAPPIST-1 e\", \"Kepler-452 b\" (NASA Exoplanet Archive).",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.planet_detail"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "planet_name": {
+                    "type": "string",
+                    "description": "Exact planet name for detail lookup (e.g. \"HD 209458 b\", \"TRAPPIST-1 e\", \"Kepler-452 b\")"
+                  }
+                },
+                "required": [
+                  "planet_name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasaexoplanet.habitable/call": {
+      "post": {
+        "operationId": "nasaexoplanet_habitable",
+        "summary": "Habitable Zone Candidates",
+        "description": "Find potentially habitable exoplanets in the conservative habitable zone — planets with Earth-like radius (0.5–2.0 R⊕) and equilibrium temperature suitable for liquid water (180–310 K). Sorted by radius ascending. Returns radius, mass, orbital period, equilibrium temperature, insolation flux, and host star details. Customisable temperature and radius bounds for optimistic or strict filtering (NASA Exoplanet Archive — pscomppars table).",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.habitable"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "radius_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum planet radius in Earth radii (default 0.5 — filters sub-Earth bodies)"
+                  },
+                  "radius_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum planet radius in Earth radii (default 2.0 — upper limit for rocky planets)"
+                  },
+                  "temp_min": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Minimum equilibrium temperature in Kelvin (default 180 — conservative habitable zone lower bound)"
+                  },
+                  "temp_max": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Maximum equilibrium temperature in Kelvin (default 310 — conservative habitable zone upper bound)"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of candidates to return (default 20, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/nasaexoplanet.stats/call": {
+      "post": {
+        "operationId": "nasaexoplanet_stats",
+        "summary": "Exoplanet Discovery Statistics",
+        "description": "Get discovery statistics for confirmed exoplanets aggregated by method, year, or facility. Group by \"method\" to see Transit vs Radial Velocity vs Imaging counts, \"year\" for annual discovery trends since 1988, or \"facility\" to rank observatories and missions (Kepler, TESS, Keck, etc.) by total discoveries (NASA Exoplanet Archive).",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "nasaexoplanet.stats"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "group_by": {
+                    "type": "string",
+                    "enum": [
+                      "method",
+                      "year",
+                      "facility"
+                    ],
+                    "description": "Dimension to aggregate by: \"method\" (discovery method counts), \"year\" (annual discoveries), or \"facility\" (telescope/observatory counts). Default: method"
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Maximum number of groups to return (default 50, max 100)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/unsdg.goals.list/call": {
       "post": {
         "operationId": "unsdg_goals_list",
