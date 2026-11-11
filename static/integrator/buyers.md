@@ -36,11 +36,78 @@ A quote is a price snapshot with a stock hold, valid for a stated number of minu
 
 1. `POST /api/v1/shop/quotes` with `{merchant, items}` and no key. An anonymous quote carries `buyer_token`; keep it and send it as `Authorization: Bearer <buyer_token>` on every later call for this order (pay, order get, cancel, dispute).
 2. `GET` or `POST /api/v1/shop/quotes/<id>/pay` without a payment is the 402 challenge. Check that `accepts[0].payTo` equals the shop's payout wallet and `amount` equals the quote.
-3. `POST /api/v1/shop/quotes/<id>/pay` with the signed `X-Payment` (any x402 v2 client) answers `200 paid` with `order {order_id, state, tx_hash, fulfillment?}`, or `202 payment_pending`.
+3. `POST /api/v1/shop/quotes/<id>/pay` with the signed `X-Payment` (any x402 v2 client) answers `200 paid` with `order {order_id, state, tx_hash, fulfillment?}`, or `202 payment_pending`. Both carry `order_url`, the absolute URL of the order; without `order.fulfillment` they also carry `next`: the delivery is in the order, not in this reply (GET `order_url` with the Bearer of step 1 until `FULFILLED`).
 4. A `state` of `PAID` means the shop has not delivered yet: poll `GET /api/v1/shop/orders/<order_id>` with the Bearer until `FULFILLED`. `fulfillment` appears there, for the paying identity only (`viewer: payer`, see /integrator/docs#orders).
 5. `fulfillment` is always a string. When it begins with `{"type":"url"` it is the JSON text of `{type, urls[]}`: parse it. The links are the shop's own and may expire or be limited by the shop; APIbase does not add or check limits.
 6. Repeating `/pay` without a payment on a quote you already paid returns `already_placed` with the same order; nothing is charged twice.
 7. `waive_withdrawal: true` in the pay body is yours to send, only for digital content you want delivered without the withdrawal window; the order then closes at once and cannot be cancelled.
+
+The same steps as one runnable script (`scripts/shop/examples/buy-rest.ts`):
+
+```ts
+import { x402Client, x402HTTPClient } from '@x402/core/client';
+import { ExactEvmScheme } from '@x402/evm/exact/client';
+import { privateKeyToAccount } from 'viem/accounts';
+
+// Usage: BUYER_PRIVATE_KEY=0x... npx tsx scripts/shop/examples/buy-rest.ts <merchant-slug> <sku>
+const BASE = process.env.APIBASE_URL ?? 'https://apibase.pro';
+const [slug, sku] = process.argv.slice(2);
+const key = process.env.BUYER_PRIVATE_KEY as `0x${string}`;
+if (!slug || !sku || !key)
+  throw new Error('usage: BUYER_PRIVATE_KEY=0x.. buy-rest.ts <slug> <sku>');
+const json = { 'content-type': 'application/json' };
+
+// 1. Quote. Keep buyer_token: it is the Bearer for every later call on this order.
+const q = await (
+  await fetch(`${BASE}/api/v1/shop/quotes`, {
+    method: 'POST',
+    headers: json,
+    body: JSON.stringify({ merchant: slug, items: [{ sku, qty: 1 }] }),
+  })
+).json();
+const auth = { authorization: `Bearer ${q.buyer_token}` };
+const payUrl = `${BASE}/api/v1/shop/quotes/${q.quote_id}/pay`;
+
+// 2. The 402 probe: payTo and amount must be the quote's.
+const probe = await fetch(payUrl, { method: 'POST', headers: { ...json, ...auth }, body: '{}' });
+const challenge = await probe.json();
+const want = q.pay?.accepts?.[0] ?? q.pay;
+const a = challenge.accepts[0];
+console.log('402 accepts[0]:', { payTo: a.payTo, amount: a.amount });
+if (probe.status !== 402) throw new Error(`expected 402, got ${probe.status}`);
+if (want?.payTo && want.payTo.toLowerCase() !== a.payTo.toLowerCase())
+  throw new Error('payTo differs from the quote');
+if (want?.amount && String(want.amount) !== String(a.amount))
+  throw new Error('amount differs from the quote');
+
+// 3. Signed retry (x402 v2). spendControls caps this client at the quoted amount.
+const usd = Number(a.amount) / 1e6;
+const client = x402Client.fromConfig({
+  schemes: [{ network: a.network, client: new ExactEvmScheme(privateKeyToAccount(key)) }],
+  spendControls: { maxAmountPerPayment: `$${usd}` },
+});
+const payload = await client.createPaymentPayload(challenge);
+const paid = await fetch(payUrl, {
+  method: 'POST',
+  headers: {
+    ...json,
+    ...auth,
+    ...new x402HTTPClient(client).encodePaymentSignatureHeader(payload),
+  },
+  body: '{}',
+});
+const reply = await paid.json();
+console.log(paid.status, reply.status, reply.state);
+
+// 4. The delivery is in the order, not in the reply: GET order_url until FULFILLED.
+let order = reply.order;
+for (let i = 0; i < 60 && order?.state !== 'FULFILLED'; i++) {
+  await new Promise((r) => setTimeout(r, 2000));
+  order = await (await fetch(reply.order_url, { headers: auth })).json();
+}
+if (order?.state !== 'FULFILLED') throw new Error(`not fulfilled: ${order?.state}`);
+console.log('fulfillment:', order.fulfillment);
+```
 
 Errors: see /integrator/agent-guide#error-codes.
 

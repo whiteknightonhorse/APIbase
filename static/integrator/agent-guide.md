@@ -201,7 +201,7 @@ HTTP 402. The signed amount or address differs from the quote. Sign again for ex
 
 ### `payment_pending`
 
-HTTP 202 with `order_id`. The receipt was not seen in time. Do not pay again; poll `GET /api/v1/shop/orders/<order_id>` until the state changes. A job reconciles the chain. (buyer side: /integrator/buyers#buy-step-by-step-rest)
+HTTP 202 with `order_id` and `order_url`. The receipt was not seen in time. Do not pay again; poll `GET /api/v1/shop/orders/<order_id>` until the state changes. A job reconciles the chain. (buyer side: /integrator/buyers#buy-step-by-step-rest)
 
 ### `quote_already_paying`
 

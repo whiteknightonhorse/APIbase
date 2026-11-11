@@ -15,7 +15,9 @@ import type { PipelineContext } from '../pipeline/types';
 export const RECEIPT_SCHEMA = 'apibase-receipt/1';
 /** MCP tool-result `_meta` key carrying the receipt URL. */
 export const MCP_RECEIPT_URL_META_KEY = 'apibase/receipt_url';
-export const RECEIPT_BASE_URL = 'https://apibase.pro/r/';
+/** The public origin every absolute URL we hand out is built on (never the request Host). */
+export const PUBLIC_ORIGIN = 'https://apibase.pro';
+export const RECEIPT_BASE_URL = `${PUBLIC_ORIGIN}/r/`;
 /** A-GD-02: MCP tool-result `_meta` key carrying the dispute page URL of the receipt. */
 export const MCP_DISPUTE_URL_META_KEY = 'apibase/dispute_url';
 export const DISPUTE_BASE_URL = 'https://apibase.pro/dispute/?r=';

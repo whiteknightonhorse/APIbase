@@ -2,7 +2,12 @@ import { buildPaymentRequiredResponse, escrowQuotePayment } from '../pipeline/st
 import type { PipelineContext } from '../pipeline/types';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import { getQuote, type Buyer } from './quote.service';
-import { findPlacedOrder, payResponseBody, type BuyerAgent } from './order-payment.service';
+import {
+  findPlacedOrder,
+  orderUrl,
+  payResponseBody,
+  type BuyerAgent,
+} from './order-payment.service';
 import type { PaymentBinding } from '../pipeline/stages/escrow.stage';
 import { parsePiiEnvelopes, PII_DOCS_URL, PiiRejected } from './pii/envelope.schema';
 import { checkPiiForPay, storeEnvelopes } from './pii/pii.service';
@@ -58,6 +63,7 @@ export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayRespon
           order_id: placed.order_id,
           state: placed.state,
           order: placed,
+          order_url: orderUrl(placed.order_id),
         },
       };
     }

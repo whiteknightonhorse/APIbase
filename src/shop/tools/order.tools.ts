@@ -162,6 +162,8 @@ export function registerOrderTools(
         order_id: z.string(),
         state: z.string(),
         order: z.record(z.string(), z.unknown()).optional(),
+        order_url: z.string().optional(),
+        next: z.string().optional(),
       },
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },

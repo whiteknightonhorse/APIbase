@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { config } from '../config';
+import { PUBLIC_ORIGIN } from '../services/public-receipt.service';
 import { decryptSecret } from '../services/secret-crypto.service';
 import type { ShopDeps } from './merchant-lifecycle.service';
 import type { ShopTx } from './db';
@@ -411,6 +412,23 @@ export async function findPlacedOrder(
   return toView(r, true);
 }
 
+/** Absolute URL of the order, on the public origin (never the request Host). */
+export function orderUrl(orderId: string): string {
+  return `${PUBLIC_ORIGIN}/api/v1/shop/orders/${orderId}`;
+}
+
+/** T-0769: where the delivery is, for a pay reply that does not carry it. */
+export const ORDER_NEXT =
+  'The delivery is in the order, not in this reply: GET order_url with Authorization: Bearer <the buyer_token of your quote> (on /mcp: shop.order.get from the same identity) until state is FULFILLED.';
+
+/** order_url always; `next` only when the body has no order.fulfillment. */
+export function orderPointers(orderId: string, hasFulfillment: boolean): Record<string, string> {
+  return {
+    order_url: orderUrl(orderId),
+    ...(hasFulfillment ? {} : { next: ORDER_NEXT }),
+  };
+}
+
 /** The buyer-facing answer to a payment that got past ESCROW (shared by REST, /mcp and the pipeline). */
 export function payResponseBody(v: {
   order_id: string;
@@ -422,7 +440,12 @@ export function payResponseBody(v: {
   if (v.state === 'PAYING') {
     return {
       status: 202,
-      body: { status: 'payment_pending', order_id: v.order_id, state: v.state },
+      body: {
+        status: 'payment_pending',
+        order_id: v.order_id,
+        state: v.state,
+        ...orderPointers(v.order_id, false),
+      },
     };
   }
   const order: OrderView = {
@@ -438,6 +461,7 @@ export function payResponseBody(v: {
       order_id: v.order_id,
       state: v.state,
       order,
+      ...orderPointers(v.order_id, v.fulfillment !== undefined),
       ...(v.replayed ? { replayed: true } : {}),
     },
   };
