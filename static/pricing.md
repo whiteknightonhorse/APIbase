@@ -16,7 +16,7 @@ Every tool has a fixed, published USD price, set at or above the provider's cost
 | Standard | $0.01 – $0.99 | Most tools — weather, finance, geocoding, entertainment, e-commerce lookups |
 | Premium | $1 and above | Domain registration and two AIpush reports |
 
-<!--tiers-->Micro (1354 of the tools, under $0.01). Standard (25 of the tools, $0.01–$0.99). Premium (3 of the tools, $1 and above: domain registration and two AIpush reports).<!--/tiers-->
+<!--tiers-->Micro (1349 of the tools, under $0.01). Standard (25 of the tools, $0.01–$0.99). Premium (3 of the tools, $1 and above: domain registration and two AIpush reports).<!--/tiers-->
 
 Exact per-tool prices: full JSON catalog at https://apibase.pro/api/v1/tools (filter with `?tier=micro|standard|premium` or `?max_price=N`) or the human-readable catalog page https://apibase.pro/catalog.
 
