@@ -4,11 +4,12 @@ This page is a browser form: three steps, about five minutes, free. Smart-contra
 
 ## Step 1. Your store
 
-Fill in six fields:
+Fill in six fields (Support email is an optional seventh):
 
 - Shop name: shown to buyers and AI agents.
 - Website: your store's address, starting with https://
 - Contact email: never shown to buyers. We write only about your shop.
+- Support email (optional): shown to buyers on their orders.
 - Category: what you mainly sell. Helps agents find you.
 - Country: where your business is registered.
 - Shop address: filled in from your shop name. Lowercase letters, numbers and dashes. Your page will be apibase.pro/m/<address>. If the address is taken, the form says so under the field; pick another one.

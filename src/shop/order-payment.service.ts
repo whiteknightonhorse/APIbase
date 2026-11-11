@@ -44,7 +44,7 @@ export interface OrderView {
   /** T-INT-22: set by `order_ship`; null until a physical order is shipped. */
   tracking?: { carrier: string; number: string; url?: string } | null;
   delivery_eta?: Date | null;
-  merchant_contact?: { email: string; site_url: string };
+  merchant_contact?: { email?: string; site_url: string };
   documents?: Array<{ url: string; at: Date }>;
   refund_policy?: RefundPolicy;
   /** T-INT-21: which buyer-data envelopes are held (kinds + hashes); never the ciphertext. */
@@ -380,11 +380,15 @@ export async function getOrderView(
       order_id,
     );
     if (CONTACT_STATES.includes(r.state)) {
-      const m = await db.$queryRawUnsafe<Array<{ email: string; site_url: string }>>(
-        `SELECT contact_email AS email, site_url FROM shop_merchants WHERE merchant_id = $1::uuid`,
+      // T-0768: the registration e-mail is private (connect form promise); only support_email is shown.
+      const m = await db.$queryRawUnsafe<Array<{ email: string | null; site_url: string }>>(
+        `SELECT support_email AS email, site_url FROM shop_merchants WHERE merchant_id = $1::uuid`,
         r.merchant_id,
       );
-      if (m[0]) view.merchant_contact = m[0];
+      if (m[0]) {
+        view.merchant_contact = { site_url: m[0].site_url };
+        if (m[0].email) view.merchant_contact.email = m[0].email;
+      }
     }
   }
   return view;

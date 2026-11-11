@@ -77,6 +77,7 @@
 <label>Shop name<input name="name" autocomplete="organization" placeholder="Northside Kicks"></label><small class="hint">Shown to buyers and AI agents.</small><small class="err" data-for="name"></small>
 <label>Website<input name="site_url" type="url" inputmode="url" autocomplete="url" placeholder="https://northsidekicks.com"></label><small class="hint">Your store's address, starting with https://</small><small class="err" data-for="site_url"></small>
 <label>Contact email<input name="contact_email" type="email" autocomplete="email" placeholder="you@northsidekicks.com"></label><small class="hint">Never shown to buyers. We write only about your shop.</small><small class="err" data-for="contact_email"></small>
+<label>Support email (optional)<input name="support_email" type="email"></label><small class="hint">Shown to buyers on their orders.</small><small class="err" data-for="support_email"></small>
 <div class="cn-row">
 <div><label>Category<select name="category">{{CATEGORY_OPTIONS}}</select></label><small class="hint">What you mainly sell. Helps agents find you.</small></div>
 <div><label>Country<select name="country" id="country"></select></label><small class="hint">Where your business is registered.</small><small class="err" data-for="country"></small></div>
@@ -137,11 +138,11 @@ const CC = 'AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO BR
 const dn = window.Intl && Intl.DisplayNames ? new Intl.DisplayNames(['en'], { type: 'region' }) : null;
 CC.forEach((c) => { const o = new Option(c + (dn ? ' — ' + dn.of(c) : ''), c); F.country.add(o); }); F.country.value = 'US';
 const V = {
-  name: (v) => v.trim() ? '' : 'Enter your shop name.', site_url: (v) => /^https?:\/\/[^\s.]+\.\S+$/i.test(v.trim()) ? '' : 'Enter the full website address, starting with http:// or https://', contact_email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.',
+  name: (v) => v.trim() ? '' : 'Enter your shop name.', site_url: (v) => /^https?:\/\/[^\s.]+\.\S+$/i.test(v.trim()) ? '' : 'Enter the full website address, starting with http:// or https://', contact_email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.', support_email: (v) => !v.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address, or leave it empty.',
   slug: (v) => /^[a-z0-9-]{3,40}$/.test(v) ? '' : 'Use 3-40 characters: lowercase letters, digits and dashes.', country: (v) => /^[A-Z]{2}$/.test(v) ? '' : 'Choose a country.', accept: () => F.accept.checked ? '' : 'Tick the box to accept the agreements.'
 };
 const chk = (n, show) => { const m = V[n](F[n].type === 'checkbox' ? '' : F[n].value); if (show) f.querySelector('[data-for=' + n + ']').textContent = m; return !m; };
-const STEP = [['name', 'site_url', 'contact_email', 'country', 'slug'], ['accept'], []];
+const STEP = [['name', 'site_url', 'contact_email', 'support_email', 'country', 'slug'], ['accept'], []];
 let cur = 0, edited = false, nw = !window.ethereum || !(window.crypto && crypto.subtle);
 const ok = (i, show) => STEP[i].map((n) => chk(n, show)).every(Boolean);
 const show = (i) => {
@@ -149,7 +150,7 @@ const show = (i) => {
   $('bk').hidden = !i || G; $('nx').textContent = i === 2 ? (G ? 'Sign in wallet' : 'Connect wallet') : 'Continue'; $('nx').hidden = i === 2 && nw; $('nw').hidden = !(i === 2 && nw); $('nx').classList.toggle('off', i < 2 && !ok(i, false)); $('er').hidden = true; $('wt').hidden = true; $('wn').hidden = true; F.slug.classList.remove('bad');
 };
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
-const save = () => { try { sessionStorage.setItem('apibase_connect', JSON.stringify(Object.fromEntries(['name', 'site_url', 'contact_email', 'category', 'country', 'slug'].map((n) => [n, F[n].value])))); } catch (e) {} };
+const save = () => { try { sessionStorage.setItem('apibase_connect', JSON.stringify(Object.fromEntries(['name', 'site_url', 'contact_email', 'support_email', 'category', 'country', 'slug'].map((n) => [n, F[n].value])))); } catch (e) {} };
 const R = {}; try { const d = JSON.parse(sessionStorage.getItem('apibase_connect') || 'null'); if (d) { for (const n in d) if (F[n] && typeof d[n] === 'string') { F[n].value = d[n]; R[n] = 1; } edited = !!F.slug.value; } } catch (e) {}
 let PF = null; try { PF = $('pf') && JSON.parse($('pf').textContent); } catch (e) {} if (PF && PF.prefill) { for (const n of ['name', 'site_url', 'contact_email', 'category', 'country', 'slug']) { const v = PF.prefill[n], e = F[n]; if (typeof v !== 'string' || !v || !e) continue; if (e.tagName === 'SELECT' ? !R[n] && [...e.options].some((o) => o.value === v) : !e.value) e.value = v; } edited = !!F.slug.value; if (!edited && F.name.value) F.slug.value = slugify(F.name.value); } const G = !!(PF && PF.mode === 'grant'), GR = !G && !!(PF && PF.grant_requested), PN = F.handoff ? F.handoff.dataset.partner : '', N = $('sig').children.length, PT = $('pt') ? $('pt').textContent.slice(12) : '';
 const pv = () => { $('pv').textContent = F.slug.value || 'my-shop'; $('nx').classList.toggle('off', cur < 2 && !ok(cur, false)); save(); };
@@ -221,7 +222,7 @@ const run = async () => {
   if (dw) dw.hidden = true; if (ew && F.handoff && ew.toLowerCase() !== w.toLowerCase() && wok !== w.toLowerCase()) { differ(ew); dw.dataset.w = w.toLowerCase(); return; }
   WA = w; if (G) { P(1); const g = await gb(w, x.handoff); return done(g, g.slug, null); } P(1); const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
   const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
-  P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, handoff_id: x.handoff, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
+  P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, support_email: (x.support_email || '').trim(), site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, handoff_id: x.handoff, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
   const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
   P(3); const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
   const ac = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' }); let gl = '';

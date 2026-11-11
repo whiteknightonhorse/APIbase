@@ -297,6 +297,7 @@ export function toApiError(err: unknown, request_id?: string): ApiErr {
       documentation_url: err.documentation_url,
       ...(err.alternatives ? { alternatives: err.alternatives } : {}),
       ...(err.retry_after ? { retry_after: err.retry_after } : {}),
+      ...(err.field ? { field: err.field } : {}),
     });
   }
   if (err instanceof ShopGateError) {

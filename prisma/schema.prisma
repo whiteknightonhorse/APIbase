@@ -544,6 +544,7 @@ model ShopMerchant {
   recovery_wallet         String?
   encryption_key          Json?    @db.JsonB
   contact_email           String
+  support_email           String?
   site_url                String
   domain_verified         Boolean  @default(false)
   status                  String   @default("pending") // pending|active|suspended|deactivated

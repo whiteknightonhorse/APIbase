@@ -360,16 +360,27 @@ dbDescribe('order lifecycle, merchant order tools, SLA sweeper', () => {
     expect(stranger).not.toHaveProperty('merchant_contact');
     expect(stranger).not.toHaveProperty('fulfillment');
     expect(stranger).not.toHaveProperty('documents');
+    // T-0768: the registration contact_email is private; without a support_email only site_url shows.
     const mine = await getOrderView(prisma as never, id, b);
-    expect(mine.merchant_contact).toEqual({
-      email: 'shop@m.example',
-      site_url: 'https://x.example',
-    });
+    expect(mine.merchant_contact).toEqual({ site_url: 'https://x.example' });
+    expect(JSON.stringify(mine)).not.toContain('shop@m.example');
     expect(mine.tracking).toBeNull();
     expect(mine.refund_policy).toBeTruthy();
     expect(Array.isArray(mine.events)).toBe(true);
+    await x(
+      `UPDATE shop_merchants SET support_email = 'help@m.example' WHERE merchant_id = $1::uuid`,
+      m,
+    );
+    expect((await getOrderView(prisma as never, id, b)).merchant_contact).toEqual({
+      email: 'help@m.example',
+      site_url: 'https://x.example',
+    });
     const byWallet = await getOrderView(prisma as never, id, `wallet:${sha(PAYER.toLowerCase())}`);
-    expect(byWallet.merchant_contact?.email).toBe('shop@m.example');
+    expect(byWallet.merchant_contact?.email).toBe('help@m.example');
+    expect(JSON.stringify(byWallet)).not.toContain('shop@m.example');
+    const strangerAgain = await getOrderView(prisma as never, id, 'agent:stranger');
+    expect(strangerAgain).not.toHaveProperty('merchant_contact');
+    expect(JSON.stringify(strangerAgain)).not.toContain('help@m.example');
     await x(`UPDATE shop_orders SET state = 'CLOSED' WHERE order_id = $1::uuid`, id);
     expect(await getOrderView(prisma as never, id, b)).not.toHaveProperty('merchant_contact');
     await expect(getOrderView(prisma as never, randomUUID(), b)).rejects.toMatchObject({

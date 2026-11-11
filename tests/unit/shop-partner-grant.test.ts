@@ -510,6 +510,7 @@ dbDescribe('T-0740 partner grants', () => {
         ['PUT', '/api/v1/shop/merchants/me/renewer-key', {}],
         ['PATCH', '/api/v1/shop/merchants/me/stream-settings', {}],
         ['PATCH', '/api/v1/shop/merchants/me/provek', {}],
+        ['PATCH', '/api/v1/shop/merchants/me/contact', { support_email: 'evil@partner.example' }],
       ];
       for (const [method, path, body] of calls) {
         const r = await json(await http(method, path, body, g.gkey));
@@ -525,6 +526,33 @@ dbDescribe('T-0740 partner grants', () => {
       ).toBe(200);
       const [st] = await q(`SELECT status FROM shop_merchants WHERE merchant_id = $1::uuid`, g.id);
       expect(st.status).toBe('active');
+    });
+
+    it('T-0768: PATCH /merchants/me/contact with the owner key sets and clears support_email only', async () => {
+      const m = await merchant();
+      const p = '/api/v1/shop/merchants/me/contact';
+      const row = async () =>
+        (
+          await q(
+            `SELECT contact_email, support_email FROM shop_merchants WHERE merchant_id = $1::uuid`,
+            m.id,
+          )
+        )[0];
+      const before = await row();
+      const set = await json(
+        await http('PATCH', p, { support_email: 'help@shop.example' }, m.owner),
+      );
+      expect(set).toEqual({ status: 200, body: { support_email: 'help@shop.example' } });
+      expect(await row()).toEqual({ ...before, support_email: 'help@shop.example' });
+      const bad = await json(await http('PATCH', p, { support_email: 'nope' }, m.owner));
+      expect(bad.status).toBe(422);
+      expect(bad.body).toMatchObject({ error_code: 'validation_failed', field: 'support_email' });
+      expect((await json(await http('PATCH', p, {}, m.owner))).status).toBe(422);
+      expect((await row()).support_email).toBe('help@shop.example');
+      const clear = await json(await http('PATCH', p, { support_email: null }, m.owner));
+      expect(clear).toEqual({ status: 200, body: { support_email: null } });
+      expect(await row()).toEqual({ ...before, support_email: null });
+      expect((await http('PATCH', p, { support_email: null })).status).toBe(401);
     });
 
     it('MCP: every merchant tool but the grant set refuses a grant key', async () => {
@@ -931,6 +959,19 @@ dbDescribe('T-0740 partner grants', () => {
       expect(sig).toContain('<li data-n="4"><div><b>Allow Soukbase to sell for you</b>');
       expect(t).toContain('of 4</b>');
       expect(t).toContain('was not allowed to act for your store. Ask');
+    });
+
+    it('T-0768: a prefill without contact_email is 201; Contact email renders empty, support_email is never prefilled', async () => {
+      const t = await page(await handoff({ prefill: { name: 'Prefill Shop' } }));
+      expect(t).toContain(
+        '<input name="contact_email" type="email" autocomplete="email" placeholder="you@northsidekicks.com">',
+      );
+      expect(t).toContain(
+        '<label>Support email (optional)<input name="support_email" type="email"></label><small class="hint">Shown to buyers on their orders.</small>',
+      );
+      expect(t).toContain('"Prefill Shop"');
+      expect(t).not.toContain('"contact_email":');
+      expect(t).not.toMatch(/PF\.prefill[^;]*support_email|for \(const n of \[[^\]]*support_email/);
     });
 
     it('a plain handoff and the plain page keep 3 signatures', async () => {

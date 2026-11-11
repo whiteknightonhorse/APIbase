@@ -79,6 +79,7 @@ function fakeDb(sanctioned: string[] = []) {
               registration_ip_country: v[4],
               payout_wallet_base: v[6],
               contact_email: v[10],
+              support_email: v[15],
               status: 'pending',
               limits: JSON.parse(v[12] as string),
               agent_id: v[14],
@@ -287,6 +288,34 @@ describe('CF6 name / host / recovery wallet (T-0312)', () => {
     await expect(registerMerchant(b.input, ctxOf(g.db, b.redis))).rejects.toMatchObject({
       error_code: 'payout_wallet_sanctioned',
     });
+  });
+  it('T-0768: malformed support_email -> 422 validation_failed field support_email, no row', async () => {
+    for (const support_email of ['not-an-email', 'a@b', 42 as unknown as string]) {
+      const f = fakeDb();
+      const { input, redis } = await build({ support_email });
+      const err = await registerMerchant(input, ctxOf(f.db, redis)).catch((e: unknown) => e);
+      expect(err).toMatchObject({
+        status: 422,
+        error_code: 'validation_failed',
+        field: 'support_email',
+      });
+      expect(f.merchants).toHaveLength(0);
+    }
+  });
+  it('T-0768: support_email absent or "" is stored as NULL; a valid one is stored', async () => {
+    for (const [over, want] of [
+      [{}, null],
+      [{ support_email: '' }, null],
+      [{ support_email: 'help@example.org' }, 'help@example.org'],
+    ] as Array<[Partial<RegisterInput>, string | null]>) {
+      const f = fakeDb();
+      const { input, redis } = await build(over);
+      await registerMerchant(input, ctxOf(f.db, redis));
+      expect(f.merchants[0]).toMatchObject({
+        contact_email: 'secret.person@example.org',
+        support_email: want,
+      });
+    }
   });
   it('a clean name still registers', async () => {
     const f = fakeDb();

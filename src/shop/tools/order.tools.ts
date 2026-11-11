@@ -233,7 +233,7 @@ export function registerOrderTools(
     {
       title: 'Get an order',
       description:
-        'Order state, events, tracking {carrier, number, url?} and delivery_eta (null until the merchant ships), refund_policy and tx_hash. For the identity that paid also: fulfillment (the delivered content, repeatable), documents (merchant links), merchant_contact {email, site_url} while the order is open (not once CLOSED). Poll this after a payment_pending answer. viewer says whether you are seen as the payer.',
+        'Order state, events, tracking {carrier, number, url?} and delivery_eta (null until the merchant ships), refund_policy and tx_hash. For the identity that paid also: fulfillment (the delivered content, repeatable), documents (merchant links), merchant_contact {site_url, email?} while the order is open (not once CLOSED); email is the shop support e-mail when it set one. Poll this after a payment_pending answer. viewer says whether you are seen as the payer.',
       inputSchema: { order_id: z.string() },
       outputSchema: {
         order_id: z.string(),
@@ -247,7 +247,9 @@ export function registerOrderTools(
           .object({ carrier: z.string(), number: z.string(), url: z.string().optional() })
           .nullable(),
         delivery_eta: z.string().nullable().optional(),
-        merchant_contact: z.object({ email: z.string(), site_url: z.string() }).optional(),
+        merchant_contact: z
+          .object({ email: z.string().optional(), site_url: z.string() })
+          .optional(),
         documents: z.array(z.record(z.string(), z.unknown())).optional(),
         refund_policy: z.record(z.string(), z.unknown()),
         subscription: z.object({ id: z.string(), period_no: z.number() }).optional(),

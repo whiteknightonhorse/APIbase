@@ -15,6 +15,7 @@ import {
 import { currentDocs, termsStatus } from '../auth/terms.guard';
 import { deleteCatalog, upsertCatalog } from '../catalog.service';
 import { createImport, getImport } from '../catalog-import/import.service';
+import { setSupportEmail } from '../merchant.service';
 import {
   addMerchantDocument,
   confirmMerchantOrder,
@@ -275,6 +276,21 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     async (req: Request, res: Response) => {
       try {
         res.json(await deleteCatalog(deps, req.merchant?.merchant_id ?? '', req.body?.skus));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-0768: the buyer-facing support e-mail. Owner key only; contact_email is never read or written.
+  router.patch(
+    '/api/v1/shop/merchants/me/contact',
+    probeLimiter,
+    requireMerchantKey(['catalog:write'], () => deps.db),
+    ownerKeyOnly(() => deps.db),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await setSupportEmail(deps.db, req.merchant?.merchant_id ?? '', req.body));
       } catch (err) {
         send(res, err);
       }

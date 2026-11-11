@@ -61,6 +61,8 @@ export interface RegisterInput {
   category: string;
   country: string;
   contact_email: string;
+  /** T-0768: shown to buyers on their open orders; optional, "" = none. contact_email never is. */
+  support_email?: string | null;
   site_url: string;
   payout_wallet?: string;
   payout_wallet_base?: string;
@@ -101,6 +103,8 @@ export class MerchantRegisterError extends Error {
     readonly documentation_url: string,
     readonly alternatives?: Alternative[],
     readonly retry_after?: number,
+    /** T-0768: the request field the 422 names. */
+    readonly field?: string,
   ) {
     super(message);
     this.name = 'MerchantRegisterError';
@@ -229,6 +233,55 @@ async function countIpRegistration(ctx: RegisterCtx): Promise<void> {
   }
 }
 
+/**
+ * T-0768: the optional buyer-facing support e-mail. Absent, null or "" = NULL; anything else must
+ * pass the same EMAIL_RE as contact_email, else 422 validation_failed naming field support_email.
+ */
+export function supportEmailOf(v: unknown): string | null {
+  if (v === undefined || v === null || v === '') return null;
+  if (typeof v !== 'string' || v.length > 256 || !EMAIL_RE.test(v)) {
+    throw new MerchantRegisterError(
+      422,
+      'validation_failed',
+      'support_email is invalid (an e-mail address, "" or null)',
+      'fix_request',
+      '/integrator/docs#registration--terms',
+      undefined,
+      undefined,
+      'support_email',
+    );
+  }
+  return v;
+}
+
+/** T-0768: PATCH /merchants/me/contact. Writes support_email only; contact_email is never read. */
+export async function setSupportEmail(
+  db: ShopTx,
+  merchant_id: string,
+  body: unknown,
+): Promise<{ support_email: string | null }> {
+  const b = (body ?? {}) as Record<string, unknown>;
+  if (typeof body !== 'object' || body === null || !('support_email' in b)) {
+    throw new MerchantRegisterError(
+      422,
+      'validation_failed',
+      'support_email is required (an e-mail address, or null to clear it)',
+      'fix_request',
+      '/integrator/docs#registration--terms',
+      undefined,
+      undefined,
+      'support_email',
+    );
+  }
+  const support_email = supportEmailOf(b.support_email);
+  await db.$executeRawUnsafe(
+    `UPDATE shop_merchants SET support_email = $2 WHERE merchant_id = $1::uuid`,
+    merchant_id,
+    support_email,
+  );
+  return { support_email };
+}
+
 async function validate(input: RegisterInput): Promise<void> {
   const bad = (m: string) => fail(422, 'validation_failed', m, 'fix_request', '/integrator/docs');
   if (!SLUG_RE.test(input.slug ?? '')) throw bad('slug must match [a-z0-9-]{3,40}');
@@ -238,6 +291,7 @@ async function validate(input: RegisterInput): Promise<void> {
   if (typeof input.category !== 'string' || !input.category) throw bad('category is required');
   if (!/^[A-Za-z]{2}$/.test(input.country ?? '')) throw bad('country must be ISO 3166-1 alpha-2');
   if (!EMAIL_RE.test(input.contact_email ?? '')) throw bad('contact_email is invalid');
+  supportEmailOf(input.support_email);
   try {
     if (new URL(input.site_url).protocol !== 'https:') throw new Error();
   } catch {
@@ -448,8 +502,8 @@ export async function registerMerchant(
       const rows = await ctx.db.$queryRawUnsafe<Array<{ merchant_id: string }>>(
         `INSERT INTO shop_merchants (slug, name, category, country, registration_ip_country, wallet_address,
             payout_wallet_base, payout_wallet_tempo, recovery_wallet, encryption_key, contact_email, site_url,
-            status, limits, policy, agent_id)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,'pending',$13::jsonb,$14::jsonb,$15::uuid)
+            status, limits, policy, agent_id, support_email)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,'pending',$13::jsonb,$14::jsonb,$15::uuid,$16)
          RETURNING merchant_id`,
         input.slug,
         input.name,
@@ -466,6 +520,7 @@ export async function registerMerchant(
         JSON.stringify(limits),
         JSON.stringify(policy),
         agent[0].agent_id,
+        supportEmailOf(input.support_email),
       );
       merchant_id = rows[0].merchant_id;
     } catch (err) {

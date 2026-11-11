@@ -168,7 +168,13 @@ export function registerMerchantTools(
         name: z.string(),
         category: z.string(),
         country: z.string().describe('ISO 3166-1 alpha-2'),
-        contact_email: z.string(),
+        contact_email: z.string().describe('Private: never shown to buyers.'),
+        support_email: z
+          .string()
+          .optional()
+          .describe(
+            'Optional; shown to buyers on their orders. Change it later with PATCH /api/v1/shop/merchants/me/contact.',
+          ),
         site_url: z.string(),
         payout_wallet: z.string().optional(),
         payout_wallet_base: z.string().optional(),
