@@ -68,11 +68,68 @@ class SelectionTest(unittest.TestCase):
         posted = []
         ctx, calls = ctx_for(rows(7), lambda p: f"merchant: ok\nproduct {P[0]}: flag:gambling", posted)
         reviewed, flagged, rejected, hit = l3.run(3, ctx=ctx)
-        self.assertEqual(len(calls), 3)
+        # merchant item: first answer + confirming call; the two product items were already reviewed in it
+        self.assertEqual(len(calls), 2)
         self.assertTrue(hit)
         self.assertEqual(rejected, 0)
         self.assertEqual(reviewed, len(posted))
         self.assertGreater(flagged, 0)
+
+
+class HumanOkAndConfirmTest(unittest.TestCase):
+    def test_sql_has_human_ok_hash_condition(self):
+        for sql in (l3.CANDIDATE_SQL, l3.PRODUCT_SQL):
+            self.assertIn("hr.layer = 'human'", sql)
+            self.assertIn("h.verdict = 'ok'", sql)
+            self.assertIn("h.content_hash = p.content_hash", sql)
+            self.assertIn("p.content_hash IS NOT NULL", sql)
+        self.assertIn("interval '7 days'", l3.CANDIDATE_SQL)
+
+    def test_human_cleared_uses_newest_human_review(self):
+        self.assertIn("ORDER BY hr.at DESC LIMIT 1", l3.HUMAN_CLEARED)
+
+    def _cand(self):
+        return [{"kind": "product", "merchant_id": M[0], "product_id": P[3], "last_review_at": None}]
+
+    def test_flag_flag_posts_one_flag(self):
+        posted = []
+        ctx, calls = ctx_for(self._cand(), lambda p: f"merchant: ok\nproduct {P[3]}: flag:gambling", posted)
+        l3.run(5, ctx=ctx)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual([(b["product_id"], b["verdict"]) for b in posted], [(P[3], "flag:gambling")])
+
+    def test_flag_then_ok_posts_nothing_and_logs(self):
+        posted = []
+        answers = iter([f"merchant: ok\nproduct {P[3]}: flag:gambling", f"merchant: ok\nproduct {P[3]}: ok"])
+        ctx, calls = ctx_for(self._cand(), lambda p: next(answers), posted)
+        import io, contextlib
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            l3.run(5, ctx=ctx)
+        self.assertEqual(posted, [])
+        self.assertIn(f"product {P[3]}: answers disagree (flag:gambling / ok) -- stays due", buf.getvalue())
+
+    def test_failed_second_call_is_disagree(self):
+        posted = []
+        answers = iter([f"merchant: ok\nproduct {P[3]}: reject:weapons", ""])
+        ctx, _ = ctx_for(self._cand(), lambda p: next(answers), posted)
+        l3.run(5, ctx=ctx)
+        self.assertEqual(posted, [])
+
+    def test_ok_makes_exactly_one_call(self):
+        posted = []
+        ctx, calls = ctx_for(self._cand(), lambda p: f"merchant: ok\nproduct {P[3]}: ok", posted)
+        l3.run(5, ctx=ctx)
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(len(posted), 1)
+
+    def test_product_in_both_passes_is_posted_once(self):
+        posted = []
+        cand = [{"kind": "merchant", "merchant_id": M[0], "product_id": None, "last_review_at": None},
+                {"kind": "product", "merchant_id": M[0], "product_id": P[0], "last_review_at": None}]
+        ctx, _ = ctx_for(cand, lambda p: f"merchant: ok\nproduct {P[0]}: ok\nproduct {P[1]}: ok", posted)
+        l3.run(5, ctx=ctx)
+        self.assertEqual([b.get("product_id") for b in posted if "product_id" in b].count(P[0]), 1)
 
 
 class PauseTest(unittest.TestCase):

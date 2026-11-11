@@ -43,9 +43,19 @@ DEFAULT_CAP = 60
 MAX_FIELD = 600
 PRODUCTS_PER_MERCHANT = 10
 
+# MODERATION-1111 ruling-1: a human `ok` on the product's current content stays in force. The newest human
+# product-scope review must be `ok` and carry the product's current content_hash (both non-null); a changed
+# hash falls back to the ordinary 7-day rule. Used by CANDIDATE_SQL and PRODUCT_SQL (alias p = shop_products).
+HUMAN_CLEARED = """NOT EXISTS (
+         SELECT 1 FROM (SELECT hr.verdict, hr.content_hash FROM shop_moderation_reviews hr
+                         WHERE hr.product_id = p.product_id AND hr.scope = 'product' AND hr.layer = 'human'
+                         ORDER BY hr.at DESC LIMIT 1) h
+          WHERE h.verdict = 'ok' AND h.content_hash IS NOT NULL AND p.content_hash IS NOT NULL
+            AND h.content_hash = p.content_hash)"""
+
 # Read-only. Merchants first (never reviewed by layer llm, scope merchant), then products by newest
 # llm/human review ascending (never reviewed first). Merchants of status pending|active only.
-CANDIDATE_SQL = """
+CANDIDATE_SQL = ("""
 SELECT COALESCE(json_agg(row_to_json(c)), '[]'::json) FROM (
   SELECT kind, merchant_id, product_id, last_review_at FROM (
     SELECT 'merchant' AS kind, m.merchant_id::text AS merchant_id, NULL::text AS product_id,
@@ -63,22 +73,24 @@ SELECT COALESCE(json_agg(row_to_json(c)), '[]'::json) FROM (
                             AND r.layer IN ('llm', 'human')) lr ON true
      WHERE m.status IN ('pending', 'active') AND p.moderation_status IN ('ok', 'flagged')
        AND (lr.at IS NULL OR lr.at < now() - interval '7 days')
+       AND """ + HUMAN_CLEARED + """
   ) u
   ORDER BY (kind = 'merchant') DESC, sort_at, product_id
 ) c
-"""
+""")
 MERCHANT_SQL = """
 SELECT COALESCE(row_to_json(t), 'null'::json) FROM (
   SELECT m.merchant_id::text, m.name, m.category, m.country, m.site_url FROM shop_merchants m
    WHERE m.merchant_id = '%s'::uuid) t
 """
-PRODUCT_SQL = """
+PRODUCT_SQL = ("""
 SELECT COALESCE(json_agg(row_to_json(t)), '[]'::json) FROM (
   SELECT p.product_id::text, p.title, p.description, p.category, p.price_usd::text, p.moderation_status
     FROM shop_products p
    WHERE p.merchant_id = '%s'::uuid AND p.moderation_status IN ('ok', 'flagged') %s
+     AND """ + HUMAN_CLEARED + """
    ORDER BY p.updated_at DESC LIMIT %d) t
-"""
+""")
 UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 VERDICT_RE = re.compile(r"^(ok|(?:flag|reject):[a-z0-9-]+)$")
 MERCHANT_LINE_RE = re.compile(r"^merchant:[ \t]*(\S+)$")
@@ -231,15 +243,34 @@ def review_item(item, ctx):
         products = ctx["sql"](PRODUCT_SQL % (item["merchant_id"], f"AND p.product_id = '{item['product_id']}'::uuid", 1))
         if not products:
             return []
+    # One product is reviewed at most once per run (merchant pass and product pass can both reach it).
+    done = ctx.setdefault("done_products", set())
+    if item["kind"] == "merchant":
+        products = [p for p in products if str(p["product_id"]).lower() not in done]
+    elif item["product_id"].lower() in done:
+        return []
     evidence = evidence_of(merchant, products)
-    parsed = parse_verdicts(ctx["invoke"](build_prompt(ctx["role"], ctx["categories"], evidence)),
-                            ctx["slugs"], [p["product_id"] for p in products])
+    prompt = build_prompt(ctx["role"], ctx["categories"], evidence)
+    ids = [p["product_id"] for p in products]
+    done.update(str(i).lower() for i in ids)
+    parsed = parse_verdicts(ctx["invoke"](prompt), ctx["slugs"], ids)
     if parsed is None:
         log(f"{item['kind']} {item['merchant_id']}: model answer rejected by the schema -- stays due")
         return []
     mverdict, pverdicts = parsed
+    if any(v != "ok" for v in [mverdict, *pverdicts.values()]):
+        # A flag or reject needs two agreeing answers; a failed or schema-rejected second call = disagree.
+        second = parse_verdicts(ctx["invoke"](prompt), ctx["slugs"], ids)
+        m2, p2 = second if second else (None, {})
+        if item["kind"] == "merchant" and mverdict != "ok" and m2 != mverdict:
+            log(f"merchant {item['merchant_id']}: answers disagree ({mverdict} / {m2 or 'none'}) -- stays due")
+            mverdict = None
+        for pid in list(pverdicts):
+            if pverdicts[pid] != "ok" and p2.get(pid) != pverdicts[pid]:
+                log(f"product {pid}: answers disagree ({pverdicts[pid]} / {p2.get(pid) or 'none'}) -- stays due")
+                del pverdicts[pid]
     posts = []
-    if item["kind"] == "merchant":
+    if item["kind"] == "merchant" and mverdict is not None:
         posts.append(("merchant", {"merchant_id": item["merchant_id"], "verdict": mverdict,
                                    "evidence_hash": hashlib.sha256(evidence.encode()).hexdigest()}))
     for p in products:

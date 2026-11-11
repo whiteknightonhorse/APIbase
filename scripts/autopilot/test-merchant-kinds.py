@@ -194,6 +194,15 @@ class RoutingSchema(unittest.TestCase):
         self.assertNotIn(ap.tg("line_variants", opts="").rstrip(": "), old)
         self.assertNotIn(ap.tg("line_handoff", target_agent="").rstrip(": "), old)
 
+    def test_moderation_flag_operator_file_names_the_real_handoff(self):
+        inc = {"incident_id": "abcdef12-0000-0000-0000-000000000000", "kind": "MODERATION_FLAG",
+               "severity": "SEV2", "provider": "merchant:m1", "what": "x"}
+        opfile = ap.build_operator_file(inc)
+        self.assertIn("moderation-human.ts", opfile)
+        self.assertNotIn("REMEDIATION_QUEUED", opfile)
+        for k in ("DISPUTE_UNANSWERED", "REFUND_OVERDUE"):
+            self.assertNotIn("REMEDIATION_QUEUED", ap.build_operator_file({**inc, "kind": k}))
+
 
 class EngineWorlds(unittest.TestCase):
     @classmethod

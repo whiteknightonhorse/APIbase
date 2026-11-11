@@ -306,6 +306,8 @@ DETECTED_BY = frozenset(["probe", "passive", "limits", "email", "tester", "manua
 # below are unchanged from that dict, just promoted to the real file.
 # T-INT-13 (§12.2, C0.6): the four merchant money/compliance kinds join PAYMENT_REQUIRED —
 # none may ever load with an auto route, a fleet task or a model.
+# MODERATION-1111: duplicate of incident-engine.py _HUMAN_DECISION_KINDS (same kinds; the engine closes these on human-done).
+_HUMAN_DECISION_KINDS_OF_HANDOFF = frozenset(["MODERATION_FLAG", "DISPUTE_UNANSWERED", "REFUND_OVERDUE"])
 _MONEY_KINDS = frozenset(["PAYMENT_REQUIRED", "PAYOUT_WALLET_SANCTIONED", "PAYER_SANCTIONED",
                           "PAYMENT_MISMATCH", "FEE_INVOICE_OVERDUE", "SANCTIONS_HIT"])
 
@@ -928,6 +930,18 @@ def build_operator_file(incident: dict, docs_url: str | None = None,
             f"{HUMAN_DONE_DIR}/, record it as text in the incident attempts and close the incident. No fleet task\n"
             f"and no e-mail is created for this kind — the decision and the action belong to the human alone (C0.6)."
         )
+    elif kind in _HUMAN_DECISION_KINDS_OF_HANDOFF and kind in MERCHANT_KINDS:
+        handoff_body = (
+            f"On its next tick the engine (incident-engine.py, cron */10) will read the filled-in field below from\n"
+            f"{HUMAN_DONE_DIR}/, append it to the incident attempts and close the incident. No fleet task is created\n"
+            f"and no follow-up is queued: the decision belongs to the human alone."
+        )
+        if kind == "MODERATION_FLAG":
+            handoff_body += (
+                "\nThe OPERATOR RESULT only closes the incident. The catalog verdict itself is written separately with\n"
+                "`scripts/shop/moderation-human.ts --merchant <id> --product <id> --verdict ok|reject:<slug> "
+                "--note \"<text>\" --apply`."
+            )
     else:
         handoff_body = f"""On its next tick the engine (incident-engine.py, cron */10) will read the filled-in field below from
 {HUMAN_DONE_DIR}/, append it as text to the incident attempts, generate a follow-up task for the fleet

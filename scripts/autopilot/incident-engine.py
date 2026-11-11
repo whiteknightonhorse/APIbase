@@ -1842,11 +1842,13 @@ def _src_subscription_pull_failed():
 
 def _src_moderation():
     rows = _rows(
-        "SELECT merchant_id::text, scope, verdict, COALESCE(category, ''), COALESCE(evidence_hash, ''), "
-        "to_char(at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US') FROM shop_moderation_reviews "
-        "WHERE at > now() - interval '30 days' ORDER BY at")
+        "SELECT r.merchant_id::text, r.scope, r.verdict, COALESCE(r.category, ''), COALESCE(r.evidence_hash, ''), "
+        "to_char(r.at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US'), COALESCE(r.product_id::text, ''), "
+        "COALESCE(regexp_replace(p.title, '[[:cntrl:]]+', ' ', 'g'), '') "
+        "FROM shop_moderation_reviews r LEFT JOIN shop_products p ON p.product_id = r.product_id "
+        "WHERE r.at > now() - interval '30 days' ORDER BY r.at")
     sigs = {}
-    for mid, scope, verdict, cat, evh, at in rows:
+    for mid, scope, verdict, cat, evh, at, pid, title in rows:
         cat = _clean(cat)
         ev = {"scope": scope, "verdict": verdict, "category": cat}
         if cat == "ofac":
@@ -1864,6 +1866,11 @@ def _src_moderation():
             kind, what = "MODERATION_FLAG", f"moderation flagged the catalog/product (category: {cat or 'n/a'})"
         else:
             continue
+        if kind in ("CATALOG_REJECTED", "MODERATION_FLAG"):
+            if _UUID_RE.match(pid):
+                ev["product_id"] = pid
+            if _clean(title, extra=" ", limit=80):
+                ev["title"] = _clean(title, extra=" ", limit=80)
         s = _sig(kind, mid, what, ev, merchant_id=mid, event_at=at)
         sigs[s["dedup_key"]] = s  # ORDER BY at: the latest review of a kind wins
     return list(sigs.values())
