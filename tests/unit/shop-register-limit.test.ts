@@ -146,7 +146,10 @@ describe('Retry-After on service 429s (order router send helper)', () => {
     );
     const s = await serve(createOrderRouter({} as never));
     server = s.server;
-    const r = await post(s.base, '/api/v1/shop/quotes', { merchant: 'm', items: [] });
+    const r = await post(s.base, '/api/v1/shop/quotes', {
+      merchant: 'm',
+      items: [{ sku: 'a', qty: 1 }],
+    });
     expect(r.status).toBe(429);
     expect(r.headers.get('retry-after')).toBe('121');
     expect((await r.json()).retry_after).toBe(120.2);

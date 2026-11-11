@@ -220,7 +220,7 @@ async function loadMerchant(db: ShopTx, merchant_id: string): Promise<MerchantRo
 /** Slug -> merchant_id for the REST/MCP entry points; unknown slug is 404. */
 export async function merchantIdBySlug(db: ShopTx, slug: unknown): Promise<string> {
   if (typeof slug !== 'string' || !/^[a-z0-9-]{3,40}$/.test(slug)) {
-    throw new QuoteError(404, 'not_found', 'merchant not found', 'use_different_tool', {
+    throw new QuoteError(404, 'not_found', 'merchant not found', 'fix_request', {
       documentation_url: DOCS,
     });
   }
@@ -229,7 +229,7 @@ export async function merchantIdBySlug(db: ShopTx, slug: unknown): Promise<strin
     slug,
   );
   if (!rows[0]) {
-    throw new QuoteError(404, 'not_found', 'merchant not found', 'use_different_tool', {
+    throw new QuoteError(404, 'not_found', 'merchant not found', 'fix_request', {
       documentation_url: DOCS,
     });
   }

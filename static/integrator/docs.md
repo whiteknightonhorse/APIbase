@@ -184,7 +184,7 @@ Buyer path. A quote is a price snapshot plus a stock hold; nothing is charged by
 
 **Fee** (internal, not in the response): when `INTEGRATOR_FEE_ENABLED=true`, `max(total × INTEGRATOR_FEE_BPS / 10000, INTEGRATOR_FEE_MIN_USD)` rounded up to the cent (150 bps, min `$0.05`); `0` otherwise and for the test SKU. With the fee on it must also be ≥ `X402_GAS_ESTIMATE_USD × 10`, else `422`.
 
-Error codes: `quote_expired` (410), `out_of_stock` (409), `test_sku_daily_cap` (429), `below_minimum`/`above_max_order`/`new_merchant_cap` (422), `not_cancellable` (409), `quote_not_open` (409).
+Error codes: a request without `merchant` or `items` is `422 validation_failed` with `missing[]`; an unknown merchant is `404 not_found` with `suggested_action: fix_request`; `quote_expired` (410), `out_of_stock` (409), `test_sku_daily_cap` (429), `below_minimum`/`above_max_order`/`new_merchant_cap` (422), `not_cancellable` (409), `quote_not_open` (409).
 
 ## Payment & fulfillment {#orders}
 

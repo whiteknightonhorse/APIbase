@@ -82,6 +82,26 @@ export function createOrderRouter(
 
   router.post('/api/v1/shop/quotes', probeLimiter, async (req: Request, res: Response) => {
     let held: { agent: string; key: string; exec: string } | undefined;
+    // T-0771: a body without merchant or items is a 422 naming the gaps, before any buyer lookup
+    // or idempotency key. A body that is not valid JSON is still answered by the body parser.
+    const raw: unknown = req.body;
+    const b = raw !== null && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+    const missing: string[] = [];
+    if (typeof (b as { merchant?: unknown }).merchant !== 'string') missing.push('merchant');
+    const items = (b as { items?: unknown }).items;
+    if (!Array.isArray(items) || items.length === 0) missing.push('items');
+    if (missing.length > 0) {
+      res.status(422).json({
+        error: 'validation_failed',
+        error_code: 'validation_failed',
+        message: `missing required fields: ${missing.join(', ')}`,
+        missing,
+        suggested_action: 'fix_request',
+        documentation_url: '/integrator/docs#quotes',
+        request_id: req.requestId,
+      });
+      return;
+    }
     try {
       const buyer = await buyerOf(req);
       // Idempotency is the pipeline's own stage; the buyer identity plays the agent id.

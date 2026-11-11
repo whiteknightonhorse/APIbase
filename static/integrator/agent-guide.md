@@ -183,6 +183,10 @@ Every server-side protection assumes that after a crash you present the same pay
 
 ## Error codes
 
+### `not_found`
+
+HTTP 404 on `POST /api/v1/shop/quotes`: the `merchant` slug is unknown. `suggested_action` is `fix_request`; a request without `merchant` or `items` is `422 validation_failed` with `missing[]`.
+
 ### `quote_expired`
 
 HTTP 410. The quote is past `expires_at`. The reply carries a fresh quote in `extra.quote` with current prices. Pay that one.
