@@ -47,8 +47,9 @@ ESCROW_FINALIZE → LEDGER_WRITE → CACHE_SET → RESPONSE
 Every fact a page, the README or `llms.txt` states beyond the counts is read from one generated file,
 `/.well-known/site-facts.json` (`scripts/gen-site-facts.ts`: values imported from the code, plus
 anchored manual facts in `config/site-facts.manual.json`). `config/site-claims.tsv` lists what each
-surface says about those facts; `scripts/site-facts.py check` compares them offline, and the daily job
-`scripts/site-sync-check.sh` runs `check-live` against production (claims, page metadata crawl, link and
+surface says about those facts; `scripts/site-facts.py check` compares them offline, and
+`scripts/site-sync-check.sh` runs `check-live` against production daily at 06:30 UTC and once after each deploy
+(`scripts/live-check-after-deploy.sh`, cron) (claims, page metadata crawl, link and
 GenLayer probes, agent-ready checks). A mismatch reaches the operator through fleet-check and opens a
 docs-drift card. The offline check is blocking from 2026-11-02: `scripts/sync-counts.sh --check` (and the
 CI job that runs it) fails with `STALE_SITE_FACTS` on any drift.
