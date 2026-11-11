@@ -185,7 +185,7 @@ Every server-side protection assumes that after a crash you present the same pay
 
 ### `not_found`
 
-HTTP 404 on `POST /api/v1/shop/quotes`: the `merchant` slug is unknown. `suggested_action` is `fix_request`; a request without `merchant` or `items` is `422 validation_failed` with `missing[]`.
+HTTP 404 on `POST /api/v1/shop/quotes`: the `merchant` slug is unknown (`suggested_action: fix_request`). Missing `merchant` or `items` is a 422; details in [the quotes docs](/integrator/docs#quotes).
 
 ### `quote_expired`
 

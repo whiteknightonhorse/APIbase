@@ -4,6 +4,7 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createOrderRouter } from '../../src/shop/routes/order.router';
 import { merchantIdBySlug } from '../../src/shop/quote.service';
+import { registerOrderTools } from '../../src/shop/tools/order.tools';
 
 jest.mock('../../src/config', () => ({ config: { ENCRYPTION_KEY: 'k'.repeat(40) } }));
 jest.mock('../../src/shop/buyer', () => ({
@@ -91,5 +92,22 @@ describe('POST /api/v1/shop/quotes missing fields', () => {
         suggested_action: 'fix_request',
       });
     }
+  });
+
+  it('MCP shop.order.quote with an unknown merchant -> fix_request', async () => {
+    const handlers = new Map<
+      string,
+      (a: unknown) => Promise<{ isError?: boolean; content: { text: string }[] }>
+    >();
+    const fake = {
+      registerTool: (name: string, _cfg: unknown, h: never) => handlers.set(name, h),
+    };
+    const mcpDb = { $queryRawUnsafe: jest.fn(async () => []) };
+    registerOrderTools(fake as never, 'key', 'req-1', { db: mcpDb } as never);
+    const res = await handlers.get('shop.order.quote')!({ merchant: 'nope-shop', items: ITEMS });
+    expect(res.isError).toBe(true);
+    const body = JSON.parse(res.content[0].text);
+    expect(body.suggested_action).toBe('fix_request');
+    expect(body.message).toBe('merchant not found');
   });
 });
