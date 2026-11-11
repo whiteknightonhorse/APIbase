@@ -1070,9 +1070,6 @@ sdwis.water_systems	sdwis	0.001
 sec-edgar.company_lookup	sec-edgar	0.001
 sec-edgar.filings	sec-edgar	0.002
 sec-edgar.financial_concept	sec-edgar	0.002
-semanticscholar.authors_search	semanticscholar	0.001
-semanticscholar.get_paper	semanticscholar	0.002
-semanticscholar.papers_search	semanticscholar	0.002
 sepa-scotland.rainfall_history	sepa-scotland	0.002
 sepa-scotland.station_current	sepa-scotland	0.001
 sepa-scotland.stations_search	sepa-scotland	0.001
