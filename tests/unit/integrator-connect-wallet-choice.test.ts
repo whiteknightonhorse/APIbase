@@ -27,7 +27,13 @@ afterAll(() => server.close());
 type Fake = { name: string; rdns: string; account: string; icon?: string };
 const ICON = 'data:image/svg+xml;base64,PHN2Zy8+';
 
-async function boot(o: { wallets: Fake[]; legacy?: Fake; handoff?: boolean; remembered?: string }) {
+async function boot(o: {
+  wallets: Fake[];
+  legacy?: Fake;
+  handoff?: boolean;
+  remembered?: string;
+  hold?: { rdns: string; method: string };
+}) {
   let html = await (await fetch(`${base}/integrator/connect?from=soukbase`)).text();
   if (o.handoff) {
     const pf = JSON.stringify({
@@ -43,10 +49,13 @@ async function boot(o: { wallets: Fake[]; legacy?: Fake; handoff?: boolean; reme
   }
   const log: { who: string; method: string }[] = [];
   const handlers: Record<string, ((a: string[]) => void)[]> = {};
+  const held: (() => void)[] = [];
   const mk = (f: Fake) => ({
     chainId: '0x2105',
     request: async (r: { method: string }) => {
       log.push({ who: f.rdns, method: r.method });
+      if (o.hold && o.hold.rdns === f.rdns && o.hold.method === r.method)
+        await new Promise<void>((res) => held.push(res));
       return r.method === 'eth_requestAccounts' ? [f.account] : '0xsig';
     },
     on: (ev: string, h: (a: string[]) => void) => (
@@ -115,7 +124,12 @@ async function boot(o: { wallets: Fake[]; legacy?: Fake; handoff?: boolean; reme
     [...wc().querySelectorAll('button')].map((b: any) => b.textContent as string);
   const emit = (rdns: string, a: string[]) =>
     (handlers[rdns + 'accountsChanged'] || []).forEach((h) => h(a));
-  return { w, d, $, log, toStep3, settle, wc, box, choices, emit };
+  const release = () => held.splice(0).forEach((x) => x());
+  const press = (label: string) =>
+    ([...wc().querySelectorAll('button')] as HTMLElement[])
+      .find((b) => b.textContent === label)!
+      .click();
+  return { w, d, $, log, toStep3, settle, wc, box, choices, emit, release, press };
 }
 
 const A: Fake = { name: 'Alpha', rdns: 'io.alpha', account: OTHER, icon: ICON };
@@ -208,5 +222,64 @@ describe('T-0800 connect page wallet choice', () => {
     )!;
     other.click();
     expect(p.choices()).toEqual(['Alpha']);
+  });
+
+  it('the sign button stays disabled while the signatures are in flight (no second run)', async () => {
+    const G: Fake = { ...B, account: EXP };
+    const p = await boot({
+      wallets: [G],
+      handoff: true,
+      hold: { rdns: G.rdns, method: 'personal_sign' },
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(p.log.map((x) => x.method)).toEqual(['eth_requestAccounts', 'personal_sign']);
+    expect(p.$('nx').disabled).toBe(true);
+    p.$('nx').click();
+    await p.settle();
+    expect(p.log.filter((x) => x.method === 'eth_requestAccounts')).toHaveLength(1);
+    p.release();
+  });
+
+  it('a pending run of a wallet the person moved away from signs nothing', async () => {
+    const A2: Fake = { ...A, account: EXP };
+    const p = await boot({
+      wallets: [A2, B],
+      handoff: true,
+      hold: { rdns: A2.rdns, method: 'eth_requestAccounts' },
+    });
+    p.toStep3();
+    p.press('Alpha');
+    await p.settle();
+    p.press('Other wallet');
+    p.press('Beta');
+    await p.settle();
+    p.release();
+    await p.settle();
+    expect(p.log.filter((x) => x.who === 'io.alpha').map((x) => x.method)).toEqual([
+      'eth_requestAccounts',
+    ]);
+    expect(p.log.some((x) => x.who === 'io.beta' && x.method === 'personal_sign')).toBe(true);
+  });
+
+  it('accountsChanged after a late second announcement still updates the box', async () => {
+    const p = await boot({ wallets: [A], handoff: true });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(p.box()).toBeTruthy();
+    p.w.dispatchEvent(
+      new p.w.CustomEvent('eip6963:announceProvider', {
+        detail: {
+          info: { uuid: 'late', name: 'Late', rdns: 'io.late', icon: '' },
+          provider: { request: async () => [] },
+        },
+      }),
+    );
+    expect(() => p.emit(A.rdns, [OTHER])).not.toThrow();
+    expect(p.box().textContent).toContain('in Alpha');
+    p.emit(A.rdns, [EXP]);
+    expect(p.box()).toBeUndefined();
   });
 });

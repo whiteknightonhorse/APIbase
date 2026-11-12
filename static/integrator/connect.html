@@ -165,23 +165,23 @@ $('bk').onclick = () => show(cur - 1);
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') ST(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) ST(); });
 // T-0800: the person chooses the wallet (EIP-6963). Discovery only listens; no wallet is asked anything before a press.
-const WK = 'apibase_wallet'; let PR = null, pick = false, HK = null, CA = '', dw = null; const wc = document.createElement('div'); wc.className = 'cn-box'; wc.hidden = true; $('wn').before(wc);
+const WK = 'apibase_wallet'; let PR = null, pick = false, HK = null, CA = '', dw = null, RID = 0, busy = false; const wc = document.createElement('div'); wc.className = 'cn-box'; wc.hidden = true; $('wn').before(wc);
 const mem = (v) => { try { if (v) localStorage.setItem(WK, v); else return localStorage.getItem(WK) || ''; } catch (e) {} return ''; };
 const cw = () => PR || (WL.length === 1 ? WL[0] : !WL.length && window.ethereum ? { i: { name: 'your wallet', rdns: '' }, p: window.ethereum } : null);
 const unhook = () => { if (HK && HK.p.removeListener) try { HK.p.removeListener('accountsChanged', HK.h); } catch (e) {} HK = null; };
 const ew = () => (F.handoff && PF && typeof PF.expected_wallet === 'string' ? PF.expected_wallet : '');
 const sh = (a) => a.slice(0, 6) + '…' + a.slice(-4);
 const adr = (a) => { const s = el('span', '', sh(a)); s.title = a; return s; };
-const differ = (e) => { const pn = F.handoff.dataset.partner; if (!dw) { dw = el('div', 'cn-net'); $('wn').after(dw); } dw.replaceChildren(el('b', '', '⚠ Different wallet'), (() => { const m = el('small'); m.append('Connected: ', adr(CA), ' in ' + cw().i.name + '. Expected: ', adr(e), ', the wallet you used on ' + pn + '. Switch to that account in your wallet, or press Other wallet.'); return m; })()); dw.hidden = false; };
-const gate = () => { const e = ew(), bad = !!(e && CA && CA.toLowerCase() !== e.toLowerCase()); $('nx').disabled = bad; if (bad) differ(e); else if (dw) dw.hidden = true; return bad; };
+const differ = (e) => { const pn = F.handoff.dataset.partner; if (!dw) { dw = el('div', 'cn-net'); $('wn').after(dw); } dw.replaceChildren(el('b', '', '⚠ Different wallet'), (() => { const m = el('small'); m.append('Connected: ', adr(CA), ' in ' + (AP ? AP.i.name : 'your wallet') + '. Expected: ', adr(e), ', the wallet you used on ' + pn + '. Switch to that account in your wallet' + (WL.length ? ', or press Other wallet.' : '.')); return m; })()); dw.hidden = false; };
+const gate = () => { const e = ew(), bad = !!(e && CA && CA.toLowerCase() !== e.toLowerCase()); $('nx').disabled = bad || busy; if (bad) differ(e); else if (dw) dw.hidden = true; return bad; };
 function rw() {
   const open = cur === 2 && WL.length && (pick || !cw()); wc.hidden = !(cur === 2 && WL.length); wc.replaceChildren(); if (wc.hidden) return;
-  const r = mem(); if (!open) { const o = el('button', 'cn-ghost', 'Other wallet'); o.type = 'button'; o.onclick = () => { pick = true; rw(); }; wc.append(el('small', '', 'Wallet: ' + cw().i.name + ' '), o); return; }
+  const r = mem(); if (!open) { const o = el('button', 'cn-ghost', 'Other wallet'); o.type = 'button'; o.onclick = () => { RID++; busy = false; pick = true; gate(); rw(); }; wc.append(el('small', '', 'Wallet: ' + cw().i.name + ' '), o); return; }
   wc.append(el('b', '', 'Choose your wallet'));
   [...WL].sort((a, b) => (b.i.rdns === r) - (a.i.rdns === r)).forEach((w) => {
     const b = el('button', 'lp-cta', w.i.name); b.type = 'button'; b.style.display = 'flex'; b.style.margin = 'var(--s2) 0';
     if (typeof w.i.icon === 'string' && /^data:image\//i.test(w.i.icon)) { const g = el('img'); g.src = w.i.icon; g.alt = ''; g.width = g.height = 20; b.prepend(g); }
-    b.onclick = () => { unhook(); PR = w; pick = false; CA = ''; mem(w.i.rdns); gate(); rw(); if (cur === 2) $('nx').click(); }; wc.append(b);
+    b.onclick = () => { RID++; busy = false; unhook(); PR = w; pick = false; CA = ''; mem(w.i.rdns); gate(); rw(); if (cur === 2) $('nx').click(); }; wc.append(b);
   });
 }
 window.addEventListener('eip6963:announceProvider', (e) => {
@@ -236,31 +236,32 @@ const fail = (err) => {
   er.replaceChildren(t, m, b); er.hidden = false;
 };
 let WA = '';
-const gb = async (w, h) => { const gn = await nonce(w, 'grant&partner=' + F.partner.value); return call('/api/v1/shop/merchants/me/grants', 'POST', { wallet: w, partner: F.partner.value, message: gn.message, signature: await sign(w, gn.message), handoff_id: h }); };
+const gb = async (w, h, sf = sign) => { const gn = await nonce(w, 'grant&partner=' + F.partner.value); return call('/api/v1/shop/merchants/me/grants', 'POST', { wallet: w, partner: F.partner.value, message: gn.message, signature: await sf(w, gn.message), handoff_id: h }); };
 const AL = async () => { sg = 4; $('er').hidden = true; try { const g = await gb(WA, F.handoff.value); await done(g, g.slug, null); } catch (e) { fail(e); } };
 const have = () => {
   const er = $('er'), g = !!(F.handoff && GR), t = el('b', '', 'This wallet already has a store on APIbase' + (g ? '' : '.')), b = el('button', 'lp-cta', 'Allow ' + PT);
   b.type = 'button'; b.onclick = AL; mark(0, ''); er.className = g ? 'cn-wait' : 'cn-box cn-error'; $('nx').hidden = g;
   er.replaceChildren(t, ...(g ? [el('small', '', 'Sign once to allow ' + PT + ' to sell for it. No new store and no new keys are created.'), b] : PT ? [el('small', '', 'Ask ' + PT + ' for a link that connects an existing store.')] : [])); er.hidden = false;
 };
-const run = async () => {
+const run = async (my) => {
   sg = 0; const e = cw(); if (!e) { pick = true; rw(); return; }
-  const x = Object.fromEntries(new FormData(f)), w = (await e.p.request({ method: 'eth_requestAccounts' }))[0]; AP = e; CA = w;
+  const x = Object.fromEntries(new FormData(f)), w = (await e.p.request({ method: 'eth_requestAccounts' }))[0]; if (my !== RID) return; AP = e; CA = w;
+  const sign = (a, m) => { if (my !== RID) throw new Error('wallet changed'); return e.p.request({ method: 'personal_sign', params: [hex(m), a] }); };
   if (!HK || HK.p !== e.p) { unhook(); if (e.p.on) { HK = { p: e.p, h: (a) => { if (HK && HK.p === e.p) { CA = Array.isArray(a) && typeof a[0] === 'string' ? a[0] : ''; gate(); } } }; e.p.on('accountsChanged', HK.h); } }
   if (gate()) return;
-  WA = w; if (G) { P(1); const g = await gb(w, x.handoff); return done(g, g.slug, null); } P(1); const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
+  WA = w; if (G) { P(1); const g = await gb(w, x.handoff, sign); return done(g, g.slug, null); } P(1); const k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']), pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
   const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
   P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, support_email: (x.support_email || '').trim(), site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, handoff_id: x.handoff, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
   const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
   P(3); const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
   const ac = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' }); let gl = '';
-  if (GR) { try { P(4); await gb(w, x.handoff); } catch (e) { gl = PN + ' was not allowed to act for your store. Ask ' + PN + ' for a new link to allow it later.'; } } await done(ac, x.slug, k, gl);
+  if (GR) { try { P(4); await gb(w, x.handoff, sign); } catch (e) { gl = PN + ' was not allowed to act for your store. Ask ' + PN + ' for a new link to allow it later.'; } } await done(ac, x.slug, k, gl);
 };
 $('nx').onclick = async () => {
   if (cur < 2) { if (!ok(cur, true)) return; T('connect_step', { step: cur + 2 }); return show(cur + 1); }
-  const bt = $('nx'); bt.disabled = true; $('er').hidden = true; $('wt').hidden = true; net();
-  try { await run(); } catch (err) { fail(err); }
-  bt.disabled = false; gate();
+  const bt = $('nx'), my = ++RID; busy = true; bt.disabled = true; $('er').hidden = true; $('wt').hidden = true; net();
+  try { await run(my); } catch (err) { if (my === RID) fail(err); }
+  if (my === RID) { busy = false; gate(); }
 };
 pv(); show(G ? 2 : 0);
 </script>
