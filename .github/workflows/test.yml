@@ -89,6 +89,10 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: Shell tests
+        timeout-minutes: 10
+        run: bash tests/bash/run-all.sh
+
       - name: Unit + DB tests
         # F8: --passWithNoTests removed: a broken jest config that collects 0 tests should FAIL the
         # build. The jest reporter prints "DB suites skipped: N" and fails the run when N > 0
