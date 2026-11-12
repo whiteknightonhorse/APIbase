@@ -1055,10 +1055,6 @@ safety.ratings	nhtsa-safety	0.001
 safety.recalls	nhtsa-safety	0.001
 sam.entity_detail	sam	0.002
 sam.entity_search	sam	0.002
-samuni.audit_opinions	samuni	0.002
-samuni.income_expenditure	samuni	0.002
-samuni.municipalities	samuni	0.001
-samuni.officials	samuni	0.001
 scb.catalog	scb	0.001
 scb.table_metadata	scb	0.002
 scb.table_query	scb	0.003
