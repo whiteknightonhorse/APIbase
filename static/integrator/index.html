@@ -80,7 +80,7 @@
 <li>pay → USDC over x402 (Base) or MPP (Tempo)</li>
 <li>settle → your wallet — APIbase never holds the money</li>
 </ol>
-<p>The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. See <a href="/integrator/why-base-tempo">why Base and Tempo</a>.</p>
+<p>The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. The storefront exists because you published it: you add the link, you list the products, you can remove it at any time. An agent buys through that storefront; it does not scrape your pages or drive your browser checkout. See <a href="/integrator/why-base-tempo">why Base and Tempo</a>.</p>
 <h3 id="subscriptions">Subscriptions</h3>
 <p>A subscription is renewed by the buyer's agent with an explicit payment; funds are not debited automatically unless the payer pre-signs the next periods on Base (see <a href="/integrator/docs#base-pull-subscriptions">Base pull subscriptions</a>). Each period is an ordinary order: the agent asks for the renewal quote inside a 72-hour window around the end of the paid period and pays it on Base or Tempo. If the period ends unpaid, the subscription is past due, you get <code>subscription.past_due</code> after 24 hours and it is canceled after 72 hours. Grant access from the <code>subscription.*</code> webhooks or by reading the subscription. Details: <a href="/integrator/docs#subscriptions">/integrator/docs#subscriptions</a>.</p>
 </section>
@@ -211,6 +211,7 @@ AI agents can buy here: https://apibase.pro/m/&lt;slug&gt;/llms.txt</pre></div>
 <details><summary>What if a payment is slow?</summary><p>The order stays <code>PAYING</code> (202 <code>payment_pending</code>) and a job reconciles it against the chain.</p></details>
 <details><summary>What if a buyer's agent pays my order twice, or a payment lands after the order expired?</summary><p>The money reached your payout wallet, so you refund it: APIbase opens a refund request marked 'duplicate payment' on the order, payable to the paying wallet within 7 days from your payout wallet (the same flow as any refund; the buyer sees it on the order). APIbase returns its own fee share of that payment automatically, if a fee was taken. Your order and your sale are untouched.</p></details>
 <details><summary>Who is APIbase in this deal?</summary><p>Read the <a href="/legal/merchant-agreement">merchant agreement</a>: APIbase is a technology intermediary, and the fee is charged to the seller.</p></details>
+<details><summary>Who bears an order an agent placed by mistake?</summary><p>An order placed by a buyer's agent binds the buyer it acts for, and an on-chain payment is irreversible. A refund of such an order follows your published refund policy and the <a href="/legal/refund-framework">refund framework</a>.</p></details>
 </section>
 
 <section id="legal">

@@ -19,6 +19,7 @@
 - [Wix](https://apibase.pro/integrator/platforms/wix)
 - [Custom site](https://apibase.pro/integrator/platforms/custom)
 - [Connect form (humans)](https://apibase.pro/integrator/connect)
+- [Consent](https://apibase.pro/integrator): the shop publishes its own storefront and is paid to its own wallet; agents do not scrape the shop
 - [Demo shop](https://apibase.pro/m/apibase-demo)
 - [Legal documents](https://apibase.pro/legal/index.json)
 - [Check a connection](https://apibase.pro/integrator/check/apibase-demo)

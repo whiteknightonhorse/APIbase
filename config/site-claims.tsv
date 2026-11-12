@@ -152,3 +152,5 @@ static/partners.html	https://apibase.pro/partners	must-contain	Open for endpoint
 static/partners.html	https://apibase.pro/partners	must-not-contain	not yet open	-	T-0655
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	[Pricing](https://apibase.pro/pricing.md)	-	T-0763
 static/llms.txt	https://apibase.pro/llms.txt	must-not-contain	# https://apibase.pro	-	T-0763
+static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	it does not scrape your pages	-	T-0793
+static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	Who bears an order an agent placed by mistake	-	T-0793

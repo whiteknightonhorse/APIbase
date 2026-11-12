@@ -17,7 +17,7 @@ Merchants connected so far: {{MERCHANTS_COUNT}}.
 4. pay → USDC over x402 (Base) or MPP (Tempo)
 5. settle → your wallet — APIbase never holds the money
 
-The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. See /integrator/why-base-tempo.
+The buyer's agent finds the storefront, sees only your tools, gets a quote and pays it in USDC over x402 (Base) or MPP (Tempo), straight to your wallet. APIbase does not hold your money. The storefront exists because you published it: you add the link, you list the products, you can remove it at any time. An agent buys through that storefront; it does not scrape your pages or drive your browser checkout. See /integrator/why-base-tempo.
 
 ### Subscriptions
 
@@ -122,6 +122,7 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 - What if a buyer's agent pays my order twice, or a payment lands after the order expired? The money reached your payout wallet, so you refund it: APIbase opens a refund request marked 'duplicate payment' on the order, payable to the paying wallet within 7 days from your payout wallet (the same flow as any refund; the buyer sees it on the order). APIbase returns its own fee share of that payment automatically, if a fee was taken. Your order and your sale are untouched.
 - When does my shop appear in the public shop index? Your shop appears in the public index once your domain is verified; before that its storefront page works by direct link.
 - Who is APIbase in this deal? Read /legal/merchant-agreement: APIbase is a technology intermediary, and the fee is charged to the seller.
+- Who bears an order an agent placed by mistake? An order placed by a buyer's agent binds the buyer it acts for, and an on-chain payment is irreversible. A refund of such an order follows your published refund policy and /legal/refund-framework.
 
 ## Legal documents
 
