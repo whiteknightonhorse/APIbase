@@ -847,6 +847,10 @@
     "safety.recalls": "healthy",
     "sam.entity_detail": "healthy",
     "sam.entity_search": "healthy",
+    "samuni.audit_opinions": "healthy",
+    "samuni.income_expenditure": "healthy",
+    "samuni.municipalities": "healthy",
+    "samuni.officials": "healthy",
     "scb.catalog": "healthy",
     "scb.table_metadata": "healthy",
     "scb.table_query": "healthy",
@@ -1198,7 +1202,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 399,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1232,7 +1236,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1349,
+      "count": 1353,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1246,6 +1250,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1377,
+  "tools_count": 1381,
   "version": "2.2.0"
 }

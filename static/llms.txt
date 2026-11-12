@@ -1,6 +1,6 @@
 # APIbase — Universal API Hub for AI Agents
 
-> One MCP + REST endpoint to 1377 tools from 399 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
+> One MCP + REST endpoint to 1381 tools from 400 providers. No signup, no subscription, no API key to start — pay per call in USDC (x402 on Base or MPP on Tempo).
 
 Site: https://apibase.pro. MCP endpoint: https://apibase.pro/mcp (Streamable HTTP).
 
@@ -27,11 +27,11 @@ Site: https://apibase.pro. MCP endpoint: https://apibase.pro/mcp (Streamable HTT
   intent/category/max_price_usd — free ($0), ranked by relevance then quality then price,
   returns pricing/payment rails/availability/quality per match (ZZ-03-05)
 - Discover tools (REST, no auth): GET https://apibase.pro/api/v1/discover?intent=&category=&max_price_usd=&limit=
-- Full catalog: GET https://apibase.pro/api/v1/tools (1377 healthy tools; degraded ones are listed with status; JSON schemas)
+- Full catalog: GET https://apibase.pro/api/v1/tools (1381 healthy tools; degraded ones are listed with status; JSON schemas)
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure
-1377 tools across 24 categories (TOOL_DEFINITIONS[].category — the single source of truth
+1381 tools across 24 categories (TOOL_DEFINITIONS[].category — the single source of truth
 shared by MCP apibase.discover, the REST ?category= filter, and this file, ZZ-03-01). Call
 apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - No args → best/most-relevant matches across the whole catalog
@@ -64,7 +64,7 @@ news, podcasts, search, social, space, travel, weather, world
 - MPP refunds owed are reconciled from the chain every 15 minutes, not only from our own writer.
 - Refunds owed by APIbase are automatic on both rails (weekly, to the paying wallet, receipt field refund_url): https://apibase.pro/pricing#refunds
 - Upstream-paid tools: APIbase pays the provider's own x402/MPP 402 per call; you pay only APIbase's fixed price, x402 is settled only when the result is delivered (MPP: automatic refund otherwise); x402 or MPP payment only. Rules: https://github.com/whiteknightonhorse/APIbase/blob/main/docs/payments.md#upstream-paid-providers
-- Integrator (AI payment for merchants, https://apibase.pro/integrator): Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise. Merchants connected: 10. (the public /shops index lists only shops with a verified domain).
+- Integrator (AI payment for merchants, https://apibase.pro/integrator): Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise. Merchants connected: 11. (the public /shops index lists only shops with a verified domain).
 
 ## Agent Integration Guide
 1. Match price to wallet — fetch only tools you can afford:
