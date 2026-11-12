@@ -1,11 +1,12 @@
 /**
- * T-0536: read-only report of live products whose title or description states a currency amount
- * that differs from `price_usd` (the same rule as the `price_claim_mismatch` catalog gate).
+ * T-0536/T-0803: read-only report of live products whose title or description states a price
+ * (after price/priced/cost/costs, next to only/just, or followed by `tier`) that differs from
+ * `price_usd` (the same rule as the `price_claim_mismatch` catalog gate); other amounts are not read.
  *
  *   DATABASE_URL=... npx tsx scripts/shop/report-price-claims.ts [--slug <slug>]
  *
  * Writes nothing and edits no merchant text. Output is one JSON line:
- * `{ count, items: [{ slug, sku, field, claimed, price_usd, title }] }`.
+ * `{ count, items: [{ slug, sku, field, phrase, claimed, price_usd, title }] }`.
  */
 import type { ShopTx } from '../../src/shop/db';
 import { findPriceClaimMismatch } from '../../src/shop/moderation/price-claims';
@@ -43,6 +44,7 @@ export async function run(argv: string[], db: ShopTx): Promise<Record<string, un
         slug: r.slug,
         sku: r.sku,
         field: c.field,
+        phrase: c.phrase,
         claimed: c.claimed,
         price_usd: r.price_usd,
         title: r.title,

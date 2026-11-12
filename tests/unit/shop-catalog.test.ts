@@ -292,6 +292,45 @@ dbDescribe('shop catalog', () => {
     expect(r.upserted).toBe(2);
   });
 
+  it('CT4c: T-0803 the merchant PUT route accepts amounts as content and refuses a stated price', async () => {
+    const { id } = await shop();
+    const key = await issueKey(deps.db, id);
+    const app = express();
+    app.use(express.json({ limit: '1mb' }));
+    app.use(createMerchantRouter(deps));
+    const server: Server = await new Promise((r) => {
+      const s = app.listen(0, '127.0.0.1', () => r(s));
+    });
+    try {
+      const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}/api/v1/shop/merchants/me/catalog`;
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          items: [
+            item('p1', {
+              price_usd: 5,
+              description:
+                'Four tables: seller fees as stated, price points found, and what a seller keeps of a $1, $5 and $20 sale under the stated formulas.',
+            }),
+            item('r2', { price_usd: 5, description: 'Price: $3' }),
+          ],
+        }),
+      });
+      const body = (await res.json()) as {
+        upserted: number;
+        errors: Array<{ sku: string; status: number; error_code: string; message: string }>;
+      };
+      expect(body.upserted).toBe(1);
+      expect(body.errors.map((e) => [e.sku, e.status, e.error_code])).toEqual([
+        ['sku-r2', 422, 'price_claim_mismatch'],
+      ]);
+      expect(body.errors[0].message).toContain('Price: $3');
+    } finally {
+      server.close();
+    }
+  });
+
   it('CT5: FTS order by rank, cursor without duplicates, no test SKU, max_price filter', async () => {
     const { id, slug } = await shop();
     await up(id, [

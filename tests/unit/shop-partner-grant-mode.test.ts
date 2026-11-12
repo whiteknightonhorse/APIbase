@@ -546,6 +546,26 @@ dbDescribe('T-0747 partner-mode grants', () => {
       );
     });
 
+    it('T-0803: amounts as content are accepted; a stated price that differs is a 422 price_claim_mismatch in errors[]', async () => {
+      const g = await granted();
+      const p1 = {
+        ...ITEM,
+        sku: 'p-amt',
+        description:
+          'Four tables: seller fees as stated, price points found, and what a seller keeps of a $1, $5 and $20 sale under the stated formulas.',
+      };
+      const r2 = { ...ITEM, sku: 'p-r2', description: 'Price: $3' };
+      const r = await putCatalog(g.slug, [p1, r2], PKEY);
+      expect([r.status, r.body.upserted]).toEqual([200, 1]);
+      expect(r.body.errors).toHaveLength(1);
+      expect([r.body.errors[0].sku, r.body.errors[0].status, r.body.errors[0].error_code]).toEqual([
+        'p-r2',
+        422,
+        'price_claim_mismatch',
+      ]);
+      expect(r.body.errors[0].message).toContain('Price: $3');
+    });
+
     it("another partner's live grant does not count: 403 grant_missing", async () => {
       const g = await granted();
       const r = await putCatalog(g.slug, [ITEM], OKEY);
