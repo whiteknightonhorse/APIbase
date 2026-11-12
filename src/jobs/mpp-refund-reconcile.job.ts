@@ -287,8 +287,11 @@ async function judge(l: TransferLog, head: number, nowMs: number): Promise<boole
      OR EXISTS (SELECT 1 FROM shop_payments WHERE lower(tx_hash) = $1)
      OR EXISTS (SELECT 1 FROM shop_subscription_mpp_renewals WHERE lower(tx_hash) = $1)
      OR EXISTS (SELECT 1 FROM outbox
-                 WHERE event_type IN ('mpp_settle_unknown','mpp_refund_write_failed','ledger.write_failed')
+                 WHERE event_type IN ('mpp_settle_unknown','ledger.write_failed')
                    AND lower(payload->>'tx_hash') = $1)
+     OR EXISTS (SELECT 1 FROM outbox
+                 WHERE event_type = 'mpp_refund_write_failed'
+                   AND lower(payload->>'original_tx') = $1)
      OR EXISTS (SELECT 1 FROM public_receipts
                  WHERE created_at BETWEEN $2::timestamptz - interval '1 day' AND $2::timestamptz + interval '1 day'
                    AND lower(body::jsonb->>'payment_tx') = $1)

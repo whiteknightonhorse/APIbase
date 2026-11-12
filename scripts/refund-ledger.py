@@ -3,13 +3,14 @@
 
 Operator ruling REFUND-WALLET-1026 (c), 2026-10-24: refunds are paid automatically by the
 refund payout job (0553) from a dedicated operator-funded refund wallet. This tool never
-sends anything. It reads the ledger and has ONE write verb: `cancel` (a debt that is not
-owed after all). It replaces mpp-refund-resolve.py.
+sends anything. It reads the ledger and has two write verbs: `cancel` (a debt that is not
+owed after all) and `resolve-unmatched` (closes one mpp_settle_unmatched outbox row; no money). It replaces mpp-refund-resolve.py.
 
 Usage:
   refund-ledger.py list [--rail base|tempo] [--status owed|internal|scheduled|sent|cancelled]
   refund-ledger.py cancel <refund_id> --reason "<why no refund is owed>"
   refund-ledger.py status
+  refund-ledger.py resolve-unmatched <outbox_id> --reason "<verdict>"
   refund-ledger.py --selftest
 """
 import re
@@ -64,6 +65,12 @@ def parse_args(argv):
         if not UUID_RE.match(rest[0]):
             raise ValueError(f"refund_id must be a uuid, got {rest[0]!r}")
         opts = {"refund_id": rest[0], "reason": rest[2]}
+    elif verb == "resolve-unmatched":
+        if len(rest) != 3 or rest[1] != "--reason" or not rest[2].strip():
+            raise ValueError('resolve-unmatched <outbox_id> --reason "<text>"')
+        if not rest[0].isascii() or not rest[0].isdigit():
+            raise ValueError(f"outbox_id must be a number, got {rest[0]!r}")
+        opts = {"outbox_id": int(rest[0]), "reason": rest[2]}
     elif verb == "status":
         if rest:
             raise ValueError("status takes no arguments")
@@ -92,6 +99,18 @@ def cancel_sql(opts):
         "UPDATE refund_ledger SET status = 'cancelled', "
         f"cancelled_reason = {sql_literal(opts['reason'])} "
         f"WHERE refund_id = {sql_literal(opts['refund_id'])}::uuid AND status IN ('owed', 'internal')"
+    )
+
+
+UNMATCHED_SELECT = "SELECT id, event_type, processed, payload::text FROM outbox WHERE id = {id}"
+
+
+def resolve_unmatched_sql(opts):
+    """Only outbox rows of type mpp_settle_unmatched that are still unprocessed; no other table."""
+    return (
+        "UPDATE outbox SET processed = true, payload = payload || jsonb_build_object("
+        f"'resolved_at', now()::text, 'resolved_reason', {sql_literal(opts['reason'])}::text) "
+        f"WHERE id = {int(opts['outbox_id'])} AND event_type = 'mpp_settle_unmatched' AND processed = false"
     )
 
 
@@ -126,6 +145,20 @@ def main(argv):
             return 1
         print(f"refund-ledger: {opts['refund_id']} cancelled ({opts['reason']})")
         return 0
+    if verb == "resolve-unmatched":
+        sel = UNMATCHED_SELECT.format(id=int(opts["outbox_id"]))
+        before, rc0 = run_sql(sel)
+        if rc0 != 0:
+            print("refund-ledger: query failed")
+            return 1
+        print("before:", before.replace(SEP, " | ") or "(no such row)")
+        out, rc = run_sql(resolve_unmatched_sql(opts), WRITE_ROLE)
+        if rc != 0 or out != "UPDATE 1":
+            print(f"refund-ledger: resolve-unmatched failed ({out!r}) -- only unprocessed mpp_settle_unmatched rows")
+            return 1
+        after, _ = run_sql(sel)
+        print("after: ", after.replace(SEP, " | "))
+        return 0
     out, rc = run_sql(STATUS_SQL)
     carried, rc2 = run_sql(CARRIED_SQL)
     if rc != 0 or rc2 != 0:
@@ -154,10 +187,22 @@ def selftest():
         raise AssertionError(f"accepted {bad}")
     _, o = parse_args(["cancel", "00000000-0000-0000-0000-000000000000", "--reason", "o'k"])
     assert "'o''k'" in cancel_sql(o) and "IN ('owed', 'internal')" in cancel_sql(o)
+    v, o = parse_args(["resolve-unmatched", "17920", "--reason", "it's ok"])
+    assert v == "resolve-unmatched" and o["outbox_id"] == 17920
+    q = resolve_unmatched_sql(o)
+    assert "event_type = 'mpp_settle_unmatched'" in q and "processed = false" in q and "id = 17920" in q
+    assert "'it''s ok'" in q and q.startswith("UPDATE outbox ") and "refund_ledger" not in q
+    for bad in (["resolve-unmatched"], ["resolve-unmatched", "x", "--reason", "r"],
+                ["resolve-unmatched", "1; DROP", "--reason", "r"], ["resolve-unmatched", "1", "--reason", " "]):
+        try:
+            parse_args(bad)
+        except ValueError:
+            continue
+        raise AssertionError(f"accepted {bad}")
     assert "rail = 'tempo'" in list_sql({"rail": "tempo"})
     import inspect
     assert inspect.signature(run_sql).parameters["role"].default == "fleet_ro" and WRITE_ROLE == "apibase"
-    assert inspect.getsource(main).count("WRITE_ROLE") == 1
+    assert inspect.getsource(main).count("WRITE_ROLE") == 2
     print("refund-ledger --selftest: OK")
     return 0
 

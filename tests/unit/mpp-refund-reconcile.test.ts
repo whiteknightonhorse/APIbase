@@ -248,6 +248,22 @@ dbDescribe('mpp-refund-reconcile (T-0652)', () => {
     expect((await counter('mpp_settle_unmatched_total')) - before).toBe(0);
   });
 
+  it('B1b: a transfer whose hash sits in a parked mpp_refund_write_failed row (payload.original_tx) is matched', async () => {
+    const hParked = tx();
+    await x(
+      `INSERT INTO outbox (event_type, payload) VALUES ('mpp_refund_write_failed', $1::jsonb)`,
+      JSON.stringify({
+        request_id: `req-${uniq()}`,
+        payer: PAYER,
+        original_tx: hParked.toUpperCase().replace('0X', '0x'),
+      }),
+    );
+    const { chain } = fakeChain([log(hParked)]);
+    const out = await run({ chain, cursor: cursorStore(String(HEAD - LAG - 1000)) });
+    expect(out.unmatched).toBe(0);
+    expect(await unmatched(hParked)).toHaveLength(0);
+  });
+
   it('B2: an unmatched transfer writes one outbox row; a second run over the same blocks keeps it at one', async () => {
     const h = tx();
     const { chain } = fakeChain([log(h)]);

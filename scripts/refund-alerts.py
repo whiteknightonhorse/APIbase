@@ -156,12 +156,18 @@ def fetch_settle_events():
     return None if code != 0 else [json.loads(x) for x in raw.splitlines() if x.strip()]
 
 
-def settle_page(ev, tg):
-    """Pure."""
+def settle_page(ev, tg, internal_wallets=frozenset()):
+    """Pure. mpp_settle_unmatched has its own text and an internal-wallet suffix (internal payers are
+    still paged); every other kind keeps the mpp_settle_unknown text."""
     p = ev["payload"] if isinstance(ev["payload"], dict) else {}
-    return tg["refund_ev_settle_unknown"].format(
-        kind=ev["kind"], tool=p.get("tool_id", "?"), amount=rc.fmt(p.get("amount_usd", p.get("amount"))),
-        payer=p.get("refund_to") or p.get("payer") or "?", tx=p.get("tx_hash", "unknown"), event_id=ev["id"])
+    payer = p.get("refund_to") or p.get("payer") or "?"
+    fields = dict(kind=ev["kind"], tool=p.get("tool_id", "?"), amount=rc.fmt(p.get("amount_usd", p.get("amount"))),
+                  payer=payer, tx=p.get("tx_hash", "unknown"), event_id=ev["id"])
+    if ev["kind"] == "mpp_settle_unmatched":
+        is_internal = isinstance(payer, str) and payer.lower() in internal_wallets
+        return tg["refund_ev_settle_unmatched"].format(
+            internal=tg["refund_settle_internal_suffix"] if is_internal else "", **fields)
+    return tg["refund_ev_settle_unknown"].format(**fields)
 
 
 def mark_settle_alerted(ids):
@@ -206,8 +212,9 @@ def tick():
         print("WARNING: failed to mark events processed; they re-evaluate next tick (dedup holds)")
     settle = fetch_settle_events() or []
     paged_settle = []
+    internal = rc.load_internal_wallets() if settle else frozenset()
     for ev in settle:
-        if rc.tg_send(settle_page(ev, tg)):
+        if rc.tg_send(settle_page(ev, tg, internal)):
             paged_settle.append(ev["id"])
             paged += 1
     if paged_settle and mark_settle_alerted(paged_settle) != 0:
@@ -275,6 +282,14 @@ def selftest():
         event_page(kind, {"rail": "base", "payer": "0x1", "payout_id": "p", "amount_usd": 3}, tg)
     assert "7" in settle_page({"id": 7, "kind": "mpp_settle_unknown", "payload": {"amount_usd": 0.5}}, tg)
     settle_page({"id": 8, "kind": "mpp_settle_unmatched", "payload": "x"}, tg)
+    ua = {"id": 9, "kind": "mpp_settle_unmatched", "payload": {"payer": "0xAbC", "amount_usd": 0.5, "tx_hash": "0xt"}}
+    ext, own = settle_page(ua, tg, set()), settle_page(ua, tg, {"0xabc"})
+    suffix = tg["refund_settle_internal_suffix"]
+    assert suffix not in ext and "{" not in ext and "0xAbC, tx 0xt, outbox id 9" in ext
+    assert "0xAbC" + suffix + ", tx 0xt, outbox id 9" in own and "{" not in own
+    unk = settle_page({"id": 7, "kind": "mpp_settle_unknown", "payload": {"payer": "0xabc"}}, tg, {"0xabc"})
+    assert unk == tg["refund_ev_settle_unknown"].format(kind="mpp_settle_unknown", tool="?", amount=rc.fmt(None),
+                                                        payer="0xabc", tx="unknown", event_id=7)
     event_page("refund_alert_unknown", "not-a-dict", tg)
     for kind, data in (("row", row(7, 1.5)), ("wallet", {"payer": "0x1", "total": Decimal(6), "n": 3}),
                        ("rate", {"n": 100, "tools": "t.x (100)"})):

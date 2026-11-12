@@ -41,6 +41,8 @@
   "refund_ev_kill_active": "[apibase] ⛔ Выплаты возвратов остановлены (kill-файл или REFUND_PAYOUT_ENABLED=false). Напоминание раз в сутки, пока файл на месте.",
   "refund_ev_run_skipped": "[apibase] ⚠️ Прогон выплат пропущен ({rail}): оракул комиссии вне допустимых границ или недоступен: {reason}",
   "refund_ev_settle_unknown": "[apibase] 🚨 Расчёт MPP не подтверждён ({kind}): деньги могли уйти. Инструмент: {tool}, сумма ${amount}, плательщик {payer}, tx {tx}, outbox id {event_id}. Проверьте в сети вручную.",
+  "refund_ev_settle_unmatched": "[apibase] ⚠️ На кошелёк выручки пришёл перевод MPP без записи в учёте ({kind}): деньги получены, вызов не записан. Сумма ${amount}, отправитель {payer}{internal}, tx {tx}, outbox id {event_id}. Возврат не начислен. Нужно выяснить, что это был за запрос.",
+  "refund_settle_internal_suffix": " (наш тестовый кошелёк, долга нет)",
   "refund_ev_other": "[apibase] ⚠️ Событие кошелька возвратов {kind} ({rail}): {detail}",
   "refund_weekly": "[apibase] 📋 Недельная сводка возвратов\nПоследний прогон: {run}\nК выплате (owed): {owed}\nПереходящих строк: {carried}, старейшая: {oldest_days} дн.\nБалансы кошельков: {balances}\nKill-выключатель: {kill}\ninternal (Heartbeat) строк за 7 дней: {internal_n} (QA, не долг)",
   "refund_weekly_none": "нет данных",
