@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # T-KEY-1 acceptance: the API-key-unset guard runs before EVERY headless claude call. A fake claude records whether it was
 # called; the key value is always the literal "x" and must never reach the guard log. No network, no model.
-# Run: bash tests/bash/api-key-guard.test.sh
+# HOST TEST: needs the live engine, the ~/bin/claude wrapper and the night-orchestra tree; CI does not run tests/host/. Run: bash tests/host/api-key-guard.test.sh
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 TL="${TASKLOOP_DIR:-$HOME/taskloop}"

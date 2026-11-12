@@ -2,10 +2,20 @@
 # API-CREDITS-1108/2 acceptance tests: Fable acceptance overflow + key-unset assertion. Fake api-call / fake claude; no network.
 set -u
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-. /home/apibase/taskloop/lib/review-verdict.sh
-. "$ROOT/scripts/api-credits/overflow.sh"
 T="$(mktemp -d)"; trap 'rm -rf "$T"' EXIT
 FAIL=0; ok(){ echo "PASS $1"; }; bad(){ echo "FAIL $1"; FAIL=1; }
+# Stand-in for the engine function review_verdict (lib/review-verdict.sh of the engine): prints ACCEPT, REJECT or
+# ESCALATE when the last non-empty line starts with that word (with or without "VERDICT: " in front), NONE otherwise.
+# tests/host/api-overflow-engine.test.sh runs the same case against the real one.
+review_verdict(){
+  local last; last=$(grep -v '^[[:space:]]*$' "$1" 2>/dev/null | tail -n 1); last=${last#VERDICT: }
+  case "$last" in ACCEPT*) echo ACCEPT;; REJECT*) echo REJECT;; ESCALATE*) echo ESCALATE;; *) echo NONE;; esac
+}
+# Stand-in key guard helper, written here so that nothing is read from the HOME of the caller.
+printf 'api_key_assert_unset(){ return 0; }\n' > "$T/guard-stub.sh"; export API_KEY_GUARD="$T/guard-stub.sh"
+SRC_ERR=$(. "$ROOT/scripts/api-credits/overflow.sh" 2>&1 >/dev/null)
+. "$ROOT/scripts/api-credits/overflow.sh"
+[ -z "$SRC_ERR" ] && ok "source is quiet" || bad "source is quiet: $SRC_ERR"
 STATE="$T/state"; mkdir -p "$STATE"; TODAY=2026-11-20
 printf 'the review prompt' > "$T/prompt"
 cat > "$T/api-ok" <<'X'
@@ -48,30 +58,15 @@ API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 
 [ -e "$STATE/T-4.overflow-used" ] && bad "once-marker consumed" || ok "once-marker not consumed"
 [ -e "$T/args" ] && bad "api-call ran on real verdict" || ok "no api-call on real verdict"
 
-# 5. ANTHROPIC_API_KEY set -> claude_print aborts the tick with the log line, no claude call
-cat > "$T/fn.sh" <<X
-log(){ echo "\$*" >> "$T/tick.log"; }
-HERE=/nonexistent; CLAUDE_BIN="$T/claude"
-$(sed -n '/^claude_print(){/,/^}/p' /home/apibase/taskloop/taskloop.sh)
-X
-printf '#!/usr/bin/env bash\ntouch "%s/claude-ran"\n' "$T" > "$T/claude"; chmod +x "$T/claude"
-( . "$ROOT/scripts/api-credits/overflow.sh"; . "$T/fn.sh"; ANTHROPIC_API_KEY=x claude_print 5 m "$T/prompt" "$T/o" ) >/dev/null 2>&1; rc=$?
-[ "$rc" != 0 ] && ok "tick aborted (rc=$rc)" || bad "not aborted"
-grep -q 'API key present in OAuth path — tick aborted' "$T/tick.log" && ok "tick.log line written" || bad "tick.log line"
-[ -e "$T/claude-ran" ] && bad "claude was called" || ok "no claude call"
-# 6. R5: the preflight ping path (no creds file, no preflight.ok -> UNKNOWN, no fallback -> haiku ping) is guarded by the same assertion
-cat > "$T/pf.sh" <<X
-log(){ echo "\$*" >> "$T/tick.log"; }
-HERE=/nonexistent; CLAUDE_BIN="$T/claude"; STATE="$T/pfstate"; mkdir -p "\$STATE"; AUTH_PREFLIGHT_CREDS="$T/nocreds"
-. /home/apibase/taskloop/lib/auth-preflight.sh
-$(grep -n 'T-0745 R5' -A1 /home/apibase/taskloop/taskloop.sh | sed -n 2p | sed 's/^[0-9]*-//')
-auth_preflight_gate "\$STATE"
-X
-rm -f "$T/claude-ran" "$T/tick.log"
-( . "$ROOT/scripts/api-credits/overflow.sh"; export ANTHROPIC_API_KEY=x; . "$T/pf.sh" ) >/dev/null 2>&1; rc=$?
-[ "$rc" != 0 ] && ok "preflight path aborted (rc=$rc)" || bad "preflight not aborted"
-grep -q 'API key present in OAuth path — tick aborted' "$T/tick.log" && ok "preflight tick.log line" || bad "preflight log line"
-[ -e "$T/claude-ran" ] && bad "ping ran claude" || ok "no ping claude call"
-rm -f "$T/tick.log"; ( . "$ROOT/scripts/api-credits/overflow.sh"; unset ANTHROPIC_API_KEY; . "$T/pf.sh" ) >/dev/null 2>&1
-[ -e "$T/claude-ran" ] && ok "control: ping reachable without key" || bad "control: ping path not reached"
+# 7. line 9 of overflow.sh: the guard helper comes from API_KEY_GUARD, else from HOME; no fallback definition lives in overflow.sh
+printf 'api_key_assert_unset(){ echo g1; }\n' > "$T/g1.sh"
+r=$( unset -f api_key_assert_unset; export API_KEY_GUARD="$T/g1.sh"; . "$ROOT/scripts/api-credits/overflow.sh"; api_key_assert_unset )
+[ "$r" = g1 ] && ok "7a API_KEY_GUARD file is sourced" || bad "7a got '$r'"
+mkdir -p "$T/h7b/taskloop/lib"; printf 'api_key_assert_unset(){ echo home; }\n' > "$T/h7b/taskloop/lib/api-key-guard.sh"
+r=$( unset -f api_key_assert_unset; unset API_KEY_GUARD; export HOME="$T/h7b"; . "$ROOT/scripts/api-credits/overflow.sh"; api_key_assert_unset )
+[ "$r" = home ] && ok "7b HOME helper is the default" || bad "7b got '$r'"
+( unset -f api_key_assert_unset; export API_KEY_GUARD="$T/does-not-exist.sh"; . "$ROOT/scripts/api-credits/overflow.sh" 2>/dev/null; declare -F api_key_assert_unset >/dev/null ) \
+  && bad "7c function defined without a helper" || ok "7c missing helper leaves the function undefined"
+n=$(cd "$ROOT" && git grep -l 'api_key_assert_unset()' -- 'scripts/*.sh' | wc -l)
+[ "$n" = 0 ] && ok "7d no definition under scripts/" || bad "7d $n file(s) under scripts/ define api_key_assert_unset()"
 exit $FAIL

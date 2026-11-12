@@ -268,6 +268,7 @@ fi
 # ACQUIRE side. `set -e` above still exits nonzero on a timeout (rc=124), this just names it.
 timeout 300 git fetch origin ci-staging --quiet \
   || { clog "ABORT -- git fetch origin ci-staging timed out or failed (300s bound)"; calert "🔴 sync-counts-cron: git fetch origin ci-staging упал/завис (300s) -- отказ прибора." "fetch-failed"; exit 1; }
+# >>> branch-block: tests/bash/tree-hygiene.test.sh evals the lines between this line and the closing marker. Keep both markers; keep commit, push and sync-counts.sh calls outside.
 LOCAL_SHA="$(git rev-parse HEAD)"
 REMOTE_SHA="$(git rev-parse origin/ci-staging)"
 if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
@@ -290,6 +291,7 @@ if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
     exit 1
   fi
 fi
+# <<< branch-block
 
 
 # T-0173 (ruling-2, attempt-2): FILES above is hand-maintained prose ("kept in sync with its own

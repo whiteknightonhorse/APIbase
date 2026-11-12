@@ -40,9 +40,21 @@ git stash clear
 
 # 4. sync-counts-cron branch: behind -> fast-forward and continue; diverged -> abort
 SC="$REPO/scripts/sync-counts-cron.sh"
-extract(){ sed -n '/^LOCAL_SHA=/,/^# Every path sync-counts.sh/p' "$SC" | sed '$d'; }
+# Prints the lines strictly between the two branch-block markers, and nothing unless the markers are well formed.
+extract(){
+  local n1 n2 l1 l2 body
+  n1=$(grep -c '^# >>> branch-block' "$SC"); n2=$(grep -c '^# <<< branch-block' "$SC")
+  [ "$n1" = 1 ] && [ "$n2" = 1 ] || return 0
+  l1=$(grep -n '^# >>> branch-block' "$SC" | cut -d: -f1); l2=$(grep -n '^# <<< branch-block' "$SC" | cut -d: -f1)
+  [ "$l1" -lt "$l2" ] || return 0
+  body=$(sed -n "$((l1 + 1)),$((l2 - 1))p" "$SC")
+  case "$body" in 'LOCAL_SHA='*) ;; *) return 0 ;; esac
+  printf '%s\n' "$body" | grep -qF -e 'git commit' -e 'git push' -e 'scripts/sync-counts.sh' && return 0
+  printf '%s\n' "$body"
+}
 run_branch(){ ( clog(){ echo "$*" >> "$T/clog"; }; calert(){ echo "ALERT $*" >> "$T/clog"; }
   eval "$(extract)"; echo continued >> "$T/clog" ); }
+[ -n "$(extract)" ] && ok "branch block markers" || bad "branch block markers"
 W2="$T/w2"; git clone -q "$T/origin.git" "$W2" 2>/dev/null
 ( cd "$W2" && git config user.email t@t && git config user.name t && git checkout -q ci-staging && echo n >> f.txt && git commit -qam c2 && git push -q origin ci-staging )
 git fetch -q origin ci-staging
@@ -57,7 +69,9 @@ grep -q "diverged" "$T/clog" && ! grep -q continued "$T/clog" && ok "diverged ->
 
 # 5. hook fixture payloads
 H="$REPO/scripts/hooks/bash-pretool-guard.sh"
-hook(){ printf '{"tool_name":"Bash","tool_input":{"command":%s}}' "$(jq -Rn --arg c "$1" '$c')" | CLAUDE_PROJECT_DIR="$REPO" "$H" 2>/dev/null; }
+# HOME is pinned: the hook resolves ~ through HOME and allows targets under /tmp and /var/tmp, so the result of
+# the "hook home" case must not depend on the HOME of the caller. The hook deletes nothing, it only resolves the path.
+hook(){ printf '{"tool_name":"Bash","tool_input":{"command":%s}}' "$(jq -Rn --arg c "$1" '$c')" | HOME=/nonexistent/t0578-home CLAUDE_PROJECT_DIR="$REPO" "$H" 2>/dev/null; }
 hook 'rm -rf /etc/outside-xyz'; [ $? = 2 ] && ok "hook blocks rm -rf outside worktree" || bad "hook outside"
 hook 'rm -rf ~'; [ $? = 2 ] && ok "hook blocks rm -rf ~" || bad "hook home"
 hook 'rm -rf node_modules/.cache'; [ $? = 0 ] && ok "hook allows rm -rf inside worktree" || bad "hook inside"
