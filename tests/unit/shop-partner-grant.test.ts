@@ -964,12 +964,20 @@ dbDescribe('T-0740 partner grants', () => {
     it('T-0768: a prefill without contact_email is 201; Contact email renders empty, support_email is never prefilled', async () => {
       const t = await page(await handoff({ prefill: { name: 'Prefill Shop' } }));
       expect(t).toContain(
-        '<input name="contact_email" type="email" autocomplete="email" placeholder="you@northsidekicks.com">',
+        '<input name="contact_email" type="email" autocomplete="email" placeholder="you@example.com">',
       );
       expect(t).toContain(
         '<label>Support email (optional)<input name="support_email" type="email"></label><small class="hint">Shown to buyers on their orders.</small>',
       );
       expect(t).toContain('"Prefill Shop"');
+      expect(t.toLowerCase()).not.toContain('northsidekicks');
+      const pay =
+        /<details><summary>Use a different payout wallet<\/summary>([\s\S]*?)<\/details>/.exec(
+          t,
+        )?.[1] ?? '';
+      expect(pay.match(/<p /g)).toHaveLength(1);
+      expect(pay).toContain('<label>Payout wallet on Base<input name="payout_wallet_base"');
+      expect(pay).toContain('<label>Payout wallet on Tempo<input name="payout_wallet_tempo"');
       expect(t).not.toContain('"contact_email":');
       expect(t).not.toMatch(/PF\.prefill[^;]*support_email|for \(const n of \[[^\]]*support_email/);
     });

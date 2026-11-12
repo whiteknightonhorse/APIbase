@@ -11,3 +11,5 @@ buyers)
 You sign three short messages with
 prove it's yours — no payment, no gas.
 Continue
+# T-0799: the payout-wallet explanation is printed once above the two fields; the per-field labels are one line.
+(leave empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet)

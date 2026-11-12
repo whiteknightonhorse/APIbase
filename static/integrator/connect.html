@@ -75,8 +75,8 @@
 <div class="cn-step" id="s1">
 <h2>Your store</h2>
 <label>Shop name<input name="name" autocomplete="organization" placeholder="Northside Kicks"></label><small class="hint">Shown to buyers and AI agents.</small><small class="err" data-for="name"></small>
-<label>Website<input name="site_url" type="url" inputmode="url" autocomplete="url" placeholder="https://northsidekicks.com"></label><small class="hint">Your store's address, starting with https://</small><small class="err" data-for="site_url"></small>
-<label>Contact email<input name="contact_email" type="email" autocomplete="email" placeholder="you@northsidekicks.com"></label><small class="hint">Never shown to buyers. We write only about your shop.</small><small class="err" data-for="contact_email"></small>
+<label>Website<input name="site_url" type="url" inputmode="url" autocomplete="url" placeholder="https://example.com"></label><small class="hint">Your store's address, starting with https://</small><small class="err" data-for="site_url"></small>
+<label>Contact email<input name="contact_email" type="email" autocomplete="email" placeholder="you@example.com"></label><small class="hint">Never shown to buyers. We write only about your shop.</small><small class="err" data-for="contact_email"></small>
 <label>Support email (optional)<input name="support_email" type="email"></label><small class="hint">Shown to buyers on their orders.</small><small class="err" data-for="support_email"></small>
 <div class="cn-row">
 <div><label>Category<select name="category">{{CATEGORY_OPTIONS}}</select></label><small class="hint">What you mainly sell. Helps agents find you.</small></div>
@@ -111,8 +111,9 @@
 <p><a href="/integrator/agent-guide">Registering through an AI agent or the API?</a></p>
 </div>
 <details><summary>Use a different payout wallet</summary>
-<label>Payout wallet on Base (leave empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet)<input name="payout_wallet_base" placeholder="0x..."></label>
-<label>Payout wallet on Tempo (leave empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet)<input name="payout_wallet_tempo" placeholder="0x..."></label>
+<p class="hint">Leave both fields empty unless you need a different wallet. A marketplace you sell through may require the payout wallet to equal the signing wallet.</p>
+<label>Payout wallet on Base<input name="payout_wallet_base" placeholder="0x..."></label>
+<label>Payout wallet on Tempo<input name="payout_wallet_tempo" placeholder="0x..."></label>
 </details>
 <div id="wn" hidden class="cn-net"><b>⚠ Wrong network</b><small id="wnt"></small></div>
 <div id="wt" hidden class="cn-wait"><b>Waiting for your wallet — signature <span id="wtn">1</span> of 3</b><small>Check your wallet — the request may be in another window or on your phone.</small></div>
