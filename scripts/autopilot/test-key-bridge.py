@@ -20,6 +20,18 @@ REAL = os.path.join(HERE, "key-bridge.py")
 SCRIPT = os.environ.get("KB_SCRIPT", REAL)
 IS_MUTANT = bool(os.environ.get("KB_SCRIPT"))
 MARKER_TEXT = "## KEYED CANDIDATE\nif the candidate line has a fourth field starting with key= ...\n"
+PAID_MARKER_TEXT = "## PAID CANDIDATE\na fourth field ending in paid=1 ...\n"
+
+
+def paid_rec(pid, cap="20", unit="0.002", confirmed="2026-11-12", **kw):
+    r = rec(pid, **kw)
+    r["paid"] = {"pricing_url": "https://x.example/p", "unit_cost_usd": unit, "billing": "prepaid",
+                 "provider_limit": "no", "tos_url": "https://x.example/t", "tos_quote": "q"}
+    if cap is not None:
+        r["paid"]["cap_usd_month"] = cap
+    if confirmed:
+        r["paid"]["confirmed_date"] = confirmed
+    return r
 
 
 def rec(pid, status="issued", auth="header X-Key", date="2026-09-10", env=None, url="https://x.example"):
@@ -32,7 +44,8 @@ def rec(pid, status="issued", auth="header X-Key", date="2026-09-10", env=None, 
 
 
 class World:
-    def __init__(self, records, connected=None, queue_lines=(), resolutions=None, adapters=(), marker=True):
+    def __init__(self, records, connected=None, queue_lines=(), resolutions=None, adapters=(), marker=True,
+                 paid_marker=False):
         self.dir = tempfile.mkdtemp(prefix="kb-test-")
         self.state = os.path.join(self.dir, "state")
         self.roles = os.path.join(self.dir, "roles")
@@ -46,7 +59,8 @@ class World:
         self._w("state/queue.txt", "".join(l + "\n" for l in queue_lines))
         self._w("resolutions.json", json.dumps(resolutions or {}))
         self._w("roles/fix.md", "x")
-        self._w("roles/onboard-batch.md", MARKER_TEXT if marker else "no-auth candidates only\n")
+        self._w("roles/onboard-batch.md", (MARKER_TEXT if marker else "no-auth candidates only\n")
+                 + (PAID_MARKER_TEXT if paid_marker else ""))
 
     def _w(self, rel, text):
         with open(os.path.join(self.dir, rel), "w") as f:
@@ -171,6 +185,53 @@ class KeyBridgeTests(unittest.TestCase):
         for p in ("p1", "p2", "p3", "p4"):
             self.assertNotIn(p, r.stdout)
 
+    # ---- paid records (T-NOP1112A) ----
+    def test_paid_unconfirmed_holds(self):
+        w = self.world([paid_rec("pay-a", cap=None, confirmed=None)], paid_marker=True)
+        before = w.queue()
+        r = w.run()
+        self.assertEqual(w.queue(), before)
+        self.assertEqual(w.ledger(), [])
+        self.assertIn("paid-unconfirmed", r.stdout)
+        self.assertIn("operator cap not recorded", r.stdout)
+
+    def test_paid_confirmed_marker_absent_holds(self):
+        w = self.world([paid_rec("pay-a")], paid_marker=False)
+        r = w.run("--dry-run")
+        self.assertEqual(w.queue(), "")
+        self.assertIn("hold-marker-paid", r.stdout)
+        w.run()
+        self.assertEqual(w.queue(), "")
+        self.assertEqual(w.ledger(), [])
+
+    def test_paid_confirmed_marker_present_queues_with_flag(self):
+        w = self.world([paid_rec("pay-a", auth="header X-Key; v2")], paid_marker=True)
+        w.run()
+        lines = w.queue().splitlines()
+        self.assertEqual(len(lines), 1)
+        self.assertTrue(lines[0].endswith(";paid=1"), lines[0])
+        self.assertEqual(lines[0], "pay-a|https://x.example|keyed|key=PROVIDER_KEY_PAY_A;auth=header X-Key, v2;paid=1")
+
+    def test_paid_bad_cap_or_unit_holds(self):
+        for cap in ("0", "250", "abc", "100.01", "-5"):
+            w = self.world([paid_rec("pay-a", cap=cap)], paid_marker=True)
+            r = w.run()
+            self.assertEqual(w.queue(), "", cap)
+            self.assertIn("paid-unconfirmed", r.stdout, cap)
+        w = self.world([paid_rec("pay-a", cap="100")], paid_marker=True)
+        w.run()
+        self.assertEqual(self.queued_names(w), ["pay-a"])  # 100 is inside (0, 100]
+        for unit in (None, "0", "x"):
+            w = self.world([paid_rec("pay-b", unit=unit or "")], paid_marker=True)
+            r = w.run()
+            self.assertEqual(w.queue(), "", unit)
+            self.assertIn("no unit cost", r.stdout, unit)
+
+    def test_non_paid_line_unchanged_with_paid_marker_present(self):
+        w = self.world([rec("alpha")], paid_marker=True)
+        w.run()
+        self.assertEqual(w.queue().splitlines()[-1], "alpha|https://x.example|keyed|key=PROVIDER_KEY_ALPHA;auth=header X-Key")
+
     # ---- idempotency / dedup ----
     def test_rerun_appends_nothing(self):
         w = self.world([rec("alpha"), rec("beta")])
@@ -285,6 +346,7 @@ class MutationTests(unittest.TestCase):
                          ("if recent:", "if False:")],
         "remove-lock-check": [("fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)", "pass")],
         "remove-marker-check": [("if not has_marker:", "if False:")],
+        "remove-paid-confirm-check": [("if problem:", "if False:")],
     }
 
     def _mutant_run(self, name):
@@ -322,6 +384,9 @@ class MutationTests(unittest.TestCase):
 
     def test_mutation_remove_lock_check_fails(self):
         self._assert_killed("remove-lock-check", ["test_lock_held_writes_nothing"])
+
+    def test_mutation_remove_paid_confirm_check_fails(self):
+        self._assert_killed("remove-paid-confirm-check", ["test_paid_unconfirmed_holds"])
 
     def test_mutation_remove_marker_check_fails(self):
         self._assert_killed("remove-marker-check", ["test_marker_absent_holds"])

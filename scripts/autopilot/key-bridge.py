@@ -10,7 +10,10 @@ Reads  STATE/key-required-queue.json, STATE/connected.json, STATE/queue.txt, src
 Writes STATE/queue.txt (O_APPEND, one line per record) and STATE/key-bridge.jsonl (append-only ledger).
 Nothing in the tracked tree.
 
-Queue line: <provider_id>|<signup_url or ->|keyed|key=ENV1[,ENV2];auth=<auth_method, '|' -> '/'>
+Queue line: <provider_id>|<signup_url or ->|keyed|key=ENV1[,ENV2];auth=<auth_method, '|' -> '/'>[;paid=1]
+A record carrying a `paid` object (T-NOP1112A) is held until the operator's monthly cap is recorded
+(paid-unconfirmed) and until onboard-batch.md has a PAID CANDIDATE paragraph (hold-marker-paid); a confirmed
+one is queued with the trailing flag `;paid=1`. The numbers stay in the record; the role reads the record.
 
 Live writes only from the deployed copy (abspath(__file__) under /home/apibase/apibase/) or with an
 explicit --state-dir. Cron line (operator installs once, before the orchestra's daily tick):
@@ -23,6 +26,7 @@ import os
 import re
 import sys
 from datetime import date, datetime, timezone
+from decimal import Decimal, InvalidOperation
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from autopilot_common import CONNECTED_DB_PY, FIX_MD_PATH, STATE  # noqa: E402
@@ -30,6 +34,8 @@ from autopilot_common import CONNECTED_DB_PY, FIX_MD_PATH, STATE  # noqa: E402
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEPLOY_PREFIX = "/home/apibase/apibase/"
 MARKER = "KEYED CANDIDATE"
+PAID_MARKER = "## PAID CANDIDATE"
+PAID_CAP_MAX = Decimal("100")
 ROLES_DIR = os.path.dirname(FIX_MD_PATH)
 ADAPTERS_DIR = os.environ.get("KEY_BRIDGE_ADAPTERS_DIR", os.path.join(HERE, "..", "..", "src", "adapters"))
 RESOLUTIONS_PATH = os.environ.get("KEY_BRIDGE_RESOLUTIONS", os.path.join(HERE, "key-bridge-resolutions.json"))
@@ -93,13 +99,37 @@ def read_ledger(path):
     return rows
 
 
-def marker_present():
+def marker_present(marker=MARKER):
     path = os.path.join(ROLES_DIR, "onboard-batch.md")
     try:
         with open(path, encoding="utf-8", errors="replace") as f:
-            return MARKER in f.read(), path
+            return marker in f.read(), path
     except OSError:
         return False, path
+
+
+def _decimal(v):
+    """Decimal from a decimal string (digits, optional fraction); None for anything else."""
+    if not isinstance(v, str) or not re.fullmatch(r"\d+(\.\d+)?", v.strip()):
+        return None
+    try:
+        return Decimal(v.strip())
+    except InvalidOperation:
+        return None
+
+
+def paid_problem(rec):
+    """None for a non-paid record or a confirmed paid one, else the hold detail."""
+    paid = rec.get("paid")
+    if not isinstance(paid, dict):
+        return None
+    cap = _decimal(paid.get("cap_usd_month"))
+    if not paid.get("confirmed_date") or cap is None or not (0 < cap <= PAID_CAP_MAX):
+        return "paid record: operator cap not recorded (connected_db.py paid-confirm)"
+    unit = _decimal(paid.get("unit_cost_usd"))
+    if unit is None or unit <= 0:
+        return "paid record: no unit cost"
+    return None
 
 
 def queue_line(rec, resolution):
@@ -107,12 +137,16 @@ def queue_line(rec, resolution):
     auth = str(rec.get("auth_method", "")).replace("|", "/").replace("\n", " ").strip()
     url = (resolution or {}).get("base_url") or rec.get("signup_url") or "-"
     url = str(url).replace("|", "/").strip() or "-"
-    return f"{rec['provider_id']}|{url}|keyed|key={env};auth={auth}"
+    flag = ""
+    if isinstance(rec.get("paid"), dict):
+        auth = auth.replace(";", ",")  # keep ';paid=1' a separate segment
+        flag = ";paid=1"
+    return f"{rec['provider_id']}|{url}|keyed|key={env};auth={auth}{flag}"
 
 
 def classify(records, connected, adapters, resolutions, queued_names, ledger, today):
     """Return list of (provider_id, cls, detail, record). cls in
-    resolved|alias|alias-candidate|unverified|already-queued|exhausted|recent|queue."""
+    resolved|alias|alias-candidate|unverified|paid-unconfirmed|already-queued|exhausted|recent|queue."""
     connected_norm = {}
     for k, v in connected.items():
         connected_norm.setdefault(norm_key(k), []).append((k, v))
@@ -160,6 +194,10 @@ def classify(records, connected, adapters, resolutions, queued_names, ledger, to
                 continue
         if not rec.get("auth_method") or not rec.get("auth_method_date"):
             out.append((pid, "unverified", "no auth_method / auth_method_date on the record", rec))
+            continue
+        problem = paid_problem(rec)
+        if problem:
+            out.append((pid, "paid-unconfirmed", problem, rec))
             continue
         mine = [r for r in ledger if r.get("provider_id") == pid and r.get("action") == "queued"]
         if len(mine) >= MAX_QUEUED_TIMES:
@@ -255,6 +293,7 @@ def main(argv=None):
         ledger = read_ledger(ledger_path)
         rows = classify(records, connected, adapters, resolutions, queued_names, ledger, today)
         has_marker, marker_path = marker_present()
+        has_paid_marker, _ = marker_present(PAID_MARKER)
 
         print(f"key-bridge {'DRY-RUN ' if args.dry_run else ''}state={state} connected_db={CONNECTED_DB_PY} "
               f"max={args.max_n} marker={'present' if has_marker else 'ABSENT'} ({marker_path})")
@@ -268,6 +307,8 @@ def main(argv=None):
                 if not has_marker:
                     action, reason = "hold-marker", (f"would queue; held: {marker_path} lacks marker "
                                                      f"{MARKER!r} (task 0241)")
+                elif isinstance(rec.get("paid"), dict) and not has_paid_marker:
+                    action, reason = "hold-marker-paid", "roles/onboard-batch.md has no PAID CANDIDATE paragraph"
                 elif queued >= args.max_n:
                     action, reason = "deferred-cap", f"would queue; cap --max {args.max_n} reached this run"
                 else:
