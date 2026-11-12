@@ -107,6 +107,12 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      - name: age (tests/bash/backup-offsite.test.sh encrypts with a throw-away key)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q age
+          command -v age age-keygen
+
       - name: Shell tests
         timeout-minutes: 10
         run: bash tests/bash/run-all.sh
