@@ -32,6 +32,8 @@ If you need a cap enforced by the shop rather than by the wallet, write to suppo
 
 A quote is a price snapshot with a stock hold, valid for a stated number of minutes. The agent pays exactly the quoted total, to exactly the shop's payout wallet. A signed authorization for any other amount or address is refused (`payment_amount_mismatch`).
 
+One `expires_at` covers the whole quote: every line shares the same price snapshot and the same stock hold, and an open quote is never repriced. Nothing is sent to you before it expires, so read `expires_at` before you sign. Our advice: do not sign with less than 60 seconds left (settlement can take up to 30 seconds); let the quote expire and read it again: `410 quote_expired` carries a fresh quote at current prices (see /integrator/docs#quotes). The fresh quote is a new price. Compare its `total_usd` with the old one by a rule set in your client's configuration (for example: accept the same or a lower total, ask the human for anything higher), not by the model's judgment; `requires_human_confirmation` applies to the fresh quote as to any other.
+
 ## Buy step by step (REST)
 
 1. `POST /api/v1/shop/quotes` with `{merchant, items}` and no key. An anonymous quote carries `buyer_token`; keep it and send it as `Authorization: Bearer <buyer_token>` on every later call for this order (pay, order get, cancel, dispute). If you lose the buyer_token, the paying wallet can still read the order (see [/integrator/docs#orders](/integrator/docs#orders)).

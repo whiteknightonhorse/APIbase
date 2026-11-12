@@ -189,7 +189,7 @@ HTTP 404 on `POST /api/v1/shop/quotes`: the `merchant` slug is unknown (`suggest
 
 ### `quote_expired`
 
-HTTP 410. The quote is past `expires_at`. The reply carries a fresh quote in `extra.quote` with current prices. Pay that one.
+HTTP 410. The quote is past `expires_at`. The reply carries a fresh quote in `extra.quote` with current prices. Check its `total_usd` against your price rule before paying it: /integrator/buyers#the-price-is-fixed-by-the-quote.
 
 ### `out_of_stock`
 
