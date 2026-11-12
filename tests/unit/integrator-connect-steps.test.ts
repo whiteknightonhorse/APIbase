@@ -74,7 +74,7 @@ describe('connect page steps', () => {
       'Waiting for your wallet',
       'Signature rejected',
       'Wallet connection was not approved',
-      'sg = 0; const x',
+      'sg = 0; const e = cw()',
       'already registered',
       'Wrong network',
       'Your store is connected',

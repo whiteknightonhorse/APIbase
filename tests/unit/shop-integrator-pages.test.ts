@@ -166,7 +166,7 @@ describe('integrator pages', () => {
     }
   });
 
-  it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 110 lines (T-0377: 3-step flow; T-0764 done page return)', async () => {
+  it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 150 lines (T-0377: 3-step flow; T-0764 done page return)', async () => {
     const { text: raw } = await get('/integrator/connect');
     const text = stripMeta(raw);
     expect(text).toContain('<input type="checkbox"');
@@ -177,7 +177,8 @@ describe('integrator pages', () => {
     expect(text).not.toMatch(/<script[^>]*\ssrc=/i);
     const js = [...text.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1].trim());
     expect(js).toHaveLength(1);
-    expect(js[0].split('\n').length).toBeLessThanOrEqual(110);
+    // T-0800: 110 -> 150 for the EIP-6963 wallet chooser and the two-address mismatch box.
+    expect(js[0].split('\n').length).toBeLessThanOrEqual(150);
     expect(text).toContain('<option>digital-goods</option>');
     expect(text).toContain('agent-guide');
   });

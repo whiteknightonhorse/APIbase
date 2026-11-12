@@ -143,7 +143,7 @@ static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	m
 static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-not-contain	example merchant (in development)	-	T-0728
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-contain	may require the payout wallet to equal the signing wallet	-	T-0728
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	## Partner handoff	-	T-0739
-static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	a warning, never a refusal	-	T-0739
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	shows both addresses	-	T-0800
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	## Partner grants	-	T-0740
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	grant_key_not_allowed	-	T-0740
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	### Partner mode	-	T-0747

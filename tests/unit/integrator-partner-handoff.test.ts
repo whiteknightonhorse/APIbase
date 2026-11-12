@@ -329,9 +329,9 @@ dbDescribe('T-0739 partner handoff', () => {
       );
       expect(CONNECT_HTML).toContain('handoff_id: x.handoff');
       expect(CONNECT_HTML).toContain("'⚠ Different wallet'");
-      expect(CONNECT_HTML).toContain("'Continue with this wallet'");
+      expect(CONNECT_HTML).not.toContain('Continue with this wallet');
       expect(CONNECT_HTML).toContain(
-        ' may require them to match. Switch the wallet in your wallet app, or continue with this one.',
+        'Switch to that account in your wallet, or press Other wallet.',
       );
     });
   });
