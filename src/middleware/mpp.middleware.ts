@@ -5,6 +5,8 @@ import { getToolPriceUsd } from '../pipeline/stages/tool-status.stage';
 import { logger } from '../config/logger';
 import { AppError, ErrorCode } from '../types/errors';
 import { precheckToolCall } from '../pipeline/precheck';
+import { acceptsJson } from './content-type.middleware';
+import { recordRefundOwed } from '../services/refund-ledger.service';
 
 /**
  * F1/C-5 (2026-09-01): resolve the REAL on-chain payer address, not a stub.
@@ -357,6 +359,78 @@ async function rejectUnservable(req: Request, res: Response): Promise<boolean> {
   return true;
 }
 
+/**
+ * T-0790: refuse BEFORE any charge what the app would refuse after it (contentTypeMiddleware 406,
+ * route/method 404/405). charge() settles on-chain and cannot be undone. Returns true when a
+ * response was sent.
+ */
+function rejectUnroutable(req: Request, res: Response, toolCall: boolean): boolean {
+  const body = (status: number, error: string, message: string) => ({
+    error,
+    error_code: error.toUpperCase(),
+    message,
+    request_id: req.requestId,
+    suggested_action: 'fix_request',
+    charged: false,
+    status,
+  });
+  if (toolCall && req.method !== 'POST') {
+    res.setHeader('Allow', 'POST');
+    res
+      .status(405)
+      .json(
+        body(
+          405,
+          'method_not_allowed',
+          'Tool calls are POST /api/v1/tools/{tool_id}/call; nothing was charged.',
+        ),
+      );
+    return true;
+  }
+  if (!acceptsJson(req.headers.accept)) {
+    res
+      .status(406)
+      .json(
+        body(406, 'not_acceptable', 'Accept header must be application/json; nothing was charged.'),
+      );
+    return true;
+  }
+  return false;
+}
+
+const TX_HASH = /^0x[0-9a-fA-F]{64}$/;
+
+/**
+ * T-0790: safety net for the whole class. A paid request answered with status >= 400 before any
+ * pipeline context existed leaves no ledger row, so book the debt here. Never throws.
+ */
+function registerStoppedBeforePipelineNet(req: Request, res: Response): void {
+  if (typeof res.once !== 'function') return;
+  res.once('finish', () => {
+    void (async () => {
+      try {
+        const pay = req.mppPayment;
+        if (!pay || req.pipelineStarted || res.statusCode < 400) return;
+        await recordRefundOwed({
+          rail: 'tempo',
+          payer: pay.payer,
+          amount_usd: pay.amount,
+          reason: `stopped_before_pipeline:${res.statusCode}`,
+          source_kind: 'request',
+          source_id: req.requestId,
+          original_tx: TX_HASH.test(pay.txHash) ? pay.txHash.toLowerCase() : null,
+          note: { url: req.originalUrl.split('?')[0] },
+        });
+      } catch (err) {
+        logger.error(
+          { requestId: req.requestId, err: err instanceof Error ? err.message : String(err) },
+          'mpp: stopped-before-pipeline refund-owed hook failed',
+        );
+      }
+    })();
+  });
+}
+
 /** Resolves false when the response was already sent (409 quote_already_paying, 400 schema, 503 unavailable). */
 async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   const params = await resolveAmountForUrl(req.originalUrl, req.body);
@@ -370,6 +444,8 @@ async function verifyMppPayment(req: Request, res: Response): Promise<boolean> {
   }
 
   const quoteId = QUOTE_PAY_URL.exec(req.originalUrl.split('?')[0])?.[1];
+  // T-0790: before any charge (tool-call and quote-pay): wrong method / non-JSON Accept.
+  if (rejectUnroutable(req, res, !quoteId)) return false;
   if (!quoteId) {
     // T-0282: charge() settles on-chain and cannot be undone, so reject a body our own
     // schema would refuse (400) BEFORE any money moves. Provider-side 422s are out of scope.
@@ -598,6 +674,7 @@ async function chargeAndRecord(
       ...(subscription ? { intent: 'subscription' as const } : {}),
     };
 
+    registerStoppedBeforePipelineNet(req, res);
     log.info({ requestId: req.requestId, method: 'tempo', payer, txHash }, 'mpp: payment verified');
     return true;
   } catch (err) {

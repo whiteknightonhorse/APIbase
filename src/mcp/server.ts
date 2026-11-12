@@ -215,6 +215,7 @@ export function createMcpServer(
  * Extract payment state from an Express request (populated by x402/MPP middleware).
  */
 function extractPaymentFromReq(req: express.Request): PaymentContext {
+  req.pipelineStarted = true; // T-0790: the MCP handler builds the pipeline context from here
   const x402 = (req as unknown as Record<string, unknown>).x402Payment as
     { verified?: boolean; payer?: string } | undefined;
   const mpp = (req as unknown as Record<string, unknown>).mppPayment as

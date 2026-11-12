@@ -56,6 +56,8 @@ declare global {
       toolId?: string;
       x402Payment?: X402PaymentInfo;
       mppPayment?: MppPaymentInfo;
+      /** T-0790: set where a pipeline context is built (execute / order pay / MCP). */
+      pipelineStarted?: boolean;
     }
   }
 }

@@ -79,6 +79,7 @@ executeRouter.post(
         ctx.mppAsset = req.mppPayment.asset;
       }
 
+      req.pipelineStarted = true;
       const result = await runPipeline(ctx);
 
       if (result.ok) {

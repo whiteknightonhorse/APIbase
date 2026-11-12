@@ -176,6 +176,7 @@ export function createOrderRouter(
       const { payQuote } = await import('../pay.service');
       const { encodePaymentRequiredHeader } = await import('@x402/core/http');
       const body = (req.body ?? {}) as Record<string, unknown>;
+      req.pipelineStarted = true;
       const r = await payQuote(deps, {
         quote_id: String(req.params.id),
         x402PaymentHeader: resolveX402PaymentHeader(req.headers) || undefined,
