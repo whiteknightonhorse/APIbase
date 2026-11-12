@@ -814,6 +814,9 @@ export function resolveAdapter(toolId: string): BaseAdapter | undefined {
       return getOrCreate('fcc', () => new FccAdapter(k));
     }
     case 'stability': {
+      const comfyKey = (config as Record<string, unknown>).PROVIDER_KEY_COMFY as string | undefined;
+      if (comfyKey) return getOrCreate('stability', () => new StabilityAdapter(comfyKey, 'comfy'));
+      // ponytail: remove the api.stability.ai fallback after 2026-12-10
       const stabKey = (config as Record<string, unknown>).PROVIDER_KEY_STABILITY as
         string | undefined;
       if (!stabKey) return undefined;

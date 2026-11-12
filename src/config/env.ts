@@ -285,6 +285,8 @@ export const appEnvSchema = z
 
     // Stability AI (UC-080) — Bearer header, 25 free credits
     PROVIDER_KEY_STABILITY: z.string().optional().default(''),
+    // Comfy Router (T-0804) — X-API-Key header; serves Stability image models after 2026-12-10
+    PROVIDER_KEY_COMFY: z.string().optional().default(''),
 
     // Resend Email (UC-076) — Bearer header, 3K/month free
     PROVIDER_KEY_RESEND: z.string().optional().default(''),
