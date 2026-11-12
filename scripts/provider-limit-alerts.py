@@ -662,6 +662,72 @@ def fetch_zyte_stats_spend(organization_id, period_start=None):
     return total_usd
 
 
+def estimate_ledger_spend(rows, monthly_fee_usd):
+    """T-NOP1112B: month-to-date dollar spend ESTIMATE for a keyed metered provider.
+    rows = [(tool_id, upstream_cost_usd_or_None, calls_mtd)]. Returns None (never 0) when rows is
+    empty or ANY row has an unknown cost: an unknown cost is NOINFO, not free. Otherwise
+    sum(cost * calls) + monthly_fee_usd. Pure."""
+    if not rows:
+        return None
+    total = 0.0
+    for _tool_id, cost, calls in rows:
+        if cost is None:
+            return None
+        total += float(cost) * int(calls)
+    return total + float(monthly_fee_usd or 0)
+
+
+def fetch_ledger_estimate_spend(provider, monthly_fee_usd):
+    """ONE query: per tool of the provider, tools.upstream_cost_usd and the count of execution_ledger
+    rows with provider_called = true since the start of the UTC month (every status: a failed call can
+    be billed). Query failure -> None."""
+    out, rc = ap.psql(
+        "SELECT t.tool_id, coalesce(t.upstream_cost_usd::text, ''), count(el.tool_id) "
+        "FROM tools t LEFT JOIN execution_ledger el ON el.tool_id = t.tool_id "
+        "AND el.provider_called = true "
+        "AND el.created_at >= date_trunc('month', now() at time zone 'UTC') "
+        f"WHERE t.provider = {ap.sql_literal(provider)} GROUP BY t.tool_id, t.upstream_cost_usd"
+    )
+    if rc != 0:
+        return None
+    rows = []
+    for line in out.splitlines():
+        if not line:
+            continue
+        parts = line.split(ap.SEP)
+        if len(parts) != 3:
+            return None
+        try:
+            rows.append((parts[0], float(parts[1]) if parts[1] != "" else None, int(parts[2])))
+        except ValueError:
+            return None
+    return estimate_ledger_spend(rows, monthly_fee_usd)
+
+
+HALF_CAP_FRACTION = 0.5
+
+
+def maybe_notify_half_cap(prov, spend_usd, lim_usd, now=None):
+    """Edge-triggered: one Telegram message per provider per UTC month when the estimate first reaches
+    >= 50 % of the cap. State: limit-alerts state file, key `halfcap:<provider>` -> "YYYY-MM". The
+    month is recorded only after a successful send, so a failed send retries next run. Returns True
+    iff a message was sent."""
+    if lim_usd <= 0 or spend_usd < lim_usd * HALF_CAP_FRACTION:
+        return False
+    month = (now or datetime.now(timezone.utc)).strftime("%Y-%m")
+    key = f"halfcap:{prov}"
+    if _load_limit_state().get(key) == month:
+        return False
+    if DRY_RUN:
+        return False
+    if not ap.tg_send(ap.tg("billing_half_cap", provider=prov, spend=f"{spend_usd:.2f}", cap=f"{lim_usd:g}")):
+        return False
+    st = _load_limit_state()
+    st[key] = month
+    _save_limit_state(st)
+    return True
+
+
 def check_billing_cap_risk(now=None):
     """For every provider with `billing.cap_usd_month` (a real dollar spending
     cap, not a free-call-count limit): fetch spend, classify risk via the
@@ -692,7 +758,13 @@ def check_billing_cap_risk(now=None):
         spend_usd = None
         if prov == "zyte" and b.get("organization_id"):
             spend_usd = fetch_zyte_stats_spend(b["organization_id"], b.get("period_start"))
-        # Future providers with cap_usd_month but no known fetch method: spend_usd
+        elif b.get("spend_source") == "ledger_estimate":
+            # T-NOP1112B: calls x tools.upstream_cost_usd (+ monthly fee) from the ledger; None when any
+            # cost is unknown or the query failed -> NOINFO below, never 0.
+            spend_usd = fetch_ledger_estimate_spend(prov, b.get("monthly_fee_usd", 0))
+            if spend_usd is not None and schema_ok:
+                maybe_notify_half_cap(prov, spend_usd, lim_usd)
+        # Other providers with cap_usd_month but no known fetch method: spend_usd
         # stays None -> NOINFO below, never fabricated as 0.
 
         if spend_usd is None:
@@ -1437,6 +1509,10 @@ def main():
                             f"silent: provider-limit-alerts {prov} — retired in provider-limits.json, "
                             f"skipping risk write/probe_log/incident/GH issue (T-0237 gate 3)")
             continue
+        if (c.get("billing") or {}).get("spend_source") == "ledger_estimate":
+            # T-NOP1112B order proof: the monthly dollar cap (check_billing_cap_risk, later in this run) is
+            # the ONLY writer of provider_status.risk for such a provider.
+            continue
         finite_providers += 1
 
         if usage is None:
@@ -1745,6 +1821,15 @@ def selftest():
         "live-clock control: a deadline decades in the future must not fire against the real clock"
     )
     print("provider-limit-alerts --selftest: billing_cap_fallback_should_apply (zz03-15): OK")
+
+    # --- T-NOP1112B: estimate_ledger_spend ---
+    assert estimate_ledger_spend([], 0) is None, "no rows -> None, never 0"
+    assert estimate_ledger_spend([("a", None, 5)], 0) is None, "one NULL cost -> None, never 0"
+    assert estimate_ledger_spend([("a", 0.01, 100)], 0) is not None
+    assert abs(estimate_ledger_spend([("a", 0.01, 100)], 0) - 1.0) < 1e-9, "100 calls x 0.01 + 0 fee = 1.0"
+    assert abs(estimate_ledger_spend([("a", 0.01, 100)], 1) - 2.0) < 1e-9, "monthly fee is added"
+    assert estimate_ledger_spend([("a", 0.01, 10), ("b", None, 0)], 0) is None, "NULL cost with 0 calls is still unknown"
+    print("provider-limit-alerts --selftest: estimate_ledger_spend (T-NOP1112B): OK")
 
     print("provider-limit-alerts --selftest: OK")
 
@@ -2486,6 +2571,100 @@ def selftest_db():
             get_provider_key = real_get_provider_key
             load_billing_config = real_load_billing_config
             fetch_zyte_stats_spend = real_fetch_zyte_stats_spend
+
+        # World 10 (T-NOP1112B): ledger_estimate monthly cap, end to end through the REAL
+        # check_billing_cap_risk / main(). Only load_billing_config, the Telegram send and the state
+        # file path are substituted.
+        import tempfile as _tf10, types as _types10
+        ap.psql("ALTER TABLE tools ADD COLUMN IF NOT EXISTS upstream_cost_usd numeric")
+        state10 = _tf10.mktemp(prefix="ap-limit-state10-")
+        os.environ["LIMIT_ALERT_STATE"] = state10
+        sent10 = []
+        real_tg_send = ap.tg_send
+        ap.tg_send = lambda text: (sent10.append(text), True)[1]  # noqa: E731
+        for prov10 in ("paidtest", "paidnull"):
+            ap.psql("INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                    f"probe_interval_s) VALUES ('{prov10}', 'HEALTHY', now(), now(), 3600) "
+                    "ON CONFLICT (provider) DO NOTHING")
+        ap.psql("INSERT INTO tools (tool_id, provider, upstream_cost_usd) VALUES "
+                "('paidtest.a', 'paidtest', 0.01), ('paidtest.b', 'paidtest', 0.01)")
+        ap.psql("INSERT INTO tools (tool_id, provider, upstream_cost_usd) VALUES "
+                "('paidnull.a', 'paidnull', 0.01), ('paidnull.b', 'paidnull', NULL)")
+        for tid, n in (("paidtest.a", 75), ("paidtest.b", 75), ("paidnull.a", 500), ("paidnull.b", 500)):
+            ap.psql("INSERT INTO execution_ledger (tool_id, provider_called, status) "
+                    f"SELECT '{tid}', true, 'failed' FROM generate_series(1, {n})")
+        # an old row and a not-called row must not count
+        ap.psql("INSERT INTO execution_ledger (tool_id, provider_called, status, created_at) VALUES "
+                "('paidtest.a', true, 'success', now() - interval '70 days'), "
+                "('paidtest.a', false, 'success', now())")
+        paid_billing = {"cap_usd_month": 2, "spend_source": "ledger_estimate", "monthly_fee_usd": 0}
+        load_billing_config = lambda: {"paidtest": dict(paid_billing)}  # noqa: E731
+        try:
+            assert fetch_ledger_estimate_spend("paidtest", 0) is not None
+            assert abs(fetch_ledger_estimate_spend("paidtest", 0) - 1.5) < 1e-9, "failed calls count; old/uncalled do not"
+            check_billing_cap_risk()
+            risk10, _ = ap.psql("SELECT risk FROM provider_status WHERE provider = 'paidtest'")
+            assert risk10 not in ("EXHAUSTED", "NOINFO", ""), f"world 10a: 1.5 of 2 must not be EXHAUSTED, got {risk10!r}"
+            assert len(sent10) == 1 and "paidtest" in sent10[0], f"world 10a: half-cap notice once, got {sent10}"
+            check_billing_cap_risk()
+            assert len(sent10) == 1, "world 10a: second run must not send the half-cap notice again"
+            print("world 10a (1.5 of 2 -> not EXHAUSTED, half-cap notice once, not again): OK")
+
+            ap.psql("INSERT INTO execution_ledger (tool_id, provider_called, status) "
+                    "SELECT 'paidtest.a', true, 'success' FROM generate_series(1, 50)")
+            check_billing_cap_risk()
+            risk10, _ = ap.psql("SELECT risk FROM provider_status WHERE provider = 'paidtest'")
+            assert risk10 == "EXHAUSTED", f"world 10b: 2.0 of 2 must be EXHAUSTED, got {risk10!r}"
+            inc10, _ = ap.psql("SELECT state FROM incidents WHERE provider = 'paidtest' AND kind = 'QUOTA_EXHAUSTED'")
+            assert inc10 == "OPEN", f"world 10b: incident must be opened, got {inc10!r}"
+            assert len(sent10) == 1, "world 10b: still one notice this month"
+            print("world 10b (200 calls -> EXHAUSTED + incident opened): OK")
+
+            load_billing_config = lambda: {"paidnull": dict(paid_billing)}  # noqa: E731
+            assert fetch_ledger_estimate_spend("paidnull", 0) is None, "world 10c: NULL cost -> None"
+            check_billing_cap_risk()
+            risk10, _ = ap.psql("SELECT risk FROM provider_status WHERE provider = 'paidnull'")
+            assert risk10 == "NOINFO", f"world 10c: a tool with NULL cost must be NOINFO, got {risk10!r}"
+            assert risk10 != "EXHAUSTED"
+            print("world 10c (NULL cost tool -> NOINFO, never EXHAUSTED): OK")
+
+            # World 10d: order. The free-limit loop in main() would write a DIFFERENT risk for this
+            # provider (credits, free_limit 100, 60 calls -> 40 % remaining -> WARNING); the cap run must
+            # be the last (only) writer: 60 calls x 0.01 = 0.6 of 2 -> NORMAL.
+            ap.psql("INSERT INTO provider_status (provider, state, state_since, next_probe_at, "
+                    "probe_interval_s) VALUES ('paidorder', 'HEALTHY', now(), now(), 3600) ON CONFLICT (provider) DO NOTHING")
+            ap.psql("INSERT INTO tools (tool_id, provider, upstream_cost_usd) VALUES ('paidorder.a', 'paidorder', 0.01)")
+            ap.psql("INSERT INTO execution_ledger (tool_id, provider_called, status) "
+                    "SELECT 'paidorder.a', true, 'success' FROM generate_series(1, 60)")
+            load_billing_config = lambda: {"paidorder": dict(paid_billing)}  # noqa: E731
+            tmp_root10 = _tf10.mkdtemp(prefix="ap10-order-")
+            os.makedirs(f"{tmp_root10}/src/config")
+            json.dump({"paidorder": {"limit_type": "credits", "free_limit": 100, "display_name": "Order",
+                                     "paid_balance": True, "billing": dict(paid_billing)}},
+                      open(f"{tmp_root10}/src/config/provider-limits.json", "w"))
+            g10 = globals()
+            saved10 = {k: g10[k] for k in ("ROOT", "gh", "check_auto_recharge_spend", "check_uncapped_billing_recovery")}
+            g10["gh"] = lambda *a, **k: _types10.SimpleNamespace(stdout="[]", stderr="", returncode=0)
+            for fn in ("check_auto_recharge_spend", "check_uncapped_billing_recovery"):
+                g10[fn] = lambda *a, **k: None
+            g10["ROOT"] = tmp_root10
+            try:
+                main()
+            finally:
+                g10.update(saved10)
+            risk10, _ = ap.psql("SELECT risk FROM provider_status WHERE provider = 'paidorder'")
+            assert risk10 == "NORMAL", f"world 10d: cap run must be the last risk writer (NORMAL), got {risk10!r}"
+            wrote10, _ = ap.psql("SELECT count(*) FROM probe_log WHERE provider = 'paidorder' AND detail NOT LIKE 'billing-cap%'")
+            assert wrote10 == "0", "world 10d: the free-limit loop must not write for a ledger_estimate provider"
+            print("world 10d (order: free-limit loop skips ledger_estimate provider, cap run is the last writer): OK")
+        finally:
+            load_billing_config = real_load_billing_config
+            ap.tg_send = real_tg_send
+            os.environ.pop("LIMIT_ALERT_STATE", None)
+            try:
+                os.remove(state10)
+            except OSError:
+                pass
 
         print("selftest-db: ALL WORLDS OK")
         return 0

@@ -47,5 +47,6 @@
   "refund_weekly": "[apibase] 📋 Недельная сводка возвратов\nПоследний прогон: {run}\nК выплате (owed): {owed}\nПереходящих строк: {carried}, старейшая: {oldest_days} дн.\nБалансы кошельков: {balances}\nKill-выключатель: {kill}\ninternal (Heartbeat) строк за 7 дней: {internal_n} (QA, не долг)",
   "refund_weekly_none": "нет данных",
   "stuck_sev1_ask": "[apibase] INC-{sid} {kind} ({provider}): SEV1 завис в STUCK, система сама не справится. Выберите одно: убрать провайдера или дать ключ/план. Один раз, дальше тишина → {path}",
-  "job_stale":"Джоба worker'а {job} не завершалась дольше трёх ожидаемых интервалов — проверьте контейнер worker (docker ps, docker logs)."
+  "job_stale":"Джоба worker'а {job} не завершалась дольше трёх ожидаемых интервалов — проверьте контейнер worker (docker ps, docker logs).",
+  "billing_half_cap": "[apibase] {provider}: оценка расходов за месяц ${spend} из лимита ${cap} (>= 50%). При 100% инструменты провайдера снимаются автоматически."
 }
