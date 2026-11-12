@@ -28,6 +28,7 @@ import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
 import { createPartnerRouter } from '../../src/shop/routes/partner.router';
 import { deliverDue } from '../../src/shop/webhook/delivery.service';
 import type { WebhookRequest } from '../../src/shop/webhook/transport';
+import { WEBHOOK_EVENTS } from '../../src/shop/webhook/constants';
 import { signPayload } from '../../src/shop/webhook/webhook.service';
 import { registerMerchantTools } from '../../src/shop/tools/merchant.tools';
 import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
@@ -76,14 +77,21 @@ describe('T-0747 registry grant_mode (no DB)', () => {
     return loadPartners(f);
   };
 
-  it('the committed soukbase entry is mode partner with an https delivery url and order.paid', () => {
+  it('the committed soukbase entry is mode partner with an https delivery url and the five delivery events', () => {
     const raw = JSON.parse(
       readFileSync(resolve(__dirname, '../../config/integrator/partners.json'), 'utf8'),
     ) as Row[];
     const s = raw.find((p) => p.id === 'soukbase') as Row;
     expect(s.grant_mode).toBe('partner');
     expect(new URL(s.delivery_webhook_url).protocol).toBe('https:');
-    expect(s.delivery_events).toEqual(['order.paid']);
+    expect(s.delivery_events).toEqual([
+      'order.paid',
+      'order.confirmed',
+      'refund.requested',
+      'refund.verified',
+      'dispute.opened',
+    ]);
+    for (const e of s.delivery_events) expect(WEBHOOK_EVENTS).toContain(e);
   });
 
   it('mode key and mode partner load; the bad shapes are startup errors', () => {
@@ -399,6 +407,15 @@ dbDescribe('T-0747 partner-mode grants', () => {
       expect(eps).toEqual([
         { url: REG.delivery_webhook_url, events: REG.delivery_events, status: 'active' },
       ]);
+      expect([...eps[0].events].sort()).toEqual(
+        [
+          'order.paid',
+          'order.confirmed',
+          'refund.requested',
+          'refund.verified',
+          'dispute.opened',
+        ].sort(),
+      );
       // the merchant's list says mode partner and shows the endpoint (REST and MCP)
       const l = await json(
         await http('GET', '/api/v1/shop/merchants/me/grants', undefined, m.owner),
