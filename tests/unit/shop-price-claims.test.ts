@@ -118,6 +118,9 @@ describe('findPriceClaimMismatch: a stated price, not every amount (T-0803)', ()
     ['price + 2000 spaces', 'price' + ' '.repeat(2000)],
     ['$5 + 2000 spaces', '$5' + ' '.repeat(2000)],
     ['price + 2000 x " is"', 'price' + ' is'.repeat(2000)],
+    ['price + 2000 x "- " then free', 'Price ' + '- '.repeat(2000) + 'free'],
+    ['price + 2000 x ": " then free', 'Price ' + ': '.repeat(2000) + 'free'],
+    ['price + 2000 x "= " then free', 'Price ' + '= '.repeat(2000) + 'free'],
   ])('%s returns in under 50 ms', (_n, text) => {
     const t0 = Date.now();
     findPriceClaimMismatch('t', text, 5);

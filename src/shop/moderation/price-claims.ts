@@ -8,7 +8,7 @@
 
 const N = String.raw`(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)`;
 const AMOUNT = String.raw`(?:\$\s?|\bUSD\s?)${N}`;
-const FILL = String.raw`(?:\s*[:=–—-]\s*|\s+(?:is|of|at|now|only|just)\b)*\s*`;
+const FILL = String.raw`\s*(?:(?:[:=\u2013\u2014-]|(?:is|of|at|now|only|just)\b)\s*)*`;
 const CLAIM_RE = new RegExp(
   String.raw`(?<![-\w])(?:price|priced|costs?)\b${FILL}${AMOUNT}` +
     String.raw`|(?<![-\w])(?:only|just)\s+${AMOUNT}` +
