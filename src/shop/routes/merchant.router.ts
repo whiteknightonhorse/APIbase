@@ -31,6 +31,7 @@ import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { deleteWebhook, listEvents, listWebhooks, setWebhook } from '../webhook/webhook.service';
 import { createGrant, findPartner, listGrants, revokeGrant } from '../partner/grant.service';
+import { issueHandoffNonce, registerByHandoff } from '../partner/one-signature.service';
 import {
   confirmMerchantSettled,
   listSettleQueue,
@@ -92,6 +93,20 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     limiter(60_000, 30),
     async (req: Request, res: Response) => {
       try {
+        // T-0802: purpose handoff = the one combined message of a register handoff with the grant.
+        if (req.query.purpose === 'handoff') {
+          const q = req.query;
+          res.json(
+            await issueHandoffNonce(deps, {
+              wallet: q.wallet,
+              handoff: q.handoff,
+              slug: q.slug,
+              kid: q.kid,
+              pub: q.pub,
+            }),
+          );
+          return;
+        }
         const wallet = String(req.query.wallet ?? '');
         const purpose = String(req.query.purpose ?? '') as SignPurpose;
         if (!/^0x[0-9a-fA-F]{40}$/.test(wallet) || !PURPOSES.includes(purpose)) {
@@ -157,6 +172,25 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
           { ...rest, signed: { message, signature } } as never,
           { ...ctxOf(req), path: '/api/v1/shop/merchants' },
         );
+        res.status(201).json(r);
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-0802: one signature for a partner handoff that asked for the grant (encryption key, registration,
+  // the four documents, the partner's permission); one transaction. Same limits as POST /merchants.
+  router.post(
+    '/api/v1/shop/merchants/handoff',
+    probeLimiter,
+    limiter(3_600_000, getShopEnv().INTEGRATOR_REGISTER_PER_HOUR, { skipFailedRequests: true }),
+    async (req: Request, res: Response) => {
+      try {
+        const r = await registerByHandoff(deps, req.body, {
+          ...ctxOf(req),
+          path: '/api/v1/shop/merchants/handoff',
+        });
         res.status(201).json(r);
       } catch (err) {
         send(res, err);

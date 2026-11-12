@@ -950,15 +950,21 @@ dbDescribe('T-0740 partner grants', () => {
       expect(t).toContain("'Sign in wallet'");
     });
 
-    it('mode register with grant_requested: 4 free signatures and the fourth row', async () => {
+    it('T-0802 mode register with grant_requested: 1 free signature and the four statements it carries', async () => {
       const t = await page(await handoff({ grant_requested: true }));
       expect(t).toContain('<h1>Connect your store</h1>');
-      expect(t).toContain('<b>4 free signatures</b>');
+      expect(t).toContain(
+        '<p>Your wallet will ask for <b>1 free signature</b>. No gas, no money leaves your wallet. The one message you sign states:</p>',
+      );
+      expect(t).not.toContain('free signatures');
       const sig = /<ol class="cn-sig" id="sig">([\s\S]*?)<\/ol>/.exec(t)?.[1] ?? '';
       expect(sig.match(/<li /g)).toHaveLength(4);
+      expect(sig).toContain('<b>Your encryption key</b>');
+      expect(sig).toContain('<b>Register your store</b>');
+      expect(sig).toContain('<b>Accept the documents</b>');
       expect(sig).toContain('<li data-n="4"><div><b>Allow Soukbase to sell for you</b>');
-      expect(t).toContain('of 4</b>');
-      expect(t).toContain('was not allowed to act for your store. Ask');
+      expect(t).toContain('of 1</b>');
+      expect(t).toContain('/api/v1/shop/merchants/handoff');
     });
 
     it('T-0768: a prefill without contact_email is 201; Contact email renders empty, support_email is never prefilled', async () => {

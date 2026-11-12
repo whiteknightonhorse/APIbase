@@ -1,4 +1,6 @@
 /**
+ * T-0802: a register handoff that asked for the grant asks the wallet once (purpose handoff nonce,
+ * POST /merchants/handoff); every other flow keeps its signatures.
  * T-0801: the keys step has no timer (Continue after the box); a partner with seller_keys hidden and a
  * signed grant gets the keyless page (two lines, docs link, 5 s return) and the keys never reach the DOM.
  * T-0764: the done page of a partner arrival (checkbox, 10 s return, stop actions, grant-only step,
@@ -37,6 +39,8 @@ type Opt = {
   grantFails?: boolean;
   /** T-0801: the registry seller_keys the server puts in the page JSON (absent = not sent). */
   keys?: 'shown' | 'hidden';
+  /** T-0802: the wallet rejects every signature request. */
+  reject?: boolean;
 };
 
 async function boot(o: Opt) {
@@ -64,6 +68,8 @@ async function boot(o: Opt) {
   /** every pkcs8 (private key) export the page makes, base64; and every DOM state that held a key */
   const xp: string[] = [];
   const leaks: string[] = [];
+  /** every personal_sign the page asks the wallet for (the message, decoded) */
+  const signs: string[] = [];
   const dom = new JSDOM(html, {
     runScripts: 'dangerously',
     virtualConsole: new VirtualConsole().sendTo(console),
@@ -86,8 +92,12 @@ async function boot(o: Opt) {
       w.TextEncoder = TextEncoder;
       w.ethereum = {
         chainId: '0x2105',
-        request: async (r: any) =>
-          r.method === 'eth_requestAccounts' ? ['0x' + 'ab'.repeat(20)] : '0xsig',
+        request: async (r: any) => {
+          if (r.method === 'eth_requestAccounts') return ['0x' + 'ab'.repeat(20)];
+          signs.push(Buffer.from(String(r.params[0]).slice(2), 'hex').toString('utf8'));
+          if (o.reject) throw Object.assign(new Error('User rejected'), { code: 4001 });
+          return '0xsig';
+        },
       };
       w.setInterval = (fn: () => void, ms: number) => {
         timers.push({ fn, at: now + ms, id: ++seq });
@@ -103,7 +113,18 @@ async function boot(o: Opt) {
         calls.push({ url, method, body });
         const res = (s: number, d: unknown) => ({ ok: s < 400, status: s, json: async () => d });
         if (url.startsWith('/legal/index.json')) return res(200, []);
+        if (url.startsWith('/api/v1/shop/auth/nonce?purpose=handoff'))
+          return o.reg409
+            ? res(409, { error_code: 'wallet_registered', message: 'taken' })
+            : res(200, { message: 'combined message' });
         if (url.startsWith('/api/v1/shop/auth/nonce')) return res(200, { message: 'm' });
+        if (url === '/api/v1/shop/merchants/handoff')
+          return res(201, {
+            slug: 'shop-one',
+            status: 'active',
+            grant: { partner: 'soukbase' },
+            ...(o.keys === 'hidden' ? {} : { api_key: API_KEY }),
+          });
         if (url === '/api/v1/shop/merchants')
           return o.reg409
             ? res(409, { error_code: 'wallet_registered', message: 'taken' })
@@ -210,6 +231,7 @@ async function boot(o: Opt) {
     timers,
     xp,
     leaks,
+    signs,
     API_KEY,
   };
 }
@@ -307,27 +329,57 @@ describe('T-0764 done page return', () => {
     expect(p.navs).toEqual([]);
     p.tick(1);
     expect(p.navs).toEqual([URL1]);
-    // the four signatures ran (the grant included); the keys never reached the DOM, storage or a request
-    expect(p.calls.filter((c) => c.url.endsWith('/acceptances'))).toHaveLength(1);
-    expect(p.calls.filter((c) => c.url.endsWith('/grants'))).toHaveLength(1);
+    // T-0802: one signature; the per-purpose routes are not called; the keys never reached the DOM,
+    // storage or a request, and the route answer carries no key
+    expect(p.signs).toEqual(['combined message']);
+    expect(p.calls.filter((c) => c.url === '/api/v1/shop/merchants/handoff')).toHaveLength(1);
+    for (const u of ['/acceptances', '/grants'])
+      expect(p.calls.filter((c) => c.url.endsWith(u))).toHaveLength(0);
+    expect(p.calls.filter((c) => c.url === '/api/v1/shop/merchants')).toHaveLength(0);
+    const nq = p.calls.find((c) => c.url.includes('purpose=handoff'))!;
+    expect(nq.url).toMatch(/&slug=shop-one&kid=k1&pub=[A-Za-z0-9%]+/);
     expect(p.xp).toEqual([]);
     expect(p.leaks).toEqual([]);
     expect(p.d.documentElement.outerHTML).not.toContain(p.API_KEY);
     p.secrets([p.API_KEY]);
   });
 
-  it('T11 hidden + grant declined: the keys step with both keys, no timer', async () => {
-    const p = await boot({ handoff: GR, keys: 'hidden', grantFails: true });
+  it('T11 the one signature rejected: nothing registered, "Signature 1 of 1" and Try again', async () => {
+    const p = await boot({ handoff: GR, keys: 'hidden', reject: true });
     await p.run();
-    expect(p.keys()).toHaveLength(2);
-    expect(p.keys()[0]).toBe(p.API_KEY);
-    expect(p.out().textContent).toContain('was not allowed to act for your store');
-    p.tick1();
-    expect(p.$('pt').getAttribute('href')).toBe(URL1);
-    expect(p.timers).toHaveLength(0);
-    p.tick(30);
-    expect(p.navs).toEqual([]);
-    p.secrets(p.keys());
+    const er = p.$('er');
+    expect(er.hidden).toBe(false);
+    expect(er.textContent).toContain('Signature 1 of 1 was not approved. Nothing was charged.');
+    expect(p.out().hidden).toBe(true);
+    expect(p.calls.filter((c) => c.url === '/api/v1/shop/merchants/handoff')).toHaveLength(0);
+    expect([...p.$('sig').children].map((li: any) => li.className)).toEqual([
+      'rej',
+      'rej',
+      'rej',
+      'rej',
+    ]);
+    expect(p.signs).toHaveLength(1);
+    expect(p.xp).toEqual([]);
+  });
+
+  it('T14 one signature: the page asks once in a handoff with the grant, as before elsewhere', async () => {
+    for (const [o, n] of [
+      [{ handoff: GR }, 1],
+      [{ handoff: GR, keys: 'hidden' }, 1],
+      [{ from: true }, 3],
+      [{ from: false }, 3],
+      [{ handoff: { mode: 'register', grant_requested: false } }, 3],
+      [{ handoff: { mode: 'grant', grant_requested: false } }, 1],
+    ] as Array<[Opt, number]>) {
+      const p = await boot(o);
+      await p.run();
+      expect(p.signs).toHaveLength(n);
+      const oneMsg = !!(o.handoff && o.handoff.mode === 'register' && o.handoff.grant_requested);
+      expect(p.calls.some((c) => c.url === '/api/v1/shop/merchants/handoff')).toBe(oneMsg);
+      expect(p.calls.some((c) => c.url === '/api/v1/shop/merchants')).toBe(
+        !oneMsg && o.handoff?.mode !== 'grant',
+      );
+    }
   });
 
   it('T12 arrival without a handoff: keys step, Continue only after the box, no timer', async () => {
@@ -342,8 +394,11 @@ describe('T-0764 done page return', () => {
     expect(p.navs).toEqual([]);
   });
 
-  it('T3 no grant requested, or grant declined: the four steps sit in a closed details', async () => {
-    for (const o of [{ from: true }, { handoff: GR, grantFails: true }] as Opt[]) {
+  it('T3 no grant requested: the four steps sit in a closed details', async () => {
+    for (const o of [
+      { from: true },
+      { handoff: { mode: 'register', grant_requested: false } },
+    ] as Opt[]) {
       const p = await boot(o);
       await p.run();
       const dt = p.out().querySelector('details');
@@ -351,8 +406,6 @@ describe('T-0764 done page return', () => {
       expect(dt.querySelector('summary').textContent).toBe('Set the store up yourself');
       expect(dt.querySelectorAll('.cn-todo li')).toHaveLength(4);
       expect(p.out().textContent).not.toContain('adds your catalog and sets up delivery');
-      if (o.grantFails)
-        expect(p.out().textContent).toContain('was not allowed to act for your store');
       expect(p.$('pt').getAttribute('href') ?? null).toBeNull();
       p.secrets(p.keys());
     }
@@ -386,7 +439,10 @@ describe('T-0764 done page return', () => {
     const g = p.calls.filter((c) => c.url.endsWith('/grants'));
     expect(g).toHaveLength(1);
     expect(JSON.parse(g[0].body).handoff_id).toBe(HID);
-    expect(p.calls.filter((c) => c.url === '/api/v1/shop/merchants')).toHaveLength(1);
+    // T-0802: the 409 comes before any signature, from the handoff nonce
+    expect(p.calls.filter((c) => c.url.includes('purpose=handoff'))).toHaveLength(1);
+    expect(p.calls.filter((c) => c.url === '/api/v1/shop/merchants/handoff')).toHaveLength(0);
+    expect(p.signs).toHaveLength(1); // the grant-only signature
     expect(p.out().querySelector('h1').textContent).toBe('Permission saved');
     expect(p.status().textContent).toBe('Returning to Soukbase in 10 s');
     const q = await boot({ handoff: { mode: 'register', grant_requested: false }, reg409: true });

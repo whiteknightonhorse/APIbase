@@ -153,7 +153,7 @@ const show = (i) => {
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
 const save = () => { try { sessionStorage.setItem('apibase_connect', JSON.stringify(Object.fromEntries(['name', 'site_url', 'contact_email', 'support_email', 'category', 'country', 'slug'].map((n) => [n, F[n].value])))); } catch (e) {} };
 const R = {}; try { const d = JSON.parse(sessionStorage.getItem('apibase_connect') || 'null'); if (d) { for (const n in d) if (F[n] && typeof d[n] === 'string') { F[n].value = d[n]; R[n] = 1; } edited = !!F.slug.value; } } catch (e) {}
-let PF = null; try { PF = $('pf') && JSON.parse($('pf').textContent); } catch (e) {} if (PF && PF.prefill) { for (const n of ['name', 'site_url', 'contact_email', 'category', 'country', 'slug']) { const v = PF.prefill[n], e = F[n]; if (typeof v !== 'string' || !v || !e) continue; if (e.tagName === 'SELECT' ? !R[n] && [...e.options].some((o) => o.value === v) : !e.value) e.value = v; } edited = !!F.slug.value; if (!edited && F.name.value) F.slug.value = slugify(F.name.value); } const G = !!(PF && PF.mode === 'grant'), GR = !G && !!(PF && PF.grant_requested), HD = GR && PF.seller_keys === 'hidden', PN = F.handoff ? F.handoff.dataset.partner : '', N = $('sig').children.length, PT = $('pt') ? $('pt').textContent.slice(12) : '';
+let PF = null; try { PF = $('pf') && JSON.parse($('pf').textContent); } catch (e) {} if (PF && PF.prefill) { for (const n of ['name', 'site_url', 'contact_email', 'category', 'country', 'slug']) { const v = PF.prefill[n], e = F[n]; if (typeof v !== 'string' || !v || !e) continue; if (e.tagName === 'SELECT' ? !R[n] && [...e.options].some((o) => o.value === v) : !e.value) e.value = v; } edited = !!F.slug.value; if (!edited && F.name.value) F.slug.value = slugify(F.name.value); } const G = !!(PF && PF.mode === 'grant'), GR = !G && !!(PF && PF.grant_requested), HD = GR && PF.seller_keys === 'hidden', PN = F.handoff ? F.handoff.dataset.partner : '', N = GR ? 1 : $('sig').children.length, PT = $('pt') ? $('pt').textContent.slice(12) : '';
 const pv = () => { $('pv').textContent = F.slug.value || 'my-shop'; $('nx').classList.toggle('off', cur < 2 && !ok(cur, false)); save(); };
 F.name.addEventListener('input', () => { if (!edited) F.slug.value = slugify(F.name.value); pv(); });
 F.slug.addEventListener('input', () => { edited = true; F.slug.classList.remove('bad'); pv(); });
@@ -190,17 +190,17 @@ window.addEventListener('eip6963:announceProvider', (e) => {
   WL.push({ i: { uuid: i.uuid, rdns: i.rdns.slice(0, 64), name: nm, icon: i.icon }, p: d.provider }); $('nx').hidden = cur === 2 && nwf(); $('nw').hidden = !(cur === 2 && nwf()); rw();
 });
 window.dispatchEvent(new Event('eip6963:requestProvider'));
-const done = async (r, slug, k, gl) => {
+const done = async (r, slug, k) => {
   const key = (t, v, h) => { const d = document.createElement('div'), c = el('div', 'cn-key'), b = el('button', 'lp-cta', 'Copy'); b.type = 'button'; b.dataset.copy = v; c.append(el('code', '', v), b); d.append(el('label', '', t), c, el('small', 'hint', h)); return d; };
   const td = (u, t, x) => { const li = document.createElement('li'), a = el('a', '', t), d = document.createElement('div'); a.href = u; d.append(a, el('small', '', x)); li.append(d); return li; };
-  const pg = el('p', '', 'Page: '), pa = el('a', '', 'apibase.pro/m/' + slug), W = el('div', 'cn-warnbox'), AG = '/integrator/agent-guide#', gs = GR && !gl;
+  const pg = el('p', '', 'Page: '), pa = el('a', '', 'apibase.pro/m/' + slug), W = el('div', 'cn-warnbox'), AG = '/integrator/agent-guide#', gs = GR;
   pa.href = '/m/' + slug; pa.style.fontFamily = 'var(--mono)'; pg.append(pa);
   W.append(el('b', '', 'Shown once — save both now in a password manager'), el('small', 'hint', "We can't show these keys again. If you lose them you'll have to reconnect your store."), ...(PT ? [el('small', 'hint', 'Never send these keys to anyone, in a message or in a screenshot. Whoever has the API key can change your store.')] : []));
   const todo = el('ul', 'cn-todo'), rt = PT ? ret(slug, !!k) : [], dt = document.createElement('details');
   todo.append(td(AG + 'step-4-catalog_upsert', 'Add your catalog', 'List what you sell so agents can order it.'), td(AG + 'step-5-webhook_set', 'Set your webhook', 'Where we send new orders.'), td(AG + 'step-7-pay-test-sku', 'Pay the $0.01 test order', 'Checks that payments reach your wallet.'), td('/integrator/check/' + slug, 'Check your store', 'apibase.pro/integrator/check/' + slug));
   dt.append(el('summary', '', 'Set the store up yourself'), todo);
   const tail = !PT ? [el('h2', '', 'Next steps'), todo] : gs ? [el('p', '', PT + ' adds your catalog and sets up delivery for this store. You have nothing else to do here.')] : [dt];
-  const kd = k ? [el('div', 'cn-ok', '✓'), el('h1', '', 'Your store is connected'), pg, ...(gl ? [el('p', '', gl)] : []), W, key('API key', r.api_key, 'Your shop uses it to talk to APIbase.'), key('Decryption key', b64(await crypto.subtle.exportKey('pkcs8', k.privateKey)), "Opens buyers' encrypted order details. Never share it."), ...rt, ...tail]
+  const kd = k ? [el('div', 'cn-ok', '✓'), el('h1', '', 'Your store is connected'), pg, W, key('API key', r.api_key, 'Your shop uses it to talk to APIbase.'), key('Decryption key', b64(await crypto.subtle.exportKey('pkcs8', k.privateKey)), "Opens buyers' encrypted order details. Never share it."), ...rt, ...tail]
     : [el('div', 'cn-ok', '✓'), el('h1', '', 'Permission saved'), el('p', '', PT + ' can now sell for apibase.pro/m/' + slug + '.'), el('small', 'hint', 'Revoke any time with DELETE /merchants/me/grants/' + r.partner + ' or the shop.merchant.grant_revoke tool'), ...rt];
   fin(kd, !!k);
 };
@@ -225,16 +225,16 @@ const ret = (slug, boxed, sec = 10) => {
   return [lb, box];
 };
 let sg = 0;
-const mark = (n, c) => [...$('sig').children].forEach((li, j) => { li.className = j + 1 < n ? 'done' : j + 1 === n ? c : ''; });
+const mark = (n, c) => [...$('sig').children].forEach((li, j) => { li.className = GR && n ? c : j + 1 < n ? 'done' : j + 1 === n ? c : ''; }); // T-0802: one signature carries every row
 const P = (n) => { sg = n; mark(n, 'now'); $('wtn').textContent = n; $('wt').hidden = false; $('er').hidden = true; };
 const el = (t, c, x) => Object.assign(document.createElement(t), { className: c || '', textContent: x || '' });
 const BASE = '0x2105', NET = { '0x1': 'Ethereum', '0xa': 'Optimism', '0x89': 'Polygon', '0xa4b1': 'Arbitrum', '0x38': 'BNB Chain' };
 const net = () => { const e = cw(), c = e && e.p.chainId; $('wn').hidden = !c || c === BASE; if (c && c !== BASE) $('wnt').textContent = 'Your wallet is on ' + (NET[c] || 'another network') + '. Switch it to Base — switching is free.'; };
 const fail = (err) => {
-  const rej = err && (err.code === 4001 || err.code === 'ACTION_REJECTED' || /reject|denied/i.test(err.message || '')), er = $('er'), nm = sg ? $('sig').children[sg - 1].querySelector('b').textContent : '';
+  const rej = err && (err.code === 4001 || err.code === 'ACTION_REJECTED' || /reject|denied/i.test(err.message || '')), er = $('er'), nm = sg && !GR ? $('sig').children[sg - 1].querySelector('b').textContent : '';
   $('wt').hidden = true; er.className = 'cn-box cn-error'; if (/wallet_registered/.test(err.message)) return have();
   if (/merchant_not_found/.test(err.message)) { const a = el('a', '', 'Connect your store'); a.href = '/integrator/connect'; er.replaceChildren(el('b', '', 'This wallet has no store on APIbase yet'), document.createTextNode(' '), a); er.hidden = false; mark(0, ''); return; } if (/slug_taken/i.test(err.message)) { show(0); F.slug.classList.add('bad'); f.querySelector('[data-for=slug]').textContent = 'This address is taken — try ' + F.slug.value + '-shop'; return; } if (rej && sg) mark(sg, 'rej');
-  const msg = sg === 0 ? 'Wallet connection was not approved. Nothing was charged. Press Try again and approve the connection in your wallet.' : sg === 3 && !G ? 'Signature 3 of ' + N + ' (' + nm + ') was not approved. Your store is already registered; it only needs the documents accepted. Follow the accept-terms step in the agent guide: https://apibase.pro/integrator/agent-guide' : 'Signature ' + sg + ' of ' + N + ' (' + nm + ') was not approved. Nothing was charged. Press Try again and approve it in your wallet.', t = el('b', '', rej ? (sg === 0 ? '⊗ Wallet connection rejected' : '⊗ Signature rejected') : 'Something went wrong'), m = el('small', '', rej ? msg : err.message), b = el('button', 'lp-cta', 'Try again');
+  const msg = sg === 0 ? 'Wallet connection was not approved. Nothing was charged. Press Try again and approve the connection in your wallet.' : sg === 3 && !G ? 'Signature 3 of ' + N + ' (' + nm + ') was not approved. Your store is already registered; it only needs the documents accepted. Follow the accept-terms step in the agent guide: https://apibase.pro/integrator/agent-guide' : 'Signature ' + sg + ' of ' + N + (nm ? ' (' + nm + ')' : '') + ' was not approved. Nothing was charged. Press Try again and approve it in your wallet.', t = el('b', '', rej ? (sg === 0 ? '⊗ Wallet connection rejected' : '⊗ Signature rejected') : 'Something went wrong'), m = el('small', '', rej ? msg : err.message), b = el('button', 'lp-cta', 'Try again');
   b.type = 'button'; b.onclick = () => { er.hidden = true; mark(0, ''); if (sg > 3) AL(); else if (sg < 3) $('nx').click(); };
   er.replaceChildren(t, m, b); er.hidden = false;
 };
@@ -253,14 +253,18 @@ const run = async (my) => {
   if (!HK || HK.p !== e.p) { unhook(); if (e.p.on) { HK = { p: e.p, h: (a) => { if (HK && HK.p === e.p) { CA = Array.isArray(a) && typeof a[0] === 'string' ? a[0] : ''; gate(); } } }; e.p.on('accountsChanged', HK.h); } }
   if (gate()) return;
   WA = w; if (G) { P(1); const g = await gb(w, x.handoff, sign); return done(g, g.slug, null); } P(1); let k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']); const pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
+  const fd = { slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, support_email: (x.support_email || '').trim(), site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w };
+  if (GR) { // T-0802: one server-built message states the key, the registration, the four documents and the permission
+    const q = call('/api/v1/shop/auth/nonce?purpose=handoff&wallet=' + w + '&handoff=' + encodeURIComponent(x.handoff) + '&slug=' + encodeURIComponent(x.slug) + '&kid=k1&pub=' + encodeURIComponent(pub), 'GET'); if (HD) k = null; // T-0801/0802: the private half is cleared once the public key is sent
+    const hn = await q, r = await call('/api/v1/shop/merchants/handoff', 'POST', { wallet: w, ...fd, handoff_id: x.handoff, message: hn.message, signature: await sign(w, hn.message) });
+    return HD ? ready(x.slug) : done(r, x.slug, k);
+  }
   const ek = { kid: 'k1', alg: 'x25519', pub, sig_by_wallet: await sign(w, 'apibase.pro merchant encryption key\nkid: k1\nalg: x25519\npub: ' + pub) };
-  P(2); const n = await nonce(w, 'register'), b = { wallet: w, slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, support_email: (x.support_email || '').trim(), site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w, handoff_id: x.handoff, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
+  P(2); const n = await nonce(w, 'register'), b = { wallet: w, ...fd, handoff_id: x.handoff, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
   const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
   P(3); const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
-  let ac = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' }), gl = '';
-  if (GR) { try { P(4); await gb(w, x.handoff, sign); } catch (e) { gl = PN + ' was not allowed to act for your store. Ask ' + PN + ' for a new link to allow it later.'; } }
-  if (HD && !gl) { ac = null; k = null; return ready(x.slug); } // T-0801: both keys dropped unseen, held in memory only until here
-  await done(ac, x.slug, k, gl);
+  const ac = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' });
+  await done(ac, x.slug, k);
 };
 $('nx').onclick = async () => {
   if (cur < 2) { if (!ok(cur, true)) return; T('connect_step', { step: cur + 2 }); return show(cur + 1); }

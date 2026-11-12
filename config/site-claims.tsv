@@ -158,3 +158,6 @@ static/integrator/buyers.md	https://apibase.pro/integrator/buyers.md	must-contai
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	### A shop without keys {#shop-without-keys}	-	T-0801 seller_keys hidden: no keys shown, wallet reaches orders and a key
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-not-contain	revokes every grant together with the keys	-	T-0801 reissue keeps grants of mode partner
 static/integrator/connect.html	https://apibase.pro/integrator/connect	must-contain	/integrator/docs#shop-without-keys	-	T-0801
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	with the grant signs once	-	T-0802 one signature for a partner handoff with the grant
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-not-contain	adds the grant as a fourth signature	-	T-0802 superseded count of handoff signatures
+static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	a fourth free signature	-	T-0802 superseded count of handoff signatures

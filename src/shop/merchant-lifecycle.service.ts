@@ -101,7 +101,10 @@ async function byWallet(db: ShopTx, wallet: string): Promise<MerchantRow | null>
  * `contract_wallet_signature` whether or not the INT-17 form sent the checkbox; the signature
  * itself stays the evidence (§11.2).
  */
-function acceptanceMethod(signer_kind: SignerKind, requested: AcceptInput['method']): string {
+export function acceptanceMethod(
+  signer_kind: SignerKind,
+  requested: AcceptInput['method'],
+): string {
   if (signer_kind === 'contract') return 'contract_wallet_signature';
   return requested === 'checkbox+wallet_signature'
     ? 'checkbox+wallet_signature'
@@ -179,23 +182,13 @@ export async function acceptTerms(
   );
 
   return d.transaction(async (tx) => {
-    for (const doc of docs) {
-      await tx.$executeRawUnsafe(
-        `INSERT INTO shop_acceptances
-           (merchant_id, doc_id, version, sha256, method, signer, signature, message, ip_hash, user_agent)
-         VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-        m.merchant_id,
-        doc.doc_id,
-        doc.version,
-        doc.sha256,
-        acceptanceMethod(signer_kind, input.method),
-        wallet,
-        input.signature,
-        input.message,
-        ctx.ip ? sha(ctx.ip) : null,
-        ctx.user_agent ?? null,
-      );
-    }
+    await writeAcceptances(tx, m.merchant_id, docs, {
+      method: acceptanceMethod(signer_kind, input.method),
+      signer: wallet,
+      signature: input.signature,
+      message: input.message,
+      ...ctx,
+    });
     const won = await tx.$queryRawUnsafe<unknown[]>(
       `UPDATE shop_merchants SET status = 'active'
         WHERE merchant_id = $1::uuid AND status = 'pending' RETURNING merchant_id`,
@@ -208,6 +201,42 @@ export async function acceptTerms(
     logger.info({ merchant_id: m.merchant_id, signer_kind }, 'merchant activated');
     return { status: 'active' as const, api_key };
   });
+}
+
+/**
+ * One shop_acceptances row per document, each with the whole signed message and its signature.
+ * Shared by acceptTerms (the §11.2 message) and the T-0802 one-signature handoff (the combined message).
+ */
+export async function writeAcceptances(
+  tx: ShopTx,
+  merchant_id: string,
+  docs: Array<Pick<LegalDoc, 'doc_id' | 'version' | 'sha256'>>,
+  p: {
+    method: string;
+    signer: string;
+    signature: string;
+    message: string;
+    ip?: string;
+    user_agent?: string;
+  },
+): Promise<void> {
+  for (const doc of docs) {
+    await tx.$executeRawUnsafe(
+      `INSERT INTO shop_acceptances
+         (merchant_id, doc_id, version, sha256, method, signer, signature, message, ip_hash, user_agent)
+       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      merchant_id,
+      doc.doc_id,
+      doc.version,
+      doc.sha256,
+      p.method,
+      p.signer,
+      p.signature,
+      p.message,
+      p.ip ? sha(p.ip) : null,
+      p.user_agent ?? null,
+    );
+  }
 }
 
 /** UC-19: self-deactivation. Keys stay (orders:read/write close open orders); no new quotes. */

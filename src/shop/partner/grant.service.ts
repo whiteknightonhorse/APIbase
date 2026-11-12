@@ -34,6 +34,8 @@ export interface PartnerRef {
   /** mode partner only: the grant-owned endpoint's url and events (registry). */
   delivery_webhook_url?: string;
   delivery_events?: string[];
+  /** T-0801/T-0802: registry `seller_keys` (absent = shown). */
+  seller_keys?: 'shown' | 'hidden';
 }
 
 /** The partner registry (config/integrator/partners.json), loaded lazily so this module stays light. */
@@ -49,8 +51,9 @@ export async function findPartner(id: unknown): Promise<PartnerRef | undefined> 
         grant_mode: 'partner',
         delivery_webhook_url: p.delivery_webhook_url,
         delivery_events: p.delivery_events ? [...p.delivery_events] : undefined,
+        seller_keys: p.seller_keys ?? 'shown',
       }
-    : { id: p.id, name: p.name, grant_mode: 'key' };
+    : { id: p.id, name: p.name, grant_mode: 'key', seller_keys: 'shown' };
 }
 
 const invalid = (field: string) =>
@@ -111,72 +114,9 @@ export async function createGrant(d: WebhookDeps, body: unknown): Promise<GrantR
   }
   const hid = typeof handoff_id === 'string' && UUID_RE.test(handoff_id) ? handoff_id : null;
   try {
-    return await d.transaction(async (tx) => {
-      const dup = await tx.$queryRawUnsafe<unknown[]>(
-        `SELECT 1 FROM shop_partner_grants
-          WHERE merchant_id = $1::uuid AND partner_id = $2 AND revoked_at IS NULL`,
-        m.merchant_id,
-        p.id,
-      );
-      if (dup.length > 0) throw grantExists(p.id);
-      const mode: GrantMode = p.grant_mode;
-      // mode key: a per-store key; mode partner: none (key_hash NULL, the row CHECK pins it)
-      const key =
-        mode === 'key' ? await issueKey(tx, m.merchant_id, GRANT_SCOPES, `grant:${p.id}`) : null;
-      const g = await tx.$queryRawUnsafe<Array<{ grant_id: string; created_at: Date }>>(
-        `INSERT INTO shop_partner_grants (merchant_id, partner_id, key_hash, scopes, mode)
-         VALUES ($1::uuid, $2, $3, $4::text[], $5)
-         RETURNING grant_id::text AS grant_id, created_at`,
-        m.merchant_id,
-        p.id,
-        key ? hashApiKey(key) : null,
-        [...GRANT_SCOPES],
-        mode,
-      );
-      const grant = g[0];
-      // mode partner: the grant-owned endpoint at the registry URL. setWebhook's own target check
-      // and MAX_ENDPOINTS apply; its 422 fails the whole grant (the transaction rolls back).
-      let secret: string | null = null;
-      if (mode === 'partner') {
-        const { setWebhook } = await import('../webhook/webhook.service');
-        const wh = await setWebhook(
-          { ...d, db: tx },
-          m.merchant_id,
-          { url: p.delivery_webhook_url, events: p.delivery_events },
-          { grant_id: grant.grant_id },
-        );
-        secret = wh.secret ?? null;
-      }
-      if (hid) {
-        // lazy: the app config is only needed when a key or secret is parked for the partner
-        const { config } = await import('../../config');
-        const enc = (v: string | null) => (v ? encryptSecret(v, config.ENCRYPTION_KEY) : null);
-        await tx.$executeRawUnsafe(
-          `UPDATE shop_partner_handoffs
-              SET merchant_id = $3::uuid, slug = $4, grant_id = $5::uuid, grant_key_enc = $6,
-                  grant_webhook_secret_enc = $7, state = 'granted', prefill = NULL,
-                  wallet_match = COALESCE(wallet_match, expected_wallet IS NULL OR expected_wallet = $8)
-            WHERE handoff_id = $1::uuid AND partner_id = $2 AND expires_at > now()
-              AND grant_id IS NULL AND (merchant_id IS NULL OR merchant_id = $3::uuid)`,
-          hid,
-          p.id,
-          m.merchant_id,
-          m.slug,
-          grant.grant_id,
-          enc(key),
-          enc(secret),
-          wallet.toLowerCase(),
-        );
-      }
-      return {
-        grant_id: grant.grant_id,
-        partner: p.id,
-        mode,
-        scopes: [...GRANT_SCOPES],
-        created_at: new Date(grant.created_at).toISOString(),
-        slug: m.slug,
-      };
-    });
+    return await d.transaction(
+      async (tx) => (await writeGrant(d, tx, m, p, { handoff_id: hid, wallet })).grant,
+    );
   } catch (e) {
     // the partial unique index lost a race with a concurrent grant of the same partner
     if (/shop_partner_grants_active_uq/.test(String((e as Error)?.message)))
@@ -185,7 +125,94 @@ export async function createGrant(d: WebhookDeps, body: unknown): Promise<GrantR
   }
 }
 
-const grantExists = (partner: string) =>
+/**
+ * The grant rows inside the caller's transaction: key (mode key) or grant-owned endpoint (mode
+ * partner), the grant row (with its signed proof when given, T-0802) and the handoff binding.
+ * `handoff_bound` says whether the handoff turned `granted`.
+ */
+export async function writeGrant(
+  d: WebhookDeps,
+  tx: ShopTx,
+  m: { merchant_id: string; slug: string },
+  p: PartnerRef,
+  o: { handoff_id: string | null; wallet: string; proof?: { message: string; signature: string } },
+): Promise<{ grant: GrantResult; handoff_bound: boolean }> {
+  const hid = o.handoff_id;
+  const wallet = o.wallet;
+  const dup = await tx.$queryRawUnsafe<unknown[]>(
+    `SELECT 1 FROM shop_partner_grants
+          WHERE merchant_id = $1::uuid AND partner_id = $2 AND revoked_at IS NULL`,
+    m.merchant_id,
+    p.id,
+  );
+  if (dup.length > 0) throw grantExists(p.id);
+  const mode: GrantMode = p.grant_mode;
+  // mode key: a per-store key; mode partner: none (key_hash NULL, the row CHECK pins it)
+  const key =
+    mode === 'key' ? await issueKey(tx, m.merchant_id, GRANT_SCOPES, `grant:${p.id}`) : null;
+  const g = await tx.$queryRawUnsafe<Array<{ grant_id: string; created_at: Date }>>(
+    `INSERT INTO shop_partner_grants
+           (merchant_id, partner_id, key_hash, scopes, mode, proof_message, proof_signature)
+         VALUES ($1::uuid, $2, $3, $4::text[], $5, $6, $7)
+         RETURNING grant_id::text AS grant_id, created_at`,
+    m.merchant_id,
+    p.id,
+    key ? hashApiKey(key) : null,
+    [...GRANT_SCOPES],
+    mode,
+    o.proof?.message ?? null,
+    o.proof?.signature ?? null,
+  );
+  const grant = g[0];
+  // mode partner: the grant-owned endpoint at the registry URL. setWebhook's own target check
+  // and MAX_ENDPOINTS apply; its 422 fails the whole grant (the transaction rolls back).
+  let secret: string | null = null;
+  if (mode === 'partner') {
+    const { setWebhook } = await import('../webhook/webhook.service');
+    const wh = await setWebhook(
+      { ...d, db: tx },
+      m.merchant_id,
+      { url: p.delivery_webhook_url, events: p.delivery_events },
+      { grant_id: grant.grant_id },
+    );
+    secret = wh.secret ?? null;
+  }
+  let bound = 0;
+  if (hid) {
+    // lazy: the app config is only needed when a key or secret is parked for the partner
+    const { config } = await import('../../config');
+    const enc = (v: string | null) => (v ? encryptSecret(v, config.ENCRYPTION_KEY) : null);
+    bound = await tx.$executeRawUnsafe(
+      `UPDATE shop_partner_handoffs
+              SET merchant_id = $3::uuid, slug = $4, grant_id = $5::uuid, grant_key_enc = $6,
+                  grant_webhook_secret_enc = $7, state = 'granted', prefill = NULL,
+                  wallet_match = COALESCE(wallet_match, expected_wallet IS NULL OR expected_wallet = $8)
+            WHERE handoff_id = $1::uuid AND partner_id = $2 AND expires_at > now()
+              AND grant_id IS NULL AND (merchant_id IS NULL OR merchant_id = $3::uuid)`,
+      hid,
+      p.id,
+      m.merchant_id,
+      m.slug,
+      grant.grant_id,
+      enc(key),
+      enc(secret),
+      wallet.toLowerCase(),
+    );
+  }
+  return {
+    grant: {
+      grant_id: grant.grant_id,
+      partner: p.id,
+      mode,
+      scopes: [...GRANT_SCOPES],
+      created_at: new Date(grant.created_at).toISOString(),
+      slug: m.slug,
+    },
+    handoff_bound: bound > 0,
+  };
+}
+
+export const grantExists = (partner: string) =>
   new QuoteError(
     409,
     'grant_exists',

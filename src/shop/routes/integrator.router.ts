@@ -126,6 +126,14 @@ const scriptJson = (v: unknown) =>
  */
 const SIG_ROW = (n: number, partner: string) =>
   `<li data-n="${n}"><div><b>Allow ${partner} to sell for you</b><span>Uploads your catalog and receives your orders. Revocable any time.</span></div></li>`;
+/** T-0802: the statements of the one handoff signature, in the order of the message. */
+const ONE_SIG_ROWS = (partner: string) =>
+  [
+    `<li data-n="1"><div><b>Your encryption key</b><span>Lets only you read buyers' order details.</span></div></li>`,
+    `<li data-n="2"><div><b>Register your store</b><span>This wallet opens the store at the address from step 1.</span></div></li>`,
+    `<li data-n="3"><div><b>Accept the documents</b><span>The four documents of step 2, each with its version and hash.</span></div></li>`,
+    SIG_ROW(4, partner),
+  ].join('\n');
 const SIG_LIST_RE = /(<ol class="cn-sig" id="sig">\n)([\s\S]*?)(<\/ol>)/;
 export function grantVariant(
   body: string,
@@ -161,9 +169,15 @@ export function grantVariant(
     return swap(b, '<span id="wtn">1</span> of 3', '<span id="wtn">1</span> of 1');
   }
   if (!v.grant_requested) return body;
-  let b = swap(body, '<b>3 free signatures</b>', '<b>4 free signatures</b>');
-  b = swap(b, SIG_LIST_RE, (_m, a, rows, c) => `${a}${rows}${SIG_ROW(4, pn)}\n${c}`);
-  return swap(b, '<span id="wtn">1</span> of 3', '<span id="wtn">1</span> of 4');
+  // T-0802: a register handoff that asked for the grant is signed once; the list shows what that one
+  // message states (encryption key, registration, the four documents, the partner's permission).
+  let b = swap(
+    body,
+    '<p>Your wallet will ask for <b>3 free signatures</b>. No gas, no money leaves your wallet.</p>',
+    '<p>Your wallet will ask for <b>1 free signature</b>. No gas, no money leaves your wallet. The one message you sign states:</p>',
+  );
+  b = swap(b, SIG_LIST_RE, (_m, a, _rows, c) => `${a}${ONE_SIG_ROWS(pn)}\n${c}`);
+  return swap(b, '<span id="wtn">1</span> of 3', '<span id="wtn">1</span> of 1');
 }
 
 const mdPage = (md: string, path: string): string =>

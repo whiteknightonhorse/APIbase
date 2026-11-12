@@ -7,7 +7,7 @@ import type { Alternative, SuggestedAction } from '../types/errors';
 import type { ShopTx } from './db';
 import { ShopAuthError } from './auth/errors';
 import { verifyWalletSignature, type NonceRedis } from './auth/nonce.service';
-import { verifyWalletSignature as checkWalletSignature } from './wallet-signature';
+import { verifyWalletSignature as checkWalletSignature, type SignerKind } from './wallet-signature';
 import { isCategoryAllowed, nearestAllowed } from './moderation/categories';
 import { getShopEnv } from '../config/env';
 import { moderateTexts } from './moderation/product-rules';
@@ -91,6 +91,22 @@ export interface RegisterCtx {
   client_name?: string;
   client_version?: string;
   path?: string;
+  /**
+   * T-0802: where refusal telemetry (connect events, geo outbox, the sanctioned stub) is written when
+   * `db` is a transaction that a refusal rolls back. Default: `db`.
+   */
+  eventsDb?: ShopTx;
+}
+
+/**
+ * T-0802: a registration whose wallet signature was already verified as part of one combined message
+ * (the one-signature partner handoff). The register check and the separate `sig_by_wallet` check are
+ * skipped; the message and the signature are stored as the registration's proof.
+ */
+export interface PreVerified {
+  signer_kind: SignerKind;
+  message: string;
+  signature: string;
 }
 
 /** Refusal with the F-15 shape: suggested_action + documentation_url + alternatives[]. */
@@ -157,7 +173,7 @@ function configDefaults(): { limits: object; policy: object } {
 async function emitConnectEvent(ctx: RegisterCtx, wallet: string, error_code: string) {
   const prefix = ipPrefix(ctx.ip);
   try {
-    await ctx.db.$executeRawUnsafe(
+    await (ctx.eventsDb ?? ctx.db).$executeRawUnsafe(
       `INSERT INTO shop_connect_events
          (identity_hash, client_name, client_version, user_agent, ip_prefix, error_code, path)
        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
@@ -177,7 +193,7 @@ async function emitConnectEvent(ctx: RegisterCtx, wallet: string, error_code: st
 /** UC-22: outbox event for the incident engine when the sign-up IP country is refused (country only, never the IP). */
 async function emitGeoRefused(ctx: RegisterCtx) {
   try {
-    await ctx.db.$executeRawUnsafe(
+    await (ctx.eventsDb ?? ctx.db).$executeRawUnsafe(
       `INSERT INTO outbox (event_type, payload) VALUES ($1, $2::jsonb)`,
       'shop.merchant.geo_refused',
       JSON.stringify({ country: ctx.ip_country, region: ctx.ip_region ?? null }),
@@ -282,7 +298,7 @@ export async function setSupportEmail(
   return { support_email };
 }
 
-async function validate(input: RegisterInput): Promise<void> {
+async function validate(input: RegisterInput, keySigChecked = false): Promise<void> {
   const bad = (m: string) => fail(422, 'validation_failed', m, 'fix_request', '/integrator/docs');
   if (!SLUG_RE.test(input.slug ?? '')) throw bad('slug must match [a-z0-9-]{3,40}');
   if (!ADDR_RE.test(input.wallet ?? '')) throw bad('wallet must be an EVM address');
@@ -308,6 +324,7 @@ async function validate(input: RegisterInput): Promise<void> {
   const k = input.encryption_key;
   if (!k || !k.kid || !k.alg || !k.pub || !k.sig_by_wallet)
     throw bad('encryption_key {kid, alg, pub, sig_by_wallet} is required');
+  if (keySigChecked) return; // T-0802: sig_by_wallet signs the combined message, verified already
   const ok = await verifyEncryptionKeySignature(input.wallet, k);
   if (!ok) throw bad('encryption_key.sig_by_wallet is not a signature by wallet');
 }
@@ -345,19 +362,22 @@ async function recordSanctionedPayout(d: RegisterCtx, input: RegisterInput, wall
 export async function registerMerchant(
   input: RegisterInput,
   ctx: RegisterCtx,
+  pre?: PreVerified,
 ): Promise<{ merchant_id: string; status: 'pending'; agent_id: string }> {
   const wallet = (input.wallet ?? '').toLowerCase();
   try {
     await checkIpRate(ctx);
 
     // 1. signature (INT-02, purpose register)
-    const { signer_kind } = await verifyWalletSignature(
-      { ...input.signed, expectedAddress: wallet, purpose: 'register' },
-      { redis: ctx.redis, now: ctx.now },
-    );
+    const { signer_kind } = pre
+      ? { signer_kind: pre.signer_kind }
+      : await verifyWalletSignature(
+          { ...input.signed, expectedAddress: wallet, purpose: 'register' },
+          { redis: ctx.redis, now: ctx.now },
+        );
 
     // 2. shape + uniqueness + encryption key signature
-    await validate(input);
+    await validate(input, !!pre);
     if (
       [input.wallet, input.payout_wallet, input.payout_wallet_base, input.payout_wallet_tempo].some(
         (a) => isPlatformWallet(a),
@@ -463,7 +483,7 @@ export async function registerMerchant(
       const verdict = await screenWallet(ctx.db, addr, role);
       if (verdict === 'platform') throw payoutWalletPlatform();
       if (verdict === 'sanctioned') {
-        await recordSanctionedPayout(ctx, input, wallet);
+        await recordSanctionedPayout({ ...ctx, db: ctx.eventsDb ?? ctx.db }, input, wallet);
         await recordBlock(`merchant:${wallet}`);
         throw fail(
           403,
@@ -502,8 +522,8 @@ export async function registerMerchant(
       const rows = await ctx.db.$queryRawUnsafe<Array<{ merchant_id: string }>>(
         `INSERT INTO shop_merchants (slug, name, category, country, registration_ip_country, wallet_address,
             payout_wallet_base, payout_wallet_tempo, recovery_wallet, encryption_key, contact_email, site_url,
-            status, limits, policy, agent_id, support_email)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,'pending',$13::jsonb,$14::jsonb,$15::uuid,$16)
+            status, limits, policy, agent_id, support_email, register_message, register_signature)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb,$11,$12,'pending',$13::jsonb,$14::jsonb,$15::uuid,$16,$17,$18)
          RETURNING merchant_id`,
         input.slug,
         input.name,
@@ -521,6 +541,8 @@ export async function registerMerchant(
         JSON.stringify(policy),
         agent[0].agent_id,
         supportEmailOf(input.support_email),
+        pre?.message ?? null,
+        pre?.signature ?? null,
       );
       merchant_id = rows[0].merchant_id;
     } catch (err) {

@@ -29,7 +29,7 @@ export interface HandoffInput {
   expected_wallet: string | null;
   /** T-0740: `grant` = a store already on APIbase only signs the grant; `register` (default) connects first. */
   mode: HandoffMode;
-  /** T-0740: in mode register, ask for the grant as a fourth signature after the documents. */
+  /** T-0740: in mode register, ask for the grant; T-0802: the connect page then signs everything once. */
   grant_requested: boolean;
 }
 
