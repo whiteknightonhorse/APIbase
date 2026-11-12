@@ -289,12 +289,23 @@ async function revokeGrantEffects(tx: ShopTx, grant_ids: string[]): Promise<void
   );
 }
 
-/** Lost key or identity change (all keys revoked): every active grant of the merchant goes too. */
-export async function revokeAllGrants(tx: ShopTx, merchant_id: string): Promise<void> {
+/**
+ * Identity change: every active grant of the merchant goes (it was signed by the old wallet).
+ * Lost key (`keepPartnerMode`, T-0801 ruling-1): only the grants of mode `key` go, with their key and
+ * endpoints; a grant of mode `partner` holds no merchant key, so it stays with its endpoint and handoff.
+ */
+export async function revokeAllGrants(
+  tx: ShopTx,
+  merchant_id: string,
+  opts: { keepPartnerMode?: boolean } = {},
+): Promise<void> {
   const g = await tx.$queryRawUnsafe<Array<{ grant_id: string }>>(
     `UPDATE shop_partner_grants SET revoked_at = now()
-      WHERE merchant_id = $1::uuid AND revoked_at IS NULL RETURNING grant_id::text AS grant_id`,
+      WHERE merchant_id = $1::uuid AND revoked_at IS NULL
+        AND ($2::boolean IS NOT TRUE OR mode <> 'partner')
+      RETURNING grant_id::text AS grant_id`,
     merchant_id,
+    opts.keepPartnerMode === true,
   );
   await revokeGrantEffects(
     tx,

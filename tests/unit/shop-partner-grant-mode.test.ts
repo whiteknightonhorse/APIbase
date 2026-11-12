@@ -25,6 +25,9 @@ import {
   type Partner,
 } from '../../src/shop/routes/integrator.router';
 import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
+import { createOwnerRouter } from '../../src/shop/routes/owner.router';
+import { bindHandoff } from '../../src/shop/partner/handoff.service';
+import { changeIdentity } from '../../src/shop/auth/identity.service';
 import { createPartnerRouter } from '../../src/shop/routes/partner.router';
 import { deliverDue } from '../../src/shop/webhook/delivery.service';
 import type { WebhookRequest } from '../../src/shop/webhook/transport';
@@ -92,6 +95,29 @@ describe('T-0747 registry grant_mode (no DB)', () => {
       'dispute.opened',
     ]);
     for (const e of s.delivery_events) expect(WEBHOOK_EVENTS).toContain(e);
+  });
+
+  it('T-0801 seller_keys: absent -> shown; hidden loads in mode partner; hidden in mode key or an unknown value stop the start', () => {
+    const pm = {
+      ...base,
+      grant_mode: 'partner',
+      delivery_webhook_url: 'https://a.io/h',
+      delivery_events: ['order.paid'],
+    };
+    expect(load(pm)[0].seller_keys).toBe('shown');
+    expect(load({ ...base, grant_mode: 'key' })[0].seller_keys).toBe('shown');
+    expect(load({ ...pm, seller_keys: 'shown' })[0].seller_keys).toBe('shown');
+    expect(load({ ...pm, seller_keys: 'hidden' })[0].seller_keys).toBe('hidden');
+    expect(() => load({ ...base, grant_mode: 'key', seller_keys: 'hidden' })).toThrow(
+      /seller_keys hidden is for grant_mode partner only/,
+    );
+    for (const v of ['Hidden', 'none', '', true, null, ['hidden']])
+      expect(() => load({ ...pm, seller_keys: v })).toThrow(/bad field seller_keys/);
+    const raw = JSON.parse(
+      readFileSync(resolve(__dirname, '../../config/integrator/partners.json'), 'utf8'),
+    ) as Row[];
+    expect(raw.find((p) => p.id === 'soukbase')?.seller_keys).toBe('hidden');
+    expect(REG.seller_keys).toBe('hidden');
   });
 
   it('mode key and mode partner load; the bad shapes are startup errors', () => {
@@ -209,6 +235,7 @@ dbDescribe('T-0747 partner-mode grants', () => {
       }),
     );
     app.use(createMerchantRouter(deps));
+    app.use(createOwnerRouter(deps));
     server = app.listen(0);
     base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   });
@@ -807,6 +834,193 @@ dbDescribe('T-0747 partner-mode grants', () => {
       );
       expect(row.grant_webhook_secret_enc).toBeNull();
       expect((await readHandoff(h)).grant).toEqual({ state: 'revoked', mode: 'partner' });
+    });
+  });
+  // T-0801 ruling-1: a reissue keeps grants of mode partner; an identity change does not.
+  describe('T-0801 a shop without keys: owner page, reissue, identity change', () => {
+    const signed = async (acct: ReturnType<typeof privateKeyToAccount>, purpose: string) => {
+      const r = await http(
+        'GET',
+        `/api/v1/shop/auth/nonce?wallet=${acct.address}&purpose=${purpose}`,
+      );
+      expect(r.status).toBe(200);
+      const { message } = (await r.json()) as { message: string };
+      return { message, signature: await acct.signMessage({ message }) };
+    };
+    const reissue = async (acct: ReturnType<typeof privateKeyToAccount>) =>
+      json(
+        await http('POST', '/api/v1/shop/merchants/me/keys/reissue', {
+          wallet: acct.address,
+          ...(await signed(acct, 'reissue')),
+        }),
+      );
+    const endpoint = async (grant_id: string) =>
+      q(
+        `SELECT endpoint_id::text AS endpoint_id, url, events, secret_hash, status
+           FROM shop_webhook_endpoints WHERE grant_id = $1::uuid ORDER BY endpoint_id`,
+        grant_id,
+      );
+    const handoffRow = async (id: string) =>
+      (
+        await q(
+          `SELECT state, slug, merchant_id::text AS merchant_id, grant_id::text AS grant_id,
+                  grant_key_enc, grant_webhook_secret_enc, grant_delivered_at
+             FROM shop_partner_handoffs WHERE handoff_id = $1::uuid`,
+          id,
+        )
+      )[0];
+    /** The server side of a gated registration: register handoff with the grant asked, bound, then granted. */
+    async function gated() {
+      const m = await merchant();
+      const r = await http(
+        'POST',
+        '/api/v1/shop/partners/handoffs',
+        { mode: 'register', grant_requested: true, expected_wallet: m.acct.address },
+        PKEY,
+      );
+      expect(r.status).toBe(201);
+      const h = ((await r.json()) as { handoff_id: string }).handoff_id;
+      expect(await bindHandoff(prisma as never, h, m.id, m.slug, m.acct.address)).toBe(true);
+      const g = await grant(m.acct, h);
+      expect(g.status).toBe(201);
+      return { ...m, handoff_id: h, grant_id: g.body.grant_id as string };
+    }
+
+    it('the handoff read of a gated registration carries no key field, before and after the secret is taken', async () => {
+      const g = await gated();
+      const first = await readHandoff(g.handoff_id);
+      const later = await readHandoff(g.handoff_id);
+      expect(first.state).toBe('granted');
+      expect(first.grant).toMatchObject({ state: 'granted', mode: 'partner' });
+      expect(first.grant.webhook_secret).toMatch(/^whsec_/);
+      expect(later.grant).toEqual({
+        state: 'granted',
+        mode: 'partner',
+        scopes: ['catalog:write', 'webhooks:write'],
+        delivered: true,
+      });
+      for (const b of [first, later]) {
+        expect(Object.keys(b.grant)).not.toContain('key');
+        expect(Object.keys(b)).not.toContain('api_key');
+        expect(JSON.stringify(b)).not.toContain('mk_live_');
+      }
+    });
+
+    it('owner page sign-in with the wallet; reissue returns a key with orders:read; the partner grant, its endpoint and the handoff stay', async () => {
+      const g = await gated();
+      await readHandoff(g.handoff_id); // the partner took its secret, as in production
+      const own = await http('GET', `/m/${g.slug}/owner`);
+      expect(own.status).toBe(401);
+      const s = await signed(g.acct, 'owner');
+      const ok = await fetch(`${base}/m/${g.slug}/owner`, {
+        headers: {
+          ...xff(),
+          'x-owner-message': Buffer.from(s.message).toString('base64'),
+          'x-owner-signature': s.signature,
+        },
+      });
+      expect(ok.status).toBe(200);
+      expect(ok.headers.get('set-cookie')).toMatch(/HttpOnly/);
+      const epBefore = await endpoint(g.grant_id);
+      expect(epBefore).toHaveLength(1);
+      const hBefore = await handoffRow(g.handoff_id);
+      const rs = await reissue(g.acct);
+      expect(rs.status).toBe(200);
+      const key = rs.body.api_key as string;
+      expect(key).toMatch(/^mk_live_/);
+      expect((await http('GET', '/api/v1/shop/merchants/me/orders', undefined, key)).status).toBe(
+        200,
+      );
+      expect(
+        (await http('GET', '/api/v1/shop/merchants/me/orders', undefined, g.owner)).status,
+      ).toBe(401);
+      const [gr] = await q(
+        `SELECT revoked_at FROM shop_partner_grants WHERE grant_id = $1::uuid`,
+        g.grant_id,
+      );
+      expect(gr.revoked_at).toBeNull();
+      expect(await endpoint(g.grant_id)).toEqual(epBefore);
+      expect(await handoffRow(g.handoff_id)).toEqual(hBefore);
+      expect((await putCatalog(g.slug, [ITEM], PKEY)).status).toBe(200);
+      expect((await readHandoff(g.handoff_id)).grant).toMatchObject({
+        state: 'granted',
+        mode: 'partner',
+      });
+      // the new key sees the partner's grant and can still end it by hand
+      const lg = await json(await http('GET', '/api/v1/shop/merchants/me/grants', undefined, key));
+      expect(lg.body.grants.map((x: Row) => x.partner)).toEqual(['soukbase']);
+      expect(
+        (await http('DELETE', '/api/v1/shop/merchants/me/grants/soukbase', undefined, key)).status,
+      ).toBe(200);
+      expect((await putCatalog(g.slug, [ITEM], PKEY)).body.error_code).toBe('grant_revoked');
+    });
+
+    it('reissue with a live grant of mode key: that grant, its key and its endpoints go, its parked key is dropped (T-0740)', async () => {
+      const m = await merchant();
+      let gk = '';
+      let grant_id = '';
+      await deps.transaction(async (tx: any) => {
+        gk = await issueKey(tx, m.id, ['catalog:write', 'webhooks:write'], 'grant:otherco');
+        const [r] = await tx.$queryRawUnsafe(
+          `INSERT INTO shop_partner_grants (merchant_id, partner_id, key_hash, scopes)
+           VALUES ($1::uuid, 'otherco', $2, ARRAY['catalog:write','webhooks:write'])
+           RETURNING grant_id::text AS grant_id`,
+          m.id,
+          hashApiKey(gk),
+        );
+        grant_id = r.grant_id;
+      });
+      const wh = await json(
+        await http(
+          'PUT',
+          '/api/v1/shop/merchants/me/webhooks',
+          { url: 'https://hooks.example/k', events: ['order.paid'] },
+          gk,
+        ),
+      );
+      expect(wh.status).toBe(200);
+      const h = await handoff();
+      await x(
+        `UPDATE shop_partner_handoffs SET grant_id = $2::uuid, grant_key_enc = 'enc'
+          WHERE handoff_id = $1::uuid`,
+        h,
+        grant_id,
+      );
+      expect((await reissue(m.acct)).status).toBe(200);
+      const [gr] = await q(
+        `SELECT revoked_at FROM shop_partner_grants WHERE grant_id = $1::uuid`,
+        grant_id,
+      );
+      expect(gr.revoked_at).not.toBeNull();
+      expect((await http('GET', '/api/v1/shop/merchants/me/webhooks', undefined, gk)).status).toBe(
+        401,
+      );
+      expect((await endpoint(grant_id)).map((e) => e.status)).toEqual(['deleted']);
+      expect((await handoffRow(h)).grant_key_enc).toBeNull();
+    });
+
+    it('an identity change still revokes a grant of mode partner: the partner route answers 403 grant_revoked', async () => {
+      const g = await gated();
+      const rec = privateKeyToAccount(generatePrivateKey());
+      const nw = privateKeyToAccount(generatePrivateKey());
+      await x(
+        `UPDATE shop_merchants SET recovery_wallet = $2 WHERE merchant_id = $1::uuid`,
+        g.id,
+        rec.address.toLowerCase(),
+      );
+      expect((await putCatalog(g.slug, [ITEM], PKEY)).status).toBe(200);
+      const sRec = await signed(rec, 'owner');
+      const sNew = await signed(nw, 'owner');
+      await deps.transaction((tx: any) =>
+        changeIdentity({ db: tx, redis: redis as never }, g.id, {
+          new_wallet: nw.address,
+          sig_by_recovery: sRec,
+          sig_by_new: sNew,
+        }),
+      );
+      const r = await putCatalog(g.slug, [ITEM], PKEY);
+      expect([r.status, r.body.error_code]).toEqual([403, 'grant_revoked']);
+      expect((await endpoint(g.grant_id)).map((e) => e.status)).toEqual(['deleted']);
     });
   });
 });

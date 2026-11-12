@@ -258,6 +258,7 @@ dbDescribe('T-0739 partner handoff', () => {
         expected_wallet: '0x' + 'cd'.repeat(20),
         mode: 'register', // T-0740
         grant_requested: false,
+        seller_keys: 'hidden', // T-0801: the registry value of the partner
       });
       expect(html).toContain('Prefilled from Soukbase. Check the values and continue.');
       expect(html).not.toContain('no longer valid');

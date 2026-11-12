@@ -155,3 +155,6 @@ static/llms.txt	https://apibase.pro/llms.txt	must-not-contain	# https://apibase.
 static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	it does not scrape your pages	-	T-0793
 static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	Who bears an order an agent placed by mistake	-	T-0793
 static/integrator/buyers.md	https://apibase.pro/integrator/buyers.md	must-contain	One `expires_at` covers the whole quote	-	T-0794
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	### A shop without keys {#shop-without-keys}	-	T-0801 seller_keys hidden: no keys shown, wallet reaches orders and a key
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-not-contain	revokes every grant together with the keys	-	T-0801 reissue keeps grants of mode partner
+static/integrator/connect.html	https://apibase.pro/integrator/connect	must-contain	/integrator/docs#shop-without-keys	-	T-0801

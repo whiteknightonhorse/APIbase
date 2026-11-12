@@ -48,6 +48,12 @@ export interface Partner {
   delivery_webhook_url?: string;
   /** mode partner only: the events of that endpoint (non-empty, each in WEBHOOK_EVENTS). */
   delivery_events?: string[];
+  /**
+   * T-0801 (SELLER-LIVE-1112 ruling-3): the keys step of the connect page for a seller who registers
+   * through this partner's handoff and signs the grant. `shown` (default, also when absent) or
+   * `hidden` (mode partner only): the page shows no API key and no decryption key.
+   */
+  seller_keys?: 'shown' | 'hidden';
 }
 
 /** T-0728: partner registry for the connect page "Continue on <partner>" button; invalid file = startup error. */
@@ -82,6 +88,12 @@ export function loadPartners(file: string): Partner[] {
       )
         throw new Error('partners.json: bad field delivery_events');
     } else throw new Error('partners.json: bad field grant_mode');
+    // T-0801: seller_keys is shown (default) or hidden; hidden only in mode partner.
+    const sk = r.seller_keys === undefined ? 'shown' : r.seller_keys;
+    if (sk !== 'shown' && sk !== 'hidden') throw new Error('partners.json: bad field seller_keys');
+    if (sk === 'hidden' && r.grant_mode !== 'partner')
+      throw new Error('partners.json: seller_keys hidden is for grant_mode partner only');
+    p.seller_keys = sk;
     return p;
   });
 }
@@ -262,7 +274,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
           live.mode === 'grant'
             ? ''
             : `<p class="hint">Prefilled from ${esc(partner.name)}. Check the values and continue.</p>`;
-        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested })}</script>`;
+        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested, seller_keys: partner.seller_keys ?? 'shown' })}</script>`;
       } else {
         hint = `<p class="hint">This link from ${esc(partner.name)} is no longer valid. You can still connect your store and return there.</p>`;
       }

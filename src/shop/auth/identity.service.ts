@@ -51,13 +51,22 @@ const emit = (db: ShopTx, event_type: string, payload: unknown) =>
     JSON.stringify(payload),
   );
 
-async function revokeAll(db: ShopTx, merchant_id: string): Promise<void> {
+/**
+ * Every key of the merchant (grant keys of mode `key` included) is revoked. T-0740: the grants go with
+ * the keys (their endpoints stop, an unread handoff key or secret is dropped). T-0801 ruling-1: on a
+ * reissue (`keepPartnerMode`) a grant of mode `partner` stays: it holds no key and was made only by a
+ * wallet signature. An identity change still revokes every grant.
+ */
+async function revokeAll(
+  db: ShopTx,
+  merchant_id: string,
+  opts: { keepPartnerMode?: boolean } = {},
+): Promise<void> {
   await db.$executeRawUnsafe(
     `UPDATE shop_merchant_keys SET revoked_at = now() WHERE merchant_id = $1::uuid AND revoked_at IS NULL`,
     merchant_id,
   );
-  // T-0740: every partner grant goes with the keys (its endpoints stop, its handoff key is dropped).
-  await revokeAllGrants(db, merchant_id);
+  await revokeAllGrants(db, merchant_id, opts);
 }
 
 async function verifyOwner(
@@ -141,12 +150,15 @@ async function rotateEncryptionKey(db: ShopTx, m: MerchantRow, k: EncryptionKey)
   await flagUndeliverable(db, m.merchant_id, k.kid);
 }
 
-/** Wallet signature (purpose reissue) revokes ALL keys and issues a fresh one. */
+/**
+ * Wallet signature (purpose reissue) revokes ALL keys and the grants of mode `key`, and issues a fresh
+ * key; grants of mode `partner` stay (T-0801 ruling-1).
+ */
 export async function reissueKeys(d: Deps, wallet: string, s: Signed): Promise<string> {
   const m = await loadMerchant(d.db, 'wallet_address = $1', wallet.toLowerCase());
   if (!m) throw new ShopAuthError(401, 'unknown merchant');
   await verifyOwner(d, m.wallet_address, s, 'reissue');
-  await revokeAll(d.db, m.merchant_id);
+  await revokeAll(d.db, m.merchant_id, { keepPartnerMode: true });
   const key = await issueKey(d.db, m.merchant_id, MERCHANT_SCOPES, 'reissued');
   await emit(d.db, 'shop.merchant.keys_reissued', { merchant_id: m.merchant_id });
   return key;

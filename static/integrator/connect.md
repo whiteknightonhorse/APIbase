@@ -34,7 +34,7 @@ Arrived from a marketplace link? The form is prefilled from it (check the values
 
 The page shows your API key and your decryption key once. Shown once: save both now in a password manager; they cannot be shown again, and if you lose them you have to reconnect your store. Never send these keys to anyone, in a message or in a screenshot: whoever has the API key can change your store. Then work through the next steps: add your catalog, set your webhook, pay the $0.01 test order, and check your store at /integrator/check/<address>. The steps are described in /integrator/agent-guide.
 
-Arrived from a marketplace? Tick "I saved both keys. They are shown only once.": the page then returns you to the marketplace after 10 seconds, and "Stay on this page" (or copying a key, pressing Escape or switching tabs) stops that. If the marketplace sells for you there is nothing else to do; otherwise the four steps are under "Set the store up yourself".
+Arrived from a marketplace? Tick "I saved both keys. They are shown only once.": that enables "Continue on <marketplace>", and the page returns only when you press it. If the marketplace sells for you there is nothing else to do; otherwise the four steps are under "Set the store up yourself". A marketplace that adds your products for you may hide the keys (see /integrator/docs#shop-without-keys): after you allow it, the page shows no keys, says there is nothing to save, and returns you to the marketplace after 5 seconds.
 
 If your wallet already has a store, a marketplace link that asked to sell for you shows "Allow <marketplace>" (one signature, no new store, no new keys); without that request the page tells you to ask the marketplace for a link that connects an existing store.
 

@@ -1,4 +1,6 @@
 /**
+ * T-0801: the keys step has no timer (Continue after the box); a partner with seller_keys hidden and a
+ * signed grant gets the keyless page (two lines, docs link, 5 s return) and the keys never reach the DOM.
  * T-0764: the done page of a partner arrival (checkbox, 10 s return, stop actions, grant-only step,
  * existing store on a register link, word wrap, secrets). The served page runs in jsdom with a stubbed
  * wallet and fetch; timers are a manual scheduler so the countdown is deterministic.
@@ -33,6 +35,8 @@ type Opt = {
   handoff?: { mode: 'register' | 'grant'; grant_requested: boolean };
   reg409?: boolean;
   grantFails?: boolean;
+  /** T-0801: the registry seller_keys the server puts in the page JSON (absent = not sent). */
+  keys?: 'shown' | 'hidden';
 };
 
 async function boot(o: Opt) {
@@ -40,7 +44,12 @@ async function boot(o: Opt) {
     await fetch(`${base}/integrator/connect${o.from === false ? '' : '?from=soukbase'}`)
   ).text();
   if (o.handoff) {
-    const pf = JSON.stringify({ prefill: {}, expected_wallet: null, ...o.handoff });
+    const pf = JSON.stringify({
+      prefill: {},
+      expected_wallet: null,
+      ...o.handoff,
+      ...(o.keys ? { seller_keys: o.keys } : {}),
+    });
     html = html.replace(
       '<a id="pt"',
       `<input type="hidden" name="handoff" value="${HID}" data-partner="Soukbase" form="f"><script type="application/json" id="pf">${pf}</script><a id="pt"`,
@@ -51,13 +60,29 @@ async function boot(o: Opt) {
   const timers: { fn: () => void; at: number; id: number }[] = [];
   let now = 0,
     seq = 0;
+  const API_KEY = 'mk_live_' + 'a1'.repeat(16);
+  /** every pkcs8 (private key) export the page makes, base64; and every DOM state that held a key */
+  const xp: string[] = [];
+  const leaks: string[] = [];
   const dom = new JSDOM(html, {
     runScripts: 'dangerously',
     virtualConsole: new VirtualConsole().sendTo(console),
     pretendToBeVisual: true,
     url: 'https://apibase.pro/integrator/connect?from=soukbase',
     beforeParse(w: any) {
-      Object.defineProperty(w, 'crypto', { value: webcrypto, configurable: true });
+      const sub = webcrypto.subtle;
+      const crypto = {
+        getRandomValues: (a: any) => webcrypto.getRandomValues(a),
+        subtle: {
+          generateKey: (...a: any[]) => (sub.generateKey as any)(...a),
+          exportKey: async (f: any, k: any) => {
+            const r = await sub.exportKey(f, k);
+            if (f === 'pkcs8') xp.push(Buffer.from(r as ArrayBuffer).toString('base64'));
+            return r;
+          },
+        },
+      };
+      Object.defineProperty(w, 'crypto', { value: crypto, configurable: true });
       w.TextEncoder = TextEncoder;
       w.ethereum = {
         chainId: '0x2105',
@@ -83,8 +108,7 @@ async function boot(o: Opt) {
           return o.reg409
             ? res(409, { error_code: 'wallet_registered', message: 'taken' })
             : res(201, { docs_to_accept: [{ doc_id: 'd', version: '1', sha256: 'x' }] });
-        if (url.endsWith('/acceptances'))
-          return res(201, { api_key: 'mk_live_' + 'a1'.repeat(16) });
+        if (url.endsWith('/acceptances')) return res(201, { api_key: API_KEY });
         if (url.endsWith('/grants'))
           return o.grantFails
             ? res(500, { message: 'boom' })
@@ -95,6 +119,11 @@ async function boot(o: Opt) {
   });
   const w = dom.window,
     d = w.document;
+  // T-0801: watch the DOM at every moment of the flow, not only at the end
+  new w.MutationObserver(() => {
+    const h = d.documentElement.outerHTML;
+    for (const k of [API_KEY, ...xp]) if (h.includes(k)) leaks.push(k);
+  }).observe(d, { subtree: true, childList: true, attributes: true, characterData: true });
   const navs: string[] = [];
   d.getElementById('pt')?.addEventListener('click', (e: any) => {
     e.preventDefault();
@@ -163,37 +192,63 @@ async function boot(o: Opt) {
       expect(w.location.href).not.toContain(k);
     }
   };
-  return { w, d, calls, navs, tick, run, out, status, box, keys, tick1, untick, secrets, $ };
+  return {
+    w,
+    d,
+    calls,
+    navs,
+    tick,
+    run,
+    out,
+    status,
+    box,
+    keys,
+    tick1,
+    untick,
+    secrets,
+    $,
+    timers,
+    xp,
+    leaks,
+    API_KEY,
+  };
 }
 
 const GR = { mode: 'register' as const, grant_requested: true };
 const URL1 = `${RET}?apibase_slug=shop-one&handoff=${HID}`;
 
 describe('T-0764 done page return', () => {
-  it('T1 new store + signed grant: link disabled until the box, 10 s countdown, return URL', async () => {
+  it('T1 keys shown + signed grant: Continue disabled until the box, then enabled, no timer ever', async () => {
     const p = await boot({ handoff: GR });
     await p.run();
     const pt = p.$('pt');
     expect(p.out().textContent).toContain('Your store is connected');
+    expect(p.keys()).toHaveLength(2);
     expect(pt.hasAttribute('href')).toBe(false);
     expect(pt.getAttribute('aria-disabled')).toBe('true');
     expect(pt.textContent).toBe('Continue on Soukbase');
     expect(p.status().textContent).toBe('Tick the box above first: the keys are shown only once.');
-    p.tick(30);
-    expect(p.navs).toEqual([]);
     expect(p.out().querySelector('.cn-warnbox').textContent).toContain(
       'Never send these keys to anyone',
     );
     expect(p.out().textContent).toContain('I saved both keys. They are shown only once.');
     p.tick1();
-    expect(pt.textContent).toBe('Go to Soukbase now');
+    expect(pt.textContent).toBe('Continue on Soukbase');
     expect(pt.hasAttribute('aria-disabled')).toBe(false);
-    expect(p.status().textContent).toBe('Returning to Soukbase in 10 s');
-    expect(p.status().querySelector('[aria-hidden=true]').textContent).toBe('10');
-    p.tick(5);
-    expect(p.status().querySelector('[aria-hidden=true]').textContent).toBe('5');
+    expect(pt.getAttribute('href')).toBe(URL1);
+    expect(p.status().textContent).toBe('');
+    expect(p.timers).toHaveLength(0);
+    p.tick(60);
     expect(p.navs).toEqual([]);
-    p.tick(5);
+    expect(
+      [...p.out().querySelectorAll('button')]
+        .filter((b: any) => !b.hidden)
+        .map((b: any) => b.textContent),
+    ).not.toContain('Stay on this page');
+    p.untick();
+    expect(pt.hasAttribute('href')).toBe(false);
+    p.tick1();
+    pt.click();
     expect(p.navs).toEqual([URL1]);
     expect(p.out().textContent).toContain(
       'Soukbase adds your catalog and sets up delivery for this store. You have nothing else to do here.',
@@ -203,48 +258,89 @@ describe('T-0764 done page return', () => {
     p.secrets(p.keys());
   });
 
-  it.each(['stay', 'escape', 'untick', 'copy', 'hidden'])(
-    'T2 stop action %s stops the countdown and a re-tick restarts it',
+  it.each(['stay', 'escape', 'hidden'])(
+    'T2 keyless page: stop action %s stops the 5 s return; the link back stays',
     async (how) => {
-      const p = await boot({ handoff: GR });
+      const p = await boot({ handoff: GR, keys: 'hidden' });
       await p.run();
-      p.tick1();
-      p.tick(3);
+      p.tick(2);
       if (how === 'stay')
         [...p.out().querySelectorAll('button')]
           .find((b: any) => b.textContent === 'Stay on this page')
           .click();
       if (how === 'escape') p.d.dispatchEvent(new p.w.KeyboardEvent('keydown', { key: 'Escape' }));
-      if (how === 'untick') p.untick();
-      if (how === 'copy') p.out().querySelector('.cn-key button').click();
       if (how === 'hidden') {
         Object.defineProperty(p.d, 'hidden', { configurable: true, value: true });
         p.d.dispatchEvent(new p.w.Event('visibilitychange'));
       }
       p.tick(20);
       expect(p.navs).toEqual([]);
-      if (how === 'untick') {
-        expect(p.$('pt').hasAttribute('href')).toBe(false);
-        expect(p.status().textContent).toContain('Tick the box above first');
-      } else {
-        expect(p.status().textContent).toBe(
-          'Automatic return stopped. Go to Soukbase when you are ready.',
-        );
-        expect(p.$('pt').getAttribute('href')).toBe(URL1);
-      }
-      if (how === 'hidden')
-        Object.defineProperty(p.d, 'hidden', { configurable: true, value: false });
-      if (how === 'untick') p.tick1();
-      else {
-        p.untick();
-        p.tick1();
-      }
-      expect(p.status().textContent).toBe('Returning to Soukbase in 10 s');
-      p.tick(10);
-      expect(p.navs).toEqual([URL1]);
-      p.secrets(p.keys());
+      expect(p.status().textContent).toBe(
+        'Automatic return stopped. Go to Soukbase when you are ready.',
+      );
+      expect(p.$('pt').getAttribute('href')).toBe(URL1);
     },
   );
+
+  it('T10 hidden + granted: no keys step at any moment, two lines, docs link, link back at once, 5 s return', async () => {
+    const p = await boot({ handoff: GR, keys: 'hidden' });
+    await p.run();
+    const o = p.out();
+    expect(o.querySelector('.cn-key')).toBeNull();
+    expect(o.querySelector('.cn-warnbox')).toBeNull();
+    expect(p.box()).toBeNull();
+    expect(o.textContent).not.toMatch(/API key\b.*shown|Decryption key|Shown once/);
+    const lines = [...o.querySelectorAll('p')].map((e: any) => e.textContent);
+    expect(lines).toContain(
+      'Your shop is ready. Soukbase adds your products for you; there is nothing to save from this page.',
+    );
+    expect(lines).toContain(
+      'Your orders, and an API key if you ever need one, are reached with this wallet: how',
+    );
+    const how = [...o.querySelectorAll('a')].find((a: any) => a.textContent === 'how');
+    expect(how.getAttribute('href')).toBe('/integrator/docs#shop-without-keys');
+    const pt = p.$('pt');
+    expect(pt.getAttribute('href')).toBe(URL1);
+    expect(pt.hasAttribute('aria-disabled')).toBe(false);
+    expect(p.status().textContent).toBe('Returning to Soukbase in 5 s');
+    p.tick(4);
+    expect(p.navs).toEqual([]);
+    p.tick(1);
+    expect(p.navs).toEqual([URL1]);
+    // the four signatures ran (the grant included); the keys never reached the DOM, storage or a request
+    expect(p.calls.filter((c) => c.url.endsWith('/acceptances'))).toHaveLength(1);
+    expect(p.calls.filter((c) => c.url.endsWith('/grants'))).toHaveLength(1);
+    expect(p.xp).toEqual([]);
+    expect(p.leaks).toEqual([]);
+    expect(p.d.documentElement.outerHTML).not.toContain(p.API_KEY);
+    p.secrets([p.API_KEY]);
+  });
+
+  it('T11 hidden + grant declined: the keys step with both keys, no timer', async () => {
+    const p = await boot({ handoff: GR, keys: 'hidden', grantFails: true });
+    await p.run();
+    expect(p.keys()).toHaveLength(2);
+    expect(p.keys()[0]).toBe(p.API_KEY);
+    expect(p.out().textContent).toContain('was not allowed to act for your store');
+    p.tick1();
+    expect(p.$('pt').getAttribute('href')).toBe(URL1);
+    expect(p.timers).toHaveLength(0);
+    p.tick(30);
+    expect(p.navs).toEqual([]);
+    p.secrets(p.keys());
+  });
+
+  it('T12 arrival without a handoff: keys step, Continue only after the box, no timer', async () => {
+    const p = await boot({ from: true });
+    await p.run();
+    expect(p.keys()).toHaveLength(2);
+    expect(p.$('pt').hasAttribute('href')).toBe(false);
+    p.tick1();
+    expect(p.$('pt').getAttribute('href')).toBe(`${RET}?apibase_slug=shop-one`);
+    expect(p.timers).toHaveLength(0);
+    p.tick(30);
+    expect(p.navs).toEqual([]);
+  });
 
   it('T3 no grant requested, or grant declined: the four steps sit in a closed details', async () => {
     for (const o of [{ from: true }, { handoff: GR, grantFails: true }] as Opt[]) {
@@ -322,6 +418,34 @@ describe('T-0764 done page return', () => {
     expect(p.out().querySelector('details')).toBeNull();
     expect(p.box()).toBeNull();
     expect(p.status()).toBeNull();
+    expect(p.timers).toHaveLength(0);
     p.secrets(p.keys());
+  });
+
+  it('T13 the server puts the registry seller_keys of the partner into the page JSON', async () => {
+    const db = {
+      $queryRawUnsafe: async () => [
+        {
+          handoff_id: HID,
+          prefill: null,
+          expected_wallet: null,
+          mode: 'register',
+          grant_requested: true,
+        },
+      ],
+      $executeRawUnsafe: async () => 0,
+    };
+    const app = express();
+    app.use(createIntegratorRouter({ limit: 10_000, db: db as never }));
+    const srv = app.listen(0);
+    try {
+      const u = `http://127.0.0.1:${(srv.address() as AddressInfo).port}/integrator/connect?from=soukbase&handoff=${HID}`;
+      const h = await (await fetch(u)).text();
+      const pf = JSON.parse(/<script type="application\/json" id="pf">(.*?)<\/script>/.exec(h)![1]);
+      expect(pf).toMatchObject({ mode: 'register', grant_requested: true, seller_keys: 'hidden' });
+      expect(h).toContain('/integrator/docs#shop-without-keys');
+    } finally {
+      srv.close();
+    }
   });
 });
