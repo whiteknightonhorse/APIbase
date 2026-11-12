@@ -206,6 +206,30 @@ export const mcpSessionsActive = new client.Gauge({
   registers: [register],
 });
 
+/** T-0795: MCP JSON-RPC requests by transport surface and method (internal measurement). */
+export const mcpRpcRequestsTotal = new client.Counter({
+  name: 'mcp_rpc_requests_total',
+  help: 'MCP JSON-RPC requests by surface and method',
+  labelNames: ['surface', 'method'] as const, // surface: mcp | storefront | sse; method: initialize | tools_list | tools_call | other
+  registers: [register],
+});
+
+/** T-0795: outcome of each registered-tool call, by payer class. */
+export const mcpToolCallOutcomesTotal = new client.Counter({
+  name: 'mcp_tool_call_outcomes_total',
+  help: 'MCP tool call outcomes by payer class',
+  labelNames: ['outcome', 'payer'] as const, // outcome: paid | payment_required | ok_unpaid | error; payer: internal | external | none
+  registers: [register],
+});
+
+/** T-0795: ended MCP sessions by the furthest step reached and the payer class of the first paid call. */
+export const mcpSessionsEndedTotal = new client.Counter({
+  name: 'mcp_sessions_ended_total',
+  help: 'Ended MCP sessions by furthest step reached',
+  labelNames: ['surface', 'reached', 'payer'] as const, // reached: initialize | tools_list | tools_call | payment_required | paid
+  registers: [register],
+});
+
 /** Daily shop-provek-registry-sync: registry downloads that failed (stored values kept). */
 export const provekRegistrySyncFailures = new client.Counter({
   name: 'provek_registry_sync_failures_total',

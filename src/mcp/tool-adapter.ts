@@ -33,6 +33,9 @@ import {
   MCP_PAYMENT_RESPONSE_META_KEY,
 } from '../middleware/x402.middleware';
 
+import { mcpToolCallOutcomesTotal } from '../services/metrics.service';
+import { payerClassOf, type Outcome } from './session-funnel';
+
 // Re-export for backward compatibility
 export { TOOL_DEFINITIONS } from './tool-definitions';
 
@@ -84,6 +87,8 @@ export interface PaymentContext {
   host?: string | null;
   /** T-0662: attaches the current HTTP request's close watcher to a tool call's pipeline context. */
   watchClient?: (ctx: import('../pipeline/types').PipelineContext) => void;
+  /** T-0795: session funnel hook, set once per session (not part of the per-request update). */
+  onOutcome?: (outcome: Outcome, payer: string | null) => void;
 }
 
 /**
@@ -156,6 +161,27 @@ export function registerTools(
         }
 
         const result = await runPipeline(ctx);
+
+        // T-0795: internal counters; never throws into or delays the tool call.
+        try {
+          let outcome: Outcome;
+          let payer: string | null = null;
+          if (result.ok) {
+            const v = result.value;
+            if ((v.x402Paid || v.mppPaid) && !v.dedupHit) {
+              outcome = 'paid';
+              payer = v.x402Payer ?? v.mppPayer ?? null;
+            } else {
+              outcome = 'ok_unpaid';
+            }
+          } else {
+            outcome = result.error.code === 402 ? 'payment_required' : 'error';
+          }
+          mcpToolCallOutcomesTotal.inc({ outcome, payer: payerClassOf(payer) });
+          paymentCtx?.onOutcome?.(outcome, payer);
+        } catch {
+          // measurement only
+        }
 
         if (result.ok) {
           // T-0429: x402 MCP transport v2 settlement receipt (verify -> deliver -> settle: the

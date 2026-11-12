@@ -27,6 +27,13 @@ import { logger } from '../config/logger';
 import { mcpSessionsActive } from '../services/metrics.service';
 import { watchClientDisconnect } from '../pipeline/client-disconnect';
 import { registerTools, type PaymentContext } from './tool-adapter';
+import {
+  endAllSessions,
+  endSession,
+  noteOutcome,
+  noteRequest,
+  payerClassOf,
+} from './session-funnel';
 import { withZod3ToolSchemas } from './zod3-tool-schema';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
@@ -78,7 +85,13 @@ function removeSession(sessionId: string): void {
   sessionLastActivity.delete(sessionId);
   sessionPaymentCtx.delete(sessionId);
   sessionSlug.delete(sessionId);
+  endSession(sessionId);
   mcpSessionsActive.set(sessions.size);
+}
+
+/** T-0795: session-bound funnel hook. Not a key of extractPaymentFromReq(), so the per-request Object.assign keeps it. */
+function bindOutcome(ctx: PaymentContext, sessionId: string): void {
+  ctx.onOutcome = (outcome, payer) => noteOutcome(sessionId, outcome, payerClassOf(payer));
 }
 
 const sweepTimer = setInterval(() => {
@@ -106,6 +119,7 @@ sweepTimer.unref();
  */
 export async function shutdownMcpSessions(): Promise<void> {
   clearInterval(sweepTimer);
+  endAllSessions();
   for (const [sid, transport] of sessions) {
     try {
       await transport.close?.();
@@ -312,9 +326,11 @@ async function openStreamableSession(
 
   // Fixed before the server is built: an anonymous buyer's identity is `session:<sid>`.
   const sessionId = randomUUID();
+  bindOutcome(paymentCtxRef, sessionId);
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: () => sessionId,
     onsessioninitialized: (sid: string) => {
+      noteRequest(sid, slug ? 'storefront' : 'mcp', req.body);
       sessions.set(sid, transport);
       if (slug) sessionSlug.set(sid, slug);
       sessionPaymentCtx.set(sid, paymentCtxRef);
@@ -378,6 +394,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
           return;
         }
         touchSession(sessionId);
+        noteRequest(sessionId, 'mcp', req.body);
         // Update payment context from current HTTP request headers (per-call)
         const payCtx = sessionPaymentCtx.get(sessionId);
         if (payCtx) {
@@ -559,6 +576,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
       if (req.headers['mcp-session-id']) {
         const s = storefrontSession(req, res);
         if (!s) return;
+        noteRequest(s.sid, 'storefront', req.body);
         const payCtx = sessionPaymentCtx.get(s.sid);
         if (payCtx) Object.assign(payCtx, extractPaymentFromReq(req));
         await s.transport.handleRequest(req, res, req.body);
@@ -669,6 +687,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
 
     // Create mutable payment context for SSE session
     const paymentCtxRef: PaymentContext = extractPaymentFromReq(req);
+    bindOutcome(paymentCtxRef, sessionId);
     const mcpServer = createMcpServer(
       apiKey,
       requestId,
@@ -731,6 +750,7 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
     }
 
     touchSession(sessionId);
+    noteRequest(sessionId, 'sse', req.body);
 
     // Update payment context from current HTTP request (per-call for SSE)
     const payCtx = sessionPaymentCtx.get(sessionId);
