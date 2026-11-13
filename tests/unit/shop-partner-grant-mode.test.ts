@@ -528,6 +528,59 @@ dbDescribe('T-0747 partner-mode grants', () => {
       );
       expect(row).toEqual({ grant_key_enc: null, grant_webhook_secret_enc: null, d: true });
     });
+
+    it('T-0825: an old two-scope mode-partner grant gains quotes:read in place: same grant, same endpoint id and secret, handoff untouched; a second is 409', async () => {
+      const m = await merchant();
+      const h = await handoff();
+      const g = await grant(m.acct, h);
+      expect(g.status).toBe(201);
+      await x(
+        `UPDATE shop_partner_grants SET scopes = ARRAY['catalog:write','webhooks:write'], proof_message = 'old'
+          WHERE grant_id = $1::uuid`,
+        g.body.grant_id,
+      );
+      const epSql = `SELECT endpoint_id::text AS endpoint_id, secret_hash, url, events, status
+                       FROM shop_webhook_endpoints WHERE merchant_id = $1::uuid ORDER BY endpoint_id`;
+      const hoSql = `SELECT state, grant_id::text AS grant_id, grant_key_enc, grant_webhook_secret_enc,
+                            grant_delivered_at
+                       FROM shop_partner_handoffs WHERE handoff_id = $1::uuid`;
+      const epBefore = await q(epSql, m.id);
+      const hoBefore = await q(hoSql, h);
+      const keysBefore = await q(
+        `SELECT count(*)::int AS c FROM shop_merchant_keys WHERE merchant_id = $1::uuid`,
+        m.id,
+      );
+      expect(epBefore).toHaveLength(1);
+
+      const up = await grant(m.acct);
+      expect(up.status).toBe(200);
+      expect(up.body).toMatchObject({
+        grant_id: g.body.grant_id,
+        mode: 'partner',
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
+      });
+      expect(JSON.stringify(up.body)).not.toMatch(/mk_live_|whsec_|secret/);
+
+      expect(await q(epSql, m.id)).toEqual(epBefore);
+      expect(await q(hoSql, h)).toEqual(hoBefore);
+      const keysAfter = await q(
+        `SELECT count(*)::int AS c FROM shop_merchant_keys WHERE merchant_id = $1::uuid`,
+        m.id,
+      );
+      expect(keysAfter[0].c).toBe(keysBefore[0].c);
+      const rows = await q(
+        `SELECT grant_id::text AS grant_id, scopes, proof_message, key_hash
+           FROM shop_partner_grants WHERE merchant_id = $1::uuid AND revoked_at IS NULL`,
+        m.id,
+      );
+      expect(rows).toHaveLength(1);
+      expect(rows[0].grant_id).toBe(g.body.grant_id);
+      expect(rows[0].scopes).toEqual(['catalog:write', 'webhooks:write', 'quotes:read']);
+      expect(rows[0].proof_message).toContain('never who the buyer is');
+      expect(rows[0].key_hash).toBeNull();
+      const again = await grant(m.acct);
+      expect([again.status, again.body.error_code]).toEqual([409, 'grant_exists']);
+    });
   });
 
   describe('PUT /partners/merchants/:slug/catalog', () => {
