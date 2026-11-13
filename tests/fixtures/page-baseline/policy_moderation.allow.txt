@@ -19,3 +19,24 @@ appeal.
 nightly
 review looks at
 again.
+# T-0824: sentences reworded for the house-style lint (same facts, same numbers; active voice with the actor the page already names, at most one em dash per paragraph).
+A
+are moderated
+behalf (currently:
+blocked —
+call) — this
+Every
+is applied
+is checked
+is deleted
+is paid
+— is scanned automatically
+is still charged
+is truncated
+marked
+Merchants
+— never
+— one
+request is simply rejected. Nothing is charged, nothing is stored.
+— rule
+verdict — is kept,
