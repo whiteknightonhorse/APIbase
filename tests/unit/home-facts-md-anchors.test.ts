@@ -77,6 +77,23 @@ describe('T-0820 markdown and text files carry no template markers', () => {
     expect(hf(dir, 'check').status).toBe(0);
   });
 
+  it('(d) a changed alert_rules_count turns check red for SECURITY.md and docs/architecture.md, and render updates both', () => {
+    const dir = sandbox();
+    mkdirSync(join(dir, 'docs'), { recursive: true });
+    for (const f of ['SECURITY.md', 'docs/architecture.md']) cpSync(join(ROOT, f), join(dir, f));
+    const sf = join(dir, 'static/.well-known/site-facts.json');
+    const d = JSON.parse(readFileSync(sf, 'utf8'));
+    d.alert_rules_count = 99;
+    writeFileSync(sf, JSON.stringify(d));
+    const r = hf(dir, 'check');
+    expect(r.status).not.toBe(0);
+    expect(r.stdout).toContain('SECURITY.md');
+    expect(r.stdout).toContain('docs/architecture.md');
+    expect(hf(dir, 'render').status).toBe(0);
+    expect(read(dir, 'SECURITY.md')).toContain('(99 alert rules)');
+    expect(read(dir, 'docs/architecture.md')).toContain('(99 alert rules)');
+  });
+
   it('the real tree renders clean and passes check', () => {
     expect(hf(ROOT, 'check').status).toBe(0);
     execFileSync('python3', [join(ROOT, 'scripts/integrator-facts.py'), 'check'], { cwd: ROOT });

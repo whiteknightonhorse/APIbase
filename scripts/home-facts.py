@@ -161,7 +161,9 @@ def render_tokens(s, path):
     vals = token_values()
     if not vals:
         return s
-    if path.endswith((".txt", ".md")):
+    # Files with anchor rows (served .md/.txt under static/) use word anchors; GitHub docs such as
+    # SECURITY.md and docs/architecture.md have no rows and keep their <!--token--> markers.
+    if md_anchor_rows(path):
         return render_md_anchors(s, path)
 
     def sub(m):
