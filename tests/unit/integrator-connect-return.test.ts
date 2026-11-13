@@ -178,7 +178,6 @@ async function boot(o: Opt) {
       fill('site_url', 'https://shop.example');
       fill('contact_email', 'a@b.co');
       $('nx').click();
-      d.querySelector('[name=accept]').checked = true;
       $('nx').click();
     }
     $('nx').click();

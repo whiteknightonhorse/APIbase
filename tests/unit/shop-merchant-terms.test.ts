@@ -298,6 +298,21 @@ describe('TA1/TA2/TA9 register -> accept_terms (MCP)', () => {
     expect(env.acceptances).toHaveLength(4);
   });
 
+  it('T-0833: a POST with method checkbox+wallet_signature (old clients) is still stored as such', async () => {
+    const env = build();
+    const { call } = await connect(env);
+    const { wallet, body } = await regBody(env);
+    expect((await call('shop.merchant.register', body)).isError).toBe(false);
+    const acc = await acceptBody(env, wallet);
+    const r = await call('shop.merchant.accept_terms', {
+      ...acc,
+      method: 'checkbox+wallet_signature',
+    });
+    expect(r.isError).toBe(false);
+    expect(env.acceptances).toHaveLength(4);
+    for (const a of env.acceptances) expect(a.method).toBe('checkbox+wallet_signature');
+  });
+
   it('TA3: stale hash -> 428 with the 4 current hashes, still pending; 3 of 4 -> 428', async () => {
     const env = build();
     const { call } = await connect(env);

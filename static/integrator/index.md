@@ -68,7 +68,7 @@ Website builders: /integrator/platforms/shopify, /integrator/platforms/woocommer
 
 You, by hand:
 
-1. Open /integrator/connect, fill in the form, tick the box for the four documents and sign with your wallet.
+1. Open /integrator/connect, fill in the form and sign with your wallet; the signature accepts the four documents.
 2. Copy your API key. It is shown once.
 3. Upload your catalog (REST or the merchant tools) and add the `__apibase_test` item at $0.01.
 4. Paste link A, B, C or D into your site.

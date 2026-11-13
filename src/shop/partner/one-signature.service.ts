@@ -343,7 +343,7 @@ export async function registerByHandoff(
         throw invalid('handoff_id', 'handoff is no longer live');
       }
       await writeAcceptances(tx, reg.merchant_id, docs, {
-        method: acceptanceMethod(sig.signer_kind, 'checkbox+wallet_signature'),
+        method: acceptanceMethod(sig.signer_kind, 'wallet_signature'),
         signer: lower,
         ...proof,
         ip: ctx.ip,

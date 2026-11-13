@@ -166,14 +166,14 @@ describe('integrator pages', () => {
     }
   });
 
-  it('IP6: connect form: checkbox, personal_sign, both POST paths, no external script, JS <= 150 lines (T-0377: 3-step flow; T-0764 done page return)', async () => {
+  it('IP6: connect form: no accept checkbox (T-0833), personal_sign, both POST paths, no external script, JS <= 150 lines (T-0377: 3-step flow; T-0764 done page return)', async () => {
     const { text: raw } = await get('/integrator/connect');
     const text = stripMeta(raw);
-    expect(text).toContain('<input type="checkbox"');
+    expect(text).not.toContain('type="checkbox" name="accept"'); // T-0833
     expect(text).toContain('personal_sign');
     expect(text).toContain('/api/v1/shop/merchants');
     expect(text).toContain('/acceptances');
-    expect(text).toContain('checkbox+wallet_signature');
+    expect(text).toContain("method: 'wallet_signature'");
     expect(text).not.toMatch(/<script[^>]*\ssrc=/i);
     const js = [...text.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1].trim());
     expect(js).toHaveLength(1);

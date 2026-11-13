@@ -166,3 +166,5 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	ne
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	gains the scope from a valid signature	-	T-0825 upgrade in place answers 200
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	quote-refusals	-	T-0826 partner read of quote outcomes
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	upsert by `quote_id`	-	T-0826 overlap and upsert rule
+static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	Tick the box to accept	-	T-0833 superseded: the signature is the single act of acceptance
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	the signature is the single act of acceptance	-	T-0833 connect page records wallet_signature

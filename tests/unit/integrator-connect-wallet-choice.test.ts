@@ -121,7 +121,6 @@ async function boot(o: {
     fill('site_url', 'https://shop.example');
     fill('contact_email', 'a@b.co');
     $('nx').click();
-    d.querySelector('[name=accept]').checked = true;
     $('nx').click();
   };
   const settle = () => new Promise((r) => setTimeout(r, 60));

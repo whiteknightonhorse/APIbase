@@ -335,7 +335,7 @@ dbDescribe('T-0802 POST /merchants/handoff (one signature)', () => {
     ]);
     for (const a of acc) {
       expect(a).toMatchObject({
-        method: 'checkbox+wallet_signature',
+        method: 'wallet_signature', // T-0833: the signature is the single act of acceptance
         signature: f.signature,
         message: f.message,
       });

@@ -87,8 +87,8 @@
 </div>
 <div class="cn-step" id="s2" hidden>
 <h2>Agreements</h2>
-<div class="cn-box"><label class="cn-check"><input type="checkbox" name="accept"> <span>I have read and accept the <a href="/legal/merchant-agreement" target="_blank" rel="noopener">Merchant Agreement</a>, <a href="/legal/aup" target="_blank" rel="noopener">Acceptable Use Policy</a>, <a href="/legal/dpa" target="_blank" rel="noopener">Data Processing Addendum</a> and <a href="/legal/refund-framework" target="_blank" rel="noopener">Refund Framework</a>.<small class="hint">Each document opens in a new tab.</small></span></label></div><small class="err" data-for="accept"></small>
-<p class="cn-info"><span aria-hidden="true">ⓘ</span><span>You confirm this with a free wallet signature in step 3 — no payment.</span></p>
+<div class="cn-box"><p>You accept these four documents with your wallet signature in step 3: <a href="/legal/merchant-agreement" target="_blank" rel="noopener">Merchant Agreement</a>, <a href="/legal/aup" target="_blank" rel="noopener">Acceptable Use Policy</a>, <a href="/legal/dpa" target="_blank" rel="noopener">Data Processing Addendum</a> and <a href="/legal/refund-framework" target="_blank" rel="noopener">Refund Framework</a>. Each document opens in a new tab.</p></div>
+<p class="cn-info"><span aria-hidden="true">ⓘ</span><span>The signature is free - no payment.</span></p>
 <details><summary>Document versions</summary><p><a href="/legal/index.json">/legal/index.json</a></p><pre id="docs">loading /legal/index.json ...</pre></details>
 <p class="muted">{{LEGAL_STATUS_HTML}}</p>
 </div>
@@ -98,7 +98,7 @@
 <ol class="cn-sig" id="sig">
 <li data-n="1"><div><b>Register your encryption key</b><span>Lets only you read buyers' order details.</span></div></li>
 <li data-n="2"><div><b>Sign in</b><span>Proves this wallet is yours.</span></div></li>
-<li data-n="3"><div><b>Accept the documents</b><span>Records your agreement from step 2.</span></div></li>
+<li data-n="3"><div><b>Accept the documents</b><span>The four documents of step 2, each with its version and hash.</span></div></li>
 </ol>
 <div class="cn-cards"><div><small>Network</small><b>Base</b></div><div><small>Payouts</small><b>USDC to this wallet</b></div></div>
 <div id="nw" hidden class="cn-card">
@@ -140,10 +140,10 @@ const dn = window.Intl && Intl.DisplayNames ? new Intl.DisplayNames(['en'], { ty
 CC.forEach((c) => { const o = new Option(c + (dn ? ' — ' + dn.of(c) : ''), c); F.country.add(o); }); F.country.value = 'US';
 const V = {
   name: (v) => v.trim() ? '' : 'Enter your shop name.', site_url: (v) => /^https?:\/\/[^\s.]+\.\S+$/i.test(v.trim()) ? '' : 'Enter the full website address, starting with http:// or https://', contact_email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.', support_email: (v) => !v.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address, or leave it empty.',
-  slug: (v) => /^[a-z0-9-]{3,40}$/.test(v) ? '' : 'Use 3-40 characters: lowercase letters, digits and dashes.', country: (v) => /^[A-Z]{2}$/.test(v) ? '' : 'Choose a country.', accept: () => F.accept.checked ? '' : 'Tick the box to accept the agreements.'
+  slug: (v) => /^[a-z0-9-]{3,40}$/.test(v) ? '' : 'Use 3-40 characters: lowercase letters, digits and dashes.', country: (v) => /^[A-Z]{2}$/.test(v) ? '' : 'Choose a country.'
 };
-const chk = (n, show) => { const m = V[n](F[n].type === 'checkbox' ? '' : F[n].value); if (show) f.querySelector('[data-for=' + n + ']').textContent = m; return !m; };
-const STEP = [['name', 'site_url', 'contact_email', 'support_email', 'country', 'slug'], ['accept'], []];
+const chk = (n, show) => { const m = V[n](F[n].value); if (show) f.querySelector('[data-for=' + n + ']').textContent = m; return !m; };
+const STEP = [['name', 'site_url', 'contact_email', 'support_email', 'country', 'slug'], [], []];
 let cur = 0, edited = false; const WL = [], nwf = () => !(WL.length || window.ethereum) || !(window.crypto && crypto.subtle);
 const ok = (i, show) => STEP[i].map((n) => chk(n, show)).every(Boolean);
 const show = (i) => {
@@ -266,7 +266,7 @@ const run = async (my) => {
   P(2); const n = await nonce(w, 'register'), b = { wallet: w, ...fd, handoff_id: x.handoff, encryption_key: ek, message: n.message, signature: await sign(w, n.message) };
   const r = await call('/api/v1/shop/merchants', 'POST', b), a = await nonce(w, 'accept_terms');
   P(3); const doc_hashes = r.docs_to_accept.map((y) => ({ doc_id: y.doc_id, version: y.version, sha256: y.sha256 }));
-  const ac = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'checkbox+wallet_signature' });
+  const ac = await call('/api/v1/shop/merchants/me/acceptances', 'POST', { wallet: w, doc_hashes, message: a.message, signature: await sign(w, a.message), method: 'wallet_signature' });
   await done(ac, x.slug, k);
 };
 $('nx').onclick = async () => {

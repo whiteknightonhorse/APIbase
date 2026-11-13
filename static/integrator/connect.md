@@ -16,7 +16,7 @@ Fill in six fields (Support email is an optional seventh):
 
 ## Step 2. Agreements
 
-Tick the box to accept the Merchant Agreement, Acceptable Use Policy, Data Processing Addendum and Refund Framework (each opens in a new tab; the versions are listed at /legal/index.json). You confirm this with a free wallet signature in step 3, no payment.
+There is no checkbox. You accept the Merchant Agreement, Acceptable Use Policy, Data Processing Addendum and Refund Framework with your wallet signature in step 3 (each document is linked here and opens in a new tab; the versions are listed at /legal/index.json). The signature is free, no payment.
 
 ## Step 3. Connect wallet
 
@@ -24,7 +24,7 @@ Your wallet asks for 3 free signatures. No gas, no money leaves your wallet:
 
 1. Register your encryption key: lets only you read buyers' order details.
 2. Sign in: proves this wallet is yours.
-3. Accept the documents: records your agreement from step 2.
+3. Accept the documents: the four documents of step 2, each with its version and hash.
 
 Network: Base. Payouts go to this wallet in USDC (you can pick a different payout wallet in the form; leave it empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet). If a signature is rejected, nothing is charged: press Try again and approve it in your wallet. No wallet yet? See /integrator/wallet.
 

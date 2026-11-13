@@ -36,7 +36,6 @@ describe('connect page steps', () => {
       'site_url',
       'payout_wallet_base',
       'payout_wallet_tempo',
-      'accept',
     ])
       expect(page).toContain(`name="${n}"`);
   });
@@ -52,7 +51,7 @@ describe('connect page steps', () => {
       "'register'",
       "'accept_terms'",
       "'personal_sign'",
-      "'checkbox+wallet_signature'",
+      "method: 'wallet_signature'",
     ])
       expect(script).toContain(l);
     const at = (s: string): number => script.indexOf(s);
@@ -65,11 +64,29 @@ describe('connect page steps', () => {
     expect([...order].sort((x, y) => x - y)).toEqual(order);
   });
 
+  it('T-0833: step 2 has no checkbox, Continue has no condition, the record is wallet_signature', () => {
+    const script = page.split('<script>').pop()!;
+    const s2 = page.slice(page.indexOf('id="s2"'), page.indexOf('id="s3"'));
+    expect(page).not.toContain('type="checkbox" name="accept"');
+    expect(s2).not.toContain('type="checkbox"');
+    expect(s2).toContain('You accept these four documents with your wallet signature in step 3:');
+    expect(s2).toContain('Each document opens in a new tab.');
+    expect(s2).toContain('The signature is free - no payment.');
+    expect(s2).toContain('Document versions');
+    expect(script).toContain(
+      "[['name', 'site_url', 'contact_email', 'support_email', 'country', 'slug'], [], []]",
+    );
+    expect(script).not.toMatch(/accept: \(\) =>/);
+    expect(script).not.toContain('checkbox+wallet_signature');
+    expect(page).toContain('The four documents of step 2, each with its version and hash.');
+    expect(page).not.toContain('Records your agreement from step 2');
+  });
+
   it('T-0711: carries the design copy, hints and signature explainer', () => {
     for (const t of [
       'Three steps, about five minutes. It costs nothing.',
       'Shown once',
-      'free wallet signature',
+      'with your wallet signature in step 3',
       '3 free signatures',
       'Waiting for your wallet',
       'Signature rejected',
