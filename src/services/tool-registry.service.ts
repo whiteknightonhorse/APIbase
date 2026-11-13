@@ -14,7 +14,7 @@ import { getAlternativesForTool, type AlternativeTool } from './alternatives.ser
  *
  * Provides tool catalog queries from PostgreSQL.
  * Public catalog: GET /api/tools — flat list with Cache-Control.
- * Paginated list: GET /api/v1/tools — default 1000 (all tools), cursor available.
+ * Paginated list: GET /api/v1/tools — default 2000 (DEFAULT_TOOLS_LIMIT), cursor available.
  * Single tool: GET /api/v1/tools/:toolId (Cache-Control max-age lowered to 300 — ZZ-03-03).
  */
 
@@ -299,8 +299,12 @@ export async function getPublicCatalog(): Promise<PublicCatalog> {
 }
 
 // ---------------------------------------------------------------------------
-// Paginated list (§12.39 — default 1000, cursor available, max 2000)
+// Paginated list (§12.39 — default DEFAULT_TOOLS_LIMIT, cursor available, max MAX_TOOLS_LIMIT)
 // ---------------------------------------------------------------------------
+
+/** Page size of GET /api/v1/tools (and of the parameterised /api/tools) when `limit` is absent. */
+export const DEFAULT_TOOLS_LIMIT = 2000;
+export const MAX_TOOLS_LIMIT = 2000;
 
 export async function getToolsPaginated(
   cursor: string | null,
@@ -312,7 +316,7 @@ export async function getToolsPaginated(
   } = {},
 ): Promise<PaginatedTools> {
   const db = getPrisma();
-  const take = Math.min(Math.max(limit, 1), 2000);
+  const take = Math.min(Math.max(limit, 1), MAX_TOOLS_LIMIT);
 
   let decodedCursor: string | null = null;
   if (cursor) {
@@ -358,6 +362,38 @@ export async function getToolsPaginated(
       has_more: hasMore,
       limit: take,
     },
+  };
+}
+
+/**
+ * T-0836: the /api/tools envelope (platform, version, updated_at, manifest_sha256, total, tools)
+ * around one page of getToolsPaginated; `total` counts every row matching the filters.
+ */
+export async function getPublicCatalogPage(
+  cursor: string | null,
+  limit: number,
+  filters: { category?: string } = {},
+  shape: (entries: ToolCatalogEntry[]) => unknown[] = (e) => e,
+): Promise<{
+  platform: string;
+  version: string;
+  updated_at: string;
+  manifest_sha256: string;
+  total: number;
+  tools: unknown[];
+  truncated: boolean;
+  pagination: PaginatedTools['pagination'];
+}> {
+  const page = await getToolsPaginated(cursor, limit, filters);
+  return {
+    platform: 'APIbase',
+    version: '1.0',
+    updated_at: new Date().toISOString(),
+    manifest_sha256: getManifestSha256(),
+    total: page.total,
+    tools: shape(page.data),
+    truncated: page.pagination.has_more,
+    pagination: page.pagination,
   };
 }
 

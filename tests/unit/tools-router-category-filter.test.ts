@@ -9,6 +9,9 @@ jest.mock('../../src/services/tool-registry.service', () => ({
   getPublicCatalog: jest.fn(),
   getToolsPaginated: jest.fn(),
   getToolById: jest.fn(),
+  getPublicCatalogPage: jest.fn(),
+  DEFAULT_TOOLS_LIMIT: 2000,
+  MAX_TOOLS_LIMIT: 2000,
 }));
 
 // ZZ-03-05: tools.router.ts now imports discover() from discovery.service.ts, which pulls in

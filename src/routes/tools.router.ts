@@ -2,18 +2,24 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import {
   getPublicCatalog,
   getToolsPaginated,
+  getPublicCatalogPage,
   getToolById,
+  DEFAULT_TOOLS_LIMIT,
+  MAX_TOOLS_LIMIT,
 } from '../services/tool-registry.service';
 import { discover, categorySummary } from '../services/discovery.service';
 import { AppError, ErrorCode } from '../types/errors';
 import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
 import { getManifest } from '../mcp/tool-fingerprint';
+import { toCompact } from '../services/tool-compact';
 
 /**
  * Tool catalog routes (§6.15, §12.39, §12.114).
  *
- * GET /api/tools             — public catalog, no auth, Cache-Control: public, max-age=3600
- * GET /api/v1/tools          — full tool catalog (default 1000, cursor pagination available)
+ * GET /api/tools             — public catalog, no auth, Cache-Control: public, max-age=3600;
+ *                              ?limit, ?cursor, ?category, ?view=full|compact (T-0836) page it
+ * GET /api/v1/tools          — tool catalog (default DEFAULT_TOOLS_LIMIT rows, cursor pagination,
+ *                              ?view=full|compact)
  * GET /api/v1/tools/:toolId  — single tool details, Cache-Control: public, max-age=300 (ZZ-03-03:
  *                              lowered from 3600 — this entry carries live quality.* data)
  * GET /api/v1/discover       — ranked discovery contract (ZZ-03-05), no auth, same
@@ -36,9 +42,72 @@ export const toolsRouter = Router();
 // truth the migration backfilled tools.category from, never a hardcoded list that drifts.
 const VALID_CATEGORIES = new Set(TOOL_DEFINITIONS.map((def) => def.category));
 
+/**
+ * T-0836: the four list parameters shared by both routes. Values are read as `unknown` and
+ * checked with typeof first (a repeated query key arrives as an array). `present` is true when
+ * any of limit, cursor, category or view was sent: only then does the response carry `truncated`.
+ */
+function parseListParams(query: Request['query']): {
+  present: boolean;
+  limit: number | undefined;
+  cursor: string | null;
+  category: string | undefined;
+  view: 'full' | 'compact';
+} {
+  const q: Record<string, unknown> = query;
+  const present = ['limit', 'cursor', 'category', 'view'].some((k) => q[k] !== undefined);
+
+  let limit: number | undefined;
+  if (q.limit !== undefined) {
+    const parsed = typeof q.limit === 'string' ? parseInt(q.limit, 10) : NaN;
+    if (isNaN(parsed) || parsed < 1 || parsed > MAX_TOOLS_LIMIT) {
+      throw new AppError(ErrorCode.BAD_REQUEST, `limit must be between 1 and ${MAX_TOOLS_LIMIT}`);
+    }
+    limit = parsed;
+  }
+
+  let view: 'full' | 'compact' = 'full';
+  if (q.view !== undefined) {
+    if (q.view !== 'full' && q.view !== 'compact') {
+      throw new AppError(ErrorCode.BAD_REQUEST, 'view must be one of: full, compact');
+    }
+    view = q.view;
+  }
+
+  let category: string | undefined;
+  if (q.category !== undefined) {
+    if (typeof q.category !== 'string' || !VALID_CATEGORIES.has(q.category)) {
+      throw new AppError(
+        ErrorCode.BAD_REQUEST,
+        `category must be one of: ${[...VALID_CATEGORIES].sort().join(', ')}`,
+      );
+    }
+    category = q.category;
+  }
+
+  const cursor = typeof q.cursor === 'string' ? q.cursor : null;
+  return { present, limit, cursor, category, view };
+}
+
 // --- Public catalog (§6.15) ---
-toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFunction) => {
+toolsRouter.get('/api/tools', async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const params = parseListParams(req.query);
+    if (params.present) {
+      const page = await getPublicCatalogPage(
+        params.cursor,
+        params.limit ?? DEFAULT_TOOLS_LIMIT,
+        { category: params.category },
+        params.view === 'compact' ? (entries) => entries.map(toCompact) : undefined,
+      );
+      if (page.tools.length === 0 && !params.cursor && !params.category) {
+        throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
+      }
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      res.status(200).json(page);
+      return;
+    }
+
     const catalog = await getPublicCatalog();
 
     if (catalog.total === 0) {
@@ -58,16 +127,14 @@ toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFun
 //   ?tier=micro|standard|premium — bucketed price tier (tier wins over max_price)
 //   ?category=<name>    — a category present in TOOL_DEFINITIONS (ZZ-03-01); one with no active tool
 //                         is valid and returns zero rows
-//   ?limit=N            — page size (1..1000, default 1000)
+//   ?limit=N            — page size (1..MAX_TOOLS_LIMIT, default DEFAULT_TOOLS_LIMIT)
 //   ?cursor=<b64>       — pagination cursor from previous response
+//   ?view=full|compact  — compact items: id, name, category, price_usd, summary (T-0836)
 toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : null;
-    const rawLimit = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : 2000;
-
-    if (isNaN(rawLimit) || rawLimit < 1 || rawLimit > 2000) {
-      throw new AppError(ErrorCode.BAD_REQUEST, 'limit must be between 1 and 2000');
-    }
+    const params = parseListParams(req.query);
+    const { cursor, category } = params;
+    const rawLimit = params.limit ?? DEFAULT_TOOLS_LIMIT;
 
     let maxPrice: number | undefined;
     if (typeof req.query.max_price === 'string') {
@@ -86,17 +153,6 @@ toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextF
       tier = req.query.tier as 'micro' | 'standard' | 'premium';
     }
 
-    let category: string | undefined;
-    if (typeof req.query.category === 'string') {
-      if (!VALID_CATEGORIES.has(req.query.category)) {
-        throw new AppError(
-          ErrorCode.BAD_REQUEST,
-          `category must be one of: ${[...VALID_CATEGORIES].sort().join(', ')}`,
-        );
-      }
-      category = req.query.category;
-    }
-
     const result = await getToolsPaginated(cursor, rawLimit, { maxPrice, tier, category });
 
     if (result.data.length === 0 && !cursor && !maxPrice && !tier && !category) {
@@ -104,7 +160,15 @@ toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextF
     }
 
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.status(200).json(result);
+    if (!params.present) {
+      res.status(200).json(result);
+      return;
+    }
+    res.status(200).json({
+      ...result,
+      data: params.view === 'compact' ? result.data.map(toCompact) : result.data,
+      truncated: result.pagination.has_more,
+    });
   } catch (err) {
     next(err);
   }

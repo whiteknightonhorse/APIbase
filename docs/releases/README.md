@@ -15,3 +15,9 @@ Tags are never created before `docs/releases/<tag>.md` is merged: the workflow f
 check when the tag, `package.json` version, or notes file disagree.
 
 Local check: `bash scripts/release-check.sh vX.Y.Z`; self-test: `bash scripts/release-check.sh --selftest`.
+
+## Tool list routes: bounded and compact on request (T-0836)
+
+`GET /api/tools` and `GET /api/v1/tools` accept `limit` (1 to 2000), `cursor`, `category` and `view=full|compact`; an unknown `view` is a 400. `view=compact` items hold `id`, `name`, `category`, `price_usd` and `summary` (the first sentence of the description, at most 160 characters). When any of the four parameters is sent, the response also carries `total` (rows matching the filters) and `truncated` (true when more rows exist than returned), next to the pagination cursor. A request without these parameters returns the same response as before.
+
+Planned: the defaults of both routes become `view=compact&limit=100`, with `view=full` keeping today's response. The date is added when that change ships.

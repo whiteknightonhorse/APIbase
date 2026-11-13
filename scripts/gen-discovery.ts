@@ -240,6 +240,20 @@ function applyDiscoveryOrder(llms: string, categories: number): string {
   return lines.join('\n');
 }
 
+/**
+ * T-0836: the line of llms.txt that documents the tool list route names the list parameters.
+ * Only the URL on the "- Full catalog:" line is rewritten; the counts after it are left to
+ * scripts/sync-counts.sh.
+ */
+function applyToolListParams(llms: string): string {
+  const from = 'GET https://apibase.pro/api/v1/tools ';
+  const to = 'GET https://apibase.pro/api/v1/tools?view=compact&limit=&cursor=&category= ';
+  return llms
+    .split('\n')
+    .map((l) => (l.startsWith('- Full catalog:') && l.includes(from) ? l.replace(from, to) : l))
+    .join('\n');
+}
+
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -803,6 +817,9 @@ access for the rare cases that need it.
   const llmsPath = resolve(ROOT, 'static/llms.txt');
   if (writeTextIfChanged(llmsPath, applyDiscoveryOrder(readFileSync(llmsPath, 'utf8'), CATS)))
     changed++;
+
+  // T-0836: the tool list route line of llms.txt carries the list parameters.
+  if (writeTextIfChanged(llmsPath, applyToolListParams(readFileSync(llmsPath, 'utf8')))) changed++;
 
   // T-0591: llms.txt + the Markdown pages it links, regenerated after every other writer has run.
   if (writeTextIfChanged(resolve(ROOT, 'static/llms-full.txt'), buildLlmsFull(ROOT))) changed++;

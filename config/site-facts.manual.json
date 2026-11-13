@@ -68,5 +68,11 @@
     "source": "src/routes/tools.router.ts",
     "anchor": "/api/v1/categories",
     "ruling": "T-0835 (APIBASE-R4-REQ-1113 ruling-1)"
+  },
+  "tool_list_params": {
+    "value": "GET /api/tools and GET /api/v1/tools accept view=compact|full, limit, cursor and category; with any of them the response carries total and truncated, and view=compact items hold id, name, category, price_usd and summary",
+    "source": "src/routes/tools.router.ts",
+    "anchor": "?view=full|compact",
+    "ruling": "T-0836 (APIBASE-R4-REQ-1113 ruling-1)"
   }
 }

@@ -169,3 +169,4 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	up
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	Tick the box to accept	-	T-0833 superseded: the signature is the single act of acceptance
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	the signature is the single act of acceptance	-	T-0833 connect page records wallet_signature
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	apibase.categories (GET /api/v1/categories)	-	T-0835 categories call exists (facts key categories_call)
+static/llms.txt	https://apibase.pro/llms.txt	must-contain	api/v1/tools?view=compact&limit=&cursor=&category=	-	T-0836 tool list parameters (facts key tool_list_params)
