@@ -13,6 +13,7 @@ import { createMcpRouter } from '../mcp/server';
 import { no402CacheMiddleware } from '../middleware/no-store-402.middleware';
 import { x402Middleware } from '../middleware/x402.middleware';
 import { mppMiddleware } from '../middleware/mpp.middleware';
+import { apibaseCallRewriteMiddleware } from '../mcp/apibase-call';
 import { x402Router } from '../routes/x402.router';
 import { onboardRouter } from '../routes/onboard.router';
 import { contactRouter } from '../routes/contact.router';
@@ -98,6 +99,11 @@ export function createApp(): express.Express {
   // --- Body parsing ---
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: false, limit: '64kb' }));
+
+  // --- T-0838: apibase.call -> the direct tools/call of its target, in the raw JSON-RPC body of
+  // POST /mcp and /messages. First reader of the parsed body: everything below (x402/MPP
+  // middleware, session funnel, alias resolver, SDK dispatch) sees only the direct call.
+  app.use(apibaseCallRewriteMiddleware);
 
   // --- Streams (INT-40): MPP session challenge/credentials of ONE route, handled by the route
   // itself, so it runs BEFORE x402Middleware/mppMiddleware (those own tool-call and quote-pay URLs).

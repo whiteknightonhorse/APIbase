@@ -15,20 +15,30 @@ export function servedToolDefinitions(): McpToolDefinition[] {
   const served: McpToolDefinition[] = [];
 
   for (const def of TOOL_DEFINITIONS) {
-    // Skip tools marked unavailable in DB (e.g. foursquare without API key)
-    if (activeIds.size > 0 && !activeIds.has(def.toolId)) {
-      continue;
-    }
-    const schema = toolSchemas[def.toolId];
-    if (!schema) {
+    const skip = skipReason(def, activeIds);
+    if (skip === 'no_schema') {
       logger.warn({ tool_id: def.toolId }, 'No schema found for tool, skipping MCP registration');
-      continue;
-    }
-    if (!(schema instanceof z.ZodObject)) {
+    } else if (skip === 'not_object') {
       logger.warn({ tool_id: def.toolId }, 'Schema is not a ZodObject, skipping MCP registration');
-      continue;
     }
-    served.push(def);
+    if (skip === null) served.push(def);
   }
   return served;
+}
+
+/** T-0838: the same predicate for one definition, without logging (apibase.call target lookup). */
+export function isServedTool(def: McpToolDefinition): boolean {
+  return skipReason(def, getActiveToolIds()) === null;
+}
+
+function skipReason(
+  def: McpToolDefinition,
+  activeIds: ReadonlySet<string>,
+): 'inactive' | 'no_schema' | 'not_object' | null {
+  // Skip tools marked unavailable in DB (e.g. foursquare without API key)
+  if (activeIds.size > 0 && !activeIds.has(def.toolId)) return 'inactive';
+  const schema = toolSchemas[def.toolId];
+  if (!schema) return 'no_schema';
+  if (!(schema instanceof z.ZodObject)) return 'not_object';
+  return null;
 }

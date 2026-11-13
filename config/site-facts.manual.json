@@ -82,7 +82,7 @@
     "ruling": "T-0836 (APIBASE-R4-REQ-1113 ruling-1)"
   },
   "mcp_list_view_lean": {
-    "value": "https://apibase.pro/mcp?tools=lean lists only the discovery tools (apibase.discover, apibase.categories, apibase.describe); every tool stays callable by name; /mcp and /mcp?tools=all list everything",
+    "value": "https://apibase.pro/mcp?tools=lean lists only the discovery tools (apibase.discover, apibase.categories, apibase.describe) and apibase.call; every tool stays callable by name; /mcp and /mcp?tools=all list everything",
     "source": "src/mcp/list-view.ts",
     "anchor": "LIST_VIEWS = ['lean', 'shop', 'all']",
     "ruling": "T-0837 (APIBASE-R4-REQ-1113 ruling-1)"
@@ -92,5 +92,11 @@
     "source": "src/mcp/list-view.ts",
     "anchor": "view === 'shop' && name.startsWith('shop.')",
     "ruling": "T-0837 (APIBASE-R4-REQ-1113 ruling-1)"
+  },
+  "apibase_call": {
+    "value": "apibase.call (MCP name apibase.tools.call) calls one tool by id; the request is rewritten into the direct call of that tool before payment code reads it, so it is priced, challenged and settled as that call; the wrapper is free",
+    "source": "src/mcp/apibase-call.ts",
+    "anchor": "export function rewriteApibaseCalls(",
+    "ruling": "T-0838 (APIBASE-R4-REQ-1113 ruling-1)"
   }
 }

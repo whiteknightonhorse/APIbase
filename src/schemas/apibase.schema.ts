@@ -67,7 +67,29 @@ const describeTool = z
   })
   .strip();
 
+// T-0838: apibase.call. `arguments` is not typed as an object here on purpose: a non-object value
+// must reach the apibase.call handler, which refuses it with error_code ARGUMENTS_NOT_OBJECT
+// (an SDK schema error would carry no error code and no next step).
+const callTool = z
+  .object({
+    tool_id: z
+      .string()
+      .min(1)
+      .max(200)
+      .describe(
+        'Tool id or MCP name of the tool to call, as returned by apibase.discover (e.g. "apibase.discover" or "apibase.discovery.search")',
+      ),
+    arguments: z
+      .unknown()
+      .optional()
+      .describe(
+        'JSON object with the arguments of that tool, as its input schema defines them (apibase.describe returns the schema). Use {} for a tool without arguments.',
+      ),
+  })
+  .strip();
+
 export const apibaseSchemas: Record<string, ZodSchema> = {
+  'apibase.call': callTool,
   'apibase.categories': categoriesTool,
   'apibase.describe': describeTool,
   'apibase.discover': discoverTool,

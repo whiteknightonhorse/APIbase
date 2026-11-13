@@ -178,7 +178,8 @@ describe('tools/list views (T-0837)', () => {
     await Promise.all([srv.connect(a), c.connect(b)]);
     mockRendered.mockClear();
     const r = (await c.listTools()) as ListResult;
-    expect(r.tools.length).toBe(3);
+    // T-0838: apibase.call is registered now, so the whole lean set is listed.
+    expect(r.tools.length).toBe(LEAN_TOOL_IDS.length);
     // At most an input and an output schema per listed tool, never one per registered tool.
     expect(mockRendered.mock.calls.length).toBeLessThanOrEqual(2 * r.tools.length);
     // The full map is restored after the listing.

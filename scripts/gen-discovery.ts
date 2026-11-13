@@ -229,7 +229,8 @@ function applyDiscoveryOrder(llms: string, categories: number): string {
     'Discovery order (the first two steps are free):',
     `1. apibase.categories (GET /api/v1/categories): the ${categories} categories with tool counts and price range`,
     '2. apibase.discover with category, max_price_usd and limit (GET /api/v1/discover): ranked matches with price, rails, availability and quality',
-    '3. The one tool: tools/call by name; its full definition is apibase.describe (GET /api/v1/tools/<id>)',
+    // T-0838: apibase.call is the same request as the direct call (src/mcp/apibase-call.ts).
+    '3. The one tool: call it by its name, or through apibase.call when your client only calls listed tools; its full definition is apibase.describe (GET /api/v1/tools/<id>)',
     // T-0837: the opt-in small list; the default list is unchanged until T-0839.
     'Connect to https://apibase.pro/mcp?tools=lean to list only the discovery tools; every tool stays callable by name; ?tools=all lists everything.',
   ].join('\n');

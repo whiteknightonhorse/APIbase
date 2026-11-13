@@ -35,6 +35,7 @@ import {
 
 import { mcpToolCallOutcomesTotal } from '../services/metrics.service';
 import { payerClassOf, type Outcome } from './session-funnel';
+import { APIBASE_CALL_TOOL_ID, apibaseCallRefusalResult } from './apibase-call';
 
 // Re-export for backward compatibility
 export { TOOL_DEFINITIONS } from './tool-definitions';
@@ -113,6 +114,26 @@ export function registerTools(
 
     const mcpName = def.mcpName || def.toolId;
     const toolId = def.toolId;
+
+    // T-0838: apibase.call is never executed here. A call whose target resolves was already
+    // rewritten into the direct call (apibase-call.ts, app middleware); this handler only answers
+    // the refusals, without the pipeline, so nothing is charged or recorded under apibase.call.
+    if (toolId === APIBASE_CALL_TOOL_ID) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- same SDK generics as below
+      (server.registerTool as any)(
+        mcpName,
+        {
+          title: def.title,
+          description: def.description,
+          inputSchema: shape,
+          outputSchema: DEFAULT_OUTPUT_SHAPE,
+          annotations: def.annotations,
+          _meta: { 'apibase/definition_sha256': getDefinitionSha256(def.toolId) },
+        },
+        async (args: Record<string, unknown>) => apibaseCallRefusalResult(args, requestId),
+      );
+      continue;
+    }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- SDK generics cause deep type recursion with complex Zod shapes
     (server.registerTool as any)(

@@ -67,3 +67,25 @@ describe('MCP tools/call alias resolver (T-0182)', () => {
     expect(body.params.name).toBe('does.not.exist');
   });
 });
+
+describe('apibase.call rewrite runs before the alias resolver (T-0838)', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { rewriteApibaseCalls } =
+    require('../../src/mcp/apibase-call') as typeof import('../../src/mcp/apibase-call');
+
+  it('a legacy toolId given to apibase.call becomes the registered mcpName; the resolver then leaves it', () => {
+    const [legacyName, currentName] = [...TOOL_NAME_ALIASES.entries()].find(
+      ([id]) => !/^(apibase|platform|shop)\./.test(id),
+    )!;
+    const body = {
+      jsonrpc: '2.0',
+      id: 9,
+      method: 'tools/call',
+      params: { name: 'apibase.call', arguments: { tool_id: legacyName, arguments: {} } },
+    };
+    rewriteApibaseCalls(body, 'req-9');
+    expect(body.params).toEqual({ name: currentName, arguments: {} });
+    resolveMcpToolAlias(body, 'req-9');
+    expect(body.params.name).toBe(currentName);
+  });
+});

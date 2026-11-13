@@ -173,3 +173,4 @@ static/llms.txt	https://apibase.pro/llms.txt	must-contain	api/v1/tools?view=comp
 docs/releases/README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/releases/README.md	must-contain	per-address limit of 120 requests per minute	-	T-0836 tool list rate limit (facts key tool_list_rate_limit)
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	https://apibase.pro/mcp?tools=lean	-	T-0837 lean MCP list view (facts key mcp_list_view_lean)
 static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-contain	https://apibase.pro/mcp?tools=shop	-	T-0837 shop MCP list view (facts key mcp_list_view_shop)
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-contain	is priced, challenged and settled as the direct call of the target tool	-	T-0838 apibase.call is the direct call (facts key apibase_call)

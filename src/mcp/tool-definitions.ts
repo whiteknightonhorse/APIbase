@@ -4860,6 +4860,23 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+  // T-0838: the one listed tool that calls any tool by id, for clients that only call listed tools
+  // (/mcp?tools=lean). Not an executor: src/mcp/apibase-call.ts rewrites the JSON-RPC body into
+  // the direct call before payment middleware reads it; its own handler only answers refusals.
+  {
+    toolId: 'apibase.call',
+    mcpName: 'apibase.tools.call',
+    title: 'Call Tool',
+    description:
+      'Call one tool found with apibase.discover: tool_id is its tool id or MCP name, arguments is the object its input schema (apibase.describe) asks for. The price is the price of that tool, paid, challenged and settled exactly as a direct call of it; the wrapper itself is free (APIbase)',
+    category: 'developer',
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
+  },
 
   // ---------------------------------------------------------------------------
   // TheirStack — Job Market Intelligence (UC-254, 2 tools)

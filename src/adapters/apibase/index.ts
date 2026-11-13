@@ -39,6 +39,18 @@ export class ApibaseAdapter extends BaseAdapter {
     let data: DiscoverResponse | CategorySummary | object;
 
     switch (req.toolId) {
+      // T-0838: apibase.call is an MCP request rewrite (src/mcp/apibase-call.ts), never an
+      // executor. Reached only over REST or inside platform.call_batch: refused, free tool.
+      case 'apibase.call':
+        throw {
+          code: ProviderErrorCode.INPUT_REJECTED,
+          httpStatus: 422,
+          message:
+            'apibase.call works only as an MCP tools/call. Call the tool directly: POST /api/v1/tools/<tool_id>/call, or in a batch list the tool itself.',
+          provider: 'apibase',
+          toolId: req.toolId,
+          durationMs: Math.round(performance.now() - start),
+        };
       case 'apibase.describe': {
         const asked = params.tool_id;
         const body = typeof asked === 'string' ? await singleToolBody(toolIdOf(asked)) : null;
