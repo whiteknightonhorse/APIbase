@@ -223,11 +223,20 @@ dbDescribe('T-0826 partner read of quote outcomes (DB)', () => {
 
   it('a calendar-invalid cursor (2026-02-31) is 422, not 500, on both routes', async () => {
     const s = await shop();
-    for (const bad of ['2026-02-31T00:00:00Z', '2026-04-31T00:00:00Z', '2026-13-01T00:00:00Z']) {
+    for (const bad of [
+      '2026-02-31T00:00:00Z',
+      '2026-04-31T00:00:00Z',
+      '2026-13-01T00:00:00Z',
+      '0000-01-01T00:00:00Z',
+      '2026-01-01T00:00:00+16:00',
+      '2026-01-01T00:00:00+23:59',
+    ]) {
       expect((await get(s.slug, `quotes?updated_after=${bad}`)).status).toBe(422);
       expect((await get(s.slug, `quote-refusals?after=${bad}`)).status).toBe(422);
     }
     expect((await get(s.slug, 'quotes?updated_after=2028-02-29T00:00:00Z')).status).toBe(200);
+    expect((await get(s.slug, 'quote-refusals?after=2028-02-29T00:00:00Z')).status).toBe(200);
+    expect((await get(s.slug, 'quotes?updated_after=2026-01-01T00:00:00-15:59')).status).toBe(200);
   });
 
   it('two 402 answers and no payment: challenges 2, pay_attempts 0, state expired once expires_at passed while status is open', async () => {

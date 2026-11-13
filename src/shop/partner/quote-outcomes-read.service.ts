@@ -44,10 +44,32 @@ function calendarValid(v: string): boolean {
   const h = Number(v.slice(11, 13));
   const mi = Number(v.slice(14, 16));
   const sec = Number(v.slice(17, 19));
-  if (mo < 1 || mo > 12 || d < 1 || h > 23 || mi > 59 || sec > 59) return false;
+  if (y < 1 || mo < 1 || mo > 12 || d < 1 || h > 23 || mi > 59 || sec > 59) return false;
   const zone = /([+-])(\d{2}):(\d{2})$/.exec(v);
-  if (zone && (Number(zone[2]) > 23 || Number(zone[3]) > 59)) return false;
+  if (zone && (Number(zone[2]) > 15 || Number(zone[3]) > 59)) return false;
   return d <= new Date(Date.UTC(y, mo, 0)).getUTCDate();
+}
+
+/** Backstop: a Postgres datetime error (SQLSTATE 22007/22008/22009) from a cursor is the partner's 422, never a 500. */
+async function cursorGuard<T>(field: string, run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (e) {
+    const m = (e as { meta?: { code?: unknown }; code?: unknown }) ?? {};
+    const code = String(m.meta?.code ?? m.code ?? '');
+    if (
+      /^2200[789]$/.test(code) ||
+      /time zone displacement|out of range|invalid input syntax for type timestamp/i.test(
+        String((e as Error)?.message),
+      )
+    ) {
+      throw invalid(
+        field,
+        `${field} must be an ISO 8601 timestamp such as 2026-11-13T10:00:00.000000Z`,
+      );
+    }
+    throw e;
+  }
 }
 
 /** An ISO 8601 timestamp with a zone; absent = null; anything else 422 naming the field. */
@@ -150,12 +172,14 @@ export async function partnerQuotes(
   const after = parseCursor(query.updated_after, 'updated_after');
   const limit = parseLimit(query.limit);
   type Row = QuoteRow & { updated_ts: Date };
-  const rows = await db.$queryRawUnsafe<Row[]>(
-    `${QUOTES_SQL} WHERE ($2::timestamptz IS NULL OR updated_ts > $2::timestamptz)
+  const rows = await cursorGuard('updated_after', () =>
+    db.$queryRawUnsafe<Row[]>(
+      `${QUOTES_SQL} WHERE ($2::timestamptz IS NULL OR updated_ts > $2::timestamptz)
       ORDER BY updated_ts, quote_id LIMIT $3::int`,
-    merchant_id,
-    after,
-    limit,
+      merchant_id,
+      after,
+      limit,
+    ),
   );
   if (rows.length < limit) {
     return { quotes: rows.map(shapeQuote), next_updated_after: null };
@@ -191,11 +215,13 @@ export async function partnerQuoteRefusals(
   type Row = { id: string; at: string; error_code: string; skus: string[] };
   const sel = `SELECT id::text AS id, ${iso('at')} AS at, error_code, skus FROM shop_quote_refusals
                 WHERE merchant_id = $1::uuid AND at > now() - interval '${REFUSAL_DAYS} days'`;
-  const rows = await db.$queryRawUnsafe<Row[]>(
-    `${sel} AND ($2::timestamptz IS NULL OR at > $2::timestamptz) ORDER BY at, id LIMIT $3::int`,
-    merchant_id,
-    after,
-    limit,
+  const rows = await cursorGuard('after', () =>
+    db.$queryRawUnsafe<Row[]>(
+      `${sel} AND ($2::timestamptz IS NULL OR at > $2::timestamptz) ORDER BY at, id LIMIT $3::int`,
+      merchant_id,
+      after,
+      limit,
+    ),
   );
   let all = rows;
   if (rows.length >= limit) {
