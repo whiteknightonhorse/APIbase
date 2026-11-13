@@ -4849,6 +4849,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+  // T-0837: the full definition of one tool (GET /api/v1/tools/<id>) for an agent whose session
+  // lists only the discovery tools (/mcp?tools=lean).
+  {
+    toolId: 'apibase.describe',
+    mcpName: 'apibase.discovery.describe',
+    title: 'Describe Tool',
+    description:
+      'Get the full definition of one tool by tool_id (a tool id or MCP name from apibase.discover): description, input schema, price, quality and definition_sha256, the same body as GET /api/v1/tools/<id>. Then call the tool by name. Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 
   // ---------------------------------------------------------------------------
   // TheirStack — Job Market Intelligence (UC-254, 2 tools)

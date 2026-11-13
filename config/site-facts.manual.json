@@ -80,5 +80,17 @@
     "source": "src/routes/tools.router.ts",
     "anchor": "TOOL_LIST_LIMIT_PER_MIN = 120",
     "ruling": "T-0836 (APIBASE-R4-REQ-1113 ruling-1)"
+  },
+  "mcp_list_view_lean": {
+    "value": "https://apibase.pro/mcp?tools=lean lists only the discovery tools (apibase.discover, apibase.categories, apibase.describe); every tool stays callable by name; /mcp and /mcp?tools=all list everything",
+    "source": "src/mcp/list-view.ts",
+    "anchor": "LIST_VIEWS = ['lean', 'shop', 'all']",
+    "ruling": "T-0837 (APIBASE-R4-REQ-1113 ruling-1)"
+  },
+  "mcp_list_view_shop": {
+    "value": "https://apibase.pro/mcp?tools=shop lists the discovery tools plus every shop.* tool; it is the MCP URL of the seller agent guide",
+    "source": "src/mcp/list-view.ts",
+    "anchor": "view === 'shop' && name.startsWith('shop.')",
+    "ruling": "T-0837 (APIBASE-R4-REQ-1113 ruling-1)"
   }
 }

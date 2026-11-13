@@ -54,7 +54,21 @@ const categoriesTool = z
   })
   .strip();
 
+// T-0837: apibase.describe takes one tool id (or MCP name).
+const describeTool = z
+  .object({
+    tool_id: z
+      .string()
+      .min(1)
+      .max(200)
+      .describe(
+        'Tool id or MCP name, as returned by apibase.discover (e.g. "apibase.discover" or "apibase.discovery.search")',
+      ),
+  })
+  .strip();
+
 export const apibaseSchemas: Record<string, ZodSchema> = {
   'apibase.categories': categoriesTool,
+  'apibase.describe': describeTool,
   'apibase.discover': discoverTool,
 };

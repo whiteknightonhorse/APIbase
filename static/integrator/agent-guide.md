@@ -1,6 +1,6 @@
 # Agent guide: connect a merchant to AI payment
 
-For a merchant's agent. Read this page (or its Markdown form, `Accept: text/markdown`) and run the steps in order. Every error carries `error_code`, `message`, `suggested_action` and `documentation_url`; the `documentation_url` anchors are the codes listed under "Error codes" below. Fee: {{INTEGRATOR_FEE_PCT}}. Humans can use the form at /integrator/connect instead. To see whether your site is already visible to agents, try AIpush.app: https://aipush.app
+For a merchant's agent. Read this page (or its Markdown form, `Accept: text/markdown`) and run the steps in order. Every error carries `error_code`, `message`, `suggested_action` and `documentation_url`; the `documentation_url` anchors are the codes listed under "Error codes" below. Fee: {{INTEGRATOR_FEE_PCT}}. Humans can use the form at /integrator/connect instead. The MCP URL for the `shop.*` tools named in the steps is `https://apibase.pro/mcp?tools=shop`: it lists the shop tools and the discovery tools. To see whether your site is already visible to agents, try AIpush.app: https://aipush.app
 
 ## Preconditions
 

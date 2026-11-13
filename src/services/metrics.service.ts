@@ -230,6 +230,14 @@ export const mcpSessionsEndedTotal = new client.Counter({
   registers: [register],
 });
 
+/** T-0837: sessions opened on /mcp and /sse by tools/list view (lean | shop | all), counted at session start. */
+export const mcpSessionsByViewTotal = new client.Counter({
+  name: 'mcp_sessions_by_view_total',
+  help: 'MCP sessions opened on /mcp and /sse by tools/list view',
+  labelNames: ['view'] as const,
+  registers: [register],
+});
+
 /** Daily shop-provek-registry-sync: registry downloads that failed (stored values kept). */
 export const provekRegistrySyncFailures = new client.Counter({
   name: 'provek_registry_sync_failures_total',

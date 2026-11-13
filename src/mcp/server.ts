@@ -24,7 +24,7 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js';
 import { logger } from '../config/logger';
-import { mcpSessionsActive } from '../services/metrics.service';
+import { mcpSessionsActive, mcpSessionsByViewTotal } from '../services/metrics.service';
 import { watchClientDisconnect } from '../pipeline/client-disconnect';
 import { registerTools, type PaymentContext } from './tool-adapter';
 import {
@@ -38,6 +38,13 @@ import { withZod3ToolSchemas } from './zod3-tool-schema';
 import { resolveMcpToolAlias } from './tool-alias-resolver';
 import { registerPrompts } from './prompt-adapter';
 import { withListCacheHints, NEGOTIATED_PROTOCOL_VERSIONS } from './list-cache';
+import {
+  DEFAULT_LIST_VIEW,
+  INVALID_LIST_VIEW_MESSAGE,
+  parseListView,
+  withListView,
+  type ListView,
+} from './list-view';
 import { registerCatalogTools } from '../shop/tools/catalog.tools';
 import { registerOrderTools } from '../shop/tools/order.tools';
 import { geoOf } from '../shop/geo-headers';
@@ -208,6 +215,7 @@ function clientCtxOf(req: express.Request): Partial<RegisterCtx> {
  * Create a fully configured McpServer instance with all tools and prompts registered.
  * Payment context ref is a mutable object updated per-request in the POST handler,
  * so tool callbacks always see the payment state from the current HTTP request.
+ * `view` (T-0837) filters tools/list only; every tool stays registered and callable by name.
  */
 export function createMcpServer(
   apiKey: string,
@@ -215,6 +223,7 @@ export function createMcpServer(
   paymentCtxRef: PaymentContext,
   sessionId?: string,
   clientCtx?: Partial<RegisterCtx>,
+  view: ListView = DEFAULT_LIST_VIEW,
 ): McpServer {
   const mcpServer = new McpServer(SERVER_INFO, SERVER_OPTIONS);
   registerTools(mcpServer, apiKey, requestId, paymentCtxRef);
@@ -223,7 +232,28 @@ export function createMcpServer(
   registerCatalogTools(shopServer, apiKey, requestId);
   registerOrderTools(shopServer, apiKey, requestId, undefined, paymentCtxRef, sessionId);
   registerPrompts(mcpServer);
-  return withListCacheHints(withZod3ToolSchemas(mcpServer));
+  // The view filter runs first, so no schema is rendered or mirrored for a tool it drops.
+  return withListCacheHints(withZod3ToolSchemas(withListView(mcpServer, view)));
+}
+
+/**
+ * T-0837: the tools/list view named by the `tools` query parameter, or the JSON-RPC -32602 answer
+ * already sent (then null). Read only when a session is opened; the view is fixed for the session.
+ */
+function listViewOr400(req: express.Request, res: express.Response): ListView | null {
+  const view = parseListView(req.query.tools);
+  if (view) return view;
+  const body: unknown = req.body;
+  const id =
+    body && typeof body === 'object' && !Array.isArray(body)
+      ? ((body as Record<string, unknown>).id ?? null)
+      : null;
+  res.status(400).json({
+    jsonrpc: '2.0',
+    error: { code: -32602, message: INVALID_LIST_VIEW_MESSAGE },
+    id: typeof id === 'string' || typeof id === 'number' ? id : null,
+  });
+  return null;
 }
 
 /**
@@ -296,6 +326,7 @@ async function openStreamableSession(
   res: express.Response,
   slug: string | undefined,
   build: (apiKey: string, requestId: string, ctx: PaymentContext, sessionId: string) => McpServer,
+  view?: ListView,
 ): Promise<void> {
   // Session cap check
   if (sessions.size >= MAX_SESSIONS) {
@@ -332,6 +363,7 @@ async function openStreamableSession(
     sessionIdGenerator: () => sessionId,
     onsessioninitialized: (sid: string) => {
       noteRequest(sid, slug ? 'storefront' : 'mcp', req.body);
+      if (view) mcpSessionsByViewTotal.inc({ view });
       sessions.set(sid, transport);
       if (slug) sessionSlug.set(sid, slug);
       sessionPaymentCtx.set(sid, paymentCtxRef);
@@ -422,8 +454,16 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
         return;
       }
 
-      await openStreamableSession(req, res, undefined, (apiKey, requestId, ctx, sid) =>
-        createMcpServer(apiKey, requestId, ctx, sid, clientCtxOf(req)),
+      // T-0837: the tools/list view is fixed here, at initialize, from /mcp?tools=lean|shop|all.
+      const view = listViewOr400(req, res);
+      if (!view) return;
+      await openStreamableSession(
+        req,
+        res,
+        undefined,
+        (apiKey, requestId, ctx, sid) =>
+          createMcpServer(apiKey, requestId, ctx, sid, clientCtxOf(req), view),
+        view,
       );
       return;
     } catch (error) {
@@ -672,6 +712,10 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
       return;
     }
 
+    // T-0837: same tools/list view parameter as POST /mcp (/sse?tools=lean|shop|all).
+    const view = listViewOr400(req, res);
+    if (!view) return;
+
     // Session cap check
     if (sessions.size >= MAX_SESSIONS) {
       res.status(503).json({
@@ -695,9 +739,11 @@ export function createMcpRouter(opts: { shopDeps?: ShopDeps } = {}): express.Rou
       paymentCtxRef,
       sessionId,
       clientCtxOf(req),
+      view,
     );
 
     sessions.set(sessionId, transport);
+    mcpSessionsByViewTotal.inc({ view });
     sessionPaymentCtx.set(sessionId, paymentCtxRef);
     touchSession(sessionId);
     mcpSessionsActive.set(sessions.size);

@@ -1155,6 +1155,8 @@
     "categories_call": "GET /api/v1/categories and MCP tool apibase.categories (free): category, tool count and price min/median/max, same object on both",
     "idempotency_on_redis_failure": "fail-open",
     "legal_index_hash_reproducible": "every sha256 in /legal/index.json is reproducible from the bytes at its source_url; scheduled versions at /legal/index.next.json",
+    "mcp_list_view_lean": "https://apibase.pro/mcp?tools=lean lists only the discovery tools (apibase.discover, apibase.categories, apibase.describe); every tool stays callable by name; /mcp and /mcp?tools=all list everything",
+    "mcp_list_view_shop": "https://apibase.pro/mcp?tools=shop lists the discovery tools plus every shop.* tool; it is the MCP URL of the seller agent guide",
     "refund_on_provider_failure": {
       "mpp": "refund owed, sent automatically in a weekly batch",
       "x402": "not settled"

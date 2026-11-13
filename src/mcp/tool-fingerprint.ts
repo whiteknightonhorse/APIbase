@@ -36,7 +36,7 @@ export const TOOL_DESCRIPTIONS: ReadonlyMap<string, string> = (() => {
 })();
 
 export const FINGERPRINT_ALGORITHM =
-  'definition_sha256 = sha256hex(stable_json({id, description, input_schema})) where id is the tool id and description / input_schema are exactly what GET /api/v1/tools/<id> returns; stable_json = fast-json-stable-stringify (keys sorted recursively, no whitespace); manifest_sha256 = sha256hex(stable_json([[id, definition_sha256], ...])) sorted by id over every tool tools/list serves; price, status, quality and _meta are not hashed';
+  'definition_sha256 = sha256hex(stable_json({id, description, input_schema})) where id is the tool id and description / input_schema are exactly what GET /api/v1/tools/<id> returns; stable_json = fast-json-stable-stringify (keys sorted recursively, no whitespace); manifest_sha256 = sha256hex(stable_json([[id, definition_sha256], ...])) sorted by id over every tool the all view of tools/list serves (/mcp and /mcp?tools=all; the lean and shop views list a subset); price, status, quality and _meta are not hashed';
 
 function sha256Hex(text: string): string {
   return createHash('sha256').update(text).digest('hex');
@@ -86,6 +86,10 @@ export interface ToolManifest {
   tools: Array<{ id: string; name: string; definition_sha256: string }>;
 }
 
+/**
+ * T-0837: the manifest covers every tool the `all` view of tools/list serves (src/mcp/list-view.ts).
+ * The lean and shop views only list a subset; they register, and so serve by name, the same tools.
+ */
 function buildManifestTools(): ToolManifest['tools'] {
   // Required lazily, synchronously: served-tools pulls the tool-status stage and the shop
   // fingerprint pulls the shop services (config, DB clients). A top-level import would load

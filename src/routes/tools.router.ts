@@ -4,7 +4,6 @@ import {
   getPublicCatalog,
   getToolsPaginated,
   getPublicCatalogPage,
-  getToolById,
   DEFAULT_TOOLS_LIMIT,
   MAX_TOOLS_LIMIT,
 } from '../services/tool-registry.service';
@@ -13,6 +12,7 @@ import { AppError, ErrorCode } from '../types/errors';
 import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
 import { getManifest } from '../mcp/tool-fingerprint';
 import { toCompact } from '../services/tool-compact';
+import { singleToolBody } from '../services/tool-describe';
 
 /**
  * Tool catalog routes (§6.15, §12.39, §12.114).
@@ -222,27 +222,9 @@ toolsRouter.get(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const toolId: unknown = req.params.toolId;
-      // shop.* branch: in-memory map only, touches no DB, fs or auth (CodeQL rule 2 not engaged).
-      if (typeof toolId === 'string' && toolId.startsWith('shop.')) {
-        // Lazy: the shop fingerprint module pulls the shop services (config, DB clients).
-        /* eslint-disable @typescript-eslint/no-require-imports */
-        const { getShopToolDefinitions } =
-          require('../shop/tool-fingerprint') as typeof import('../shop/tool-fingerprint');
-        /* eslint-enable @typescript-eslint/no-require-imports */
-        const shop = getShopToolDefinitions().get(toolId);
-        if (shop) {
-          res.setHeader('Cache-Control', 'public, max-age=300');
-          res.status(200).json({
-            id: shop.id,
-            name: shop.name,
-            description: shop.description,
-            input_schema: shop.input_schema,
-            definition_sha256: shop.definition_sha256,
-          });
-          return;
-        }
-      }
-      const tool = await getToolById(toolId as string);
+      // T-0837: one body for this route and the MCP tool apibase.describe (singleToolBody). The
+      // shop.* branch reads the in-memory shop map only (no DB, fs or auth).
+      const tool = typeof toolId === 'string' ? await singleToolBody(toolId) : null;
       if (!tool) {
         throw new AppError(ErrorCode.NOT_FOUND, `Tool not found: ${String(toolId)}`);
       }

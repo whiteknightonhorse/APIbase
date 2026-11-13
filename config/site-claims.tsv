@@ -171,3 +171,5 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	th
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	apibase.categories (GET /api/v1/categories)	-	T-0835 categories call exists (facts key categories_call)
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	api/v1/tools?view=compact&limit=&cursor=&category=	-	T-0836 tool list parameters (facts key tool_list_params)
 docs/releases/README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/releases/README.md	must-contain	per-address limit of 120 requests per minute	-	T-0836 tool list rate limit (facts key tool_list_rate_limit)
+static/llms.txt	https://apibase.pro/llms.txt	must-contain	https://apibase.pro/mcp?tools=lean	-	T-0837 lean MCP list view (facts key mcp_list_view_lean)
+static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-contain	https://apibase.pro/mcp?tools=shop	-	T-0837 shop MCP list view (facts key mcp_list_view_shop)

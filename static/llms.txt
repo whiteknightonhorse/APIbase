@@ -41,7 +41,8 @@ apibase.discover (or GET /api/v1/discover) to find relevant tools:
 Discovery order (the first two steps are free):
 1. apibase.categories (GET /api/v1/categories): the 24 categories with tool counts and price range
 2. apibase.discover with category, max_price_usd and limit (GET /api/v1/discover): ranked matches with price, rails, availability and quality
-3. The one tool: tools/call by name; its full definition is at GET /api/v1/tools/<id>
+3. The one tool: tools/call by name; its full definition is apibase.describe (GET /api/v1/tools/<id>)
+Connect to https://apibase.pro/mcp?tools=lean to list only the discovery tools; every tool stays callable by name; ?tools=all lists everything.
 All tools remain callable via tools/call regardless of discovery. The discover_tools prompt
 still works (kept for backward compatibility). It now renders apibase.discover's own JSON.
 /.well-known/site-facts.json: machine-readable facts the pages are checked against.

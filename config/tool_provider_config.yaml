@@ -4160,6 +4160,11 @@ tools:
     provider: apibase
     price_usd: "0"
     cache_ttl: 60
+  - tool_id: apibase.describe
+    name: Describe Tool
+    provider: apibase
+    price_usd: "0"
+    cache_ttl: 60
 
   # --- UC-324: NOAA NWS Weather (US Forecasts + Observations) ---
   - tool_id: noaa.forecast

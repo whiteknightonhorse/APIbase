@@ -2,6 +2,8 @@ import { BaseAdapter } from '../base.adapter';
 import { type ProviderRequest, type ProviderRawResponse } from '../../types/provider';
 import { discover, categorySummary, type DiscoverResponse } from '../../services/discovery.service';
 import type { CategorySummary } from '../../services/category-summary';
+import { singleToolBody, toolIdOf } from '../../services/tool-describe';
+import { ProviderErrorCode } from '../../types/provider';
 import { logger } from '../../config/logger';
 
 /**
@@ -34,9 +36,25 @@ export class ApibaseAdapter extends BaseAdapter {
   async call(req: ProviderRequest): Promise<ProviderRawResponse> {
     const start = performance.now();
     const params = req.params as Record<string, unknown>;
-    let data: DiscoverResponse | CategorySummary;
+    let data: DiscoverResponse | CategorySummary | object;
 
     switch (req.toolId) {
+      case 'apibase.describe': {
+        const asked = params.tool_id;
+        const body = typeof asked === 'string' ? await singleToolBody(toolIdOf(asked)) : null;
+        if (!body) {
+          throw {
+            code: ProviderErrorCode.INPUT_REJECTED,
+            httpStatus: 422,
+            message: `Unknown tool_id: ${String(asked)}. Call apibase.discover to find a tool id.`,
+            provider: 'apibase',
+            toolId: req.toolId,
+            durationMs: Math.round(performance.now() - start),
+          };
+        }
+        data = body;
+        break;
+      }
       case 'apibase.categories':
         data = await categorySummary();
         break;
@@ -66,7 +84,12 @@ export class ApibaseAdapter extends BaseAdapter {
       {
         tool_id: req.toolId,
         duration_ms: durationMs,
-        total_matches: 'total_matches' in data ? data.total_matches : data.total_tools,
+        total_matches:
+          'total_matches' in data
+            ? data.total_matches
+            : 'total_tools' in data
+              ? data.total_tools
+              : undefined,
       },
       'Discovery query completed',
     );

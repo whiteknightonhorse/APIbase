@@ -60,6 +60,7 @@ AI payment for merchants: a merchant gets its own MCP storefront, and a buyer's 
 - **Automatic refunds** — for undelivered paid calls and APIbase's fee share of duplicate order payments: [pricing](https://apibase.pro/pricing#refunds).
 - **Several agents, one budget** — [buyers](https://apibase.pro/integrator/buyers).
 - **Discovery order** — categories, then discover, then the one tool: [llms.txt, Progressive Disclosure](https://apibase.pro/llms.txt#progressive-disclosure). A bounded tool list: `GET /api/tools` or `GET /api/v1/tools` with `view=compact&limit=&cursor=&category=`.
+- **Small MCP tool list** — `https://apibase.pro/mcp?tools=lean` lists only the discovery tools, every tool stays callable by name: [llms.txt, Progressive Disclosure](https://apibase.pro/llms.txt#progressive-disclosure).
 - **Tool definition fingerprint** — [discover-tools](https://apibase.pro/.well-known/agent-skills/discover-tools.md) and `/api/v1/tools/manifest`.
 
 ---
