@@ -631,13 +631,6 @@
     "mfapi.nav_latest": "healthy",
     "mfapi.scheme_list": "healthy",
     "mfapi.scheme_search": "healthy",
-    "music.artist_details": "healthy",
-    "music.artist_search": "healthy",
-    "music.fresh_releases": "healthy",
-    "music.radio_search": "healthy",
-    "music.recording_search": "healthy",
-    "music.release_details": "healthy",
-    "music.release_search": "healthy",
     "mychem.annotation": "healthy",
     "mychem.batch_query": "healthy",
     "mychem.metadata": "healthy",
@@ -1207,7 +1200,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 401,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1241,7 +1234,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1358,
+      "count": 1351,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1255,6 +1248,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1386,
+  "tools_count": 1379,
   "version": "2.2.0"
 }

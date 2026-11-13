@@ -784,13 +784,6 @@ msc-geomet.aqhi_observations	msc-geomet	0.001
 msc-geomet.climate_daily	msc-geomet	0.002
 msc-geomet.climate_stations	msc-geomet	0.001
 msc-geomet.hydrometric_realtime	msc-geomet	0.001
-music.artist_details	music	0.003
-music.artist_search	music	0.003
-music.fresh_releases	music	0.003
-music.radio_search	music	0.002
-music.recording_search	music	0.003
-music.release_details	music	0.003
-music.release_search	music	0.003
 mychem.annotation	mychem	0.001
 mychem.batch_query	mychem	0.002
 mychem.metadata	mychem	0.001
