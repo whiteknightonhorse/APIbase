@@ -10,23 +10,23 @@
     {
       "name": "discover-tools",
       "type": "skill",
-      "description": "Progressive-disclosure workflow for finding relevant tools in APIbase's 1382-tool catalog without loading every schema into the agent context.",
+      "description": "Progressive-disclosure workflow for finding relevant tools in APIbase's 1386-tool catalog without loading every schema into the agent context.",
       "url": "https://apibase.pro/.well-known/agent-skills/discover-tools.md",
-      "sha256": "01fc615d6450c83a0e14d66666aaf47a907b4ea9d83d309cec3f409dcd8e3788"
+      "sha256": "cc49e8ad70bca590d79f7c2a526cfc1ddc67d4482c328548b4133035885ab2b6"
     },
     {
       "name": "x402-payment",
       "type": "skill",
       "description": "How to pay for APIbase tools using x402 (USDC on Base) or MPP (USDC.e on Tempo). Covers the 402 challenge, payment construction, and the Payment-Required retry.",
       "url": "https://apibase.pro/.well-known/agent-skills/x402-payment.md",
-      "sha256": "d81048e1956d5b8b14ec7f80d1d808bc4c7b61345a5e4743696a417a59003144"
+      "sha256": "175cc86e97a277a87672f90d12ac05493d1ef08c205fe4eb4e6881d8885deada"
     },
     {
       "name": "auto-register",
       "type": "skill",
       "description": "How APIbase auto-registers new agents on first contact — no signup form, no human in the loop. Credentials are issued at request time and returned in the response.",
       "url": "https://apibase.pro/.well-known/agent-skills/auto-register.md",
-      "sha256": "68a5b7b7aa93cdfc36e974ca82bd7850753367d5bcb1663bf34798d7adb57235"
+      "sha256": "3e953a71855ac7731b86207b2df48d0815001f261e0792387ae2a4e647fbb392"
     }
   ]
 }

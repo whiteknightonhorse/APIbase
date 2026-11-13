@@ -2,15 +2,15 @@
   "platform": "APIbase",
   "version": "2.2.0",
   "updated_at": "2026-11-13T00:00:00Z",
-  "tools_count": 1382,
-  "providers_count": 400,
+  "tools_count": 1386,
+  "providers_count": 401,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1382 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1386 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -80,16 +80,16 @@
       "examples": "Call apibase.discover with category=\"location\" for the current tool list and descriptions."
     },
     {
+      "name": "legal",
+      "tools": 55,
+      "providers": "Congress, Courtlistener, Eu Parliament, Eurlex, Fbi, Fbiwanted, FCC, Fec, Federalregister, Fedregister, Govuk, Ofac, Openstates, Regulations, Ukleg, Ukpolice",
+      "examples": "Call apibase.discover with category=\"legal\" for the current tool list and descriptions."
+    },
+    {
       "name": "space",
       "tools": 52,
       "providers": "Celestrak, Cernopendata, Copernicus Sentinel, Firms, Iss, Jpl, Launch Library 2, NASA, NASA Cmr, Nasaexoplanet, Nasantrs, Solar, Sunrisesunset, Swpc, Usno",
       "examples": "Call apibase.discover with category=\"space\" for the current tool list and descriptions."
-    },
-    {
-      "name": "legal",
-      "tools": 51,
-      "providers": "Congress, Courtlistener, Eu Parliament, Eurlex, Fbiwanted, FCC, Fec, Federalregister, Fedregister, Govuk, Ofac, Openstates, Regulations, Ukleg, Ukpolice",
-      "examples": "Call apibase.discover with category=\"legal\" for the current tool list and descriptions."
     },
     {
       "name": "media",

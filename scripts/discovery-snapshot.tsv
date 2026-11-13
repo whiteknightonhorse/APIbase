@@ -455,6 +455,10 @@ faostat.forest_area	faostat	0.001
 faostat.water_stress	faostat	0.001
 fatsecret.food_details	fatsecret	0.002
 fatsecret.food_search	fatsecret	0.002
+fbi.national_annual	fbi	0.002
+fbi.national_offenses	fbi	0.001
+fbi.state_annual	fbi	0.002
+fbi.state_offenses	fbi	0.001
 fbiwanted.by_category	fbiwanted	0.002
 fbiwanted.recent	fbiwanted	0.001
 fbiwanted.search	fbiwanted	0.002
