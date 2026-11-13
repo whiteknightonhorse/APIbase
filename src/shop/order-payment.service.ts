@@ -7,7 +7,6 @@ import type { ShopTx } from './db';
 import { convertReservation } from './repository';
 import { transition } from './order-state';
 import { QuoteError } from './quote.errors';
-import { recordOrderRead, UNPAID_ORDER_STATES } from './quote-outcomes.service';
 import { loadPiiSummary } from './pii/pii.service';
 import { refundPolicy, type RefundPolicy } from './order-lifecycle.service';
 import { applySubscriptionPayment } from './subscription-core';
@@ -347,8 +346,6 @@ export async function getOrderView(
   const r = await loadView(db, 'o.order_id', order_id);
   if (!r) throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
   const payer = isPayer(r, identity);
-  // T-0826: the buyer or payer reading a paid order sets read_at once (best effort).
-  if (payer && !UNPAID_ORDER_STATES.includes(r.state)) await recordOrderRead(db, r.order_id);
   const view = toView(r, payer);
   view.viewer = payer ? 'payer' : 'public';
   if (!payer && (r.buyer_identity?.startsWith('token:') || r.payer_wallet)) {

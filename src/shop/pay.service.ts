@@ -12,7 +12,6 @@ import type { PaymentBinding } from '../pipeline/stages/escrow.stage';
 import { parsePiiEnvelopes, PII_DOCS_URL, PiiRejected } from './pii/envelope.schema';
 import { checkPiiForPay, storeEnvelopes } from './pii/pii.service';
 import { periodRefusal } from './subscription.service';
-import { recordPayOutcome } from './quote-outcomes.service';
 
 export interface PayRequest {
   quote_id: string;
@@ -54,17 +53,6 @@ const SUGGESTED: Record<number, string> = {
  * (receipt not seen yet), 200 `already_placed` (repeat without payment by the same payer).
  */
 export async function payQuote(deps: ShopDeps, r: PayRequest): Promise<PayResponse> {
-  const res = await payQuoteAnswer(deps, r);
-  // T-0826: best effort and not awaited: the recorder never delays or changes the answer.
-  void recordPayOutcome(deps.db, r.quote_id, {
-    presented: Boolean(r.x402PaymentHeader || r.mpp),
-    status: res.status,
-    error_code: res.body.error_code,
-  });
-  return res;
-}
-
-async function payQuoteAnswer(deps: ShopDeps, r: PayRequest): Promise<PayResponse> {
   if (!r.x402PaymentHeader && !r.mpp) {
     const placed = await findPlacedOrder(deps.db, r.quote_id, r.buyer.identity);
     if (placed) {

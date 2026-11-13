@@ -23,7 +23,6 @@ import {
   rotatePartnerWebhookSecret,
   type PartnerRef,
 } from '../partner/grant.service';
-import { partnerQuoteRefusals, partnerQuotes } from '../partner/quote-outcomes-read.service';
 import {
   createHandoff,
   HandoffValidationError,
@@ -196,37 +195,6 @@ export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
         res.json(await partnerGrants(deps().db, me(req).id, req.params.slug));
       } catch (e) {
         send(req, res, e, 'partner grants read failed');
-      }
-    },
-  );
-
-  // T-0826: what happened to the quotes of a store whose grant has quotes:read, and the refused ones.
-  router.get(
-    '/api/v1/shop/partners/merchants/:slug/quotes',
-    probeLimiter,
-    readLimiter,
-    guard,
-    async (req: Request, res: Response) => {
-      try {
-        const q: Record<string, unknown> = req.query;
-        res.json(await partnerQuotes(deps().db, me(req), req.params.slug, q));
-      } catch (e) {
-        send(req, res, e, 'partner quotes read failed');
-      }
-    },
-  );
-
-  router.get(
-    '/api/v1/shop/partners/merchants/:slug/quote-refusals',
-    probeLimiter,
-    readLimiter,
-    guard,
-    async (req: Request, res: Response) => {
-      try {
-        const q: Record<string, unknown> = req.query;
-        res.json(await partnerQuoteRefusals(deps().db, me(req), req.params.slug, q));
-      } catch (e) {
-        send(req, res, e, 'partner quote refusals read failed');
       }
     },
   );
