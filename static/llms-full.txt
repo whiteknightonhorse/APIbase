@@ -46,8 +46,8 @@ apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - category="finance" → finance tools only
 - intent="search flights" → aviasales, sabre tools ranked by relevance
 All tools remain callable via tools/call regardless of discovery. The discover_tools prompt
-still works (kept for backward compatibility) — it now renders apibase.discover's own JSON.
-/.well-known/site-facts.json — machine-readable facts the pages are checked against.
+still works (kept for backward compatibility). It now renders apibase.discover's own JSON.
+/.well-known/site-facts.json: machine-readable facts the pages are checked against.
 
 ## Categories (24)
 business, crypto, developer, device, education, entertainment, finance, health,
@@ -81,12 +81,12 @@ news, podcasts, search, social, space, travel, weather, world
      GET /api/v1/tools?tier=standard      # $0.01–$0.99
      GET /api/v1/tools?tier=premium       # $1+ (3 tools)
 2. Each tool entry includes:
-     pricing.price_usd       — sticker price per call
-     pricing.cache_hit_price_usd — balance tier only; balances are credited by refunds
+     pricing.price_usd:      sticker price per call
+     pricing.cache_hit_price_usd: balance tier only; balances are credited by refunds
        only. Paying via x402/MPP per call is always billed price_usd, cache hit or not.
-     tier                    — micro | standard | premium
-     min_balance_usd         — minimum on-chain USDC the wallet should hold
-     input_schema            — JSON Schema for the call's body
+     tier:                   micro | standard | premium
+     min_balance_usd:        minimum on-chain USDC the wallet should hold
+     input_schema:           JSON Schema for the call's body
 3. 402 challenge body always includes price_usd + min_balance_usd, so you can
    short-circuit signing if your balance is insufficient.
 4. Use input_schema to build valid params — avoids 400 schema validation errors.
@@ -195,7 +195,7 @@ Pay per call over the x402 protocol or MPP. No subscription, no seat fees, no mo
 
 ## Per-call price ranges
 
-Every tool has a fixed, published USD price, set at or above the provider's cost where that cost is known; tools whose provider is free carry no upstream cost. There is no plan, no included quota, no overage fee — every call, at any volume, costs exactly its listed price.
+Every tool has a fixed, published USD price, set at or above the provider's cost where APIbase knows that cost; tools whose provider is free carry no upstream cost. There is no plan, no included quota, no overage fee — every call, at any volume, costs exactly its listed price.
 
 | Tier | Price | Typical tools |
 |---|---|---|
@@ -209,13 +209,13 @@ Exact per-tool prices: full JSON catalog at https://apibase.pro/api/v1/tools (fi
 
 ## Per-audio-minute tools
 
-`transcribe.submit` (speech-to-text) is priced per audio minute: `max($0.01, ceil(minutes) × $0.005)`, rounded up to a cent — 1 minute $0.01, 10 minutes $0.05, 30 minutes $0.15, 61 minutes $0.31. You declare `duration_seconds` (required, up to 4 hours); the 402 quote shows the computed price and the job is cut at the declared duration.
+`transcribe.submit` (speech-to-text) bills per audio minute: `max($0.01, ceil(minutes) × $0.005)`, rounded up to a cent — 1 minute $0.01, 10 minutes $0.05, 30 minutes $0.15, 61 minutes $0.31. You declare `duration_seconds` (required, up to 4 hours); the 402 quote shows the computed price and the job is cut at the declared duration.
 
 ## Cache discount
 
 A tool response is cached per its own TTL (1 second to 30 days). A cache hit on x402 or MPP is still billed at 100%; the 10% price exists only on the credit-balance rail.
 
-x402 and MPP payments are verified against the full listed price before the call runs, so there is no post-hoc discount on those rails. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged at all; the response carries `X-APIbase-Charged: false` and the original receipt. Each billed x402 or MPP call returns an `X-APIbase-Receipt` header with its public receipt URL; what a receipt contains is in the privacy policy (https://apibase.pro/privacy).
+APIbase verifies x402 and MPP payments against the full listed price before the call runs, so there is no post-hoc discount on those rails. On x402 APIbase answers an identical repeated lookup by the same wallet within 2 minutes from cache and does not charge it at all; the response carries `X-APIbase-Charged: false` and the original receipt. Each billed x402 or MPP call returns an `X-APIbase-Receipt` header with its public receipt URL; what a receipt contains is in the privacy policy (https://apibase.pro/privacy).
 
 ## How you pay — x402 protocol or MPP, pick per request
 
@@ -233,15 +233,15 @@ Free tools (price $0) need no payment on any rail. Paid tools enforce payment se
 
 Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise.
 
-Orders placed through a merchant storefront are priced by the merchant, not by the tool table above. Details: https://apibase.pro/integrator.
+The merchant, not the tool table above, prices orders placed through a merchant storefront. Details: https://apibase.pro/integrator.
 
 ## What "no hidden costs" actually means
 
 - No subscription tier, no seat count, no annual contract.
 - No overage fee — the price per call is the price per call at any volume.
-- No markup surprise at settlement — the price is locked at the moment of the HTTP 402 challenge, not renegotiated after the call runs.
-- A tool whose free upstream quota is exhausted is withdrawn until it resets; you are not charged (the call answers 503 `tool_unavailable` with `retry_after` before any payment challenge).
-- If APIbase owes you money — a call that was charged but not delivered, or APIbase's own fee share of an order payment that arrived twice or after the order had closed — the debt is recorded the moment we detect it and shown next to your receipt (`/r/<id>.refund.json`, linked from the receipt's `refund_url`) or in `shop.order.get`. Refunds are sent automatically, to the wallet that paid, in a weekly batch (Mondays, UTC), from a dedicated APIbase refund wallet, once the amount owed to your wallet exceeds ten times the network fee of sending it (about $0.01 on Base, less on Tempo). Smaller amounts carry forward and stay visible; they never expire. The rest of a duplicate or late order payment sits with the seller, who refunds it to the paying wallet within 7 days under the [refund framework](/legal/refund-framework); shop refunds for returns or cancellations remain the seller's duty as well. APIbase never holds your keys or your balance: the refund wallet holds APIbase's own money. On x402 a failed provider call is not settled: nothing leaves your wallet. Calls paid from the credit balance are credited back. The first live weekly run is Monday 2026-11-16 07:00 UTC.
+- No markup surprise at settlement — APIbase locks the price at the moment of the HTTP 402 challenge and does not renegotiate it after the call runs.
+- APIbase withdraws a tool whose free upstream quota has run out until it resets; you are not charged (the call answers 503 `tool_unavailable` with `retry_after` before any payment challenge).
+- If APIbase owes you money (a call that was charged but not delivered, or APIbase's own fee share of an order payment that arrived twice or after the order had closed), we record the debt the moment we detect it and show it next to your receipt (`/r/<id>.refund.json`, linked from the receipt's `refund_url`) or in `shop.order.get`. APIbase sends refunds automatically, to the wallet that paid, in a weekly batch (Mondays, UTC), from a dedicated APIbase refund wallet, once the amount owed to your wallet exceeds ten times the network fee of sending it (about $0.01 on Base, less on Tempo). Smaller amounts carry forward and stay visible; they never expire. The rest of a duplicate or late order payment sits with the seller, who refunds it to the paying wallet within 7 days under the [refund framework](/legal/refund-framework); shop refunds for returns or cancellations remain the seller's duty as well. APIbase never holds your keys or your balance: the refund wallet holds APIbase's own money. On x402 a failed provider call is not settled: nothing leaves your wallet. APIbase credits back calls paid from the credit balance. The first live weekly run is Monday 2026-11-16 07:00 UTC.
 
 ---
 
@@ -416,8 +416,8 @@ automatically. No signup, no API key, no ceremony.
 
 MPP client: mppx >= 0.6.16 (0.4 clients are not supported); the challenge lists one currency: USDC.e on Tempo mainnet (pathUSD on the testnet); a replayed credential gets 403 credential_replayed.
 
-If you want a reusable credential ahead of payment — for the free tier, for rate-limit tracking, or
-because your OAuth client library expects Dynamic Client Registration — three equivalent paths exist.
+If you want a reusable credential ahead of payment (for the free tier, for rate-limit tracking, or
+because your OAuth client library expects Dynamic Client Registration), three equivalent paths exist.
 All three hand back the same kind of credential: an opaque `api_key`, used as
 `Authorization: Bearer <api_key>` (or `X-API-Key: <api_key>`) on every later call.
 

@@ -1,2 +1,16 @@
 # T-0383: terminal decoration removed by the design-M migration (fake titlebar).
 apibase@prod:~$ cat /srv/apibase/integrator/buyers | render
+# T-0823: sentences reworded for the house-style lint (same facts, same numbers; active voice, at most one em dash per paragraph).
+A
+address is stored by APIbase.
+can be checked
+client.
+else is needed.
+enforced by your wallet. Human confirmation is done by your
+Every
+is paid
+Money
+No
+payment) is refunded automatically —
+Spending limits are set
+Streams are paid

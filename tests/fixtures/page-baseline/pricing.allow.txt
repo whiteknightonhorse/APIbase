@@ -42,3 +42,11 @@ real
 cost plus margin.
 # T-0555: refund wording (automatic refunds, canonical block in /pricing#refunds); old sequence:
 a
+# T-0823: sentences reworded for the house-style lint (same facts, same numbers; active voice, at most one em dash per paragraph).
+above.
+are verified
+by
+challenge,
+is locked
+renegotiated
+Orders placed through a merchant storefront are priced by the merchant, not by the tool table above.

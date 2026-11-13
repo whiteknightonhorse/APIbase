@@ -42,3 +42,7 @@ is taken from the edge (trusted header),
 # T-0820: the comment-marker example in the "Where" bullet is described in words, so the served Markdown carries no marker.
 <!--
 -->
+# T-0823: sentences reworded for the house-style lint (same facts, same numbers; active voice, at most one em dash per paragraph).
+hash —
+tools —
+— with the

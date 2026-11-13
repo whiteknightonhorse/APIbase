@@ -19,9 +19,9 @@ How to get a wallet: /integrator/wallet.
 
 ## Several agents, one budget
 
-No cap across several agents or wallets is imposed by APIbase or by any shop: nobody here holds your keys or your balance. A shared budget is enforced by how you fund and authorize the agents' wallets.
+Neither APIbase nor any shop imposes a cap across several agents or wallets: nobody here holds your keys or your balance. How you fund and authorize the agents' wallets enforces a shared budget.
 
-- **On Base (x402, USDC):** a payment is signed by the wallet that holds the USDC, so each agent's hard cap is the balance of its own wallet. Give every agent its own wallet, fund each one with only its share, and top them up from one treasury wallet on your own schedule. The fleet budget is the sum you fund; an agent that runs dry stops and asks you. Keep the per-payment and per-session limits in each client as before.
+- **On Base (x402, USDC):** the wallet that holds the USDC signs a payment, so each agent's hard cap is the balance of its own wallet. Give every agent its own wallet, fund each one with only its share, and top them up from one treasury wallet on your own schedule. The fleet budget is the sum you fund; an agent that runs dry stops and asks you. Keep the per-payment and per-session limits in each client as before.
 - **On Tempo (MPP):** keep one funding wallet and authorize one access key per agent with a spending limit and an expiry (the same `accessKey.authorize` step described under subscriptions below). The sum of the limits is the fleet budget; revoke one key to stop one agent without touching the others.
 - **What the server can see:** the boundary is the paying wallet, not an agent or a session. A mutated request is a new purchase, and idempotency never prevents it. Cross-agent budgets live in how you fund wallets, or in an agent-side budget middleware of your choice.
 - **What you can reconcile against:** every order you pay can be read back with `shop.order.get`, which returns the state, the transaction hash and the refund policy.
@@ -40,7 +40,7 @@ One `expires_at` covers the whole quote: every line shares the same price snapsh
 2. `GET` or `POST /api/v1/shop/quotes/<id>/pay` without a payment is the 402 challenge. Check that `accepts[0].payTo` equals the shop's payout wallet and `amount` equals the quote.
 3. `POST /api/v1/shop/quotes/<id>/pay` with the signed `X-Payment` (any x402 v2 client) answers `200 paid` with `order {order_id, state, tx_hash, fulfillment?}`, or `202 payment_pending`. Both carry `order_url`, the absolute URL of the order; without `order.fulfillment` they also carry `next`: the delivery is in the order, not in this reply (GET `order_url` with the Bearer of step 1 until `FULFILLED`).
 4. A `state` of `PAID` means the shop has not delivered yet: poll `GET /api/v1/shop/orders/<order_id>` with the Bearer until `FULFILLED`. `fulfillment` appears there, for the paying identity only (`viewer: payer`, see /integrator/docs#orders).
-5. `fulfillment` is always a string. When it begins with `{"type":"url"` it is the JSON text of `{type, urls[]}`: parse it. The links are the shop's own and may expire or be limited by the shop; APIbase does not add or check limits.
+5. `fulfillment` is always a string. When it begins with `{"type":"url"` it is the JSON text of `{type, urls[]}`: parse it. The links are the shop's own and may expire, or the shop may limit them; APIbase does not add or check limits.
 6. Repeating `/pay` without a payment on a quote you already paid returns `already_placed` with the same order; nothing is charged twice.
 7. `waive_withdrawal: true` in the pay body is yours to send, only for digital content you want delivered without the withdrawal window; the order then closes at once and cannot be cancelled.
 
@@ -122,26 +122,26 @@ Errors: see /integrator/agent-guide#error-codes.
 
 ## What we never ask for
 
-Integrator never asks for your private keys or seed phrase, in any tool, page or message. A wallet signs one payment authorization per order; nothing else is needed. If anything asks for a key, stop.
+Integrator never asks for your private keys or seed phrase, in any tool, page or message. A wallet signs one payment authorization per order; you need nothing else. If anything asks for a key, stop.
 
 ## What you can verify
 
-- No card number, CVV or open address is stored by APIbase. Personal data a product needs is encrypted under the seller's key before it is sent.
+- APIbase stores no card number, CVV or open address. Personal data a product needs is encrypted under the seller's key before it is sent.
 - The payment is an authorization for the exact quoted amount to the exact payout address; you can check the transfer on a block explorer.
 - Goods are delivered only after the transfer has a successful receipt.
-- Every claim above can be checked in your own orders: `shop.order.get` returns the state, the transaction hash and the refund policy. What each caller sees (`viewer`: `payer` or `public`) is defined in [the Orders section of the integrator docs](/integrator/docs).
+- You can check every claim above in your own orders: `shop.order.get` returns the state, the transaction hash and the refund policy. [The Orders section of the integrator docs](/integrator/docs) defines what each caller sees (`viewer`: `payer` or `public`).
 
 ## What stays outside our guarantees
 
-- Spending limits are set and enforced by your wallet.
-- Human confirmation is done by your agent's client.
+- Your wallet sets and enforces spending limits.
+- Your agent's client does the human confirmation.
 - Safekeeping of a seller's key is the seller's.
-- Shop refunds for returns or cancellations are the seller's duty under its policy and /legal/refund-framework; so is the seller's part of an order payment that arrived twice or late (refunded to your wallet within 7 days). Money APIbase itself owes you (a charged call without a result, its own fee share of such a payment) is refunded automatically — see /pricing#refunds.
+- Shop refunds for returns or cancellations are the seller's duty under its policy and /legal/refund-framework; so is the seller's part of an order payment that arrived twice or late (refunded to your wallet within 7 days). APIbase refunds automatically the money it itself owes you (a charged call without a result, its own fee share of such a payment): see /pricing#refunds.
 - USDC is issued by Circle, which can block addresses under its terms; a lost key means lost funds; stablecoin balances are not insured deposits. Keep agent wallets small and funded from a treasury you control.
 
 ## Streams: pay by the second
 
-A stream product is paid with a deposit into a payment channel that pays the seller's wallet: you deposit at least the minimum shown on the product, the agent signs small vouchers off-chain as the stream runs, and the seller settles in batches. The part of the deposit that was not consumed is returned to you. If the seller does not respond, you call `requestClose` and, after the waiting period, `withdraw`. After you request a close on-chain you can withdraw the unspent deposit yourself once the grace period of {{STREAM_CLOSE_GRACE_S}} seconds has passed. Streams are paid over MPP only, never with `X-Payment`.
+You pay for a stream product with a deposit into a payment channel that pays the seller's wallet: you deposit at least the minimum shown on the product, the agent signs small vouchers off-chain as the stream runs, and the seller settles in batches. The part of the deposit that was not consumed is returned to you. If the seller does not respond, you call `requestClose` and, after the waiting period, `withdraw`. After you request a close on-chain you can withdraw the unspent deposit yourself once the grace period of {{STREAM_CLOSE_GRACE_S}} seconds has passed. You pay streams over MPP only, never with `X-Payment`.
 
 ## Subscriptions: pre-sign the next periods (Base)
 
@@ -157,7 +157,7 @@ To stop it, cancel the subscription (`shop.subscription.cancel`: the shop has no
 
 ## Subscriptions: let the platform renew with a periodic key (Tempo, day and week plans)
 
-For a plan that renews every day or every week the quote of period 1 can carry `pay.mpp_subscription`. Pay it with an mppx client (0.9.3 or newer) at `POST /api/v1/shop/quotes/<id>/pay?intent=subscription`: the 402 challenge has intent `subscription`, and your client signs one periodic key authorization for a key address that belongs to APIbase. Period 1 is charged right away; each later period is renewed by the platform with that key, which also pays the gas. You never sign a renewal and no private key of yours is stored. `shop.subscription.get` shows `pull_mode: mpp_subscription` and `renewal_key`, the address you authorized.
+For a plan that renews every day or every week the quote of period 1 can carry `pay.mpp_subscription`. Pay it with an mppx client (0.9.3 or newer) at `POST /api/v1/shop/quotes/<id>/pay?intent=subscription`: the 402 challenge has intent `subscription`, and your client signs one periodic key authorization for a key address that belongs to APIbase. Period 1 is charged right away; the platform renews each later period with that key, which also pays the gas. You never sign a renewal and no private key of yours is stored. `shop.subscription.get` shows `pull_mode: mpp_subscription` and `renewal_key`, the address you authorized.
 
 Which mode applies: `none` (you pay each period's quote), `base_preauth` (Base, signatures stored ahead), `tempo_keychain` (the shop renews with its own key) and `mpp_subscription` (this one, day and week plans only; monthly plans keep the other modes).
 
@@ -169,4 +169,4 @@ The order stays in `PAYING` and the call answers 202 `payment_pending`. Do not p
 
 ## Refunds {#refunds}
 
-Refunds owed by APIbase are sent weekly (Mondays, UTC), to the wallet that paid. You can see what is owed on the receipt (`refund_url`) or in `shop.order.get`. A refund is sent once the amount owed exceeds ten times the network fee of sending it; smaller amounts carry forward and never expire. Details: /pricing#refunds.
+APIbase sends the refunds it owes weekly (Mondays, UTC), to the wallet that paid. You can see what is owed on the receipt (`refund_url`) or in `shop.order.get`. APIbase sends a refund once the amount owed exceeds ten times the network fee of sending it; smaller amounts carry forward and never expire. Details: /pricing#refunds.

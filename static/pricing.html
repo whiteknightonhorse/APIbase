@@ -105,7 +105,7 @@ pre{overflow-x:auto}
 </div>
 
 <h2>Per-call price ranges</h2>
-<p>Every tool has a fixed, published USD price, set at or above the provider&rsquo;s cost where that cost is known; tools whose provider is free carry no upstream cost. There is no plan, no included quota, no overage fee &mdash; every call, at any volume, costs exactly its listed price.</p>
+<p>Every tool has a fixed, published USD price, set at or above the provider&rsquo;s cost where APIbase knows that cost; tools whose provider is free carry no upstream cost. There is no plan, no included quota, no overage fee &mdash; every call, at any volume, costs exactly its listed price.</p>
 <div class="table-wrap m-table-wrap">
 <table class="m-table">
 <thead><tr><th>Tier</th><th>Price</th><th>Typical tools</th></tr></thead>
@@ -120,11 +120,11 @@ pre{overflow-x:auto}
 <p class="note">Exact per-tool prices: <a href="/api/v1/tools">full JSON catalog</a> (filter with <code>?tier=micro|standard|premium</code> or <code>?max_price=N</code>) or the human-readable <a href="/catalog">catalog page</a>.</p>
 
 <h2>Per-audio-minute tools</h2>
-<p><code>transcribe.submit</code> (speech-to-text) is priced per audio minute: <code>max($0.01, ceil(minutes) &times; $0.005)</code>, rounded up to a cent &mdash; 1 minute $0.01, 10 minutes $0.05, 30 minutes $0.15, 61 minutes $0.31. You declare <code>duration_seconds</code> (required, up to 4 hours); the 402 quote shows the computed price and the job is cut at the declared duration.</p>
+<p><code>transcribe.submit</code> (speech-to-text) bills per audio minute: <code>max($0.01, ceil(minutes) &times; $0.005)</code>, rounded up to a cent &mdash; 1 minute $0.01, 10 minutes $0.05, 30 minutes $0.15, 61 minutes $0.31. You declare <code>duration_seconds</code> (required, up to 4 hours); the 402 quote shows the computed price and the job is cut at the declared duration.</p>
 
 <h2 id="cache">Cache discount</h2>
 <p>A tool response is cached per its own TTL (<!--cache-ttl-->1 second to 30 days<!--/cache-ttl-->). A cache hit on x402 or MPP is still billed at 100%; the 10% price exists only on the credit-balance rail.</p>
-<p class="note">x402 and MPP payments are verified against the full listed price before the call runs, so there is no post-hoc discount on those rails. On x402 an identical repeated lookup by the same wallet within 2 minutes is answered from cache and not charged at all; the response carries <code>X-APIbase-Charged: false</code> and the original receipt. Each billed x402 or MPP call returns an <code>X-APIbase-Receipt</code> header with its public receipt URL; what a receipt contains is in the <a href="/privacy#public-receipts">privacy policy</a>.</p>
+<p class="note">APIbase verifies x402 and MPP payments against the full listed price before the call runs, so there is no post-hoc discount on those rails. On x402 APIbase answers an identical repeated lookup by the same wallet within 2 minutes from cache and does not charge it at all; the response carries <code>X-APIbase-Charged: false</code> and the original receipt. Each billed x402 or MPP call returns an <code>X-APIbase-Receipt</code> header with its public receipt URL; what a receipt contains is in the <a href="/privacy#public-receipts">privacy policy</a>.</p>
 
 <h2>How you pay &mdash; x402 protocol or MPP, pick per request</h2>
 <div class="table-wrap m-table-wrap">
@@ -143,15 +143,15 @@ pre{overflow-x:auto}
 <h2>Integrator orders</h2>
 <p class="note" id="integrator-fee">Integrator: 0% (pilot) fee from the merchant, min $0.05, orders from $1.00; on Tempo inside the transaction, on Base inside the transaction for clients that support fee-split and invoiced otherwise.</p>
 <p class="note"><!--fee-state-->Integrator fee: 0% (pilot). Fee Switch state is published here per Merchant Agreement &sect;9.<!--/fee-state--></p>
-<p class="note">Orders placed through a merchant storefront are priced by the merchant, not by the tool table above. Details: <a href="/integrator">/integrator</a>.</p>
+<p class="note">The merchant, not the tool table above, prices orders placed through a merchant storefront. Details: <a href="/integrator">/integrator</a>.</p>
 
 <h2>What "no hidden costs" actually means</h2>
 <ul>
 <li>No subscription tier, no seat count, no annual contract.</li>
 <li>No overage fee &mdash; the price per call is the price per call at any volume.</li>
-<li>No markup surprise at settlement &mdash; the price is locked at the moment of the HTTP 402 challenge, not renegotiated after the call runs.</li>
-<li>A tool whose free upstream quota is exhausted is withdrawn until it resets; you are not charged (the call answers 503 <code>tool_unavailable</code> with <code>retry_after</code> before any payment challenge).</li>
-<li id="refunds"><!-- refund-truth: canonical -->If APIbase owes you money &mdash; a call that was charged but not delivered, or APIbase's own fee share of an order payment that arrived twice or after the order had closed &mdash; the debt is recorded the moment we detect it and shown next to your receipt (<code>/r/&lt;id&gt;.refund.json</code>, linked from the receipt's <code>refund_url</code>) or in <code>shop.order.get</code>. Refunds are sent automatically, to the wallet that paid, in a weekly batch (Mondays, UTC), from a dedicated APIbase refund wallet, once the amount owed to your wallet exceeds ten times the network fee of sending it (about $0.01 on Base, less on Tempo). Smaller amounts carry forward and stay visible; they never expire. The rest of a duplicate or late order payment sits with the seller, who refunds it to the paying wallet within 7 days under the <a href="/legal/refund-framework">refund framework</a>; shop refunds for returns or cancellations remain the seller's duty as well. APIbase never holds your keys or your balance: the refund wallet holds APIbase's own money. On x402 a failed provider call is not settled: nothing leaves your wallet. Calls paid from the credit balance are credited back. The first live weekly run is Monday 2026-11-16 07:00 UTC.</li>
+<li>No markup surprise at settlement &mdash; APIbase locks the price at the moment of the HTTP 402 challenge and does not renegotiate it after the call runs.</li>
+<li>APIbase withdraws a tool whose free upstream quota has run out until it resets; you are not charged (the call answers 503 <code>tool_unavailable</code> with <code>retry_after</code> before any payment challenge).</li>
+<li id="refunds"><!-- refund-truth: canonical -->If APIbase owes you money (a call that was charged but not delivered, or APIbase's own fee share of an order payment that arrived twice or after the order had closed), we record the debt the moment we detect it and show it next to your receipt (<code>/r/&lt;id&gt;.refund.json</code>, linked from the receipt's <code>refund_url</code>) or in <code>shop.order.get</code>. APIbase sends refunds automatically, to the wallet that paid, in a weekly batch (Mondays, UTC), from a dedicated APIbase refund wallet, once the amount owed to your wallet exceeds ten times the network fee of sending it (about $0.01 on Base, less on Tempo). Smaller amounts carry forward and stay visible; they never expire. The rest of a duplicate or late order payment sits with the seller, who refunds it to the paying wallet within 7 days under the <a href="/legal/refund-framework">refund framework</a>; shop refunds for returns or cancellations remain the seller's duty as well. APIbase never holds your keys or your balance: the refund wallet holds APIbase's own money. On x402 a failed provider call is not settled: nothing leaves your wallet. APIbase credits back calls paid from the credit balance. The first live weekly run is Monday 2026-11-16 07:00 UTC.</li>
 </ul>
 
 <h2>Why we publish this page</h2>

@@ -2,3 +2,11 @@
 apibase@prod:~$ cat /srv/apibase/about.html | render
 # T-0385: terminal status line removed by the design-M migration.
 STATUS: ONLINE | USER: apibase
+# T-0823: sentences reworded for the house-style lint (same facts, same numbers; active voice, at most one em dash per paragraph).
+checked
+editor.
+guides, are written and reviewed with the help of AI. Facts
+page is published.
+prices) are not written by the AI: they are inserted
+Some
+to have been reviewed by

@@ -7,8 +7,8 @@ automatically. No signup, no API key, no ceremony.
 
 MPP client: mppx >= 0.6.16 (0.4 clients are not supported); the challenge lists one currency: USDC.e on Tempo mainnet (pathUSD on the testnet); a replayed credential gets 403 credential_replayed.
 
-If you want a reusable credential ahead of payment — for the free tier, for rate-limit tracking, or
-because your OAuth client library expects Dynamic Client Registration — three equivalent paths exist.
+If you want a reusable credential ahead of payment (for the free tier, for rate-limit tracking, or
+because your OAuth client library expects Dynamic Client Registration), three equivalent paths exist.
 All three hand back the same kind of credential: an opaque `api_key`, used as
 `Authorization: Bearer <api_key>` (or `X-API-Key: <api_key>`) on every later call.
 

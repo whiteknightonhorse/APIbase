@@ -3,3 +3,9 @@ apibase@prod:~$ cat /srv/apibase/integrator/why-base-tempo | render
 # T-0432: x402 governance sentence rewritten (x402 Foundation); the Coinbase attribution is dropped.
 Coinbase
 USDC;
+# T-0823: sentences reworded for the house-style lint (same facts, same numbers; active voice, at most one em dash per paragraph).
+billed to
+is not in
+is recorded
+is taken
+transaction

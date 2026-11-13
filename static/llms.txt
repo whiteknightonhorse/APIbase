@@ -38,8 +38,8 @@ apibase.discover (or GET /api/v1/discover) to find relevant tools:
 - category="finance" → finance tools only
 - intent="search flights" → aviasales, sabre tools ranked by relevance
 All tools remain callable via tools/call regardless of discovery. The discover_tools prompt
-still works (kept for backward compatibility) — it now renders apibase.discover's own JSON.
-/.well-known/site-facts.json — machine-readable facts the pages are checked against.
+still works (kept for backward compatibility). It now renders apibase.discover's own JSON.
+/.well-known/site-facts.json: machine-readable facts the pages are checked against.
 
 ## Categories (24)
 business, crypto, developer, device, education, entertainment, finance, health,
@@ -73,12 +73,12 @@ news, podcasts, search, social, space, travel, weather, world
      GET /api/v1/tools?tier=standard      # $0.01–$0.99
      GET /api/v1/tools?tier=premium       # $1+ (3 tools)
 2. Each tool entry includes:
-     pricing.price_usd       — sticker price per call
-     pricing.cache_hit_price_usd — balance tier only; balances are credited by refunds
+     pricing.price_usd:      sticker price per call
+     pricing.cache_hit_price_usd: balance tier only; balances are credited by refunds
        only. Paying via x402/MPP per call is always billed price_usd, cache hit or not.
-     tier                    — micro | standard | premium
-     min_balance_usd         — minimum on-chain USDC the wallet should hold
-     input_schema            — JSON Schema for the call's body
+     tier:                   micro | standard | premium
+     min_balance_usd:        minimum on-chain USDC the wallet should hold
+     input_schema:           JSON Schema for the call's body
 3. 402 challenge body always includes price_usd + min_balance_usd, so you can
    short-circuit signing if your balance is insufficient.
 4. Use input_schema to build valid params — avoids 400 schema validation errors.
