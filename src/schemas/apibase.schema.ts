@@ -41,8 +41,18 @@ const discoverTool = z
   })
   .strip();
 
-// T-0835: apibase.categories takes no arguments.
-const categoriesTool = z.object({}).strip();
+// T-0835: apibase.categories takes no arguments; the one optional placeholder follows the
+// no-argument convention (opentdb.schema.ts) and is ignored.
+const categoriesTool = z
+  .object({
+    _placeholder: z
+      .string()
+      .optional()
+      .describe(
+        'No parameters required: returns every category with its tool count and price range.',
+      ),
+  })
+  .strip();
 
 export const apibaseSchemas: Record<string, ZodSchema> = {
   'apibase.categories': categoriesTool,
