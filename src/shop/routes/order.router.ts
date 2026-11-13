@@ -16,7 +16,8 @@ import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycl
 import { resolveX402PaymentHeader } from '../../config/http-headers';
 import { openDispute } from '../dispute.service';
 import { getOrderView } from '../order-payment.service';
-import { cancelOrder, createQuote, getQuote, merchantIdBySlug } from '../quote.service';
+import { cancelOrder, getQuote, merchantIdBySlug } from '../quote.service';
+import { clientFromUserAgent, createQuoteRecorded } from '../quote-outcomes.service';
 import { cancelSubscription, getSubscription } from '../subscription.service';
 import { confirmPull } from '../subscription-keychain.service';
 import { preauthorizeSubscription } from '../subscription-preauth.service';
@@ -133,11 +134,12 @@ export function createOrderRouter(
       try {
         const body = (req.body ?? {}) as Record<string, unknown>;
         const { merchant, ...input } = body;
-        const quote = await createQuote(
+        const quote = await createQuoteRecorded(
           deps,
           await merchantIdBySlug(deps.db, merchant),
           buyer,
           input,
+          clientFromUserAgent(req.get('user-agent')),
         );
         if (held) {
           await finalizeIdempotency(

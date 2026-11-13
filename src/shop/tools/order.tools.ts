@@ -4,11 +4,11 @@ import { resolveBuyer } from '../buyer';
 import { defaultShopDeps, toApiError, type ShopDeps } from '../merchant-lifecycle.service';
 import {
   cancelOrder,
-  createQuote,
   integratorConfig,
   merchantIdBySlug,
   type QuoteResponse,
 } from '../quote.service';
+import { clientToken, createQuoteRecorded } from '../quote-outcomes.service';
 import { openDispute, DISPUTE_REASONS, DISPUTE_NOTE_MAX } from '../dispute.service';
 import { getOrderView, type BuyerAgent } from '../order-payment.service';
 import { cancelSubscription, getSubscription } from '../subscription.service';
@@ -131,7 +131,13 @@ export function registerOrderTools(
       try {
         const { merchant, ...input } = a;
         const buyer = await resolveBuyer({ apiKey, session: sessionId });
-        const q = await createQuote(deps, await merchantIdBySlug(deps.db, merchant), buyer, input);
+        const q = await createQuoteRecorded(
+          deps,
+          await merchantIdBySlug(deps.db, merchant),
+          buyer,
+          input,
+          clientToken(mcpClient(server)?.client_name),
+        );
         return ok({ ...forMcp(q) });
       } catch (err) {
         return fail(err, requestId);
