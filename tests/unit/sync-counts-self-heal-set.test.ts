@@ -70,6 +70,12 @@ print(json.dumps(sorted(set(h.FILES+h.BAR_PAGES+h.BAR_PRICE_ONLY+[h.INTEGRATOR_B
         'static/contact.html',
         'static/policy-moderation.html',
         'static/integrator/index.html',
+        // T-0820: render also rewrites the Markdown and text files that hold anchored values.
+        'static/pricing.md',
+        'static/llms.txt',
+        'static/ai.txt',
+        'static/.well-known/agent-skills/x402-payment.md',
+        'static/.well-known/agent-skills/auto-register.md',
       ];
       for (const f of files) {
         mkdirSync(dirname(join(dir, f)), { recursive: true });

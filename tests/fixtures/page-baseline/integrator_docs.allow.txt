@@ -39,3 +39,6 @@ country/region
 is taken from the edge (trusted header),
 # T-0768: merchant_contact is now {site_url, email?}; email is the shop support_email, the registration contact e-mail is never shown.
 {email, site_url}
+# T-0820: the comment-marker example in the "Where" bullet is described in words, so the served Markdown carries no marker.
+<!--
+-->
