@@ -35,7 +35,7 @@ Use the key on every later call: `Authorization: Bearer <api_key>`.
 ## Tiers and limits
 
 Tiers are `free`, `paid` and `enterprise`; a new registration starts on `free`.
-Limits: <!--rate-limits-->free: 10 requests per second, 100 per day; paid: 50 requests per second, 10,000 per day; enterprise: 200 requests per second, 100,000 per day<!--/rate-limits-->.
+Limits: free: 10 requests per second, 100 per day; paid: 50 requests per second, 10,000 per day; enterprise: 200 requests per second, 100,000 per day.
 
 Policy: <https://apibase.pro/.well-known/kya-policy.json>
 

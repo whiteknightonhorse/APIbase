@@ -53,7 +53,7 @@ create agent credentials. Full mechanics: <https://apibase.pro/connect>.
 
 `tools/call` (MCP) or the equivalent REST call runs the request against the upstream
 provider. Payment is escrow-first and the call is idempotent by design; x402: not settled on failure; Refunds owed by APIbase are automatic on both rails
-([details](/pricing#refunds)). <!-- refund-truth: see /pricing#refunds -->
+([details](/pricing#refunds)).
 
 ## How this compares by class
 

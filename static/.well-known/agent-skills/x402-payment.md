@@ -74,7 +74,7 @@ Exact price per tool: `x-payment-info` in the OpenAPI spec
 ## Free tier
 
 Tools that wrap free upstream APIs (government data, CC0 datasets) are priced
-from $0.0005 per call; <!--free-tools-->8<!--/free-tools--> platform tools are free ($0). Paid tools are paid per call with x402 or MPP;
+from $0.0005 per call; 8 platform tools are free ($0). Paid tools are paid per call with x402 or MPP;
 there is no self-service top-up and no free-trial credit (see <https://apibase.pro/pricing>).
 
 ## SDK hints

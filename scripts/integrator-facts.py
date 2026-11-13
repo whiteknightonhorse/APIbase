@@ -82,7 +82,44 @@ def home_merchants(f, path):
     return "<!--merchants-->%s<!--/merchants-->" % line
 
 
+# T-0820: static/index.md is served raw, so it carries no comment markers; the fee phrase and the
+# merchants count are found by the words around them (one capture group each, exactly one match).
+# index.md shows the count also when it is zero.
+HOME_MD_FILE = "static/index.md"
+HOME_MD_ANCHORS = [
+    ("fee", re.compile(r"USDC settles to your wallet\. (.+?)\.$", re.M)),
+    ("merchants", re.compile(r"^Merchants connected so far: (\d+)\.$", re.M)),
+]
+
+
+def home_md_value(tok, f):
+    if tok == "fee":
+        return "0% fee during the pilot" if f["fee"] == "0% (pilot)" else f["fee"] + " fee"
+    return str(f["merchants"])
+
+
+def render_home_md(s, f):
+    for tok, rx in HOME_MD_ANCHORS:
+        v = home_md_value(tok, f)
+        s = rx.sub(lambda m, v=v: m.group(0)[: m.start(1) - m.start()] + v + m.group(0)[m.end(1) - m.start():], s)
+    return s
+
+
+def check_home_md(f):
+    problems = []
+    s = open(HOME_MD_FILE).read()
+    for tok, rx in HOME_MD_ANCHORS:
+        n = len(rx.findall(s))
+        if n != 1:
+            problems.append("%s: anchor for token %s matches %d times (want 1); the words around the value were edited" % (HOME_MD_FILE, tok, n))
+    if render_home_md(s, f) != s:
+        problems.append("%s: fee phrase or merchants count differs from the mcp.json baseline" % HOME_MD_FILE)
+    return problems
+
+
 def render_home(s, f, path):
+    if path.endswith(".md"):
+        return render_home_md(s, f)
     s = HOME_FEE_RE.sub(lambda m: home_fee(f), s)
     return HOME_MERCH_RE.sub(lambda m: home_merchants(f, path), s)
 
@@ -109,7 +146,7 @@ def render():
 
 def check():
     f = facts()
-    problems = []
+    problems = check_home_md(f)
     for path in RENDERED:
         s = open(path).read()
         found = SENTENCE_RE.findall(s)

@@ -16,9 +16,9 @@ juggling, no per-provider billing.
 
 ## Integrator — AI payment for merchants
 
-Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. <!--fee-->0% fee during the pilot<!--/fee-->.
+Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. 0% fee during the pilot.
 
-<!--merchants-->Merchants connected so far: 11.<!--/merchants-->
+Merchants connected so far: 11.
 
 - Connect AI payment: <https://apibase.pro/integrator>
 - Demo shop: <https://apibase.pro/m/apibase-demo>

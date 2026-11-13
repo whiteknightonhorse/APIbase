@@ -115,15 +115,57 @@ TOKEN_RE = re.compile(
 )
 
 
+# T-0820: .md and .txt files are served raw, so their values carry no comment markers. The value is
+# found by the fixed words next to it: one row per (file, token), one capture group around the value.
+# .html files keep the <!--token--> markers (a browser hides them). render replaces the group; check
+# fails when a row matches zero or more than once (the anchor was edited away).
+MD_ANCHORS = [
+    ("static/pricing.md", "tiers", r"(?m)^(Micro \(\d+ of the tools, under .*?AIpush reports\)\.)$"),
+    ("static/pricing.md", "cache-ttl", r"cached per its own TTL \((.+?)\)"),
+    ("static/pricing.md", "rate-limits", r"(?m)^Rate limits: (free: .*?)\.$"),
+    ("static/llms.txt", "tiers:premium", r"tier=premium +# (.+)$"),
+    ("static/ai.txt", "free-tools", r"(\d+) platform tools are free"),
+    ("static/.well-known/agent-skills/x402-payment.md", "free-tools", r"(\d+) platform tools are free"),
+    ("static/.well-known/agent-skills/auto-register.md", "rate-limits", r"(?m)^Limits: (free: .*?)\.$"),
+]
+
+
+def md_anchor_rows(path):
+    return [(tok, re.compile(rx, re.M)) for p, tok, rx in MD_ANCHORS if p == path]
+
+
+def render_md_anchors(s, path):
+    vals = token_values()
+    for tok, rx in md_anchor_rows(path):
+        if tok not in vals:
+            continue
+        v = re.sub(r"</?strong>", "", vals[tok])
+        s = rx.sub(lambda m, v=v: m.group(0)[: m.start(1) - m.start()] + v + m.group(0)[m.end(1) - m.start():], s)
+    return s
+
+
+def check_md_anchors():
+    """Every anchor row must match exactly once in its file; names the file and the token."""
+    problems = []
+    for path, tok, rx in MD_ANCHORS:
+        if not os.path.exists(path):
+            problems.append("%s: anchor for %s: file missing" % (path, tok))
+            continue
+        n = len(re.findall(rx, open(path).read(), re.M))
+        if n != 1:
+            problems.append("%s: anchor for token %s matches %d times (want 1); the words around the value were edited" % (path, tok, n))
+    return problems
+
+
 def render_tokens(s, path):
     vals = token_values()
     if not vals:
         return s
+    if path.endswith((".txt", ".md")):
+        return render_md_anchors(s, path)
 
     def sub(m):
         v = vals[m.group(1)]
-        if path.endswith((".txt", ".md")):
-            v = re.sub(r"</?strong>", "", v)
         return "<!--%s-->%s<!--/%s-->" % (m.group(1), v, m.group(1).split(":")[0])
 
     return TOKEN_RE.sub(sub, s)
@@ -216,7 +258,7 @@ def render():
 
 def check():
     f = facts()
-    problems = []
+    problems = check_md_anchors()
     for path in FILES:
         if not os.path.exists(path):
             continue

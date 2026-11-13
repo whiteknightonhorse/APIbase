@@ -36,7 +36,7 @@ A replayed MPP credential is refused with 403 `credential_replayed`.
 
 ## Refunds per rail
 
-<!-- refund-truth: see /pricing#refunds -->The “Provider fails” row of the table is the short form. The full statement, kept current, is in [/pricing#refunds](/pricing#refunds).
+The “Provider fails” row of the table is the short form. The full statement, kept current, is in [/pricing#refunds](/pricing#refunds).
 
 ## Receipts
 
