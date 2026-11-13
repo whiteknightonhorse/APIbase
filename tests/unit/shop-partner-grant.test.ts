@@ -1036,8 +1036,9 @@ dbDescribe('T-0740 partner grants', () => {
       const t = await page(await handoff({ grant_requested: true }));
       expect(t).toContain('<h1>Connect your store</h1>');
       expect(t).toContain(
-        '<p>Your wallet will ask for <b>1 free signature</b>. No gas, no money leaves your wallet. The one message you sign states:</p>',
+        'One free signature, no gas: it registers your store, records the documents you accept and lets',
       );
+      expect(t).toContain('<details><summary>What the message says</summary>');
       expect(t).not.toContain('free signatures');
       const sig = /<ol class="cn-sig" id="sig">([\s\S]*?)<\/ol>/.exec(t)?.[1] ?? '';
       expect(sig.match(/<li /g)).toHaveLength(4);
