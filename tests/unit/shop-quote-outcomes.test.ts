@@ -491,7 +491,10 @@ dbDescribe('T-0826 partner read of quote outcomes (DB)', () => {
     );
     const a = keysAndValues(await (await get(s.slug, 'quotes')).json());
     const b = keysAndValues(await (await get(s.slug, 'quote-refusals')).json());
-    const text = [...a, ...b].join('|');
+    // random uuids are hex and can contain "fee" by chance: scan with them removed
+    const text = [...a, ...b]
+      .join('|')
+      .replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g, '<uuid>');
     for (const forbidden of [
       'buyer_token',
       'buyer_identity',
