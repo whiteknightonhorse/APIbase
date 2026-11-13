@@ -33,6 +33,8 @@ async function boot(o: {
   handoff?: boolean;
   remembered?: string;
   hold?: { rdns: string; method: string };
+  perm?: 'ok' | 'unsupported' | 'reject';
+  emailNote?: boolean;
 }) {
   let html = await (await fetch(`${base}/integrator/connect?from=soukbase`)).text();
   if (o.handoff) {
@@ -41,6 +43,7 @@ async function boot(o: {
       expected_wallet: EXP,
       mode: 'register',
       grant_requested: false,
+      ...(o.emailNote ? { email_note: true } : {}),
     });
     html = html.replace(
       '<a id="pt"',
@@ -54,6 +57,13 @@ async function boot(o: {
     chainId: '0x2105',
     request: async (r: { method: string }) => {
       log.push({ who: f.rdns, method: r.method });
+      if (r.method === 'wallet_requestPermissions') {
+        if (o.perm === 'unsupported') throw Object.assign(new Error('unsupported'), { code: 4200 });
+        if (o.perm === 'reject') throw Object.assign(new Error('rejected'), { code: 4001 });
+        f = { ...f, account: EXP };
+        return [{ parentCapability: 'eth_accounts' }];
+      }
+      if (r.method === 'eth_accounts') return [f.account];
       if (o.hold && o.hold.rdns === f.rdns && o.hold.method === r.method)
         await new Promise<void>((res) => held.push(res));
       return r.method === 'eth_requestAccounts' ? [f.account] : '0xsig';
@@ -129,7 +139,11 @@ async function boot(o: {
     ([...wc().querySelectorAll('button')] as HTMLElement[])
       .find((b) => b.textContent === label)!
       .click();
-  return { w, d, $, log, toStep3, settle, wc, box, choices, emit, release, press };
+  const pickBtn = (): any =>
+    ([...(box()?.querySelectorAll('button') ?? [])] as any[]).find(
+      (b) => b.textContent === 'Choose account in wallet' && !b.hidden,
+    );
+  return { w, d, $, log, pickBtn, toStep3, settle, wc, box, choices, emit, release, press };
 }
 
 const A: Fake = { name: 'Alpha', rdns: 'io.alpha', account: OTHER, icon: ICON };
@@ -281,5 +295,81 @@ describe('T-0800 connect page wallet choice', () => {
     expect(p.box().textContent).toContain('in Alpha');
     p.emit(A.rdns, [EXP]);
     expect(p.box()).toBeUndefined();
+  });
+});
+
+describe('T-0832 different wallet: next step and account picker', () => {
+  const open = async (perm?: 'ok' | 'unsupported' | 'reject') => {
+    const p = await boot({ wallets: [A], handoff: true, perm });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    return p;
+  };
+  const perms = (p: any) => p.log.filter((l: any) => l.method === 'wallet_requestPermissions');
+
+  it('shows the next-step line with the short expected address and the main button label, and the button; no request before a press', async () => {
+    const p = await open('ok');
+    expect(p.box().textContent).toContain(
+      'In your wallet open the account menu, choose 0xcdcd…cdcd, then press Connect wallet.',
+    );
+    expect(p.pickBtn()).toBeDefined();
+    expect(perms(p)).toHaveLength(0);
+  });
+
+  it('a press calls wallet_requestPermissions once with eth_accounts, then eth_accounts, and clears the warning', async () => {
+    const p = await open('ok');
+    p.pickBtn().click();
+    await p.settle();
+    expect(perms(p)).toHaveLength(1);
+    expect(p.log.map((l: any) => l.method).slice(-2)).toEqual([
+      'wallet_requestPermissions',
+      'eth_accounts',
+    ]);
+    expect(p.box()).toBeUndefined();
+    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('unsupported (4200): the button is hidden, the line stays', async () => {
+    const p = await open('unsupported');
+    p.pickBtn().click();
+    await p.settle();
+    expect(perms(p)).toHaveLength(1);
+    expect(p.pickBtn()).toBeUndefined();
+    expect(p.box().textContent).toContain('In your wallet open the account menu');
+    p.emit('io.alpha', [OTHER]);
+    expect(p.pickBtn()).toBeUndefined();
+  });
+
+  it('user rejection (4001): the warning and the button stay', async () => {
+    const p = await open('reject');
+    p.pickBtn().click();
+    await p.settle();
+    expect(p.box()).toBeDefined();
+    expect(p.pickBtn()).toBeDefined();
+    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it('accountsChanged to the expected address hides the warning and enables the main button', async () => {
+    const p = await open('ok');
+    p.emit('io.alpha', [EXP]);
+    expect(p.box()).toBeUndefined();
+    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(false);
+  });
+});
+
+describe('T-0832 email note', () => {
+  it('email_note puts the partner line under Contact email, before its own hint', async () => {
+    const p = await boot({ wallets: [A], handoff: true, emailNote: true });
+    const lab = p.d.querySelector('[name=contact_email]').closest('label');
+    const hints = [lab.nextElementSibling, lab.nextElementSibling.nextElementSibling];
+    expect(hints[0].textContent).toBe(
+      'Soukbase does not pass your email. Type the address for messages from APIbase.',
+    );
+    expect(hints[1].textContent).toBe('Never shown to buyers. We write only about your shop.');
+  });
+  it('without email_note there is no such line', async () => {
+    const p = await boot({ wallets: [A], handoff: true });
+    expect(p.d.getElementById('s1').textContent).not.toContain('does not pass your email');
   });
 });

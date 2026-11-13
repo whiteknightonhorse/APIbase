@@ -174,9 +174,15 @@ export function grantVariant(
   let b = swap(
     body,
     '<p>Your wallet will ask for <b>3 free signatures</b>. No gas, no money leaves your wallet.</p>',
-    '<p>Your wallet will ask for <b>1 free signature</b>. No gas, no money leaves your wallet. The one message you sign states:</p>',
+    `<p>One free signature, no gas: it registers your store, records the documents you accept and lets ${pn} sell for it.</p>`,
   );
-  b = swap(b, SIG_LIST_RE, (_m, a, _rows, c) => `${a}${ONE_SIG_ROWS(pn)}\n${c}`);
+  // T-0832: the four statements stay in the page (ids and row count for mark() and N) inside a closed details.
+  b = swap(
+    b,
+    SIG_LIST_RE,
+    (_m, a, _rows, c) =>
+      `<details><summary>What the message says</summary>\n${a}${ONE_SIG_ROWS(pn)}\n${c}\n</details>`,
+  );
   return swap(b, '<span id="wtn">1</span> of 3', '<span id="wtn">1</span> of 1');
 }
 
@@ -284,11 +290,16 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       }
       if (live) {
         grantView = { mode: live.mode, grant_requested: live.grant_requested };
+        // T-0832: the hint names what the partner actually passed; no email -> the page asks for it under the field.
+        const pe: unknown = (live.prefill as Record<string, unknown> | null)?.contact_email;
+        const noEmail = typeof pe !== 'string' || pe.trim() === '';
         hint =
           live.mode === 'grant'
             ? ''
-            : `<p class="hint">Prefilled from ${esc(partner.name)}. Check the values and continue.</p>`;
-        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested, seller_keys: partner.seller_keys ?? 'shown' })}</script>`;
+            : noEmail
+              ? `<p class="hint">Some fields are filled in from ${esc(partner.name)}. Check them and continue.</p>`
+              : `<p class="hint">Prefilled from ${esc(partner.name)}. Check the values and continue.</p>`;
+        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested, seller_keys: partner.seller_keys ?? 'shown', ...(live.mode !== 'grant' && noEmail ? { email_note: true } : {}) })}</script>`;
       } else {
         hint = `<p class="hint">This link from ${esc(partner.name)} is no longer valid. You can still connect your store and return there.</p>`;
       }

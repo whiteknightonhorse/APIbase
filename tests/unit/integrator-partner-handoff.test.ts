@@ -276,6 +276,46 @@ dbDescribe('T-0739 partner handoff', () => {
       expect(again.opened_at).toEqual(row.opened_at);
     });
 
+    it('T-0832: the hint follows the keys the partner passed; without contact_email the page carries email_note', async () => {
+      const without = await newHandoff({ prefill: { name: 'Shop' } });
+      const html = await page(`?from=soukbase&handoff=${without.handoff_id}`);
+      expect(html).toContain(
+        '<p class="hint">Some fields are filled in from Soukbase. Check them and continue.</p>',
+      );
+      expect(html).not.toContain('Prefilled from');
+      const pf = /<script type="application\/json" id="pf">([^<]*)<\/script>/.exec(html)!;
+      expect(JSON.parse(pf[1]).email_note).toBe(true);
+      expect(html).toContain('does not pass your email');
+      const empty = await newHandoff({ prefill: { contact_email: '' } });
+      expect(await page(`?from=soukbase&handoff=${empty.handoff_id}`)).not.toContain(
+        'Prefilled from',
+      );
+      const withMail = await newHandoff({ prefill: { contact_email: 'a@b.example' } });
+      const h2 = await page(`?from=soukbase&handoff=${withMail.handoff_id}`);
+      expect(h2).toContain('Prefilled from Soukbase. Check the values and continue.');
+      const pf2 = /<script type="application\/json" id="pf">([^<]*)<\/script>/.exec(h2)!;
+      expect(JSON.parse(pf2[1]).email_note).toBeUndefined();
+    });
+
+    it('T-0832: the one-signature handoff shows one sentence and the four rows in a closed details; the direct flow is unchanged', async () => {
+      const g = await newHandoff({ grant_requested: true });
+      const html = await page(`?from=soukbase&handoff=${g.handoff_id}`);
+      expect(html).toContain(
+        '<p>One free signature, no gas: it registers your store, records the documents you accept and lets Soukbase sell for it.</p>',
+      );
+      expect(html).toMatch(
+        /<details><summary>What the message says<\/summary>\n<ol class="cn-sig" id="sig">\n(<li data-n="\d">[^\n]*\n){4}<\/ol>\n<\/details>/,
+      );
+      expect(html).not.toContain('The one message you sign states');
+      const plain = await page('?from=soukbase');
+      expect(plain).not.toContain('What the message says');
+      expect(plain).toContain('<b>3 free signatures</b>');
+      const direct = await newHandoff({});
+      expect(await page(`?from=soukbase&handoff=${direct.handoff_id}`)).not.toContain(
+        'What the message says',
+      );
+    });
+
     it('expired, foreign, registered and malformed handoffs render the plain page plus the hint, no echo', async () => {
       const plain = await page('?from=soukbase');
       const expired = await newHandoff();
