@@ -4172,7 +4172,12 @@
       "timeout_ms": 20000
     },
     "moderation_class": "data",
-    "moderation_class_reviewed": true
+    "moderation_class_reviewed": true,
+    "retired": {
+      "since": "2026-11-13",
+      "task": "T-0831",
+      "reason": "operator decision 2026-11-13: DEGRADED_QUALITY flapping, reopened 4 times in 7 days; retire"
+    }
   },
   "imf": {
     "display_name": "IMF DataMapper",
