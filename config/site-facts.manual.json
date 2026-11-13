@@ -74,5 +74,11 @@
     "source": "src/routes/tools.router.ts",
     "anchor": "?view=full|compact",
     "ruling": "T-0836 (APIBASE-R4-REQ-1113 ruling-1)"
+  },
+  "tool_list_rate_limit": {
+    "value": "GET /api/tools and GET /api/v1/tools allow 120 requests per minute per address; the 121st in a minute returns 429 rate_limited",
+    "source": "src/routes/tools.router.ts",
+    "anchor": "TOOL_LIST_LIMIT_PER_MIN = 120",
+    "ruling": "T-0836 (APIBASE-R4-REQ-1113 ruling-1)"
   }
 }

@@ -1159,7 +1159,8 @@
       "mpp": "refund owed, sent automatically in a weekly batch",
       "x402": "not settled"
     },
-    "tool_list_params": "GET /api/tools and GET /api/v1/tools accept view=compact|full, limit, cursor and category; with any of them the response carries total and truncated, and view=compact items hold id, name, category, price_usd and summary"
+    "tool_list_params": "GET /api/tools and GET /api/v1/tools accept view=compact|full, limit, cursor and category; with any of them the response carries total and truncated, and view=compact items hold id, name, category, price_usd and summary",
+    "tool_list_rate_limit": "GET /api/tools and GET /api/v1/tools allow 120 requests per minute per address; the 121st in a minute returns 429 rate_limited"
   },
   "mcp_prompts": [
     "crypto_market_overview",
