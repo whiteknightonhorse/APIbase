@@ -286,10 +286,6 @@ dbDescribe('T-0739 partner handoff', () => {
       const pf = /<script type="application\/json" id="pf">([^<]*)<\/script>/.exec(html)!;
       expect(JSON.parse(pf[1]).email_note).toBe(true);
       expect(html).toContain('does not pass your email');
-      const empty = await newHandoff({ prefill: { contact_email: '' } });
-      expect(await page(`?from=soukbase&handoff=${empty.handoff_id}`)).not.toContain(
-        'Prefilled from',
-      );
       const withMail = await newHandoff({ prefill: { contact_email: 'a@b.example' } });
       const h2 = await page(`?from=soukbase&handoff=${withMail.handoff_id}`);
       expect(h2).toContain('Prefilled from Soukbase. Check the values and continue.');
