@@ -11,7 +11,7 @@
 import { randomBytes } from 'node:crypto';
 import { ShopAuthError } from '../auth/errors';
 import { issueKey } from '../auth/merchant-key.service';
-import { NONCE_TTL_S, type NonceRedis } from '../auth/nonce.service';
+import { GRANT_ALLOWS_LINE, NONCE_TTL_S, type NonceRedis } from '../auth/nonce.service';
 import { currentDocs, REQUIRED_DOCS, termsNotAccepted, type LegalDoc } from '../auth/terms.guard';
 import type { ShopTx } from '../db';
 import { acceptanceMethod, writeAcceptances, type ShopDeps } from '../merchant-lifecycle.service';
@@ -74,7 +74,7 @@ export const permissionStatement = (partner: { id: string; name: string }): Stat
   heading: `Permission for ${partner.name}`,
   lines: [
     `Partner: ${partner.id}`,
-    'Allows: upload and import your catalog; register its own webhook endpoint and receive your order events',
+    GRANT_ALLOWS_LINE,
     'Does not allow: payouts, keys, orders, refunds',
     `Revoke any time: DELETE /api/v1/shop/merchants/me/grants/${partner.id}`,
   ],

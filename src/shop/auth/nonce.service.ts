@@ -41,6 +41,14 @@ export function buildSignInMessage(p: {
 const MESSAGE_RE =
   /^apibase\.pro wants you to sign in with your wallet\.\nAddress: (\S+)\nPurpose: (\w+)\nNonce: ([0-9a-f]+)\nIssued At: (\S+)$/;
 
+/**
+ * T-0825: the one statement of what a partner grant allows; grantMessage, GRANT_RE and the combined
+ * handoff message (one-signature.service permissionStatement) all use it. A message with any other
+ * Allows line is 401.
+ */
+export const GRANT_ALLOWS_LINE =
+  'Allows: upload and import your catalog; register its own webhook endpoint and receive your order events; read the outcome of each quote for your products (paid, unpaid, expired, refused), never who the buyer is';
+
 /** T-0740: the exact text a merchant wallet signs to grant a partner (purpose grant). */
 export function grantMessage(p: {
   partnerName: string;
@@ -53,7 +61,7 @@ export function grantMessage(p: {
     `apibase.pro: allow ${p.partnerName} to act for your store\n` +
     `Address: ${p.wallet}\n` +
     `Partner: ${p.partnerId}\n` +
-    `Allows: upload and import your catalog; register its own webhook endpoint and receive your order events\n` +
+    `${GRANT_ALLOWS_LINE}\n` +
     `Does not allow: payouts, keys, orders, refunds\n` +
     `Revoke any time: DELETE /api/v1/shop/merchants/me/grants/${p.partnerId}\n` +
     `Nonce: ${p.nonce}\n` +
@@ -61,8 +69,18 @@ export function grantMessage(p: {
   );
 }
 
-const GRANT_RE =
-  /^apibase\.pro: allow ([^\n]{1,80}) to act for your store\nAddress: (0x[0-9a-fA-F]{40})\nPartner: ([a-z0-9-]{2,40})\nAllows: upload and import your catalog; register its own webhook endpoint and receive your order events\nDoes not allow: payouts, keys, orders, refunds\nRevoke any time: DELETE \/api\/v1\/shop\/merchants\/me\/grants\/([a-z0-9-]{2,40})\nNonce: ([0-9a-f]+)\nIssued At: (\S+)$/;
+const escapeRe = (t: string): string => t.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
+
+const GRANT_RE = new RegExp(
+  '^apibase\\.pro: allow ([^\\n]{1,80}) to act for your store\\n' +
+    'Address: (0x[0-9a-fA-F]{40})\\n' +
+    'Partner: ([a-z0-9-]{2,40})\\n' +
+    `${escapeRe(GRANT_ALLOWS_LINE)}\\n` +
+    'Does not allow: payouts, keys, orders, refunds\\n' +
+    'Revoke any time: DELETE /api/v1/shop/merchants/me/grants/([a-z0-9-]{2,40})\\n' +
+    'Nonce: ([0-9a-f]+)\\n' +
+    'Issued At: (\\S+)$',
+);
 
 /**
  * T-0740: verify the grant message. The text must parse exactly, name `partner` (both the Partner

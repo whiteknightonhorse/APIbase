@@ -162,3 +162,5 @@ static/integrator/connect.html	https://apibase.pro/integrator/connect	must-conta
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	with the grant signs once	-	T-0802 one signature for a partner handoff with the grant
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-not-contain	adds the grant as a fourth signature	-	T-0802 superseded count of handoff signatures
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	a fourth free signature	-	T-0802 superseded count of handoff signatures
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	never who the buyer is	-	T-0825 grant message names quotes:read
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	gains the scope from a valid signature	-	T-0825 upgrade in place answers 200

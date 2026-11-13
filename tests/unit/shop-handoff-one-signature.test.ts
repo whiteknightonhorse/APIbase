@@ -299,7 +299,7 @@ dbDescribe('T-0802 POST /merchants/handoff (one signature)', () => {
         grant_id: expect.any(String),
         partner: 'soukbase',
         mode: 'partner',
-        scopes: ['catalog:write', 'webhooks:write'],
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
         created_at: expect.any(String),
       },
     });

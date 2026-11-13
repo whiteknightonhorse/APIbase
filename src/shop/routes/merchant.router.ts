@@ -629,14 +629,16 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
   );
 
   // T-0740 (A-2): one wallet signature (purpose grant) gives a registered partner a key limited to
-  // catalog:write + webhooks:write. No Bearer; the key is never in this answer (the partner reads it
+  // catalog:write + webhooks:write (the grant row also names quotes:read). No Bearer; the key is never in this answer (the partner reads it
   // once through its handoff).
   router.post(
     '/api/v1/shop/merchants/me/grants',
     limiter(60_000, 10),
     async (req: Request, res: Response) => {
       try {
-        res.status(201).json(await createGrant(deps, req.body));
+        const { grant, upgraded } = await createGrant(deps, req.body);
+        // T-0825: 200 when a live grant gained quotes:read, 201 for a new grant
+        res.status(upgraded ? 200 : 201).json(grant);
       } catch (err) {
         send(res, err);
       }

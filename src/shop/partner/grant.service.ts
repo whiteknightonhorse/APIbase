@@ -1,6 +1,7 @@
 /**
  * T-0740 (SOUKBASE-A16-1109 ruling-1 A-2): partner grants. One wallet signature (purpose grant) gives
- * a registered partner a per-merchant `mk_live_` key limited to catalog:write + webhooks:write. The
+ * a registered partner a per-merchant `mk_live_` key limited to catalog:write + webhooks:write (T-0825: the
+ * grant row also names quotes:read, which the key does not hold). The
  * plaintext key is never returned to the merchant and never logged: it is held encrypted on the
  * linked handoff until the partner reads it there once. The merchant lists and revokes grants.
  * T-0747 (SOUKBASE-A2B-1109 ruling-1, A-2b): the registry entry's `grant_mode` chooses. Mode `key` is the
@@ -19,7 +20,11 @@ import type { WebhookDeps } from '../webhook/webhook.service';
 import { QuoteError } from '../quote.errors';
 import { UUID_RE } from './handoff.service';
 
-export const GRANT_SCOPES = ['catalog:write', 'webhooks:write'] as const;
+/** T-0825: what the mk_live_ key of a mode-key grant holds (unchanged: two scopes). */
+export const KEY_GRANT_SCOPES = ['catalog:write', 'webhooks:write'] as const;
+/** T-0825: what a grant row written now carries: the key scopes plus the read of quote outcomes. */
+export const QUOTES_READ = 'quotes:read';
+export const GRANT_SCOPES = [...KEY_GRANT_SCOPES, QUOTES_READ] as const;
 const DOC = '/integrator/docs#partner-grants';
 const ADDR_RE = /^0x[0-9a-fA-F]{40}$/;
 const PARTNER_RE = /^[a-z0-9-]{2,40}$/;
@@ -79,7 +84,10 @@ export interface GrantResult {
  * One active grant per (merchant, partner). Key (mode key) or grant-owned endpoint (mode partner),
  * grant row and handoff binding in one transaction. The answer never carries a key or a secret.
  */
-export async function createGrant(d: WebhookDeps, body: unknown): Promise<GrantResult> {
+export async function createGrant(
+  d: WebhookDeps,
+  body: unknown,
+): Promise<{ grant: GrantResult; upgraded: boolean }> {
   const b = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
   const { wallet, partner, message, signature, handoff_id } = b;
   if (typeof wallet !== 'string' || !ADDR_RE.test(wallet)) throw invalid('wallet');
@@ -114,15 +122,57 @@ export async function createGrant(d: WebhookDeps, body: unknown): Promise<GrantR
   }
   const hid = typeof handoff_id === 'string' && UUID_RE.test(handoff_id) ? handoff_id : null;
   try {
-    return await d.transaction(
-      async (tx) => (await writeGrant(d, tx, m, p, { handoff_id: hid, wallet })).grant,
-    );
+    return await d.transaction(async (tx) => {
+      // T-0825: a live grant that lacks quotes:read gains it from this signature (same row)
+      const up = await upgradeGrant(tx, m, p, { message, signature });
+      if (up) return { grant: up, upgraded: true };
+      const w = await writeGrant(d, tx, m, p, { handoff_id: hid, wallet });
+      return { grant: w.grant, upgraded: false };
+    });
   } catch (e) {
     // the partial unique index lost a race with a concurrent grant of the same partner
     if (/shop_partner_grants_active_uq/.test(String((e as Error)?.message)))
       throw grantExists(p.id);
     throw e;
   }
+}
+
+/**
+ * T-0825: the live grant of this partner for this store has no `quotes:read`: the same row gains it and
+ * keeps the new message and signature as its proof. Nothing else is touched (no key, no endpoint, no
+ * secret, no handoff). No live grant, or one that already has the scope: null (writeGrant then writes
+ * the grant, or answers 409 grant_exists).
+ */
+async function upgradeGrant(
+  tx: ShopTx,
+  m: { merchant_id: string; slug: string },
+  p: PartnerRef,
+  proof: { message: string; signature: string },
+): Promise<GrantResult | null> {
+  const rows = await tx.$queryRawUnsafe<
+    Array<{ grant_id: string; mode: GrantMode; scopes: string[]; created_at: Date }>
+  >(
+    `UPDATE shop_partner_grants
+        SET scopes = array_append(scopes, $3), proof_message = $4, proof_signature = $5
+      WHERE merchant_id = $1::uuid AND partner_id = $2 AND revoked_at IS NULL
+        AND NOT ($3 = ANY(scopes))
+      RETURNING grant_id::text AS grant_id, mode, scopes, created_at`,
+    m.merchant_id,
+    p.id,
+    QUOTES_READ,
+    proof.message,
+    proof.signature,
+  );
+  const g = rows[0];
+  if (!g) return null;
+  return {
+    grant_id: g.grant_id,
+    partner: p.id,
+    mode: g.mode,
+    scopes: g.scopes,
+    created_at: new Date(g.created_at).toISOString(),
+    slug: m.slug,
+  };
 }
 
 /**
@@ -149,7 +199,7 @@ export async function writeGrant(
   const mode: GrantMode = p.grant_mode;
   // mode key: a per-store key; mode partner: none (key_hash NULL, the row CHECK pins it)
   const key =
-    mode === 'key' ? await issueKey(tx, m.merchant_id, GRANT_SCOPES, `grant:${p.id}`) : null;
+    mode === 'key' ? await issueKey(tx, m.merchant_id, KEY_GRANT_SCOPES, `grant:${p.id}`) : null;
   const g = await tx.$queryRawUnsafe<Array<{ grant_id: string; created_at: Date }>>(
     `INSERT INTO shop_partner_grants
            (merchant_id, partner_id, key_hash, scopes, mode, proof_message, proof_signature)
@@ -374,6 +424,8 @@ export interface LiveGrant {
   status: string;
   grant_id: string;
   mode: GrantMode;
+  /** T-0825: the grant's scopes (an older grant may lack `quotes:read`) */
+  scopes: string[];
 }
 
 /**
@@ -387,13 +439,16 @@ export async function liveGrantFor(
   slug: unknown,
 ): Promise<LiveGrant> {
   const s = await storeBySlug(db, slug);
-  const live = await db.$queryRawUnsafe<Array<{ grant_id: string; mode: GrantMode }>>(
-    `SELECT grant_id::text AS grant_id, mode FROM shop_partner_grants
+  const live = await db.$queryRawUnsafe<
+    Array<{ grant_id: string; mode: GrantMode; scopes: string[] }>
+  >(
+    `SELECT grant_id::text AS grant_id, mode, scopes FROM shop_partner_grants
       WHERE partner_id = $1 AND merchant_id = $2::uuid AND revoked_at IS NULL`,
     partner.id,
     s.merchant_id,
   );
-  if (live[0]) return { ...s, grant_id: live[0].grant_id, mode: live[0].mode };
+  if (live[0])
+    return { ...s, grant_id: live[0].grant_id, mode: live[0].mode, scopes: live[0].scopes };
   const last = await db.$queryRawUnsafe<Array<{ revoked_at: Date }>>(
     `SELECT revoked_at FROM shop_partner_grants
       WHERE partner_id = $1 AND merchant_id = $2::uuid AND revoked_at IS NOT NULL

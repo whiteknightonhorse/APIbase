@@ -114,7 +114,7 @@ describe('T-0740 grant message (no DB)', () => {
     expect(s.message).toMatch(
       new RegExp(
         '^apibase\\.pro: allow Soukbase to act for your store\\nAddress: 0x[0-9a-fA-F]{40}\\nPartner: soukbase\\n' +
-          'Allows: upload and import your catalog; register its own webhook endpoint and receive your order events\\n' +
+          'Allows: upload and import your catalog; register its own webhook endpoint and receive your order events; read the outcome of each quote for your products \\(paid, unpaid, expired, refused\\), never who the buyer is\\n' +
           'Does not allow: payouts, keys, orders, refunds\\n' +
           'Revoke any time: DELETE /api/v1/shop/merchants/me/grants/soukbase\\nNonce: [0-9a-f]{32}\\nIssued At: \\S+$',
       ),
@@ -126,6 +126,20 @@ describe('T-0740 grant message (no DB)', () => {
       );
     await expect(v(s)).resolves.toEqual({ signer_kind: 'eoa' });
     await expect(v(s)).rejects.toMatchObject({ status: 401 }); // nonce spent
+  });
+
+  it('T-0825: the old Allows line (without quotes:read) is refused (401)', async () => {
+    const redis = new FakeRedis();
+    const s = await make(redis);
+    const old = s.message.replace(/; read the outcome[^\n]*/, '');
+    expect(old).not.toBe(s.message);
+    const sig = await acct.signMessage({ message: old });
+    await expect(
+      verifyGrantSignature(
+        { message: old, signature: sig, expectedAddress: acct.address, partner },
+        { redis: redis as never },
+      ),
+    ).rejects.toMatchObject({ status: 401 });
   });
 
   it('a tampered Partner line, name, revoke route or address is refused (401)', async () => {
@@ -346,7 +360,7 @@ dbDescribe('T-0740 partner grants', () => {
       expect(first.status).toBe(201);
       expect(first.body).toMatchObject({
         partner: 'soukbase',
-        scopes: ['catalog:write', 'webhooks:write'],
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
         slug: m.slug,
       });
       expect(JSON.stringify(first.body)).not.toMatch(/mk_live_/);
@@ -358,6 +372,74 @@ dbDescribe('T-0740 partner grants', () => {
         first.body.grant_id,
       );
       expect(k).toEqual({ scopes: ['catalog:write', 'webhooks:write'], label: 'grant:soukbase' });
+    });
+
+    it('T-0825: a new grant has three scopes, its key two; the nonce route returns the new line', async () => {
+      const m = await merchant();
+      const nr = await get(
+        `/api/v1/shop/auth/nonce?wallet=${m.acct.address}&purpose=grant&partner=soukbase`,
+      );
+      const { message } = (await nr.json()) as { message: string };
+      expect(message).toContain('never who the buyer is\n');
+      const g = await grant(m.acct);
+      expect(g.status).toBe(201);
+      expect(g.body.scopes).toEqual(['catalog:write', 'webhooks:write', 'quotes:read']);
+      const [k] = await q(
+        `SELECT k.scopes FROM shop_partner_grants g JOIN shop_merchant_keys k USING (key_hash)
+          WHERE g.grant_id = $1::uuid`,
+        g.body.grant_id,
+      );
+      expect(k.scopes).toEqual(['catalog:write', 'webhooks:write']);
+    });
+
+    it('T-0825: an old two-scope grant gains quotes:read from one signature, in place; a second is 409', async () => {
+      const m = await merchant();
+      const g = await grant(m.acct);
+      expect(g.status).toBe(201);
+      // an older grant: two scopes, an old proof
+      await x(
+        `UPDATE shop_partner_grants SET scopes = ARRAY['catalog:write','webhooks:write'], proof_message = 'old'
+          WHERE grant_id = $1::uuid`,
+        g.body.grant_id,
+      );
+      // another partner's grant of the same store stays as it is
+      await x(
+        `INSERT INTO shop_partner_grants (merchant_id, partner_id, key_hash, scopes, mode)
+         VALUES ($1::uuid, 'otherco', NULL, ARRAY['catalog:write','webhooks:write'], 'partner')`,
+        m.id,
+      );
+      const [before] = await q(
+        `SELECT key_hash, created_at FROM shop_partner_grants WHERE grant_id = $1::uuid`,
+        g.body.grant_id,
+      );
+      const up = await grant(m.acct);
+      expect(up.status).toBe(200);
+      expect(up.body).toMatchObject({
+        grant_id: g.body.grant_id,
+        partner: 'soukbase',
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
+        slug: m.slug,
+      });
+      expect(JSON.stringify(up.body)).not.toMatch(/mk_live_|whsec_/);
+      const rows = await q(
+        `SELECT grant_id::text AS grant_id, key_hash, created_at, scopes, proof_message
+           FROM shop_partner_grants WHERE merchant_id = $1::uuid AND revoked_at IS NULL
+          ORDER BY partner_id`,
+        m.id,
+      );
+      const mine = rows.find((r) => r.grant_id === g.body.grant_id);
+      expect(mine?.key_hash).toBe(before.key_hash);
+      expect(mine?.proof_message).toContain('never who the buyer is');
+      const other = rows.find((r) => r.grant_id !== g.body.grant_id);
+      expect(other?.scopes).toEqual(['catalog:write', 'webhooks:write']);
+      const [k] = await q(
+        `SELECT k.scopes FROM shop_partner_grants g JOIN shop_merchant_keys k USING (key_hash)
+          WHERE g.grant_id = $1::uuid`,
+        g.body.grant_id,
+      );
+      expect(k.scopes).toEqual(['catalog:write', 'webhooks:write']);
+      const again = await grant(m.acct);
+      expect([again.status, again.body.error_code]).toEqual([409, 'grant_exists']);
     });
 
     it('a bad signature is 401 and creates nothing', async () => {
@@ -393,14 +475,14 @@ dbDescribe('T-0740 partner grants', () => {
       expect(first).toMatchObject({ state: 'granted', slug: m.slug, merchant_id: m.id });
       expect(first.grant).toMatchObject({
         state: 'granted',
-        scopes: ['catalog:write', 'webhooks:write'],
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
       });
       expect(first.grant.key).toMatch(/^mk_live_[0-9a-f]{32}$/);
       const second = await readHandoff(h);
       expect(second.grant).toEqual({
         state: 'granted',
         mode: 'key',
-        scopes: ['catalog:write', 'webhooks:write'],
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
         delivered: true,
       });
       const [row] = await q(
@@ -823,7 +905,7 @@ dbDescribe('T-0740 partner grants', () => {
             grant_id: g.grant_id,
             partner: 'soukbase',
             mode: 'key',
-            scopes: ['catalog:write', 'webhooks:write'],
+            scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
             created_at: expect.any(String),
             endpoints: [pe.body.endpoint_id],
           },

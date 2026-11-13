@@ -155,7 +155,7 @@ export function grantVariant(
     b = swap(
       b,
       '<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>',
-      `<p class="lp-sub">${pn} will upload and import your catalog, register its own webhook endpoint and receive your order events. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>`,
+      `<p class="lp-sub">${pn} will upload and import your catalog, register its own webhook endpoint and receive your order events, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>`,
     );
     b = swap(b, '<ol class="cn-bar" id="bar">', '<ol class="cn-bar" id="bar" hidden>');
     b = swap(b, '<b>3 free signatures</b>', '<b>1 free signature</b>');

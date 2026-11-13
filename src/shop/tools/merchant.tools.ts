@@ -630,7 +630,7 @@ export function registerMerchantTools(
     {
       title: 'List partner grants',
       description:
-        'The partners you allowed to act for your store (merchant key only; a grant key is 403 grant_key_not_allowed): grant_id, partner, mode (key: the partner holds a key limited to your catalog and its webhooks; partner: no key, it pushes your catalog with its own partner key and receives your order events at its registered endpoint), scopes (catalog:write, webhooks:write), created_at and the ids of the webhook endpoints each partner created. Revoked grants are not listed.',
+        'The partners you allowed to act for your store (merchant key only; a grant key is 403 grant_key_not_allowed): grant_id, partner, mode (key: the partner holds a key limited to your catalog and its webhooks; partner: no key, it pushes your catalog with its own partner key and receives your order events at its registered endpoint), scopes (catalog:write, webhooks:write, quotes:read; a grant signed before quotes:read existed gains it when the seller signs the current message again), created_at and the ids of the webhook endpoints each partner created. Revoked grants are not listed.',
       inputSchema: {},
       outputSchema: {
         grants: z.array(

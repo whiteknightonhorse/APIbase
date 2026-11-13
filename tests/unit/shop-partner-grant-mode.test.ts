@@ -504,7 +504,7 @@ dbDescribe('T-0747 partner-mode grants', () => {
       expect(first.grant).toEqual({
         state: 'granted',
         mode: 'partner',
-        scopes: ['catalog:write', 'webhooks:write'],
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
         webhook_secret: expect.stringMatching(/^whsec_[0-9a-f]{32}$/),
       });
       const [ep] = await q(
@@ -518,7 +518,7 @@ dbDescribe('T-0747 partner-mode grants', () => {
       expect(second.grant).toEqual({
         state: 'granted',
         mode: 'partner',
-        scopes: ['catalog:write', 'webhooks:write'],
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
         delivered: true,
       });
       const [row] = await q(
@@ -664,7 +664,7 @@ dbDescribe('T-0747 partner-mode grants', () => {
             partner: 'soukbase',
             mode: 'partner',
             state: 'active',
-            scopes: ['catalog:write', 'webhooks:write'],
+            scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
             signed_at: expect.any(String),
             revoked_at: null,
             webhook: {
@@ -916,7 +916,7 @@ dbDescribe('T-0747 partner-mode grants', () => {
       expect(later.grant).toEqual({
         state: 'granted',
         mode: 'partner',
-        scopes: ['catalog:write', 'webhooks:write'],
+        scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
         delivered: true,
       });
       for (const b of [first, later]) {
