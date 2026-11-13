@@ -1,16 +1,16 @@
 # APIbase.pro
 
-> The API Hub for AI Agents — 1386 tools from 401 providers via one MCP endpoint.
+> The API Hub for AI Agents — 1383 tools from 400 providers via one MCP endpoint.
 
 ## What this is
 
-APIbase aggregates 1386 tools from 401 providers into a single
+APIbase aggregates 1383 tools from 400 providers into a single
 Model Context Protocol (MCP) endpoint. Any AI agent can discover, call, and pay
 for tools through one entry point — no provider-by-provider signup, no API-key
 juggling, no per-provider billing.
 
 - **MCP endpoint:** `POST https://apibase.pro/mcp` (Streamable HTTP)
-- **Tool catalog:** `GET https://apibase.pro/api/v1/tools` (all 1386 tools with JSON schemas)
+- **Tool catalog:** `GET https://apibase.pro/api/v1/tools` (all 1383 tools with JSON schemas)
 - **OpenAPI 3.1 spec:** `GET https://apibase.pro/.well-known/openapi.json`
 - **Health:** `GET https://apibase.pro/health/ready`
 
@@ -18,7 +18,7 @@ juggling, no per-provider billing.
 
 Sell to AI agents. One link on your site, and a buyer's agent places and pays the order by itself. USDC settles to your wallet. 0% fee during the pilot.
 
-Merchants connected so far: 11.
+Merchants connected so far: 12.
 
 - Connect AI payment: <https://apibase.pro/integrator>
 - Demo shop: <https://apibase.pro/m/apibase-demo>
