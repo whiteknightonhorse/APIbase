@@ -38,6 +38,9 @@ const TABLES_MPP_SUBSCRIPTION = ['shop_subscription_mpp', 'shop_subscription_mpp
 /** Added by migration 0053_partner_handoffs (T-0739) and 0054_partner_grants (T-0740). */
 const TABLES_PARTNER = ['shop_partner_handoffs', 'shop_partner_grants'];
 
+/** Added by migration 0059_shop_quote_outcomes (T-0826). */
+const TABLES_QUOTE_OUTCOMES = ['shop_quote_outcomes', 'shop_quote_refusals'];
+
 const TABLES_5_1 = [
   'shop_acceptances',
   'shop_connect_events',
@@ -134,6 +137,7 @@ dbDescribe('0025 on a migrated database', () => {
         ...TABLES_WAVE3,
         ...TABLES_MPP_SUBSCRIPTION,
         ...TABLES_PARTNER,
+        ...TABLES_QUOTE_OUTCOMES,
       ].sort(),
     );
     expect(TABLES_5_1).toHaveLength(18);

@@ -164,3 +164,5 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-not-contai
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	a fourth free signature	-	T-0802 superseded count of handoff signatures
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	never who the buyer is	-	T-0825 grant message names quotes:read
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	gains the scope from a valid signature	-	T-0825 upgrade in place answers 200
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	quote-refusals	-	T-0826 partner read of quote outcomes
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	upsert by `quote_id`	-	T-0826 overlap and upsert rule
