@@ -1,4 +1,5 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
+import rateLimit from 'express-rate-limit';
 import {
   getPublicCatalog,
   getToolsPaginated,
@@ -22,8 +23,8 @@ import { toCompact } from '../services/tool-compact';
  *                              ?view=full|compact)
  * GET /api/v1/tools/:toolId  — single tool details, Cache-Control: public, max-age=300 (ZZ-03-03:
  *                              lowered from 3600 — this entry carries live quality.* data)
- * GET /api/v1/discover       — ranked discovery contract (ZZ-03-05), no auth, same
- *                              no-rate-limit posture as /api/tools, Cache-Control: max-age=60
+ * GET /api/v1/discover       — ranked discovery contract (ZZ-03-05), no auth,
+ *                              no rate limiter (in-memory ranking), Cache-Control: max-age=60
  *                              (shorter than the catalog above — ranking depends on live
  *                              quality/availability, not just the static catalog).
  *
@@ -85,41 +86,61 @@ function parseListParams(query: Request['query']): {
     category = q.category;
   }
 
+  if (q.cursor !== undefined && typeof q.cursor !== 'string') {
+    throw new AppError(ErrorCode.BAD_REQUEST, 'cursor must be a single string');
+  }
   const cursor = typeof q.cursor === 'string' ? q.cursor : null;
   return { present, limit, cursor, category, view };
 }
 
+// T-0836: both list routes reach the DB (getToolsPaginated, getPublicCatalogPage), so each lists
+// this limiter literally in its handler array (CodeQL js/missing-rate-limiting). The ceiling is
+// per address and far above any agent that pages through the catalog.
+const TOOL_LIST_LIMIT_PER_MIN = 120;
+const toolListLimiter = rateLimit({
+  windowMs: 60_000,
+  limit: TOOL_LIST_LIMIT_PER_MIN,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: false,
+  message: { error: 'rate_limited', message: 'too many requests from this address' },
+});
+
 // --- Public catalog (§6.15) ---
-toolsRouter.get('/api/tools', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const params = parseListParams(req.query);
-    if (params.present) {
-      const page = await getPublicCatalogPage(
-        params.cursor,
-        params.limit ?? DEFAULT_TOOLS_LIMIT,
-        { category: params.category },
-        params.view === 'compact' ? (entries) => entries.map(toCompact) : undefined,
-      );
-      if (page.tools.length === 0 && !params.cursor && !params.category) {
+toolsRouter.get(
+  '/api/tools',
+  toolListLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = parseListParams(req.query);
+      if (params.present) {
+        const page = await getPublicCatalogPage(
+          params.cursor,
+          params.limit ?? DEFAULT_TOOLS_LIMIT,
+          { category: params.category },
+          params.view === 'compact' ? (entries) => entries.map(toCompact) : undefined,
+        );
+        if (page.tools.length === 0 && !params.cursor && !params.category) {
+          throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
+        }
+        res.setHeader('Cache-Control', 'public, max-age=3600');
+        res.status(200).json(page);
+        return;
+      }
+
+      const catalog = await getPublicCatalog();
+
+      if (catalog.total === 0) {
         throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
       }
+
       res.setHeader('Cache-Control', 'public, max-age=3600');
-      res.status(200).json(page);
-      return;
+      res.status(200).json(catalog);
+    } catch (err) {
+      next(err);
     }
-
-    const catalog = await getPublicCatalog();
-
-    if (catalog.total === 0) {
-      throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
-    }
-
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    res.status(200).json(catalog);
-  } catch (err) {
-    next(err);
-  }
-});
+  },
+);
 
 // --- Paginated tool list ---
 // Optional filters:
@@ -130,49 +151,56 @@ toolsRouter.get('/api/tools', async (req: Request, res: Response, next: NextFunc
 //   ?limit=N            — page size (1..MAX_TOOLS_LIMIT, default DEFAULT_TOOLS_LIMIT)
 //   ?cursor=<b64>       — pagination cursor from previous response
 //   ?view=full|compact  — compact items: id, name, category, price_usd, summary (T-0836)
-toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const params = parseListParams(req.query);
-    const { cursor, category } = params;
-    const rawLimit = params.limit ?? DEFAULT_TOOLS_LIMIT;
+toolsRouter.get(
+  '/api/v1/tools',
+  toolListLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const params = parseListParams(req.query);
+      const { cursor, category } = params;
+      const rawLimit = params.limit ?? DEFAULT_TOOLS_LIMIT;
 
-    let maxPrice: number | undefined;
-    if (typeof req.query.max_price === 'string') {
-      const parsed = Number(req.query.max_price);
-      if (!isFinite(parsed) || parsed < 0) {
-        throw new AppError(ErrorCode.BAD_REQUEST, 'max_price must be a non-negative number');
+      let maxPrice: number | undefined;
+      if (typeof req.query.max_price === 'string') {
+        const parsed = Number(req.query.max_price);
+        if (!isFinite(parsed) || parsed < 0) {
+          throw new AppError(ErrorCode.BAD_REQUEST, 'max_price must be a non-negative number');
+        }
+        maxPrice = parsed;
       }
-      maxPrice = parsed;
-    }
 
-    let tier: 'micro' | 'standard' | 'premium' | undefined;
-    if (typeof req.query.tier === 'string') {
-      if (!['micro', 'standard', 'premium'].includes(req.query.tier)) {
-        throw new AppError(ErrorCode.BAD_REQUEST, 'tier must be one of: micro, standard, premium');
+      let tier: 'micro' | 'standard' | 'premium' | undefined;
+      if (typeof req.query.tier === 'string') {
+        if (!['micro', 'standard', 'premium'].includes(req.query.tier)) {
+          throw new AppError(
+            ErrorCode.BAD_REQUEST,
+            'tier must be one of: micro, standard, premium',
+          );
+        }
+        tier = req.query.tier as 'micro' | 'standard' | 'premium';
       }
-      tier = req.query.tier as 'micro' | 'standard' | 'premium';
-    }
 
-    const result = await getToolsPaginated(cursor, rawLimit, { maxPrice, tier, category });
+      const result = await getToolsPaginated(cursor, rawLimit, { maxPrice, tier, category });
 
-    if (result.data.length === 0 && !cursor && !maxPrice && !tier && !category) {
-      throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
-    }
+      if (result.data.length === 0 && !cursor && !maxPrice && !tier && !category) {
+        throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
+      }
 
-    res.setHeader('Cache-Control', 'public, max-age=3600');
-    if (!params.present) {
-      res.status(200).json(result);
-      return;
+      res.setHeader('Cache-Control', 'public, max-age=3600');
+      if (!params.present) {
+        res.status(200).json(result);
+        return;
+      }
+      res.status(200).json({
+        ...result,
+        data: params.view === 'compact' ? result.data.map(toCompact) : result.data,
+        truncated: result.pagination.has_more,
+      });
+    } catch (err) {
+      next(err);
     }
-    res.status(200).json({
-      ...result,
-      data: params.view === 'compact' ? result.data.map(toCompact) : result.data,
-      truncated: result.pagination.has_more,
-    });
-  } catch (err) {
-    next(err);
-  }
-});
+  },
+);
 
 // --- Definition manifest (T-0500) ---
 // Registered above /:toolId so it is not swallowed by the param route. Pure in-memory: the
@@ -232,7 +260,7 @@ toolsRouter.get(
 
 // --- Categories (T-0835) ---
 // Same function as the MCP tool apibase.categories; reads only the in-memory tool cache joined
-// with TOOL_DEFINITIONS (no query of its own), same no-rate-limit posture as /api/v1/discover.
+// with TOOL_DEFINITIONS (no query of its own), no rate limiter, like /api/v1/discover.
 toolsRouter.get('/api/v1/categories', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const summary = await categorySummary();

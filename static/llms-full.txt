@@ -35,7 +35,8 @@ Site: https://apibase.pro. MCP endpoint: https://apibase.pro/mcp (Streamable HTT
   intent/category/max_price_usd — free ($0), ranked by relevance then quality then price,
   returns pricing/payment rails/availability/quality per match (ZZ-03-05)
 - Discover tools (REST, no auth): GET https://apibase.pro/api/v1/discover?intent=&category=&max_price_usd=&limit=
-- Full catalog: GET https://apibase.pro/api/v1/tools?view=compact&limit=&cursor=&category= (1379 healthy tools; degraded ones are listed with status; JSON schemas)
+- Full catalog: GET https://apibase.pro/api/v1/tools (1379 healthy tools; degraded ones are listed with status; JSON schemas)
+- Bounded tool list: GET https://apibase.pro/api/v1/tools?view=compact&limit=&cursor=&category= (compact items: id, name, category, price_usd, summary; the response carries total and truncated; also on GET /api/tools)
 - OpenAPI spec: GET https://apibase.pro/.well-known/openapi.json
 
 ## Progressive Disclosure

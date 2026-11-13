@@ -48,7 +48,7 @@ function getHandler(path: string): (req: Request, res: Response, next: NextFunct
     }
   ).stack.find((l) => l.route?.path === path);
   if (!layer?.route) throw new Error(`route ${path} not registered`);
-  return layer.route.stack[0].handle as (
+  return layer.route.stack[layer.route.stack.length - 1].handle as (
     req: Request,
     res: Response,
     next: NextFunction,

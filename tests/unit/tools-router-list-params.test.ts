@@ -58,6 +58,11 @@ jest.mock('../../src/services/discovery.service', () => ({
 import { toolsRouter } from '../../src/routes/tools.router';
 import { TOOL_DEFINITIONS } from '../../src/mcp/tool-definitions';
 import { AppError } from '../../src/types/errors';
+import {
+  getPublicCatalog,
+  getToolsPaginated,
+  DEFAULT_TOOLS_LIMIT,
+} from '../../src/services/tool-registry.service';
 import { summarize, toCompact, COMPACT_SUMMARY_MAX } from '../../src/services/tool-compact';
 import type { Request, Response, NextFunction } from 'express';
 
@@ -68,7 +73,7 @@ function getHandler(path: string): (req: Request, res: Response, next: NextFunct
     }
   ).stack.find((l) => l.route?.path === path);
   if (!layer?.route) throw new Error(`route ${path} not registered`);
-  return layer.route.stack[0].handle as (
+  return layer.route.stack[layer.route.stack.length - 1].handle as (
     req: Request,
     res: Response,
     next: NextFunction,
@@ -123,6 +128,17 @@ describe('summarize', () => {
     expect(out.length).toBeLessThanOrEqual(COMPACT_SUMMARY_MAX);
     expect(long.startsWith(out)).toBe(true);
     expect(long[out.length]).toBe(' ');
+  });
+  it('does not stop at an abbreviation', () => {
+    expect(summarize('List vehicle models for a make and/or year (e.g. Honda). Second.')).toBe(
+      'List vehicle models for a make and/or year (e.g. Honda).',
+    );
+    expect(summarize('Get U.S. consumer prices by series. More text.')).toBe(
+      'Get U.S. consumer prices by series.',
+    );
+    expect(summarize('Lists rates, fees, etc. and totals. More.')).toBe(
+      'Lists rates, fees, etc. and totals.',
+    );
   });
   it('is empty for a non-string', () => {
     expect(summarize(undefined)).toBe('');
@@ -241,12 +257,17 @@ describe('GET /api/v1/tools with parameters', () => {
 });
 
 describe('golden: a request without the four parameters is unchanged', () => {
-  it('/api/v1/tools answers { data, total, pagination } with 2000 rows max and no truncated', async () => {
+  it('/api/v1/tools answers byte for byte what getToolsPaginated returns', async () => {
     const { body, status } = await call('/api/v1/tools', {});
     expect(status).toBe(200);
-    expect(Object.keys(body).sort()).toEqual(['data', 'pagination', 'total']);
-    expect(body.pagination.limit).toBe(2000);
-    expect(body.data).toHaveLength(Math.min(2000, mockRows.length));
+    const expected = await getToolsPaginated(null, DEFAULT_TOOLS_LIMIT, {
+      maxPrice: undefined,
+      tier: undefined,
+      category: undefined,
+    });
+    expect(JSON.stringify(body)).toBe(JSON.stringify(expected));
+    expect(Object.keys(body)).toEqual(Object.keys(expected));
+    expect(body).not.toHaveProperty('truncated');
     expect(body.data[0]).toHaveProperty('input_schema');
   });
 
@@ -255,9 +276,13 @@ describe('golden: a request without the four parameters is unchanged', () => {
     expect(body).not.toHaveProperty('truncated');
   });
 
-  it('/api/tools keeps the PublicCatalog keys and no truncated or pagination', async () => {
+  it('/api/tools answers byte for byte what getPublicCatalog returns', async () => {
     const { body, status } = await call('/api/tools', {});
     expect(status).toBe(200);
+    const expected = await getPublicCatalog();
+    // updated_at is the time of the call; every other byte must match
+    const fixed = (o: object) => JSON.stringify({ ...o, updated_at: 'T' });
+    expect(fixed(body)).toBe(fixed(expected));
     expect(Object.keys(body).sort()).toEqual([
       'manifest_sha256',
       'platform',
@@ -266,5 +291,7 @@ describe('golden: a request without the four parameters is unchanged', () => {
       'updated_at',
       'version',
     ]);
+    // full entries, not compact ones
+    expect(body.tools[0]).toHaveProperty('input_schema');
   });
 });

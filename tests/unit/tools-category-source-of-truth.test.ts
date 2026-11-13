@@ -279,7 +279,7 @@ describe('T-0835: categorySummary() over the discover() candidate set', () => {
       }
     ).stack.find((l) => l.route?.path === '/api/v1/categories');
     if (!layer?.route) throw new Error('route /api/v1/categories not registered');
-    const handler = layer.route.stack[0].handle as (
+    const handler = layer.route.stack[layer.route.stack.length - 1].handle as (
       req: Request,
       res: Response,
       next: (e?: unknown) => void,

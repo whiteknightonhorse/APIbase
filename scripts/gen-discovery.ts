@@ -241,16 +241,19 @@ function applyDiscoveryOrder(llms: string, categories: number): string {
 }
 
 /**
- * T-0836: the line of llms.txt that documents the tool list route names the list parameters.
- * Only the URL on the "- Full catalog:" line is rewritten; the counts after it are left to
- * scripts/sync-counts.sh.
+ * T-0836: llms.txt documents the bounded tool list on its own line right after the
+ * "- Full catalog:" line. That line itself is left as it was (counts: scripts/sync-counts.sh).
  */
 function applyToolListParams(llms: string): string {
-  const from = 'GET https://apibase.pro/api/v1/tools ';
-  const to = 'GET https://apibase.pro/api/v1/tools?view=compact&limit=&cursor=&category= ';
+  const marker = '- Bounded tool list:';
+  if (llms.includes(marker)) return llms;
+  const line =
+    marker +
+    ' GET https://apibase.pro/api/v1/tools?view=compact&limit=&cursor=&category= ' +
+    '(compact items: id, name, category, price_usd, summary; the response carries total and truncated; also on GET /api/tools)';
   return llms
     .split('\n')
-    .map((l) => (l.startsWith('- Full catalog:') && l.includes(from) ? l.replace(from, to) : l))
+    .flatMap((l) => (l.startsWith('- Full catalog:') ? [l, line] : [l]))
     .join('\n');
 }
 
