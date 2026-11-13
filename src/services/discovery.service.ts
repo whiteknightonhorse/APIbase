@@ -22,6 +22,7 @@ import { getToolCacheEntries, type ToolCacheEntry } from '../pipeline/stages/too
 import type { McpToolDefinition } from '../mcp/types';
 import type { ShopTx } from '../shop/db';
 import { publicBase } from '../shop/storefront/storefront.service';
+import { categoryOf, summarizeCategories, type CategorySummary } from './category-summary';
 
 /**
  * Discovery service (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1).
@@ -497,6 +498,18 @@ export async function activeCandidateDefs(): Promise<McpToolDefinition[]> {
   return (await candidateEntries()).map((c) => c.def);
 }
 
+/** T-0835: categories of the same candidate set discover() ranks over with include_unavailable=false
+ *  (in-memory tool cache joined with TOOL_DEFINITIONS, no DB query): counts add up to discover()'s
+ *  total_matches with no filter. */
+export async function categorySummary(): Promise<CategorySummary> {
+  return summarizeCategories(
+    (await candidateEntries()).map(({ entry, def }) => ({
+      category: categoryOf(def),
+      price_usd: entry.price_usd,
+    })),
+  );
+}
+
 export async function discover(
   raw: DiscoverQueryInput,
   opts: { shopDb?: ShopTx } = {},
@@ -512,7 +525,7 @@ export async function discover(
 
   const candidates: Candidate[] = [];
   for (const { entry, def } of entries) {
-    const category = def.category ?? 'uncategorized';
+    const category = categoryOf(def);
     if (q.category && category !== q.category) continue;
     if (typeof q.max_price_usd === 'number' && entry.price_usd > q.max_price_usd) continue;
 

@@ -1,6 +1,7 @@
 import { BaseAdapter } from '../base.adapter';
 import { type ProviderRequest, type ProviderRawResponse } from '../../types/provider';
-import { discover, type DiscoverResponse } from '../../services/discovery.service';
+import { discover, categorySummary, type DiscoverResponse } from '../../services/discovery.service';
+import type { CategorySummary } from '../../services/category-summary';
 import { logger } from '../../config/logger';
 
 /**
@@ -33,9 +34,12 @@ export class ApibaseAdapter extends BaseAdapter {
   async call(req: ProviderRequest): Promise<ProviderRawResponse> {
     const start = performance.now();
     const params = req.params as Record<string, unknown>;
-    let data: DiscoverResponse;
+    let data: DiscoverResponse | CategorySummary;
 
     switch (req.toolId) {
+      case 'apibase.categories':
+        data = await categorySummary();
+        break;
       case 'apibase.discover':
         data = await discover({
           intent: params.intent as string | undefined,
@@ -59,7 +63,11 @@ export class ApibaseAdapter extends BaseAdapter {
 
     const durationMs = Math.round(performance.now() - start);
     logger.info(
-      { tool_id: req.toolId, duration_ms: durationMs, total_matches: data.total_matches },
+      {
+        tool_id: req.toolId,
+        duration_ms: durationMs,
+        total_matches: 'total_matches' in data ? data.total_matches : data.total_tools,
+      },
       'Discovery query completed',
     );
 

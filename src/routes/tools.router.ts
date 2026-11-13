@@ -4,7 +4,7 @@ import {
   getToolsPaginated,
   getToolById,
 } from '../services/tool-registry.service';
-import { discover } from '../services/discovery.service';
+import { discover, categorySummary } from '../services/discovery.service';
 import { AppError, ErrorCode } from '../types/errors';
 import { TOOL_DEFINITIONS } from '../mcp/tool-definitions';
 import { getManifest } from '../mcp/tool-fingerprint';
@@ -20,6 +20,10 @@ import { getManifest } from '../mcp/tool-fingerprint';
  *                              no-rate-limit posture as /api/tools, Cache-Control: max-age=60
  *                              (shorter than the catalog above — ranking depends on live
  *                              quality/availability, not just the static catalog).
+ *
+ * GET /api/v1/categories    — categories with tool counts and price range (T-0835), no auth,
+ *                              in-memory only, Cache-Control: max-age=60; same object as the
+ *                              MCP tool apibase.categories.
  *
  * All three catalog entries additionally carry `quality` (ZZ-03-03: provider_status + per-tool
  * Redis quality, additive, never breaking a pre-existing consumer).
@@ -52,7 +56,8 @@ toolsRouter.get('/api/tools', async (_req: Request, res: Response, next: NextFun
 // Optional filters:
 //   ?max_price=N        — only tools with price_usd <= N (e.g. "0.01")
 //   ?tier=micro|standard|premium — bucketed price tier (tier wins over max_price)
-//   ?category=<name>    — one of TOOL_DEFINITIONS[].category's 25 values (ZZ-03-01)
+//   ?category=<name>    — a category present in TOOL_DEFINITIONS (ZZ-03-01); one with no active tool
+//                         is valid and returns zero rows
 //   ?limit=N            — page size (1..1000, default 1000)
 //   ?cursor=<b64>       — pagination cursor from previous response
 toolsRouter.get('/api/v1/tools', async (req: Request, res: Response, next: NextFunction) => {
@@ -160,6 +165,22 @@ toolsRouter.get(
     }
   },
 );
+
+// --- Categories (T-0835) ---
+// Same function as the MCP tool apibase.categories; reads only the in-memory tool cache joined
+// with TOOL_DEFINITIONS (no query of its own), same no-rate-limit posture as /api/v1/discover.
+toolsRouter.get('/api/v1/categories', async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const summary = await categorySummary();
+    if (summary.total_tools === 0) {
+      throw new AppError(ErrorCode.SERVICE_UNAVAILABLE, 'No tools available');
+    }
+    res.setHeader('Cache-Control', 'public, max-age=60');
+    res.status(200).json(summary);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // --- Discovery contract (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1) ---
 // Query params:

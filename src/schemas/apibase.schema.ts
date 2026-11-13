@@ -41,6 +41,10 @@ const discoverTool = z
   })
   .strip();
 
+// T-0835: apibase.categories takes no arguments.
+const categoriesTool = z.object({}).strip();
+
 export const apibaseSchemas: Record<string, ZodSchema> = {
+  'apibase.categories': categoriesTool,
   'apibase.discover': discoverTool,
 };

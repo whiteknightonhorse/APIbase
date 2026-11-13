@@ -4838,6 +4838,17 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     category: 'developer',
     annotations: READ_ONLY,
   },
+  // T-0835: step one of the discovery order — a small list of categories with tool counts and price
+  // range, from the same candidate set apibase.discover ranks over (GET /api/v1/categories).
+  {
+    toolId: 'apibase.categories',
+    mcpName: 'apibase.discovery.categories',
+    title: 'List Tool Categories',
+    description:
+      'List every tool category with its tool count and price range (min, median, max in USD), sorted by name. Call this first, then apibase.discover with a category. Free, no charge (APIbase)',
+    category: 'developer',
+    annotations: READ_ONLY,
+  },
 
   // ---------------------------------------------------------------------------
   // TheirStack — Job Market Intelligence (UC-254, 2 tools)

@@ -35,6 +35,7 @@ import { buildPriceRange, type PriceRange } from './price-range';
 import { computeMcpCounts } from './count-mcp-tools';
 import { buildIntegratorBlock as buildIntegratorFacts } from '../src/shop/integrator/facts';
 import { buildLlmsFull } from './llms-full';
+import { categoryOf } from '../src/services/category-summary';
 
 const prisma = new PrismaClient();
 const ROOT = resolve(__dirname, '..');
@@ -165,7 +166,7 @@ function buildCategoryStats(
 ): CategoryStat[] {
   const byCategory = new Map<string, { count: number; providers: Set<string> }>();
   for (const def of activeDefs) {
-    const cat = def.category ?? 'other';
+    const cat = categoryOf(def);
     let entry = byCategory.get(cat);
     if (!entry) {
       entry = { count: 0, providers: new Set() };
@@ -215,6 +216,28 @@ function buildIntegratorBlock(): Record<string, unknown> {
     if (committed && typeof committed === 'object') return committed as Record<string, unknown>;
   }
   return buildIntegratorFacts(process.env);
+}
+
+/**
+ * T-0835: the one canonical statement of the discovery order lives in the "Progressive Disclosure"
+ * section of static/llms.txt and is written here, never by hand. The block starts at the line
+ * "Discovery order" and ends before the line "All tools remain callable"; a missing block is
+ * inserted before that line. The category count is the same number GET /api/v1/categories returns.
+ */
+function applyDiscoveryOrder(llms: string, categories: number): string {
+  const block = [
+    'Discovery order (the first two steps are free):',
+    `1. apibase.categories (GET /api/v1/categories): the ${categories} categories with tool counts and price range`,
+    '2. apibase.discover with category, max_price_usd and limit (GET /api/v1/discover): ranked matches with price, rails, availability and quality',
+    '3. The one tool: tools/call by name; its full definition is at GET /api/v1/tools/<id>',
+  ].join('\n');
+  const lines = llms.split('\n');
+  const end = lines.findIndex((l) => l.startsWith('All tools remain callable'));
+  if (end < 0) throw new Error('gen-discovery: llms.txt has no "All tools remain callable" line');
+  let start = lines.findIndex((l) => l.startsWith('Discovery order'));
+  if (start < 0 || start > end) start = end;
+  lines.splice(start, end - start, ...block.split('\n'));
+  return lines.join('\n');
 }
 
 function today(): string {
@@ -774,6 +797,11 @@ access for the rare cases that need it.
       }),
     )
   )
+    changed++;
+
+  // T-0835: the discovery order paragraph of llms.txt (the only hand-free statement of the order).
+  const llmsPath = resolve(ROOT, 'static/llms.txt');
+  if (writeTextIfChanged(llmsPath, applyDiscoveryOrder(readFileSync(llmsPath, 'utf8'), CATS)))
     changed++;
 
   // T-0591: llms.txt + the Markdown pages it links, regenerated after every other writer has run.

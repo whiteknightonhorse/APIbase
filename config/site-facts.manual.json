@@ -62,5 +62,11 @@
     "source": "src/shop/routes/legal.router.ts",
     "anchor": "/legal/index.next.json",
     "ruling": "T-0669 (TESTS-APPEND-1102)"
+  },
+  "categories_call": {
+    "value": "GET /api/v1/categories and MCP tool apibase.categories (free): category, tool count and price min/median/max, same object on both",
+    "source": "src/routes/tools.router.ts",
+    "anchor": "/api/v1/categories",
+    "ruling": "T-0835 (APIBASE-R4-REQ-1113 ruling-1)"
   }
 }

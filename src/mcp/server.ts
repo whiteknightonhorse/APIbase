@@ -191,10 +191,11 @@ const SERVER_OPTIONS = {
   capabilities: { tools: {}, prompts: {} },
   instructions:
     'APIbase is an MCP gateway for AI agents. Authenticate with Bearer <api_key> header. ' +
-    'Start by calling the apibase.discover tool with your intent (or category/max_price_usd) ' +
-    'to find relevant tools — it is free and returns pricing, payment rails, live ' +
-    'availability, and quality for each match. Use tools/list only once you already know ' +
-    'which tool_id you need. All tools are pay-per-call via x402 micropayments (USDC). ' +
+    'Find a tool in three steps: apibase.categories (free, lists the categories), then ' +
+    'apibase.discover with category, max_price_usd and limit (free, returns pricing, payment rails, ' +
+    'live availability and quality per match), then call the one tool by name with tools/call ' +
+    '(its full definition is at GET /api/v1/tools/<id>). Use tools/list only once you already ' +
+    'know which tool_id you need. All tools are pay-per-call via x402 micropayments (USDC). ' +
     'Use prompts/list for workflow templates.',
 } as const;
 
