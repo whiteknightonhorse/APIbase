@@ -1360,9 +1360,6 @@ wits-trade.trade_stats	wits-trade	0.002
 wmo-weather.city_search	wmo-weather	0.001
 wmo-weather.climate_normals	wmo-weather	0.001
 wmo-weather.forecast	wmo-weather	0.002
-world-bank-cckp.climate_normal	world-bank-cckp	0.001
-world-bank-cckp.climate_projection	world-bank-cckp	0.001
-world-bank-cckp.extreme_indices	world-bank-cckp	0.002
 worldbank.indicators	worldbank	0.001
 worldclock.convert	timeapi	0.001
 worldclock.current	timeapi	0.001
