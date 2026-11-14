@@ -132,7 +132,7 @@ dbDescribe('storefront MCP, discovery, connection check (INT-16)', () => {
       id,
     );
     await x(
-      `UPDATE shop_merchants SET status = 'active', domain_verified = true, payout_wallet_base = $2, name = $3, category = $4,
+      `UPDATE shop_merchants SET status = 'active', payout_wallet_base = $2, name = $3, category = $4,
               created_at = now() - interval '90 days', contact_email = $5
         WHERE merchant_id = $1::uuid`,
       id,
