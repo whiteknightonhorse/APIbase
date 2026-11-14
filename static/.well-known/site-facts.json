@@ -157,10 +157,6 @@
     "carbonintensity.regional": "healthy",
     "carmarket.listing": "healthy",
     "carmarket.search": "healthy",
-    "cbs.catalog_search": "healthy",
-    "cbs.table_data": "healthy",
-    "cbs.table_info": "healthy",
-    "cbs.table_properties": "healthy",
     "cdc.datasets": "healthy",
     "cdc.query": "healthy",
     "cdc_chronic.indicators": "healthy",
@@ -584,11 +580,6 @@
     "listennotes.best": "healthy",
     "listennotes.podcast": "healthy",
     "listennotes.search": "healthy",
-    "lmpr.boxed_beef_cutout": "healthy",
-    "lmpr.cattle_slaughter_prices": "healthy",
-    "lmpr.dairy_product_prices": "healthy",
-    "lmpr.hog_slaughter_prices": "healthy",
-    "lmpr.lamb_carcass_cutout": "healthy",
     "loc.collections": "healthy",
     "loc.item": "healthy",
     "loc.search": "healthy",
@@ -1213,7 +1204,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 401,
+  "providers_count": 399,
   "rails": [
     "x402",
     "mpp",
@@ -1247,7 +1238,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1358,
+      "count": 1349,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1261,6 +1252,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1386,
+  "tools_count": 1377,
   "version": "2.2.0"
 }

@@ -165,10 +165,6 @@ carbonintensity.generation	carbon-intensity-uk	0.001
 carbonintensity.regional	carbon-intensity-uk	0.001
 carmarket.listing	marketcheck	0.0104
 carmarket.search	marketcheck	0.0104
-cbs.catalog_search	cbs	0.001
-cbs.table_data	cbs	0.002
-cbs.table_info	cbs	0.001
-cbs.table_properties	cbs	0.001
 cdc.datasets	cdc	0.001
 cdc.query	cdc	0.001
 cdc_chronic.indicators	cdc-chronic	0.002
@@ -725,11 +721,6 @@ lichess.user_profile	lichess	0.001
 listennotes.best	listennotes	0.002
 listennotes.podcast	listennotes	0.002
 listennotes.search	listennotes	0.003
-lmpr.boxed_beef_cutout	lmpr	0.001
-lmpr.cattle_slaughter_prices	lmpr	0.001
-lmpr.dairy_product_prices	lmpr	0.001
-lmpr.hog_slaughter_prices	lmpr	0.001
-lmpr.lamb_carcass_cutout	lmpr	0.001
 loc.collections	loc	0.001
 loc.item	loc	0.001
 loc.search	loc	0.002
