@@ -29,7 +29,7 @@ chmod +x "$T/api-ok"; export FAKE_ARGS="$T/args" FAKE_STDIN="$T/stdin"
 
 # 4b. full review that merely mentions "weekly limit" (verdict present): never overflowed, marker not consumed
 printf 'R1 [Noted] x - 0590 parks on weekly limit text\nfine\nACCEPT\n' > "$T/ans"; rm -f "$T/args"
-API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-4 "$TODAY" fable && bad "overflowed a real verdict" || ok "real verdict mentioning weekly limit kept"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-4 "$TODAY" fable && bad "overflowed a real verdict" || ok "real verdict mentioning weekly limit kept"
 [ -e "$STATE/T-4.overflow-used" ] && bad "once-marker consumed" || ok "once-marker not consumed"
 [ -e "$T/args" ] && bad "api-call ran on real verdict" || ok "no api-call on real verdict"
 

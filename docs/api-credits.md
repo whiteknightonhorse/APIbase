@@ -12,7 +12,7 @@ All numbers live in `config/api-credits.json`.
 
 | Lane | Use | Cycle cap | Allowed models |
 |---|---|---|---|
-| overflow | Fable acceptance reviews after real limit text; also $8/day | $45 | `claude-fable-5-1` |
+| overflow | Fable acceptance reviews after real limit text; also $8/day | $45 | `claude-fable-5-2` |
 | demo | one outside-buyer run per day | $30 | `claude-sonnet-5-5` |
 | batch | async batch work | $55 | `claude-haiku-5-5`, `claude-sonnet-5-5` |
 | sweep | idempotent end-of-cycle work | $50 | `claude-haiku-5-5`, `claude-sonnet-5-5` |
@@ -119,7 +119,7 @@ sourced by `taskloop.sh`.
   Telegram is told at most once per hour, and the site aborts (the tick logs `API key present in OAuth path — tick aborted` and exits). `tests/api-key-guard-coverage.test.sh` fails on any `claude --print` site without the guard.
 - Fable acceptance overflow: right after the acceptance review call, when the answer is a limit hit (no verdict, at most 5 non-empty lines, matching `hit your session limit` or
   `weekly limit`; a full review that merely mentions the phrase is never overflowed), `api_overflow_run` re-runs the identical prompt once per card through
-  `api-call --lane overflow --model claude-fable-5-1 --max-turns 1`. On success the answer is the acceptance answer and
+  `api-call --lane overflow --model claude-fable-5-2 --max-turns 1`. On success the answer is the acceptance answer and
   `state/passes-<date>.fable.api` is incremented; on exit 75 or any failure nothing changes and the card-0590 outage branch
   (host-wide marker, park) runs as before. Sonnet work passes and dispatcher calls are never overflowed.
 

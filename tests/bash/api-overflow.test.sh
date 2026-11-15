@@ -29,32 +29,32 @@ caller(){ api_overflow_run "$@" || MARK=1; }
 
 # 1. injected limit answer, api-call ok -> overflow made, .api +1, answer replaced, no park marker
 echo "You've hit your session limit · resets 5pm" > "$T/ans"
-API_CALL_BIN="$T/api-ok" caller "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-1 "$TODAY" fable
+API_CALL_BIN="$T/api-ok" caller "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-1 "$TODAY" fable
 [ "$MARK" = 0 ] && ok "no park marker on overflow success" || bad "marker written"
 [ "$(cat "$T/ans")" = ACCEPT ] && ok "answer replaced by API answer" || bad "answer"
 [ "$(cat "$STATE/passes-$TODAY.fable.api")" = 1 ] && ok ".api counter +1" || bad ".api counter"
-grep -q -- '--lane overflow --model claude-fable-5-1 --max-turns 1' "$T/args" && ok "overflow call args" || bad "args: $(cat "$T/args")"
+grep -q -- '--lane overflow --model claude-fable-5-2 --max-turns 1' "$T/args" && ok "overflow call args" || bad "args: $(cat "$T/args")"
 [ "$(cat "$T/stdin")" = "the review prompt" ] && ok "identical prompt re-run" || bad "prompt"
 
 # 2. second attempt for the same card: no second overflow
 echo "weekly limit reached" > "$T/ans"; rm -f "$T/args"
-API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-1 "$TODAY" fable && bad "second overflow" || ok "at most one overflow per card"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-1 "$TODAY" fable && bad "second overflow" || ok "at most one overflow per card"
 [ -e "$T/args" ] && bad "api-call ran twice" || ok "no second api-call"
 
 # 3. api-call exit 75 -> park path unchanged (rc 1, answer untouched, counter untouched)
 MARK=0; echo "weekly limit reached" > "$T/ans"
-API_CALL_BIN="$T/api-75" caller "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-2 "$TODAY" fable
+API_CALL_BIN="$T/api-75" caller "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-2 "$TODAY" fable
 [ "$MARK" = 1 ] && ok "exit 75 -> park marker path as today" || bad "no park on 75"
 grep -q 'weekly limit' "$T/ans" && ok "answer untouched on 75" || bad "answer changed"
 [ "$(cat "$STATE/passes-$TODAY.fable.api")" = 1 ] && ok ".api counter unchanged on 75" || bad "counter on 75"
 
 # 4. non-limit answer: never overflowed
 echo "ACCEPT" > "$T/ans"; rm -f "$T/args"
-API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-3 "$TODAY" fable && bad "overflowed a normal answer" || ok "normal answer not overflowed"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-3 "$TODAY" fable && bad "overflowed a normal answer" || ok "normal answer not overflowed"
 
 # 4b. full review that merely mentions "weekly limit" (verdict present): never overflowed, marker not consumed
 printf 'R1 [Noted] x - 0590 parks on weekly limit text\nfine\nACCEPT\n' > "$T/ans"; rm -f "$T/args"
-API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-1 "$STATE" T-4 "$TODAY" fable && bad "overflowed a real verdict" || ok "real verdict mentioning weekly limit kept"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-4 "$TODAY" fable && bad "overflowed a real verdict" || ok "real verdict mentioning weekly limit kept"
 [ -e "$STATE/T-4.overflow-used" ] && bad "once-marker consumed" || ok "once-marker not consumed"
 [ -e "$T/args" ] && bad "api-call ran on real verdict" || ok "no api-call on real verdict"
 

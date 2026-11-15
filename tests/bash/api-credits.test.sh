@@ -65,7 +65,7 @@ echo '{"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":40}
 {"ts":"2026-11-10T00:00:00Z","lane":"overflow","cost_usd":10}
 {"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":44}' > "$LEDGER"
 expect_rc 75 "demo at total 163 refused" "$D/api-call" --lane demo --model claude-sonnet-5-5 --max-turns 1 -- claude -p x
-expect_rc 0 "overflow at total 163 proceeds" "$D/api-call" --lane overflow --model claude-fable-5-1 --max-turns 1 -- claude -p x
+expect_rc 0 "overflow at total 163 proceeds" "$D/api-call" --lane overflow --model claude-fable-5-2 --max-turns 1 -- claude -p x
 
 # 5. other guards
 rm -f "$LEDGER"
@@ -75,18 +75,18 @@ expect_rc 75 "max-turns missing (batch)" "$D/api-call" --lane batch --model clau
 API_CREDITS_NOW="2026-12-06T00:00:00Z" expect_rc 75 "after cycle end" "${CALL[@]}"
 API_CREDITS_NOW="2026-11-07T23:59:59Z" expect_rc 75 "before cycle start" "${CALL[@]}"
 echo '{"ts":"2026-11-20T01:00:00Z","lane":"overflow","cost_usd":8}' > "$LEDGER"
-expect_rc 75 "overflow daily cap 8" "$D/api-call" --lane overflow --model claude-fable-5-1 --max-turns 1 -- claude -p x
+expect_rc 75 "overflow daily cap 8" "$D/api-call" --lane overflow --model claude-fable-5-2 --max-turns 1 -- claude -p x
 rm -f "$LEDGER"
 expect_rc 75 "--model= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --model=claude-opus-5-5
 expect_rc 75 "--output-format= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --output-format=text
 expect_rc 75 "--max-turns= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --max-turns=99
 touch "$API_LEDGER_DIR/HALT"
 expect_rc 75 "HALT refuses batch" "${CALL[@]}"
-expect_rc 0 "HALT does not stop overflow" "$D/api-call" --lane overflow --model claude-fable-5-1 --max-turns 1 -- claude -p x
+expect_rc 0 "HALT does not stop overflow" "$D/api-call" --lane overflow --model claude-fable-5-2 --max-turns 1 -- claude -p x
 rm -f "$API_LEDGER_DIR/HALT"
 touch "$API_LEDGER_DIR/HALT-fleet-total"
 expect_rc 75 "HALT-fleet-total refuses batch like HALT" "${CALL[@]}"
-expect_rc 0 "HALT-fleet-total does not stop overflow" "$D/api-call" --lane overflow --model claude-fable-5-1 --max-turns 1 -- claude -p x
+expect_rc 0 "HALT-fleet-total does not stop overflow" "$D/api-call" --lane overflow --model claude-fable-5-2 --max-turns 1 -- claude -p x
 rm -f "$API_LEDGER_DIR/HALT-fleet-total" "$LEDGER"
 
 # 6. spend, alerts, rollover
@@ -170,7 +170,7 @@ chmod 644 "$API_KEY_FILE"; expect_rc 75 "api-batch: key file 0644" "${BATCH[@]}"
 touch "$API_LEDGER_DIR/HALT"; expect_rc 75 "api-batch: HALT" "${BATCH[@]}"; rm -f "$API_LEDGER_DIR/HALT"
 touch "$API_LEDGER_DIR/HALT-fleet-total"; expect_rc 75 "api-batch: HALT-fleet-total" "${BATCH[@]}"; rm -f "$API_LEDGER_DIR/HALT-fleet-total"
 echo '{"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":55}' >> "$LEDGER"; expect_rc 75 "api-batch: lane cap" "${BATCH[@]}"
-expect_rc 75 "api-batch: wrong model" "$D/api-batch" submit --lane batch --model claude-fable-5-1 --jobs "$T/jobs.jsonl"
+expect_rc 75 "api-batch: wrong model" "$D/api-batch" submit --lane batch --model claude-fable-5-2 --jobs "$T/jobs.jsonl"
 expect_rc 75 "api-batch: lane demo refused" "$D/api-batch" submit --lane demo --model claude-sonnet-5-5 --jobs "$T/jobs.jsonl"
 rm -f "$LEDGER"
 
