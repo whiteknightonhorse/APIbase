@@ -36,7 +36,7 @@ api-call --lane {overflow|demo|batch|sweep} --model <id> --max-turns N [-- claud
 
 Prints the result text on stdout. Runs `claude -p --output-format json --model <id> --max-turns N [--max-budget-usd B]` with the key in the child
 environment only, plus `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1` so the CLI strips the key from its tool subprocesses (Bash, hooks, MCP).
-`B` is `call_budget_usd.<lane>` (overflow $6). Callers cannot pass `--output-format`, `--model`, `--max-turns` or `--max-budget-usd` after `--`, in either the `--flag value` or the `--flag=value` form.
+`B` is `call_budget_usd.<lane>` (overflow $6), added only when `claude --help` lists the flag. Callers cannot pass `--output-format`, `--model`, `--max-turns` or `--max-budget-usd` after `--`, in either the `--flag value` or the `--flag=value` form.
 
 Exit 75 means refused (one line on stderr, no child process, no network call). A refusal is never an error: the caller falls back to
 subscription behaviour. Other non-zero codes are call failures. Refusal reasons, in check order:
@@ -128,6 +128,7 @@ sourced by `taskloop.sh`.
   without the verdict condition, for dispute and consult answers. The once file is `state/<card>.overflow-used-<once-key>` (default key `review`). On success the answer is used and
   `state/passes-<date>.fable.api` is incremented; on exit 75 or any failure nothing changes and the card-0590 outage branch (host-wide marker, park) runs as before. The fallback covers Fable
   acceptance reviews, Fable dispute rulings and dispatcher consults, once per card, attempt and kind, and never Sonnet or Opus work passes, the stuck arbiter or orchestra calls.
+- Tool-running child: an `api-call` child that must run tools needs `bwrap` and `socat` on the host, and the caller must pass explicit `--allowedTools` (or a settings allow rule), because the scrub variable forces the permission mode to default.
 
 Test: `tests/bash/api-overflow.test.sh`.
 

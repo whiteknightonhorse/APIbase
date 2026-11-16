@@ -14,6 +14,7 @@ FAKEVAL="fake-credential-value-0123456789"
 mkdir -p "$API_LEDGER_DIR"
 cat > "$T/claude" <<'EOF'
 #!/usr/bin/env bash
+[ "${1:-}" = "--help" ] && { echo "  --max-budget-usd <amount>  Maximum dollar amount"; exit 0; }
 echo "$@" > "${FAKE_ARGS:-/dev/null}"
 echo "${CLAUDE_CODE_SUBPROCESS_ENV_SCRUB:-unset}" > "${FAKE_SCRUB:-/dev/null}"
 [ -n "${ANTHROPIC_API_KEY:-}" ] && echo yes > "${FAKE_SAW_KEY:-/dev/null}"
@@ -215,6 +216,9 @@ grep -q -- '--max-turns 40 --max-budget-usd 6 --settings S' "$T/args" && ok "def
 expect_rc 0 "overflow --max-turns 60 allowed" "${OV[@]}" --max-turns 60
 expect_rc 75 "overflow --max-turns 61 refused" "${OV[@]}" --max-turns 61
 grep -q 'over the lane limit' "$T/err" && ok "turn-limit refusal text" || bad "turn-limit text"
+printf '#!/usr/bin/env bash\n[ "${1:-}" = "--help" ] && { echo "  --model <m>"; exit 0; }\necho "$@" > "$FAKE_ARGS"\necho %s\n' "'{\"type\":\"result\",\"is_error\":false,\"result\":\"pong\",\"total_cost_usd\":0.01}'" > "$T/claude-nobudget"; chmod +x "$T/claude-nobudget"
+( export API_CALL_CLAUDE_BIN="$T/claude-nobudget"; "${OV[@]}" --max-turns 1 >/dev/null 2>&1 )
+grep -q -- 'max-budget-usd' "$T/args" && bad "budget flag added on a CLI without it" || ok "no --max-budget-usd when claude --help does not list it"
 expect_rc 75 "--max-budget-usd refused from the caller" "${OV[@]}" -- --max-budget-usd 99
 rm -f "$LEDGER"; touch "$API_LEDGER_DIR/HALT-overflow"
 expect_rc 75 "HALT-overflow refuses overflow" "${OV[@]}" --max-turns 1

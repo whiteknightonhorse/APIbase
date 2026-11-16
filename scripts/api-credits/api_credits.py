@@ -210,6 +210,15 @@ def append_ledger(start, row):
         os.close(fd)
 
 
+def cli_has_flag(flag):
+    """True when `claude --help` lists the flag (the budget flag is added only on a CLI that has it)."""
+    try:
+        p = subprocess.run([CLAUDE_BIN, "--help"], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return False
+    return flag in p.stdout.decode("utf-8", "replace")
+
+
 def cmd_call(argv):
     lane = model = None
     max_turns = None
@@ -250,7 +259,7 @@ def cmd_call(argv):
             return refuse("caller may not pass " + f)
     cmd = [CLAUDE_BIN, "-p", "--output-format", "json", "--model", model, "--max-turns", str(max_turns)]
     budget = cfg.get("call_budget_usd", {}).get(lane)
-    if budget is not None:
+    if budget is not None and cli_has_flag("--max-budget-usd"):
         cmd += ["--max-budget-usd", str(budget)]
     cmd += extra
     env = dict(os.environ)
