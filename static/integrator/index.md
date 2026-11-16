@@ -122,7 +122,7 @@ Short answers to what shop owners ask first.
 - What if a payment is slow? The order stays `PAYING` (202 `payment_pending`) and a job reconciles it against the chain.
 - What if the buyer's agent pays twice or retries? One order accepts one payment; a retry with the same payment identifier gets the same answer; a stuck attempt resolves itself within minutes; a failed attempt is re-checked on chain for a few minutes; if it did land after all, see the next question.
 - What if a buyer's agent pays my order twice, or a payment lands after the order expired? The money reached your payout wallet, so you refund it: APIbase opens a refund request marked 'duplicate payment' on the order, payable to the paying wallet within 7 days from your payout wallet (the same flow as any refund; the buyer sees it on the order). APIbase returns its own fee share of that payment automatically, if a fee was taken. Your order and your sale are untouched.
-- When does my shop appear in the public shop index? Your shop appears in the public index once your domain is verified; before that its storefront page works by direct link.
+- When does my shop appear in the public shop index? Your shop appears in the public index once your domain is verified; before that its storefront page works by direct link. How to verify: /integrator/docs (Domain verification).
 - Who is APIbase in this deal? Read /legal/merchant-agreement: APIbase is a technology intermediary, and the fee is charged to the seller.
 - Who bears an order an agent placed by mistake? An order placed by a buyer's agent binds the buyer it acts for, and an on-chain payment is irreversible. A refund of such an order follows your published refund policy and /legal/refund-framework.
 

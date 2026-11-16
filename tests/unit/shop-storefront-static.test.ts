@@ -46,3 +46,24 @@ describe('PG11 /catalog', () => {
     expect(read('scripts/gen-catalog-page.ts')).toMatch(/<h2>Shops<\/h2>[\s\S]*href="\/shops"/);
   });
 });
+
+describe('T-0860 demo shop domain proof', () => {
+  it('static/.well-known/apibase-merchant.txt is exactly the demo slug', () => {
+    expect(read('static/.well-known/apibase-merchant.txt')).toBe('apibase-demo\n');
+  });
+  it('nginx serves it as plain text before the generic .well-known prefix block', () => {
+    const conf = read('nginx/nginx.conf');
+    const exact = conf.indexOf('location = /.well-known/apibase-merchant.txt');
+    expect(exact).toBeGreaterThan(-1);
+    expect(exact).toBeLessThan(conf.indexOf('location /.well-known/ {'));
+    expect(conf).toMatch(
+      /location = \/\.well-known\/apibase-merchant\.txt \{\s*root \/var\/www\/static;\s*default_type text\/plain;\s*\}/,
+    );
+  });
+  it('the docs state how to verify, once', () => {
+    expect(read('static/integrator/docs.md')).toContain('**Domain verification.**');
+    expect(read('static/integrator/index.md')).toContain(
+      'How to verify: /integrator/docs (Domain verification).',
+    );
+  });
+});
