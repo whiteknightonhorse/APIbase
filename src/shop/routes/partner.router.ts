@@ -17,12 +17,12 @@ import { isInactiveMerchant, merchantInactiveError } from '../auth/merchant-key.
 import { upsertCatalog } from '../catalog.service';
 import { defaultShopDeps, toApiError } from '../merchant-lifecycle.service';
 import type { WebhookDeps } from '../webhook/webhook.service';
+import { liveGrantFor, partnerGrants, rotatePartnerWebhookSecret } from '../partner/grant.service';
 import {
-  liveGrantFor,
-  partnerGrants,
-  rotatePartnerWebhookSecret,
-  type PartnerRef,
-} from '../partner/grant.service';
+  issuePartnerPageText,
+  registerByPartnerPage,
+  type PagePartner,
+} from '../partner/one-signature.service';
 import { partnerQuoteRefusals, partnerQuotes } from '../partner/quote-outcomes-read.service';
 import {
   createHandoff,
@@ -33,7 +33,7 @@ import {
 
 declare module 'express-serve-static-core' {
   interface Request {
-    partner?: { id: string; name: string; return_url: string } & PartnerRef;
+    partner?: { id: string; name: string; return_url: string } & PagePartner;
   }
 }
 
@@ -73,9 +73,12 @@ export function requirePartnerKey(list: () => readonly Partner[] = registry) {
       id: p.id,
       name: p.name,
       return_url: p.return_url,
+      site: p.site,
       grant_mode: p.grant_mode,
       delivery_webhook_url: p.delivery_webhook_url,
       delivery_events: p.delivery_events ? [...p.delivery_events] : undefined,
+      seller_keys: p.seller_keys ?? 'shown',
+      partner_page_signature: p.partner_page_signature === true,
     };
     next();
   };
@@ -123,8 +126,8 @@ export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
       res.setHeader('Retry-After', String(Math.ceil(ra)));
     res.status(status).json(body);
   };
-  const me = (req: Request): PartnerRef & { id: string; name: string } =>
-    req.partner ?? { id: '', name: '', grant_mode: 'key' };
+  const me = (req: Request): PagePartner =>
+    req.partner ?? { id: '', name: '', site: '', grant_mode: 'key' };
 
   router.post(
     '/api/v1/shop/partners/handoffs',
@@ -242,6 +245,39 @@ export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
         res.json(await rotatePartnerWebhookSecret(deps(), me(req), req.params.slug));
       } catch (e) {
         send(req, res, e, 'partner webhook rotate failed');
+      }
+    },
+  );
+
+  // T-0871 (REQUEST-SOUKBASE-R5-3-1116 ruling-1): the one registration signature collected on the
+  // partner's own page. The text first, then the signature relayed with the partner key. Never logs
+  // the wallet, the signature, the message or seller_ip (send() logs only the error and the partner id).
+  router.post(
+    '/api/v1/shop/partners/handoffs/:id/signature-text',
+    probeLimiter,
+    writeLimiter,
+    guard,
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await issuePartnerPageText(deps(), me(req), req.params.id, req.body));
+      } catch (e) {
+        send(req, res, e, 'partner page signature text failed');
+      }
+    },
+  );
+
+  router.post(
+    '/api/v1/shop/partners/handoffs/:id/registration',
+    probeLimiter,
+    writeLimiter,
+    guard,
+    async (req: Request, res: Response) => {
+      try {
+        res
+          .status(201)
+          .json(await registerByPartnerPage(deps(), me(req), req.params.id, req.body, {}));
+      } catch (e) {
+        send(req, res, e, 'partner page registration failed');
       }
     },
   );

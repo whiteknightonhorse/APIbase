@@ -59,7 +59,8 @@ const PREFILL_RULES: Record<keyof Prefill, (v: string) => boolean> = {
   slug: (v) => SLUG_RE.test(v),
 };
 
-const PREFILL_KEYS = Object.keys(PREFILL_RULES) as Array<keyof Prefill>;
+/** The six prefill keys, in this order (T-0871: the partner-page path requires all six). */
+export const PREFILL_KEYS = Object.keys(PREFILL_RULES) as Array<keyof Prefill>;
 
 export function validateHandoffInput(body: unknown): HandoffInput {
   if (body === null || typeof body !== 'object' || Array.isArray(body))

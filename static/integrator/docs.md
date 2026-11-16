@@ -26,6 +26,8 @@ A marketplace partner can send merchants to a prefilled connect page and learn t
 | —    | `GET /merchants/me/events?since=<cursor>` (`orders:read`)       | —                              |
 | —    | `POST /partners/handoffs` (partner key)                         | —                              |
 | —    | `GET /partners/handoffs/:id` (partner key)                      | —                              |
+| —    | `POST /partners/handoffs/:id/signature-text` (partner key)      | —                              |
+| —    | `POST /partners/handoffs/:id/registration` (partner key)        | —                              |
 | —    | `POST /merchants/me/grants` (no Bearer, wallet-signed)          | —                              |
 | —    | `GET /merchants/me/grants` (Bearer, merchant key only)          | `shop.merchant.grants_list`    |
 | —    | `DELETE /merchants/me/grants/:partner` (merchant key only)      | `shop.merchant.grant_revoke`   |
@@ -137,6 +139,60 @@ For a live [partner handoff](#partner-handoff) of mode `register` with `grant_re
    The first four lines are for the person; a verifier relies on the lines after "Technical details".
 
 2. `POST /merchants/handoff` with the merchant fields of step 2 (the `slug` of the message), `wallet`, `handoff_id`, `message` and `signature`, no `Authorization` header (the limits of `POST /merchants`). APIbase rebuilds the message from the nonce and compares it byte for byte; a changed byte, a used or expired nonce, another signer or a wallet other than `expected_wallet` is `401` and writes nothing. Otherwise one transaction writes the store (`active`), its encryption key, one acceptance per document, the grant and the handoff (`granted`); each record keeps this message and signature as its proof, and the key's `sig_by_wallet` is this signature with the text in `signed_message` (see [Buyer PII](#pii), step 2). The answer is `201 {merchant_id, slug, status: "active", handoff: {handoff_id, state: "granted"}, grant: {grant_id, partner, mode, scopes, created_at}}`, plus `api_key` (`mk_live_…`, shown once) unless the partner's registry entry has `seller_keys: hidden`: then no key is created (see [A shop without keys](#shop-without-keys)).
+
+### Signature on the partner's page {#partner-page-signature}
+
+A partner whose registry entry has `partner_page_signature: true` may collect this one signature on its own page instead of sending the seller to the handoff `url`. Both calls are server to server with the partner key (`Authorization: Bearer pk_live_…`; `401 partner_key_invalid` otherwise) and share the 60 writes/min per key of the [partner routes](#partner-mode). No key of any kind is created or returned.
+
+The handoff must be live (unexpired, not yet registered), mode `register` with `grant_requested: true`, have `expected_wallet`, and carry all six prefill keys (`name`, `site_url`, `contact_email`, `category`, `country`, `slug`). The store is registered from that prefill; the calls carry no shop fields, and payouts go to the signing wallet (no other payout wallet on this path).
+
+1. `POST /api/v1/shop/partners/handoffs/<handoff_id>/signature-text` with exactly `{wallet}` answers `200 {handoff_id, message, issued_at, expires_in: 300}`. The text is single use and lives 300 s; a second call replaces the first. Pass `message` to `personal_sign` byte for byte and do not parse it:
+
+   ```
+   APIbase (apibase.pro), asked on <host of your registry site>: open my shop apibase.pro/m/<slug> and let <Partner name> sell for it.
+   I accept the four APIbase documents: Merchant Agreement v<version>, Acceptable Use Policy v<version>, Data Processing Addendum v<version>, Refund Framework v<version>. Texts: https://apibase.pro/legal
+   <Partner name> may: <the permission text of the Allows line below>. It may not touch payouts, keys, orders or refunds.
+   Payouts go to this wallet. The shop starts without a decryption key.
+   This is a signature only: no transaction, no payment, no gas.
+   Technical details
+   1. Registration
+   Address: <wallet>
+   Purpose: register
+   Handoff: <handoff_id>
+   2. I accept the APIbase documents
+   merchant-agreement v<version> sha256:<h1>
+   aup v<version> sha256:<h2>
+   dpa v<version> sha256:<h3>
+   refund-framework v<version> sha256:<h4>
+   3. Permission for <Partner name>
+   Partner: <partner id>
+   Allows: upload and import your catalog; register its own webhook endpoint and receive your order events; read the outcome of each quote for your products (paid, unpaid, expired, refused), never who the buyer is
+   Does not allow: payouts, keys, orders, refunds
+   Revoke any time: DELETE /api/v1/shop/merchants/me/grants/<partner id>
+   4. Encryption key of the shop
+   kid: none-<handoff_id>
+   alg: x25519
+   pub: <placeholder>
+   Nonce: <nonce>
+   Issued At: <ISO-8601 time>
+   ```
+
+   The encryption key is a placeholder that no one can open: `<placeholder>` is the standard base64 of the sha256 of the UTF-8 text `apibase.pro shop without a decryption key\n<handoff_id>` (lower-case id). Nothing is generated on your page and no private half exists; the seller sets a real key later with `POST /merchants/me/keys/rotate` (see [Buyer PII](#pii)).
+
+2. `POST /api/v1/shop/partners/handoffs/<handoff_id>/registration` with `{wallet, signature, seller_ip, seller_user_agent?}` answers `201 {merchant_id, slug, status: "active", handoff: {handoff_id, state: "granted"}, grant: {grant_id, partner, mode, scopes, created_at}}`. APIbase rebuilds the text from its record and checks the signature as in step 2 above, then writes the same records in one transaction (store `active`, encryption key with `sig_by_wallet` and `signed_message`, one acceptance per document, the grant, the handoff `granted`). `seller_ip` is required: the public address your server saw on the browser request that carried the signature (a private, loopback, link-local or CGNAT address is refused). The sign-up country rule and the per-address registration limit apply to it. The address itself is not stored: the acceptances keep its hash, the store its country, a refused attempt its /24 prefix. `seller_user_agent` is optional, at most 512 characters. Take the webhook secret once from `GET /partners/handoffs/<handoff_id>`, as for any grant.
+
+Errors on either route:
+
+| Status | Code                                | When                                                                                                                 |
+| ------ | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 403    | `partner_page_signature_off`        | your registry entry does not have `partner_page_signature: true`                                                     |
+| 404    | `not_found`                         | the handoff is not yours or does not exist                                                                           |
+| 422    | `validation_failed`                 | `field` names it: `wallet`, `handoff`, `expected_wallet`, `prefill.<key>`, `signature`, `seller_ip`, `seller_user_agent`, or an unknown body key |
+| 401    | `unauthorized`                      | the wallet is not `expected_wallet`                                                                                  |
+| 409    | `wallet_registered`, `slug_taken`   | checked before anything is signed, and again at registration                                                         |
+| 503    | `service_unavailable`               | retry shortly                                                                                                        |
+
+Errors on registration only: `401 unauthorized` (no text issued, text expired or used, another wallet than the text's, a bad signature), `428 terms_not_accepted` (a document changed after the text was issued), `409 grant_exists`, `403` `country_not_supported`, `category_prohibited`, `payout_wallet_sanctioned` or `moderation_banned`, `400 payout_wallet_platform`, `429 rate_limited` (too many registrations from one seller address). After any registration error the text is spent: ask for a new one. After a timeout, read the handoff: `state: "granted"` means it is done. Until one path completes it, the same handoff still works through its `url`.
 
 ## Lost key
 
@@ -426,7 +482,7 @@ A marketplace partner listed in `config/integrator/partners.json` sends merchant
 
 ## Partner grants {#partner-grants}
 
-A merchant can allow a registered partner (see [Partner handoff](#partner-handoff)) to act for its store with one wallet signature. A grant names three scopes, `catalog:write`, `webhooks:write` and `quotes:read` (the read of quote outcomes). The partner's registry entry chooses what else the grant gives (`grant_mode`): in mode `key` the partner holds its own `mk_live_` key for that store, limited to the first two scopes (the key never holds `quotes:read`); in mode `partner` no key is created: the partner pushes the catalog with its own partner key and receives the store's order events at the webhook endpoint APIbase creates for it at grant time (see [Partner mode](#partner-mode)). The merchant's own key is never shared. The entry may also carry `seller_keys`: `shown` (the default) or `hidden`, allowed only with `grant_mode: "partner"` (any other value or combination stops the start). With `hidden`, a seller who registers through that partner's handoff and signs the grant is not shown an API key or a decryption key; the partner acts with its own key (see [A shop without keys](#shop-without-keys)).
+A merchant can allow a registered partner (see [Partner handoff](#partner-handoff)) to act for its store with one wallet signature. A grant names three scopes, `catalog:write`, `webhooks:write` and `quotes:read` (the read of quote outcomes). The partner's registry entry chooses what else the grant gives (`grant_mode`): in mode `key` the partner holds its own `mk_live_` key for that store, limited to the first two scopes (the key never holds `quotes:read`); in mode `partner` no key is created: the partner pushes the catalog with its own partner key and receives the store's order events at the webhook endpoint APIbase creates for it at grant time (see [Partner mode](#partner-mode)). The merchant's own key is never shared. The entry may also carry `seller_keys`: `shown` (the default) or `hidden`, allowed only with `grant_mode: "partner"` (any other value or combination stops the start). With `hidden`, a seller who registers through that partner's handoff and signs the grant is not shown an API key or a decryption key; the partner acts with its own key (see [A shop without keys](#shop-without-keys)). An entry with `seller_keys: "hidden"` may also carry `partner_page_signature: true` (default `false`; with any other `seller_keys` the start stops): that partner may collect the registration signature on its own page (see [Signature on the partner's page](#partner-page-signature)).
 
 1. **Sign.** `GET /api/v1/shop/auth/nonce?wallet=0x…&purpose=grant&partner=<partner id>` returns this `message` (a partner that is not in the registry is `422 validation_failed`). Sign it exactly as returned; a changed line is `401`.
 
@@ -463,7 +519,7 @@ A seller who registers through a partner with `seller_keys: hidden` and signs th
 
 - Orders and fees: the owner page `/m/<slug>/owner`; sign in with the wallet. It is read-only. See [Owner view](#owner-view).
 - An API key, to record a refund or to manage the catalogue yourself: the reissue route with a wallet signature (purpose `reissue`). It revokes earlier keys and returns a new one; the partner's permission stays. See [Lost key](#lost-key).
-- Buyer personal data: the first encryption key of such a shop has no stored private half. Before you sell an item that asks buyers for personal data, rotate the encryption key. See [Rotation](#pii) (step 6).
+- Buyer personal data: the first encryption key of such a shop has no stored private half; a shop registered on the partner's page has a placeholder key that no one can open (see [Signature on the partner's page](#partner-page-signature)). Before you sell an item that asks buyers for personal data, rotate the encryption key. See [Rotation](#pii) (step 6).
 
 ## Webhooks
 

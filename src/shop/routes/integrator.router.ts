@@ -54,6 +54,12 @@ export interface Partner {
    * `hidden` (mode partner only): the page shows no API key and no decryption key.
    */
   seller_keys?: 'shown' | 'hidden';
+  /**
+   * T-0871 (REQUEST-SOUKBASE-R5-3-1116 ruling-1): the partner may collect the one registration
+   * signature on its own page and relay it with its partner key (signature-text, registration).
+   * Default false; true only with `seller_keys: hidden`.
+   */
+  partner_page_signature?: boolean;
 }
 
 /** T-0728: partner registry for the connect page "Continue on <partner>" button; invalid file = startup error. */
@@ -94,6 +100,13 @@ export function loadPartners(file: string): Partner[] {
     if (sk === 'hidden' && r.grant_mode !== 'partner')
       throw new Error('partners.json: seller_keys hidden is for grant_mode partner only');
     p.seller_keys = sk;
+    // T-0871: partner_page_signature is a boolean (absent = false); true only with seller_keys hidden.
+    const pps = r.partner_page_signature === undefined ? false : r.partner_page_signature;
+    if (typeof pps !== 'boolean')
+      throw new Error('partners.json: bad field partner_page_signature');
+    if (pps && sk !== 'hidden')
+      throw new Error('partners.json: partner_page_signature needs seller_keys hidden');
+    p.partner_page_signature = pps;
     return p;
   });
 }
