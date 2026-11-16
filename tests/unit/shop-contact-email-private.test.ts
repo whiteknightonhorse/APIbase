@@ -194,6 +194,7 @@ dbDescribe('T-0867 the registration contact email stays private', () => {
       expected_wallet: null,
       mode: 'register',
       grant_requested: false,
+      scopes: null,
     });
     expect(seen(await readHandoff(prisma as never, 'soukbase', h.handoff_id))).not.toContain(
       CANARY,
