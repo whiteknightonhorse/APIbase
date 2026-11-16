@@ -148,3 +148,40 @@ describe('site-facts.py check', () => {
     expect(stale[0]).toContain('no source');
   });
 });
+
+describe('site-facts.py crawl family count', () => {
+  function crawl(line: string, counted: number): { status: number | null; out: string } {
+    const root = tmp();
+    put(root, 'config/pages-to-monitor.txt', line + '\n');
+    const code = [
+      'import importlib.util,sys',
+      `s=importlib.util.spec_from_file_location("sf",${JSON.stringify(PY)})`,
+      'm=importlib.util.module_from_spec(s);s.loader.exec_module(m)',
+      `m.count_sources=lambda f,b,p:{"/guides/<slug>":${counted}}`,
+      'm.check_one=lambda *a,**k:None',
+      `for k,d in m.crawl(${JSON.stringify(root)},"b","p",None,{}):print(k,d)`,
+    ].join('\n');
+    const r = spawnSync('python3', ['-I', '-c', code], { encoding: 'utf8' });
+    return { status: r.status, out: r.stdout + r.stderr };
+  }
+  it('68+ with 90 counted passes', () => {
+    const r = crawl('family /guides/<slug> 68+ https://x/a', 90);
+    expect(r.status).toBe(0);
+    expect(r.out.trim()).toBe('');
+  });
+  it('68+ with 60 counted fails with at least', () => {
+    const r = crawl('family /guides/<slug> 68+ https://x/a', 60);
+    expect(r.out).toContain('DOCS:page:/guides/<slug>:family-count');
+    expect(r.out).toContain('at least 68');
+  });
+  it('68 exact with 90 counted still fails', () => {
+    const r = crawl('family /guides/<slug> 68 https://x/a', 90);
+    expect(r.out).toContain('expected 68 members got 90');
+  });
+  it('bad token gives config failure without traceback', () => {
+    const r = crawl('family /guides/<slug> abc https://x/a', 90);
+    expect(r.status).toBe(0);
+    expect(r.out).toContain('DOCS:page:config:pages-to-monitor');
+    expect(r.out).not.toContain('Traceback');
+  });
+});

@@ -354,10 +354,20 @@ def crawl(root, base, provek, fetch, bodies):
             continue
         parts = line.split()
         if parts[0] == "family":
-            pattern, listed, samples = parts[1], int(parts[2]), parts[3:]
-            if pattern in counts and counts[pattern] != listed:
-                fails.append(("DOCS:page:%s:family-count" % pattern,
-                              "expected %d members got %d" % (listed, counts[pattern])))
+            pattern, token, samples = parts[1], parts[2] if len(parts) > 2 else "", parts[3:]
+            m = re.fullmatch(r"(\d+)(\+?)", token)
+            if not m:
+                fails.append(("DOCS:page:config:pages-to-monitor",
+                              "bad family count token %r in line: %s" % (token, line)))
+                continue
+            listed, floor = int(m.group(1)), m.group(2) == "+"
+            if pattern in counts:
+                if floor and counts[pattern] < listed:
+                    fails.append(("DOCS:page:%s:family-count" % pattern,
+                                  "expected at least %d members got %d" % (listed, counts[pattern])))
+                elif not floor and counts[pattern] != listed:
+                    fails.append(("DOCS:page:%s:family-count" % pattern,
+                                  "expected %d members got %d" % (listed, counts[pattern])))
             for s in samples:
                 check_one(s, 200, fetch, bodies, fails)
             continue
