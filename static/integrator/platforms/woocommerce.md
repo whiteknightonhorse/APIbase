@@ -13,7 +13,7 @@ Tested with WordPress 7.1 and WooCommerce 11.2 (October 2026).
 ## Settings
 
 - Merchant slug, the `mk_live_` API key and the `whsec_` webhook secret. Both secrets are stored encrypted (AES-256-GCM) and shown masked.
-- Switches: the button at the product, the machine-readable markup, and `/.well-known/apibase-merchant.txt` for the domain check (the rule: /integrator/docs, Domain verification).
+- Switches: the button at the product, the machine-readable markup, and `/.well-known/apibase-merchant.txt` for the domain check. The rule: /integrator/docs (Domain verification).
 - Category mapping: each WooCommerce category maps to an APIbase category; products in unmapped categories are skipped with a note.
 - Prices are USD only: if the store currency is not USD, catalog sync is switched off and the page says so.
 - Register `https://<your-store>/wp-json/apibase/v1/webhook` as your webhook endpoint at APIbase.
