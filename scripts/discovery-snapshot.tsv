@@ -1219,10 +1219,6 @@ treasurydirect.auction_results	treasurydirect	0.001
 treasurydirect.search_cusip	treasurydirect	0.001
 treasurydirect.tips_rates	treasurydirect	0.001
 treasurydirect.upcoming_auctions	treasurydirect	0.001
-treasuryfiscal.debt.current	treasuryfiscal	0.001
-treasuryfiscal.debt.expense	treasuryfiscal	0.001
-treasuryfiscal.rates.interest	treasuryfiscal	0.001
-treasuryfiscal.yield.quarterly	treasuryfiscal	0.001
 tvmaze.schedule	tvmaze	0.001
 tvmaze.show_cast	tvmaze	0.001
 tvmaze.show_details	tvmaze	0.001
