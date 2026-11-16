@@ -1163,6 +1163,7 @@
     "legal_index_hash_reproducible": "every sha256 in /legal/index.json is reproducible from the bytes at its source_url; scheduled versions at /legal/index.next.json",
     "mcp_list_view_lean": "https://apibase.pro/mcp?tools=lean lists only the discovery tools (apibase.discover, apibase.categories, apibase.describe) and apibase.call; every tool stays callable by name; /mcp and /mcp?tools=all list everything",
     "mcp_list_view_shop": "https://apibase.pro/mcp?tools=shop lists the discovery tools plus every shop.* tool; it is the MCP URL of the seller agent guide",
+    "merchant_domain_proof": "A merchant proves its domain with https://<host>/.well-known/apibase-merchant.txt served 200 without a redirect and containing a line equal to the slug, or with the DNS TXT record apibase-merchant=<slug>; checked at registration and daily at 04:30 UTC",
     "refund_on_provider_failure": {
       "mpp": "refund owed, sent automatically in a weekly batch",
       "x402": "not settled"

@@ -104,5 +104,11 @@
     "source": "src/middleware/x402.middleware.ts",
     "anchor": "throw new AppError(ErrorCode.BAD_REQUEST, 'Invalid x402 payment header');",
     "ruling": "T-0859 (0859-x402-2-30-bump ruling-2)"
+  },
+  "merchant_domain_proof": {
+    "value": "A merchant proves its domain with https://<host>/.well-known/apibase-merchant.txt served 200 without a redirect and containing a line equal to the slug, or with the DNS TXT record apibase-merchant=<slug>; checked at registration and daily at 04:30 UTC",
+    "source": "src/jobs/shop-domain-verify.job.ts",
+    "anchor": "export const WELL_KNOWN_PATH = '/.well-known/apibase-merchant.txt';",
+    "ruling": "T-0860 (0844 ruling-3)"
   }
 }

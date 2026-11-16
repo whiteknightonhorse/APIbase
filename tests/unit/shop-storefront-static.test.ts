@@ -61,7 +61,7 @@ describe('T-0860 demo shop domain proof', () => {
     );
   });
   it('the docs state how to verify, once', () => {
-    expect(read('static/integrator/docs.md')).toContain('**Domain verification.**');
+    expect(read('static/integrator/docs.md').split('**Domain verification.**')).toHaveLength(2);
     expect(read('static/integrator/index.md')).toContain(
       'How to verify: /integrator/docs (Domain verification).',
     );
