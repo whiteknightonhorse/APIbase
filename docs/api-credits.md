@@ -85,7 +85,7 @@ prompts over 100k tokens), `batch_discount` (0.5), `pricing_source` (https://pla
 ## Per-tenant layout
 
 Each tenant (`tenants` in the config: apibase, cryptocardhub, sales) runs its own copy in `~/bin/api-credits/` with its own key file,
-ledger and cycle. A copy finds `api-credits.json` next to itself first, then in the repo; the ledger `tenant` field defaults to the
+ledger and cycle; the key file sits at `/var/lib/fleet-keys/<tenant>/anthropic-api.env` when that directory exists, never inside a git work tree (location rule: Install the key). A copy finds `api-credits.json` next to itself first, then in the repo; the ledger `tenant` field defaults to the
 basename of `$HOME`. The dispatcher installs or refreshes a copy on apibase with `scripts/api-credits/install-tenant-copy.sh <tenant>`
 (copies `api-call, api-batch, api-spend, api-key-install, api-cycle-rollover, api_credits.py, api-credits.json`, owner `<tenant>`,
 keeps `<name>.bak-pre-0746-<UTC>`, compiles, prints the md5 of every file). Keys are named `<tenant>-<lane>` in Console.
