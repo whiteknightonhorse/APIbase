@@ -743,6 +743,42 @@ dbDescribe('shop catalog', () => {
     expect(job[0].error).toMatch(/temporarily block catalog writes/);
   });
 
+  it('T-0872: placeholder key refuses buyer-data and physical items; a real kid saves all', async () => {
+    const { id } = await shop();
+    const setKid = (kid: string) =>
+      prisma.$executeRawUnsafe(
+        `UPDATE shop_merchants SET encryption_key = jsonb_set(encryption_key, '{kid}', to_jsonb($2::text)) WHERE merchant_id = $1::uuid`,
+        id,
+        kid,
+      );
+    const batch = (t: string) => [
+      item(`${t}-pii`, { requires_pii: ['email'] }),
+      item(`${t}-phys`, { fulfillment_mode: 'physical' }),
+      item(`${t}-inst`, {
+        fulfillment_mode: 'instant',
+        fulfillment: { instant: { payload: 'the content' } },
+      }),
+    ];
+    await setKid('none-abc');
+    const r = await up(id, batch('a'));
+    expect(r.upserted).toBe(1);
+    expect(r.errors.map((e) => [e.index, e.status, e.error_code])).toEqual([
+      [0, 422, 'decryption_key_missing'],
+      [1, 422, 'decryption_key_missing'],
+    ]);
+    expect(r.errors[0].message).toBe(
+      'this shop has no decryption key; set one with keys/rotate before listing items that need buyer data',
+    );
+    await setKid('k2');
+    const r2 = await up(id, batch('a'));
+    expect(r2.errors).toEqual([]);
+    expect(r2.upserted).toBe(3);
+    await setKid('k1');
+    const r3 = await up(id, batch('b'));
+    expect(r3.errors).toEqual([]);
+    expect(r3.upserted).toBe(3);
+  });
+
   it('CF8: shop_products.moderation_status defaults to flagged', async () => {
     const { id } = await shop();
     const col = await prisma.$queryRawUnsafe<Array<{ column_default: string }>>(

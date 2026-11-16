@@ -241,7 +241,11 @@ export interface CatalogItemError {
   index: number;
   sku: string | null;
   status: 422;
-  error_code: 'validation_failed' | 'description_reads_as_instruction' | 'price_claim_mismatch';
+  error_code:
+    | 'validation_failed'
+    | 'description_reads_as_instruction'
+    | 'price_claim_mismatch'
+    | 'decryption_key_missing';
   message: string;
 }
 
@@ -397,6 +401,12 @@ export async function upsertCatalog(
 
   const report: CatalogReport = { upserted: 0, flagged: [], rejected: [], errors: [], ...banner };
   const seen = new Set<string>();
+  // T-0872: read the shop's encryption key kid once per call; `none-` is the placeholder of a partner-page shop.
+  const kidRows = await d.db.$queryRawUnsafe<Array<{ kid: string | null }>>(
+    `SELECT encryption_key->>'kid' AS kid FROM shop_merchants WHERE merchant_id = $1::uuid`,
+    merchant_id,
+  );
+  const noKey = typeof kidRows[0]?.kid === 'string' && kidRows[0].kid.startsWith('none-');
   const key = items.some((i) => (i as { fulfillment?: unknown })?.fulfillment) ? encKey(opts) : '';
 
   await d.transaction(async (tx) => {
@@ -422,6 +432,13 @@ export async function upsertCatalog(
         continue;
       }
       const p = parsed.data;
+      if (noKey && (p.requires_pii.length > 0 || p.fulfillment_mode === 'physical')) {
+        bad(
+          'this shop has no decryption key; set one with keys/rotate before listing items that need buyer data',
+          'decryption_key_missing',
+        );
+        continue;
+      }
       // T-0430: a description tells a buyer's agent what the product is; it may not instruct the agent.
       const descNorm = [normalizeForScan(p.description, 'l'), normalizeForScan(p.description, 'i')];
       if (readsAsInstruction(p.description) || descNorm.some(readsAsInstruction)) {
