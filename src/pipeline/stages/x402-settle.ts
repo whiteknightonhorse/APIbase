@@ -37,6 +37,8 @@ import {
   extractAuthorization,
   isFacilitatorTimeout,
   isSettlementPending,
+  isSigRpcReason,
+  isThrownBeforeHash,
   settleOutcomeIsUnknown,
   settleTxHash,
 } from '../../payments/settle-outcome';
@@ -281,6 +283,7 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
           validBeforeSec: Number(auth?.validBefore),
           nowSec: Math.floor(Date.now() / 1000),
           elapsedMs: Date.now() - t0,
+          transaction: settleTxHash(result),
         }) === 'retry'
       ) {
         x402SettleUnknownTotal.inc({ kind: 'verify_rpc_retry' });
@@ -328,8 +331,11 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
       // making the revenue-leak alert (F1/C-7) undiagnosable.
       const resultAny = result as unknown as Record<string, unknown>;
       const errorReason = resultAny.errorReason ?? resultAny.error;
-      const verdict = settleOutcomeIsUnknown(errorReason, result.errorMessage);
-      const sigRpc = String(errorReason ?? '').startsWith('invalid_exact_evm_signature');
+      const txHash = settleTxHash(result);
+      const verdict = settleOutcomeIsUnknown(errorReason, result.errorMessage, {
+        transaction: txHash,
+      });
+      const sigRpc = isSigRpcReason(errorReason);
       logger.warn(
         {
           requestId: ctx.requestId,
@@ -348,7 +354,13 @@ export async function settleX402(ctx: PipelineContext): Promise<void> {
             ? 'x402 settle: signature verdict after passed verify = RPC failure, chain reconcile decides'
             : `x402 settle: outcome unknown (${String(errorReason)}), chain reconcile decides`,
         );
-        x402SettleUnknownTotal.inc({ kind: sigRpc ? 'verify_rpc_pending' : 'thrown_unknown' });
+        x402SettleUnknownTotal.inc({
+          kind: sigRpc
+            ? 'verify_rpc_pending'
+            : isThrownBeforeHash(errorReason, txHash)
+              ? 'thrown_no_hash'
+              : 'thrown_unknown',
+        });
         await recordSettlePending(ctx, { nonce: auth?.nonce, validBefore: auth?.validBefore });
         return;
       }

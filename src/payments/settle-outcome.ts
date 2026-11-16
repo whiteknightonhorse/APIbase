@@ -45,31 +45,64 @@ export function settleTxHash(result: unknown): string | undefined {
 }
 
 /**
- * T-0658: classify a settle FAILURE (`success:false` or a throw) by what it tells us about the chain.
- * - 'pending': outcome unknown, the chain reconcile decides. Two SDK meanings of
- *   `invalid_exact_evm_transaction_failed` (@x402/evm exact/facilitator/index.js): bare (:1099,
- *   receipt reverted / Transfer mismatch) is KNOWN failed; suffixed `: <message>` from
- *   mapSettleError (:1637-1662) is an exception while broadcasting/waiting, so the tx may have landed.
- *   Also a `settle_threw` whose message is a timeout/transport error.
- * - 'retry': settle-time `invalid_exact_evm_signature` after a verify that passed at ESCROW is an RPC
- *   verdict (getCode error, :764-769), nothing was broadcast; one retry is allowed when the
- *   validBefore window has >= 15 s left and the failed attempt returned in < 10 s. Otherwise 'pending'.
- * - 'failed': everything else.
+ * T-0658 / T-0883: classify a settle FAILURE (`success:false` or a throw) by what it tells us about
+ * the chain. Line numbers are @x402/evm 2.30.0 dist/cjs/exact/facilitator/index.js.
+ * - 'pending': outcome unknown, the chain reconcile (x402-settle-pending job) decides by
+ *   authorizationUsed(payer, nonce); an unused authorization becomes x402_settle_failed at validBefore.
+ *   a) `invalid_exact_evm_transaction_failed` with NO transaction hash. Sources: the settleEIP3009
+ *      catch (:1515-1523, writeContract or the 6492 deploy threw; parseEip3009TransferError
+ *      :1026-1045 falls through to this reason for any message it does not recognise) and
+ *      invalidBroadcastHashResponse (:566-575 via :1087, the signer returned no valid hash). The tx
+ *      may have landed (prod 2026-11-03..05: six such rows, two authorizations USED on chain).
+ *      The same reason WITH a hash (reverted receipt :1094-1101, store-persist failure :1129-1137)
+ *      is KNOWN failed. No message regex: an unrecognised throw before a hash is unknown by definition.
+ *   b) suffixed `invalid_exact_evm_transaction_failed: <message>` from mapSettleError (:1637-1670,
+ *      Permit2 path), also an exception while broadcasting/waiting.
+ *   c) a `settle_threw` whose message is a timeout/transport error.
+ * - 'retry': a settle-time signature verdict after a verify that passed at ESCROW is an RPC
+ *   failure and nothing was broadcast. getCode throw -> `invalid_exact_evm_failed_to_verify_signature`
+ *   (classifyErc6492Payer :711-735, returned at :1219-1229); ERC-1271 readContract throw is caught
+ *   to false (verifyERC1271 :788-801) -> `invalid_exact_evm_signature` (:1273-1279). One retry is
+ *   allowed when the validBefore window has >= 15 s left and the failed attempt returned in < 10 s.
+ *   Otherwise 'pending'.
+ * - 'failed': everything else (the specific reasons parseEip3009TransferError maps to included).
  */
 export type SettleVerdict = 'retry' | 'pending' | 'failed';
 export const UNKNOWN_THROWN_RE = /^invalid_exact_evm_transaction_failed:\s/;
+export const TRANSACTION_FAILED_REASON = 'invalid_exact_evm_transaction_failed';
+export const SIG_RPC_REASONS: readonly string[] = [
+  'invalid_exact_evm_signature',
+  'invalid_exact_evm_failed_to_verify_signature',
+];
 const TRANSPORT_RE = /timeout|timed out|ETIMEDOUT|ECONNRESET|fetch failed/i;
+
+/** Bare `invalid_exact_evm_transaction_failed` and no broadcast hash: the settle threw before a hash. */
+export function isThrownBeforeHash(reason: unknown, transaction: unknown): boolean {
+  return reason === TRANSACTION_FAILED_REASON && settleTxHash({ transaction }) === undefined;
+}
+
+/** A settle-time signature verdict after a passed ESCROW verify: an RPC failure, nothing broadcast. */
+export function isSigRpcReason(reason: unknown): boolean {
+  return typeof reason === 'string' && SIG_RPC_REASONS.includes(reason);
+}
 
 export function settleOutcomeIsUnknown(
   reason: unknown,
   message: unknown,
-  opts: { validBeforeSec?: number; nowSec?: number; elapsedMs?: number; retried?: boolean } = {},
+  opts: {
+    validBeforeSec?: number;
+    nowSec?: number;
+    elapsedMs?: number;
+    retried?: boolean;
+    transaction?: unknown;
+  } = {},
 ): SettleVerdict {
   const r = typeof reason === 'string' ? reason : '';
   const m = typeof message === 'string' ? message : '';
   if (UNKNOWN_THROWN_RE.test(r)) return 'pending';
+  if (isThrownBeforeHash(r, opts.transaction)) return 'pending';
   if (r === 'settle_threw' && TRANSPORT_RE.test(m)) return 'pending';
-  if (r === 'invalid_exact_evm_signature') {
+  if (isSigRpcReason(r)) {
     const left =
       opts.validBeforeSec !== undefined && opts.nowSec !== undefined
         ? opts.validBeforeSec - opts.nowSec

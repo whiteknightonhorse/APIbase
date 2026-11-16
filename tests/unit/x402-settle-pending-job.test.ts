@@ -102,6 +102,42 @@ describe('x402-settle-pending job (T-0428)', () => {
     expect(sqls().some((s) => s.includes('SET processed = true'))).toBe(true);
   });
 
+  it('T-0883: nonce only, no tx_hash, authorization used + transfer found -> settled', async () => {
+    mockQuery.mockResolvedValue([row({ tx_hash: undefined })]);
+    const c = chain({
+      authorizationUsed: jest.fn(async () => true),
+      findTransfer: jest.fn(async () => '0xfound'),
+    });
+    await run({ chain: c, nowMs: NOW });
+    expect(c.receiptOk).not.toHaveBeenCalled();
+    expect(c.authorizationUsed).toHaveBeenCalledWith('0xpayer', '0xnonce');
+    expect(sqls().some((s) => s.includes("x402_settle_state = 'settled'"))).toBe(true);
+    expect(mockExec.mock.calls[0][2]).toBe('0xfound');
+    expect(sqls().some((s) => s.includes('SET processed = true'))).toBe(true);
+    expect(mockOutboxCreate).not.toHaveBeenCalled();
+  });
+
+  it('T-0883: nonce only, no tx_hash, authorization unused + expired -> x402_settle_failed', async () => {
+    mockQuery.mockResolvedValue([
+      row({ tx_hash: undefined, valid_before: String(NOW / 1000 - 1) }),
+    ]);
+    const c = chain();
+    await run({ chain: c, nowMs: NOW });
+    expect(c.receiptOk).not.toHaveBeenCalled();
+    expect(mockOutboxCreate).toHaveBeenCalledTimes(1);
+    const d = mockOutboxCreate.mock.calls[0][0].data;
+    expect(d.event_type).toBe('x402_settle_failed');
+    expect(d.payload.reason).toBe('pending_expired_unsettled');
+    expect(sqls().some((s) => s.includes('SET processed = true'))).toBe(true);
+  });
+
+  it('T-0883: nonce only, no tx_hash, authorization unused + not expired -> untouched', async () => {
+    mockQuery.mockResolvedValue([row({ tx_hash: undefined })]);
+    await run({ chain: chain(), nowMs: NOW });
+    expect(mockExec).not.toHaveBeenCalled();
+    expect(mockOutboxCreate).not.toHaveBeenCalled();
+  });
+
   it('authorization unused + not expired -> untouched', async () => {
     mockQuery.mockResolvedValue([row()]);
     await run({ chain: chain(), nowMs: NOW });

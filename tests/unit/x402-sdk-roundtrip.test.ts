@@ -227,11 +227,15 @@ describe('T-0859: @x402 real-SDK round trip (exact, Base USDC)', () => {
     expect(rev.success).toBe(false);
     expect(rev.errorReason).toBe(RECORDED.revertedReceipt);
     expect(rev.transaction).toBe(TX);
-    expect(settleOutcomeIsUnknown(rev.errorReason, rev.errorMessage)).toBe('failed');
+    // T-0883: the same bare reason WITH a hash (reverted receipt) is known failed.
+    expect(
+      settleOutcomeIsUnknown(rev.errorReason, rev.errorMessage, { transaction: rev.transaction }),
+    ).toBe('failed');
 
     // EIP-3009 settle catches the broadcast throw itself (parseEip3009TransferError) and returns
     // the BARE reason with the thrown text in errorMessage, not the `: <message>` suffix that
-    // UNKNOWN_THROWN_RE matches (that suffix is mapSettleError, the Permit2 path). Recorded as is.
+    // UNKNOWN_THROWN_RE matches (that suffix is mapSettleError, the Permit2 path). T-0883: bare
+    // reason and no hash = threw before a hash existed, the tx may have landed -> 'pending'.
     const thrSigner = stubSigner({
       write: async () => {
         throw new Error('request timed out');
@@ -246,7 +250,9 @@ describe('T-0859: @x402 real-SDK round trip (exact, Base USDC)', () => {
     expect(thr.errorMessage).toBe('request timed out');
     expect(thr.transaction).toBe('');
     expect(UNKNOWN_THROWN_RE.test(thr.errorReason ?? '')).toBe(false);
-    expect(settleOutcomeIsUnknown(thr.errorReason, thr.errorMessage)).toBe('failed');
+    expect(
+      settleOutcomeIsUnknown(thr.errorReason, thr.errorMessage, { transaction: thr.transaction }),
+    ).toBe('pending');
   });
 
   it('(c2) c349511: x402ResourceServer.settlePayment over the local client, no hooks', async () => {

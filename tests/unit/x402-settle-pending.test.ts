@@ -32,6 +32,7 @@ import { parsePaymentPayload, isPaymentPayloadV1 } from '@x402/core/schemas';
 import { getX402Config, buildServerX402Requirements } from '../../src/config/x402.config';
 import { getSharedResourceServer } from '../../src/services/x402-server.service';
 import { settleX402 } from '../../src/pipeline/stages/x402-settle';
+import { x402SettleUnknownTotal } from '../../src/services/metrics.service';
 import { createPipelineContext } from '../../src/pipeline/types';
 
 const mockSettlePayment = jest.fn();
@@ -159,13 +160,79 @@ describe('settleX402 unknown vs known failures (T-0658)', () => {
     expect(p.valid_before).toBeDefined();
   });
 
-  it('bare transaction_failed stays failed', async () => {
+  it('bare transaction_failed WITH a hash (reverted receipt) stays failed', async () => {
     mockSettlePayment.mockResolvedValue({
       success: false,
       errorReason: 'invalid_exact_evm_transaction_failed',
+      transaction: '0xtx',
     });
     await settleX402(paidCtx());
     expect(events()).toEqual(['x402_settle_failed']);
+  });
+
+  it('T-0883: bare transaction_failed with NO hash (threw before a hash) -> pending, no failed row', async () => {
+    const inc = jest.spyOn(x402SettleUnknownTotal, 'inc');
+    try {
+      for (const transaction of ['', undefined]) {
+        mockSettlePayment.mockResolvedValueOnce({
+          success: false,
+          errorReason: 'invalid_exact_evm_transaction_failed',
+          errorMessage: 'Nonce provided for the transaction is lower than the current nonce',
+          transaction,
+        });
+        await settleX402(paidCtx());
+      }
+      expect(mockSettlePayment).toHaveBeenCalledTimes(2);
+      expect(events()).toEqual(['x402_settle_pending', 'x402_settle_pending']);
+      for (const c of mockOutboxCreate.mock.calls) {
+        expect(c[0].data.payload.nonce).toBe('0xnonce');
+        expect(c[0].data.payload.valid_before).toBeDefined();
+        expect(c[0].data.payload.tx_hash).toBeUndefined();
+      }
+      expect(inc.mock.calls).toEqual([[{ kind: 'thrown_no_hash' }], [{ kind: 'thrown_no_hash' }]]);
+    } finally {
+      inc.mockRestore();
+    }
+  });
+
+  it('T-0883: failed_to_verify_signature (getCode RPC throw) once then success -> one retry, settled', async () => {
+    jest.useFakeTimers();
+    try {
+      mockSettlePayment
+        .mockResolvedValueOnce({
+          success: false,
+          errorReason: 'invalid_exact_evm_failed_to_verify_signature',
+          transaction: '',
+        })
+        .mockResolvedValueOnce({ success: true, transaction: '0xtx' });
+      const c = paidCtx();
+      const p = settleX402(c);
+      await jest.advanceTimersByTimeAsync(2500);
+      await p;
+      expect(mockSettlePayment).toHaveBeenCalledTimes(2);
+      expect(c.x402SettleSucceeded).toBe(true);
+      expect(events()).toEqual([]);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('T-0883: failed_to_verify_signature twice -> one pending row, no failed row', async () => {
+    jest.useFakeTimers();
+    try {
+      mockSettlePayment.mockResolvedValue({
+        success: false,
+        errorReason: 'invalid_exact_evm_failed_to_verify_signature',
+        transaction: '',
+      });
+      const p = settleX402(paidCtx());
+      await jest.advanceTimersByTimeAsync(2500);
+      await p;
+      expect(mockSettlePayment).toHaveBeenCalledTimes(2);
+      expect(events()).toEqual(['x402_settle_pending']);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('settle_threw with a timeout message -> pending; another message -> failed', async () => {
