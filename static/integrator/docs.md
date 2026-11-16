@@ -521,7 +521,7 @@ A seller who registers through a partner with `seller_keys: hidden` and signs th
 
 - Orders and fees: the owner page `/m/<slug>/owner`; sign in with the wallet. It is read-only. See [Owner view](#owner-view).
 - An API key, to record a refund or to manage the catalogue yourself: the reissue route with a wallet signature (purpose `reissue`). It revokes earlier keys and returns a new one; the partner's permission stays. See [Lost key](#lost-key).
-- Buyer personal data: the first encryption key of such a shop has no stored private half; a shop registered on the partner's page has a placeholder key that no one can open (see [Signature on the partner's page](#partner-page-signature)). Before you sell an item that asks buyers for personal data, rotate the encryption key. See [Rotation](#pii) (step 6).
+- Buyer personal data: the first encryption key of such a shop has no stored private half; a shop registered on the partner's page has a placeholder key that no one can open (see [Signature on the partner's page](#partner-page-signature)). Before you sell an item that asks buyers for personal data, rotate the encryption key (the catalog refuses such items until you do: see the "Decryption key rule" under Catalog). See [Rotation](#pii) (step 6).
 
 ## Webhooks
 
