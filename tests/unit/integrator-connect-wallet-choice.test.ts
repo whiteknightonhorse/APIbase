@@ -28,7 +28,8 @@ beforeAll(() => {
 });
 afterAll(() => server.close());
 
-type Fake = { name: string; rdns: string; account: string; icon?: string };
+/** T-0870: `accounts` is the array eth_requestAccounts returns (default [account]). */
+type Fake = { name: string; rdns: string; account: string; icon?: string; accounts?: string[] };
 const ICON = 'data:image/svg+xml;base64,PHN2Zy8+';
 
 async function boot(o: {
@@ -41,6 +42,14 @@ async function boot(o: {
   emailNote?: boolean;
   /** T-0869: a one-page handoff (register + grant_requested + one_page); every field is on the one page. */
   onePage?: boolean;
+  /** T-0870: every request of this method waits until release() (any provider) */
+  hang?: string;
+  /** T-0870: the first N eth_requestAccounts answer -32002 (a request already waiting in the wallet) */
+  pending?: number;
+  /** T-0870: the n-th eth_requestAccounts (1-based) answers -32002 */
+  pendingNth?: number;
+  /** T-0870: a GET to /api/v1/shop/auth/nonce never answers (only its abort signal ends it) */
+  hangGet?: boolean;
 }) {
   let html = await (await fetch(`${base}/integrator/connect?from=soukbase`)).text();
   if (o.handoff) {
@@ -63,23 +72,39 @@ async function boot(o: {
         EXP,
       );
   }
-  const log: { who: string; method: string }[] = [];
+  const log: { who: string; method: string; params?: unknown; phase?: string }[] = [];
   const handlers: Record<string, ((a: string[]) => void)[]> = {};
   const held: (() => void)[] = [];
+  /** T-0870: the accounts each fake returns now; accountsChanged (emit) updates them */
+  const acc: Record<string, string[]> = {};
+  let nreq = 0;
+  let doc: any = null;
   const mk = (f: Fake) => ({
     chainId: '0x2105',
-    request: async (r: { method: string }) => {
-      log.push({ who: f.rdns, method: r.method });
+    request: async (r: { method: string; params?: unknown }) => {
+      acc[f.rdns] ||= f.accounts ?? [f.account];
+      log.push({
+        who: f.rdns,
+        method: r.method,
+        params: r.params,
+        phase: doc?.getElementById('wt')?.dataset.phase,
+      });
       if (r.method === 'wallet_requestPermissions') {
         if (o.perm === 'unsupported') throw Object.assign(new Error('unsupported'), { code: 4200 });
         if (o.perm === 'reject') throw Object.assign(new Error('rejected'), { code: 4001 });
-        f = { ...f, account: EXP };
+        acc[f.rdns] = [EXP];
         return [{ parentCapability: 'eth_accounts' }];
       }
-      if (r.method === 'eth_accounts') return [f.account];
-      if (o.hold && o.hold.rdns === f.rdns && o.hold.method === r.method)
+      if (r.method === 'eth_accounts') return acc[f.rdns];
+      if (
+        r.method === 'eth_requestAccounts' &&
+        (++nreq <= (o.pending ?? 0) || nreq === o.pendingNth)
+      ) {
+        throw Object.assign(new Error('already pending'), { code: -32002 });
+      }
+      if ((o.hold && o.hold.rdns === f.rdns && o.hold.method === r.method) || o.hang === r.method)
         await new Promise<void>((res) => held.push(res));
-      return r.method === 'eth_requestAccounts' ? [f.account] : '0xsig';
+      return r.method === 'eth_requestAccounts' ? acc[f.rdns] : '0xsig';
     },
     on: (ev: string, h: (a: string[]) => void) => (
       (handlers[f.rdns + ev] ||= []).push(h),
@@ -89,6 +114,19 @@ async function boot(o: {
       handlers[f.rdns + ev] = (handlers[f.rdns + ev] || []).filter((x) => x !== h);
     },
   });
+  const timers: { fn: () => void; at: number; id: number }[] = [];
+  const calls: { url: string; method: string }[] = [];
+  let now = 0,
+    seq = 0;
+  const advance = (ms: number) => {
+    now += ms;
+    for (;;) {
+      const due = timers.filter((t) => t.at <= now).sort((a, b) => a.at - b.at)[0];
+      if (!due) break;
+      timers.splice(timers.indexOf(due), 1);
+      due.fn();
+    }
+  };
   const providers = Object.fromEntries(
     [...o.wallets, ...(o.legacy ? [o.legacy] : [])].map((f) => [f.rdns, mk(f)]),
   );
@@ -114,16 +152,33 @@ async function boot(o: {
           ),
         );
       });
-      w.fetch = async (url: string) => ({
-        ok: true,
-        status: 200,
-        json: async () => (url.startsWith('/legal') ? [] : { message: 'm' }),
-      });
+      // T-0870: manual timers; only advance() moves them
+      w.setTimeout = (fn: () => void, ms = 0) => {
+        timers.push({ fn, at: now + ms, id: ++seq });
+        return seq;
+      };
+      w.clearTimeout = (id: number) => {
+        const i = timers.findIndex((t) => t.id === id);
+        if (i >= 0) timers.splice(i, 1);
+      };
+      w.fetch = async (url: string, init: any = {}) => {
+        calls.push({ url, method: init.method || 'GET' });
+        if (o.hangGet && url.startsWith('/api/v1/shop/auth/nonce'))
+          return new Promise((_res, rej) =>
+            init.signal?.addEventListener('abort', () => rej(new Error('aborted'))),
+          );
+        return {
+          ok: true,
+          status: 200,
+          json: async () => (url.startsWith('/legal') ? [] : { message: 'm' }),
+        };
+      };
     },
   });
   const w = dom.window,
     d = w.document,
     $ = (id: string) => d.getElementById(id);
+  doc = d;
   const fill = (n: string, v: string) => {
     const e = d.querySelector(`[name=${n}]`);
     e.value = v;
@@ -145,8 +200,10 @@ async function boot(o: {
     );
   const choices = () =>
     [...wc().querySelectorAll('button')].map((b: any) => b.textContent as string);
-  const emit = (rdns: string, a: string[]) =>
+  const emit = (rdns: string, a: string[]) => {
+    acc[rdns] = a; // T-0870: a wallet that announces an account returns it afterwards
     (handlers[rdns + 'accountsChanged'] || []).forEach((h) => h(a));
+  };
   const release = () => held.splice(0).forEach((x) => x());
   const press = (label: string) =>
     ([...wc().querySelectorAll('button')] as HTMLElement[])
@@ -156,7 +213,23 @@ async function boot(o: {
     ([...(box()?.querySelectorAll('button') ?? [])] as any[]).find(
       (b) => b.textContent === 'Choose account in wallet' && !b.hidden,
     );
-  return { w, d, $, log, pickBtn, toStep3, settle, wc, box, choices, emit, release, press };
+  return {
+    w,
+    d,
+    $,
+    log,
+    calls,
+    advance,
+    pickBtn,
+    toStep3,
+    settle,
+    wc,
+    box,
+    choices,
+    emit,
+    release,
+    press,
+  };
 }
 
 const A: Fake = { name: 'Alpha', rdns: 'io.alpha', account: OTHER, icon: ICON };
@@ -387,5 +460,222 @@ describe('T-0832 email note', () => {
   it('without email_note there is no such line', async () => {
     const p = await boot({ wallets: [A], handoff: true });
     expect(p.d.getElementById('s1').textContent).not.toContain('does not pass your email');
+  });
+});
+
+describe('T-0870 wallet step: expected account, continue by itself, help line, repeat', () => {
+  const C: Fake = { ...B, account: EXP }; // a wallet on the expected account
+  const signs = (p: any) => p.log.filter((l: any) => l.method === 'personal_sign');
+  const posts = (p: any) => p.calls.filter((c: any) => c.method === 'POST');
+  const vis = (e: any) => !!e && !e.hidden;
+
+  it('the expected account is second in eth_requestAccounts: no "Different wallet", the signature carries it', async () => {
+    const p = await boot({ wallets: [{ ...A, accounts: [OTHER, EXP] }], handoff: true });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(p.box()).toBeUndefined();
+    expect(signs(p).length).toBeGreaterThan(0);
+    expect((signs(p)[0].params as string[])[1]).toBe(EXP);
+  });
+
+  it('wrong account, "Choose account in wallet", the wallet returns the expected one: one signature, no second press', async () => {
+    const p = await boot({ wallets: [A], handoff: true, perm: 'ok', hang: 'personal_sign' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(p.box()).toBeDefined();
+    p.pickBtn().click();
+    await p.settle();
+    p.advance(0);
+    await p.settle();
+    expect(signs(p)).toHaveLength(1);
+    expect((signs(p)[0].params as string[])[1]).toBe(EXP);
+    expect(p.box()).toBeUndefined();
+  });
+
+  it('wrong account, then accountsChanged to the expected one: one signature, no second press', async () => {
+    const p = await boot({ wallets: [A], handoff: true, hang: 'personal_sign' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    p.emit('io.alpha', [EXP]);
+    p.advance(0);
+    await p.settle();
+    expect(signs(p)).toHaveLength(1);
+    expect((signs(p)[0].params as string[])[1]).toBe(EXP);
+    p.advance(0);
+    await p.settle();
+    expect(signs(p)).toHaveLength(1);
+  });
+
+  it('no earlier press: an accountsChanged event sends nothing', async () => {
+    const p = await boot({ wallets: [A], handoff: true });
+    p.toStep3();
+    p.emit('io.alpha', [EXP]);
+    p.advance(20_000);
+    await p.settle();
+    expect(p.log).toEqual([]);
+  });
+
+  it('personal_sign hangs: help line at 8 s, the press sends the same request again, the first answer registers once', async () => {
+    const p = await boot({ wallets: [C], handoff: true, onePage: true, hang: 'personal_sign' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(p.log.map((l) => l.method)).toEqual(['eth_requestAccounts', 'personal_sign']);
+    expect(p.$('nx').disabled).toBe(true);
+    p.advance(7_999);
+    expect(p.$('wl').hidden).toBe(true);
+    p.advance(1);
+    const wl = p.$('wl');
+    expect(vis(wl)).toBe(true);
+    expect(wl.dataset.why).toBe('silent');
+    expect(wl.getAttribute('role')).toBe('status');
+    expect(wl.textContent).toBe(
+      'No wallet window? Open Beta from the browser toolbar: the request is waiting there. If nothing is there, press Sign with wallet again.',
+    );
+    expect(p.$('nx').disabled).toBe(false);
+    p.$('nx').click();
+    await p.settle();
+    expect(signs(p)).toHaveLength(2);
+    expect(signs(p)[1].params).toEqual(signs(p)[0].params);
+    expect(p.log.filter((l) => l.method === 'eth_requestAccounts')).toHaveLength(1);
+    p.release();
+    await p.settle();
+    expect(posts(p)).toHaveLength(1);
+    expect(posts(p)[0].url).toBe('/api/v1/shop/merchants/handoff');
+    expect(p.$('out').hidden).toBe(false);
+  });
+
+  it('eth_requestAccounts answers -32002: the help line at once, no error box; a later accountsChanged starts the run', async () => {
+    const p = await boot({ wallets: [C], handoff: true, onePage: true, pending: 1 });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    const wl = p.$('wl');
+    expect(vis(p.$('wt')) && vis(wl)).toBe(true);
+    expect(wl.dataset.why).toBe('pending');
+    expect(wl.textContent).toBe(
+      'Beta already has a request from this page waiting. Open it from the browser toolbar and answer it.',
+    );
+    expect(vis(p.$('wt').querySelector('b')) && p.$('wts').hidden).toBe(true); // "Waiting for your wallet", no number
+    expect(p.$('er').hidden).toBe(true);
+    expect(p.$('er').textContent).not.toContain('Something went wrong');
+    expect(p.$('nx').disabled).toBe(false);
+    expect(signs(p)).toHaveLength(0);
+    p.emit('io.beta', [EXP]);
+    p.advance(0);
+    await p.settle();
+    expect(p.log.filter((l) => l.method === 'eth_requestAccounts')).toHaveLength(2);
+    expect(signs(p)).toHaveLength(1);
+    expect(posts(p)).toHaveLength(1);
+  });
+
+  it('a -32002 on the repeat while the first request waits only shows the help line', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      hang: 'eth_requestAccounts',
+      pendingNth: 2,
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    p.advance(8_000);
+    expect(p.$('wl').dataset.why).toBe('silent');
+    expect(p.$('wts').hidden).toBe(true);
+    p.$('nx').click();
+    await p.settle();
+    expect(p.log.filter((l) => l.method === 'eth_requestAccounts')).toHaveLength(2);
+    expect(p.$('wl').dataset.why).toBe('pending');
+    expect(p.$('wl').hidden).toBe(false);
+    expect(p.$('er').hidden).toBe(true);
+    expect(signs(p)).toHaveLength(0);
+    p.release();
+    await p.settle();
+    expect(signs(p)).toHaveLength(1);
+  });
+
+  it('"Other wallet" during a hanging signature, then the old signature answers: nothing is sent to APIbase', async () => {
+    const A2: Fake = { ...A, account: EXP };
+    const p = await boot({ wallets: [A2, B], handoff: true, hang: 'personal_sign' });
+    p.toStep3();
+    p.press('Alpha');
+    await p.settle();
+    expect(signs(p)).toHaveLength(1);
+    const before = p.calls.length;
+    p.press('Other wallet');
+    p.release();
+    await p.settle();
+    expect(p.calls.slice(before).filter((c: any) => c.url.startsWith('/api/'))).toEqual([]);
+    expect(p.$('wl').hidden).toBe(true);
+  });
+
+  it('#wta names the short address and the wallet', async () => {
+    const p = await boot({ wallets: [C], handoff: true, onePage: true, hang: 'personal_sign' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    const a = p.$('wta');
+    expect(vis(a)).toBe(true);
+    expect(a.textContent).toBe('Signing with 0xcdcd…cdcd in Beta.');
+    expect(a.querySelector('[title]').title).toBe(EXP);
+    expect(p.$('wt').dataset.phase).toBe('wallet');
+  });
+
+  it('the GET for the message hangs: "preparing", the wallet is not asked, no help line; at 15 s "APIbase did not answer"', async () => {
+    const p = await boot({ wallets: [C], handoff: true, onePage: true, hangGet: true });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    const t = p.$('wt');
+    expect(t.dataset.phase).toBe('prepare');
+    expect(vis(t) && vis(p.$('wp'))).toBe(true);
+    expect(p.$('wp').textContent).toBe(
+      'Preparing signature 1 of 1. Your wallet has not been asked yet.',
+    );
+    expect(t.querySelector('b').hidden).toBe(true);
+    expect(p.$('wta').hidden).toBe(true);
+    expect(signs(p)).toHaveLength(0);
+    p.advance(8_000);
+    expect(p.$('wl').hidden).toBe(true);
+    p.advance(7_000);
+    await p.settle();
+    const er = p.$('er');
+    expect(er.hidden).toBe(false);
+    expect(er.querySelector('b').textContent).toBe('APIbase did not answer');
+    expect(er.querySelector('small').textContent).toBe(
+      'Your wallet was not asked. Press Try again.',
+    );
+    expect([...er.querySelectorAll('button')].map((b: any) => b.textContent)).toEqual([
+      'Try again',
+    ]);
+    expect(signs(p)).toHaveLength(0);
+  });
+
+  it('the GET answers: data-phase turns "wallet" in the tick the wallet receives personal_sign', async () => {
+    const p = await boot({ wallets: [C], handoff: true, onePage: true, hang: 'personal_sign' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(signs(p)).toHaveLength(1);
+    expect(signs(p)[0].phase).toBe('wallet');
+    expect(p.log[0].phase).not.toBe('wallet');
+    expect(p.$('wp').hidden).toBe(true);
+    expect(p.$('wt').querySelector('b').textContent).toBe(
+      'Waiting for your wallet — signature 1 of 1',
+    );
+  });
+
+  it('grantVariant still finds the "of 3" anchor in both variants', async () => {
+    const html = await (await fetch(`${base}/integrator/connect?from=soukbase`)).text();
+    expect(html.split('<span id="wtn">1</span> of 3')).toHaveLength(2);
+    for (const v of [
+      { mode: 'grant' as const, grant_requested: false },
+      { mode: 'register' as const, grant_requested: true },
+    ])
+      expect(grantVariant(html, 'Soukbase', v)).toContain('<span id="wtn">1</span> of 1');
   });
 });

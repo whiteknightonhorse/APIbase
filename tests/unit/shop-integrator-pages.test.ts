@@ -179,7 +179,9 @@ describe('integrator pages', () => {
     expect(js).toHaveLength(1);
     // T-0800: 110 -> 150 for the EIP-6963 wallet chooser and the two-address mismatch box.
     // T-0867: 150 -> 157 for the read-only contact-email line (#ce-line) and its Change button.
-    expect(js[0].split('\n').length).toBeLessThanOrEqual(157);
+    // T-0870: 157 -> 177 for the wallet-request timer, the help line (#wl), the prepare/wallet phases (#wp, #wta),
+    // the repeat of an unanswered request and the 15 s limit on a GET.
+    expect(js[0].split('\n').length).toBeLessThanOrEqual(177);
     expect(text).toContain('<option>digital-goods</option>');
     expect(text).toContain('agent-guide');
   });

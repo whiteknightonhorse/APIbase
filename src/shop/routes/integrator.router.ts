@@ -278,7 +278,7 @@ export function onePageVariant(
     `<h3>Store details</h3>\n${sd('Shop name', 'name')}${sd('Website', 'site_url')}${sd('Category', 'category')}${sd('Country', 'country')}` +
     support +
     `<h3>Payout wallet</h3>\n${payout}` +
-    '<div id="wl"></div>\n' +
+    '<div id="wsl"></div>\n' +
     `${wh}${nwLinks}` +
     versions +
     '</details>\n';

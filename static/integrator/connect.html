@@ -36,6 +36,8 @@
 .ig .cn-cards div+div b::before{content:""}
 .ig .cn-wait{margin:var(--s4) 0;padding:var(--s4);border:1px solid var(--accent);border-radius:var(--r-card)}
 .ig .cn-wait small{display:block;margin-top:var(--s1);color:var(--ink-3)}
+.ig .cn-wait [hidden]{display:none!important}
+.ig .cn-wait #wl{color:var(--ink-2)}
 .ig .cn-error{border-color:var(--bad)}
 .ig .cn-error b{display:block;color:var(--bad)}
 .ig .cn-error small,.ig .cn-net small{display:block;margin:var(--s1) 0 var(--s3);color:var(--ink-2)}
@@ -116,7 +118,7 @@
 <label>Payout wallet on Tempo<input name="payout_wallet_tempo" placeholder="0x..."></label>
 </details>
 <div id="wn" hidden class="cn-net"><b>⚠ Wrong network</b><small id="wnt"></small></div>
-<div id="wt" hidden class="cn-wait"><b>Waiting for your wallet — signature <span id="wtn">1</span> of 3</b><small>Check your wallet — the request may be in another window or on your phone.</small></div>
+<div id="wt" hidden class="cn-wait" data-phase="prepare"><b>Waiting for your wallet<span id="wts"> — signature <span id="wtn">1</span> of 3</span></b><small>Check your wallet — the request may be in another window or on your phone.</small><small id="wta"></small><small id="wp" hidden></small><small id="wl" role="status" hidden></small></div>
 <div id="er" class="cn-box cn-error" hidden></div>
 <p class="hint" id="wh">Your wallet app or browser extension will open. <a href="/integrator/wallet">Don't have a wallet? Get one in 2 minutes →</a></p>
 </div>
@@ -129,8 +131,10 @@
 let RV = () => {}; const $ = (id) => document.getElementById(id), f = $('f'), F = f.elements, S = ['s1', 's2', 's3'], T = (n, p) => window.apibaseTrack && apibaseTrack(n, p);
 const hex = (m) => '0x' + [...new TextEncoder().encode(m)].map((b) => b.toString(16).padStart(2, '0')).join('');
 const b64 = (b) => btoa(String.fromCharCode(...new Uint8Array(b)));
-const call = async (u, method, body) => {
-  const r = await fetch(u, { method, headers: { 'content-type': 'application/json' }, body: body && JSON.stringify(body) }); const d = await r.json(); if (!r.ok) throw new Error((d.error_code || r.status) + ': ' + (d.message || '')); return d;
+// T-0870: a GET (message, nonce) has 15 s; the wallet is asked only after it answers
+const call = async (u, method, body) => { const c = method === 'GET' ? new AbortController() : null, t = c && setTimeout(() => c.abort(), 15000); try {
+    const r = await fetch(u, { method, headers: { 'content-type': 'application/json' }, body: body && JSON.stringify(body), ...(c ? { signal: c.signal } : {}) }); const d = await r.json(); if (!r.ok) throw new Error((d.error_code || r.status) + ': ' + (d.message || '')); return d;
+  } catch (x) { if (c && c.signal.aborted) throw Object.assign(new Error('APIbase did not answer'), { code: 'apibase_silent' }); throw x; } finally { if (t) clearTimeout(t); }
 };
 let AP = null; const sign = (a, m) => AP.p.request({ method: 'personal_sign', params: [hex(m), a] });
 const nonce = (a, p) => call('/api/v1/shop/auth/nonce?wallet=' + a + '&purpose=' + p, 'GET');
@@ -171,28 +175,49 @@ f.addEventListener('input', pv); f.addEventListener('change', pv);
 f.addEventListener('focusout', (e) => { if (e.target.name in V) chk(e.target.name, true); });
 f.addEventListener('submit', (e) => e.preventDefault());
 document.addEventListener('click', (e) => { const c = e.target.closest && e.target.closest('[data-copy]'); if (c) { try { navigator.clipboard.writeText(c.dataset.copy).then(() => { c.textContent = 'Copied'; }); } catch (x) {} } });
-$('bk').onclick = () => show(cur - 1);
+$('bk').onclick = () => { wx(); show(cur - 1); };
 // T-0800: the person chooses the wallet (EIP-6963). Discovery only listens; no wallet is asked anything before a press.
-const WK = 'apibase_wallet'; let PR = null, pick = false, HK = null, CA = '', dw = null, RID = 0, busy = false; const wc = document.createElement('div'); wc.className = 'cn-box'; wc.hidden = true; $('wn').before(wc);
+// T-0870: AM = a press ended at the wrong account (continue once it is right); PQ = the unanswered wallet request; RP = it may be sent again.
+const WK = 'apibase_wallet'; let PR = null, pick = false, HK = null, CA = '', dw = null, RID = 0, busy = false, AM = false, PQ = null, WT = 0, RP = false; const wc = document.createElement('div'); wc.className = 'cn-box'; wc.hidden = true; $('wn').before(wc);
 const mem = (v) => { try { if (v) localStorage.setItem(WK, v); else return localStorage.getItem(WK) || ''; } catch (e) {} return ''; };
 const cw = () => PR || (WL.length === 1 ? WL[0] : !WL.length && window.ethereum ? { i: { name: 'your wallet', rdns: '' }, p: window.ethereum } : null);
 const unhook = () => { if (HK && HK.p.removeListener) try { HK.p.removeListener('accountsChanged', HK.h); } catch (e) {} HK = null; };
 const ew = () => (F.handoff && PF && typeof PF.expected_wallet === 'string' ? PF.expected_wallet : '');
+const pk = (a) => { const s = Array.isArray(a) ? a.filter((x) => typeof x === 'string') : [], e = ew().toLowerCase(); return (e && s.find((x) => x.toLowerCase() === e)) || s[0] || ''; }; // T-0870: the expected account when the wallet authorised it, else the first
+const hook = (e) => { if (HK && HK.p === e.p) return; unhook(); if (e.p.on) { HK = { p: e.p, h: (a) => { if (HK && HK.p === e.p) { CA = pk(a); gate(); } } }; e.p.on('accountsChanged', HK.h); } };
+const wn = (e) => (e && e.i ? e.i.name : 'your wallet');
 const sh = (a) => a.slice(0, 6) + '…' + a.slice(-4);
 const adr = (a) => { const s = el('span', '', sh(a)); s.title = a; return s; };
 const differ = (e) => { const pn = F.handoff.dataset.partner; if (!dw) { dw = el('div', 'cn-net'); $('wn').after(dw); } dw.replaceChildren(el('b', '', '⚠ Different wallet'), (() => { const m = el('small'); m.append('Connected: ', adr(CA), ' in ' + (AP ? AP.i.name : 'your wallet') + '. Expected: ', adr(e), ', the wallet you used on ' + pn + '. Switch to that account in your wallet' + (WL.length ? ', or press Other wallet.' : '.')); return m; })(), el('small', '', 'In your wallet open the account menu, choose ' + sh(e) + ', then press ' + $('nx').textContent + '.'), ...(cw() && cw().p === NC ? [] : [(() => { const b = el('button', 'cn-ghost', 'Choose account in wallet'); b.type = 'button'; b.onclick = () => pa(b); return b; })()])); dw.hidden = false; };
 // T-0832: asked only on a press (T-0800): the wallet shows its account picker; unsupported -> the button goes, a refusal (4001) changes nothing.
-let NC = null; const pa = async (b) => { const c = cw(); if (!c || b.disabled) return; b.disabled = true; try { await c.p.request({ method: 'wallet_requestPermissions', params: [{ eth_accounts: {} }] }); const a = await c.p.request({ method: 'eth_accounts' }); CA = Array.isArray(a) && typeof a[0] === 'string' ? a[0] : ''; gate(); } catch (x) { if (x && (x.code === 4200 || x.code === -32601)) { NC = c.p; b.hidden = true; } } b.disabled = false; };
-const gate = () => { const e = ew(), bad = !!(e && CA && CA.toLowerCase() !== e.toLowerCase()); $('nx').disabled = bad || busy; if (bad) differ(e); else if (dw) dw.hidden = true; return bad; };
+let NC = null; const pa = async (b) => { const c = cw(); if (!c) return; if (PQ && !PQ.done && PQ.m === 'wallet_requestPermissions') { if (RP) ws(PQ); return; } if (b.disabled) return; b.disabled = true; try { await wq(c, 'wallet_requestPermissions', [{ eth_accounts: {} }], b.textContent); const a = await c.p.request({ method: 'eth_accounts' }); CA = pk(a); gate(); } catch (x) { if (x && (x.code === 4200 || x.code === -32601)) { NC = c.p; b.hidden = true; } } b.disabled = false; };
+const bd = () => { const e = ew(); return !!(e && CA && CA.toLowerCase() !== e.toLowerCase()); };
+const go = () => { if (AM && CA && cur === 2 && !busy && !bd()) { AM = false; $('nx').click(); } }; // T-0870: once, as if the main button was pressed
+const gate = () => { const e = ew(), bad = bd(); $('nx').disabled = bad || (busy && !RP); if (bad) differ(e); else if (dw) dw.hidden = true; if (!bad && AM && CA && cur === 2 && !busy) setTimeout(go, 0); return bad; };
+// T-0870: every wallet request: one 8 s timer, any answer clears it; a press after the help line sends the same request again and the first answer counts
+const wq = (e, m, ps, lb) => new Promise((res, rej) => { const q = { e, m, ps, lb, n: 0, res, rej, done: false }; PQ = q; ws(q); });
+const ws = (q) => { q.n++; RP = false; clearTimeout(WT); $('wl').hidden = true; if (busy) $('nx').disabled = true; if (q.m === 'personal_sign') ph('wallet', sg > 0); WT = setTimeout(() => { if (PQ === q && !q.done) hl('silent', q); }, 8000);
+  let r; try { r = q.e.p.request(q.ps ? { method: q.m, params: q.ps } : { method: q.m }); } catch (x) { r = Promise.reject(x); } Promise.resolve(r).then((v) => wd(q, v), (x) => wd(q, x, true));
+};
+const wd = (q, v, bad) => { if (q.done) return; q.n--; const pn = bad && v && v.code === -32002; if (pn) { if (PQ === q) { clearTimeout(WT); hl('pending', q); } if (q.n > 0) return; }
+  q.done = true; if (PQ === q) { PQ = null; RP = false; clearTimeout(WT); if (!pn) { $('wl').hidden = true; if (q.m !== 'personal_sign' && !sg) $('wt').hidden = true; } }
+  if (bad) q.rej(v); else q.res(v);
+};
+const wx = () => { PQ = null; RP = false; AM = false; clearTimeout(WT); $('wl').hidden = true; };
+const ph = (p, num) => { const t = $('wt'), w = p === 'wallet'; t.dataset.phase = p; t.querySelector('b').hidden = t.querySelector('small').hidden = !w; $('wts').hidden = !num; $('wta').hidden = !w || !$('wta').textContent; $('wp').hidden = w; if (!w) $('wl').hidden = true; t.hidden = false; }; // T-0870: prepare = APIbase is asked, wallet = the wallet has the request
+const hl = (why, q) => { const t = $('wt'), l = $('wl'), nm = wn(q.e); if (t.hidden || t.dataset.phase !== 'wallet') ph('wallet', q.m === 'personal_sign' && sg > 0);
+  l.dataset.why = why; l.textContent = why === 'pending' ? nm[0].toUpperCase() + nm.slice(1) + ' already has a request from this page waiting. Open it from the browser toolbar and answer it.' : 'No wallet window? Open ' + nm + ' from the browser toolbar: the request is waiting there. If nothing is there, press ' + q.lb + ' again.';
+  l.hidden = false; RP = true; gate();
+};
 function rw() {
-  if (OP) (pick ? $('wn') : $('wl')).before(wc); // T-0869: the wallet line sits in More options; the chooser opens outside after a press
+  if (OP) (pick ? $('wn') : $('wsl')).before(wc); // T-0869: the wallet line sits in More options; the chooser opens outside after a press
   const open = cur === 2 && WL.length && (pick || !cw()); wc.hidden = !(cur === 2 && WL.length); wc.replaceChildren(); if (wc.hidden) return;
-  const r = mem(); if (!open) { const o = el('button', 'cn-ghost', 'Other wallet'); o.type = 'button'; o.onclick = () => { RID++; busy = false; pick = true; gate(); rw(); }; wc.append(el('small', '', 'Wallet: ' + cw().i.name + ' '), o); return; }
+  const r = mem(); if (!open) { const o = el('button', 'cn-ghost', 'Other wallet'); o.type = 'button'; o.onclick = () => { RID++; busy = false; pick = true; wx(); $('wt').hidden = true; gate(); rw(); }; wc.append(el('small', '', 'Wallet: ' + cw().i.name + ' '), o); return; }
   wc.append(el('b', '', 'Choose your wallet'));
   [...WL].sort((a, b) => (b.i.rdns === r) - (a.i.rdns === r)).forEach((w) => {
     const b = el('button', 'lp-cta', w.i.name); b.type = 'button'; b.style.display = 'flex'; b.style.margin = 'var(--s2) 0';
     if (typeof w.i.icon === 'string' && /^data:image\//i.test(w.i.icon)) { const g = el('img'); g.src = w.i.icon; g.alt = ''; g.width = g.height = 20; b.prepend(g); }
-    b.onclick = () => { RID++; busy = false; unhook(); PR = w; pick = false; CA = ''; mem(w.i.rdns); gate(); rw(); if (cur === 2) $('nx').click(); }; wc.append(b);
+    b.onclick = () => { RID++; busy = false; wx(); unhook(); PR = w; pick = false; CA = ''; mem(w.i.rdns); gate(); rw(); if (cur === 2) $('nx').click(); }; wc.append(b);
   });
 }
 window.addEventListener('eip6963:announceProvider', (e) => {
@@ -227,15 +252,16 @@ const ret = (slug) => { // T-0801: with keys on the page only Continue returns, 
 };
 let sg = 0;
 const mark = (n, c) => [...$('sig').children].forEach((li, j) => { li.className = GR && n ? c : j + 1 < n ? 'done' : j + 1 === n ? c : ''; }); // T-0802: one signature carries every row
-const P = (n) => { sg = n; mark(n, 'now'); $('wtn').textContent = n; $('wt').hidden = false; $('er').hidden = true; };
+// T-0870: the line names the account and the wallet; until the wallet has the request it says only that the signature is prepared
+const P = (n) => { sg = n; mark(n, 'now'); $('wtn').textContent = n; $('wp').textContent = 'Preparing signature ' + n + ' of ' + N + '. Your wallet has not been asked yet.'; const a = $('wta'); a.replaceChildren(); if (CA) a.append('Signing with ', adr(CA), ' in ' + wn(AP) + '.'); ph('prepare'); $('er').hidden = true; };
 const el = (t, c, x) => Object.assign(document.createElement(t), { className: c || '', textContent: x || '' });
 const BASE = '0x2105', NET = { '0x1': 'Ethereum', '0xa': 'Optimism', '0x89': 'Polygon', '0xa4b1': 'Arbitrum', '0x38': 'BNB Chain' };
 const net = () => { const e = cw(), c = e && e.p.chainId; $('wn').hidden = !c || c === BASE; if (c && c !== BASE) $('wnt').textContent = 'Your wallet is on ' + (NET[c] || 'another network') + '. Switch it to Base — switching is free.'; };
 const fail = (err) => {
-  const rej = err && (err.code === 4001 || err.code === 'ACTION_REJECTED' || /reject|denied/i.test(err.message || '')), er = $('er'), nm = sg && !GR ? $('sig').children[sg - 1].querySelector('b').textContent : '';
+  const to = !!(err && err.code === 'apibase_silent'), rej = !to && err && (err.code === 4001 || err.code === 'ACTION_REJECTED' || /reject|denied/i.test(err.message || '')), er = $('er'), nm = sg && !GR ? $('sig').children[sg - 1].querySelector('b').textContent : '';
   $('wt').hidden = true; er.className = 'cn-box cn-error'; if (/wallet_registered/.test(err.message)) return have();
   if (/merchant_not_found/.test(err.message)) { const a = el('a', '', 'Connect your store'); a.href = '/integrator/connect'; er.replaceChildren(el('b', '', 'This wallet has no store on APIbase yet'), document.createTextNode(' '), a); er.hidden = false; mark(0, ''); return; } if (/slug_taken/i.test(err.message)) { if (OP) row('slug').hidden = false; else show(0); F.slug.classList.add('bad'); f.querySelector('[data-for=slug]').textContent = 'This address is taken — try ' + F.slug.value + '-shop'; return; } if (rej && sg) mark(sg, 'rej');
-  const msg = sg === 0 ? 'Wallet connection was not approved. Nothing was charged. Press Try again and approve the connection in your wallet.' : sg === 3 && !G ? 'Signature 3 of ' + N + ' (' + nm + ') was not approved. Your store is already registered; it only needs the documents accepted. Follow the accept-terms step in the agent guide: https://apibase.pro/integrator/agent-guide' : 'Signature ' + sg + ' of ' + N + (nm ? ' (' + nm + ')' : '') + ' was not approved. Nothing was charged. Press Try again and approve it in your wallet.', t = el('b', '', rej ? (sg === 0 ? '⊗ Wallet connection rejected' : '⊗ Signature rejected') : 'Something went wrong'), m = el('small', '', rej ? msg : err.message), b = el('button', 'lp-cta', 'Try again');
+  const msg = sg === 0 ? 'Wallet connection was not approved. Nothing was charged. Press Try again and approve the connection in your wallet.' : sg === 3 && !G ? 'Signature 3 of ' + N + ' (' + nm + ') was not approved. Your store is already registered; it only needs the documents accepted. Follow the accept-terms step in the agent guide: https://apibase.pro/integrator/agent-guide' : 'Signature ' + sg + ' of ' + N + (nm ? ' (' + nm + ')' : '') + ' was not approved. Nothing was charged. Press Try again and approve it in your wallet.', t = el('b', '', to ? 'APIbase did not answer' : rej ? (sg === 0 ? '⊗ Wallet connection rejected' : '⊗ Signature rejected') : 'Something went wrong'), m = el('small', '', to ? 'Your wallet was not asked. Press Try again.' : rej ? msg : err.message), b = el('button', 'lp-cta', 'Try again');
   b.type = 'button'; b.onclick = () => { er.hidden = true; mark(0, ''); if (sg > 3) AL(); else if (sg < 3) $('nx').click(); };
   er.replaceChildren(t, m, b); er.hidden = false;
 };
@@ -249,10 +275,12 @@ const have = () => {
 };
 const run = async (my) => {
   sg = 0; const e = cw(); if (!e) { pick = true; rw(); return; }
-  const x = Object.fromEntries(new FormData(f)), w = (await e.p.request({ method: 'eth_requestAccounts' }))[0]; if (my !== RID) return; AP = e; CA = w;
-  const sign = (a, m) => { if (my !== RID) throw new Error('wallet changed'); return e.p.request({ method: 'personal_sign', params: [hex(m), a] }); };
-  if (!HK || HK.p !== e.p) { unhook(); if (e.p.on) { HK = { p: e.p, h: (a) => { if (HK && HK.p === e.p) { CA = Array.isArray(a) && typeof a[0] === 'string' ? a[0] : ''; gate(); } } }; e.p.on('accountsChanged', HK.h); } }
-  if (gate()) return;
+  const x = Object.fromEntries(new FormData(f)), lb = $('nx').textContent; let ra;
+  try { ra = await wq(e, 'eth_requestAccounts', null, lb); } catch (y) { if (y && y.code === -32002 && my === RID) { CA = ''; AM = true; hook(e); } throw y; } // T-0870: a request left in the wallet: listen, continue when an account arrives
+  if (my !== RID) return; const w = pk(ra); AP = e; CA = w;
+  const sign = async (a, m) => { if (my !== RID) throw new Error('wallet changed'); const s = await wq(e, 'personal_sign', [hex(m), a], lb); if (my !== RID) throw new Error('wallet changed'); return s; };
+  hook(e);
+  if (gate()) { AM = true; return; }
   WA = w; if (G) { P(1); const g = await gb(w, x.handoff, sign); return done(g, g.slug, null); } P(1); let k = await crypto.subtle.generateKey({ name: 'X25519' }, true, ['deriveBits']); const pub = b64(await crypto.subtle.exportKey('raw', k.publicKey));
   const fd = { slug: x.slug, name: x.name, category: x.category, country: x.country.toUpperCase(), contact_email: x.contact_email, support_email: (x.support_email || '').trim(), site_url: x.site_url, payout_wallet_base: x.payout_wallet_base || w, payout_wallet_tempo: x.payout_wallet_tempo || w };
   if (GR) { // T-0802: one server-built message states the key, the registration, the four documents and the permission
@@ -269,11 +297,12 @@ const run = async (my) => {
 };
 $('nx').onclick = async () => {
   if (cur < 2) { if (!ok(cur, true)) return; T('connect_step', { step: cur + 2 }); return show(cur + 1); }
+  if (busy) { if (PQ && RP) ws(PQ); return; } // T-0870: the unanswered request again, not a new run
   const bad = OP ? STEP[0].filter((n) => !chk(n, true)) : []; // T-0869: every field is checked first; a failing one is shown, no wallet is asked
   if (bad.length) { bad.forEach((n) => { row(n).hidden = false; const d = F[n].closest('details'); if (d) d.open = true; }); return F[bad[0]].focus(); }
-  const bt = $('nx'), my = ++RID; busy = true; bt.disabled = true; $('er').hidden = true; $('wt').hidden = true; net();
-  try { await run(my); } catch (err) { if (my === RID) fail(err); }
-  if (my === RID) { busy = false; gate(); }
+  const bt = $('nx'), my = ++RID; AM = false; busy = true; bt.disabled = true; $('er').hidden = true; $('wt').hidden = true; $('wl').hidden = true; net();
+  try { await run(my); } catch (err) { if (my === RID && !(err && err.code === -32002)) fail(err); } // T-0870: -32002 keeps the help line, no error box
+  if (my === RID) { busy = false; RP = false; gate(); }
 };
 pv(); show(G || OP ? 2 : 0);
 </script>
