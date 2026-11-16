@@ -38,7 +38,8 @@ api_overflow_run(){
   [ "$#" -gt 9 ] && shift 9 || shift "$#"
   once="$state/$tid.overflow-used-$okey"
   [ -n "$mt" ] && turns=(--max-turns "$mt")
-  api_overflow_limit_text "$out" || return 1
+  # API_OVERFLOW_ANY_ANSWER=1 (dispute rulings, which carry no ACCEPT/REJECT line) swaps in the test without the verdict condition.
+  if [ "${API_OVERFLOW_ANY_ANSWER:-}" = 1 ]; then api_overflow_limit_file "$out" || return 1; else api_overflow_limit_text "$out" || return 1; fi
   [ -e "$once" ] && return 1
   : > "$once"
   tmp=$(mktemp) || return 1

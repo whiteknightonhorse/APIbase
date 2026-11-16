@@ -128,6 +128,10 @@ sourced by `taskloop.sh`.
   without the verdict condition, for dispute and consult answers. The once file is `state/<card>.overflow-used-<once-key>` (default key `review`). On success the answer is used and
   `state/passes-<date>.fable.api` is incremented; on exit 75 or any failure nothing changes and the card-0590 outage branch (host-wide marker, park) runs as before. The fallback covers Fable
   acceptance reviews, Fable dispute rulings and dispatcher consults, once per card, attempt and kind, and never Sonnet or Opus work passes, the stuck arbiter or orchestra calls.
+  The dispute ruling call site is in `taskloop.sh` just before the card-0590 limit branch: `API_OVERFLOW_ANY_ANSWER=1 api_overflow_run` (the flag swaps in `api_overflow_limit_file`) with once-key `a<attempt>-dispute-<RN>`
+  and `--permission-mode default`; the acceptance review uses once-key `a<attempt>-review` with `--settings` and `--permission-mode default`.
+  `lib/consult-run.sh <B> <N>` is the one runner for dispatcher consults: on limit text with no `disputes/<B>.ruling-<N>.api-used` file it creates that file and runs the prompt once through
+  `api-call --lane overflow --max-turns 60`; after the third failed answer it writes `<B>.ruling-<N>.gave-up`, a `WATCHER:consult:<B>.q-<N>:gave-up` line in `logs/tick.log` and one Telegram line.
 - Tool-running child: an `api-call` child that must run tools needs `bwrap` and `socat` on the host, and the caller must pass explicit `--allowedTools` (or a settings allow rule), because the scrub variable forces the permission mode to default.
 
 Test: `tests/bash/api-overflow.test.sh`.
