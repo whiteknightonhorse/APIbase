@@ -145,6 +145,12 @@ Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets on
 - **Attestation.** Anyone can ask GenLayer validators to check a receipt against its USDC transfer on Base at `https://apibase.pro/attest/?r=<receipt_id>` (contract address, network and fee in the [README](../README.md)). Fee and reset notes are on the page itself.
 - **Load note for validators.** Validators fetch each receipt several times within one minute. This is expected load, served from cache.
 
+## Team and test wallets
+
+- **Public list.** The wallets the APIbase team operates for monitoring and testing are listed with a label and the date they were listed at `https://apibase.pro/policy/test-wallets.json`. A label says what the wallet is for (`mcp-heartbeat`: scheduled paid calls that check that tools answer; `mcp-protocol-tester`: the daily protocol test run; `integrator-shop-test`: a wallet of an Integrator test shop). A payment from a listed wallet is APIbase's own traffic, not customer volume; an address that is not listed is not thereby a customer.
+- **What the product does for a listed wallet.** A refund owed to it is booked as `internal` and is not paid out, and the result of its calls is not retained for 24 h.
+- **Counts.** No volume or payer count is published unless these wallets are excluded.
+
 ## Refunds owed by APIbase
 
 - **Ledger.** Every amount APIbase owes a payer (a failed MPP call, a failed x402 settle that landed on chain, the APIbase fee share of a duplicate order payment) is one row in `refund_ledger`, in USD, on the rail it was paid on, to the paying wallet. The refund state of a receipt is served next to it at `https://apibase.pro/r/<receipt_id>.refund.json`.
