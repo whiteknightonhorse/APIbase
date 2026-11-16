@@ -10,16 +10,34 @@ import { isInternalWallet, parseInternalWallets } from '../../src/config/interna
 const ROOT = join(__dirname, '..', '..');
 
 describe('internal-wallets (T-0280)', () => {
-  it('ships 15 lowercase Heartbeat addresses', () => {
+  it('ships 16 lowercase internal addresses', () => {
     const list = JSON.parse(
       readFileSync(join(ROOT, 'config/autopilot/internal-wallets.json'), 'utf-8'),
     ) as Array<{ address: string; label: string; source: string }>;
-    expect(list).toHaveLength(15);
+    expect(list).toHaveLength(16);
+    expect(new Set(list.map((e) => e.address)).size).toBe(16);
+    const tester = '0xe03d9423d06dd5e3300fb1c09a03ddbb5e8b274b';
+    const shop = '0x03c545a6d6f1254e4bc4fb16dd6898863f0ea0a3';
     for (const e of list) {
       expect(e.address).toMatch(/^0x[0-9a-f]{40}$/);
-      const tester = '0xe03d9423d06dd5e3300fb1c09a03ddbb5e8b274b';
-      expect(e.label).toBe(e.address === tester ? 'mcp-protocol-tester' : 'mcp-heartbeat');
+      const want =
+        e.address === tester
+          ? 'mcp-protocol-tester'
+          : e.address === shop
+            ? 'integrator-shop-test'
+            : 'mcp-heartbeat';
+      expect(e.label).toBe(want);
     }
+  });
+
+  it('lists the Integrator test-shop wallet (T-0881, PAYGRAPH-1114 ruling-3)', () => {
+    expect(isInternalWallet('0x03C545A6d6f1254E4bC4fB16dD6898863f0ea0a3')).toBe(true);
+    const list = JSON.parse(
+      readFileSync(join(ROOT, 'config/autopilot/internal-wallets.json'), 'utf-8'),
+    ) as Array<{ address: string; label: string }>;
+    expect(
+      list.find((e) => e.address === '0x03c545a6d6f1254e4bc4fb16dd6898863f0ea0a3')?.label,
+    ).toBe('integrator-shop-test');
   });
 
   it('matches case-insensitively and rejects unknown / empty payers', () => {
