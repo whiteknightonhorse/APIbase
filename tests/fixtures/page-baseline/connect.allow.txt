@@ -6,3 +6,7 @@ BUILD: v1.0.0
 # T-0533: first payment creates the identity; REST bodies are flat (no params wrapper); old sequence:
 The first tool call auto-issues an ak_live_... key behind the scenes — there
 '{"params": {"coins": ["bitcoin"]}}'
+# T-0843: the "Which path should I pick?" list no longer uses questions as item labels.
+Building an MCP-native agent?
+Calling from a plain HTTP client or existing backend?
+An autonomous agent that should never touch a human onboarding flow, ever?

@@ -112,6 +112,8 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 
 ## Questions
 
+Short answers to what shop owners ask first.
+
 - Does APIbase hold the money? No. The buyer pays your payout wallet directly.
 - What can I sell? Digital items and physical goods in the allowed categories (/legal/aup). For physical goods the shipping address travels end-to-end encrypted (see /integrator/docs#pii); shipping options and delivery slots are part of the quote.
 - Which wallet do I need? One that receives USDC on Base or Tempo. APIbase issues no wallets: see /integrator/wallet.
@@ -136,7 +138,7 @@ What stays outside our guarantees: spending limits belong to the buyer's wallet;
 
 ## Make your site easy for agents
 
-Do AI agents visit your site? Check on AIpush.app: https://aipush.app. It shows how agents see your site and what to fix.
+To see whether AI agents visit your site, check AIpush.app: https://aipush.app. It shows how agents see your site and what to fix.
 
 ## For buyers
 

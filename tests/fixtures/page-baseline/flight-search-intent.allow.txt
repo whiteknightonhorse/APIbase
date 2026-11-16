@@ -6,3 +6,5 @@ BUILD: v1.0.0
 # T-0533: REST body is flat (no params wrapper); old sequence:
 '{"params": {"origin":
 "<ISO-DATE>"}}'
+# T-0843: a section no longer opens with a question.
+No API key yet?

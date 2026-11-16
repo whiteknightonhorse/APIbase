@@ -5,3 +5,5 @@ STATUS: ONLINE | PID: 1337 | TTY: pts/0 | USER: apibase
 BUILD: v1.0.0
 # T-0533: REST body is flat (no params wrapper); old sequence:
 '{"params": {"query": "Tesla"}}'
+# T-0843: a section no longer opens with a question.
+Not authenticated yet?
