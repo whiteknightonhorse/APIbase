@@ -636,9 +636,10 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     limiter(60_000, 10),
     async (req: Request, res: Response) => {
       try {
-        const { grant, upgraded } = await createGrant(deps, req.body);
-        // T-0825: 200 when a live grant gained quotes:read, 201 for a new grant
-        res.status(upgraded ? 200 : 201).json(grant);
+        const { grant, existing } = await createGrant(deps, req.body);
+        // T-0825/T-0873: 200 when the live grant answers (it gained quotes:read, or already holds what a
+        // scopes handoff asks for), 201 for a new grant
+        res.status(existing ? 200 : 201).json(grant);
       } catch (err) {
         send(res, err);
       }

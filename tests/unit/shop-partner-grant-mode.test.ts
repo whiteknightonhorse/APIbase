@@ -317,8 +317,8 @@ dbDescribe('T-0747 partner-mode grants', () => {
       }),
     );
   }
-  async function handoff() {
-    const r = await http('POST', '/api/v1/shop/partners/handoffs', { mode: 'grant' }, PKEY);
+  async function handoff(body: Row = { mode: 'grant' }, key = PKEY) {
+    const r = await http('POST', '/api/v1/shop/partners/handoffs', body, key);
     expect(r.status).toBe(201);
     return ((await r.json()) as { handoff_id: string }).handoff_id;
   }
@@ -529,7 +529,7 @@ dbDescribe('T-0747 partner-mode grants', () => {
       expect(row).toEqual({ grant_key_enc: null, grant_webhook_secret_enc: null, d: true });
     });
 
-    it('T-0825: an old two-scope mode-partner grant gains quotes:read in place: same grant, same endpoint id and secret, handoff untouched; a second is 409', async () => {
+    it('T-0825: an old two-scope mode-partner grant gains quotes:read in place: same grant, same endpoint id and secret; T-0873: the handoff is bound without a secret; a second is 409', async () => {
       const m = await merchant();
       const h = await handoff();
       const g = await grant(m.acct, h);
@@ -552,7 +552,8 @@ dbDescribe('T-0747 partner-mode grants', () => {
       );
       expect(epBefore).toHaveLength(1);
 
-      const up = await grant(m.acct);
+      const h2 = await handoff();
+      const up = await grant(m.acct, h2);
       expect(up.status).toBe(200);
       expect(up.body).toMatchObject({
         grant_id: g.body.grant_id,
@@ -562,7 +563,17 @@ dbDescribe('T-0747 partner-mode grants', () => {
       expect(JSON.stringify(up.body)).not.toMatch(/mk_live_|whsec_|secret/);
 
       expect(await q(epSql, m.id)).toEqual(epBefore);
+      // the handoff of the first grant stays as it was; the one of the upgrade is bound, no secret parked
       expect(await q(hoSql, h)).toEqual(hoBefore);
+      expect(await q(hoSql, h2)).toEqual([
+        {
+          state: 'granted',
+          grant_id: g.body.grant_id,
+          grant_key_enc: null,
+          grant_webhook_secret_enc: null,
+          grant_delivered_at: null,
+        },
+      ]);
       const keysAfter = await q(
         `SELECT count(*)::int AS c FROM shop_merchant_keys WHERE merchant_id = $1::uuid`,
         m.id,
@@ -580,6 +591,135 @@ dbDescribe('T-0747 partner-mode grants', () => {
       expect(rows[0].key_hash).toBeNull();
       const again = await grant(m.acct);
       expect([again.status, again.body.error_code]).toEqual([409, 'grant_exists']);
+    });
+  });
+
+  describe('T-0873 a grant handoff that names the scope it adds', () => {
+    const SCOPES3 = ['catalog:write', 'webhooks:write', 'quotes:read'];
+    const scoped = () => handoff({ mode: 'grant', scopes: ['quotes:read'] });
+    const epSql = `SELECT endpoint_id::text AS endpoint_id, secret_hash, url, events, status
+                     FROM shop_webhook_endpoints WHERE merchant_id = $1::uuid ORDER BY endpoint_id`;
+    const grantRow = async (merchant_id: string) =>
+      q(
+        `SELECT grant_id::text AS grant_id, scopes, proof_message, proof_signature, revoked_at
+           FROM shop_partner_grants WHERE merchant_id = $1::uuid ORDER BY created_at`,
+        merchant_id,
+      );
+    const handoffState = async (id: string) =>
+      (
+        await q(
+          `SELECT state, merchant_id::text AS merchant_id, grant_id::text AS grant_id
+             FROM shop_partner_handoffs WHERE handoff_id = $1::uuid`,
+          id,
+        )
+      )[0];
+
+    it('the Soukbase case: an old two-scope grant + a scopes handoff + one signature: 200, same row with three scopes, same endpoint and secret, the handoff reads granted with no secret', async () => {
+      const g = await granted();
+      await x(
+        `UPDATE shop_partner_grants SET scopes = ARRAY['catalog:write','webhooks:write'] WHERE grant_id = $1::uuid`,
+        g.grant_id,
+      );
+      const before = await q(epSql, g.id);
+      expect(before).toHaveLength(1);
+      // before the signature the quotes route refuses the old grant
+      const q403 = await json(
+        await http('GET', `/api/v1/shop/partners/merchants/${g.slug}/quotes`, undefined, PKEY),
+      );
+      expect([q403.status, q403.body.error_code]).toEqual([403, 'grant_scope_missing']);
+      const h = await scoped();
+      const up = await grant(g.acct, h);
+      expect(up.status).toBe(200);
+      expect(up.body).toMatchObject({ grant_id: g.grant_id, mode: 'partner', scopes: SCOPES3 });
+      const rows = await grantRow(g.id);
+      expect(rows).toHaveLength(1);
+      expect([rows[0].grant_id, rows[0].scopes]).toEqual([g.grant_id, SCOPES3]);
+      expect(await q(epSql, g.id)).toEqual(before);
+      for (const read of [await readHandoff(h), await readHandoff(h)]) {
+        expect(read).toMatchObject({ state: 'granted', slug: g.slug, merchant_id: g.id });
+        expect(read.grant).toEqual({ state: 'granted', mode: 'partner', scopes: SCOPES3 });
+        for (const k of ['key', 'webhook_secret', 'delivered'])
+          expect(Object.keys(read.grant)).not.toContain(k);
+      }
+      const q200 = await http(
+        'GET',
+        `/api/v1/shop/partners/merchants/${g.slug}/quotes`,
+        undefined,
+        PKEY,
+      );
+      expect(q200.status).toBe(200);
+    });
+
+    it('a three-scope grant + a scopes handoff: 200, the grant row unchanged (same proof), the handoff granted', async () => {
+      const g = await granted();
+      const before = await grantRow(g.id);
+      const h = await scoped();
+      const r = await grant(g.acct, h);
+      expect(r.status).toBe(200);
+      expect(r.body).toEqual({
+        grant_id: g.grant_id,
+        partner: 'soukbase',
+        mode: 'partner',
+        scopes: SCOPES3,
+        created_at: expect.any(String),
+        slug: g.slug,
+      });
+      expect(await grantRow(g.id)).toEqual(before);
+      expect(await handoffState(h)).toEqual({
+        state: 'granted',
+        merchant_id: g.id,
+        grant_id: g.grant_id,
+      });
+      expect((await readHandoff(h)).grant).toEqual({
+        state: 'granted',
+        mode: 'partner',
+        scopes: SCOPES3,
+      });
+    });
+
+    it('a store without a grant + a scopes handoff: 404 not_found, nothing written, the handoff unbound', async () => {
+      const m = await merchant();
+      const h = await scoped();
+      const r = await grant(m.acct, h);
+      expect([r.status, r.body.error_code, r.body.message]).toEqual([
+        404,
+        'not_found',
+        `${m.slug} has not allowed Soukbase yet; ask Soukbase for a new link`,
+      ]);
+      expect(await grantRow(m.id)).toHaveLength(0);
+      expect(
+        await q(`SELECT 1 FROM shop_webhook_endpoints WHERE merchant_id = $1::uuid`, m.id),
+      ).toHaveLength(0);
+      const s = await handoffState(h);
+      expect(['created', 'opened']).toContain(s.state);
+      expect([s.merchant_id, s.grant_id]).toEqual([null, null]);
+      // a revoked grant does not count either
+      const g = await granted();
+      await http('DELETE', '/api/v1/shop/merchants/me/grants/soukbase', undefined, g.owner);
+      const h2 = await scoped();
+      expect((await grant(g.acct, h2)).status).toBe(404);
+      expect((await handoffState(h2)).grant_id).toBeNull();
+    });
+
+    it('a mode-grant handoff without scopes on a three-scope grant: 409 grant_exists as before', async () => {
+      const g = await granted();
+      const h = await handoff();
+      const r = await grant(g.acct, h);
+      expect([r.status, r.body.error_code]).toEqual([409, 'grant_exists']);
+      expect((await handoffState(h)).grant_id).toBeNull();
+    });
+
+    it("another partner's handoff id: the upgrade succeeds and that handoff is not bound", async () => {
+      const g = await granted();
+      await x(
+        `UPDATE shop_partner_grants SET scopes = ARRAY['catalog:write','webhooks:write'] WHERE grant_id = $1::uuid`,
+        g.grant_id,
+      );
+      const foreign = await handoff({ mode: 'grant' }, OKEY);
+      const r = await grant(g.acct, foreign);
+      expect([r.status, r.body.scopes]).toEqual([200, SCOPES3]);
+      const s = await handoffState(foreign);
+      expect([s.state, s.merchant_id, s.grant_id]).toEqual(['created', null, null]);
     });
   });
 

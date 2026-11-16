@@ -25,6 +25,8 @@ export const KEY_GRANT_SCOPES = ['catalog:write', 'webhooks:write'] as const;
 /** T-0825: what a grant row written now carries: the key scopes plus the read of quote outcomes. */
 export const QUOTES_READ = 'quotes:read';
 export const GRANT_SCOPES = [...KEY_GRANT_SCOPES, QUOTES_READ] as const;
+/** T-0873: the scopes a live grant may lack, so a grant handoff may name them (`scopes`) to add them. */
+export const ADDABLE_SCOPES = [QUOTES_READ] as const;
 const DOC = '/integrator/docs#partner-grants';
 const ADDR_RE = /^0x[0-9a-fA-F]{40}$/;
 const PARTNER_RE = /^[a-z0-9-]{2,40}$/;
@@ -83,11 +85,13 @@ export interface GrantResult {
  * POST /api/v1/shop/merchants/me/grants (no Bearer: the wallet signature is the credential).
  * One active grant per (merchant, partner). Key (mode key) or grant-owned endpoint (mode partner),
  * grant row and handoff binding in one transaction. The answer never carries a key or a secret.
+ * `existing` (answered 200): the live grant row answered, upgraded (T-0825) or already holding every
+ * scope a `scopes` handoff asks for (T-0873); false (201): a new grant.
  */
 export async function createGrant(
   d: WebhookDeps,
   body: unknown,
-): Promise<{ grant: GrantResult; upgraded: boolean }> {
+): Promise<{ grant: GrantResult; existing: boolean }> {
   const b = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
   const { wallet, partner, message, signature, handoff_id } = b;
   if (typeof wallet !== 'string' || !ADDR_RE.test(wallet)) throw invalid('wallet');
@@ -123,11 +127,39 @@ export async function createGrant(
   const hid = typeof handoff_id === 'string' && UUID_RE.test(handoff_id) ? handoff_id : null;
   try {
     return await d.transaction(async (tx) => {
+      // T-0873: the handoff this grant may bind, and the scopes it asks to add (null = no such handoff)
+      const ask = hid ? await bindableHandoffScopes(tx, hid, p.id, m.merchant_id) : null;
+      const bind = (g: GrantResult) =>
+        bindGrantHandoff(tx, {
+          handoff_id: hid as string,
+          partner_id: p.id,
+          merchant_id: m.merchant_id,
+          slug: m.slug,
+          grant_id: g.grant_id,
+          wallet,
+        });
       // T-0825: a live grant that lacks quotes:read gains it from this signature (same row)
       const up = await upgradeGrant(tx, m, p, { message, signature });
-      if (up) return { grant: up, upgraded: true };
+      if (up) {
+        if (ask) await bind(up);
+        return { grant: up, existing: true };
+      }
+      if (ask && ask.length > 0) {
+        // T-0873: a scopes handoff adds to a live grant; it never writes a new one
+        const live = await liveGrantRow(tx, m, p);
+        if (!live) {
+          throw notFound(
+            'not_found',
+            `${m.slug} has not allowed ${p.name} yet; ask ${p.name} for a new link`,
+          );
+        }
+        if (ask.every((s) => live.scopes.includes(s))) {
+          await bind(live);
+          return { grant: live, existing: true };
+        }
+      }
       const w = await writeGrant(d, tx, m, p, { handoff_id: hid, wallet });
-      return { grant: w.grant, upgraded: false };
+      return { grant: w.grant, existing: false };
     });
   } catch (e) {
     // the partial unique index lost a race with a concurrent grant of the same partner
@@ -138,10 +170,94 @@ export async function createGrant(
 }
 
 /**
+ * T-0873: the handoff a grant may bind (this partner's, unexpired, no grant yet, unbound or bound to this
+ * store), locked: its requested_scopes ([] = none). No such handoff: null.
+ */
+async function bindableHandoffScopes(
+  tx: ShopTx,
+  handoff_id: string,
+  partner_id: string,
+  merchant_id: string,
+): Promise<string[] | null> {
+  const rows = await tx.$queryRawUnsafe<Array<{ requested_scopes: string[] | null }>>(
+    `SELECT requested_scopes FROM shop_partner_handoffs
+      WHERE handoff_id = $1::uuid AND partner_id = $2 AND expires_at > now()
+        AND grant_id IS NULL AND (merchant_id IS NULL OR merchant_id = $3::uuid)
+      FOR UPDATE`,
+    handoff_id,
+    partner_id,
+    merchant_id,
+  );
+  return rows[0] ? (rows[0].requested_scopes ?? []) : null;
+}
+
+/**
+ * The handoff turns `granted` for this store and grant. `key_enc`/`secret_enc`: the parcel parked for
+ * the partner's one read (a new grant only); an existing grant binds with none (T-0873).
+ */
+async function bindGrantHandoff(
+  tx: ShopTx,
+  b: {
+    handoff_id: string;
+    partner_id: string;
+    merchant_id: string;
+    slug: string;
+    grant_id: string;
+    wallet: string;
+    key_enc?: string | null;
+    secret_enc?: string | null;
+  },
+): Promise<boolean> {
+  const n = await tx.$executeRawUnsafe(
+    `UPDATE shop_partner_handoffs
+          SET merchant_id = $3::uuid, slug = $4, grant_id = $5::uuid, grant_key_enc = $6,
+              grant_webhook_secret_enc = $7, state = 'granted', prefill = NULL,
+              wallet_match = COALESCE(wallet_match, expected_wallet IS NULL OR expected_wallet = $8)
+        WHERE handoff_id = $1::uuid AND partner_id = $2 AND expires_at > now()
+          AND grant_id IS NULL AND (merchant_id IS NULL OR merchant_id = $3::uuid)`,
+    b.handoff_id,
+    b.partner_id,
+    b.merchant_id,
+    b.slug,
+    b.grant_id,
+    b.key_enc ?? null,
+    b.secret_enc ?? null,
+    b.wallet.toLowerCase(),
+  );
+  return n > 0;
+}
+
+/** T-0873: the live grant of this partner for this store, as the grant answer; none = null. */
+async function liveGrantRow(
+  tx: ShopTx,
+  m: { merchant_id: string; slug: string },
+  p: PartnerRef,
+): Promise<GrantResult | null> {
+  const rows = await tx.$queryRawUnsafe<
+    Array<{ grant_id: string; mode: GrantMode; scopes: string[]; created_at: Date }>
+  >(
+    `SELECT grant_id::text AS grant_id, mode, scopes, created_at FROM shop_partner_grants
+      WHERE merchant_id = $1::uuid AND partner_id = $2 AND revoked_at IS NULL`,
+    m.merchant_id,
+    p.id,
+  );
+  const g = rows[0];
+  if (!g) return null;
+  return {
+    grant_id: g.grant_id,
+    partner: p.id,
+    mode: g.mode,
+    scopes: g.scopes,
+    created_at: new Date(g.created_at).toISOString(),
+    slug: m.slug,
+  };
+}
+
+/**
  * T-0825: the live grant of this partner for this store has no `quotes:read`: the same row gains it and
- * keeps the new message and signature as its proof. Nothing else is touched (no key, no endpoint, no
- * secret, no handoff). No live grant, or one that already has the scope: null (writeGrant then writes
- * the grant, or answers 409 grant_exists).
+ * keeps the new message and signature as its proof. No key, endpoint or secret is touched; createGrant
+ * binds the handoff, if any, without a secret (T-0873). No live grant, or one that already has the
+ * scope: null (writeGrant then writes the grant, or answers 409 grant_exists).
  */
 async function upgradeGrant(
   tx: ShopTx,
@@ -227,27 +343,21 @@ export async function writeGrant(
     );
     secret = wh.secret ?? null;
   }
-  let bound = 0;
+  let bound = false;
   if (hid) {
     // lazy: the app config is only needed when a key or secret is parked for the partner
     const { config } = await import('../../config');
     const enc = (v: string | null) => (v ? encryptSecret(v, config.ENCRYPTION_KEY) : null);
-    bound = await tx.$executeRawUnsafe(
-      `UPDATE shop_partner_handoffs
-              SET merchant_id = $3::uuid, slug = $4, grant_id = $5::uuid, grant_key_enc = $6,
-                  grant_webhook_secret_enc = $7, state = 'granted', prefill = NULL,
-                  wallet_match = COALESCE(wallet_match, expected_wallet IS NULL OR expected_wallet = $8)
-            WHERE handoff_id = $1::uuid AND partner_id = $2 AND expires_at > now()
-              AND grant_id IS NULL AND (merchant_id IS NULL OR merchant_id = $3::uuid)`,
-      hid,
-      p.id,
-      m.merchant_id,
-      m.slug,
-      grant.grant_id,
-      enc(key),
-      enc(secret),
-      wallet.toLowerCase(),
-    );
+    bound = await bindGrantHandoff(tx, {
+      handoff_id: hid,
+      partner_id: p.id,
+      merchant_id: m.merchant_id,
+      slug: m.slug,
+      grant_id: grant.grant_id,
+      wallet,
+      key_enc: enc(key),
+      secret_enc: enc(secret),
+    });
   }
   return {
     grant: {
@@ -258,7 +368,7 @@ export async function writeGrant(
       created_at: new Date(grant.created_at).toISOString(),
       slug: m.slug,
     },
-    handoff_bound: bound > 0,
+    handoff_bound: bound,
   };
 }
 

@@ -31,6 +31,11 @@ export interface HandoffInput {
   mode: HandoffMode;
   /** T-0740: in mode register, ask for the grant; T-0802: the connect page then signs everything once. */
   grant_requested: boolean;
+  /**
+   * T-0873: mode grant only: the scopes this link adds to a live grant (each in ADDABLE_SCOPES of
+   * grant.service); null = none, the link asks for the whole grant as before.
+   */
+  scopes: string[] | null;
 }
 
 /** 422 validation_failed naming the field. */
@@ -62,12 +67,18 @@ const PREFILL_RULES: Record<keyof Prefill, (v: string) => boolean> = {
 /** The six prefill keys, in this order (T-0871: the partner-page path requires all six). */
 export const PREFILL_KEYS = Object.keys(PREFILL_RULES) as Array<keyof Prefill>;
 
-export function validateHandoffInput(body: unknown): HandoffInput {
+/**
+ * `addable` = grant.service ADDABLE_SCOPES, passed in by the route (grant.service imports this module,
+ * so importing it here would make a cycle). Without it no `scopes` value is valid.
+ */
+export function validateHandoffInput(body: unknown, addable: readonly string[] = []): HandoffInput {
   if (body === null || typeof body !== 'object' || Array.isArray(body))
     throw new HandoffValidationError('body');
   const b = body as Record<string, unknown>;
   for (const k of Object.keys(b))
-    if (!['seller_ref', 'prefill', 'expected_wallet', 'mode', 'grant_requested'].includes(k))
+    if (
+      !['seller_ref', 'prefill', 'expected_wallet', 'mode', 'grant_requested', 'scopes'].includes(k)
+    )
       throw new HandoffValidationError(k);
   let seller_ref: string | null = null;
   if (b.seller_ref !== undefined && b.seller_ref !== null) {
@@ -106,7 +117,22 @@ export function validateHandoffInput(body: unknown): HandoffInput {
     if (typeof b.grant_requested !== 'boolean') throw new HandoffValidationError('grant_requested');
     grant_requested = b.grant_requested;
   }
-  return { seller_ref, prefill, expected_wallet, mode, grant_requested };
+  // T-0873: 1..addable.length distinct values of `addable`, in mode grant only
+  let scopes: string[] | null = null;
+  if (b.scopes !== undefined && b.scopes !== null) {
+    const v: unknown = b.scopes;
+    if (
+      mode !== 'grant' ||
+      !Array.isArray(v) ||
+      v.length < 1 ||
+      v.length > addable.length ||
+      new Set(v).size !== v.length ||
+      !v.every((x) => typeof x === 'string' && addable.includes(x))
+    )
+      throw new HandoffValidationError('scopes');
+    scopes = v as string[];
+  }
+  return { seller_ref, prefill, expected_wallet, mode, grant_requested, scopes };
 }
 
 export async function createHandoff(
@@ -116,8 +142,8 @@ export async function createHandoff(
 ): Promise<{ handoff_id: string; url: string; expires_at: string }> {
   const rows = await db.$queryRawUnsafe<Array<{ handoff_id: string; expires_at: Date }>>(
     `INSERT INTO shop_partner_handoffs
-       (partner_id, seller_ref, prefill, expected_wallet, mode, grant_requested)
-     VALUES ($1, $2, $3::jsonb, $4, $5, $6)
+       (partner_id, seller_ref, prefill, expected_wallet, mode, grant_requested, requested_scopes)
+     VALUES ($1, $2, $3::jsonb, $4, $5, $6, $7::text[])
      RETURNING handoff_id::text, expires_at`,
     partner_id,
     input.seller_ref,
@@ -125,6 +151,7 @@ export async function createHandoff(
     input.expected_wallet,
     input.mode ?? 'register',
     input.grant_requested ?? false,
+    input.scopes ?? null,
   );
   const r = rows[0];
   return {
@@ -238,6 +265,8 @@ export async function openHandoff(
   expected_wallet: string | null;
   mode: HandoffMode;
   grant_requested: boolean;
+  /** T-0873: the scopes a mode-grant link adds (null = none) */
+  requested_scopes: string[] | null;
 } | null> {
   if (typeof handoff_id !== 'string' || !UUID_RE.test(handoff_id)) return null;
   const rows = await db.$queryRawUnsafe<
@@ -247,13 +276,14 @@ export async function openHandoff(
       expected_wallet: string | null;
       mode: HandoffMode;
       grant_requested: boolean;
+      requested_scopes: string[] | null;
     }>
   >(
     `UPDATE shop_partner_handoffs
         SET state = 'opened', opened_at = COALESCE(opened_at, now())
       WHERE handoff_id = $1::uuid AND partner_id = $2
         AND state IN ('created', 'opened') AND expires_at > now()
-      RETURNING handoff_id::text, prefill, expected_wallet, mode, grant_requested`,
+      RETURNING handoff_id::text, prefill, expected_wallet, mode, grant_requested, requested_scopes`,
     handoff_id,
     partner_id,
   );

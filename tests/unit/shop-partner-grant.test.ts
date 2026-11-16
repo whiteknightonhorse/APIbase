@@ -14,7 +14,14 @@ import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { hashApiKey } from '../../src/services/api-key.service';
 import { processEvent, type ProcessorDeps } from '../../src/outbox/processor';
 import { issueKey } from '../../src/shop/auth/merchant-key.service';
-import { grantMessage, issueNonce, verifyGrantSignature } from '../../src/shop/auth/nonce.service';
+import {
+  GRANT_ALLOWS_LINE,
+  GRANT_SCOPE_WORDS,
+  grantMessage,
+  issueNonce,
+  verifyGrantSignature,
+} from '../../src/shop/auth/nonce.service';
+import { GRANT_SCOPES } from '../../src/shop/partner/grant.service';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import { createIntegratorRouter, type Partner } from '../../src/shop/routes/integrator.router';
 import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
@@ -126,6 +133,13 @@ describe('T-0740 grant message (no DB)', () => {
       );
     await expect(v(s)).resolves.toEqual({ signer_kind: 'eoa' });
     await expect(v(s)).rejects.toMatchObject({ status: 401 }); // nonce spent
+  });
+
+  it('T-0873: GRANT_ALLOWS_LINE is built from GRANT_SCOPE_WORDS, byte-identical; its keys are GRANT_SCOPES in order', () => {
+    expect(GRANT_ALLOWS_LINE).toBe(
+      'Allows: upload and import your catalog; register its own webhook endpoint and receive your order events; read the outcome of each quote for your products (paid, unpaid, expired, refused), never who the buyer is',
+    );
+    expect(Object.keys(GRANT_SCOPE_WORDS)).toEqual([...GRANT_SCOPES]);
   });
 
   it('T-0825: the old Allows line (without quotes:read) is refused (401)', async () => {
@@ -440,6 +454,33 @@ dbDescribe('T-0740 partner grants', () => {
       expect(k.scopes).toEqual(['catalog:write', 'webhooks:write']);
       const again = await grant(m.acct);
       expect([again.status, again.body.error_code]).toEqual([409, 'grant_exists']);
+    });
+
+    it('T-0873 mode key: the upgrade binds a scopes handoff without a key; the read carries no mk_live_', async () => {
+      const m = await merchant();
+      const g = await grant(m.acct);
+      expect(g.status).toBe(201);
+      await x(
+        `UPDATE shop_partner_grants SET scopes = ARRAY['catalog:write','webhooks:write'] WHERE grant_id = $1::uuid`,
+        g.body.grant_id,
+      );
+      const h = await handoff({ mode: 'grant', scopes: ['quotes:read'] });
+      const up = await grant(m.acct, h);
+      expect([up.status, up.body.grant_id]).toEqual([200, g.body.grant_id]);
+      for (const read of [await readHandoff(h), await readHandoff(h)]) {
+        expect(read).toMatchObject({ state: 'granted', slug: m.slug, merchant_id: m.id });
+        expect(read.grant).toEqual({
+          state: 'granted',
+          mode: 'key',
+          scopes: ['catalog:write', 'webhooks:write', 'quotes:read'],
+        });
+        expect(JSON.stringify(read)).not.toContain('mk_live_');
+      }
+      const [row] = await q(
+        `SELECT grant_key_enc, grant_webhook_secret_enc FROM shop_partner_handoffs WHERE handoff_id = $1::uuid`,
+        h,
+      );
+      expect(row).toEqual({ grant_key_enc: null, grant_webhook_secret_enc: null });
     });
 
     it('a bad signature is 401 and creates nothing', async () => {

@@ -8,11 +8,19 @@ import type { AddressInfo } from 'node:net';
 import { resolve } from 'node:path';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { hashApiKey } from '../../src/services/api-key.service';
-import { buildSignInMessage, issueNonce } from '../../src/shop/auth/nonce.service';
+import {
+  buildSignInMessage,
+  GRANT_SCOPE_WORDS,
+  issueNonce,
+} from '../../src/shop/auth/nonce.service';
 import { encryptionKeyMessage, registerMerchant } from '../../src/shop/merchant.service';
 import { ALLOWED_CATEGORIES } from '../../src/shop/moderation/categories';
 import { sweepHandoffs, validateHandoffInput } from '../../src/shop/partner/handoff.service';
-import { createIntegratorRouter, type Partner } from '../../src/shop/routes/integrator.router';
+import {
+  createIntegratorRouter,
+  grantVariant,
+  type Partner,
+} from '../../src/shop/routes/integrator.router';
 import { createPartnerRouter } from '../../src/shop/routes/partner.router';
 import { client, dbDescribe, migrate } from './helpers/shop-db';
 
@@ -184,6 +192,40 @@ dbDescribe('T-0739 partner handoff', () => {
         },
       });
       expect(ok.status).toBe(201);
+    });
+
+    it('T-0873: scopes ["quotes:read"] with mode grant is 201 and stored; any other scopes value is 422 field scopes', async () => {
+      const h = await newHandoff({ mode: 'grant', scopes: ['quotes:read'] });
+      const [row] = await q(
+        `SELECT mode, requested_scopes FROM shop_partner_handoffs WHERE handoff_id = $1::uuid`,
+        h.handoff_id,
+      );
+      expect(row).toEqual({ mode: 'grant', requested_scopes: ['quotes:read'] });
+      const none = await newHandoff({ mode: 'grant', scopes: null });
+      const [n] = await q(
+        `SELECT requested_scopes FROM shop_partner_handoffs WHERE handoff_id = $1::uuid`,
+        none.handoff_id,
+      );
+      expect(n.requested_scopes).toBeNull();
+      const bad: Row[] = [
+        { mode: 'register', scopes: ['quotes:read'] },
+        { scopes: ['quotes:read'] },
+        { mode: 'grant', scopes: [] },
+        { mode: 'grant', scopes: ['orders:read'] },
+        { mode: 'grant', scopes: ['quotes:read', 'quotes:read'] },
+        { mode: 'grant', scopes: 'quotes:read' },
+        { mode: 'grant', scopes: [7] },
+      ];
+      for (const body of bad) {
+        const r = await create(body);
+        const j = await r.json();
+        expect([body, r.status, j.error_code, j.field]).toEqual([
+          body,
+          422,
+          'validation_failed',
+          'scopes',
+        ]);
+      }
     });
   });
 
@@ -363,6 +405,44 @@ dbDescribe('T-0739 partner handoff', () => {
           'It costs nothing.</p><p class="hint">This link from Soukbase is no longer valid. You can still connect your store and return there.</p>',
         ),
       );
+    });
+
+    it('T-0873: a scopes handoff page names only what is added; a mode-grant page without scopes is as before', async () => {
+      const add = await page(
+        `?from=soukbase&handoff=${(await newHandoff({ mode: 'grant', scopes: ['quotes:read'] })).handoff_id}`,
+      );
+      expect(add).toContain('<h1>One more permission for Soukbase</h1>');
+      expect(add).toContain(
+        `<p class="lp-sub">Soukbase already sells for your store. This adds one thing: it may ${GRANT_SCOPE_WORDS['quotes:read']}. Nothing else changes, and you can revoke it any time.</p>`,
+      );
+      const sig = /<ol class="cn-sig" id="sig">([\s\S]*?)<\/ol>/.exec(add)?.[1] ?? '';
+      expect(sig.match(/<li /g)).toHaveLength(1);
+      expect(sig).toContain(
+        "<b>Add this to Soukbase's permission</b><span>One free signature. The message you sign states the whole permission, old and new.</span>",
+      );
+      expect(add).toContain('<ol class="cn-bar" id="bar" hidden>');
+      expect(add).toContain('<b>1 free signature</b>');
+      expect(add).toContain('<span id="wtn">1</span> of 1');
+      expect(add).not.toContain('Use a different payout wallet');
+      expect(add).not.toContain('Allow Soukbase to sell');
+      // without scopes: the mode-grant page of today, byte for byte
+      const grant = await page(
+        `?from=soukbase&handoff=${(await newHandoff({ mode: 'grant' })).handoff_id}`,
+      );
+      expect(grant).toContain('<h1>Allow Soukbase to sell for your store</h1>');
+      expect(grant).toContain(
+        '<p class="lp-sub">Soukbase will upload and import your catalog, register its own webhook endpoint and receive your order events, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>',
+      );
+      expect(grant).toContain(
+        '<b>Allow Soukbase to sell for you</b><span>Uploads your catalog and receives your orders. Revocable any time.</span>',
+      );
+      expect(grant).not.toContain('One more permission');
+      const tpl = CONNECT_HTML;
+      const today = grantVariant(tpl, 'Soukbase', { mode: 'grant', grant_requested: false });
+      for (const scopes of [null, [], undefined])
+        expect(
+          grantVariant(tpl, 'Soukbase', { mode: 'grant', grant_requested: false, scopes }),
+        ).toBe(today);
     });
 
     it('T-0867: mode grant never puts the prefill e-mail on the page', async () => {

@@ -42,12 +42,22 @@ const MESSAGE_RE =
   /^apibase\.pro wants you to sign in with your wallet\.\nAddress: (\S+)\nPurpose: (\w+)\nNonce: ([0-9a-f]+)\nIssued At: (\S+)$/;
 
 /**
+ * T-0873: each grant scope in plain words, in the order of GRANT_SCOPES (grant.service). The one copy
+ * of these clauses: the Allows line below and the connect page are built from it.
+ */
+export const GRANT_SCOPE_WORDS: Readonly<Record<string, string>> = {
+  'catalog:write': 'upload and import your catalog',
+  'webhooks:write': 'register its own webhook endpoint and receive your order events',
+  'quotes:read':
+    'read the outcome of each quote for your products (paid, unpaid, expired, refused), never who the buyer is',
+};
+
+/**
  * T-0825: the one statement of what a partner grant allows; grantMessage, GRANT_RE and the combined
  * handoff message (one-signature.service permissionStatement) all use it. A message with any other
  * Allows line is 401.
  */
-export const GRANT_ALLOWS_LINE =
-  'Allows: upload and import your catalog; register its own webhook endpoint and receive your order events; read the outcome of each quote for your products (paid, unpaid, expired, refused), never who the buyer is';
+export const GRANT_ALLOWS_LINE = `Allows: ${Object.values(GRANT_SCOPE_WORDS).join('; ')}`;
 
 /** T-0740: the exact text a merchant wallet signs to grant a partner (purpose grant). */
 export function grantMessage(p: {

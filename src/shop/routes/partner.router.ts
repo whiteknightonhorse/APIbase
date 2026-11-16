@@ -17,7 +17,12 @@ import { isInactiveMerchant, merchantInactiveError } from '../auth/merchant-key.
 import { upsertCatalog } from '../catalog.service';
 import { defaultShopDeps, toApiError } from '../merchant-lifecycle.service';
 import type { WebhookDeps } from '../webhook/webhook.service';
-import { liveGrantFor, partnerGrants, rotatePartnerWebhookSecret } from '../partner/grant.service';
+import {
+  ADDABLE_SCOPES,
+  liveGrantFor,
+  partnerGrants,
+  rotatePartnerWebhookSecret,
+} from '../partner/grant.service';
 import {
   issuePartnerPageText,
   registerByPartnerPage,
@@ -136,7 +141,7 @@ export function createPartnerRouter(opts: PartnerRouterOptions = {}): Router {
     guard,
     async (req: Request, res: Response) => {
       try {
-        const input = validateHandoffInput(req.body);
+        const input = validateHandoffInput(req.body, ADDABLE_SCOPES);
         res.status(201).json(await createHandoff(db, req.partner?.id ?? '', input));
       } catch (e) {
         if (e instanceof HandoffValidationError) {

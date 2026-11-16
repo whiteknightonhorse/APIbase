@@ -8,6 +8,7 @@ import { renderTokens } from '../integrator/tokens';
 import { INTEGRATOR_DIR, layout } from '../integrator/layout';
 import { logger } from '../../config/logger';
 import type { ShopTx } from '../db';
+import { GRANT_SCOPE_WORDS } from '../auth/nonce.service';
 import { openHandoff } from '../partner/handoff.service';
 import { WEBHOOK_EVENTS } from '../webhook/constants';
 import {
@@ -148,10 +149,14 @@ const ONE_SIG_ROWS = (partner: string) =>
     SIG_ROW(4, partner),
   ].join('\n');
 const SIG_LIST_RE = /(<ol class="cn-sig" id="sig">\n)([\s\S]*?)(<\/ol>)/;
+/** T-0873: the one signature row of a grant link that adds scopes to a live grant. */
+const ADD_ROW = (partner: string) =>
+  `<li data-n="1"><div><b>Add this to ${partner}'s permission</b><span>One free signature. The message you sign states the whole permission, old and new.</span></div></li>`;
+const W = GRANT_SCOPE_WORDS;
 export function grantVariant(
   body: string,
   partnerName: string,
-  v: { mode: 'register' | 'grant'; grant_requested: boolean },
+  v: { mode: 'register' | 'grant'; grant_requested: boolean; scopes?: string[] | null },
 ): string {
   const pn = esc(partnerName);
   const swap = (s: string, from: string | RegExp, to: string | ((...m: string[]) => string)) => {
@@ -160,19 +165,29 @@ export function grantVariant(
     return s.replace(from, to as never);
   };
   if (v.mode === 'grant') {
+    // T-0873: a link that names scopes adds them to a live grant: the page says only what is added
+    const add = v.scopes && v.scopes.length > 0 ? v.scopes.map((s) => esc(W[s] ?? s)) : null;
     let b = swap(
       body,
       '<h1>Connect your store</h1>',
-      `<h1>Allow ${pn} to sell for your store</h1>`,
+      add
+        ? `<h1>One more permission for ${pn}</h1>`
+        : `<h1>Allow ${pn} to sell for your store</h1>`,
     );
     b = swap(
       b,
       '<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>',
-      `<p class="lp-sub">${pn} will upload and import your catalog, register its own webhook endpoint and receive your order events, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>`,
+      add
+        ? `<p class="lp-sub">${pn} already sells for your store. This adds one thing: it may ${add.join('; ')}. Nothing else changes, and you can revoke it any time.</p>`
+        : `<p class="lp-sub">${pn} will ${W['catalog:write']}, ${W['webhooks:write']}, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>`,
     );
     b = swap(b, '<ol class="cn-bar" id="bar">', '<ol class="cn-bar" id="bar" hidden>');
     b = swap(b, '<b>3 free signatures</b>', '<b>1 free signature</b>');
-    b = swap(b, SIG_LIST_RE, (_m, a, _rows, c) => `${a}${SIG_ROW(1, pn)}\n${c}`);
+    b = swap(
+      b,
+      SIG_LIST_RE,
+      (_m, a, _rows, c) => `${a}${add ? ADD_ROW(pn) : SIG_ROW(1, pn)}\n${c}`,
+    );
     b = swap(b, /<div class="cn-cards">.*<\/div>\n/, '');
     b = swap(
       b,
@@ -399,7 +414,11 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       : '';
     // T-0739: a handoff link of a known partner. Live -> prefill; anything else -> one hint line, no echo.
     let hint = '';
-    let grantView: { mode: 'register' | 'grant'; grant_requested: boolean } | null = null;
+    let grantView: {
+      mode: 'register' | 'grant';
+      grant_requested: boolean;
+      scopes?: string[] | null;
+    } | null = null;
     let onePage: { expected_wallet: string | null } | null = null;
     const handoff: unknown = req.query.handoff;
     if (partner && handoff !== undefined) {
@@ -411,7 +430,11 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         logger.warn({ err, partner: partner.id }, 'handoff open failed');
       }
       if (live) {
-        grantView = { mode: live.mode, grant_requested: live.grant_requested };
+        grantView = {
+          mode: live.mode,
+          grant_requested: live.grant_requested,
+          ...(live.requested_scopes ? { scopes: live.requested_scopes } : {}),
+        };
         // T-0832: the hint names what the partner actually passed; no email -> the page asks for it under the field.
         const pe: unknown = (live.prefill as Record<string, unknown> | null)?.contact_email;
         const noEmail = typeof pe !== 'string' || pe.trim() === '';
