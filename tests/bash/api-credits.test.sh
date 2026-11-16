@@ -186,6 +186,7 @@ SUDO="" HOME_BASE="$FL" "$R/install-tenant-copy.sh" cryptocardhub > "$T/inst.out
 fl(){ HOME="$FL/apibase" API_HOME_BASE="$FL" API_LEDGER_DIR="$FL/apibase/api-ledger" "$@"; }
 fl "$D/api-spend" --fleet > "$T/fleet.out"; cat "$T/fleet.out"
 grep -q 'tenant sales .*unreadable' "$T/fleet.out" && grep -q 'fleet .*total .*163.00' "$T/fleet.out" && grep -q 'tenant cryptocardhub .*sweep .*63.00' "$T/fleet.out" && ok "api-spend --fleet: per tenant, per lane, fleet total, unreadable tenant" || bad "fleet view"
+grep -q 'tenant soukbase .*unreadable' "$T/fleet.out" && ok "api-spend --fleet carries a line for tenant soukbase (T-0875)" || bad "fleet view: no soukbase line"
 HOME="$FL/cryptocardhub" "$D/api-spend" --fleet >/dev/null 2>&1; [ $? = 1 ] && ok "--fleet refused off apibase" || bad "--fleet off apibase"
 fl "$R/api-spend-cron" "$T/fltick.log"
 [ -e "$FL/apibase/api-ledger/ALERT-162" ] && [ -e "$FL/apibase/api-ledger/HALT-fleet-total" ] && [ -e "$FL/cryptocardhub/api-ledger/HALT-fleet-total" ] && grep -q "reached \$162" "$T/fltick.log" && ok "fleet total 163: ALERT-162 and HALT-fleet-total in both tenant ledgers" || bad "fleet guard"
@@ -255,6 +256,19 @@ fo "$R/api-spend-cron" "$T/fotick.log"; fo "$R/api-spend-cron" "$T/fotick.log"
 [ "$(grep -c 'HALT-overflow written' "$T/fotick.log")" = 1 ] && ok "one tick.log line for the overflow stop" || bad "overflow tick line count"
 fo env API_CREDITS_NOW="2026-12-06T00:05:00Z" "$D/api-cycle-rollover"
 [ ! -e "$FO/apibase/api-ledger/HALT-overflow" ] && [ ! -e "$FO/cryptocardhub/api-ledger/HALT-overflow" ] && ok "rollover clears HALT-overflow everywhere" || bad "rollover HALT-overflow"
+
+# 9c. T-0875: a new tenant's cycle file comes from api-cycle-rollover (first_cycle), not from code
+NC="$T/nc"; mkdir -p "$NC"
+nc(){ API_LEDGER_DIR="$NC" API_CREDITS_NOW="${NOW_OVERRIDE:-2026-11-16T00:00:00Z}" "$@"; }
+rm -f "$NC/cycle.json"
+nc expect_rc 75 "new tenant, no cycle.json: api-call refused" "${OV[@]}" --max-turns 1
+grep -q 'cycle file missing or invalid' "$T/err" && ok "refusal names the missing cycle file" || bad "missing-cycle text: $(cat "$T/err")"
+nc "$D/api-cycle-rollover"; rrc=$?
+[ "$rrc" = 0 ] && [ "$(jq -r '[.start,.end]|join(" ")' "$NC/cycle.json")" = "2026-11-08 2026-12-06" ] && ok "rollover opens first_cycle 2026-11-08 -> 2026-12-06" || bad "first-cycle rollover rc=$rrc"
+nc expect_rc 0 "after rollover the same call passes the cycle guard" "${OV[@]}" --max-turns 1
+rm -f "$NC/cycle.json"
+NOW_OVERRIDE="2026-12-07T00:00:00Z" nc "$D/api-cycle-rollover" >/dev/null 2>"$T/err"; rrc=$?
+[ "$rrc" = 1 ] && grep -q 'no cycle file and first cycle is not current' "$T/err" && [ ! -e "$NC/cycle.json" ] && ok "after first_cycle ends, rollover without cycle.json exits 1" || bad "late first-cycle rollover rc=$rrc"
 
 # 10. the whole suite again from the installed copy, HOME a fixture tenant home (config next to self, tenant default)
 if [ -z "${API_CREDITS_COPY:-}" ]; then

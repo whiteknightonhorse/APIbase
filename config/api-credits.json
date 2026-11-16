@@ -17,7 +17,7 @@
   "max_turns_limit": {"overflow": 60, "demo": 12},
   "call_budget_usd": {"overflow": 6},
   "first_cycle": {"start": "2026-11-08", "end": "2026-12-06"},
-  "tenants": ["apibase", "cryptocardhub", "sales"],
+  "tenants": ["apibase", "cryptocardhub", "sales", "soukbase"],
   "anthropic_version": "2026-10-21",
   "batch_discount": 0.5,
   "long_prompt_tokens": 100000,
