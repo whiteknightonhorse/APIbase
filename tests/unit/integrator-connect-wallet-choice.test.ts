@@ -5,7 +5,11 @@
 import express from 'express';
 import { webcrypto } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
-import { createIntegratorRouter } from '../../src/shop/routes/integrator.router';
+import {
+  createIntegratorRouter,
+  grantVariant,
+  onePageVariant,
+} from '../../src/shop/routes/integrator.router';
 
 jest.mock('../../src/config', () => ({ config: {} }));
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -35,6 +39,8 @@ async function boot(o: {
   hold?: { rdns: string; method: string };
   perm?: 'ok' | 'unsupported' | 'reject';
   emailNote?: boolean;
+  /** T-0869: a one-page handoff (register + grant_requested + one_page); every field is on the one page. */
+  onePage?: boolean;
 }) {
   let html = await (await fetch(`${base}/integrator/connect?from=soukbase`)).text();
   if (o.handoff) {
@@ -42,13 +48,20 @@ async function boot(o: {
       prefill: {},
       expected_wallet: EXP,
       mode: 'register',
-      grant_requested: false,
+      grant_requested: !!o.onePage,
       ...(o.emailNote ? { email_note: true } : {}),
+      ...(o.onePage ? { one_page: true } : {}),
     });
     html = html.replace(
       '<a id="pt"',
       `<input type="hidden" name="handoff" value="${HID}" data-partner="Soukbase" form="f"><script type="application/json" id="pf">${pf}</script><a id="pt"`,
     );
+    if (o.onePage)
+      html = onePageVariant(
+        grantVariant(html, 'Soukbase', { mode: 'register', grant_requested: true }),
+        'Soukbase',
+        EXP,
+      );
   }
   const log: { who: string; method: string }[] = [];
   const handlers: Record<string, ((a: string[]) => void)[]> = {};
@@ -120,6 +133,7 @@ async function boot(o: {
     fill('name', 'Shop One');
     fill('site_url', 'https://shop.example');
     fill('contact_email', 'a@b.co');
+    if (o.onePage) return; // one page: the next press is the wallet press
     $('nx').click();
     $('nx').click();
   };
@@ -175,26 +189,29 @@ describe('T-0800 connect page wallet choice', () => {
     expect(p.w.localStorage.getItem('apibase_wallet')).toBe('io.beta');
   });
 
-  it('one wallet with another address: both addresses, sign control disabled; accountsChanged clears it', async () => {
-    const p = await boot({ wallets: [A], handoff: true });
-    p.toStep3();
-    p.$('nx').click();
-    await p.settle();
-    const b = p.box()!;
-    expect(b.textContent).toContain(
-      'Connected: 0xabab…abab in Alpha. Expected: 0xcdcd…cdcd, the wallet you used on Soukbase. Switch to that account in your wallet, or press Other wallet.',
-    );
-    expect([...b.querySelectorAll('[title]')].map((e: any) => e.title)).toEqual([OTHER, EXP]);
-    expect(b.textContent).not.toContain('payout');
-    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(true);
-    expect(p.log.map((l) => l.method)).toEqual(['eth_requestAccounts']);
-    p.emit('io.alpha', [EXP.toUpperCase().replace('0X', '0x')]);
-    await p.settle();
-    expect(p.box()).toBeUndefined();
-    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(false);
-    p.emit('io.alpha', [OTHER]);
-    expect(p.box()).toBeDefined();
-  });
+  it.each([false, true])(
+    'one wallet with another address: both addresses, sign control disabled; accountsChanged clears it (one page: %s)',
+    async (onePage) => {
+      const p = await boot({ wallets: [A], handoff: true, onePage });
+      p.toStep3();
+      p.$('nx').click();
+      await p.settle();
+      const b = p.box()!;
+      expect(b.textContent).toContain(
+        'Connected: 0xabab…abab in Alpha. Expected: 0xcdcd…cdcd, the wallet you used on Soukbase. Switch to that account in your wallet, or press Other wallet.',
+      );
+      expect([...b.querySelectorAll('[title]')].map((e: any) => e.title)).toEqual([OTHER, EXP]);
+      expect(b.textContent).not.toContain('payout');
+      expect((p.$('nx') as HTMLButtonElement).disabled).toBe(true);
+      expect(p.log.map((l) => l.method)).toEqual(['eth_requestAccounts']);
+      p.emit('io.alpha', [EXP.toUpperCase().replace('0X', '0x')]);
+      await p.settle();
+      expect(p.box()).toBeUndefined();
+      expect((p.$('nx') as HTMLButtonElement).disabled).toBe(false);
+      p.emit('io.alpha', [OTHER]);
+      expect(p.box()).toBeDefined();
+    },
+  );
 
   it('no announcement: window.ethereum is used', async () => {
     const p = await boot({ wallets: [], legacy: { name: 'Legacy', rdns: 'legacy', account: EXP } });

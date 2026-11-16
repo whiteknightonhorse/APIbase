@@ -1035,10 +1035,9 @@ dbDescribe('T-0740 partner grants', () => {
     it('T-0802 mode register with grant_requested: 1 free signature and the four statements it carries', async () => {
       const t = await page(await handoff({ grant_requested: true }));
       expect(t).toContain('<h1>Connect your store</h1>');
-      expect(t).toContain(
-        'One free signature, no gas: it registers your store, records the documents you accept and lets',
-      );
-      expect(t).toContain('<details><summary>What the message says</summary>');
+      // T-0869: one-page mode: one hint under the button, the four statements under More options
+      expect(t).toContain('One free signature. No gas, no money leaves your wallet.');
+      expect(t).toContain('<h3>What the message says</h3>');
       expect(t).not.toContain('free signatures');
       const sig = /<ol class="cn-sig" id="sig">([\s\S]*?)<\/ol>/.exec(t)?.[1] ?? '';
       expect(sig.match(/<li /g)).toHaveLength(4);

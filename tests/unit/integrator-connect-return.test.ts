@@ -1,8 +1,9 @@
 /**
  * T-0802: a register handoff that asked for the grant asks the wallet once (purpose handoff nonce,
  * POST /merchants/handoff); every other flow keeps its signatures.
- * T-0801: the keys step has no timer (Continue after the box); a partner with seller_keys hidden and a
- * signed grant gets the keyless page (two lines, docs link, 5 s return) and the keys never reach the DOM.
+ * T-0801: the keys step has no timer (Continue after the box); with seller_keys hidden the keys never reach the DOM.
+ * T-0869: no keys to show (seller_keys hidden with the grant, mode grant, "Allow <partner>"): one line and the
+ * browser goes back to the partner at once, with no timer, heading, key text or stop action.
  * T-0764: the done page of a partner arrival (checkbox, 10 s return, stop actions, grant-only step,
  * existing store on a register link, word wrap, secrets). The served page runs in jsdom with a stubbed
  * wallet and fetch; timers are a manual scheduler so the countdown is deterministic.
@@ -279,55 +280,19 @@ describe('T-0764 done page return', () => {
     p.secrets(p.keys());
   });
 
-  it.each(['stay', 'escape', 'hidden'])(
-    'T2 keyless page: stop action %s stops the 5 s return; the link back stays',
-    async (how) => {
-      const p = await boot({ handoff: GR, keys: 'hidden' });
-      await p.run();
-      p.tick(2);
-      if (how === 'stay')
-        [...p.out().querySelectorAll('button')]
-          .find((b: any) => b.textContent === 'Stay on this page')
-          .click();
-      if (how === 'escape') p.d.dispatchEvent(new p.w.KeyboardEvent('keydown', { key: 'Escape' }));
-      if (how === 'hidden') {
-        Object.defineProperty(p.d, 'hidden', { configurable: true, value: true });
-        p.d.dispatchEvent(new p.w.Event('visibilitychange'));
-      }
-      p.tick(20);
-      expect(p.navs).toEqual([]);
-      expect(p.status().textContent).toBe(
-        'Automatic return stopped. Go to Soukbase when you are ready.',
-      );
-      expect(p.$('pt').getAttribute('href')).toBe(URL1);
-    },
-  );
-
-  it('T10 hidden + granted: no keys step at any moment, two lines, docs link, link back at once, 5 s return', async () => {
+  it('T10 hidden + granted: navigation to the return address at once, no timer, no key text', async () => {
     const p = await boot({ handoff: GR, keys: 'hidden' });
     await p.run();
     const o = p.out();
-    expect(o.querySelector('.cn-key')).toBeNull();
-    expect(o.querySelector('.cn-warnbox')).toBeNull();
-    expect(p.box()).toBeNull();
-    expect(o.textContent).not.toMatch(/API key\b.*shown|Decryption key|Shown once/);
-    const lines = [...o.querySelectorAll('p')].map((e: any) => e.textContent);
-    expect(lines).toContain(
-      'Your shop is ready. Soukbase adds your products for you; there is nothing to save from this page.',
-    );
-    expect(lines).toContain(
-      'Your orders, and an API key if you ever need one, are reached with this wallet: how',
-    );
-    const how = [...o.querySelectorAll('a')].find((a: any) => a.textContent === 'how');
-    expect(how.getAttribute('href')).toBe('/integrator/docs#shop-without-keys');
-    const pt = p.$('pt');
-    expect(pt.getAttribute('href')).toBe(URL1);
-    expect(pt.hasAttribute('aria-disabled')).toBe(false);
-    expect(p.status().textContent).toBe('Returning to Soukbase in 5 s');
-    p.tick(4);
-    expect(p.navs).toEqual([]);
-    p.tick(1);
     expect(p.navs).toEqual([URL1]);
+    expect(p.timers).toHaveLength(0);
+    expect(o.textContent).toBe('Returning to Soukbase...');
+    expect(o.querySelectorAll('p')).toHaveLength(1);
+    expect(o.querySelector('a').getAttribute('href')).toBe(URL1);
+    expect(o.querySelector('h1, h2, .cn-ok, .cn-key, .cn-warnbox, button, input')).toBeNull();
+    expect(o.textContent).not.toMatch(/API key|Decryption key|Stay on this page|Revoke/);
+    expect(p.box()).toBeNull();
+    for (const id of ['f', 'hd', 'bar']) expect(p.$(id).hidden).toBe(true);
     // T-0802: one signature; the per-purpose routes are not called; the keys never reached the DOM,
     // storage or a request, and the route answer carries no key
     expect(p.signs).toEqual(['combined message']);
@@ -410,17 +375,16 @@ describe('T-0764 done page return', () => {
     }
   });
 
-  it('T4 mode grant: Permission saved, no box, no keys, countdown at once', async () => {
+  it('T4 mode grant: navigation to the return address at once, no timer, no key text', async () => {
     const p = await boot({ handoff: { mode: 'grant', grant_requested: false } });
     await p.run();
-    expect(p.out().querySelector('h1').textContent).toBe('Permission saved');
-    expect(p.out().textContent).toContain('Soukbase can now sell for apibase.pro/m/existing-shop.');
-    expect(p.box()).toBeNull();
-    expect(p.out().querySelector('.cn-key')).toBeNull();
-    expect(p.status().textContent).toBe('Returning to Soukbase in 10 s');
-    expect(p.$('pt').getAttribute('href')).toBe(`${RET}?apibase_slug=existing-shop&handoff=${HID}`);
-    p.tick(10);
-    expect(p.navs).toEqual([`${RET}?apibase_slug=existing-shop&handoff=${HID}`]);
+    const u = `${RET}?apibase_slug=existing-shop&handoff=${HID}`;
+    expect(p.navs).toEqual([u]);
+    expect(p.timers).toHaveLength(0);
+    expect(p.out().textContent).toBe('Returning to Soukbase...');
+    expect(p.out().querySelector('a').getAttribute('href')).toBe(u);
+    expect(p.out().querySelector('h1, .cn-ok, .cn-key, button, input')).toBeNull();
+    expect(p.out().textContent).not.toMatch(/API key|Revoke|Permission saved/);
   });
 
   it('T5 409 wallet_registered: grant step with grant_requested, plain box without', async () => {
@@ -442,8 +406,10 @@ describe('T-0764 done page return', () => {
     expect(p.calls.filter((c) => c.url.includes('purpose=handoff'))).toHaveLength(1);
     expect(p.calls.filter((c) => c.url === '/api/v1/shop/merchants/handoff')).toHaveLength(0);
     expect(p.signs).toHaveLength(1); // the grant-only signature
-    expect(p.out().querySelector('h1').textContent).toBe('Permission saved');
-    expect(p.status().textContent).toBe('Returning to Soukbase in 10 s');
+    // T-0869: the grant alone shows no keys: straight back to the partner
+    expect(p.navs).toEqual([`${RET}?apibase_slug=existing-shop&handoff=${HID}`]);
+    expect(p.timers).toHaveLength(0);
+    expect(p.out().textContent).toBe('Returning to Soukbase...');
     const q = await boot({ handoff: { mode: 'register', grant_requested: false }, reg409: true });
     await q.run();
     expect(q.$('er').textContent).toContain('This wallet already has a store on APIbase.');
@@ -498,7 +464,6 @@ describe('T-0764 done page return', () => {
       const h = await (await fetch(u)).text();
       const pf = JSON.parse(/<script type="application\/json" id="pf">(.*?)<\/script>/.exec(h)![1]);
       expect(pf).toMatchObject({ mode: 'register', grant_requested: true, seller_keys: 'hidden' });
-      expect(h).toContain('/integrator/docs#shop-without-keys');
     } finally {
       srv.close();
     }

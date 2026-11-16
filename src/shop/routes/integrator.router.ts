@@ -186,6 +186,114 @@ export function grantVariant(
   return swap(b, '<span id="wtn">1</span> of 3', '<span id="wtn">1</span> of 1');
 }
 
+/** T-0869: the four documents, as linked on step 2 (new tab). */
+const DOC_LINKS =
+  '<a href="/legal/merchant-agreement" target="_blank" rel="noopener">Merchant Agreement</a>, <a href="/legal/aup" target="_blank" rel="noopener">Acceptable Use Policy</a>, <a href="/legal/dpa" target="_blank" rel="noopener">Data Processing Addendum</a> and <a href="/legal/refund-framework" target="_blank" rel="noopener">Refund Framework</a>';
+/** T-0869: the prefill keys whose row the page can hide (`data-row`); contact_email is T-0867's line. */
+const ROW_RES: Array<[string, RegExp]> = [
+  ['name', /^(<label>Shop name<input name="name"[^\n]*)$/m],
+  ['site_url', /^(<label>Website<input name="site_url"[^\n]*)$/m],
+  ['slug', /^(<label>Shop address[^\n]*\n<p class="hint">Your page:[^\n]*)$/m],
+];
+
+/**
+ * T-0869 (REQUEST-SOUKBASE-R5-1-1116 ruling-1): one-page mode, applied after grantVariant to a live
+ * handoff of mode register with grant_requested. Same elements and ids, rearranged: band, two lines,
+ * the visible fields, the document line, one button, everything else under one closed "More options".
+ * Which rows hide (a key in the prefill) is decided by the page script, which takes one-page mode from
+ * this markup (#more), so the plain page never names the flag.
+ */
+export function onePageVariant(
+  body: string,
+  partnerName: string,
+  expectedWallet: string | null,
+): string {
+  const pn = esc(partnerName);
+  let b = body;
+  const swap = (from: string | RegExp, to: string | ((...m: string[]) => string)) => {
+    if (typeof from === 'string' ? !b.includes(from) : !from.test(b))
+      throw new Error(`connect.html: one-page anchor missing: ${String(from)}`);
+    b = b.replace(from, to as never);
+  };
+  /** cut a piece out of the page and return it (it is put back inside the fold) */
+  const cut = (re: RegExp): string => {
+    const m = re.exec(b);
+    if (!m) throw new Error(`connect.html: one-page anchor missing: ${String(re)}`);
+    b = b.replace(m[0], '');
+    return m[0];
+  };
+  const ew =
+    expectedWallet && /^0x[0-9a-f]{40}$/i.test(expectedWallet)
+      ? ` (${expectedWallet.slice(0, 6)}…${expectedWallet.slice(-4)})`
+      : '';
+  swap(
+    '<p class="cn-eye">INTEGRATOR · CONNECT</p>',
+    `<p class="cn-eye">This is APIbase, the payment partner of ${pn}.</p>`,
+  );
+  swap(
+    '<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>',
+    `<p class="lp-sub">We open the store page apibase.pro/m/<b id="op-slug"></b> for <b id="op-name"></b>, where AI agents order and pay. ${pn} adds your products and receives your orders.</p>\n<p class="lp-sub">Payouts in USDC on Base go to the wallet you sign with${ew}. It costs nothing.</p>`,
+  );
+  swap('<ol class="cn-bar" id="bar">', '<ol class="cn-bar" id="bar" hidden>');
+  for (const h of ['Your store', 'Agreements', 'Connect wallet']) swap(`<h2>${h}</h2>\n`, '');
+  for (const [n, re] of ROW_RES) swap(re, (_m, row) => `<div data-row="${n}">\n${row}\n</div>`);
+  for (const n of ['category', 'country'])
+    swap(
+      new RegExp(`<div><label>(?=[A-Za-z]+<select name="${n}")`),
+      `<div data-row="${n}"><label>`,
+    );
+  const support = cut(/<label>Support email \(optional\)[^\n]*\n/);
+  cut(/<div class="cn-box"><p>You accept these four documents[^\n]*\n<p class="cn-info">[^\n]*\n/);
+  const versions = cut(
+    /<details><summary>Document versions<\/summary>[^\n]*\n<p class="muted">[^\n]*\n/,
+  );
+  cut(/<p>One free signature, no gas:[^\n]*\n/);
+  const sig = cut(
+    /<details><summary>What the message says<\/summary>\n<ol class="cn-sig" id="sig">\n[\s\S]*?<\/ol>\n<\/details>\n/,
+  )
+    .replace('<details><summary>What the message says</summary>\n', '')
+    .replace(/<\/details>\n$/, '');
+  cut(/<div class="cn-cards">[^\n]*\n/);
+  const payout = cut(
+    /<details><summary>Use a different payout wallet<\/summary>\n[\s\S]*?<\/details>\n/,
+  )
+    .replace('<details><summary>Use a different payout wallet</summary>\n', '')
+    .replace(/<\/details>\n$/, '');
+  const wh = cut(/<p class="hint" id="wh">[^\n]*\n/);
+  const nwLinks = [
+    '<p class="btn-row">',
+    '<p><button type="button" class="cn-ghost" data-copy=',
+    '<p><a href="/integrator/agent-guide">',
+  ]
+    .map((s) => new RegExp(`${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^\n]*\n`).exec(b)?.[0])
+    .map((s) => {
+      if (!s) throw new Error('connect.html: one-page anchor missing: #nw links');
+      return s;
+    })
+    .join('');
+  const sd = (t: string, n: string) => `<p class="hint">${t}: <span data-sd="${n}"></span></p>\n`;
+  const fold =
+    '<details id="more"><summary>More options</summary>\n' +
+    `<h3>What the message says</h3>\n${sig}` +
+    `<h3>Store details</h3>\n${sd('Shop name', 'name')}${sd('Website', 'site_url')}${sd('Category', 'category')}${sd('Country', 'country')}` +
+    support +
+    `<h3>Payout wallet</h3>\n${payout}` +
+    '<div id="wl"></div>\n' +
+    `${wh}${nwLinks}` +
+    versions +
+    '</details>\n';
+  swap(
+    '<p class="cn-nav">',
+    `<p id="op-docs">By signing you accept the ${DOC_LINKS}.</p>\n<p class="cn-nav">`,
+  );
+  swap(
+    /(<p class="cn-nav">[^\n]*<\/p>\n)(<\/form>)/,
+    (_m, nav, end) =>
+      `${nav}<p class="hint">One free signature. No gas, no money leaves your wallet.</p>\n${fold}${end}`,
+  );
+  return b;
+}
+
 const mdPage = (md: string, path: string): string =>
   layout({
     title: `${titleOf(md)} — APIbase`,
@@ -279,6 +387,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
     // T-0739: a handoff link of a known partner. Live -> prefill; anything else -> one hint line, no echo.
     let hint = '';
     let grantView: { mode: 'register' | 'grant'; grant_requested: boolean } | null = null;
+    let onePage: { expected_wallet: string | null } | null = null;
     const handoff: unknown = req.query.handoff;
     if (partner && handoff !== undefined) {
       res.set('Cache-Control', 'private, no-store');
@@ -293,8 +402,11 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         // T-0832: the hint names what the partner actually passed; no email -> the page asks for it under the field.
         const pe: unknown = (live.prefill as Record<string, unknown> | null)?.contact_email;
         const noEmail = typeof pe !== 'string' || pe.trim() === '';
+        // T-0869: one-page mode = a handoff signed once (register + grant_requested); its two lines replace the hint.
+        if (live.mode === 'register' && live.grant_requested)
+          onePage = { expected_wallet: live.expected_wallet };
         hint =
-          live.mode === 'grant'
+          live.mode === 'grant' || onePage
             ? ''
             : noEmail
               ? `<p class="hint">Some fields are filled in from ${esc(partner.name)}. Check them and continue.</p>`
@@ -307,7 +419,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
                 Object.entries(live.prefill).filter(([k]) => k !== 'contact_email'),
               )
             : live.prefill;
-        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: pagePrefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested, seller_keys: partner.seller_keys ?? 'shown', ...(live.mode !== 'grant' && noEmail ? { email_note: true } : {}), ...(live.mode !== 'grant' && !noEmail ? { email_given: true } : {}) })}</script>`;
+        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: pagePrefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested, seller_keys: partner.seller_keys ?? 'shown', ...(live.mode !== 'grant' && noEmail ? { email_note: true } : {}), ...(live.mode !== 'grant' && !noEmail ? { email_given: true } : {}), ...(onePage ? { one_page: true } : {}) })}</script>`;
       } else {
         hint = `<p class="hint">This link from ${esc(partner.name)} is no longer valid. You can still connect your store and return there.</p>`;
       }
@@ -317,6 +429,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       .replace('{{HANDOFF_HINT}}', () => hint)
       .replace('{{PARTNER}}', () => partnerHtml);
     if (partner && grantView) body = grantVariant(body, partner.name, grantView);
+    if (partner && onePage) body = onePageVariant(body, partner.name, onePage.expected_wallet);
     res.type('html').send(
       layout({
         title: 'Connect AI payment | APIbase Integrator',

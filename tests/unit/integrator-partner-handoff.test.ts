@@ -307,6 +307,64 @@ dbDescribe('T-0739 partner handoff', () => {
       expect(b.email_note).toBe(true);
     });
 
+    it('T-0869: one_page is in #pf only for register + grant_requested; every other page renders as before', async () => {
+      const pfOf = (html: string) =>
+        JSON.parse(/<script type="application\/json" id="pf">([^<]*)<\/script>/.exec(html)![1]);
+      const prefill = { name: 'One Page Shop', contact_email: 'a@b.example' };
+      const one = await page(
+        `?from=soukbase&handoff=${(await newHandoff({ prefill, grant_requested: true })).handoff_id}`,
+      );
+      expect(pfOf(one)).toEqual({
+        prefill,
+        expected_wallet: null,
+        mode: 'register',
+        grant_requested: true,
+        seller_keys: 'hidden',
+        email_given: true,
+        one_page: true,
+      });
+      expect(one).toContain('This is APIbase, the payment partner of Soukbase.');
+      expect(one).toContain('<details id="more"><summary>More options</summary>');
+      expect(one).not.toContain('Prefilled from Soukbase');
+      // without the flag: the #pf of today, no one-page markup; the plain page and a dead link as before
+      const plain = await page('?from=soukbase');
+      const reg = await newHandoff({ prefill });
+      const grant = await newHandoff({ prefill, mode: 'grant' });
+      const pages = {
+        reg: await page(`?from=soukbase&handoff=${reg.handoff_id}`),
+        grant: await page(`?from=soukbase&handoff=${grant.handoff_id}`),
+        dead: await page(`?from=soukbase&handoff=${UUID0}`),
+      };
+      expect(pfOf(pages.reg)).toEqual({
+        prefill,
+        expected_wallet: null,
+        mode: 'register',
+        grant_requested: false,
+        seller_keys: 'hidden',
+        email_given: true,
+      });
+      expect(pfOf(pages.grant)).toEqual({
+        prefill: { name: 'One Page Shop' },
+        expected_wallet: null,
+        mode: 'grant',
+        grant_requested: false,
+        seller_keys: 'hidden',
+      });
+      for (const h of [plain, ...Object.values(pages)]) {
+        expect(h).not.toContain('one_page');
+        expect(h).not.toContain('the payment partner of');
+        expect(h).not.toContain('<details id="more">');
+      }
+      expect(pages.reg).toContain('<ol class="cn-bar" id="bar">');
+      expect(pages.reg).toContain('Prefilled from Soukbase. Check the values and continue.');
+      expect(pages.dead).toBe(
+        plain.replace(
+          'It costs nothing.</p>',
+          'It costs nothing.</p><p class="hint">This link from Soukbase is no longer valid. You can still connect your store and return there.</p>',
+        ),
+      );
+    });
+
     it('T-0867: mode grant never puts the prefill e-mail on the page', async () => {
       const g = await newHandoff({
         mode: 'grant',
@@ -322,14 +380,16 @@ dbDescribe('T-0739 partner handoff', () => {
       expect(j.email_note).toBeUndefined();
     });
 
-    it('T-0832: the one-signature handoff shows one sentence and the four rows in a closed details; the direct flow is unchanged', async () => {
+    it('T-0832/T-0869: the one-signature handoff shows one hint and the four rows under More options; the direct flow is unchanged', async () => {
       const g = await newHandoff({ grant_requested: true });
       const html = await page(`?from=soukbase&handoff=${g.handoff_id}`);
+      // T-0869: one-page mode replaces the T-0832 sentence and its own details with the fold
       expect(html).toContain(
-        '<p>One free signature, no gas: it registers your store, records the documents you accept and lets Soukbase sell for it.</p>',
+        '<p class="hint">One free signature. No gas, no money leaves your wallet.</p>',
       );
+      expect(html).not.toContain('One free signature, no gas: it registers your store');
       expect(html).toMatch(
-        /<details><summary>What the message says<\/summary>\n<ol class="cn-sig" id="sig">\n(<li data-n="\d">[^\n]*\n){4}<\/ol>\n<\/details>/,
+        /<details id="more"><summary>More options<\/summary>\n<h3>What the message says<\/h3>\n<ol class="cn-sig" id="sig">\n(<li data-n="\d">[^\n]*\n){4}<\/ol>\n/,
       );
       expect(html).not.toContain('The one message you sign states');
       const plain = await page('?from=soukbase');
