@@ -260,7 +260,7 @@ export function registerMerchantTools(
         ),
       },
       outputSchema: { api_key: z.string(), terms_update_pending: banner },
-      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
     },
     async (a: { encryption_key?: z.infer<typeof ENC_KEY> }) => {
       try {
@@ -441,7 +441,7 @@ export function registerMerchantTools(
       },
       annotations: {
         readOnlyHint: false,
-        destructiveHint: false,
+        destructiveHint: true,
         idempotentHint: false,
         openWorldHint: false,
       },

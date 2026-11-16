@@ -171,7 +171,7 @@ export function registerOrderTools(
         order_url: z.string().optional(),
         next: z.string().optional(),
       },
-      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: true },
     },
     async (a: {
       quote_id: string;
@@ -346,6 +346,7 @@ export function registerOrderTools(
         access_until: z.string().optional(),
         renew: z.record(z.string(), z.unknown()).optional(),
       },
+      // readOnlyHint stays false: shop.subscription.get creates the renew quote.
       annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
     },
     async (a: { subscription_id: string; merchant?: string }) => {
@@ -462,7 +463,7 @@ export function registerOrderTools(
         renewal_key: z.string().optional(),
         preauthorized_periods: z.array(z.record(z.string(), z.unknown())),
       },
-      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
     },
     async (a: { subscription_id: string; authorizations: unknown[]; merchant?: string }) => {
       try {
@@ -505,7 +506,7 @@ export function registerOrderTools(
         canceled_at: z.string().optional(),
         access_until: z.string().optional(),
       },
-      annotations: { readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+      annotations: { readOnlyHint: false, destructiveHint: true, openWorldHint: false },
     },
     async (a: { subscription_id: string; tx_hash: string; merchant?: string }) => {
       try {

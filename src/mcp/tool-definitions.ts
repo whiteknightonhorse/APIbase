@@ -2074,12 +2074,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       '⚡ ACTION: Send SMS message to any phone number worldwide. Requires a Twilio phone number as sender. Returns message SID and delivery status. $0.0083/SMS US outbound (Twilio)',
     category: 'messaging',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
 
   // ---------------------------------------------------------------------------
@@ -2092,12 +2087,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       '⚡ ACTION: Send SMS to North America (NANP +1 — US, Canada, Caribbean). $0.016/message — cheapest tier. Returns 400 if destination is outside +1. Use telnyx.estimate_price first if unsure (Telnyx)',
     category: 'messaging',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
   {
     toolId: 'telnyx.send_sms_world',
@@ -2106,12 +2096,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       '⚡ ACTION: Send SMS to most international destinations: UK +44, EU (DE/FR/IT/ES/NL/PL...), AU +61, JP +81, IN +91, BR +55, MX +52, ZA +27, IL +972, AE +971, SG +65, KR +82. $0.10/message. Returns 400 if destination is in NA tier (use telnyx.send_sms_na) or premium tier (use telnyx.send_sms_premium) (Telnyx)',
     category: 'messaging',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
   {
     toolId: 'telnyx.send_sms_premium',
@@ -2120,12 +2105,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       '⚡ ACTION: Send SMS to high-cost destinations: Russia +7, Belarus +375, Ukraine +380, China +86, Turkey +90, MENA (SA/AE/EG/JO/...), Africa (NG/KE/ZA/...), and any unknown prefix (default). $0.25/message. Highest tier — use telnyx.estimate_price to verify before sending (Telnyx)',
     category: 'messaging',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
   {
     toolId: 'telnyx.estimate_price',
@@ -2821,12 +2801,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       '⚡ ACTION: Send transactional email — plain text or HTML body, multiple recipients, reply-to. Requires verified sender domain. 3,000 free emails/month (Resend)',
     category: 'messaging',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
   {
     toolId: 'resend.email_status',
@@ -3572,7 +3547,12 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Submit an audio file URL for speech-to-text transcription. Returns a transcript_id to check status and retrieve results. Supports MP3, WAV, M4A, FLAC, OGG, WebM. 99 languages auto-detected. Optional speaker diarization. Requires duration_seconds (max 4 h); priced per audio minute: max($0.01, ceil(minutes) x $0.005), and the job is cut at the declared duration (AssemblyAI)',
     category: 'media',
-    annotations: READ_ONLY,
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: false,
+      idempotentHint: false,
+      openWorldHint: true,
+    },
   },
   {
     toolId: 'transcribe.status',
@@ -4816,12 +4796,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       '⚡ ACTION: Execute up to 20 tool calls in a single request with parallel execution (max 10 concurrent). Each call runs the full pipeline independently with its own billing. Returns array of results with per-call status, data, cost, and duration. Save 5x round-trips vs sequential calls. Batch wrapper is free — you pay only for individual tool calls (APIbase)',
     category: 'developer',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
 
   // Discovery contract (ZZ-03-05, 03-SPECIFICATION.md P-1/M-1) — the one MCP tool an agent
@@ -4870,12 +4845,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Call one tool found with apibase.discover: tool_id is its tool id or MCP name, arguments is the object its input schema (apibase.describe) asks for. The price is the price of that tool, paid, challenged and settled exactly as a direct call of it; the wrapper itself is free (APIbase)',
     category: 'developer',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
 
   // ---------------------------------------------------------------------------
@@ -17282,12 +17252,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       "⚡ ACTION: Send a command to a physical device the calling agent owns via a linked vendor connection (e.g. turn a plug on/off, set an AC temperature). Numeric setpoints are bounds-checked against the device class's configured safety limits (config/device-classes.json); some device classes require confirm:true. Requires connection_id, device_id, command, value.",
     category: 'device',
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: false,
-      openWorldHint: true,
-    },
+    annotations: TRADING,
   },
   // ---------------------------------------------------------------------------
   // BIS Statistics — Bank for International Settlements SDMX API (UC-682)

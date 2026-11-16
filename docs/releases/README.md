@@ -21,3 +21,7 @@ Local check: `bash scripts/release-check.sh vX.Y.Z`; self-test: `bash scripts/re
 `GET /api/tools` and `GET /api/v1/tools` accept `limit` (1 to 2000), `cursor`, `category` and `view=full|compact`; an unknown `view` is a 400. `view=compact` items hold `id`, `name`, `category`, `price_usd` and `summary` (the first sentence of the description, at most 160 characters). When any of the four parameters is sent, the response also carries `total` (rows matching the filters) and `truncated` (true when more rows exist than returned), next to the pagination cursor. A repeated key of `limit`, `cursor`, `category` or `view` is a 400 (on `/api/v1/tools` a repeated `limit` or `category` was silently ignored before). Both routes now sit behind a per-address limit of 120 requests per minute. A request without these parameters returns the same response as before.
 
 Planned: the defaults of both routes become `view=compact&limit=100`, with `view=full` keeping today's response. The date is added when that change ships.
+
+## Tool safety hints corrected (T-0857, 2026-11-16)
+
+`shop.order.pay`, `shop.merchant.refund` and `email.transactional.send` declared `destructiveHint: false` in MCP `tools/list`; they now declare `true`, as do nine further tools (`shop.subscription.preauthorize`, `shop.subscription.confirm_pull`, `shop.merchant.rotate_key`, the four SMS tools, `device.registry.command`, `apibase.tools.call`, `platform.batch.call`); `audio.transcribe.submit` is no longer `readOnlyHint: true`. Shop tools version 18. Rule: [architecture](../architecture.md).
