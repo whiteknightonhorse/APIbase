@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+# T-0854 (FLEET-REBOOT-1115 ruling-1): a fleet-session commit must start with the card's prefix.
+# Passes when FLEET_COMMIT_PREFIXES is unset (cron, operator, non-fleet commits).
+HERE="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+if [ -f "$HERE/scripts/lib/commit-msg-guard.sh" ]; then
+  sh "$HERE/scripts/lib/commit-msg-guard.sh" "$1"
+  exit $?
+fi
+exit 0
