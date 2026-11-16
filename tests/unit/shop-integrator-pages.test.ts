@@ -178,7 +178,8 @@ describe('integrator pages', () => {
     const js = [...text.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1].trim());
     expect(js).toHaveLength(1);
     // T-0800: 110 -> 150 for the EIP-6963 wallet chooser and the two-address mismatch box.
-    expect(js[0].split('\n').length).toBeLessThanOrEqual(150);
+    // T-0867: 150 -> 157 for the read-only contact-email line (#ce-line) and its Change button.
+    expect(js[0].split('\n').length).toBeLessThanOrEqual(157);
     expect(text).toContain('<option>digital-goods</option>');
     expect(text).toContain('agent-guide');
   });
