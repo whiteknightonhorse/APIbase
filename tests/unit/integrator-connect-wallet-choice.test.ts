@@ -559,7 +559,7 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     expect(wl.textContent).toBe(
       'Beta already has a request from this page waiting. Open it from the browser toolbar and answer it.',
     );
-    expect(vis(p.$('wt').querySelector('b')) && p.$('wts').hidden).toBe(true); // "Waiting for your wallet", no number
+    expect(vis(p.$('wtg')) && p.$('wts').hidden).toBe(true); // "Waiting for your wallet", no number
     expect(p.$('er').hidden).toBe(true);
     expect(p.$('er').textContent).not.toContain('Something went wrong');
     expect(p.$('nx').disabled).toBe(false);
@@ -664,18 +664,17 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     expect(signs(p)[0].phase).toBe('wallet');
     expect(p.log[0].phase).not.toBe('wallet');
     expect(p.$('wp').hidden).toBe(true);
-    expect(p.$('wt').querySelector('b').textContent).toBe(
-      'Waiting for your wallet — signature 1 of 1',
-    );
+    expect(p.$('wtg').hidden).toBe(true);
+    expect(p.$('wts').textContent).toBe('Waiting for your wallet — signature 1 of 1');
   });
 
   it('grantVariant still finds the "of 3" anchor in both variants', async () => {
     const html = await (await fetch(`${base}/integrator/connect?from=soukbase`)).text();
-    expect(html.split('<span id="wtn">1</span> of 3')).toHaveLength(2);
+    expect(html.split('<span id="wtn">1</span> of 3</b>')).toHaveLength(2); // shop-partner-grant expects 'of 1</b>'
     for (const v of [
       { mode: 'grant' as const, grant_requested: false },
       { mode: 'register' as const, grant_requested: true },
     ])
-      expect(grantVariant(html, 'Soukbase', v)).toContain('<span id="wtn">1</span> of 1');
+      expect(grantVariant(html, 'Soukbase', v)).toContain('<span id="wtn">1</span> of 1</b>');
   });
 });

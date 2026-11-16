@@ -118,7 +118,7 @@
 <label>Payout wallet on Tempo<input name="payout_wallet_tempo" placeholder="0x..."></label>
 </details>
 <div id="wn" hidden class="cn-net"><b>⚠ Wrong network</b><small id="wnt"></small></div>
-<div id="wt" hidden class="cn-wait" data-phase="prepare"><b>Waiting for your wallet<span id="wts"> — signature <span id="wtn">1</span> of 3</span></b><small>Check your wallet — the request may be in another window or on your phone.</small><small id="wta"></small><small id="wp" hidden></small><small id="wl" role="status" hidden></small></div>
+<div id="wt" hidden class="cn-wait" data-phase="prepare"><b id="wtg" hidden>Waiting for your wallet</b><b id="wts">Waiting for your wallet — signature <span id="wtn">1</span> of 3</b><small>Check your wallet — the request may be in another window or on your phone.</small><small id="wta"></small><small id="wp" hidden></small><small id="wl" role="status" hidden></small></div>
 <div id="er" class="cn-box cn-error" hidden></div>
 <p class="hint" id="wh">Your wallet app or browser extension will open. <a href="/integrator/wallet">Don't have a wallet? Get one in 2 minutes →</a></p>
 </div>
@@ -204,7 +204,7 @@ const wd = (q, v, bad) => { if (q.done) return; q.n--; const pn = bad && v && v.
   if (bad) q.rej(v); else q.res(v);
 };
 const wx = () => { PQ = null; RP = false; AM = false; clearTimeout(WT); $('wl').hidden = true; };
-const ph = (p, num) => { const t = $('wt'), w = p === 'wallet'; t.dataset.phase = p; t.querySelector('b').hidden = t.querySelector('small').hidden = !w; $('wts').hidden = !num; $('wta').hidden = !w || !$('wta').textContent; $('wp').hidden = w; if (!w) $('wl').hidden = true; t.hidden = false; }; // T-0870: prepare = APIbase is asked, wallet = the wallet has the request
+const ph = (p, num) => { const t = $('wt'), w = p === 'wallet'; t.dataset.phase = p; t.querySelector('small').hidden = !w; $('wtg').hidden = !w || !!num; $('wts').hidden = !w || !num; $('wta').hidden = !w || !$('wta').textContent; $('wp').hidden = w; if (!w) $('wl').hidden = true; t.hidden = false; }; // T-0870: prepare = APIbase is asked, wallet = the wallet has the request
 const hl = (why, q) => { const t = $('wt'), l = $('wl'), nm = wn(q.e); if (t.hidden || t.dataset.phase !== 'wallet') ph('wallet', q.m === 'personal_sign' && sg > 0);
   l.dataset.why = why; l.textContent = why === 'pending' ? nm[0].toUpperCase() + nm.slice(1) + ' already has a request from this page waiting. Open it from the browser toolbar and answer it.' : 'No wallet window? Open ' + nm + ' from the browser toolbar: the request is waiting there. If nothing is there, press ' + q.lb + ' again.';
   l.hidden = false; RP = true; gate();
