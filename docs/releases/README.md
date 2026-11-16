@@ -24,4 +24,4 @@ Planned: the defaults of both routes become `view=compact&limit=100`, with `view
 
 ## Tool safety hints corrected (T-0857, 2026-11-16)
 
-`shop.order.pay`, `shop.merchant.refund` and `email.transactional.send` declared `destructiveHint: false` in MCP `tools/list`; they now declare `true`, as do nine further tools (`shop.subscription.preauthorize`, `shop.subscription.confirm_pull`, `shop.merchant.rotate_key`, the four SMS tools, `device.registry.command`, `apibase.tools.call`, `platform.batch.call`); `audio.transcribe.submit` is no longer `readOnlyHint: true`. Shop tools version 18. Rule: [architecture](../architecture.md).
+`shop.order.pay`, `shop.merchant.refund` and `email.transactional.send` declared `destructiveHint: false` in MCP `tools/list`; they now declare `true`, as do ten further tools (`shop.subscription.preauthorize`, `shop.subscription.confirm_pull`, `shop.merchant.rotate_key`, the four SMS tools, `device.registry.command`, `apibase.tools.call`, `platform.batch.call`); `audio.transcribe.submit` is no longer `readOnlyHint: true`. Shop tools version 18. Rule: [architecture](../architecture.md).
