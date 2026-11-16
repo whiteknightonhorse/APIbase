@@ -141,6 +141,34 @@ describe('x402 over MCP: payment in params._meta (T-0429)', () => {
     expect(plain.headers['x-payment']).toBeUndefined();
   });
 
+  it('T-0859: 400 messages for a bad X-Payment value (docs/payments.md, @x402/core 2.30 decode)', async () => {
+    const b64 = (s: string) => Buffer.from(s).toString('base64');
+    const notObject = b64('123');
+    const badSchema = b64(JSON.stringify({ x402Version: 2, foo: 1 }));
+    const rest = (h: string) => {
+      const req = mcpReq({ name: 't', arguments: {} }, { 'x-payment': h });
+      (req as unknown as { path: string }).path = '/api/v1/tools/x/call';
+      return req;
+    };
+    const cases: Array<[Request, string]> = [
+      [rest(notObject), 'Invalid x402 payment header'],
+      [rest(badSchema), 'Invalid x402 payment payload'],
+      [
+        mcpReq(attachPaymentToMeta({ name: 't', arguments: {} }, PAYLOAD as never) as never, {
+          'x-payment': notObject,
+        }),
+        'Invalid x402 payment header',
+      ],
+    ];
+    for (const [req, message] of cases) {
+      const err = await run(req);
+      expect(err).toBeInstanceOf(AppError);
+      expect((err as AppError).httpStatus).toBe(400);
+      expect((err as AppError).code).toBe('bad_request');
+      expect((err as AppError).message).toBe(message);
+    }
+  });
+
   it('ignores _meta on routes that are not JSON-RPC', async () => {
     const req = mcpReq(attachPaymentToMeta({ name: 't' }, PAYLOAD as never) as never);
     (req as unknown as { path: string }).path = '/api/v1/tools/x/call';

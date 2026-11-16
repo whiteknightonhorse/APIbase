@@ -98,5 +98,11 @@
     "source": "src/mcp/apibase-call.ts",
     "anchor": "export function rewriteApibaseCalls(",
     "ruling": "T-0838 (APIBASE-R4-REQ-1113 ruling-1)"
+  },
+  "x402_header_400_messages": {
+    "value": "An X-Payment value that does not decode to a JSON object is a 400 bad_request with message Invalid x402 payment header, also when a payment is present in _meta; a JSON object that fails the payment payload schema is a 400 bad_request with message Invalid x402 payment payload",
+    "source": "src/middleware/x402.middleware.ts",
+    "anchor": "throw new AppError(ErrorCode.BAD_REQUEST, 'Invalid x402 payment header');",
+    "ruling": "T-0859 (0859-x402-2-30-bump ruling-2)"
   }
 }

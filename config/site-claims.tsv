@@ -174,3 +174,4 @@ docs/releases/README.md	raw:https://raw.githubusercontent.com/whiteknightonhorse
 static/llms.txt	https://apibase.pro/llms.txt	must-contain	https://apibase.pro/mcp?tools=lean	-	T-0837 lean MCP list view (facts key mcp_list_view_lean)
 static/integrator/agent-guide.md	https://apibase.pro/integrator/agent-guide.md	must-contain	https://apibase.pro/mcp?tools=shop	-	T-0837 shop MCP list view (facts key mcp_list_view_shop)
 docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-contain	is priced, challenged and settled as the direct call of the target tool	-	T-0838 apibase.call is the direct call (facts key apibase_call)
+docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-contain	is a 400 `bad_request` with message `Invalid x402 payment header`	-	T-0859 x402 header 400 messages (facts key x402_header_400_messages)
