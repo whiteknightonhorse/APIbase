@@ -586,6 +586,7 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     p.advance(8_000);
     expect(p.$('wl').dataset.why).toBe('silent');
     expect(p.$('wts').hidden).toBe(true);
+    expect(vis(p.$('wtg'))).toBe(true); // "Waiting for your wallet", no number
     p.$('nx').click();
     await p.settle();
     expect(p.log.filter((l) => l.method === 'eth_requestAccounts')).toHaveLength(2);
@@ -636,7 +637,11 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     expect(p.$('wp').textContent).toBe(
       'Preparing signature 1 of 1. Your wallet has not been asked yet.',
     );
-    expect(t.querySelector('b').hidden).toBe(true);
+    // both headings: the numbered one a real run shows (#wts) and the plain one (#wtg)
+    expect(p.$('wts').hidden).toBe(true);
+    expect(p.$('wtg').hidden).toBe(true);
+    expect([...t.querySelectorAll('b')].filter((b: any) => !b.hidden)).toEqual([]);
+    expect(t.textContent).toContain('Waiting for your wallet'); // present in the DOM, only hidden
     expect(p.$('wta').hidden).toBe(true);
     expect(signs(p)).toHaveLength(0);
     p.advance(8_000);
@@ -665,6 +670,7 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     expect(p.log[0].phase).not.toBe('wallet');
     expect(p.$('wp').hidden).toBe(true);
     expect(p.$('wtg').hidden).toBe(true);
+    expect(vis(p.$('wts'))).toBe(true);
     expect(p.$('wts').textContent).toBe('Waiting for your wallet — signature 1 of 1');
   });
 
