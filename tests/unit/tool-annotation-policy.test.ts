@@ -27,20 +27,15 @@ interface Row {
 }
 
 /**
- * Tools whose MCP name carries a risk token but whose behaviour is a pure query ("place" is a
- * noun in these three). An entry here needs a ruling; the list was empty by design and these
- * three are pending TOOL-ANNOTATIONS-1116 q-2.
+ * Tools whose MCP name carries a risk token but whose behaviour is a pure query. Empty by design:
+ * an entry needs a ruling.
  */
-export const NAME_TOKEN_EXCEPTIONS: readonly string[] = [
-  'geonames.place.search',
-  'geonames.place.timezone',
-  'norway-kartverket-stedsnavn.places.get_place',
-];
+export const NAME_TOKEN_EXCEPTIONS: readonly string[] = [];
 
 /**
  * Tools whose description starts with the ACTION marker (a pricing/feature marker, not an effect
  * claim) and that only query or render without changing anything observable. An entry needs a
- * ruling; pending TOOL-ANNOTATIONS-1116 q-2.
+ * ruling; confirmed by the 0857 q-2 ruling of 2026-11-16; the list is frozen, a new entry needs a ruling.
  */
 export const ACTION_READONLY_EXCEPTIONS: readonly string[] = [
   'amadeus.flights.search',
@@ -68,7 +63,6 @@ const RISK_TOKENS = new Set([
   'send',
   'sms',
   'command',
-  'place',
 ]);
 
 const EXPECTED: Record<string, Hints> = {
@@ -90,6 +84,18 @@ const EXPECTED: Record<string, Hints> = {
   'device.registry.command': { readOnlyHint: false, destructiveHint: true },
   'apibase.tools.call': { readOnlyHint: false, destructiveHint: true },
   'platform.batch.call': { readOnlyHint: false, destructiveHint: true },
+  'polymarket.trading.place_order': {
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: false,
+    openWorldHint: true,
+  },
+  'messaging.telegram.get_updates': {
+    readOnlyHint: false,
+    destructiveHint: true,
+    idempotentHint: true,
+    openWorldHint: true,
+  },
   'audio.transcribe.submit': {
     readOnlyHint: false,
     destructiveHint: false,

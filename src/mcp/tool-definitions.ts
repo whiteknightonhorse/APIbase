@@ -3371,7 +3371,13 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     description:
       'Get recent incoming messages and events for the bot — new messages, user info, chat type. Use offset to get only new updates since last check (Telegram Bot API)',
     category: 'messaging',
-    annotations: READ_ONLY,
+    // offset confirms updates on the shared bot and they cannot be fetched again.
+    annotations: {
+      readOnlyHint: false,
+      destructiveHint: true,
+      idempotentHint: true,
+      openWorldHint: true,
+    },
   },
   {
     toolId: 'telegram.get_chat',
