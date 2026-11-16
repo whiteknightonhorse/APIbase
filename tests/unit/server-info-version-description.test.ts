@@ -22,6 +22,7 @@
  */
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
+import { spawnSync } from 'child_process';
 
 const repoRoot = join(__dirname, '../..');
 const serverTs = readFileSync(join(repoRoot, 'src/mcp/server.ts'), 'utf8');
@@ -64,5 +65,56 @@ describe('SERVER_INFO version + description (T-ZZ-03-04)', () => {
 
   it('package.json version was bumped off the stale 1.0.0 baseline (not to be reverted)', () => {
     expect(pkg.version).toBe('2.2.0');
+  });
+});
+
+/**
+ * T-0864: server.json is the record the MCP registry stores. It has no version of its own: the top-level
+ * version is package.json's, packages[0].version is the npm client's. A drift is also a red
+ * `scripts/sync-counts.sh --check` (STALE_SERVER_JSON_VERSION / STALE_SERVER_JSON_CLIENT_VERSION).
+ */
+describe('server.json version source and registry URLs (T-0864)', () => {
+  const read = (rel: string): string => readFileSync(join(repoRoot, rel), 'utf8');
+  const serverJson = JSON.parse(read('server.json')) as {
+    version: string;
+    packages: Array<{ version: string }>;
+    remotes: Array<{ url: string }>;
+  };
+  const clientPkg = JSON.parse(read('packages/mcp-client/package.json')) as { version: string };
+  const mcpJson = JSON.parse(read('static/.well-known/mcp.json')) as { url: string };
+
+  it('server.json version equals package.json version', () => {
+    expect(serverJson.version).toBe(pkg.version);
+  });
+
+  it('server.json packages[0].version equals the mcp-client package version', () => {
+    expect(serverJson.packages[0].version).toBe(clientPkg.version);
+  });
+
+  it('the registry-facing URLs end with /mcp?tools=all', () => {
+    expect(serverJson.remotes[0].url).toBe('https://apibase.pro/mcp?tools=all');
+    expect(mcpJson.url).toBe('https://apibase.pro/mcp?tools=all');
+    expect(read('smithery.yaml')).toMatch(
+      /^\s*deploymentUrl: https:\/\/apibase\.pro\/mcp\?tools=all\s*$/m,
+    );
+    expect(read('scripts/gen-discovery.ts')).toContain("url: 'https://apibase.pro/mcp?tools=all',");
+  });
+
+  it('registry-version-check.sh selftest passes (mismatch fails with its message, equal passes)', () => {
+    const r = spawnSync('bash', ['scripts/registry-version-check.sh', '--selftest'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    });
+    expect(r.stdout.trim()).toBe('OK');
+    expect(r.status).toBe(0);
+  });
+
+  it('registry-version-check.sh reports the tree as consistent', () => {
+    const r = spawnSync('bash', ['scripts/registry-version-check.sh', '.'], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    });
+    expect(r.stdout).toBe('');
+    expect(r.status).toBe(0);
   });
 });

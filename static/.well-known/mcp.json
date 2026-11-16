@@ -11,7 +11,7 @@
     "2024-10-07"
   ],
   "transport": "streamable-http",
-  "url": "https://apibase.pro/mcp",
+  "url": "https://apibase.pro/mcp?tools=all",
   "version": "2.2.0",
   "tools_endpoint": "https://apibase.pro/api/v1/tools",
   "tools_manifest_url": "https://apibase.pro/api/v1/tools/manifest",

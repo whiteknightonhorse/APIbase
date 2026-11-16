@@ -3,12 +3,15 @@ name: Release
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
   release:
+    # A manual run (workflow_dispatch) has no tag: only the mcp-registry job below runs then.
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -35,3 +38,70 @@ jobs:
         run: |
           bash scripts/woo/build-zip.sh "$PWD/dist/woocommerce-apibase.zip"
           gh release upload "$GITHUB_REF_NAME" dist/woocommerce-apibase.zip --clobber
+
+  # T-0864: the MCP registry record follows server.json, whose version is package.json's.
+  # Login is GitHub OIDC (no token secret); the namespace io.github.<repository owner> comes from the token.
+  mcp-registry:
+    needs: release
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && (needs.release.result == 'success' || needs.release.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      # Pinned release of the registry CLI; the archive is checked against this sha256 before it is unpacked.
+      MCP_PUBLISHER_VERSION: v1.8.9
+      MCP_PUBLISHER_SHA256: 4d527ca8f1ced0394c962dc925c2a4a4addef441cbefd62501c875e9481823a8
+      REGISTRY_URL: https://registry.modelcontextprotocol.io
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check server.json versions against package.json and the client package
+        run: bash scripts/registry-version-check.sh .
+      - name: Read the registry
+        id: registry
+        run: |
+          set -euo pipefail
+          name=$(jq -r .name server.json)
+          want=$(jq -r .version server.json)
+          latest=$(curl --fail --silent --show-error --max-time 30 \
+            "$REGISTRY_URL/v0/servers?search=apibase" \
+            | jq -r --arg n "$name" '[.servers[] | select(.server.name == $n) | select(._meta["io.modelcontextprotocol.registry/official"].isLatest == true) | .server.version][0] // ""')
+          echo "registry latest for $name: '${latest}', server.json: '${want}'"
+          if [ "$latest" = "$want" ]; then
+            echo "already published"
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install mcp-publisher (pinned, sha256-checked)
+        if: steps.registry.outputs.needed == 'true'
+        run: |
+          set -euo pipefail
+          archive=mcp-publisher_linux_amd64.tar.gz
+          curl --fail --location --silent --show-error --output "$archive" \
+            "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/${archive}"
+          echo "${MCP_PUBLISHER_SHA256}  ${archive}" | sha256sum --check -
+          tar xzf "$archive" mcp-publisher
+          rm -f "$archive"
+      - name: Log in with GitHub OIDC and send server.json to the registry
+        if: steps.registry.outputs.needed == 'true'
+        run: |
+          set -euo pipefail
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
+      - name: Mark older versions deprecated (best effort)
+        if: steps.registry.outputs.needed == 'true'
+        run: |
+          name=$(jq -r .name server.json)
+          want=$(jq -r .version server.json)
+          versions=$(curl --silent --max-time 30 "$REGISTRY_URL/v0/servers?search=apibase" \
+            | jq -r --arg n "$name" --arg v "$want" '.servers[] | select(.server.name == $n) | select(.server.version != $v) | select((._meta["io.modelcontextprotocol.registry/official"].status // "active") == "active") | .server.version' || true)
+          left=""
+          for v in $versions; do
+            ./mcp-publisher status --status deprecated --message "Superseded by $want" "$name" "$v" \
+              || left="$left $v"
+          done
+          if [ -n "$left" ]; then
+            echo "versions left active:$left"
+          fi
+          exit 0

@@ -58,6 +58,10 @@ fi
 
 CATALOG="static/.well-known/api-catalog"
 CHANGED=0
+# T-0864: server.json's versions come from package.json and packages/mcp-client/package.json (never by hand).
+if [ "$CHECK" != "1" ]; then
+  bash scripts/registry-version-check.sh --write . || { echo "sync-counts: server.json version write FAILED"; exit 1; }
+fi
 if [ "$CHECK" = "1" ]; then
   # Internal-consistency baseline = what self-heal itself last committed (mcp.json's own
   # tools_count/providers_count), NOT a fresh query -- see the FRESHNESS_TOLERANCE_PCT comment
@@ -678,6 +682,7 @@ STALE_MCP_COUNT=$(echo "$STALE_MCP_COUNT" | grep 'STALE_MCP_COUNT' || true)
 [ "$MCP_COUNT_RC" != "0" ] && [ -z "$STALE_MCP_COUNT" ] && STALE_MCP_COUNT="count-mcp-tools.ts --check failed to run (rc=$MCP_COUNT_RC)"
 
 FAIL=0
+STALE_SERVER_JSON=$(bash scripts/registry-version-check.sh . 2>&1) || { echo "sync-counts: $STALE_SERVER_JSON"; FAIL=1; }
 [ -n "$STALE_MCP_COUNT" ] && { echo "sync-counts: STALE_MCP_COUNT:"; echo "$STALE_MCP_COUNT"; FAIL=1; }
 [ -n "$STALE_PRICE_RANGE" ] && { echo "sync-counts: STALE_PRICE_RANGE — a static/ price range differs from the generated one:"; echo "$STALE_PRICE_RANGE"; FAIL=1; }
 [ -n "$STALE_SITE_FACTS" ] && { echo "sync-counts: STALE_SITE_FACTS — a page or doc disagrees with the claims table / site-facts.json:"; echo "$STALE_SITE_FACTS"; FAIL=1; }

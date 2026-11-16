@@ -387,7 +387,8 @@ async function main(): Promise<void> {
         protocolVersion: NEGOTIATED_PROTOCOL_VERSION,
         protocolVersions: NEGOTIATED_PROTOCOL_VERSIONS,
         transport: 'streamable-http',
-        url: 'https://apibase.pro/mcp',
+        // T-0864: the registry-facing URL names the full list; it returns the same list as /mcp today.
+        url: 'https://apibase.pro/mcp?tools=all',
         version: PACKAGE_VERSION,
         tools_endpoint: 'https://apibase.pro/api/v1/tools',
         tools_manifest_url: 'https://apibase.pro/api/v1/tools/manifest',

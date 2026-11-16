@@ -6,7 +6,7 @@
     "url": "https://github.com/whiteknightonhorse/APIbase",
     "source": "github"
   },
-  "version": "1.0.3",
+  "version": "2.2.0",
   "packages": [
     {
       "registryType": "npm",
@@ -21,7 +21,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://apibase.pro/mcp"
+      "url": "https://apibase.pro/mcp?tools=all"
     }
   ]
 }

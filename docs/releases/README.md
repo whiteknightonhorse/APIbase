@@ -25,3 +25,7 @@ Planned: the defaults of both routes become `view=compact&limit=100`, with `view
 ## Tool safety hints corrected (T-0857, 2026-11-16)
 
 `shop.order.pay`, `shop.merchant.refund` and `email.transactional.send` declared `destructiveHint: false` in MCP `tools/list`; they now declare `true`, as do ten further tools (`shop.subscription.preauthorize`, `shop.subscription.confirm_pull`, `shop.merchant.rotate_key`, the four SMS tools, `device.registry.command`, `apibase.tools.call`, `platform.batch.call`); `audio.transcribe.submit` is no longer `readOnlyHint: true`. Shop tools version 18. Rule: [architecture](../architecture.md).
+
+## MCP registry follows the package version (T-0864, 2026-11-16)
+
+From the next tag on, the MCP registry record `io.github.whiteknightonhorse/apibase` carries the package version: `server.json` takes its `version` from `package.json` (and `packages[0].version` from `packages/mcp-client/package.json`), `scripts/sync-counts.sh --check` fails with `STALE_SERVER_JSON_VERSION` on a mismatch, and the `mcp-registry` job of `.github/workflows/release.yml` sends `server.json` to the registry after the tag's release (GitHub OIDC login; a version already in the registry is a no-op; older versions are marked deprecated). This supersedes step 4 above, which names only the GitHub release. The registry and `.well-known/mcp.json` URLs name `https://apibase.pro/mcp?tools=all`, which returns the same list as `/mcp` today.
