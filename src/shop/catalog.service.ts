@@ -277,11 +277,29 @@ interface MerchantGate {
   status_reason: string | null;
   wallet_address: string;
   limits: { max_order_usd?: number } | null;
+  encryption_key: unknown;
+  /** a key row labelled `initial` exists, revoked or not */
+  had_initial_key: boolean;
+}
+
+/**
+ * T-0872/T-0874: true when nobody can open the shop's encryption key: the `none-` placeholder kid, or a
+ * key stored with `signed_message` (registered by handoff) in a shop that was never given an `initial`
+ * API key (partner with hidden keys). `keys/rotate` stores a key without `signed_message`.
+ */
+export function noDecryptionKey(encryption_key: unknown, had_initial_key: boolean): boolean {
+  if (!encryption_key || typeof encryption_key !== 'object') return false;
+  const k = encryption_key as { kid?: unknown; signed_message?: unknown };
+  if (typeof k.kid === 'string' && k.kid.startsWith('none-')) return true;
+  return typeof k.signed_message === 'string' && k.signed_message !== '' && !had_initial_key;
 }
 
 async function gate(db: ShopTx, merchant_id: string, now?: () => number) {
   const rows = await db.$queryRawUnsafe<MerchantGate[]>(
-    `SELECT merchant_id, status, status_reason, wallet_address, limits FROM shop_merchants WHERE merchant_id = $1::uuid`,
+    `SELECT merchant_id, status, status_reason, wallet_address, limits, encryption_key,
+            EXISTS (SELECT 1 FROM shop_merchant_keys k
+                     WHERE k.merchant_id = shop_merchants.merchant_id AND k.label = 'initial') AS had_initial_key
+       FROM shop_merchants WHERE merchant_id = $1::uuid`,
     merchant_id,
   );
   if (!rows[0]) throw new ShopAuthError(401, 'unknown merchant');
@@ -401,12 +419,7 @@ export async function upsertCatalog(
 
   const report: CatalogReport = { upserted: 0, flagged: [], rejected: [], errors: [], ...banner };
   const seen = new Set<string>();
-  // T-0872: read the shop's encryption key kid once per call; `none-` is the placeholder of a partner-page shop.
-  const kidRows = await d.db.$queryRawUnsafe<Array<{ kid: string | null }>>(
-    `SELECT encryption_key->>'kid' AS kid FROM shop_merchants WHERE merchant_id = $1::uuid`,
-    merchant_id,
-  );
-  const noKey = typeof kidRows[0]?.kid === 'string' && kidRows[0].kid.startsWith('none-');
+  const noKey = noDecryptionKey(merchant.encryption_key, merchant.had_initial_key);
   const key = items.some((i) => (i as { fulfillment?: unknown })?.fulfillment) ? encKey(opts) : '';
 
   await d.transaction(async (tx) => {

@@ -11,6 +11,7 @@ import { getProduct, searchCatalog } from '../../src/shop/catalog.read.service';
 import {
   CatalogItemSchema,
   deleteCatalog,
+  noDecryptionKey,
   upsertCatalog,
   type CatalogDeps,
 } from '../../src/shop/catalog.service';
@@ -50,6 +51,18 @@ const item = (i: number | string, over: Row = {}) => ({
   price_usd: 10,
   category: 'sporting-goods',
   ...over,
+});
+
+describe('noDecryptionKey (no DB)', () => {
+  it('T-0874: null, a number kid and an array signed_message are false', () => {
+    expect(noDecryptionKey(null, false)).toBe(false);
+    expect(noDecryptionKey({ kid: 5 }, false)).toBe(false);
+    expect(noDecryptionKey({ kid: 'k1', signed_message: ['x'] }, false)).toBe(false);
+    expect(noDecryptionKey({ kid: 'k1', signed_message: '' }, false)).toBe(false);
+    expect(noDecryptionKey({ kid: 'none-a' }, true)).toBe(true);
+    expect(noDecryptionKey({ kid: 'k1', signed_message: 'm' }, false)).toBe(true);
+    expect(noDecryptionKey({ kid: 'k1', signed_message: 'm' }, true)).toBe(false);
+  });
 });
 
 describe('catalog zod schema (no DB)', () => {
@@ -777,6 +790,78 @@ dbDescribe('shop catalog', () => {
     const r3 = await up(id, batch('b'));
     expect(r3.errors).toEqual([]);
     expect(r3.upserted).toBe(3);
+  });
+
+  describe('T-0874 hidden-key shop that never rotated its encryption key', () => {
+    const signedShop = async () => {
+      const s = await shop();
+      await prisma.$executeRawUnsafe(
+        `UPDATE shop_merchants SET encryption_key = jsonb_set(encryption_key, '{signed_message}', '"signed text"') WHERE merchant_id = $1::uuid`,
+        s.id,
+      );
+      return s.id;
+    };
+    const batch = (t: string) => [
+      item(`${t}-pii`, { requires_pii: ['email'] }),
+      item(`${t}-phys`, { fulfillment_mode: 'physical' }),
+      item(`${t}-inst`, {
+        fulfillment_mode: 'instant',
+        fulfillment: { instant: { payload: 'the content' } },
+      }),
+    ];
+    const allSaved = async (id: string, t: string) => {
+      const r = await up(id, batch(t));
+      expect(r.errors).toEqual([]);
+      expect(r.upserted).toBe(3);
+    };
+
+    it('no key rows: buyer-data and physical items refused, instant saved', async () => {
+      const id = await signedShop();
+      const r = await up(id, batch('a'));
+      expect(r.upserted).toBe(1);
+      expect(r.errors.map((e) => [e.index, e.status, e.error_code])).toEqual([
+        [0, 422, 'decryption_key_missing'],
+        [1, 422, 'decryption_key_missing'],
+      ]);
+    });
+
+    it('a key row labelled reissued does not lift it', async () => {
+      const id = await signedShop();
+      await issueKey(deps.db, id, undefined, 'reissued');
+      const r = await up(id, batch('a'));
+      expect(r.upserted).toBe(1);
+      expect(r.errors).toHaveLength(2);
+    });
+
+    it('a live or a revoked initial key row lifts it', async () => {
+      const live = await signedShop();
+      await issueKey(deps.db, live, undefined, 'initial');
+      await allSaved(live, 'a');
+      const revoked = await signedShop();
+      await issueKey(deps.db, revoked, undefined, 'initial');
+      await prisma.$executeRawUnsafe(
+        `UPDATE shop_merchant_keys SET revoked_at = now() WHERE merchant_id = $1::uuid`,
+        revoked,
+      );
+      await allSaved(revoked, 'a');
+    });
+
+    it('kid k1 without signed_message: all saved, with and without key rows', async () => {
+      const { id } = await shop();
+      await allSaved(id, 'a');
+      await issueKey(deps.db, id, undefined, 'reissued');
+      await allSaved(id, 'b');
+    });
+
+    it('after the key is replaced by an object without signed_message: all saved', async () => {
+      const id = await signedShop();
+      expect((await up(id, batch('a'))).errors).toHaveLength(2);
+      await prisma.$executeRawUnsafe(
+        `UPDATE shop_merchants SET encryption_key = '{"kid":"k2","alg":"x25519","pub":"AAAA","sig_by_wallet":"0xsig"}'::jsonb WHERE merchant_id = $1::uuid`,
+        id,
+      );
+      await allSaved(id, 'a');
+    });
   });
 
   it('CF8: shop_products.moderation_status defaults to flagged', async () => {
