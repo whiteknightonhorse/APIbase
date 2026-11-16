@@ -15,10 +15,11 @@ mkdir -p "$API_LEDGER_DIR"
 cat > "$T/claude" <<'EOF'
 #!/usr/bin/env bash
 echo "$@" > "${FAKE_ARGS:-/dev/null}"
+echo "${CLAUDE_CODE_SUBPROCESS_ENV_SCRUB:-unset}" > "${FAKE_SCRUB:-/dev/null}"
 [ -n "${ANTHROPIC_API_KEY:-}" ] && echo yes > "${FAKE_SAW_KEY:-/dev/null}"
 echo '{"type":"result","is_error":false,"result":"pong","total_cost_usd":0.0123,"session_id":"sess-1","usage":{"input_tokens":10,"output_tokens":2,"cache_read_input_tokens":3,"cache_creation_input_tokens":4}}'
 EOF
-chmod +x "$T/claude"; export API_CALL_CLAUDE_BIN="$T/claude" FAKE_ARGS="$T/args" FAKE_SAW_KEY="$T/saw"
+chmod +x "$T/claude"; export API_CALL_CLAUDE_BIN="$T/claude" FAKE_ARGS="$T/args" FAKE_SAW_KEY="$T/saw" FAKE_SCRUB="$T/scrub"
 FAIL=0
 ok(){ echo "PASS $1"; }
 bad(){ echo "FAIL $1"; FAIL=1; }
@@ -43,7 +44,7 @@ grep -rq "$FAKEVAL" "$API_LEDGER_DIR" "$T/out" "$T/err" && bad "key value leaked
 rm -f "$LEDGER" "$T/saw"
 
 # 2. synthetic ledger at lane cap: exit 75 and no child process (strace shows no execve of claude)
-echo '{"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":55}' > "$LEDGER"
+echo '{"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":35}' > "$LEDGER"
 if command -v strace >/dev/null && strace -V >/dev/null 2>&1; then
   strace -f -e trace=execve,connect -o "$T/strace" "${CALL[@]}" >"$T/out" 2>"$T/err"; rc=$?
   [ "$rc" = 75 ] && ok "lane at cap exits 75" || bad "lane at cap rc=$rc"
@@ -61,8 +62,8 @@ mv "$API_KEY_FILE" "$API_KEY_FILE.x"; expect_rc 75 "key file missing refused" "$
 # 4. total $163: demo refused, overflow proceeds
 echo '{"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":40}
 {"ts":"2026-11-10T00:00:00Z","lane":"sweep","cost_usd":40}
-{"ts":"2026-11-10T00:00:00Z","lane":"demo","cost_usd":29}
-{"ts":"2026-11-10T00:00:00Z","lane":"overflow","cost_usd":10}
+{"ts":"2026-11-10T00:00:00Z","lane":"demo","cost_usd":19}
+{"ts":"2026-11-10T00:00:00Z","lane":"overflow","cost_usd":20}
 {"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":44}' > "$LEDGER"
 expect_rc 75 "demo at total 163 refused" "$D/api-call" --lane demo --model claude-sonnet-5-5 --max-turns 1 -- claude -p x
 expect_rc 0 "overflow at total 163 proceeds" "$D/api-call" --lane overflow --model claude-fable-5-2 --max-turns 1 -- claude -p x
@@ -74,8 +75,8 @@ expect_rc 75 "unknown lane" "$D/api-call" --lane foo --model claude-haiku-5-5 --
 expect_rc 75 "max-turns missing (batch)" "$D/api-call" --lane batch --model claude-haiku-5-5 -- claude -p x
 API_CREDITS_NOW="2026-12-06T00:00:00Z" expect_rc 75 "after cycle end" "${CALL[@]}"
 API_CREDITS_NOW="2026-11-07T23:59:59Z" expect_rc 75 "before cycle start" "${CALL[@]}"
-echo '{"ts":"2026-11-20T01:00:00Z","lane":"overflow","cost_usd":8}' > "$LEDGER"
-expect_rc 75 "overflow daily cap 8" "$D/api-call" --lane overflow --model claude-fable-5-2 --max-turns 1 -- claude -p x
+echo '{"ts":"2026-11-20T01:00:00Z","lane":"overflow","cost_usd":15}' > "$LEDGER"
+expect_rc 75 "overflow daily cap 15" "$D/api-call" --lane overflow --model claude-fable-5-2 --max-turns 1 -- claude -p x
 rm -f "$LEDGER"
 expect_rc 75 "--model= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --model=claude-opus-5-5
 expect_rc 75 "--output-format= form refused" "$D/api-call" --lane batch --model claude-haiku-5-5 --max-turns 1 -- claude -p x --output-format=text
@@ -91,7 +92,7 @@ rm -f "$API_LEDGER_DIR/HALT-fleet-total" "$LEDGER"
 
 # 6. spend, alerts, rollover
 echo '{"ts":"2026-11-10T00:00:00Z","lane":"batch","cost_usd":91}' > "$LEDGER"
-"$D/api-spend" > "$T/spend"; grep -q 'batch .*91.00 / \$55' "$T/spend" && grep -q 'days left' "$T/spend" && ok "api-spend report" || bad "api-spend"
+"$D/api-spend" > "$T/spend"; grep -q 'batch .*91.00 / \$35' "$T/spend" && grep -q 'days left' "$T/spend" && ok "api-spend report" || bad "api-spend"
 "$R/api-spend-cron" "$T/tick.log"
 [ -e "$API_LEDGER_DIR/ALERT-90" ] && [ ! -e "$API_LEDGER_DIR/ALERT-135" ] && [ -e "$API_LEDGER_DIR/ALERT-lane-batch" ] && grep -q "reached \$90" "$T/tick.log" && grep -Eq 'reached your .* limit|usage limit|rate limit|hit your limit|limit reached' "$T/tick.log" && ok "alert markers + tick.log line" || bad "alerts"
 API_CREDITS_NOW="2026-12-06T00:05:00Z" "$D/api-cycle-rollover"
@@ -138,7 +139,7 @@ expect_rc 0 "api-batch submit" "${BATCH[@]}"
 grep -q 'POST /v1/messages/batches keyok=True ver=2026-10-21' "$T/srvlog" && ok "fake endpoint saw key header and pinned version" || bad "fake endpoint request"
 [ "$(jq -r '[.kind,.lane,.batch_id,.n_requests]|join(" ")' "$LEDGER")" = "estimate batch msgbatch_test1 2" ] && ok "submit wrote the estimate row" || bad "estimate row"
 "$D/api-spend" > "$T/spend1"; grep '^batch' "$T/spend1"
-grep -q 'batch .*1\.00 / \$55' "$T/spend1" && ok "api-spend counts the estimate before collect" || bad "spend before collect"
+grep -q 'batch .*1\.00 / \$35' "$T/spend1" && ok "api-spend counts the estimate before collect" || bad "spend before collect"
 expect_rc 0 "api-batch poll" "$D/api-batch" poll --lane batch --model claude-sonnet-5-5 --batch-id msgbatch_test1
 [ "$(cat "$T/out")" = in_progress ] && ok "poll prints processing status" || bad "poll output"
 expect_rc 3 "collect before the batch ended" "$D/api-batch" collect --lane batch --model claude-sonnet-5-5 --batch-id msgbatch_test1 --out "$T/res.jsonl"
@@ -148,7 +149,7 @@ expect_rc 0 "api-batch collect" "$D/api-batch" collect --lane batch --model clau
 ACT="$(jq -s -c 'map(select(.kind=="actual"))[0]' "$LEDGER")"
 [ "$(echo "$ACT" | jq -r '[.cost_usd,.n_results,.input_tokens,.output_tokens]|join(" ")')" = "2.5 2 1500000 200000" ] && ok "actual row: usage summed, cost at batch price" || bad "actual row: $ACT"
 "$D/api-spend" > "$T/spend2"; grep '^batch' "$T/spend2"
-grep -q 'batch .*2\.50 / \$55' "$T/spend2" && ok "api-spend counts only the actual after collect" || bad "spend after collect"
+grep -q 'batch .*2\.50 / \$35' "$T/spend2" && ok "api-spend counts only the actual after collect" || bad "spend after collect"
 "$D/api-batch" collect --lane batch --model claude-sonnet-5-5 --batch-id msgbatch_test1 --out "$T/res2.jsonl" >/dev/null 2>&1
 [ "$(jq -s 'map(select(.kind=="actual"))|length' "$LEDGER")" = 1 ] && ok "second collect adds no second actual row" || bad "double actual"
 grep -q 'item-\|secret prompt' "$LEDGER" && bad "custom_id or prompt in ledger" || ok "no custom_id or prompt text in ledger"
@@ -203,6 +204,53 @@ IC="$ID/cryptocardhub/bin/api-credits"
 [ "$(stat -c %a "$IC/api-batch")" = 755 ] && [ "$(stat -c %a "$IC/api-credits.json")" = 644 ] && ok "installer modes 0755/0644" || bad "installer modes"
 ls "$IC"/api_credits.py.bak-pre-0746-* >/dev/null 2>&1 && ok "installer keeps .bak-pre-0746-<UTC> of overwritten files" || bad "installer backup"
 [ -d "$IC/__pycache__" ] && bad "installer left __pycache__" || ok "installer leaves no __pycache__"
+
+# 9b. T-0855: scrub variable, default turns and budget, turn limit, HALT-overflow, key location rule, fleet overflow stop
+rm -f "$LEDGER" "$API_LEDGER_DIR"/HALT*
+echo '{"start":"2026-11-08","end":"2026-12-06"}' > "$API_LEDGER_DIR/cycle.json"
+OV=("$D/api-call" --lane overflow --model claude-fable-5-2)
+expect_rc 0 "overflow default turns call" "${OV[@]}" -- --settings S
+grep -q -- '--max-turns 40 --max-budget-usd 6 --settings S' "$T/args" && ok "default --max-turns 40, budget 6, passed args reach claude" || bad "overflow args: $(cat "$T/args")"
+[ "$(cat "$T/scrub")" = 1 ] && ok "child env carries CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1" || bad "scrub variable: $(cat "$T/scrub")"
+expect_rc 0 "overflow --max-turns 60 allowed" "${OV[@]}" --max-turns 60
+expect_rc 75 "overflow --max-turns 61 refused" "${OV[@]}" --max-turns 61
+grep -q 'over the lane limit' "$T/err" && ok "turn-limit refusal text" || bad "turn-limit text"
+expect_rc 75 "--max-budget-usd refused from the caller" "${OV[@]}" -- --max-budget-usd 99
+rm -f "$LEDGER"; touch "$API_LEDGER_DIR/HALT-overflow"
+expect_rc 75 "HALT-overflow refuses overflow" "${OV[@]}" --max-turns 1
+rm -f "$API_LEDGER_DIR/HALT-overflow"; touch "$API_LEDGER_DIR/HALT"
+expect_rc 0 "plain HALT still passes overflow" "${OV[@]}" --max-turns 1
+rm -f "$API_LEDGER_DIR/HALT" "$LEDGER"
+# key location: a marker directory in a parent refuses; the fleet-keys dir is found before the home file
+GK="$T/gitroot/sub"; mkdir -p "$T/gitroot/.git" "$GK"; cp "$API_KEY_FILE" "$GK/k"; chmod 600 "$GK/k"
+API_KEY_FILE="$GK/k" expect_rc 75 "key file under a directory with .git in a parent refused" "${OV[@]}" --max-turns 1
+grep -q 'key file inside a git work tree' "$T/err" && ok "work tree refusal text" || bad "work tree refusal text"
+mkdir -p "$T/fk/$TN"; printf 'ANTHROPIC_API%s=%s\n' _KEY fleet-keys-value > "$T/fk/$TN/anthropic-api.env"; chmod 600 "$T/fk/$TN/anthropic-api.env"
+printf 'ANTHROPIC_API%s=%s\n' _KEY home-value > "$HOME/.anthropic-api.env"; chmod 600 "$HOME/.anthropic-api.env"
+printf '#!/usr/bin/env bash\necho "$ANTHROPIC_API_KEY" > "$FAKE_KEYSEEN"\necho %s\n' "'{\"type\":\"result\",\"is_error\":false,\"result\":\"pong\",\"total_cost_usd\":0.01}'" > "$T/claude2"
+chmod +x "$T/claude2"
+( unset API_KEY_FILE; export API_KEYS_BASE="$T/fk" API_CALL_CLAUDE_BIN="$T/claude2" FAKE_KEYSEEN="$T/seen"; "${OV[@]}" --max-turns 1 >/dev/null 2>&1 )
+[ "$(cat "$T/seen" 2>/dev/null)" = fleet-keys-value ] && ok "fleet-keys file found before the home file" || bad "fleet-keys lookup: $(cat "$T/seen" 2>/dev/null)"
+( unset API_KEY_FILE; export API_KEYS_BASE="$T/none" API_CALL_CLAUDE_BIN="$T/claude2" FAKE_KEYSEEN="$T/seen"; "${OV[@]}" --max-turns 1 >/dev/null 2>&1 )
+[ "$(cat "$T/seen")" = home-value ] && ok "home file used when no fleet-keys file exists" || bad "home fallback"
+rm -f "$HOME/.anthropic-api.env" "$LEDGER"
+# installer: a fleet-keys directory owned by the caller wins
+mkdir -p "$T/fk2/$TN"; ( unset API_KEY_FILE; export API_KEYS_BASE="$T/fk2"; printf '%s\n' "$FAKEVAL" | "$D/api-key-install" >/dev/null )
+[ -s "$T/fk2/$TN/anthropic-api.env" ] && [ "$(stat -c %a "$T/fk2/$TN/anthropic-api.env")" = 600 ] && [ ! -e "$HOME/.anthropic-api.env" ] && ok "api-key-install writes into fleet-keys/<tenant>" || bad "installer location"
+# fleet overflow stop: 60 + 41 over the configured tenants -> HALT-overflow in both ledger dirs; rollover clears it
+FO="$T/fo/home"; mkdir -p "$FO/apibase/api-ledger" "$FO/cryptocardhub/api-ledger"
+for t in apibase cryptocardhub; do echo '{"start":"2026-11-08","end":"2026-12-06"}' > "$FO/$t/api-ledger/cycle.json"; done
+echo '{"ts":"2026-11-10T00:00:00Z","lane":"overflow","cost_usd":60}' > "$FO/apibase/api-ledger/2026-11-08.jsonl"
+echo '{"ts":"2026-11-10T00:00:00Z","lane":"overflow","cost_usd":39}' > "$FO/cryptocardhub/api-ledger/2026-11-08.jsonl"
+fo(){ HOME="$FO/apibase" API_HOME_BASE="$FO" API_LEDGER_DIR="$FO/apibase/api-ledger" "$@"; }
+fo "$R/api-spend-cron" "$T/fotick.log"
+[ ! -e "$FO/apibase/api-ledger/HALT-overflow" ] && ok "fleet overflow 99: no HALT-overflow" || bad "premature HALT-overflow"
+echo '{"ts":"2026-11-10T00:00:00Z","lane":"overflow","cost_usd":2}' >> "$FO/cryptocardhub/api-ledger/2026-11-08.jsonl"
+fo "$R/api-spend-cron" "$T/fotick.log"; fo "$R/api-spend-cron" "$T/fotick.log"
+[ -e "$FO/apibase/api-ledger/HALT-overflow" ] && [ -e "$FO/cryptocardhub/api-ledger/HALT-overflow" ] && ok "fleet overflow 60+41: HALT-overflow in both tenant ledgers" || bad "fleet overflow stop"
+[ "$(grep -c 'HALT-overflow written' "$T/fotick.log")" = 1 ] && ok "one tick.log line for the overflow stop" || bad "overflow tick line count"
+fo env API_CREDITS_NOW="2026-12-06T00:05:00Z" "$D/api-cycle-rollover"
+[ ! -e "$FO/apibase/api-ledger/HALT-overflow" ] && [ ! -e "$FO/cryptocardhub/api-ledger/HALT-overflow" ] && ok "rollover clears HALT-overflow everywhere" || bad "rollover HALT-overflow"
 
 # 10. the whole suite again from the installed copy, HOME a fixture tenant home (config next to self, tenant default)
 if [ -z "${API_CREDITS_COPY:-}" ]; then

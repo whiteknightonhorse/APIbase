@@ -12,18 +12,21 @@ All numbers live in `config/api-credits.json`.
 
 | Lane | Use | Cycle cap | Allowed models |
 |---|---|---|---|
-| overflow | Fable acceptance reviews after real limit text; also $8/day | $45 | `claude-fable-5-2` |
-| demo | one outside-buyer run per day | $30 | `claude-sonnet-5-5` |
-| batch | async batch work | $55 | `claude-haiku-5-5`, `claude-sonnet-5-5` |
-| sweep | idempotent end-of-cycle work | $50 | `claude-haiku-5-5`, `claude-sonnet-5-5` |
+| overflow | Fable fallback after real limit text (see overflow plug-in); also $15/day per tenant; fleet stop `HALT-overflow` | $100 | `claude-fable-5-2` |
+| demo | one outside-buyer run per day | $20 | `claude-sonnet-5-5` |
+| batch | async batch work | $35 | `claude-haiku-5-5`, `claude-sonnet-5-5` |
+| sweep | idempotent end-of-cycle work | $25 | `claude-haiku-5-5`, `claude-sonnet-5-5` |
 
 Soft total $180 (sum of lane caps). Alerts at total $90, $135, $162 and at 90% of any lane. Above $162 only overflow may call.
-Leaving up to $40 unused per cycle is correct.
+Leaving up to $40 unused per cycle is correct. The overflow cap is fleet-wide: when the overflow lane summed over all configured
+tenants reaches $100, `api-spend-cron` on apibase writes `api-ledger/HALT-overflow` into every tenant and `api-call --lane overflow`
+refuses until `api-cycle-rollover` removes it (plain `HALT` and `HALT-fleet-total` never stop overflow). Numbers: API-FALLBACK-1115 ruling-1.
 
 ## Install the key
 
-`scripts/api-credits/api-key-install` reads the key from stdin silently, writes `~/.anthropic-api.env` mode 0600 (umask 077) and
-prints only `installed`. The file name matches no `.env` loader pattern; never source it.
+`scripts/api-credits/api-key-install` reads the key from stdin silently, writes the credential file mode 0600 (umask 077) and
+prints only `installed`. Location rule: `/var/lib/fleet-keys/<tenant>/anthropic-api.env` (directory 0700, owned by the tenant) first, else
+`~/.anthropic-api.env`; the wrapper refuses a file with `.git` in any parent directory (`key file inside a git work tree`). The file name matches no `.env` loader pattern; never source it.
 
 ## Wrapper CLI
 
@@ -31,24 +34,25 @@ prints only `installed`. The file name matches no `.env` loader pattern; never s
 api-call --lane {overflow|demo|batch|sweep} --model <id> --max-turns N [-- claude -p args]
 ```
 
-Prints the result text on stdout. Runs `claude -p --output-format json --model <id> --max-turns N` with the key in the child
-environment only. Callers cannot pass `--output-format`, `--model` or `--max-turns` after `--`, in either the `--flag value` or the `--flag=value` form.
+Prints the result text on stdout. Runs `claude -p --output-format json --model <id> --max-turns N [--max-budget-usd B]` with the key in the child
+environment only, plus `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1` so the CLI strips the key from its tool subprocesses (Bash, hooks, MCP).
+`B` is `call_budget_usd.<lane>` (overflow $6). Callers cannot pass `--output-format`, `--model`, `--max-turns` or `--max-budget-usd` after `--`, in either the `--flag value` or the `--flag=value` form.
 
 Exit 75 means refused (one line on stderr, no child process, no network call). A refusal is never an error: the caller falls back to
 subscription behaviour. Other non-zero codes are call failures. Refusal reasons, in check order:
 
 1. key file missing, not mode 0600, not owned by the caller, or without a credential
 2. unknown lane, or model not on the lane allowlist
-3. `--max-turns` missing (defaults: overflow 1, demo 12)
-4. `api-ledger/HALT` or any `api-ledger/HALT-*` present (all lanes except overflow)
+3. `--max-turns` missing (defaults: overflow 40, demo 12) or above `max_turns_limit.<lane>` (overflow 60, demo 12): `--max-turns over the lane limit`
+4. `api-ledger/HALT` or any `api-ledger/HALT-*` present (all lanes except overflow); overflow stops only on `api-ledger/HALT-overflow`
 5. `api-ledger/cycle.json` missing, or now outside the cycle window
-6. lane cap reached; overflow today's total >= $8; total ledger >= $162 (non-overflow lanes)
+6. lane cap reached; overflow today's total >= $15; total ledger >= $162 (non-overflow lanes)
 7. `api-batch` only: the batch estimate is at or above the per-batch cap (`per_unit_caps`, $5 for batch and sweep): `batch estimate $X over the $5 cap`
 
 Other commands: `api-spend` (per-lane and total, days left, projected end-of-cycle; `api-spend --fleet` on apibase prints per tenant,
 per lane and the fleet total), `api-spend-cron [tick.log]` (hourly; writes `api-ledger/ALERT-90|135|162|lane-<lane>` once each and a
 tick.log line; on apibase the 90/135/162 markers use the fleet total), `api-cycle-rollover` (cron `5 0 6 * *` UTC; opens the next
-cycle, clears ALERT markers).
+cycle, clears ALERT markers and, on apibase, `HALT-overflow` and `HALT-fleet-total` everywhere).
 
 ## Batch lane
 
@@ -100,7 +104,7 @@ are described under Batch lane. The ledger never holds the key, prompt text or a
 ## Revocation procedure
 
 1. In Console, revoke the lane's key (keys are named `<tenant>-<lane>`).
-2. Delete `~/.anthropic-api.env` on the tenant; `api-call` then refuses with exit 75.
+2. Delete the tenant's credential file (location rule under Install the key); `api-call` then refuses with exit 75.
 3. To stop all lanes but overflow immediately, `touch ~/api-ledger/HALT`; remove it once explained.
 4. Daily check: `grep -l` for the credential variable across `~/.env`, `~/*/.env`, `~/.claude/*.env` must print nothing.
 5. Install a replacement with `api-key-install`.
@@ -117,11 +121,13 @@ sourced by `taskloop.sh`.
 - Key-unset assertion: before every headless call, `api_key_guard` (one definition, `lib/api-key-guard.sh`, sourced by `overflow.sh`) checks that `ANTHROPIC_API_KEY` and
   `ANTHROPIC_AUTH_TOKEN` are unset (or `API_CALL_CHILD=1`). If one is set, no claude call is made, `logs/api-key-guard.log` gets one line with the variable name (never the value),
   Telegram is told at most once per hour, and the site aborts (the tick logs `API key present in OAuth path — tick aborted` and exits). `tests/api-key-guard-coverage.test.sh` fails on any `claude --print` site without the guard.
-- Fable acceptance overflow: right after the acceptance review call, when the answer is a limit hit (no verdict, at most 5 non-empty lines, matching `hit your session limit` or
-  `weekly limit`; a full review that merely mentions the phrase is never overflowed), `api_overflow_run` re-runs the identical prompt once per card through
-  `api-call --lane overflow --model claude-fable-5-2 --max-turns 1`. On success the answer is the acceptance answer and
-  `state/passes-<date>.fable.api` is incremented; on exit 75 or any failure nothing changes and the card-0590 outage branch
-  (host-wide marker, park) runs as before. Sonnet work passes and dispatcher calls are never overflowed.
+- Fable fallback: right after the acceptance review call, when the answer is a limit hit (no verdict, at most 5 non-empty lines, matching the case-insensitive pattern
+  `hit your ([a-z0-9.-]+ ){0,3}limit|reached your ([a-z0-9.-]+ ){0,3}limit|usage limit reached|weekly limit`; rate limit, overload, auth, credit and timeout errors are outages and
+  park as before; a full review that merely mentions a phrase never matches), `api_overflow_run <answer> <prompt> <model> <state> <card> <today> <label> [<once-key> [<max-turns> [claude args...]]]`
+  re-runs the identical prompt through `api-call --lane overflow --model claude-fable-5-2` (turns default from the config, claude args go after `--`). `api_overflow_limit_file <file>` is the same test
+  without the verdict condition, for dispute and consult answers. The once file is `state/<card>.overflow-used-<once-key>` (default key `review`). On success the answer is used and
+  `state/passes-<date>.fable.api` is incremented; on exit 75 or any failure nothing changes and the card-0590 outage branch (host-wide marker, park) runs as before. The fallback covers Fable
+  acceptance reviews, Fable dispute rulings and dispatcher consults, once per card, attempt and kind, and never Sonnet or Opus work passes, the stuck arbiter or orchestra calls.
 
 Test: `tests/bash/api-overflow.test.sh`.
 

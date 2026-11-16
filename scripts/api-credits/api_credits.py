@@ -28,7 +28,32 @@ HOME_BASE = os.environ.get("API_HOME_BASE", "/home")
 # Elevated reads/writes across tenants: cron/dispatcher context only; tests override API_SUDO (empty = no elevation).
 PRIV = shlex.split(os.environ.get("API_SUDO", "sudo -n"))
 LEDGER_DIR = os.environ.get("API_LEDGER_DIR", os.path.join(HOME, "api-ledger"))
-KEY_FILE = os.environ.get("API_KEY_FILE", os.path.join(HOME, ".anthropic-api.env"))
+
+
+def _default_key_file():
+    """API_KEY_FILE, else /var/lib/fleet-keys/<basename of HOME>/anthropic-api.env when it exists, else ~/.anthropic-api.env."""
+    if os.environ.get("API_KEY_FILE"):
+        return os.environ["API_KEY_FILE"]
+    base = os.environ.get("API_KEYS_BASE", "/var/lib/fleet-keys")
+    cand = os.path.join(base, os.path.basename(HOME.rstrip("/")), "anthropic-api.env")
+    return cand if os.path.exists(cand) else os.path.join(HOME, ".anthropic-api.env")
+
+
+KEY_FILE = _default_key_file()
+
+
+def key_in_git_tree(path):
+    """True when any parent directory of the key file holds .git (walk up to /, no git binary)."""
+    d = os.path.dirname(os.path.abspath(path))
+    while True:
+        if os.path.exists(os.path.join(d, ".git")):
+            return True
+        up = os.path.dirname(d)
+        if up == d:
+            return False
+        d = up
+
+
 CLAUDE_BIN = os.environ.get("API_CALL_CLAUDE_BIN", "claude")
 EX_REFUSED = 75
 VAR = "ANTHROPIC_API" + "_KEY"
@@ -139,12 +164,19 @@ def check_guards(cfg, lane, model, max_turns):
         return "key file mode is not 0600"
     if st.st_uid != os.getuid():
         return "key file not owned by this user"
+    if key_in_git_tree(KEY_FILE):
+        return "key file inside a git work tree"
     if lane not in cfg["lane_caps"]:
         return "unknown lane"
     if model not in cfg["lane_models"].get(lane, []):
         return "model not on the %s allowlist" % lane
     if max_turns is None or max_turns < 1:
         return "--max-turns required"
+    lim = cfg.get("max_turns_limit", {}).get(lane)
+    if lim is not None and max_turns > lim:
+        return "--max-turns over the lane limit"
+    if lane == "overflow" and "HALT-overflow" in _listdir(LEDGER_DIR):
+        return "HALT-overflow marker present (fleet overflow cap)"
     if lane != "overflow" and any(n == "HALT" or n.startswith("HALT-") for n in _listdir(LEDGER_DIR)):
         return "HALT marker present"
     cyc = read_cycle()
@@ -213,11 +245,16 @@ def cmd_call(argv):
     if extra and extra[0] == "-p":
         extra = extra[1:]
     # Callers may not override the flags the wrapper owns.
-    for f in ("--output-format", "--max-turns", "--model"):
+    for f in ("--output-format", "--max-turns", "--model", "--max-budget-usd"):
         if f in extra or any(isinstance(a, str) and a.startswith(f + "=") for a in extra):
             return refuse("caller may not pass " + f)
-    cmd = [CLAUDE_BIN, "-p", "--output-format", "json", "--model", model, "--max-turns", str(max_turns)] + extra
+    cmd = [CLAUDE_BIN, "-p", "--output-format", "json", "--model", model, "--max-turns", str(max_turns)]
+    budget = cfg.get("call_budget_usd", {}).get(lane)
+    if budget is not None:
+        cmd += ["--max-budget-usd", str(budget)]
+    cmd += extra
     env = dict(os.environ)
+    env["CLAUDE_CODE_SUBPROCESS_ENV_SCRUB"] = "1"  # the CLI strips the credential from Bash/hook/MCP subprocesses
     env[VAR] = key_value()
     env["API_CALL_CHILD"] = "1"  # T-KEY-1: marks the api-call child, the only process allowed to carry the key
     p = subprocess.run(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -519,13 +556,13 @@ def fleet_view(cfg, start):
     return per, flanes, ftotal
 
 
-def fleet_marker(cfg, action):
-    """Write (touch) or remove HALT-fleet-total in every configured tenant's ledger directory."""
+def fleet_marker(cfg, action, name="HALT-fleet-total"):
+    """Write (touch) or remove a marker (default HALT-fleet-total) in every configured tenant's ledger directory."""
     for t in cfg.get("tenants", []):
         d = tenant_ledger_dir(t)
         if t == os.path.basename(HOME.rstrip("/")):
             d = LEDGER_DIR
-        path = os.path.join(d, "HALT-fleet-total")
+        path = os.path.join(d, name)
         if action == "write":
             if d == LEDGER_DIR:
                 os.makedirs(d, exist_ok=True)
@@ -637,13 +674,27 @@ def cmd_spend(argv):
     return 0
 
 
+def _tick_once(tick, msg):
+    """One tick.log line per cycle: skipped while ALERT-overflow-halt exists (rollover clears every ALERT-*)."""
+    mark = os.path.join(LEDGER_DIR, "ALERT-overflow-halt")
+    if os.path.exists(mark):
+        return
+    os.makedirs(LEDGER_DIR, exist_ok=True)
+    with open(mark, "w") as f:
+        f.write(msg + "\n")
+    if tick:
+        with open(tick, "a") as f:
+            f.write("%s API credits alert: %s\n" % (now().strftime("%Y-%m-%dT%H:%M:%SZ"), msg))
+
+
 def cmd_alerts(argv):
     """Hourly: write ALERT-<n> markers and a tick.log line. argv[0] = optional tick.log path."""
     fleet = is_apibase()
     rep = report(fleet)
     if rep is None:
         return 1
-    cfg, _cyc, lanes, total, _left, _proj = rep
+    cfg, cyc, lanes, total, _left, _proj = rep
+    flanes = fleet_view(cfg, cyc[0])[1] if fleet else lanes
     hits = []
     for n in cfg["alerts"]:
         if total >= n:
@@ -665,6 +716,10 @@ def cmd_alerts(argv):
     if fleet:
         if total >= cfg["non_overflow_total_stop"]:
             fleet_marker(cfg, "write")
+        if flanes.get("overflow", 0.0) >= cfg["lane_caps"]["overflow"]:
+            fleet_marker(cfg, "write", "HALT-overflow")
+            _tick_once(tick, "overflow lane $%.2f reached $%d fleet-wide; HALT-overflow written (reached your api credit limit)"
+                       % (flanes["overflow"], cfg["lane_caps"]["overflow"]))
         check_drift(cfg, tick)
     return 0
 
@@ -698,7 +753,8 @@ def cmd_rollover(_argv):
         if n.startswith("ALERT-"):
             os.remove(os.path.join(LEDGER_DIR, n))
     if is_apibase():
-        fleet_marker(load_config(), "remove")  # only HALT-fleet-total; a plain HALT is never touched
+        fleet_marker(load_config(), "remove")  # only HALT-fleet-total and HALT-overflow; a plain HALT is never touched
+        fleet_marker(load_config(), "remove", "HALT-overflow")
     return 0
 
 

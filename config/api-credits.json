@@ -1,11 +1,11 @@
 {
-  "_comment": "API-CREDITS-1108 caps, one file. Lane caps are per cycle in USD; total_soft is the sum of the lane caps; alerts are total-spend thresholds. Changing a number here needs a Fable ruling. Pricing is USD per MTok, copied from pricing_source on pricing_as_of; batch rate = price x batch_discount.",
-  "lane_caps": {"overflow": 45, "demo": 30, "batch": 55, "sweep": 50},
-  "per_unit_caps": {"overflow": 8, "demo": 1.5, "batch": 5, "sweep": 5},
+  "_comment": "API-CREDITS-1108 caps, one file; the lane caps 100/20/35/25, overflow_daily_cap 15, per_unit_caps.overflow 15, default_max_turns.overflow 40, max_turns_limit and call_budget_usd come from API-FALLBACK-1115 ruling-1. Lane caps are per cycle in USD; total_soft is the sum of the lane caps; alerts are total-spend thresholds. Changing a number here needs a Fable ruling. Pricing is USD per MTok, copied from pricing_source on pricing_as_of; batch rate = price x batch_discount.",
+  "lane_caps": {"overflow": 100, "demo": 20, "batch": 35, "sweep": 25},
+  "per_unit_caps": {"overflow": 15, "demo": 1.5, "batch": 5, "sweep": 5},
   "total_soft": 180,
   "alerts": [90, 135, 162],
   "lane_alert_fraction": 0.9,
-  "overflow_daily_cap": 8,
+  "overflow_daily_cap": 15,
   "non_overflow_total_stop": 162,
   "lane_models": {
     "overflow": ["claude-fable-5-2"],
@@ -13,7 +13,9 @@
     "batch": ["claude-haiku-5-5", "claude-sonnet-5-5"],
     "sweep": ["claude-haiku-5-5", "claude-sonnet-5-5"]
   },
-  "default_max_turns": {"overflow": 1, "demo": 12},
+  "default_max_turns": {"overflow": 40, "demo": 12},
+  "max_turns_limit": {"overflow": 60, "demo": 12},
+  "call_budget_usd": {"overflow": 6},
   "first_cycle": {"start": "2026-11-08", "end": "2026-12-06"},
   "tenants": ["apibase", "cryptocardhub", "sales"],
   "anthropic_version": "2026-10-21",

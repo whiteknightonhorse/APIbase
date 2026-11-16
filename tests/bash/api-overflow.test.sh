@@ -33,7 +33,7 @@ API_CALL_BIN="$T/api-ok" caller "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T
 [ "$MARK" = 0 ] && ok "no park marker on overflow success" || bad "marker written"
 [ "$(cat "$T/ans")" = ACCEPT ] && ok "answer replaced by API answer" || bad "answer"
 [ "$(cat "$STATE/passes-$TODAY.fable.api")" = 1 ] && ok ".api counter +1" || bad ".api counter"
-grep -q -- '--lane overflow --model claude-fable-5-2 --max-turns 1' "$T/args" && ok "overflow call args" || bad "args: $(cat "$T/args")"
+grep -q -- '^--lane overflow --model claude-fable-5-2 --$' "$T/args" && ok "overflow call args" || bad "args: $(cat "$T/args")"
 [ "$(cat "$T/stdin")" = "the review prompt" ] && ok "identical prompt re-run" || bad "prompt"
 
 # 2. second attempt for the same card: no second overflow
@@ -69,4 +69,21 @@ r=$( unset -f api_key_assert_unset; unset API_KEY_GUARD; export HOME="$T/h7b"; .
   && bad "7c function defined without a helper" || ok "7c missing helper leaves the function undefined"
 n=$(cd "$ROOT" && git grep -l 'api_key_assert_unset()' -- 'scripts/*.sh' | wc -l)
 [ "$n" = 0 ] && ok "7d no definition under scripts/" || bad "7d $n file(s) under scripts/ define api_key_assert_unset()"
+# 8. T-0855: today's limit text, outages and long reviews, once-key, passed args
+TICK="You've hit your Fable limit · resets 1am (UTC). Switch to another model, or manage usage credits at https://claude.ai/settings/usage?from=cc_cli_limit_message, to continue."
+echo "$TICK" > "$T/ans"; rm -f "$T/args"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-8 "$TODAY" fable a1-review "" --settings S --permission-mode default \
+  && ok "8a Fable limit text triggers the overflow" || bad "8a Fable limit text did not trigger"
+grep -q -- '--lane overflow --model claude-fable-5-2 -- --settings S --permission-mode default' "$T/args" && ok "8b claude args passed after --" || bad "8b args: $(cat "$T/args")"
+[ -e "$STATE/T-8.overflow-used-a1-review" ] && ok "8c once file carries the once-key" || bad "8c once file"
+echo "$TICK" > "$T/ans"; rm -f "$T/args"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-8 "$TODAY" fable a2-review && ok "8d a2-review still runs after a1-review" || bad "8d a2"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-8 "$TODAY" fable a2-review && bad "8e a2 twice" || ok "8e same once-key twice refused"
+echo "rate limit exceeded" > "$T/ans"; rm -f "$T/args"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-9 "$TODAY" fable && bad "8f rate limit overflowed" || ok "8f 'rate limit exceeded' is an outage, not overflowed"
+{ for i in $(seq 29); do echo "finding $i"; done; echo "mentions the weekly limit"; } > "$T/ans"
+API_CALL_BIN="$T/api-ok" api_overflow_run "$T/ans" "$T/prompt" claude-fable-5-2 "$STATE" T-9 "$TODAY" fable && bad "8g 30-line review overflowed" || ok "8g 30-line review mentioning weekly limit not overflowed"
+echo "$TICK" > "$T/ans"; api_overflow_limit_file "$T/ans" && ok "8h limit_file true on limit text" || bad "8h"
+printf 'x\nVERDICT: ACCEPT hit your Fable limit\n' > "$T/ans"; api_overflow_limit_file "$T/ans" && ok "8i limit_file ignores the verdict condition" || bad "8i"
+{ for i in $(seq 6); do echo "l$i"; done; echo "hit your limit"; } > "$T/ans"; api_overflow_limit_file "$T/ans" && bad "8j limit_file long text" || ok "8j limit_file shape gate (<=5 lines)"
 exit $FAIL
