@@ -864,9 +864,6 @@
     "sdwis.service_areas": "healthy",
     "sdwis.violations": "healthy",
     "sdwis.water_systems": "healthy",
-    "semanticscholar.authors_search": "healthy",
-    "semanticscholar.get_paper": "healthy",
-    "semanticscholar.papers_search": "healthy",
     "serper.image_search": "healthy",
     "serper.news_search": "healthy",
     "serper.shopping_search": "healthy",
@@ -1215,7 +1212,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 401,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1249,7 +1246,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1358,
+      "count": 1355,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1263,6 +1260,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1386,
+  "tools_count": 1383,
   "version": "2.2.0"
 }
