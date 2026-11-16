@@ -259,6 +259,7 @@ dbDescribe('T-0739 partner handoff', () => {
         mode: 'register', // T-0740
         grant_requested: false,
         seller_keys: 'hidden', // T-0801: the registry value of the partner
+        email_given: true, // T-0867: the prefill carries contact_email
       });
       expect(html).toContain('Prefilled from Soukbase. Check the values and continue.');
       expect(html).not.toContain('no longer valid');
@@ -291,6 +292,34 @@ dbDescribe('T-0739 partner handoff', () => {
       expect(h2).toContain('Prefilled from Soukbase. Check the values and continue.');
       const pf2 = /<script type="application\/json" id="pf">([^<]*)<\/script>/.exec(h2)!;
       expect(JSON.parse(pf2[1]).email_note).toBeUndefined();
+    });
+
+    it('T-0867: contact_email in the prefill sets email_given and no email_note; without it the reverse', async () => {
+      const pfOf = (html: string) =>
+        JSON.parse(/<script type="application\/json" id="pf">([^<]*)<\/script>/.exec(html)![1]);
+      const withMail = await newHandoff({ prefill: { contact_email: 'a@b.example' } });
+      const a = pfOf(await page(`?from=soukbase&handoff=${withMail.handoff_id}`));
+      expect(a.email_given).toBe(true);
+      expect(a.email_note).toBeUndefined();
+      const without = await newHandoff({ prefill: { name: 'Shop' } });
+      const b = pfOf(await page(`?from=soukbase&handoff=${without.handoff_id}`));
+      expect(b.email_given).toBeUndefined();
+      expect(b.email_note).toBe(true);
+    });
+
+    it('T-0867: mode grant never puts the prefill e-mail on the page', async () => {
+      const g = await newHandoff({
+        mode: 'grant',
+        prefill: { name: 'Shop', contact_email: 'grant-canary@b.example' },
+      });
+      const html = await page(`?from=soukbase&handoff=${g.handoff_id}`);
+      expect(html).not.toContain('grant-canary@b.example');
+      const pf = /<script type="application\/json" id="pf">([^<]*)<\/script>/.exec(html)!;
+      const j = JSON.parse(pf[1]);
+      expect(j.mode).toBe('grant');
+      expect(j.prefill).toEqual({ name: 'Shop' });
+      expect(j.email_given).toBeUndefined();
+      expect(j.email_note).toBeUndefined();
     });
 
     it('T-0832: the one-signature handoff shows one sentence and the four rows in a closed details; the direct flow is unchanged', async () => {

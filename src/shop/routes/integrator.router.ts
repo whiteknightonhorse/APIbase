@@ -299,7 +299,15 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
             : noEmail
               ? `<p class="hint">Some fields are filled in from ${esc(partner.name)}. Check them and continue.</p>`
               : `<p class="hint">Prefilled from ${esc(partner.name)}. Check the values and continue.</p>`;
-        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: live.prefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested, seller_keys: partner.seller_keys ?? 'shown', ...(live.mode !== 'grant' && noEmail ? { email_note: true } : {}) })}</script>`;
+        // T-0867: mode grant registers nothing, so a prefill e-mail never reaches its page; in mode register a
+        // given e-mail is shown read-only (email_given) and the T-0832 note is only for the missing one.
+        const pagePrefill =
+          live.mode === 'grant' && live.prefill
+            ? Object.fromEntries(
+                Object.entries(live.prefill).filter(([k]) => k !== 'contact_email'),
+              )
+            : live.prefill;
+        partnerHtml += `<input type="hidden" name="handoff" value="${esc(live.handoff_id)}" data-partner="${esc(partner.name)}" form="f"><script type="application/json" id="pf">${scriptJson({ prefill: pagePrefill, expected_wallet: live.expected_wallet, mode: live.mode, grant_requested: live.grant_requested, seller_keys: partner.seller_keys ?? 'shown', ...(live.mode !== 'grant' && noEmail ? { email_note: true } : {}), ...(live.mode !== 'grant' && !noEmail ? { email_given: true } : {}) })}</script>`;
       } else {
         hint = `<p class="hint">This link from ${esc(partner.name)} is no longer valid. You can still connect your store and return there.</p>`;
       }

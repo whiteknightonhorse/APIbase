@@ -126,7 +126,7 @@
 {{PARTNER}}
 <p class="cn-foot" id="ft">Registering through an AI agent or the API? See the <a href="/integrator/agent-guide">agent guide</a></p>
 <script>
-let ST = () => {}; const $ = (id) => document.getElementById(id), f = $('f'), F = f.elements, S = ['s1', 's2', 's3'], T = (n, p) => window.apibaseTrack && apibaseTrack(n, p);
+let ST = () => {}, RV = () => {}; const $ = (id) => document.getElementById(id), f = $('f'), F = f.elements, S = ['s1', 's2', 's3'], T = (n, p) => window.apibaseTrack && apibaseTrack(n, p);
 const hex = (m) => '0x' + [...new TextEncoder().encode(m)].map((b) => b.toString(16).padStart(2, '0')).join('');
 const b64 = (b) => btoa(String.fromCharCode(...new Uint8Array(b)));
 const call = async (u, method, body) => {
@@ -142,7 +142,7 @@ const V = {
   name: (v) => v.trim() ? '' : 'Enter your shop name.', site_url: (v) => /^https?:\/\/[^\s.]+\.\S+$/i.test(v.trim()) ? '' : 'Enter the full website address, starting with http:// or https://', contact_email: (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address.', support_email: (v) => !v.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) ? '' : 'Enter a valid email address, or leave it empty.',
   slug: (v) => /^[a-z0-9-]{3,40}$/.test(v) ? '' : 'Use 3-40 characters: lowercase letters, digits and dashes.', country: (v) => /^[A-Z]{2}$/.test(v) ? '' : 'Choose a country.'
 };
-const chk = (n, show) => { const m = V[n](F[n].value); if (show) f.querySelector('[data-for=' + n + ']').textContent = m; return !m; };
+const chk = (n, show) => { const m = V[n](F[n].value); if (show) { f.querySelector('[data-for=' + n + ']').textContent = m; if (m && n === 'contact_email') RV(); } return !m; };
 const STEP = [['name', 'site_url', 'contact_email', 'support_email', 'country', 'slug'], [], []];
 let cur = 0, edited = false; const WL = [], nwf = () => !(WL.length || window.ethereum) || !(window.crypto && crypto.subtle);
 const ok = (i, show) => STEP[i].map((n) => chk(n, show)).every(Boolean);
@@ -155,6 +155,13 @@ const save = () => { try { sessionStorage.setItem('apibase_connect', JSON.string
 const R = {}; try { const d = JSON.parse(sessionStorage.getItem('apibase_connect') || 'null'); if (d) { for (const n in d) if (F[n] && typeof d[n] === 'string') { F[n].value = d[n]; R[n] = 1; } edited = !!F.slug.value; } } catch (e) {}
 let PF = null; try { PF = $('pf') && JSON.parse($('pf').textContent); } catch (e) {} if (PF && PF.prefill) { for (const n of ['name', 'site_url', 'contact_email', 'category', 'country', 'slug']) { const v = PF.prefill[n], e = F[n]; if (typeof v !== 'string' || !v || !e) continue; if (e.tagName === 'SELECT' ? !R[n] && [...e.options].some((o) => o.value === v) : !e.value) e.value = v; } edited = !!F.slug.value; if (!edited && F.name.value) F.slug.value = slugify(F.name.value); } const G = !!(PF && PF.mode === 'grant'), GR = !G && !!(PF && PF.grant_requested), HD = GR && PF.seller_keys === 'hidden', PN = F.handoff ? F.handoff.dataset.partner : '', N = GR ? 1 : $('sig').children.length, PT = $('pt') ? $('pt').textContent.slice(12) : '';
 if (PF && PF.email_note && PN) { const h = F.contact_email.closest('label').nextElementSibling, n = document.createElement('small'); n.className = 'hint'; n.textContent = PN + ' does not pass your email. Type the address for messages from APIbase.'; h.before(n); } // T-0832: the partner sent no email
+if (PF && PF.email_given && !G && PN && F.contact_email.value) { // T-0867: the partner sent the email: one read-only line, Change shows the field
+  const l = F.contact_email.closest('label'), h = l.nextElementSibling, p = document.createElement('p'), s = document.createElement('span'), b = document.createElement('button');
+  const vis = (on) => { l.hidden = h.hidden = !on; l.style.display = h.style.display = on ? '' : 'none'; p.hidden = on; };
+  p.className = 'hint'; p.id = 'ce-line'; s.textContent = 'Contact email: ' + F.contact_email.value + ' (from ' + PN + '). Never shown to buyers. ';
+  b.type = 'button'; b.className = 'cn-ghost'; b.textContent = 'Change'; b.style.textDecoration = 'underline'; b.onclick = () => { vis(true); F.contact_email.focus(); };
+  p.append(s, b); l.before(p); vis(false); RV = () => vis(true);
+}
 const pv = () => { $('pv').textContent = F.slug.value || 'my-shop'; $('nx').classList.toggle('off', cur < 2 && !ok(cur, false)); save(); };
 F.name.addEventListener('input', () => { if (!edited) F.slug.value = slugify(F.name.value); pv(); });
 F.slug.addEventListener('input', () => { edited = true; F.slug.classList.remove('bad'); pv(); });
