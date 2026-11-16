@@ -108,7 +108,11 @@ For a live [partner handoff](#partner-handoff) of mode `register` with `grant_re
 1. `GET /auth/nonce?purpose=handoff&wallet=0x…&handoff=<handoff_id>&slug=<slug>&kid=<kid>&pub=<base64 X25519 public key>` returns `{nonce, issued_at, expires_in, message}`. APIbase builds the text; the browser only sends the public key. Before anything is signed it refuses what the write would refuse: a handoff that is not live, not mode `register` or did not ask for the grant (`422 validation_failed`, `field: "handoff"`), a wallet other than the handoff's `expected_wallet` (`401`), `wallet_registered` and `slug_taken` (`409`). The message, single-use, 300 s:
 
    ```
-   apibase.pro: open the shop apibase.pro/m/<slug> and allow <Partner name> to act for it
+   APIbase (apibase.pro): open my shop apibase.pro/m/<slug> and let <Partner name> sell for it.
+   I accept the four APIbase documents: Merchant Agreement, Acceptable Use Policy, Data Processing Addendum, Refund Framework.
+   <Partner name> may: <the permission text of the Allows line below>. It may not touch payouts, keys, orders or refunds.
+   This is a signature only: no transaction, no payment, no gas.
+   Technical details
    1. Encryption key of the shop
    kid: <kid>
    alg: x25519
@@ -129,6 +133,8 @@ For a live [partner handoff](#partner-handoff) of mode `register` with `grant_re
    Nonce: <nonce>
    Issued At: <ISO-8601 time>
    ```
+
+   The first four lines are for the person; a verifier relies on the lines after "Technical details".
 
 2. `POST /merchants/handoff` with the merchant fields of step 2 (the `slug` of the message), `wallet`, `handoff_id`, `message` and `signature`, no `Authorization` header (the limits of `POST /merchants`). APIbase rebuilds the message from the nonce and compares it byte for byte; a changed byte, a used or expired nonce, another signer or a wallet other than `expected_wallet` is `401` and writes nothing. Otherwise one transaction writes the store (`active`), its encryption key, one acceptance per document, the grant and the handoff (`granted`); each record keeps this message and signature as its proof, and the key's `sig_by_wallet` is this signature with the text in `signed_message` (see [Buyer PII](#pii), step 2). The answer is `201 {merchant_id, slug, status: "active", handoff: {handoff_id, state: "granted"}, grant: {grant_id, partner, mode, scopes, created_at}}`, plus `api_key` (`mk_live_…`, shown once) unless the partner's registry entry has `seller_keys: hidden`: then no key is created (see [A shop without keys](#shop-without-keys)).
 

@@ -10,11 +10,15 @@ import type { AddressInfo } from 'node:net';
 import { randomBytes } from 'node:crypto';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { hashApiKey } from '../../src/services/api-key.service';
-import { grantMessage } from '../../src/shop/auth/nonce.service';
+import { GRANT_ALLOWS_LINE, grantMessage } from '../../src/shop/auth/nonce.service';
 import { acceptTermsMessage, type ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import { encryptionKeyMessage } from '../../src/shop/merchant.service';
 import {
+  documentsStatement,
+  encryptionKeyStatement,
   handoffMessage,
+  permissionStatement,
+  registrationStatement,
   statementsMessage,
   type HandoffNonceRecord,
 } from '../../src/shop/partner/one-signature.service';
@@ -81,8 +85,12 @@ describe('T-0802 the one message (no DB)', () => {
 
   it('first line says what is done for which shop; then key, registration, documents, permission, nonce, time', () => {
     expect(lines[0]).toBe(
-      'apibase.pro: open the shop apibase.pro/m/north-shop and allow Soukbase to act for it',
+      'APIbase (apibase.pro): open my shop apibase.pro/m/north-shop and let Soukbase sell for it.',
     );
+    expect(lines[1]).toBe(
+      'I accept the four APIbase documents: Merchant Agreement, Acceptable Use Policy, Data Processing Addendum, Refund Framework.',
+    );
+    expect(lines[3]).toBe('This is a signature only: no transaction, no payment, no gas.');
     const at = (h: string) => lines.indexOf(h);
     const order = [
       '1. Encryption key of the shop',
@@ -118,6 +126,31 @@ describe('T-0802 the one message (no DB)', () => {
     );
     expect(m.startsWith('apibase.pro wants you to sign in')).toBe(false);
     expect(m.startsWith('apibase.pro: allow')).toBe(false);
+  });
+
+  it('T-0868: the first four lines hold no base64, no hash', () => {
+    for (const l of lines.slice(0, 4)) {
+      expect(l).not.toMatch(/[A-Za-z0-9+/]{43}=/);
+      expect(l).not.toMatch(/sha256:/);
+      expect(l).not.toMatch(/[0-9a-f]{32,}/i);
+    }
+  });
+
+  it("T-0868: line 5 is Technical details; the lines up to Nonce are today's statements", () => {
+    expect(lines[4]).toBe('Technical details');
+    const stmts = [
+      encryptionKeyStatement(REC),
+      registrationStatement(REC.address),
+      documentsStatement(DOCS),
+      permissionStatement({ id: 'soukbase', name: 'Soukbase' }),
+    ];
+    const expected = stmts.flatMap((s, i) => [`${i + 1}. ${s.heading}`, ...s.lines]);
+    expect(lines.slice(5, -2)).toEqual(expected);
+  });
+
+  it('T-0868: line 3 carries the grant allows line without its prefix', () => {
+    expect(lines[2]).toContain(GRANT_ALLOWS_LINE.replace(/^Allows: /, ''));
+    expect(lines[2].startsWith('Soukbase may: ')).toBe(true);
   });
 
   it('the builder takes any list of statements, numbered in order', () => {

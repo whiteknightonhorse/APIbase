@@ -42,12 +42,17 @@ export interface Statement {
  */
 export function statementsMessage(p: {
   title: string;
+  /** optional plain lines right after the title (T-0868) */
+  plain?: string[];
+  /** optional heading line before the numbered statements (T-0868) */
+  detailsHeading?: string;
   statements: Statement[];
   nonce: string;
   issuedAt: string;
 }): string {
   const body = p.statements.map((s, i) => [`${i + 1}. ${s.heading}`, ...s.lines].join('\n'));
-  return [p.title, ...body, `Nonce: ${p.nonce}`, `Issued At: ${p.issuedAt}`].join('\n');
+  const head = [p.title, ...(p.plain ?? []), ...(p.detailsHeading ? [p.detailsHeading] : [])];
+  return [...head, ...body, `Nonce: ${p.nonce}`, `Issued At: ${p.issuedAt}`].join('\n');
 }
 
 /** The value lines of the encryption-key statement are the lines of the per-purpose key text. */
@@ -94,12 +99,39 @@ export interface HandoffNonceRecord {
   issued_at: string;
 }
 
+/** T-0868: the plain-language name of each required document, one map keyed by doc_id. */
+const DOC_NAMES: Record<string, string> = {
+  'merchant-agreement': 'Merchant Agreement',
+  aup: 'Acceptable Use Policy',
+  dpa: 'Data Processing Addendum',
+  'refund-framework': 'Refund Framework',
+};
+
+function docNames(): string {
+  return REQUIRED_DOCS.map((id) => {
+    const n = DOC_NAMES[id];
+    if (!n) throw new Error(`no plain name for required document ${id}`);
+    return n;
+  }).join(', ');
+}
+
+/**
+ * T-0868: four plain lines for the person, then "Technical details" and the statements (key,
+ * registration, hashes, permission) unchanged, then nonce and time.
+ */
 export function handoffMessage(
   r: HandoffNonceRecord,
   partner: { id: string; name: string },
 ): string {
+  const allows = GRANT_ALLOWS_LINE.replace(/^Allows: /, '');
   return statementsMessage({
-    title: `apibase.pro: open the shop apibase.pro/m/${r.slug} and allow ${partner.name} to act for it`,
+    title: `APIbase (apibase.pro): open my shop apibase.pro/m/${r.slug} and let ${partner.name} sell for it.`,
+    plain: [
+      `I accept the four APIbase documents: ${docNames()}.`,
+      `${partner.name} may: ${allows}. It may not touch payouts, keys, orders or refunds.`,
+      'This is a signature only: no transaction, no payment, no gas.',
+    ],
+    detailsHeading: 'Technical details',
     statements: [
       encryptionKeyStatement(r),
       registrationStatement(r.address),
