@@ -47,12 +47,12 @@ export function settleTxHash(result: unknown): string | undefined {
 /**
  * T-0658: classify a settle FAILURE (`success:false` or a throw) by what it tells us about the chain.
  * - 'pending': outcome unknown, the chain reconcile decides. Two SDK meanings of
- *   `invalid_exact_evm_transaction_failed` (@x402/evm exact/facilitator/index.js): bare (:1231,
+ *   `invalid_exact_evm_transaction_failed` (@x402/evm exact/facilitator/index.js): bare (:1099,
  *   receipt reverted / Transfer mismatch) is KNOWN failed; suffixed `: <message>` from
- *   mapSettleError (:1492-1516) is an exception while broadcasting/waiting, so the tx may have landed.
+ *   mapSettleError (:1637-1662) is an exception while broadcasting/waiting, so the tx may have landed.
  *   Also a `settle_threw` whose message is a timeout/transport error.
  * - 'retry': settle-time `invalid_exact_evm_signature` after a verify that passed at ESCROW is an RPC
- *   verdict (getCode error, :659-666), nothing was broadcast; one retry is allowed when the
+ *   verdict (getCode error, :764-769), nothing was broadcast; one retry is allowed when the
  *   validBefore window has >= 15 s left and the failed attempt returned in < 10 s. Otherwise 'pending'.
  * - 'failed': everything else.
  */
