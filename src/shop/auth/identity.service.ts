@@ -4,7 +4,6 @@ import {
   verifyEncryptionKeySignature,
   type EncryptionKey,
 } from '../merchant.service';
-import { queueMerchantMail } from '../merchant-mail-queue';
 import { screenWallet } from '../moderation/wallet-screen';
 import { revokeAllGrants } from '../partner/grant.service';
 import { flagUndeliverable } from '../pii/pii.service';
@@ -214,10 +213,14 @@ export async function requestPayoutChange(
     merchant_id,
     JSON.stringify({ wallet, rail: a.rail, effective_at }),
   );
-  await queueMerchantMail(d.db, {
-    merchant_id,
+  // email_events (0025 schema) is inbound-only; the outbound mail rides the outbox.
+  await emit(d.db, 'shop.email.queued', {
     template: 'payout_change',
-    msg_id: `out:payout_change:${merchant_id}:${Date.parse(effective_at)}`,
+    direction: 'out',
+    status: 'queued',
+    to: m.contact_email,
+    merchant_id,
+    effective_at,
   });
   return { effective_at };
 }
