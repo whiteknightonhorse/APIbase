@@ -529,6 +529,16 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
   const flush = async (until: () => boolean) => {
     for (let i = 0; i < 200 && !until(); i++) await new Promise((r) => setTimeout(r, 10));
   };
+  /** Polls an async condition every 20 ms; false when `ms` runs out. */
+  const waitFor = async (cond: () => Promise<boolean>, ms: number) => {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      if (await cond()) return true;
+      await new Promise((r) => setTimeout(r, 20));
+    }
+    return false;
+  };
+  const PAY_STATUS_SQL = `SELECT chain_status FROM shop_payments WHERE payment_id = $1::uuid`;
 
   it('T-0552: a failed settle is re-read at +15 s, +45 s, +120 s and validBefore + 60 s', async () => {
     const { pid, vbMs } = await failedPayment();
@@ -542,11 +552,30 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     const { f, pid, vbMs } = await failedPayment();
     const chain = chainOf([false, true]);
     const timers = captureTimers(pid, chain, vbMs);
-    for (const t of timers) {
+    // Every wait is on state. Once the payment row is `confirmed`, a later timer returns 'skipped'
+    // before any chain read whatever the timing; the 50 ms pause only gives a regression time to show.
+    for (const [i, t] of timers.entries()) {
       const before = chain.authorizationUsed.mock.calls.length;
       t.fn();
-      await flush(() => chain.authorizationUsed.mock.calls.length > before || t === timers[2]);
-      await new Promise((r) => setTimeout(r, 50));
+      if (i === 0) {
+        await flush(() => chain.authorizationUsed.mock.calls.length > before);
+      } else if (i === 1) {
+        let status = '';
+        let seen: string[] = [];
+        const settled = await waitFor(async () => {
+          status = String((await row(PAY_STATUS_SQL, pid)).chain_status);
+          seen = await states(f);
+          return status === 'confirmed' && seen.includes('PAID');
+        }, 15_000);
+        if (!settled) {
+          throw new Error(
+            `payment not confirmed + PAID within 15 s: chain_status=${status} states=${seen.join(',')}`,
+          );
+        }
+      } else {
+        await row(PAY_STATUS_SQL, pid);
+        await new Promise((r) => setTimeout(r, 50));
+      }
     }
     expect(chain.authorizationUsed).toHaveBeenCalledTimes(2);
     expect(chain.findTransfer).toHaveBeenCalledTimes(1);
