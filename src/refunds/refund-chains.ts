@@ -242,6 +242,37 @@ interface BaseAuth {
   signature: string;
 }
 
+/** Serialized EIP-1559 probe tx for the L1-fee oracle. The dummy signature has v = 27 so parseSignature accepts it. No network. */
+export function baseFeeProbeTx(
+  from: string,
+  usdc: string,
+  chainId: number,
+  baseFee: bigint,
+  priority: bigint,
+): Hex {
+  const calldata = encodeTransferWithAuthorization(
+    {
+      from,
+      to: from,
+      value: 1n,
+      validAfter: 0n,
+      validBefore: 1n,
+      nonce: ('0x' + '00'.repeat(32)) as Hex,
+    },
+    ('0x' + '11'.repeat(64) + '1b') as Hex,
+  );
+  return serializeTransaction({
+    type: 'eip1559',
+    chainId,
+    nonce: 0,
+    to: usdc as Hex,
+    data: calldata,
+    gas: BASE_GAS_UNITS,
+    maxFeePerGas: baseFee + priority,
+    maxPriorityFeePerGas: priority,
+  });
+}
+
 export function makeBaseChain(refundAddress: string): RailChain {
   const x = getX402Config();
   const operator = getOperatorWallet();
@@ -284,6 +315,7 @@ export function makeBaseChain(refundAddress: string): RailChain {
       return Number(v) / 1e6;
     },
     async feeUsd() {
+      let step: 'feed' | 'fee_history' | 'probe' | 'l1_oracle' = 'feed';
       try {
         const feedAddr = getAddress(getRefundEnv().REFUND_ETH_USD_FEED);
         const [round, dec] = await Promise.all([
@@ -291,6 +323,7 @@ export function makeBaseChain(refundAddress: string): RailChain {
           pub.readContract({ address: feedAddr, abi: feedAbi, functionName: 'decimals' }),
         ]);
         const ethUsd = Number(round[1]) / 10 ** Number(dec);
+        step = 'fee_history';
         const hist = await pub.getFeeHistory({ blockCount: 5, rewardPercentiles: [50] });
         const baseFee = hist.baseFeePerGas[hist.baseFeePerGas.length - 1];
         const rewards = (hist.reward ?? [])
@@ -299,27 +332,9 @@ export function makeBaseChain(refundAddress: string): RailChain {
         const priority = rewards.length
           ? rewards.reduce((a, b) => a + b, 0n) / BigInt(rewards.length)
           : 0n;
-        const calldata = encodeTransferWithAuthorization(
-          {
-            from,
-            to: from,
-            value: 1n,
-            validAfter: 0n,
-            validBefore: 1n,
-            nonce: ('0x' + '00'.repeat(32)) as Hex,
-          },
-          ('0x' + '11'.repeat(65)) as Hex,
-        );
-        const serialized = serializeTransaction({
-          type: 'eip1559',
-          chainId,
-          nonce: 0,
-          to: usdc,
-          data: calldata,
-          gas: BASE_GAS_UNITS,
-          maxFeePerGas: baseFee + priority,
-          maxPriorityFeePerGas: priority,
-        });
+        step = 'probe';
+        const serialized = baseFeeProbeTx(from, usdc, chainId, baseFee, priority);
+        step = 'l1_oracle';
         const l1 = await pub.readContract({
           address: L1_ORACLE,
           abi: oracleAbi,
@@ -329,7 +344,19 @@ export function makeBaseChain(refundAddress: string): RailChain {
         return baseFeeUsd(baseFee, priority, l1, ethUsd);
       } catch (e) {
         if (e instanceof FeeUnavailableError) throw e;
-        throw new FeeUnavailableError('base fee inputs unreadable');
+        const err = e as { name?: string; shortMessage?: string; message?: string };
+        logger.warn(
+          {
+            rail: 'base',
+            step,
+            err: `${err?.name ?? 'Error'}: ${err?.shortMessage ?? err?.message ?? ''}`.slice(
+              0,
+              200,
+            ),
+          },
+          'refund base fee step failed',
+        );
+        throw new FeeUnavailableError(`base fee inputs unreadable (${step})`);
       }
     },
     async sign(p): Promise<SignResult> {
