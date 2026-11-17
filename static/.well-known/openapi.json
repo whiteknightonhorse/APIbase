@@ -31843,7 +31843,7 @@
                 "properties": {
                   "chat_id": {
                     "type": "string",
-                    "description": "Telegram chat ID (number) or @channel_username (string). Get from get_updates or manually"
+                    "description": "Telegram chat ID (number) or @channel_username (string) of a chat the bot was added to"
                   },
                   "text": {
                     "type": "string",
@@ -32128,7 +32128,7 @@
       "post": {
         "operationId": "telegram_get_chat",
         "summary": "Get Telegram Chat Info",
-        "description": "Get info about a Telegram chat — title, type (private/group/supergroup/channel), description, member count, invite link, username (Telegram Bot API)",
+        "description": "Get info about a Telegram chat — title, type (private/group/supergroup/channel), description, member count, username (Telegram Bot API)",
         "x-payment-info": {
           "protocols": [
             "x402",

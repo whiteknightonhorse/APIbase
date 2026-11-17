@@ -78,13 +78,6 @@ export class TelegramAdapter extends BaseAdapter {
         };
       }
 
-      case 'telegram.get_updates': {
-        const qs = new URLSearchParams();
-        qs.set('limit', String(params.limit ?? 10));
-        if (params.offset) qs.set('offset', String(params.offset));
-        return { url: `${this.apiUrl()}/getUpdates?${qs}`, method: 'GET', headers: {} };
-      }
-
       case 'telegram.get_chat': {
         return {
           url: `${this.apiUrl()}/getChat`,
@@ -129,24 +122,6 @@ export class TelegramAdapter extends BaseAdapter {
       };
     }
 
-    if (req.toolId === 'telegram.get_updates') {
-      const updates = (body.result ?? []).map((u: Record<string, unknown>) => {
-        const msg = u.message as Record<string, unknown> | undefined;
-        const from = msg?.from as Record<string, unknown> | undefined;
-        const chat = msg?.chat as Record<string, unknown> | undefined;
-        return {
-          update_id: u.update_id,
-          from_user: from ? `${from.first_name ?? ''} ${from.last_name ?? ''}`.trim() : null,
-          from_username: from?.username ?? null,
-          chat_id: chat?.id,
-          chat_type: chat?.type,
-          text: msg?.text ?? null,
-          date: msg?.date,
-        };
-      });
-      return { ...raw, body: { updates, count: updates.length } };
-    }
-
     if (req.toolId === 'telegram.get_chat') {
       const c = body.result;
       return {
@@ -159,7 +134,6 @@ export class TelegramAdapter extends BaseAdapter {
           first_name: c.first_name ?? null,
           description: c.description ?? null,
           member_count: c.member_count ?? null,
-          invite_link: c.invite_link ?? null,
         },
       };
     }

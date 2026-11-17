@@ -30,6 +30,12 @@ Planned: the defaults of both routes become `view=compact&limit=100`, with `view
 
 Extends the T-0857 entry above. `messaging.telegram.get_updates` declared `readOnlyHint: true` in MCP `tools/list`; it now declares `readOnlyHint: false` and `destructiveHint: true`, because a call with `offset` confirms the earlier updates on the bot and they cannot be fetched again.
 
+Superseded by T-0893: the tool is removed.
+
+## Telegram get_updates removed (T-0893, 2026-11-17)
+
+`messaging.telegram.get_updates` is removed from MCP `tools/list` and from REST, because all callers share one platform bot and the tool let any caller read, and with `offset` delete, messages other people sent to that bot. `messaging.telegram.get_chat` no longer returns `invite_link`. Sending tools are unchanged; pass a chat id you already know or an @channel_username.
+
 ## MCP registry follows the package version (T-0864, 2026-11-16)
 
 From the next tag on, the MCP registry record `io.github.whiteknightonhorse/apibase` carries the package version: `server.json` takes its `version` from `package.json` (and `packages[0].version` from `packages/mcp-client/package.json`), `scripts/sync-counts.sh --check` fails with `STALE_SERVER_JSON_VERSION` on a mismatch, and the `mcp-registry` job of `.github/workflows/release.yml` sends `server.json` to the registry after the tag's release (GitHub OIDC login; a version already in the registry is a no-op; older versions are marked deprecated). This supersedes step 4 above, which names only the GitHub release. The registry and `.well-known/mcp.json` URLs name `https://apibase.pro/mcp?tools=all`, which returns the same list as `/mcp` today.

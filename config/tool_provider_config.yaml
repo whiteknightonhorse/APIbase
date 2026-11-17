@@ -2719,12 +2719,6 @@ tools:
     price_usd: "0.001"
     upstream_cost_usd: "0"
     cache_ttl: 0
-  - tool_id: telegram.get_updates
-    name: Get Telegram Updates
-    provider: telegram
-    price_usd: "0.001"
-    upstream_cost_usd: "0"
-    cache_ttl: 0
   - tool_id: telegram.get_chat
     name: Get Telegram Chat Info
     provider: telegram

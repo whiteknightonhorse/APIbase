@@ -3264,7 +3264,7 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
   // ClinicalTrials.gov — Clinical Research Database (UC-203, 3 tools) — EXCLUSIVE
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
-  // Telegram Bot API — Messaging (UC-204, 5 tools) — EXCLUSIVE
+  // Telegram Bot API — Messaging (UC-204, 4 tools) — EXCLUSIVE
   // ---------------------------------------------------------------------------
   // ---------------------------------------------------------------------------
   // Browserbase — Managed Browser Sessions (UC-205, 4 tools) — EXCLUSIVE
@@ -3365,26 +3365,11 @@ export const TOOL_DEFINITIONS: McpToolDefinition[] = [
     annotations: TRADING,
   },
   {
-    toolId: 'telegram.get_updates',
-    mcpName: 'messaging.telegram.get_updates',
-    title: 'Get Telegram Updates',
-    description:
-      'Get recent incoming messages and events for the bot — new messages, user info, chat type. Use offset to get only new updates since last check (Telegram Bot API)',
-    category: 'messaging',
-    // offset confirms updates on the shared bot and they cannot be fetched again.
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-      idempotentHint: true,
-      openWorldHint: true,
-    },
-  },
-  {
     toolId: 'telegram.get_chat',
     mcpName: 'messaging.telegram.get_chat',
     title: 'Get Telegram Chat Info',
     description:
-      'Get info about a Telegram chat — title, type (private/group/supergroup/channel), description, member count, invite link, username (Telegram Bot API)',
+      'Get info about a Telegram chat — title, type (private/group/supergroup/channel), description, member count, username (Telegram Bot API)',
     category: 'messaging',
     annotations: READ_ONLY,
   },

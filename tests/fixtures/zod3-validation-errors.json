@@ -343,9 +343,6 @@
   "mcp messaging.telegram.get_chat \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_chat: Expected object, received string",
   "mcp messaging.telegram.get_chat []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_chat: Expected object, received array",
   "mcp messaging.telegram.get_chat null": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_chat: Invalid input at chat_id",
-  "mcp messaging.telegram.get_updates \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_updates: Expected object, received string",
-  "mcp messaging.telegram.get_updates []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.get_updates: Expected object, received array",
-  "mcp messaging.telegram.get_updates null": "OK",
   "mcp messaging.telegram.send_document \"str\"": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_document: Expected object, received string",
   "mcp messaging.telegram.send_document []": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_document: Expected object, received array",
   "mcp messaging.telegram.send_document null": "MCP error -32602: Input validation error: Invalid arguments for tool messaging.telegram.send_document: Required at document\nInvalid input at chat_id",
@@ -2599,60 +2596,6 @@
   "stage telegram.get_chat null": [
    400,
    "Request body validation failed. Expected params: chat_id",
-   [
-    {
-     "path": "",
-     "message": "Expected object, received null",
-     "code": "invalid_type"
-    }
-   ],
-   [
-    {
-     "path": "",
-     "message": "Expected object, received null",
-     "code": "invalid_type"
-    }
-   ]
-  ],
-  "stage telegram.get_updates \"str\"": [
-   400,
-   "Request body validation failed. Expected params: limit, offset",
-   [
-    {
-     "path": "",
-     "message": "Expected object, received string",
-     "code": "invalid_type"
-    }
-   ],
-   [
-    {
-     "path": "",
-     "message": "Expected object, received string",
-     "code": "invalid_type"
-    }
-   ]
-  ],
-  "stage telegram.get_updates []": [
-   400,
-   "Request body validation failed. Expected params: limit, offset",
-   [
-    {
-     "path": "",
-     "message": "Expected object, received array",
-     "code": "invalid_type"
-    }
-   ],
-   [
-    {
-     "path": "",
-     "message": "Expected object, received array",
-     "code": "invalid_type"
-    }
-   ]
-  ],
-  "stage telegram.get_updates null": [
-   400,
-   "Request body validation failed. Expected params: limit, offset",
    [
     {
      "path": "",

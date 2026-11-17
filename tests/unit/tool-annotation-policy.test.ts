@@ -90,12 +90,6 @@ const EXPECTED: Record<string, Hints> = {
     idempotentHint: false,
     openWorldHint: true,
   },
-  'messaging.telegram.get_updates': {
-    readOnlyHint: false,
-    destructiveHint: true,
-    idempotentHint: true,
-    openWorldHint: true,
-  },
   'audio.transcribe.submit': {
     readOnlyHint: false,
     destructiveHint: false,
