@@ -3,3 +3,5 @@ apibase@prod:~$ cat /srv/apibase/m/apibase-demo | render
 # T-0391: bracketed status words replaced by M status dots and badges (the words stay).
 [ WARN ]
 [ in_stock ]
+# T-0844: the demo shop is domain-verified (T-0860); the WARN line is conditional and is asserted in tests/unit/discover-listed-merchant.test.ts.
+unverified_domain — the merchant has not yet proven control of this site.

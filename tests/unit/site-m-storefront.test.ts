@@ -36,7 +36,7 @@ const demo: PublicShop = {
   name: 'APIbase Demo Shop',
   category: 'digital-goods',
   site_url: 'https://apibase.pro',
-  domain_verified: false,
+  domain_verified: true,
   // a different instant than the snapshot: parity must treat ISO timestamps as one token
   reputation: {
     as_of: '2027-01-02T03:04:05.678Z',
