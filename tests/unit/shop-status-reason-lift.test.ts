@@ -111,11 +111,11 @@ dbDescribe('T-0707 operator lift of status_reason', () => {
     expect(await reasonOf(m)).toBe('unresponsive');
   });
 
-  it('T2: disputes (one expired agent_error dispute over 10 closed); lift; no re-flag; new window re-flags', async () => {
+  it('T2: disputes (three expired agent_error disputes over 10 closed); lift; no re-flag; new window re-flags', async () => {
     const { m, slug } = await merchant();
     const ids: string[] = [];
     for (let i = 0; i < 10; i++) ids.push(await order(m, 'CLOSED', `${10 + i} days`));
-    await dispute(ids[0]);
+    for (let i = 0; i < 3; i++) await dispute(ids[i]);
     const t0 = new Date();
     await refreshReputations(deps, t0);
     expect(await reasonOf(m)).toBe('disputes');
@@ -130,13 +130,20 @@ dbDescribe('T-0707 operator lift of status_reason', () => {
     const rep = (
       await q(`SELECT reputation FROM shop_merchants WHERE merchant_id = $1::uuid`, m)
     )[0].reputation;
-    expect(rep.dispute_rate).toBe(0.1);
+    expect(rep.dispute_rate).toBe(0.3);
     expect(rep.orders_closed).toBe(10);
 
+    // after the lift only later orders count: 10 new closed orders with 2 disputes stay under the
+    // 3-disputed-order floor although the all-time count is 5 (T-0904)
     const fresh: string[] = [];
     for (let i = 0; i < 10; i++) fresh.push(await order(m, 'CLOSED', `-${1 + i} minutes`));
-    await dispute(fresh[0]);
+    for (let i = 0; i < 2; i++) await dispute(fresh[i]);
     await refreshReputations(deps, new Date(t0.getTime() + 4 * H));
+    expect(await reasonOf(m)).toBeNull();
+    expect(await suspendedEvents(m)).toBe(1);
+
+    await dispute(fresh[2]);
+    await refreshReputations(deps, new Date(t0.getTime() + 6 * H));
     expect(await reasonOf(m)).toBe('disputes');
     expect(await suspendedEvents(m)).toBe(2);
   });

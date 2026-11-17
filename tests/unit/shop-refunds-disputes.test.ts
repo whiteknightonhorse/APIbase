@@ -390,11 +390,12 @@ dbDescribe('refunds, disputes, reputation', () => {
     await sweep();
     expect(await mails(warn, 'dispute_rate_warning')).toBe(1);
 
-    // 2 disputes in 100 = 2 % -> suspended, quotes are 410 until the operator clears status_reason
-    const sus = await shop(100, 2);
+    // 3 disputes in 150 = 2 % (and 3 disputed orders) -> suspended, quotes are 410 until the operator
+    // clears status_reason
+    const sus = await shop(150, 3);
     await sweep();
     const s = await merchantRow(sus);
-    expect(s.reputation).toMatchObject({ dispute_rate: 0.02, orders_closed: 100 });
+    expect(s.reputation).toMatchObject({ dispute_rate: 0.02, orders_closed: 150 });
     expect(s.status_reason).toBe('disputes');
     expect(await mails(sus, 'merchant_disputes_suspended')).toBe(1);
     const gone = await fail(
@@ -402,12 +403,12 @@ dbDescribe('refunds, disputes, reputation', () => {
     );
     expect(gone?.status).toBe(410);
 
-    // the literal card numbers: 10 closed orders, 1 dispute = 0.1, far past 2 % -> suspended at once
+    // 10 closed orders, 1 dispute = 0.1, past 2 % but one disputed order only -> not suspended (T-0904)
     const ten = await shop(10, 1);
     await sweep();
     const t = await merchantRow(ten);
     expect(t.reputation.dispute_rate).toBe(0.1);
-    expect(t.status_reason).toBe('disputes');
+    expect(t.status_reason).toBeNull();
 
     // under 10 closed orders nothing applies, and the numbers still publish
     const few = await shop(9, 5);
@@ -423,6 +424,44 @@ dbDescribe('refunds, disputes, reputation', () => {
       orders_closed: 10,
       dispute_rate: 0,
     });
+  });
+
+  it('RF6b (T-0904): the suspension needs 2 % and at least 3 disputed orders', async () => {
+    const reasonAfterSweep = async (closed: number, disputed: number, dupDisputed = 0) => {
+      const m = await shop(closed, disputed, { dupDisputed });
+      await sweep();
+      return { m, row: await merchantRow(m) };
+    };
+    // 13 closed + 1 dispute (7.69 %) -> warned, not suspended
+    const one = await reasonAfterSweep(13, 1);
+    expect(one.row.reputation).toMatchObject({ orders_closed: 13, dispute_rate: 0.0769 });
+    expect(one.row.status_reason).toBeNull();
+    expect(await mails(one.m, 'dispute_rate_warning')).toBe(1);
+    expect(await mails(one.m, 'merchant_disputes_suspended')).toBe(0);
+    // the published reputation keeps exactly its five keys (the disputed count stays internal)
+    expect(Object.keys(one.row.reputation).sort()).toEqual([
+      'as_of',
+      'closed_on_time_pct',
+      'dispute_rate',
+      'orders_closed',
+      'refund_rate',
+    ]);
+    // 13 closed + 2 -> not suspended
+    expect((await reasonAfterSweep(13, 2)).row.status_reason).toBeNull();
+    // 13 closed + 3 -> suspended
+    const three = await reasonAfterSweep(13, 3);
+    expect(three.row.status_reason).toBe('disputes');
+    expect(await mails(three.m, 'merchant_disputes_suspended')).toBe(1);
+    // 200 closed + 3 (1.5 %) -> not suspended
+    const big3 = await reasonAfterSweep(200, 3);
+    expect(big3.row.reputation.dispute_rate).toBe(0.015);
+    expect(big3.row.status_reason).toBeNull();
+    // 200 closed + 4 (2 %) -> suspended
+    expect((await reasonAfterSweep(200, 4)).row.status_reason).toBe('disputes');
+    // duplicate disputes still do not count: 13 closed, 2 real + 2 duplicate -> not suspended
+    const dup = await reasonAfterSweep(13, 2, 2);
+    expect(dup.row.reputation.dispute_rate).toBe(0.1538);
+    expect(dup.row.status_reason).toBeNull();
   });
 
   it('RF7: a refund leaves shop_fee_ledger untouched (fee is not returned)', async () => {

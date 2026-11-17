@@ -179,3 +179,4 @@ docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbas
 static/integrator/docs.md	https://apibase.pro/integrator/docs	must-contain	.well-known/apibase-merchant.txt	-	T-0860 merchant domain proof (facts key merchant_domain_proof)
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	signature-text	-	T-0871 partner-page signature routes
 static/integrator/docs.md	https://apibase.pro/integrator/docs	must-contain	finds listed storefronts	-	T-0844 one listing rule: active and domain-verified (/shops, sitemaps, discover kind=merchant)
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	at least 3 disputed orders	-	T-0904

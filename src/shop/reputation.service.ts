@@ -16,6 +16,11 @@ const REPUTATION_REFRESH_MS = 3_600_000;
 const MIN_ORDERS_FOR_THRESHOLDS = 10;
 const DISPUTE_WARN_RATE = 0.01;
 const DISPUTE_SUSPEND_RATE = 0.02;
+/**
+ * The suspension also needs this many disputed orders in the window (T-0904, MARKET-SIGNALS-1117
+ * ruling-1): with 10 to 49 closed orders one dispute alone is already 2 % or more.
+ */
+const MIN_DISPUTED_ORDERS_FOR_SUSPEND = 3;
 /** One warning mail/event per merchant per this long. */
 const WARN_REPEAT_MS = 7 * 86_400_000;
 
@@ -50,13 +55,16 @@ const queueMail = (tx: ShopTx, merchant_id: string, template: string, msg_id: st
 
 const round = (n: number, p = 10_000) => Math.round(n * p) / p;
 
-/** `windowed`: only orders settled after the merchant's last operator lift of status_reason (T-0707). */
+/**
+ * `windowed`: only orders settled after the merchant's last operator lift of status_reason (T-0707).
+ * `disputed` is the raw count for the caller's thresholds; it is not part of the published reputation.
+ */
 async function computeReputation(
   db: ShopTx,
   merchant_id: string,
   now: Date,
   windowed = false,
-): Promise<Reputation> {
+): Promise<{ rep: Reputation; disputed: number }> {
   const r = await db.$queryRawUnsafe<
     Array<{ closed: number; on_time: number; disputed: number; refunded: number }>
   >(
@@ -76,19 +84,20 @@ async function computeReputation(
     merchant_id,
   );
   const { closed, on_time, disputed, refunded } = r[0];
-  return {
+  const rep: Reputation = {
     closed_on_time_pct: closed > 0 ? round((100 * on_time) / closed, 100) : null,
     dispute_rate: closed > 0 ? round(disputed / closed) : 0,
     refund_rate: closed > 0 ? round(refunded / closed) : 0,
     orders_closed: closed,
     as_of: now.toISOString(),
   };
+  return { rep, disputed };
 }
 
 /**
  * Recompute every active merchant whose reputation is older than an hour, publish it, and apply the UC-17
  * thresholds: dispute_rate >= 1 % at >= 10 closed orders -> a warning (mail + event, at most weekly);
- * >= 2 % -> `status_reason = 'disputes'` (quotes answer 410) until the operator clears it. The status is
+ * >= 2 % with at least 3 disputed orders -> `status_reason = 'disputes'` (quotes answer 410) until the operator clears it. The status is
  * never lifted here. Returns {updated, warned, suspended}.
  */
 export async function refreshReputations(
@@ -109,7 +118,7 @@ export async function refreshReputations(
   const out = { updated: 0, warned: 0, suspended: 0 };
   for (const m of stale) {
     const r = await d.transaction(async (tx) => {
-      const rep = await computeReputation(tx, m.merchant_id, now);
+      const { rep } = await computeReputation(tx, m.merchant_id, now);
       await tx.$executeRawUnsafe(
         `UPDATE shop_merchants SET reputation = $2::jsonb WHERE merchant_id = $1::uuid`,
         m.merchant_id,
@@ -118,10 +127,16 @@ export async function refreshReputations(
       if (rep.orders_closed < MIN_ORDERS_FOR_THRESHOLDS) return { warned: false, suspended: false };
       // The suspension decision counts only orders settled after the last operator lift (T-0707); the
       // published reputation above stays all-time.
-      const win = await computeReputation(tx, m.merchant_id, now, true);
+      const { rep: win, disputed: winDisputed } = await computeReputation(
+        tx,
+        m.merchant_id,
+        now,
+        true,
+      );
       if (
         win.orders_closed >= MIN_ORDERS_FOR_THRESHOLDS &&
-        win.dispute_rate >= DISPUTE_SUSPEND_RATE
+        win.dispute_rate >= DISPUTE_SUSPEND_RATE &&
+        winDisputed >= MIN_DISPUTED_ORDERS_FOR_SUSPEND
       ) {
         const upd = await tx.$executeRawUnsafe(
           `UPDATE shop_merchants SET status_reason = 'disputes'
