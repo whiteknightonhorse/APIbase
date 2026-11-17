@@ -1,0 +1,26 @@
+$ date -u  (T-0249 proof, steps 1-5; the deploy tree path is written DEPLOY_TREE in prose)
+## 1a  (Tue Nov 17 05:40:09 UTC 2026)
+11:OPS_ISSUES_REPO = os.environ.get("OPS_ISSUES_REPO") or "whiteknightonhorse/apibase-internal"
+env=unset
+## 1b  apibase-internal label count (Tue Nov 17 05:40:11 UTC 2026)
+1
+## 1c  APIbase (public repo) label count, recorded only; the dispatcher removes it
+1
+## 1d  issues with the label, state=all
+115 closed 2026-11-17T05:05:20Z Key expiring: PROVIDER_KEY_SAM (sam) — 14-day warning (2026-11-28)
+114 open 2026-11-17T05:05:15Z Key expiring: PROVIDER_KEY_SAM (sam) — 14-day warning (2026-11-28)
+## 1e  scheduler entries mentioning key-expiry-alerts
+1
+## 2  label step skipped: 1b printed 1 (dispatcher created it by hand on 2026-11-17)
+## 3  exact-line match count (Tue Nov 17 05:40:15 UTC 2026)
+1
+## 4  run 1, real path (not --dry-run)
+exit=0
+key-expiry-alerts: no thresholds crossed this run (today=2026-11-17)
+## 4  open issues with the label (Tue Nov 17 05:40:18 UTC 2026)
+114 2026-11-17T05:05:15Z Key expiring: PROVIDER_KEY_SAM (sam) — 14-day warning (2026-11-28)
+## 5  run 2
+exit=0
+key-expiry-alerts: no thresholds crossed this run (today=2026-11-17)
+## 5  open issues with the label (Tue Nov 17 05:40:21 UTC 2026)
+114 2026-11-17T05:05:15Z Key expiring: PROVIDER_KEY_SAM (sam) — 14-day warning (2026-11-28)
