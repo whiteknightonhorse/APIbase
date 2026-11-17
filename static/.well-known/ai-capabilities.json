@@ -2,15 +2,15 @@
   "platform": "APIbase",
   "version": "2.2.0",
   "updated_at": "2026-11-17T00:00:00Z",
-  "tools_count": 1374,
-  "providers_count": 397,
+  "tools_count": 1377,
+  "providers_count": 398,
   "mcp_endpoint": "https://apibase.pro/mcp",
   "discovery": {
     "method": "MCP tool apibase.discover / GET /api/v1/discover",
     "tool_name": "apibase.discover",
     "rest_endpoint": "https://apibase.pro/api/v1/discover",
     "legacy_prompt": "discover_tools (kept for backward compatibility)",
-    "description": "Call apibase.discover to find tools by intent or category across 1374 tools instead of loading all schemas into context.",
+    "description": "Call apibase.discover to find tools by intent or category across 1377 tools instead of loading all schemas into context.",
     "examples": [
       {
         "args": {},
@@ -50,16 +50,16 @@
       "examples": "Call apibase.discover with category=\"health\" for the current tool list and descriptions."
     },
     {
+      "name": "education",
+      "tools": 105,
+      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Standard Ebooks, Tatoeba, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
+      "examples": "Call apibase.discover with category=\"education\" for the current tool list and descriptions."
+    },
+    {
       "name": "weather",
       "tools": 103,
       "providers": "Airnow, Aviationweather, Avwx, Awc, Brightsky, Checkwx, Climate, Coops, Currentuvindex, Datagovsg, Drought Monitor, Ea Hydrology, IQAIR, Jma Bosai, Malaysiagov, Marine, Met Norway, Meteostat, Msc Geomet, Ncei, NOAA, NWS, Openmeteoaq, Opensensemap, Openweathermap, Paleoclimate, Sepa Scotland, Smhi, Uk Ea Flood Monitoring, Wmo Weather, World Bank Cckp",
       "examples": "Call apibase.discover with category=\"weather\" for the current tool list and descriptions."
-    },
-    {
-      "name": "education",
-      "tools": 102,
-      "providers": "Bhl, Bible, Cordis, Crossref, Crossref Datacitations, Datacite, Dblp, Dictionary, Doaj, Education, Figshare, GBIF, Gutendex, Librivox, Nsf Awards, Obis, Openaire, Openalex, Opencontext, Openlibrary, Orcid, Plos Search, Ror, Standard Ebooks, Unesco Data, Unpaywall, Wikidata, Wikipedia, Worms, Zenodo",
-      "examples": "Call apibase.discover with category=\"education\" for the current tool list and descriptions."
     },
     {
       "name": "entertainment",

@@ -928,6 +928,9 @@
     "swpc.k_index": "healthy",
     "swpc.solar_regions": "healthy",
     "swpc.solar_wind": "healthy",
+    "tatoeba.languages": "healthy",
+    "tatoeba.search": "healthy",
+    "tatoeba.sentence": "healthy",
     "tavily.extract": "healthy",
     "tavily.search": "healthy",
     "telegram.get_chat": "healthy",
@@ -1203,7 +1206,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 397,
+  "providers_count": 398,
   "rails": [
     "x402",
     "mpp",
@@ -1237,7 +1240,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1346,
+      "count": 1349,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1251,6 +1254,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1374,
+  "tools_count": 1377,
   "version": "2.2.0"
 }
