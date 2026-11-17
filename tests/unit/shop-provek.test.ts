@@ -217,8 +217,7 @@ dbDescribe('Provek declaration + evidence (INT-44)', () => {
     const r = await get(`/api/v1/shop/shops/${slugA}/evidence.json`);
     expect(r.status).toBe(200);
     expect(r.headers.get('cache-control')).toMatch(/max-age=60/);
-    const text = await r.text();
-    const j = JSON.parse(text);
+    const j = JSON.parse(await r.text());
     expect(j.slug).toBe(slugA);
     expect(j.reputation).toEqual({
       closed_on_time_pct: 98.5,
@@ -232,9 +231,11 @@ dbDescribe('Provek declaration + evidence (INT-44)', () => {
     expect(j.provek).toEqual({ declared: true, listed: false, registry_url: null });
     expect(typeof j.active_since).toBe('string');
     expect(typeof j.as_of).toBe('string');
-    expect(text).not.toContain('0x');
-    expect(text).not.toContain('@');
-    expect(text).not.toContain('order_id');
+    delete j.slug; // a slug is merchant-chosen text, the rest must be clean
+    const rest = JSON.stringify(j);
+    expect(rest).not.toContain('0x');
+    expect(rest).not.toContain('@');
+    expect(rest).not.toContain('order_id');
     expect((await get(`/api/v1/shop/shops/${slugGone}/evidence.json`)).status).toBe(410);
     expect((await get(`/api/v1/shop/shops/nope-${tag}/evidence.json`)).status).toBe(404);
     // an opted-out merchant still has evidence, with declared=false
