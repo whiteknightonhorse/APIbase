@@ -1160,9 +1160,6 @@ swpc.aurora	swpc	0.001
 swpc.k_index	swpc	0.001
 swpc.solar_regions	swpc	0.001
 swpc.solar_wind	swpc	0.001
-tatoeba.languages	tatoeba	0.001
-tatoeba.search	tatoeba	0.001
-tatoeba.sentence	tatoeba	0.001
 tavily.extract	tavily	0.011
 tavily.search	tavily	0.011
 telegram.get_chat	telegram	0.001
