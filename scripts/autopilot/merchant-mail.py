@@ -3,8 +3,10 @@
 
 Sends the transactional merchant mail that incident-engine.py only QUEUES (email_events,
 direction='out', status='queued'; see queue_merchant_email()). Resend API only, sender
-integrator@apibase.pro, recipient shop_merchants.contact_email, language always 'en' (RU/BY are
-RESTRICTED countries; the dispatcher translates by hand for any manual reply).
+integrator@apibase.pro, recipient email_events.to_override when the row carries one (T-0890: the
+contact_changed notice goes to the PREVIOUS address; a trigger clears the column once the row is no
+longer queued), otherwise the shop's current shop_merchants.contact_email; language always 'en' (RU/BY
+are RESTRICTED countries; the dispatcher translates by hand for any manual reply).
 
 Gates, in order, BEFORE any send:
   (a) config/integrator/mail-approval.json {ruling, approved_at} — written by the dispatcher after
@@ -27,6 +29,7 @@ Skip policy: a queued row is never sent, and gets status='skipped' (never an inc
 version already in force), merchant_missing (no merchant row or no contact e-mail), resolved (the
 condition behind merchant_unresponsive / refund_overdue / fee_invoice is no longer true), digest_7d
 (a pii_delivered / pii_undeliverable mail was already sent to this merchant in the last 7 days).
+merchant_missing also covers a row with no recipient at all (no to_override and no contact e-mail).
 A Resend 422 is final: one attempt, status='failed'.
 
 Exit codes: 0 ok (incl. ruling_missing: nothing to do yet), 2 domain not verified, 3 no usable key,
@@ -59,7 +62,7 @@ LANG = "en"
 KINDS = ("connect_failed", "webhook_failed", "merchant_unresponsive", "refund_overdue",
          "catalog_rejected", "payout_change", "key_rotated", "pii_delivered", "pii_undeliverable",
          "dispute_rate_warning", "merchant_disputes_suspended", "fee_invoice",
-         "stream_settle_overdue", "subscription_pull_failed", "legal_version_notice")
+         "stream_settle_overdue", "subscription_pull_failed", "legal_version_notice", "contact_changed")
 STALE_DAYS = 7
 AGELESS = ("legal_version_notice",)
 DIGEST_KINDS = ("pii_delivered", "pii_undeliverable")
@@ -254,8 +257,10 @@ def _stale_pred():
 
 
 def due_rows():
-    return _rows("SELECT msg_id, merchant_id::text, kind, template, attempts::text FROM email_events "
-                 f"WHERE {_DUE_WHERE} ORDER BY received_at, msg_id")
+    rows = _rows("SELECT msg_id, merchant_id::text, kind, template, attempts::text, COALESCE(to_override, '') "
+                 f"FROM email_events WHERE {_DUE_WHERE} ORDER BY received_at, msg_id")
+    # to_override is the last column: an address holding the field separator is joined back, never split
+    return [r[:5] + [ap.SEP.join(r[5:])] for r in rows]
 
 
 def skip_stale():
@@ -282,14 +287,16 @@ def record_failure(msg_id, attempts, reason):
     return "queued"
 
 
-def send_one(key, msg_id, merchant_id, kind, template, attempts):
-    """Returns the resulting status: sent | queued | failed | skipped | domain_unverified (row untouched)."""
+def send_one(key, msg_id, merchant_id, kind, template, attempts, to_override=""):
+    """Returns the resulting status: sent | queued | failed | skipped | domain_unverified (row untouched).
+    The recipient is to_override when set, otherwise the merchant's current contact_email."""
     try:
         r = _rows("SELECT slug, name, contact_email FROM shop_merchants "
                   f"WHERE merchant_id = {ap.sql_literal(merchant_id)}::uuid")
     except RuntimeError:
         return record_failure(msg_id, attempts, "db_error")
-    if not r or not r[0][2]:
+    recipient = to_override or (r[0][2] if r else "")
+    if not r or not recipient:
         _set(msg_id, "status = 'skipped', reason = 'merchant_missing', next_attempt_at = NULL")
         return "skipped"
     m = {"slug": r[0][0], "name": r[0][1]}
@@ -316,7 +323,7 @@ def send_one(key, msg_id, merchant_id, kind, template, attempts):
     except (ValueError, OSError):
         return record_failure(msg_id, attempts, "template_missing")
     code, js = http_request("POST", "/emails", key, {
-        "from": SENDER, "to": [r[0][2]], "subject": subject, "text": text,
+        "from": SENDER, "to": [recipient], "subject": subject, "text": text,
     }, idem=msg_id)
     mid = js.get("id") if isinstance(js, dict) else None
     if 200 <= code < 300 and mid:
@@ -370,8 +377,8 @@ def run(send=True):
               "docs/operator/EMAIL-INTEGRATOR-SETUP.md (Resend domain + DKIM/SPF/DMARC).")
         return 2
     counts["skipped"] += skip_stale()
-    for msg_id, merchant_id, kind, template, attempts in due_rows():
-        st = send_one(key, msg_id, merchant_id, kind, template or kind, int(attempts or 0))
+    for msg_id, merchant_id, kind, template, attempts, to_override in due_rows():
+        st = send_one(key, msg_id, merchant_id, kind, template or kind, int(attempts or 0), to_override)
         if st == "domain_unverified":
             n = hold_all("domain_unverified")
             print(f"merchant-mail: STOP — Resend refused the send: domain {MAIL_DOMAIN} is not verified in the team "

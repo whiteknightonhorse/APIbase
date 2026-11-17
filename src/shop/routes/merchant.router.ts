@@ -15,7 +15,7 @@ import {
 import { currentDocs, termsStatus } from '../auth/terms.guard';
 import { deleteCatalog, upsertCatalog } from '../catalog.service';
 import { createImport, getImport } from '../catalog-import/import.service';
-import { setSupportEmail } from '../merchant.service';
+import { setContact } from '../merchant.service';
 import {
   addMerchantDocument,
   confirmMerchantOrder,
@@ -316,7 +316,8 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     },
   );
 
-  // T-0768: the buyer-facing support e-mail. Owner key only; contact_email is never read or written.
+  // T-0768 / T-0890: the buyer-facing support e-mail and the private contact e-mail. Owner key only;
+  // a contact_email change queues one notice to the previous address, and no address is ever answered.
   router.patch(
     '/api/v1/shop/merchants/me/contact',
     probeLimiter,
@@ -324,7 +325,8 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
     ownerKeyOnly(() => deps.db),
     async (req: Request, res: Response) => {
       try {
-        res.json(await setSupportEmail(deps.db, req.merchant?.merchant_id ?? '', req.body));
+        const merchant_id = req.merchant?.merchant_id ?? '';
+        res.json(await deps.transaction((tx) => setContact(tx, merchant_id, req.body)));
       } catch (err) {
         send(res, err);
       }

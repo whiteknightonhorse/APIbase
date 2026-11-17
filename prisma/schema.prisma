@@ -498,6 +498,7 @@ model EmailEvent {
   attempts            Int       @default(0)
   next_attempt_at     DateTime? @db.Timestamptz()
   provider_message_id String?
+  to_override         String? // T-0890 (0061): out + queued only, the address a notice must reach when it is not the shop's current contact e-mail; cleared by the trigger
 
   @@map("email_events")
 }

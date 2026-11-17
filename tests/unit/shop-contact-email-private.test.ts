@@ -1,7 +1,8 @@
 /**
  * T-0867 (REQ-AB-R5-5): the registration contact_email is private. A shop with a canary contact_email and an
  * empty support_email must not leak the canary through any buyer, agent or partner surface; once a support
- * email is set, merchant_contact.email is that address only. Real Postgres (TEST_DATABASE_URL, disposable).
+ * email is set, merchant_contact.email is that address only. T-0890: after a contact_email PATCH neither the
+ * old nor the new address shows anywhere. Real Postgres (TEST_DATABASE_URL, disposable).
  */
 import express from 'express';
 import { createHash } from 'node:crypto';
@@ -13,7 +14,9 @@ import { getOrderView } from '../../src/shop/order-payment.service';
 import { createHandoff, bindHandoff, readHandoff } from '../../src/shop/partner/handoff.service';
 import { partnerQuotes } from '../../src/shop/partner/quote-outcomes-read.service';
 import { createQuote } from '../../src/shop/quote.service';
+import { createMerchantRouter } from '../../src/shop/routes/merchant.router';
 import { createStorefrontRouter } from '../../src/shop/routes/storefront.router';
+import { issueKey } from '../../src/shop/auth/merchant-key.service';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 import { client, dbDescribe, migrate } from './helpers/shop-db';
 
@@ -38,6 +41,7 @@ jest.mock('../../src/services/prisma.service', () => ({
 }));
 
 const CANARY = 'private-canary@m.example';
+const CANARY_2 = 'private-canary-2@m.example';
 const SUPPORT = 'help@m.example';
 const PAYER = '0x00000000000000000000000000000000000a11ce';
 const BUYER = 'agent:canary-buyer';
@@ -150,14 +154,15 @@ dbDescribe('T-0867 the registration contact email stays private', () => {
   const get = async (path: string, accept?: string) =>
     (await fetch(base + path, { headers: accept ? { accept } : {} })).text();
 
-  it('no buyer, agent or partner surface carries the contact email while support_email is empty', async () => {
+  /** Every buyer, agent and partner surface of the shop, as text. */
+  const allSurfaces = async (): Promise<Record<string, string>> => {
     const quote = await createQuote(
       deps,
       merchant_id,
       { identity: 'agent:q' },
       { items: [{ sku, qty: 1 }] },
     );
-    const surfaces: Record<string, string> = {
+    return {
       quote: seen(quote),
       order_payer: seen(await getOrderView(prisma as never, order_id, BUYER)),
       order_stranger: seen(await getOrderView(prisma as never, order_id, 'agent:stranger')),
@@ -176,6 +181,10 @@ dbDescribe('T-0867 the registration contact email stays private', () => {
         await partnerQuotes(prisma as never, { id: 'soukbase', name: 'Soukbase' }, slug, {}),
       ),
     };
+  };
+
+  it('no buyer, agent or partner surface carries the contact email while support_email is empty', async () => {
+    const surfaces = await allSurfaces();
     expect(surfaces.provek).toContain('provek_declaration');
     expect(surfaces.discover.length).toBeGreaterThan(2);
     expect(surfaces.order_payer).toContain('site_url');
@@ -203,6 +212,44 @@ dbDescribe('T-0867 the registration contact email stays private', () => {
     expect(seen(await readHandoff(prisma as never, 'soukbase', h.handoff_id))).not.toContain(
       CANARY,
     );
+  });
+
+  it('T-0890: after a contact_email PATCH neither the old nor the new address reaches any surface or the answer', async () => {
+    const app = express();
+    app.use(express.json());
+    app.use(createMerchantRouter(deps));
+    const s: Server = await new Promise((r) => {
+      const x = app.listen(0, '127.0.0.1', () => r(x));
+    });
+    try {
+      const key = await deps.transaction((tx) => issueKey(tx, merchant_id));
+      const res = await fetch(
+        `http://127.0.0.1:${(s.address() as AddressInfo).port}/api/v1/shop/merchants/me/contact`,
+        {
+          method: 'PATCH',
+          headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+          body: JSON.stringify({ contact_email: CANARY_2 }),
+        },
+      );
+      const answer = await res.text();
+      expect(res.status).toBe(200);
+      expect(JSON.parse(answer)).toEqual({ support_email: null, contact_email_updated: true });
+      const [row] = await q(
+        `SELECT contact_email FROM shop_merchants WHERE merchant_id = $1::uuid`,
+        merchant_id,
+      );
+      expect(row.contact_email).toBe(CANARY_2);
+      const surfaces = { patch_answer: answer, ...(await allSurfaces()) };
+      for (const [name, text] of Object.entries(surfaces)) {
+        expect([name, text.includes(CANARY), text.includes(CANARY_2)]).toEqual([
+          name,
+          false,
+          false,
+        ]);
+      }
+    } finally {
+      s.close();
+    }
   });
 
   it('with a support_email, merchant_contact.email is that address only', async () => {

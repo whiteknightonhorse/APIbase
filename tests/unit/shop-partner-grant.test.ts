@@ -678,6 +678,155 @@ dbDescribe('T-0740 partner grants', () => {
       expect((await http('PATCH', p, { support_email: null })).status).toBe(401);
     });
 
+    describe('T-0890: PATCH /merchants/me/contact {contact_email}', () => {
+      const p = '/api/v1/shop/merchants/me/contact';
+      const contactOf = async (id: string) =>
+        (
+          await q(
+            `SELECT contact_email, support_email FROM shop_merchants WHERE merchant_id = $1::uuid`,
+            id,
+          )
+        )[0];
+      const mails = (id: string) =>
+        q(
+          `SELECT msg_id, status, template, kind, to_override, direction FROM email_events
+            WHERE merchant_id = $1::uuid ORDER BY received_at, msg_id`,
+          id,
+        );
+
+      it('the owner key changes it: answer carries contact_email_updated, never an address; one notice to the old address', async () => {
+        const m = await merchant();
+        const before = await contactOf(m.id);
+        const old = before.contact_email as string;
+        const r = await json(
+          await http('PATCH', p, { contact_email: 'new-owner@m.example' }, m.owner),
+        );
+        expect(r).toEqual({
+          status: 200,
+          body: { support_email: before.support_email, contact_email_updated: true },
+        });
+        expect(JSON.stringify(r.body)).not.toContain('@');
+        expect(await contactOf(m.id)).toEqual({ ...before, contact_email: 'new-owner@m.example' });
+        const rows = await mails(m.id);
+        expect(rows).toHaveLength(1);
+        expect(rows[0]).toMatchObject({
+          status: 'queued',
+          template: 'contact_changed',
+          kind: 'contact_changed',
+          direction: 'out',
+          to_override: old,
+        });
+        expect(rows[0].msg_id).toMatch(
+          new RegExp(
+            `^out:contact_changed:${m.id}:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`,
+          ),
+        );
+        expect(rows[0].msg_id).not.toContain('@');
+      });
+
+      it('the same address in another case changes nothing and queues nothing', async () => {
+        const m = await merchant();
+        await x(
+          `UPDATE shop_merchants SET contact_email = 'Owner@Shop.example' WHERE merchant_id = $1::uuid`,
+          m.id,
+        );
+        const before = await contactOf(m.id);
+        const r = await json(
+          await http('PATCH', p, { contact_email: 'owner@SHOP.EXAMPLE' }, m.owner),
+        );
+        expect(r).toEqual({ status: 200, body: { support_email: before.support_email } });
+        expect(await contactOf(m.id)).toEqual(before);
+        expect(await mails(m.id)).toHaveLength(0);
+      });
+
+      it('422 for null, "", a number, a bad address and an empty body; nothing is written', async () => {
+        const m = await merchant();
+        const before = await contactOf(m.id);
+        for (const v of [null, '', 42, 'not-an-address', `${'a'.repeat(250)}@x.example`]) {
+          const r = await json(
+            await http(
+              'PATCH',
+              p,
+              { contact_email: v, support_email: 'help@shop.example' },
+              m.owner,
+            ),
+          );
+          expect([v, r.status, r.body.error_code, r.body.field]).toEqual([
+            v,
+            422,
+            'validation_failed',
+            'contact_email',
+          ]);
+          expect(r.body.message).not.toContain('@');
+        }
+        const empty = await json(await http('PATCH', p, {}, m.owner));
+        expect([empty.status, empty.body.field]).toEqual([422, 'support_email']);
+        expect(empty.body.message).toContain('support_email');
+        expect(empty.body.message).toContain('contact_email');
+        expect(await contactOf(m.id)).toEqual(before);
+        expect(await mails(m.id)).toHaveLength(0);
+      });
+
+      it('a grant key is 403 grant_key_not_allowed and changes nothing', async () => {
+        const g = await granted();
+        const before = await contactOf(g.id);
+        const r = await json(
+          await http('PATCH', p, { contact_email: 'evil@partner.example' }, g.gkey),
+        );
+        expect([r.status, r.body.error_code]).toEqual([403, 'grant_key_not_allowed']);
+        expect(await contactOf(g.id)).toEqual(before);
+        expect(await mails(g.id)).toHaveLength(0);
+      });
+
+      it('the fourth change inside 24 hours is 429 rate_limited and leaves the address as it was', async () => {
+        const m = await merchant();
+        const first = (await contactOf(m.id)).contact_email as string;
+        const addrs = ['c1@m.example', 'c2@m.example', 'c3@m.example'];
+        for (const a of addrs) {
+          const r = await json(await http('PATCH', p, { contact_email: a }, m.owner));
+          expect([r.status, r.body.contact_email_updated]).toEqual([200, true]);
+        }
+        const rows = await mails(m.id);
+        expect(rows.map((x) => x.to_override)).toEqual([first, 'c1@m.example', 'c2@m.example']);
+        const res = await http(
+          'PATCH',
+          p,
+          { contact_email: 'c4@m.example', support_email: 'h@m.example' },
+          m.owner,
+        );
+        const r4 = await json(res);
+        expect([r4.status, r4.body.error_code]).toEqual([429, 'rate_limited']);
+        expect(Number(res.headers.get('retry-after'))).toBeGreaterThan(0);
+        expect(JSON.stringify(r4.body)).not.toMatch(/c[34]@m\.example/);
+        expect(await contactOf(m.id)).toMatchObject({
+          contact_email: 'c3@m.example',
+          support_email: null,
+        });
+        expect(await mails(m.id)).toHaveLength(3);
+        // a row older than 24 hours no longer counts
+        await x(
+          `UPDATE email_events SET received_at = now() - interval '25 hours' WHERE msg_id = $1`,
+          rows[0].msg_id,
+        );
+        const r5 = await json(await http('PATCH', p, { contact_email: 'c4@m.example' }, m.owner));
+        expect([r5.status, r5.body.contact_email_updated]).toEqual([200, true]);
+      });
+
+      it('support_email alone behaves as before: no contact change, no notice, no contact_email_updated', async () => {
+        const m = await merchant();
+        const before = await contactOf(m.id);
+        const r = await json(
+          await http('PATCH', p, { support_email: 'help@shop.example' }, m.owner),
+        );
+        expect(r).toEqual({ status: 200, body: { support_email: 'help@shop.example' } });
+        expect(await contactOf(m.id)).toEqual({ ...before, support_email: 'help@shop.example' });
+        expect(await mails(m.id)).toHaveLength(0);
+        // contact_email alone keeps the stored support_email in the answer
+        const c = await json(await http('PATCH', p, { contact_email: 'other@m.example' }, m.owner));
+        expect(c.body).toEqual({ support_email: 'help@shop.example', contact_email_updated: true });
+      });
+    });
+
     it('MCP: every merchant tool but the grant set refuses a grant key', async () => {
       const g = await granted();
       const call = await mcp(g.gkey);

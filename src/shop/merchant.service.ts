@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { logger } from '../config/logger';
@@ -15,6 +15,7 @@ import { isRestrictedEntityCountry, isRestrictedIp } from './moderation/countrie
 import { screenWallet } from './moderation/wallet-screen';
 import { bindHandoff, UUID_RE } from './partner/handoff.service';
 import { isPlatformWallet, PAYOUT_WALLET_PLATFORM_MSG } from './platform-wallets';
+import { queueMerchantMail } from './merchant-mail-queue';
 
 export const REGISTRATIONS_PER_IP_PER_HOUR = 5;
 const registerLimit = () => getShopEnv().INTEGRATOR_REGISTER_PER_HOUR;
@@ -270,18 +271,46 @@ export function supportEmailOf(v: unknown): string | null {
   return v;
 }
 
-/** T-0768: PATCH /merchants/me/contact. Writes support_email only; contact_email is never read. */
-export async function setSupportEmail(
-  db: ShopTx,
-  merchant_id: string,
-  body: unknown,
-): Promise<{ support_email: string | null }> {
-  const b = (body ?? {}) as Record<string, unknown>;
-  if (typeof body !== 'object' || body === null || !('support_email' in b)) {
+/** T-0890: at most this many contact_email changes per shop in 24 hours (counted on queued notices). */
+export const CONTACT_CHANGES_PER_DAY = 3;
+
+/** T-0890: a new contact_email. It cannot be removed: null, "" or a non-address is 422 field contact_email. */
+function contactEmailOf(v: unknown): string {
+  if (typeof v !== 'string' || v.length > 256 || !EMAIL_RE.test(v)) {
     throw new MerchantRegisterError(
       422,
       'validation_failed',
-      'support_email is required (an e-mail address, or null to clear it)',
+      'contact_email is invalid (an e-mail address; it cannot be removed)',
+      'fix_request',
+      '/integrator/docs#registration--terms',
+      undefined,
+      undefined,
+      'contact_email',
+    );
+  }
+  return v;
+}
+
+/**
+ * T-0768 / T-0890: PATCH /merchants/me/contact, run inside one transaction. Sets or clears support_email
+ * and changes contact_email; a changed contact_email queues one contact_changed notice to the PREVIOUS
+ * address (see queueMerchantMail). No address is ever returned or put in an error message.
+ */
+export async function setContact(
+  db: ShopTx,
+  merchant_id: string,
+  body: unknown,
+): Promise<{ support_email: string | null; contact_email_updated?: true }> {
+  const b = (body ?? {}) as Record<string, unknown>;
+  if (
+    typeof body !== 'object' ||
+    body === null ||
+    (!('support_email' in b) && !('contact_email' in b))
+  ) {
+    throw new MerchantRegisterError(
+      422,
+      'validation_failed',
+      'support_email or contact_email is required (support_email: an e-mail address, or null to clear it; contact_email: an e-mail address)',
       'fix_request',
       '/integrator/docs#registration--terms',
       undefined,
@@ -289,13 +318,64 @@ export async function setSupportEmail(
       'support_email',
     );
   }
-  const support_email = supportEmailOf(b.support_email);
-  await db.$executeRawUnsafe(
-    `UPDATE shop_merchants SET support_email = $2 WHERE merchant_id = $1::uuid`,
+  const support = 'support_email' in b ? supportEmailOf(b.support_email) : undefined;
+  const contact = 'contact_email' in b ? contactEmailOf(b.contact_email) : undefined;
+
+  const [cur] = await db.$queryRawUnsafe<
+    Array<{ contact_email: string | null; support_email: string | null }>
+  >(
+    `SELECT contact_email, support_email FROM shop_merchants WHERE merchant_id = $1::uuid FOR UPDATE`,
     merchant_id,
-    support_email,
   );
-  return { support_email };
+  if (!cur) throw new ShopAuthError(401, 'missing merchant key');
+
+  const previous = cur.contact_email ?? '';
+  const changed = contact !== undefined && contact.toLowerCase() !== previous.toLowerCase();
+  if (changed) {
+    const [recent] = await db.$queryRawUnsafe<Array<{ n: number; retry: number | null }>>(
+      `SELECT count(*)::int AS n,
+              ceil(extract(epoch FROM min(received_at) + interval '24 hours' - now()))::int AS retry
+         FROM email_events
+        WHERE direction = 'out' AND template = 'contact_changed' AND merchant_id = $1::uuid
+          AND received_at > now() - interval '24 hours'`,
+      merchant_id,
+    );
+    if ((recent?.n ?? 0) >= CONTACT_CHANGES_PER_DAY) {
+      throw fail(
+        429,
+        'rate_limited',
+        `too many contact_email changes: at most ${CONTACT_CHANGES_PER_DAY} in 24 hours`,
+        'retry_after_delay',
+        '/integrator/docs#registration--terms',
+        undefined,
+        Math.max(1, recent?.retry ?? 3600),
+      );
+    }
+    await db.$executeRawUnsafe(
+      `UPDATE shop_merchants SET contact_email = $2 WHERE merchant_id = $1::uuid`,
+      merchant_id,
+      contact,
+    );
+    if (previous) {
+      await queueMerchantMail(db, {
+        merchant_id,
+        template: 'contact_changed',
+        msg_id: `out:contact_changed:${merchant_id}:${randomUUID()}`,
+        to_override: previous,
+      });
+    }
+  }
+  if (support !== undefined) {
+    await db.$executeRawUnsafe(
+      `UPDATE shop_merchants SET support_email = $2 WHERE merchant_id = $1::uuid`,
+      merchant_id,
+      support,
+    );
+  }
+  return {
+    support_email: support !== undefined ? support : cur.support_email,
+    ...(changed ? { contact_email_updated: true as const } : {}),
+  };
 }
 
 async function validate(input: RegisterInput, keySigChecked = false): Promise<void> {

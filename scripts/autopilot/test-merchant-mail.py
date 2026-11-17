@@ -5,7 +5,8 @@ replaced); not one real letter, no real key, no network.
 
 Run: python3 scripts/autopilot/test-merchant-mail.py
 Mutations: drop the approval gate -> ML1 red; drop the domain check -> ML5 red; drop the 403 mapping -> ML5b red;
-drop the MERCHANT_REPLY branch in email-intake.py -> ML6 red; drop the --send guard -> ML10 red.
+drop the MERCHANT_REPLY branch in email-intake.py -> ML6 red; drop the --send guard -> ML10 red;
+drop the email_events_clear_to_override trigger -> ML16/ML18 red (T-0890).
 """
 import contextlib
 import importlib.util
@@ -96,11 +97,16 @@ def q(sql):
     return fx.psql(sql)
 
 
-def queue_row(mid, template="webhook_failed", msg_id="out:inc:0", attempts=0):
+def queue_row(mid, template="webhook_failed", msg_id="out:inc:0", attempts=0, to_override=None):
+    to = "NULL" if to_override is None else f"'{to_override}'"
     q("INSERT INTO email_events (msg_id, received_at, from_domain, class, action_required, direction, status, "
-      "kind, merchant_id, template, attempts) VALUES "
+      "kind, merchant_id, template, attempts, to_override) VALUES "
       f"('{msg_id}', now(), 'apibase.pro', 'UNMATCHED', FALSE, 'out', 'queued', 'WEBHOOK_FAILED', "
-      f"'{mid}', '{template}', {attempts})")
+      f"'{mid}', '{template}', {attempts}, {to})")
+
+
+def to_override(msg_id="out:inc:0"):
+    return q(f"SELECT COALESCE(to_override, '<null>') FROM email_events WHERE msg_id = '{msg_id}'")
 
 
 def row(msg_id="out:inc:0"):
@@ -124,8 +130,8 @@ def main_mm(argv):
     return rc, out.getvalue(), err.getvalue()
 
 
-def queue_old(mid, days, template="webhook_failed", msg_id="out:inc:0"):
-    queue_row(mid, template=template, msg_id=msg_id)
+def queue_old(mid, days, template="webhook_failed", msg_id="out:inc:0", to_override=None):
+    queue_row(mid, template=template, msg_id=msg_id, to_override=to_override)
     q(f"UPDATE email_events SET received_at = now() - interval '{days} days' WHERE msg_id = '{msg_id}'")
 
 
@@ -423,6 +429,82 @@ class TestSender(MailBase):
         st = row()
         self.assertEqual((st[0], st[1]), ("failed", "resend_http_422"))
         self.assertEqual(len(self.resend.posts()), 1)
+
+    # ---- T-0890: contact_changed goes to the previous address (email_events.to_override)
+    OLD = "old-owner@drill.invalid"
+
+    def _capture(self):
+        records = []
+
+        class H(logging.Handler):
+            def emit(self, rec):
+                records.append(rec.getMessage())
+        h = H()
+        MM.log.addHandler(h)
+        MM.log.setLevel(logging.INFO)
+        return records, h
+
+    def test_ml16_contact_changed_goes_to_to_override_then_cleared(self):
+        approve()
+        queue_row(self.mid, template="contact_changed", to_override=self.OLD)
+        records, h = self._capture()
+        try:
+            rc, out = run_mm()
+        finally:
+            MM.log.removeHandler(h)
+        self.assertEqual(rc, 0)
+        posts = self.resend.posts()
+        self.assertEqual(len(posts), 1)
+        self.assertEqual(posts[0][3]["to"], [self.OLD])
+        self.assertNotIn("owner@drill.invalid", posts[0][3]["to"])
+        self.assertEqual(posts[0][3]["subject"], "The contact e-mail of your APIbase shop was changed")
+        self.assertIn("https://apibase.pro/integrator/check/mail-shop", posts[0][3]["text"])
+        for addr in (self.OLD, "owner@drill.invalid"):
+            self.assertNotIn(addr, posts[0][3]["text"])
+        st = row()
+        self.assertEqual((st[0], st[3]), ("sent", "re_msg_0001"))
+        self.assertEqual(to_override(), "<null>")
+        self.assertTrue(records)
+        for line in records + [out]:
+            self.assertNotIn(self.OLD, line)
+            self.assertNotIn("owner@drill.invalid", line)
+
+    def test_ml17_failed_attempt_keeps_to_override(self):
+        approve()
+        MM.http_request = self.resend = FakeResend(post_code=500)
+        queue_row(self.mid, template="contact_changed", to_override=self.OLD)
+        records, h = self._capture()
+        try:
+            _, out = run_mm()
+        finally:
+            MM.log.removeHandler(h)
+        st = row()
+        self.assertEqual((st[0], st[1], st[2]), ("queued", "resend_http_500", "1"))
+        self.assertEqual(to_override(), self.OLD)
+        self.assertEqual(self.resend.posts()[0][3]["to"], [self.OLD])
+        for line in records + [out, st[1]]:
+            self.assertNotIn(self.OLD, line)
+            self.assertNotIn("owner@drill.invalid", line)
+
+    def test_ml18_stale_and_merchant_missing_clear_to_override(self):
+        approve()
+        queue_old(self.mid, 8, template="contact_changed", to_override=self.OLD)
+        queue_row("00000000-0000-0000-0000-000000000001", template="contact_changed",
+                  msg_id="out:inc:1", to_override=self.OLD)
+        records, h = self._capture()
+        try:
+            _, out = run_mm()
+        finally:
+            MM.log.removeHandler(h)
+        self.assertEqual(row()[:2], ["skipped", "stale_7d"])
+        self.assertEqual(row("out:inc:1")[:2], ["skipped", "merchant_missing"])
+        self.assertEqual(to_override(), "<null>")
+        self.assertEqual(to_override("out:inc:1"), "<null>")
+        self.assertEqual(len(self.resend.posts()), 0)
+        for line in records + [out]:
+            self.assertNotIn(self.OLD, line)
+        # the previous address is stored nowhere once no row is queued
+        self.assertEqual(q(f"SELECT count(*)::text FROM email_events WHERE to_override = '{self.OLD}'"), "0")
 
 
 class TestTemplates(unittest.TestCase):
