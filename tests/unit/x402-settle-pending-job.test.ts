@@ -138,6 +138,17 @@ describe('x402-settle-pending job (T-0428)', () => {
     expect(mockOutboxCreate).not.toHaveBeenCalled();
   });
 
+  it('T-0883: no tx_hash and no nonce (Permit2 payload) -> never closed, never failed', async () => {
+    mockQuery.mockResolvedValue([
+      row({ tx_hash: undefined, nonce: undefined, valid_before: undefined }),
+    ]);
+    const c = chain();
+    await run({ chain: c, nowMs: NOW + 365 * 86_400_000 });
+    expect(c.authorizationUsed).not.toHaveBeenCalled();
+    expect(mockExec).not.toHaveBeenCalled();
+    expect(mockOutboxCreate).not.toHaveBeenCalled();
+  });
+
   it('authorization unused + not expired -> untouched', async () => {
     mockQuery.mockResolvedValue([row()]);
     await run({ chain: chain(), nowMs: NOW });

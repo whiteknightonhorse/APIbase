@@ -56,8 +56,15 @@ export function settleTxHash(result: unknown): string | undefined {
  *      may have landed (prod 2026-11-03..05: six such rows, two authorizations USED on chain).
  *      The same reason WITH a hash (reverted receipt :1094-1101, store-persist failure :1129-1137)
  *      is KNOWN failed. No message regex: an unrecognised throw before a hash is unknown by definition.
+ *      Two more SDK returns give the bare reason with `transaction: ""`, only when the thrown value is
+ *      not an Error: mapSettleError (:1637-1670, Permit2 settle :2151/:2183/:2200) and the v1 scheme
+ *      catch (:2491-2498; for an Error it puts the raw message in errorReason, which stays 'failed').
+ *      A Permit2 payload has no `authorization`, so extractAuthorization gives no nonce and a
+ *      'pending' row from it carries neither tx_hash nor nonce: the pending job can never close it
+ *      (it stays pending, never failed). APIbase does not advertise Permit2 (requirements carry no
+ *      assetTransferMethod) and prod logs show no `permit2` line in the 30 days to 2026-11-17.
  *   b) suffixed `invalid_exact_evm_transaction_failed: <message>` from mapSettleError (:1637-1670,
- *      Permit2 path), also an exception while broadcasting/waiting.
+ *      Permit2 path), also an exception while broadcasting/waiting (same no-nonce caveat).
  *   c) a `settle_threw` whose message is a timeout/transport error.
  * - 'retry': a settle-time signature verdict after a verify that passed at ESCROW is an RPC
  *   failure and nothing was broadcast. getCode throw -> `invalid_exact_evm_failed_to_verify_signature`
