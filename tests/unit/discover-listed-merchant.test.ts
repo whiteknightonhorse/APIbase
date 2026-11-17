@@ -92,6 +92,7 @@ dbDescribe('one listing rule (T-0844)', () => {
     expect(u.status).toBe(200);
     const h = await u.text();
     expect(h).toContain('Not yet in apibase.discover or /shops: the domain is not verified.');
+    expect(h).toContain('unverified_domain');
     expect(h).not.toContain('Agents also find this shop with apibase.discover');
     const v = await (await fetch(`${base}/m/${slugV}`)).text();
     expect(v).toContain('Agents also find this shop with apibase.discover');
