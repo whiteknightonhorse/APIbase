@@ -178,3 +178,4 @@ docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbas
 docs/payments.md	raw:https://raw.githubusercontent.com/whiteknightonhorse/APIbase/main/docs/payments.md	must-contain	is a 400 `bad_request` with message `Invalid x402 payment header`	-	T-0859 x402 header 400 messages (facts key x402_header_400_messages)
 static/integrator/docs.md	https://apibase.pro/integrator/docs	must-contain	.well-known/apibase-merchant.txt	-	T-0860 merchant domain proof (facts key merchant_domain_proof)
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	signature-text	-	T-0871 partner-page signature routes
+static/integrator/docs.md	https://apibase.pro/integrator/docs	must-contain	finds listed storefronts	-	T-0844 one listing rule: active and domain-verified (/shops, sitemaps, discover kind=merchant)

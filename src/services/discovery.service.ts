@@ -21,7 +21,7 @@ import { extractKeywords, scoreTool } from '../mcp/keyword-match';
 import { getToolCacheEntries, type ToolCacheEntry } from '../pipeline/stages/tool-status.stage';
 import type { McpToolDefinition } from '../mcp/types';
 import type { ShopTx } from '../shop/db';
-import { publicBase } from '../shop/storefront/storefront.service';
+import { listedMerchantSql, publicBase } from '../shop/storefront/storefront.service';
 import { categoryOf, summarizeCategories, type CategorySummary } from './category-summary';
 
 /**
@@ -406,7 +406,8 @@ function toDiscoverResult(
 }
 
 // ---------------------------------------------------------------------------
-// Merchant candidates (F-3): PG full-text search over shop_products of active merchants
+// Merchant candidates (F-3): PG full-text search over shop_products of listed merchants
+// (active and domain-verified, the same rule as /shops)
 // ---------------------------------------------------------------------------
 
 /** At most this many storefronts are mixed into one response, after the tool matches. */
@@ -431,7 +432,7 @@ async function merchantCandidates(
     `SELECT m.merchant_id, m.slug, m.name, m.category, m.reputation, m.provek
        FROM shop_merchants m
        JOIN shop_products p ON p.merchant_id = m.merchant_id
-      WHERE m.status = 'active' AND NOT p.is_test AND p.moderation_status = 'ok'
+      WHERE ${listedMerchantSql('m')} AND NOT p.is_test AND p.moderation_status = 'ok'
         AND p.search @@ plainto_tsquery('simple', $1)
       GROUP BY m.merchant_id
       ORDER BY max(ts_rank(p.search, plainto_tsquery('simple', $1))) DESC, m.slug

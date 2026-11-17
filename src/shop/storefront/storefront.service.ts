@@ -81,6 +81,13 @@ const strip = (r: ShopRow): PublicShop => ({
   policy: r.policy ?? {},
 });
 
+/** The one listing rule: a shop is listed (/shops, its JSON, shop sitemaps, discover kind=merchant)
+ *  only when it is active and its domain is verified. `alias` prefixes the columns (e.g. 'm'). */
+export function listedMerchantSql(alias?: string): string {
+  const a = alias ? `${alias}.` : '';
+  return `${a}status = 'active' AND ${a}domain_verified`;
+}
+
 /** active -> row; deactivated/suspended -> 410; pending/unknown -> 404. */
 export async function loadShop(
   db: ShopTx,
@@ -108,13 +115,13 @@ export async function listShops(
   const p = Math.max(1, Math.trunc(page) || 1);
   const [rows, total] = await Promise.all([
     db.$queryRawUnsafe<ShopRow[]>(
-      `SELECT ${SHOP_COLS} FROM shop_merchants WHERE status = 'active' AND domain_verified
+      `SELECT ${SHOP_COLS} FROM shop_merchants WHERE ${listedMerchantSql()}
         ORDER BY slug LIMIT $1::int OFFSET $2::int`,
       SHOPS_PAGE_SIZE,
       (p - 1) * SHOPS_PAGE_SIZE,
     ),
     db.$queryRawUnsafe<Array<{ n: number | bigint }>>(
-      `SELECT count(*)::int AS n FROM shop_merchants WHERE status = 'active' AND domain_verified`,
+      `SELECT count(*)::int AS n FROM shop_merchants WHERE ${listedMerchantSql()}`,
     ),
   ]);
   return {
@@ -151,7 +158,7 @@ const isoDay = (d: unknown): string => {
 
 async function sitemapStats(db: ShopTx): Promise<{ shards: number; lastmod: string }> {
   const r = await db.$queryRawUnsafe<Array<{ n: number | bigint; last: Date | string | null }>>(
-    `SELECT count(*)::int AS n, max(created_at) AS last FROM shop_merchants WHERE status = 'active' AND domain_verified`,
+    `SELECT count(*)::int AS n, max(created_at) AS last FROM shop_merchants WHERE ${listedMerchantSql()}`,
   );
   const n = Number(r[0]?.n ?? 0);
   return { shards: Math.ceil(n / SITEMAP_SHARD_SIZE), lastmod: isoDay(r[0]?.last) };
@@ -182,7 +189,7 @@ export async function shopSitemapShard(db: ShopTx, n: number): Promise<string | 
     const { shards, lastmod } = await sitemapStats(db);
     if (n > shards) return null;
     const rows = await db.$queryRawUnsafe<Array<{ slug: string }>>(
-      `SELECT slug FROM shop_merchants WHERE status = 'active' AND domain_verified
+      `SELECT slug FROM shop_merchants WHERE ${listedMerchantSql()}
         ORDER BY slug LIMIT $1::int OFFSET $2::int`,
       SITEMAP_SHARD_SIZE,
       (n - 1) * SITEMAP_SHARD_SIZE,

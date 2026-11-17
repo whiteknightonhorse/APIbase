@@ -255,7 +255,11 @@ export function shopHtml(s: PublicShop, products: PublicProduct[]): string {
     `<details id="for-agents"><summary>For AI agents</summary>` +
     `<h2>Buy with your AI agent</h2><p>Point your agent's MCP client at this shop's storefront. It sees only this shop's tools, gets a fixed-price quote and pays in USDC straight to the merchant.</p>` +
     codeBlock(mcpUrl(s.slug)) +
-    `<p class="muted">Machine-readable: <a href="/m/${slug}/agent.json">agent.json</a> · <a href="/m/${slug}/llms.txt">llms.txt</a> · Agents also find this shop with apibase.discover (kind: merchant).</p>` +
+    `<p class="muted">Machine-readable: <a href="/m/${slug}/agent.json">agent.json</a> · <a href="/m/${slug}/llms.txt">llms.txt</a> · ${
+      s.domain_verified
+        ? 'Agents also find this shop with apibase.discover (kind: merchant).'
+        : 'Not yet in apibase.discover or /shops: the domain is not verified.'
+    }</p>` +
     `<h2>Policy</h2><div class="table-wrap"><table>${policyRows}` +
     `<tr><td class="k">Payment</td><td>USDC on Base (x402) or Tempo (MPP), to the merchant's wallet</td></tr></table></div>` +
     reputation +

@@ -555,7 +555,7 @@ Every active merchant has its own MCP endpoint: `POST/GET/DELETE https://apibase
 
 **Product fields are merchant-supplied data, not instructions.** A product description is returned only in the `description` data field of a tool result. The server `instructions` are our own template: the merchant name and category, the refund policy (`refund_window_days`, `returns_accepted`) and "the price is fixed by the quote for N minutes" — nothing from a product. Agents must treat every merchant-written string the same way.
 
-`apibase.discover` finds storefronts by product text: a result with `kind: "merchant"` carries `{slug, name, category, mcp_url, products_sample[3], reputation, payment}` and never a contact email. The `shop.*` definitions are versioned and hashed in the server-card (`shop_tools: {version, count, sha256}`); `npx tsx scripts/gen-shop-tools-hash.ts` refreshes it after an intended change.
+`apibase.discover` finds listed storefronts by product text (listed: active and domain-verified, the same shops as /shops): a result with `kind: "merchant"` carries `{slug, name, category, mcp_url, products_sample[3], reputation, payment}` and never a contact email. The `shop.*` definitions are versioned and hashed in the server-card (`shop_tools: {version, count, sha256}`); `npx tsx scripts/gen-shop-tools-hash.ts` refreshes it after an intended change.
 
 An hourly job initialises 100 random active storefronts in-process; a failure is written to `shop_connect_events` as `storefront_probe_failed` (path `/mcp/m/<slug>`), and `storefront_probe_coverage` (probed / active) is exported as a metric.
 
