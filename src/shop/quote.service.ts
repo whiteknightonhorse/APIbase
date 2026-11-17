@@ -943,6 +943,52 @@ async function loadQuote(db: ShopTx, quote_id: string): Promise<QuoteRow> {
   return { ...rows[0], total_usd: String(rows[0].total_usd) };
 }
 
+export interface QuoteChanges {
+  changed: boolean;
+  total_usd: { old: number; new: number };
+  /** Present only when either quote has shipping. */
+  shipping_usd?: { old: number | null; new: number | null };
+  /** Only the lines whose unit price differs. */
+  lines: Array<{ sku: string; variant?: string; unit_price_usd: { old: number; new: number } }>;
+}
+
+/**
+ * T-0905: what moved between an expired quote (its stored row) and the fresh quote built for the
+ * same basket. Numbers are copied from the two quotes; nothing is recomputed. Compared in cents.
+ */
+export function quoteChanges(
+  old: Pick<QuoteRow, 'items' | 'total_usd' | 'shipping_usd' | 'shipping_option'>,
+  fresh: Pick<QuoteResponse, 'items' | 'total_usd' | 'shipping_usd'>,
+): QuoteChanges {
+  const c = (x: number | null) => (x === null ? null : Math.round(x * 100));
+  const key = (l: { sku: string; variant?: string }) => `${l.sku}\u0000${l.variant ?? ''}`;
+  const priceNow = new Map(fresh.items.map((l) => [key(l), l.unit_price_usd]));
+  const lines: QuoteChanges['lines'] = [];
+  for (const l of old.items) {
+    const n = priceNow.get(key(l));
+    if (n === undefined || c(n) === c(l.unit_price_usd)) continue;
+    lines.push({
+      sku: l.sku,
+      ...(l.variant ? { variant: l.variant } : {}),
+      unit_price_usd: { old: l.unit_price_usd, new: n },
+    });
+  }
+  const total = { old: Number(old.total_usd), new: fresh.total_usd };
+  const oldShip = old.shipping_option ? Number(old.shipping_usd) : null;
+  const newShip = fresh.shipping_usd ?? null;
+  const shipping =
+    oldShip !== null || newShip !== null ? { old: oldShip, new: newShip } : undefined;
+  return {
+    changed:
+      c(total.old) !== c(total.new) ||
+      (shipping !== undefined && c(shipping.old) !== c(shipping.new)) ||
+      lines.length > 0,
+    total_usd: total,
+    ...(shipping ? { shipping_usd: shipping } : {}),
+    lines,
+  };
+}
+
 /** Quote past its TTL: QUOTED -> EXPIRED, quote 'expired', held units released (idempotent). */
 export async function expireQuote(d: ShopDeps, q: Pick<QuoteRow, 'quote_id' | 'merchant_id'>) {
   await d.transaction(async (tx) => {
@@ -1034,6 +1080,7 @@ export async function getQuote(
       'fix_request',
       {
         quote: fresh,
+        changes: quoteChanges(q, fresh),
         documentation_url: DOCS,
       },
     );

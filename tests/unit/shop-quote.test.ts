@@ -484,4 +484,106 @@ dbDescribe('shop quotes', () => {
       (await row(`SELECT state FROM shop_orders WHERE order_id = $1::uuid`, r.order_id)).state,
     ).toBe('EXPIRED');
   });
+
+  // T-0905: the 410 with a fresh quote carries `changes` next to `quote`.
+  const expire = (quote_id: string) =>
+    prisma.$executeRawUnsafe(
+      `UPDATE shop_quotes SET expires_at = now() - interval '1 minute' WHERE quote_id = $1::uuid`,
+      quote_id,
+    );
+  /** The fields of a quote that do not depend on its id, time or token. */
+  const shape = (x: Record<string, any>) => {
+    const { quote_id: _q, order_id: _o, expires_at: _e, buyer_token: _b, pay, ...rest } = x;
+    return { ...rest, pay_amount: pay?.x402?.amount, pay_to: pay?.x402?.payTo };
+  };
+
+  it('QT15: same prices -> changes.changed false, lines []; fresh quote equals a plain new quote', async () => {
+    const m = await shop();
+    const sku = await product(m, { price: 10 });
+    const b = buyer();
+    const r = await q(m, [{ sku, qty: 2 }], b);
+    await expire(r.quote_id);
+    const e = await fail(getQuote(deps, r.quote_id, b));
+    expect([e.status, e.error_code]).toEqual([410, 'quote_expired']);
+    expect(e.extra.changes).toEqual({
+      changed: false,
+      total_usd: { old: 20, new: 20 },
+      lines: [],
+    });
+    expect('changes' in e.extra.quote).toBe(false);
+    const plain = await q(m, [{ sku, qty: 2 }], b);
+    expect(Object.keys(e.extra.quote).sort()).toEqual(Object.keys(plain).sort());
+    expect(shape(e.extra.quote)).toEqual(shape(plain));
+  });
+
+  it('QT16: one unit price moved -> one line in changes and both totals', async () => {
+    const m = await shop();
+    const a = await product(m, { price: 10 });
+    const c = await product(m, { price: 4 });
+    const r = await q(m, [{ sku: a }, { sku: c, qty: 3 }]);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET price_usd = 4.5 WHERE merchant_id = $1::uuid AND sku = $2`,
+      m,
+      c,
+    );
+    await expire(r.quote_id);
+    const e = await fail(getQuote(deps, r.quote_id));
+    expect(e.extra.quote.total_usd).toBe(23.5);
+    expect(e.extra.changes).toEqual({
+      changed: true,
+      total_usd: { old: 22, new: 23.5 },
+      lines: [{ sku: c, unit_price_usd: { old: 4, new: 4.5 } }],
+    });
+  });
+
+  it('QT17: shipping option price moved -> changes.shipping_usd old/new', async () => {
+    const m = await shop();
+    const sku = `sku-${tag()}`;
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO shop_products (moderation_status, merchant_id, sku, title, price_usd, available,
+          is_test, category, fulfillment_mode, shipping_options)
+       VALUES ('ok', $1::uuid, $2, 'Box', 20, NULL, false, 'books', 'physical', $3::jsonb)`,
+      m,
+      sku,
+      JSON.stringify([{ id: 'std', label: 'Standard', price_usd: 5 }]),
+    );
+    const r = await createQuote(deps, m, buyer(), {
+      items: [{ sku, qty: 1 }],
+      shipping_option: 'std',
+    });
+    expect(r.shipping_usd).toBe(5);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET shipping_options = $3::jsonb WHERE merchant_id = $1::uuid AND sku = $2`,
+      m,
+      sku,
+      JSON.stringify([{ id: 'std', label: 'Standard', price_usd: 7 }]),
+    );
+    await expire(r.quote_id);
+    const e = await fail(getQuote(deps, r.quote_id));
+    expect(e.extra.quote.shipping_usd).toBe(7);
+    expect(e.extra.changes).toEqual({
+      changed: true,
+      total_usd: { old: 25, new: 27 },
+      shipping_usd: { old: 5, new: 7 },
+      lines: [],
+    });
+  });
+
+  it('QT18: expired and the items are gone -> 410 with alternatives and no changes key', async () => {
+    const m = await shop();
+    const sku = await product(m, { stock: 1 });
+    const r = await q(m, [{ sku }]);
+    await expire(r.quote_id);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET available = 0 WHERE merchant_id = $1::uuid AND sku = $2`,
+      m,
+      sku,
+    );
+    const e = await fail(getQuote(deps, r.quote_id));
+    expect([e.status, e.error_code]).toEqual([410, 'quote_expired']);
+    expect(e.message).toBe('quote expired and the items are gone');
+    expect(Array.isArray(e.extra.alternatives)).toBe(true);
+    expect('changes' in e.extra).toBe(false);
+    expect('quote' in e.extra).toBe(false);
+  });
 });

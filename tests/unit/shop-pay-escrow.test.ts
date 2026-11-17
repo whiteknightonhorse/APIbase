@@ -269,6 +269,8 @@ dbDescribe('shop.order.pay ESCROW binding', () => {
     expect(r.status).toBe(410);
     expect(r.body.error).toBe('quote_expired');
     expect((r.body.quote as Row).quote_id).not.toBe(f.quote.quote_id);
+    // T-0905: the pay path forwards getQuote's `changes` next to `quote`.
+    expect(r.body.changes).toEqual({ changed: false, total_usd: { old: 5, new: 5 }, lines: [] });
     expect(mockClaim).not.toHaveBeenCalled();
     expect(mockVerify).not.toHaveBeenCalled();
     expect(await payments(f)).toBe(0);
