@@ -185,10 +185,6 @@ census.housing	census	0.001
 census.population	census	0.001
 censusmapper.data	censusmapper	0.002
 censusmapper.list_datasets	censusmapper	0.002
-cernopendata.datasets	cernopendata	0.001
-cernopendata.detail	cernopendata	0.001
-cernopendata.glossary	cernopendata	0.001
-cernopendata.search	cernopendata	0.001
 cfpb-complaints.geo_states	cfpb-complaints	0.001
 cfpb-complaints.search	cfpb-complaints	0.002
 cfpb-complaints.trends	cfpb-complaints	0.001
