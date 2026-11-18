@@ -383,8 +383,6 @@ email.validate	zerobounce	0.026
 email_verify.check	email_verify	0.01
 emsc.event_detail	emsc	0.001
 emsc.search_earthquakes	emsc	0.002
-ensembl.gene_lookup	ensembl	0.002
-ensembl.sequence_region	ensembl	0.001
 enviroatlas.block_group_metrics	enviroatlas	0.001
 enviroatlas.communities	enviroatlas	0.001
 enviroatlas.community_summary	enviroatlas	0.001
