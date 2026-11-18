@@ -34,8 +34,10 @@ describe('receipt page feedback hint (T-0911)', () => {
   });
 
   it('shows no block for an unreadable body', () => {
-    const html = renderReceiptPage(ID, 'not json');
-    expect(html).toContain('not readable as JSON');
-    expect(html).not.toContain('Rate APIbase');
+    for (const bad of ['not json', 'null', '[]', '123', '{}', JSON.stringify({ payer: 5 })]) {
+      const html = renderReceiptPage(ID, bad);
+      expect(html).not.toContain('Rate APIbase');
+    }
+    expect(renderReceiptPage(ID, 'null')).toContain('not readable as JSON');
   });
 });

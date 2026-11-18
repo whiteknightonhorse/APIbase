@@ -282,18 +282,22 @@ export const AGENT_SCAN_URL = 'https://8004scan.io/agents/base/399542';
 
 function feedbackBlock(id: string): string {
   return `<h2>Rate APIbase</h2>
-<p>You paid for this call. If you wish, leave public ERC-8004 feedback for APIbase (agent 399542 on Base): <a href="${AGENT_SCAN_URL}">open the agent on 8004scan</a>. Feedback is your own on-chain transaction from your wallet and you pay its gas. APIbase gives no discount, refund or reward for feedback, good or bad. You may cite this receipt: ${SITE}/r/${esc(id)}.json. APIbase team wallets (<a href="/policy/test-wallets.json">public list</a>) never send feedback.</p>`;
+<p>You paid for this call. If you wish, leave public ERC-8004 feedback for APIbase (agent 399542 on Base): <a href="${AGENT_SCAN_URL}">open the agent on 8004scan</a>. Feedback is a call to the ERC-8004 Reputation Registry: your own on-chain transaction from your wallet, and you pay its gas. APIbase gives no discount, refund or reward for feedback, good or bad. You may cite this receipt: ${SITE}/r/${esc(id)}.json. APIbase team wallets (<a href="/policy/test-wallets.json">public list</a>) never send feedback.</p>`;
 }
 
 export function renderReceiptPage(id: string, body: string): string {
   let rows: Array<[string, string]> = [];
   let showFeedback = false;
   try {
-    const doc = JSON.parse(body) as Record<string, unknown>;
-    showFeedback = !isInternalWallet(typeof doc?.payer === 'string' ? doc.payer : null);
-    rows = Object.keys(doc)
+    const doc: unknown = JSON.parse(body);
+    if (typeof doc !== 'object' || doc === null || Array.isArray(doc))
+      throw new Error('not an object');
+    const obj = doc as Record<string, unknown>;
+    rows = Object.keys(obj)
       .sort()
-      .map((k) => [k, typeof doc[k] === 'string' ? (doc[k] as string) : JSON.stringify(doc[k])]);
+      .map((k) => [k, typeof obj[k] === 'string' ? (obj[k] as string) : JSON.stringify(obj[k])]);
+    // Fail closed: the hint needs a readable receipt with a string payer that is not a team wallet.
+    showFeedback = typeof obj.payer === 'string' && !isInternalWallet(obj.payer);
   } catch {
     rows = [['receipt', 'not readable as JSON']];
   }
