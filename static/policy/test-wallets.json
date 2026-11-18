@@ -1,11 +1,12 @@
 {
   "schema": "apibase-test-wallets/1",
-  "version": "2026-11-18.1",
-  "description": "Wallets operated by the APIbase team for monitoring and testing. Payments from these wallets are APIbase's own traffic, not customer volume. Refunds owed to them are booked as internal and are not paid out. An address that is not listed here is not thereby a customer.",
+  "version": "2026-11-18.2",
+  "description": "Wallets operated by the APIbase team for monitoring, for testing and for the team's own shops. Payments from these wallets are APIbase's own traffic, not customer volume. Refunds owed to them are booked as internal and are not paid out. An address that is not listed here is not thereby a customer.",
   "labels": {
     "mcp-heartbeat": "Scheduled paid calls that check that tools answer.",
     "mcp-protocol-tester": "The daily protocol test run.",
-    "integrator-shop-test": "A wallet of an Integrator test shop; it pays and receives in test runs."
+    "integrator-shop-test": "A wallet of an Integrator test shop; it pays and receives in test runs.",
+    "team-shop": "A wallet of a shop that the APIbase team runs itself."
   },
   "wallets": [
     {
@@ -91,6 +92,21 @@
     {
       "address": "0xd35f407eaadbde1626f36f13524d20652d8330d0",
       "label": "integrator-shop-test",
+      "listed_since": "2026-11-18"
+    },
+    {
+      "address": "0x2aeb8466f84057ba094b46f68ff79118ae9de344",
+      "label": "team-shop",
+      "listed_since": "2026-11-18"
+    },
+    {
+      "address": "0x04a17a77e17fa758ab043ce0d376cf9dcc72906e",
+      "label": "team-shop",
+      "listed_since": "2026-11-18"
+    },
+    {
+      "address": "0x90263ae6a6dc42cea10f96660c7ebd3278425c9e",
+      "label": "team-shop",
       "listed_since": "2026-11-18"
     }
   ]

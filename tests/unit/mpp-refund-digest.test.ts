@@ -10,15 +10,20 @@ import { isInternalWallet, parseInternalWallets } from '../../src/config/interna
 const ROOT = join(__dirname, '..', '..');
 
 describe('internal-wallets (T-0280)', () => {
-  it('ships 17 lowercase internal addresses', () => {
+  it('ships 20 lowercase internal addresses', () => {
     const list = JSON.parse(
       readFileSync(join(ROOT, 'config/autopilot/internal-wallets.json'), 'utf-8'),
     ) as Array<{ address: string; label: string; source: string }>;
-    expect(list).toHaveLength(17);
-    expect(new Set(list.map((e) => e.address)).size).toBe(17);
+    expect(list).toHaveLength(20);
+    expect(new Set(list.map((e) => e.address)).size).toBe(20);
     const tester = '0xe03d9423d06dd5e3300fb1c09a03ddbb5e8b274b';
     const shop = '0x03c545a6d6f1254e4bc4fb16dd6898863f0ea0a3';
     const checkShop = '0xd35f407eaadbde1626f36f13524d20652d8330d0';
+    const teamShops = [
+      '0x2aeb8466f84057ba094b46f68ff79118ae9de344',
+      '0x04a17a77e17fa758ab043ce0d376cf9dcc72906e',
+      '0x90263ae6a6dc42cea10f96660c7ebd3278425c9e',
+    ];
     for (const e of list) {
       expect(e.address).toMatch(/^0x[0-9a-f]{40}$/);
       const want =
@@ -26,7 +31,9 @@ describe('internal-wallets (T-0280)', () => {
           ? 'mcp-protocol-tester'
           : e.address === shop || e.address === checkShop
             ? 'integrator-shop-test'
-            : 'mcp-heartbeat';
+            : teamShops.includes(e.address)
+              ? 'team-shop'
+              : 'mcp-heartbeat';
       expect(e.label).toBe(want);
     }
   });
@@ -49,6 +56,20 @@ describe('internal-wallets (T-0280)', () => {
     expect(
       list.find((e) => e.address === '0xd35f407eaadbde1626f36f13524d20652d8330d0')?.label,
     ).toBe('integrator-shop-test');
+  });
+
+  it('lists the three team-shop wallets (T-0908, MS-1117-0903 ruling-2)', () => {
+    const list = JSON.parse(
+      readFileSync(join(ROOT, 'config/autopilot/internal-wallets.json'), 'utf-8'),
+    ) as Array<{ address: string; label: string }>;
+    for (const a of [
+      '0x2aeb8466f84057ba094b46f68ff79118ae9de344',
+      '0x04a17a77e17fa758ab043ce0d376cf9dcc72906e',
+      '0x90263ae6a6dc42cea10f96660c7ebd3278425c9e',
+    ]) {
+      expect(isInternalWallet(a.toUpperCase().replace('0X', '0x'))).toBe(true);
+      expect(list.find((e) => e.address === a)?.label).toBe('team-shop');
+    }
   });
 
   it('matches case-insensitively and rejects unknown / empty payers', () => {

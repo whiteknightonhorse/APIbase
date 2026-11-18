@@ -15,5 +15,8 @@
   {"address": "0x6b414116d641d9af479297daf9892de91f72b4cf", "label": "mcp-heartbeat", "source": "operator file 2026-10-06"},
   {"address": "0xe2d8dc842fc5037c99c332bd57baaba3649f66c2", "label": "mcp-heartbeat", "source": "operator report 2026-10-28"},
   {"address": "0x03c545a6d6f1254e4bc4fb16dd6898863f0ea0a3", "label": "integrator-shop-test", "source": "dispatcher run r10141148 2026-10-14; operator answer 2026-11-16 PAYGRAPH-1114 q-3"},
-  {"address": "0xd35f407eaadbde1626f36f13524d20652d8330d0", "label": "integrator-shop-test", "source": "MS-1117-0903 ruling-1 2026-11-18; dispatcher check shop check-0913-test, live check of T-0867 2026-11-16"}
+  {"address": "0xd35f407eaadbde1626f36f13524d20652d8330d0", "label": "integrator-shop-test", "source": "MS-1117-0903 ruling-1 2026-11-18; dispatcher check shop check-0913-test, live check of T-0867 2026-11-16"},
+  {"address": "0x2aeb8466f84057ba094b46f68ff79118ae9de344", "label": "team-shop", "source": "MS-1117-0903 ruling-2; operator answer 2026-11-18, team shop soukbase-research; listed 2026-11-18"},
+  {"address": "0x04a17a77e17fa758ab043ce0d376cf9dcc72906e", "label": "team-shop", "source": "MS-1117-0903 ruling-2; operator answer 2026-11-18, team shop agent-skills-lab; listed 2026-11-18"},
+  {"address": "0x90263ae6a6dc42cea10f96660c7ebd3278425c9e", "label": "team-shop", "source": "MS-1117-0903 ruling-2; operator answer 2026-11-18, team shop receipt-tools; listed 2026-11-18"}
 ]
