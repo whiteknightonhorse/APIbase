@@ -199,10 +199,6 @@ checkwx.taf_decoded	checkwx	0.003
 chem.formula	cactus	0.001
 chem.names	cactus	0.001
 chem.resolve	cactus	0.001
-chembl.bioactivity	chembl	0.002
-chembl.molecule_detail	chembl	0.001
-chembl.molecule_search	chembl	0.001
-chembl.target_search	chembl	0.001
 chesscom.player_profile	chesscom	0.001
 chesscom.player_stats	chesscom	0.001
 chesscom.titled_players	chesscom	0.001

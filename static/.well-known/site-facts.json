@@ -188,10 +188,6 @@
     "chem.formula": "healthy",
     "chem.names": "healthy",
     "chem.resolve": "healthy",
-    "chembl.bioactivity": "healthy",
-    "chembl.molecule_detail": "healthy",
-    "chembl.molecule_search": "healthy",
-    "chembl.target_search": "healthy",
     "chesscom.player_profile": "healthy",
     "chesscom.player_stats": "healthy",
     "chesscom.titled_players": "healthy",
@@ -1213,7 +1209,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 400,
+  "providers_count": 399,
   "rails": [
     "x402",
     "mpp",
@@ -1247,7 +1243,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1356,
+      "count": 1352,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1261,6 +1257,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1384,
+  "tools_count": 1380,
   "version": "2.2.0"
 }
