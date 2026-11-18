@@ -4,12 +4,14 @@
   "description": "MCP gateway for AI agents: about 1400 tools from about 400 providers, paid per call in USDC via x402 on Base and MPP on Tempo, no account needed. Every call billed on-chain gets a public receipt; in v0 only x402 calls settled on Base can be attested.",
   "image": "https://apibase.pro/brand/apibase-logo.png",
   "services": [
-    { "name": "MCP", "endpoint": "https://apibase.pro/mcp", "version": "2025-11-25" },
+    { "name": "MCP", "endpoint": "https://apibase.pro/mcp", "version": "2025-11-25", "mcpTools": ["apibase.discover","device.list","device.state","device.command","shop.catalog.get","shop.catalog.search","shop.merchant.accept_terms","shop.merchant.catalog_delete","shop.merchant.catalog_upsert","shop.merchant.check","shop.merchant.deactivate","shop.merchant.grant_revoke","shop.merchant.grants_list","shop.merchant.order_confirm","shop.merchant.order_document","shop.merchant.order_ship","shop.merchant.orders_list","shop.merchant.refund","shop.merchant.register","shop.merchant.rotate_key","shop.merchant.stats","shop.merchant.webhook_delete","shop.merchant.webhook_list","shop.merchant.webhook_set","shop.order.cancel","shop.order.dispute","shop.order.get","shop.order.pay","shop.order.quote","shop.subscription.cancel","shop.subscription.confirm_pull","shop.subscription.get","shop.subscription.preauthorize"] },
     { "name": "OpenAPI", "endpoint": "https://apibase.pro/.well-known/openapi.json" },
     { "name": "web", "endpoint": "https://apibase.pro" }
   ],
   "x402Support": true,
   "active": true,
+  "supportedTrust": ["reputation"],
+  "updatedAt": 1794973561,
   "registrations": [
     { "agentId": 399542, "agentRegistry": "eip155:8453:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432" }
   ]

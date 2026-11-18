@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SUPPORTED_PROTOCOL_VERSIONS } from '@modelcontextprotocol/sdk/types.js';
+import { loadPlatformToolNames } from '../../scripts/count-mcp-tools';
 
 const ROOT = join(__dirname, '../..');
 const bytes = (p: string) => readFileSync(join(ROOT, p));
@@ -10,7 +11,7 @@ const sha = (b: Buffer) => createHash('sha256').update(b).digest('hex');
 const dims = (b: Buffer) => [b.readUInt32BE(16), b.readUInt32BE(20)];
 
 describe('T-0514 agent-registration.json', () => {
-  it('is valid registration-v1 JSON', () => {
+  it('is valid registration-v1 JSON', async () => {
     const j = JSON.parse(bytes('static/.well-known/agent-registration.json').toString('utf8'));
     expect(j.type).toBe('https://eips.ethereum.org/EIPS/eip-8004#registration-v1');
     for (const k of ['name', 'description', 'image']) expect(typeof j[k]).toBe('string');
@@ -27,6 +28,29 @@ describe('T-0514 agent-registration.json', () => {
       { agentId: 399542, agentRegistry: 'eip155:8453:0x8004a169fb4a3325136eb29fa0ceb6d2e539a432' },
     ]);
     expect(j.image).toBe('https://apibase.pro/brand/apibase-logo.png');
+    // T-0909: 8004scan best-practices profile fields.
+    const mcpJson = JSON.parse(bytes('static/.well-known/mcp.json').toString('utf8'));
+    expect(mcp.mcpTools).toEqual(await loadPlatformToolNames());
+    expect(mcp.mcpTools.length).toBe(mcpJson.platform_tools_count);
+    expect(j.supportedTrust).toEqual(['reputation']);
+    expect(typeof j.updatedAt).toBe('number');
+    expect(Number.isInteger(j.updatedAt)).toBe(true);
+    expect(j.updatedAt).toBeGreaterThanOrEqual(Date.parse('2026-11-18T00:00:00Z') / 1000);
+    expect(j.updatedAt).toBeLessThanOrEqual(Math.floor(Date.now() / 1000));
+    expect(Object.keys(j).sort()).toEqual(
+      [
+        'type',
+        'name',
+        'description',
+        'image',
+        'services',
+        'x402Support',
+        'active',
+        'supportedTrust',
+        'updatedAt',
+        'registrations',
+      ].sort(),
+    );
   });
 
   it('is served by the /.well-known/ block as application/json', () => {

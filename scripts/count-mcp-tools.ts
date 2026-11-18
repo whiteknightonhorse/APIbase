@@ -34,19 +34,37 @@ export interface McpCounts {
 const isPlatformToolId = (id: string): boolean =>
   id === 'apibase.discover' || id.startsWith('device.');
 
-export function computeMcpCounts(input: {
+interface RegistryInput {
   defs: ReadonlyArray<{ toolId: string }>;
   schemas: Readonly<Record<string, unknown>>;
   activeIds: ReadonlySet<string>;
-  shopCount: number;
-}): McpCounts {
+}
+
+/** Registered tool ids, defs order: the three gates src/mcp/tool-adapter.ts registerTools() applies. */
+function registeredIds(input: RegistryInput): Set<string> {
   const registered = new Set<string>();
   for (const d of input.defs) {
     if (input.activeIds.size > 0 && !input.activeIds.has(d.toolId)) continue;
     if (!(input.schemas[d.toolId] instanceof z.ZodObject)) continue;
     registered.add(d.toolId);
   }
-  const inPublished = [...registered].filter(isPlatformToolId).length;
+  return registered;
+}
+
+/** Registered platform tool ids (apibase.discover + device.*), defs order: the part of PLATFORM inside PUBLISHED. */
+const registeredPlatformIds = (input: RegistryInput): string[] =>
+  [...registeredIds(input)].filter(isPlatformToolId);
+
+/** PLATFORM tool names (T-0909): registered apibase.discover + device.* in defs order, then the shop.* names. */
+export function platformToolNames(
+  input: RegistryInput & { shopNames: ReadonlyArray<string> },
+): string[] {
+  return [...registeredPlatformIds(input), ...input.shopNames];
+}
+
+export function computeMcpCounts(input: RegistryInput & { shopCount: number }): McpCounts {
+  const registered = registeredIds(input);
+  const inPublished = registeredPlatformIds(input).length;
   return {
     published: registered.size,
     platform: inPublished + input.shopCount,
@@ -104,7 +122,7 @@ export function checkSurfaces(
   return { line, failures };
 }
 
-async function main(): Promise<void> {
+async function loadInputs() {
   setOfflineEnv();
   const root = resolve(__dirname, '..');
   const { TOOL_DEFINITIONS } = await import('../src/mcp/tool-definitions');
@@ -117,12 +135,25 @@ async function main(): Promise<void> {
       .filter(Boolean)
       .map((l) => l.split('\t')[0]),
   );
-  const counts = computeMcpCounts({
+  const shopDefs = await shopToolDefinitions();
+  return {
+    root,
+    activeIds,
     defs: TOOL_DEFINITIONS,
     schemas: toolSchemas as Record<string, unknown>,
-    activeIds,
-    shopCount: (await shopToolDefinitions()).length,
-  });
+    shopNames: shopDefs.map((d) => String(d.name)),
+  };
+}
+
+/** T-0909: the platform tool names behind PLATFORM (agent-registration.json mcpTools). */
+export async function loadPlatformToolNames(): Promise<string[]> {
+  const { defs, schemas, activeIds, shopNames } = await loadInputs();
+  return platformToolNames({ defs, schemas, activeIds, shopNames });
+}
+
+async function main(): Promise<void> {
+  const { root, defs, schemas, activeIds, shopNames } = await loadInputs();
+  const counts = computeMcpCounts({ defs, schemas, activeIds, shopCount: shopNames.length });
   if (!process.argv.includes('--check')) {
     process.stdout.write(JSON.stringify(counts) + '\n');
     return;
