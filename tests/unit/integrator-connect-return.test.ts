@@ -95,6 +95,7 @@ async function boot(o: Opt) {
         chainId: '0x2105',
         request: async (r: any) => {
           if (r.method === 'eth_requestAccounts') return ['0x' + 'ab'.repeat(20)];
+          if (r.method !== 'personal_sign') return null; // T-0912: revoke and the account window answer
           signs.push(Buffer.from(String(r.params[0]).slice(2), 'hex').toString('utf8'));
           if (o.reject) throw Object.assign(new Error('User rejected'), { code: 4001 });
           return '0xsig';

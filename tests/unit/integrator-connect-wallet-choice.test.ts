@@ -38,7 +38,10 @@ async function boot(o: {
   handoff?: boolean;
   remembered?: string;
   hold?: { rdns: string; method: string };
-  perm?: 'ok' | 'unsupported' | 'reject';
+  /** T-0912: the account the person chooses in the n-th account window (wallet_requestPermissions); undefined keeps the account */
+  choose?: (string | undefined)[];
+  /** T-0912: a method answers this error code on every call (number) or on the n-th call (array entry n-1) */
+  err?: Record<string, number | (number | undefined)[]>;
   emailNote?: boolean;
   /** T-0869: a one-page handoff (register + grant_requested + one_page); every field is on the one page. */
   onePage?: boolean;
@@ -78,6 +81,7 @@ async function boot(o: {
   /** T-0870: the accounts each fake returns now; accountsChanged (emit) updates them */
   const acc: Record<string, string[]> = {};
   let nreq = 0;
+  const cnt: Record<string, number> = {};
   let doc: any = null;
   const mk = (f: Fake) => ({
     chainId: '0x2105',
@@ -89,13 +93,10 @@ async function boot(o: {
         params: r.params,
         phase: doc?.getElementById('wt')?.dataset.phase,
       });
-      if (r.method === 'wallet_requestPermissions') {
-        if (o.perm === 'unsupported') throw Object.assign(new Error('unsupported'), { code: 4200 });
-        if (o.perm === 'reject') throw Object.assign(new Error('rejected'), { code: 4001 });
-        acc[f.rdns] = [EXP];
-        return [{ parentCapability: 'eth_accounts' }];
-      }
-      if (r.method === 'eth_accounts') return acc[f.rdns];
+      const n = (cnt[r.method] = (cnt[r.method] ?? 0) + 1);
+      const ec = o.err?.[r.method];
+      const code = Array.isArray(ec) ? ec[n - 1] : ec;
+      if (code !== undefined) throw Object.assign(new Error('wallet error ' + code), { code });
       if (
         r.method === 'eth_requestAccounts' &&
         (++nreq <= (o.pending ?? 0) || nreq === o.pendingNth)
@@ -104,6 +105,17 @@ async function boot(o: {
       }
       if ((o.hold && o.hold.rdns === f.rdns && o.hold.method === r.method) || o.hang === r.method)
         await new Promise<void>((res) => held.push(res));
+      if (r.method === 'wallet_revokePermissions') {
+        // T-0912: a real wallet announces the empty account list after a revoke
+        (handlers[f.rdns + 'accountsChanged'] || []).forEach((h) => h([]));
+        return null;
+      }
+      if (r.method === 'wallet_requestPermissions') {
+        const c = o.choose?.[n - 1];
+        if (c) acc[f.rdns] = [c];
+        return [{ parentCapability: 'eth_accounts' }];
+      }
+      if (r.method === 'eth_accounts') return acc[f.rdns];
       return r.method === 'eth_requestAccounts' ? acc[f.rdns] : '0xsig';
     },
     on: (ev: string, h: (a: string[]) => void) => (
@@ -211,7 +223,7 @@ async function boot(o: {
       .click();
   const pickBtn = (): any =>
     ([...(box()?.querySelectorAll('button') ?? [])] as any[]).find(
-      (b) => b.textContent === 'Choose account in wallet' && !b.hidden,
+      (b) => /^Choose 0x\S+ in wallet$/.test(b.textContent) && !b.hidden,
     );
   return {
     w,
@@ -276,7 +288,11 @@ describe('T-0800 connect page wallet choice', () => {
       expect([...b.querySelectorAll('[title]')].map((e: any) => e.title)).toEqual([OTHER, EXP]);
       expect(b.textContent).not.toContain('payout');
       expect((p.$('nx') as HTMLButtonElement).disabled).toBe(true);
-      expect(p.log.map((l) => l.method)).toEqual(['eth_requestAccounts']);
+      expect(p.log.map((l) => l.method)).toEqual([
+        'wallet_revokePermissions',
+        'wallet_requestPermissions',
+        'eth_requestAccounts',
+      ]); // T-0912
       p.emit('io.alpha', [EXP.toUpperCase().replace('0X', '0x')]);
       await p.settle();
       expect(p.box()).toBeUndefined();
@@ -293,7 +309,11 @@ describe('T-0800 connect page wallet choice', () => {
     p.$('nx').click();
     await p.settle();
     expect(p.log.map((l) => l.who)).toEqual(p.log.map(() => 'legacy'));
-    expect(p.log[0].method).toBe('eth_requestAccounts');
+    expect(p.log.map((l) => l.method).slice(0, 3)).toEqual([
+      'wallet_revokePermissions',
+      'wallet_requestPermissions',
+      'eth_requestAccounts',
+    ]); // T-0912
   });
 
   it('an announced wallet wins over window.ethereum', async () => {
@@ -337,7 +357,10 @@ describe('T-0800 connect page wallet choice', () => {
     p.toStep3();
     p.$('nx').click();
     await p.settle();
-    expect(p.log.map((x) => x.method)).toEqual(['eth_requestAccounts', 'personal_sign']);
+    expect(p.log.map((x) => x.method)).toEqual([
+      ...['wallet_revokePermissions', 'wallet_requestPermissions', 'eth_requestAccounts'],
+      'personal_sign',
+    ]); // T-0912
     expect(p.$('nx').disabled).toBe(true);
     p.$('nx').click();
     await p.settle();
@@ -361,8 +384,10 @@ describe('T-0800 connect page wallet choice', () => {
     p.release();
     await p.settle();
     expect(p.log.filter((x) => x.who === 'io.alpha').map((x) => x.method)).toEqual([
+      'wallet_revokePermissions',
+      'wallet_requestPermissions',
       'eth_requestAccounts',
-    ]);
+    ]); // T-0912
     expect(p.log.some((x) => x.who === 'io.beta' && x.method === 'personal_sign')).toBe(true);
   });
 
@@ -388,8 +413,9 @@ describe('T-0800 connect page wallet choice', () => {
 });
 
 describe('T-0832 different wallet: next step and account picker', () => {
-  const open = async (perm?: 'ok' | 'unsupported' | 'reject') => {
-    const p = await boot({ wallets: [A], handoff: true, perm });
+  // T-0912: the account button repeats the press sequence; the options are the person's choice per window and wallet errors
+  const open = async (o: { choose?: (string | undefined)[]; err?: Record<string, any> } = {}) => {
+    const p = await boot({ wallets: [A], handoff: true, ...o });
     p.toStep3();
     p.$('nx').click();
     await p.settle();
@@ -398,31 +424,35 @@ describe('T-0832 different wallet: next step and account picker', () => {
   const perms = (p: any) => p.log.filter((l: any) => l.method === 'wallet_requestPermissions');
 
   it('shows the next-step line with the short expected address and the main button label, and the button; no request before a press', async () => {
-    const p = await open('ok');
+    const p = await boot({ wallets: [A], handoff: true });
+    p.toStep3();
+    await p.settle();
+    expect(p.log).toEqual([]);
+    p.$('nx').click();
+    await p.settle();
     expect(p.box().textContent).toContain(
       'In your wallet open the account menu, choose 0xcdcd…cdcd, then press Connect wallet.',
     );
-    expect(p.pickBtn()).toBeDefined();
-    expect(perms(p)).toHaveLength(0);
+    expect(p.pickBtn().textContent).toBe('Choose 0xcdcd…cdcd in wallet'); // T-0912 (was "Choose account in wallet")
+    expect(perms(p)).toHaveLength(1); // T-0912: the press itself opened the account window (was 0)
   });
 
-  it('a press calls wallet_requestPermissions once with eth_accounts, then eth_accounts, and clears the warning', async () => {
-    const p = await open('ok');
+  it('the button sends revoke, wallet_requestPermissions, eth_requestAccounts and clears the warning', async () => {
+    const p = await open({ choose: [undefined, EXP] });
+    const n = p.log.length;
     p.pickBtn().click();
     await p.settle();
-    expect(perms(p)).toHaveLength(1);
-    expect(p.log.map((l: any) => l.method).slice(-2)).toEqual([
+    expect(perms(p)).toHaveLength(2);
+    expect(p.log.slice(n, n + 3).map((l: any) => l.method)).toEqual([
+      'wallet_revokePermissions',
       'wallet_requestPermissions',
-      'eth_accounts',
-    ]);
+      'eth_requestAccounts',
+    ]); // T-0912 (was wallet_requestPermissions, eth_accounts)
     expect(p.box()).toBeUndefined();
-    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(false);
   });
 
   it('unsupported (4200): the button is hidden, the line stays', async () => {
-    const p = await open('unsupported');
-    p.pickBtn().click();
-    await p.settle();
+    const p = await open({ err: { wallet_requestPermissions: 4200 } });
     expect(perms(p)).toHaveLength(1);
     expect(p.pickBtn()).toBeUndefined();
     expect(p.box().textContent).toContain('In your wallet open the account menu');
@@ -430,17 +460,17 @@ describe('T-0832 different wallet: next step and account picker', () => {
     expect(p.pickBtn()).toBeUndefined();
   });
 
-  it('user rejection (4001): the warning and the button stay', async () => {
-    const p = await open('reject');
+  it('user rejection (4001) of the button\'s window: "Wallet connection rejected" and Try again', async () => {
+    const p = await open({ err: { wallet_requestPermissions: [undefined, 4001] } });
     p.pickBtn().click();
     await p.settle();
-    expect(p.box()).toBeDefined();
-    expect(p.pickBtn()).toBeDefined();
-    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(true);
+    expect(p.$('er').hidden).toBe(false); // T-0912 (was: the warning and the button stay, nothing shown)
+    expect(p.$('er').textContent).toContain('Wallet connection rejected');
+    expect(p.log.filter((l: any) => l.method === 'eth_requestAccounts')).toHaveLength(1);
   });
 
   it('accountsChanged to the expected address hides the warning and enables the main button', async () => {
-    const p = await open('ok');
+    const p = await open();
     p.emit('io.alpha', [EXP]);
     expect(p.box()).toBeUndefined();
     expect((p.$('nx') as HTMLButtonElement).disabled).toBe(false);
@@ -479,8 +509,13 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     expect((signs(p)[0].params as string[])[1]).toBe(EXP);
   });
 
-  it('wrong account, "Choose account in wallet", the wallet returns the expected one: one signature, no second press', async () => {
-    const p = await boot({ wallets: [A], handoff: true, perm: 'ok', hang: 'personal_sign' });
+  it('wrong account, "Choose <short> in wallet", the wallet returns the expected one: one signature, no second press', async () => {
+    const p = await boot({
+      wallets: [A],
+      handoff: true,
+      choose: [undefined, EXP],
+      hang: 'personal_sign',
+    });
     p.toStep3();
     p.$('nx').click();
     await p.settle();
@@ -523,7 +558,10 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     p.toStep3();
     p.$('nx').click();
     await p.settle();
-    expect(p.log.map((l) => l.method)).toEqual(['eth_requestAccounts', 'personal_sign']);
+    expect(p.log.map((l) => l.method)).toEqual([
+      ...['wallet_revokePermissions', 'wallet_requestPermissions', 'eth_requestAccounts'],
+      'personal_sign',
+    ]); // T-0912
     expect(p.$('nx').disabled).toBe(true);
     p.advance(7_999);
     expect(p.$('wl').hidden).toBe(true);
@@ -682,5 +720,206 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
       { mode: 'register' as const, grant_requested: true },
     ])
       expect(grantVariant(html, 'Soukbase', v)).toContain('<span id="wtn">1</span> of 1</b>');
+  });
+});
+
+describe('T-0912 every press opens the account window; the page names the account to choose', () => {
+  const C: Fake = { ...B, account: EXP };
+  const SEQ = ['wallet_revokePermissions', 'wallet_requestPermissions', 'eth_requestAccounts'];
+  const ms = (p: any) => p.log.map((l: any) => l.method as string);
+  const signs = (p: any) => p.log.filter((l: any) => l.method === 'personal_sign');
+  const count = (p: any, m: string) => ms(p).filter((x: string) => x === m).length;
+  const vis = (e: any) => !!e && !e.hidden;
+
+  it('a press with an account already permitted: revoke, account window, accounts, then the signature for the expected account, no second press', async () => {
+    const p = await boot({ wallets: [C], handoff: true, onePage: true, hang: 'personal_sign' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+    expect(p.log[0].params).toEqual([{ eth_accounts: {} }]);
+    expect(p.log[1].params).toEqual([{ eth_accounts: {} }]);
+    expect((signs(p)[0].params as string[])[1]).toBe(EXP);
+  });
+
+  it('page load and a bare accountsChanged event send nothing', async () => {
+    const p = await boot({ wallets: [A, B], handoff: true });
+    p.emit('io.alpha', [EXP]);
+    p.toStep3();
+    p.emit('io.beta', [OTHER]);
+    p.advance(20_000);
+    await p.settle();
+    expect(p.log).toEqual([]);
+  });
+
+  it('the revoke answers an error: the sequence goes on', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      hang: 'personal_sign',
+      err: { wallet_revokePermissions: -32603 },
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+    expect(p.$('er').hidden).toBe(true);
+  });
+
+  it('the revoke never answers: after 2 s the sequence goes on', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      hang: 'wallet_revokePermissions',
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual(['wallet_revokePermissions']);
+    p.advance(1_999);
+    await p.settle();
+    expect(ms(p)).toEqual(['wallet_revokePermissions']);
+    p.advance(1);
+    await p.settle();
+    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+  });
+
+  it('the account window refused (4001): "Wallet connection rejected", no eth_requestAccounts; Try again runs the whole sequence again', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      err: { wallet_requestPermissions: 4001 },
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    const er = p.$('er');
+    expect(vis(er)).toBe(true);
+    expect(er.querySelector('b').textContent).toBe('⊗ Wallet connection rejected');
+    expect(count(p, 'eth_requestAccounts')).toBe(0);
+    expect(vis(p.$('wtc'))).toBe(false);
+    ([...er.querySelectorAll('button')] as HTMLElement[])
+      .find((b) => b.textContent === 'Try again')!
+      .click();
+    await p.settle();
+    expect(ms(p)).toEqual([
+      'wallet_revokePermissions',
+      'wallet_requestPermissions',
+      'wallet_revokePermissions',
+      'wallet_requestPermissions',
+    ]);
+    expect(vis(p.$('er'))).toBe(true);
+  });
+
+  it('the account window unsupported (-32601): eth_requestAccounts follows and the run completes', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      err: { wallet_requestPermissions: -32601 },
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+    expect(p.calls.filter((c: any) => c.method === 'POST')).toHaveLength(1);
+    expect(p.$('out').hidden).toBe(false);
+  });
+
+  it('the account window answers -32603: the error box is shown', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      err: { wallet_requestPermissions: -32603 },
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(vis(p.$('er'))).toBe(true);
+    expect(p.$('er').textContent).toContain('Something went wrong');
+    expect(count(p, 'eth_requestAccounts')).toBe(0);
+  });
+
+  it('#wtc names the expected account and the wallet while the window is open, and is hidden at P(1)', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      hang: 'wallet_requestPermissions',
+      hangGet: true,
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    const c = p.$('wtc');
+    expect(vis(p.$('wt')) && vis(c) && vis(p.$('wtg'))).toBe(true);
+    expect(p.$('wtg').textContent).toBe('Waiting for your wallet');
+    expect(c.textContent).toBe('Choose 0xcdcd…cdcd in Beta.');
+    expect(c.querySelector('[title]').title).toBe(EXP);
+    expect(p.$('wl').hidden).toBe(true); // shown at once, not after 8 s
+    p.release();
+    await p.settle();
+    expect(p.$('wt').dataset.phase).toBe('prepare');
+    expect(c.hidden).toBe(true);
+    expect(c.textContent).toBe('');
+  });
+
+  it('#wtc without an expected wallet: "Choose your account in <wallet>."', async () => {
+    const p = await boot({ wallets: [C], hang: 'wallet_requestPermissions' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(vis(p.$('wtc'))).toBe(true);
+    expect(p.$('wtc').textContent).toBe('Choose your account in Beta.');
+  });
+
+  it('another account arrives: both addresses, one button; it repeats the sequence and the expected account leads to one signature', async () => {
+    const p = await boot({ wallets: [A], handoff: true, onePage: true, choose: [undefined, EXP] });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    const b = p.box()!;
+    expect([...b.querySelectorAll('[title]')].map((e: any) => e.title)).toEqual([OTHER, EXP]);
+    expect([...b.querySelectorAll('button')].map((x: any) => x.textContent)).toEqual([
+      'Choose 0xcdcd…cdcd in wallet',
+    ]);
+    expect((p.$('nx') as HTMLButtonElement).disabled).toBe(true);
+    expect(vis(p.$('wtc'))).toBe(false);
+    p.pickBtn().click();
+    await p.settle();
+    expect(ms(p)).toEqual([...SEQ, ...SEQ, 'personal_sign']);
+    expect(signs(p)).toHaveLength(1);
+    expect((signs(p)[0].params as string[])[1]).toBe(EXP);
+    expect(p.box()).toBeUndefined();
+  });
+
+  it('the accountsChanged([]) of the revoke starts nothing and shows no "Different wallet"', async () => {
+    // the first press ends at the wrong account: AM is set and the listener is on
+    const p2 = await boot({
+      wallets: [A],
+      handoff: true,
+      onePage: true,
+      hang: 'wallet_requestPermissions',
+    });
+    p2.toStep3();
+    p2.$('nx').click();
+    await p2.settle();
+    p2.advance(0);
+    await p2.settle();
+    expect(ms(p2)).toEqual(['wallet_revokePermissions', 'wallet_requestPermissions']);
+    p2.release();
+    await p2.settle();
+    expect(p2.box()).toBeDefined();
+    p2.pickBtn().click(); // the revoke of this press emits [] to the listener of the first press
+    await p2.settle();
+    p2.advance(0);
+    await p2.settle();
+    expect(ms(p2)).toEqual([...SEQ, 'wallet_revokePermissions', 'wallet_requestPermissions']);
+    expect(p2.box()).toBeUndefined();
+    expect(signs(p2)).toHaveLength(0);
   });
 });

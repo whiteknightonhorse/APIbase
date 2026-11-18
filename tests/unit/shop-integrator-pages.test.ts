@@ -181,7 +181,8 @@ describe('integrator pages', () => {
     // T-0867: 150 -> 157 for the read-only contact-email line (#ce-line) and its Change button.
     // T-0870: 157 -> 177 for the wallet-request timer, the help line (#wl), the prepare/wallet phases (#wp, #wta),
     // the repeat of an unanswered request and the 15 s limit on a GET.
-    expect(js[0].split('\n').length).toBeLessThanOrEqual(177);
+    // T-0912: 177 -> 183 for the account sequence (revoke, account window, accounts) and the #wtc line.
+    expect(js[0].split('\n').length).toBeLessThanOrEqual(183);
     expect(text).toContain('<option>digital-goods</option>');
     expect(text).toContain('agent-guide');
   });
