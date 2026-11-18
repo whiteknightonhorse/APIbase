@@ -1,6 +1,7 @@
 import { Router, type NextFunction, type Request, type Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import { logger } from '../config/logger';
+import { isInternalWallet } from '../config/internal-wallets';
 import { judgeReceipt, isTxHash, type RuleOutcome } from '../payments/dispute-rules';
 import { receiptIndexForTx, type ReceiptIndex } from '../services/receipt-index.service';
 import {
@@ -276,10 +277,20 @@ ${walletBlock('payment', tx)}`,
   });
 }
 
+/** T-0911: the agent page where a paying client can leave ERC-8004 feedback for APIbase (agent 399542 on Base). */
+export const AGENT_SCAN_URL = 'https://8004scan.io/agents/base/399542';
+
+function feedbackBlock(id: string): string {
+  return `<h2>Rate APIbase</h2>
+<p>You paid for this call. If you wish, leave public ERC-8004 feedback for APIbase (agent 399542 on Base): <a href="${AGENT_SCAN_URL}">open the agent on 8004scan</a>. Feedback is your own on-chain transaction from your wallet and you pay its gas. APIbase gives no discount, refund or reward for feedback, good or bad. You may cite this receipt: ${SITE}/r/${esc(id)}.json. APIbase team wallets (<a href="/policy/test-wallets.json">public list</a>) never send feedback.</p>`;
+}
+
 export function renderReceiptPage(id: string, body: string): string {
   let rows: Array<[string, string]> = [];
+  let showFeedback = false;
   try {
     const doc = JSON.parse(body) as Record<string, unknown>;
+    showFeedback = !isInternalWallet(typeof doc?.payer === 'string' ? doc.payer : null);
     rows = Object.keys(doc)
       .sort()
       .map((k) => [k, typeof doc[k] === 'string' ? (doc[k] as string) : JSON.stringify(doc[k])]);
@@ -294,7 +305,7 @@ export function renderReceiptPage(id: string, body: string): string {
     body: `<h1>Receipt ${esc(id)}</h1>
 ${pairs(rows)}
 <p><a href="/r/${esc(id)}.json">Receipt JSON</a> (immutable) · <a href="/r/${esc(id)}.refund.json">Refund state</a> · <a href="/attest/?r=${esc(id)}">Attest on GenLayer</a></p>
-<p><a class="btn" href="/dispute/?r=${esc(id)}">Dispute this receipt</a></p>`,
+<p><a class="btn" href="/dispute/?r=${esc(id)}">Dispute this receipt</a></p>${showFeedback ? `\n${feedbackBlock(id)}` : ''}`,
   });
 }
 

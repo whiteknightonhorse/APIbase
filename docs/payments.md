@@ -149,6 +149,7 @@ Every tool call that was billed on-chain (x402 on Base, or MPP on Tempo) gets on
 
 - **Public list.** The wallets the APIbase team operates for monitoring, for testing and for its own shops are listed with a label and the date they were listed at `https://apibase.pro/policy/test-wallets.json`. A label says what the wallet is for (`mcp-heartbeat`: scheduled paid calls that check that tools answer; `mcp-protocol-tester`: the daily protocol test run; `integrator-shop-test`: a wallet of an Integrator test shop; `team-shop`: a wallet of a shop that the team runs itself). A payment from a listed wallet is APIbase's own traffic, not customer volume; an address that is not listed is not thereby a customer.
 - **What the product does for a listed wallet.** A refund owed to it is booked as `internal` and is not paid out, and the result of its calls is not retained for 24 h.
+- **No ERC-8004 feedback.** Wallets in `config/autopilot/internal-wallets.json` (public copy: https://apibase.pro/policy/test-wallets.json), team shops included, never send ERC-8004 feedback for agent 399542. The receipt page does not show the feedback hint to them. The dispatcher checks the on-chain feedback list against this file.
 - **Counts.** No volume or payer count is published unless these wallets are excluded.
 
 ## Refunds owed by APIbase
