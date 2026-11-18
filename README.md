@@ -69,7 +69,7 @@ AI payment for merchants: a merchant gets its own MCP storefront, and a buyer's 
 
 **[Full framework guides →](https://apibase.pro/frameworks)**
 
-Registry listings: [Smithery](https://smithery.ai/servers/apibase-pro/api-hub) · [Glama](https://glama.ai/mcp/servers/whiteknightonhorse/APIbase) · [MCP Registry](https://registry.modelcontextprotocol.io) (`io.github.whiteknightonhorse/apibase`) · [PulseMCP](https://pulsemcp.com) · [MPPScan](https://www.mppscan.com)
+Registry listings: [Smithery](https://smithery.ai/servers/apibase-pro/api-hub) · [Glama](https://glama.ai/mcp/servers/whiteknightonhorse/APIbase) · [MCP Registry](https://registry.modelcontextprotocol.io) (`io.github.whiteknightonhorse/apibase`) · [PulseMCP](https://pulsemcp.com) · [MPPScan](https://www.mppscan.com) · [ERC-8004 agent #399542 (8004scan)](https://8004scan.io/agents/base/399542)
 
 ---
 
