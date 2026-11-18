@@ -49,7 +49,7 @@ dbDescribe('merchant counters (T-0903)', () => {
 
   it('CM1 internal wallet and the Demo Shop are not connected merchants; listed equals /shops', async () => {
     const before = await countMerchants(prisma as never, DEMO_SLUG);
-    await mk(`cm-ours-${tag}`, internal.toUpperCase().replace('0X', '0x'), 'active', false);
+    await mk(`cm-ours-${tag}`, internal.toLowerCase(), 'active', false);
     await mk(DEMO_SLUG, `0xdemo${tag}`, 'active', true);
     await mk(`cm-ext-${tag}`, `0xext${tag}`, 'active', false);
     await mk(`cm-off-${tag}`, `0xoff${tag}`, 'deactivated', false);
