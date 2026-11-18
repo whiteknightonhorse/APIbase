@@ -1,6 +1,6 @@
 {
   "schema": "apibase-test-wallets/1",
-  "version": "2026-11-16.1",
+  "version": "2026-11-18.1",
   "description": "Wallets operated by the APIbase team for monitoring and testing. Payments from these wallets are APIbase's own traffic, not customer volume. Refunds owed to them are booked as internal and are not paid out. An address that is not listed here is not thereby a customer.",
   "labels": {
     "mcp-heartbeat": "Scheduled paid calls that check that tools answer.",
@@ -87,6 +87,11 @@
       "address": "0x03c545a6d6f1254e4bc4fb16dd6898863f0ea0a3",
       "label": "integrator-shop-test",
       "listed_since": "2026-11-16"
+    },
+    {
+      "address": "0xd35f407eaadbde1626f36f13524d20652d8330d0",
+      "label": "integrator-shop-test",
+      "listed_since": "2026-11-18"
     }
   ]
 }
