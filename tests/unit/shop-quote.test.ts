@@ -586,4 +586,30 @@ dbDescribe('shop quotes', () => {
     expect('changes' in e.extra).toBe(false);
     expect('quote' in e.extra).toBe(false);
   });
+
+  it('QT19: subscribe quote, period changed at the same price -> changed false, terms differ (documented)', async () => {
+    const m = await shop();
+    const sku = await product(m, { price: 10 });
+    const sub = (period_unit: string, max_periods: number | null) =>
+      prisma.$executeRawUnsafe(
+        `UPDATE shop_products SET subscription = $3::jsonb WHERE merchant_id = $1::uuid AND sku = $2`,
+        m,
+        sku,
+        JSON.stringify({ period_unit, period_count: 1, trial: 'none', max_periods }),
+      );
+    await sub('month', null);
+    const r = await createQuote(deps, m, buyer(), { items: [{ sku, qty: 1 }], subscribe: true });
+    expect(r.subscription_terms?.period).toEqual({ unit: 'month', count: 1 });
+    await sub('week', 2);
+    await expire(r.quote_id);
+    const e = await fail(getQuote(deps, r.quote_id));
+    expect(e.extra.quote.subscription_terms.period).toEqual({ unit: 'week', count: 1 });
+    expect(e.extra.quote.subscription_terms.max_periods).toBe(2);
+    // `changes` covers prices only; docs.md#quotes tells the buyer to compare subscription_terms.
+    expect(e.extra.changes).toEqual({
+      changed: false,
+      total_usd: { old: 10, new: 10 },
+      lines: [],
+    });
+  });
 });
