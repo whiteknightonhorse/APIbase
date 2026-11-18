@@ -222,7 +222,11 @@ describe('HP11 facts render', () => {
     const mcp = join(dir, 'static/.well-known/mcp.json');
     writeFileSync(
       mcp,
-      JSON.stringify({ ...JSON.parse(read('static/.well-known/mcp.json')), merchants_count: 0 }),
+      JSON.stringify({
+        ...JSON.parse(read('static/.well-known/mcp.json')),
+        merchants_count: 0,
+        shops_listed_count: 0,
+      }),
     );
     expect(run(dir).status).toBe(1);
     expect(

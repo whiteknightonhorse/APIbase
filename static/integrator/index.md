@@ -7,7 +7,7 @@ Sell to AI agents. One link on your site, and a buyer's agent places and pays th
 - Connect AI payment: /integrator/connect
 - View the demo shop: /m/apibase-demo
 
-Merchants connected so far: {{MERCHANTS_COUNT}}.
+Merchants connected so far: {{MERCHANTS_COUNT}}. Listed in the public shop index (/shops): {{SHOPS_LISTED_COUNT}}.
 
 ## How it works
 

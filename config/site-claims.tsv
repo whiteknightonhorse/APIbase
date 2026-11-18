@@ -182,3 +182,4 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs	must-contain	finds
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	at least 3 disputed orders	-	T-0904
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	Next to a fresh quote the 410 carries `changes`	-	T-0905 410 quote_expired carries changes (total, shipping, changed unit prices)
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	`changed` covers prices only	-	T-0905 attempt 2: changes excludes subscription_terms and other non-price fields (R1)
+static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	Listed in the public shop index	-	T-0903

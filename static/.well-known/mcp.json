@@ -19,7 +19,8 @@
   "platform_tools_count": 33,
   "shop_tools_count": 29,
   "providers_count": 399,
-  "merchants_count": 14,
+  "merchants_count": 9,
+  "shops_listed_count": 1,
   "integrator": {
     "fee_pct": 0,
     "fee_enabled": false,

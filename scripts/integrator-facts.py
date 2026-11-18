@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """T-INT-19 (F-3, §1, §7.4, §13.4): Integrator facts on the public surfaces, one source.
 
-Source: the `integrator` block + `merchants_count` of static/.well-known/mcp.json (written by
-scripts/gen-discovery.ts from env / one SQL). Tokens: MERCHANTS_COUNT, INTEGRATOR_FEE_PCT,
+Source: the `integrator` block + `merchants_count` + `shops_listed_count` of static/.well-known/mcp.json (written by
+scripts/gen-discovery.ts from env / one SQL). Tokens: MERCHANTS_COUNT, SHOPS_LISTED_COUNT, INTEGRATOR_FEE_PCT,
 INTEGRATOR_MIN_ORDER, SANDBOX_STATUS, LEGAL_STATUS (legal-published.json), STREAM_CLOSE_GRACE_S (`integrator.stream_close_grace_s`), LEGAL_LATEST_EFFECTIVE (max effective_from of static/legal/*.md, inside LEGAL_STATUS).
 
   render  rewrite the Integrator sentence in the nginx-static surfaces (pricing.html, llms.txt)
@@ -21,11 +21,11 @@ MCP = "static/.well-known/mcp.json"
 RENDERED = ["static/pricing.html", "static/llms.txt"]
 TOKEN_FILES = {
     "static/integrator/index.html": [
-        "INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT", "INTEGRATOR_MIN_ORDER", "SANDBOX_STATUS",
-        "LEGAL_STATUS_HTML",
+        "INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT", "SHOPS_LISTED_COUNT", "INTEGRATOR_MIN_ORDER",
+        "SANDBOX_STATUS", "LEGAL_STATUS_HTML",
     ],
-    "static/integrator/llms.txt": ["INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT"],
-    "static/integrator/index.md": ["MERCHANTS_COUNT", "LEGAL_STATUS"],
+    "static/integrator/llms.txt": ["INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT", "SHOPS_LISTED_COUNT"],
+    "static/integrator/index.md": ["MERCHANTS_COUNT", "SHOPS_LISTED_COUNT", "LEGAL_STATUS"],
     "static/integrator/connect.html": ["LEGAL_STATUS_HTML"],
     "static/integrator/buyers.md": ["STREAM_CLOSE_GRACE_S"],
 }
@@ -36,7 +36,8 @@ HOME_FILES = ["static/index.html", "static/index.md"]
 HOME_FEE_RE = re.compile(r"<!--fee-->.*?<!--/fee-->")
 HOME_MERCH_RE = re.compile(r"<!--merchants-->.*?<!--/merchants-->", re.S)
 SENTENCE_RE = re.compile(r"Integrator: [^<\n]*? invoiced(?: otherwise)?\.")
-MERCHANTS_RE = re.compile(r"Merchants connected: [0-9]+\.(?: \(the public /shops index lists only shops with a verified domain\)\.?)?")
+# T-0903: the two-number line; the old llms.txt wordings are still matched so render can replace them.
+MERCHANTS_RE = re.compile(r"Merchants connected(?: so far)?: [0-9]+\.(?: Listed in the public shop index \(/shops\): [0-9]+\.| \(the public /shops index lists only shops with a verified domain\)\.?)?")
 FEE_STATE_RE = re.compile(r"<!--fee-state-->.*?<!--/fee-state-->")
 
 
@@ -47,6 +48,7 @@ def facts():
     fee = "%g%%" % pct if ig["fee_enabled"] else "0% (pilot)"
     return {
         "merchants": int(d["merchants_count"]),
+        "listed": int(d["shops_listed_count"]),
         "fee": fee,
         "fee_min": "$%.2f" % ig["fee_min_usd"],
         "min_order": "$%.2f" % ig["min_order_usd"],
@@ -66,7 +68,7 @@ def fee_state(f):
 
 
 def merchants_line(f):
-    return "Merchants connected: %d. (the public /shops index lists only shops with a verified domain)." % f["merchants"]
+    return "Merchants connected so far: %d. Listed in the public shop index (/shops): %d." % (f["merchants"], f["listed"])
 
 
 def home_fee(f):
@@ -74,9 +76,9 @@ def home_fee(f):
 
 
 def home_merchants(f, path):
-    if f["merchants"] < 1:
+    if f["merchants"] < 1 and f["listed"] < 1:
         return "<!--merchants--><!--/merchants-->"
-    line = "Merchants connected so far: %d." % f["merchants"]
+    line = merchants_line(f)
     if path.endswith(".html"):
         line = "<p>%s</p>" % line
     return "<!--merchants-->%s<!--/merchants-->" % line
@@ -88,14 +90,15 @@ def home_merchants(f, path):
 HOME_MD_FILE = "static/index.md"
 HOME_MD_ANCHORS = [
     ("fee", re.compile(r"USDC settles to your wallet\. (.+?)\.$", re.M)),
-    ("merchants", re.compile(r"^Merchants connected so far: (\d+)\.$", re.M)),
+    ("merchants", re.compile(r"^Merchants connected so far: (\d+)\. Listed in the public shop index \(/shops\): \d+\.$", re.M)),
+    ("listed", re.compile(r"^Merchants connected so far: \d+\. Listed in the public shop index \(/shops\): (\d+)\.$", re.M)),
 ]
 
 
 def home_md_value(tok, f):
     if tok == "fee":
         return "0% fee during the pilot" if f["fee"] == "0% (pilot)" else f["fee"] + " fee"
-    return str(f["merchants"])
+    return str(f["listed" if tok == "listed" else "merchants"])
 
 
 def render_home_md(s, f):
@@ -165,7 +168,7 @@ def check():
         for t in tokens:
             if "{{%s}}" % t not in s:
                 problems.append("%s: token {{%s}} missing (hardcoded number?)" % (path, t))
-        if re.search(r"Merchants connected so far: *[0-9]", s):
+        if re.search(r"Merchants connected so far: *[0-9]|public shop index \(/shops\): *[0-9]", s):
             problems.append("%s: hardcoded merchants count" % path)
     for path in list(TOKEN_FILES) + RENDERED:
         s = open(path).read()

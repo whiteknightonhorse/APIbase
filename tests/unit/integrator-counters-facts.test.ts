@@ -125,11 +125,17 @@ describe('T-INT-19', () => {
     const dir = mkdtempSync(join(tmpdir(), 'baseline-'));
     try {
       const p = join(dir, 'baseline.json');
-      writeFileSync(p, JSON.stringify({ merchants_count: 42 }));
+      writeFileSync(p, JSON.stringify({ merchants_count: 42, shops_listed_count: 7 }));
       const page = renderTokens(read('static/integrator/index.html'), p);
-      expect(page).toContain('42');
+      expect(page).toContain(
+        'Merchants connected so far: 42. Listed in the public shop index (/shops): 7.',
+      );
       expect(page).not.toContain('{{MERCHANTS_COUNT}}');
+      expect(page).not.toContain('{{SHOPS_LISTED_COUNT}}');
       expect(renderTokens('{{MERCHANTS_COUNT}}', join(dir, 'missing.json'))).toBe('0');
+      expect(renderTokens('{{SHOPS_LISTED_COUNT}}', join(dir, 'missing.json'))).toBe('0');
+      writeFileSync(p, JSON.stringify({ merchants_count: 3, shops_listed_count: 'x' }));
+      expect(renderTokens('{{SHOPS_LISTED_COUNT}}', p)).toBe('0');
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

@@ -11,10 +11,10 @@ import { autolinkSitePaths } from './md';
 
 export const MCP_BASELINE = resolve(__dirname, '../../../static/.well-known/mcp.json');
 
-/** merchants_count from the sync-counts baseline (mcp.json) baked into the image at build time (same SHA as the nginx static release); read per render. */
-function baselineMerchants(path: string): string {
+/** merchants_count / shops_listed_count from the sync-counts baseline (mcp.json) baked into the image at build time (same SHA as the nginx static release); read per render. */
+function baselineCount(path: string, key: 'merchants_count' | 'shops_listed_count'): string {
   try {
-    const n = Number(JSON.parse(readFileSync(path, 'utf8')).merchants_count);
+    const n = Number(JSON.parse(readFileSync(path, 'utf8'))[key]);
     return String(Number.isFinite(n) && n >= 0 ? Math.trunc(n) : 0);
   } catch {
     return '0';
@@ -74,7 +74,8 @@ export function renderTokens(
   const { on, pct } = feeState();
   const e = getShopEnv();
   const min = e.INTEGRATOR_MIN_ORDER_USD;
-  const merchants = baselineMerchants(baselinePath);
+  const merchants = baselineCount(baselinePath, 'merchants_count');
+  const shopsListed = baselineCount(baselinePath, 'shops_listed_count');
   let s = tpl;
   if (!on) s = s.replace(/\{\{INTEGRATOR_FEE_PCT\}\} fee/g, '0% fee during the pilot');
   return s
@@ -86,6 +87,7 @@ export function renderTokens(
     .replace(/\{\{INTEGRATOR_BASE_FEE_MODE\}\}/g, () => INTEGRATOR_BASE_FEE_MODE)
     .replace(/\{\{STREAM_CLOSE_GRACE_S\}\}/g, () => String(STREAM_CLOSE_GRACE_S))
     .replace(/\{\{MERCHANTS_COUNT\}\}/g, () => merchants)
+    .replace(/\{\{SHOPS_LISTED_COUNT\}\}/g, () => shopsListed)
     .replace(/\{\{LEGAL_LATEST_EFFECTIVE\}\}/g, () => legalLatestEffective())
     .replace(/\{\{LEGAL_STATUS_HTML\}\}/g, () => autolinkSitePaths(legalStatus(legalFile)))
     .replace(/\{\{LEGAL_STATUS\}\}/g, () => legalStatus(legalFile))

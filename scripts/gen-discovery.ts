@@ -34,6 +34,8 @@ import { shopToolDefinitions } from '../src/shop/tool-definitions';
 import { buildPriceRange, type PriceRange } from './price-range';
 import { computeMcpCounts } from './count-mcp-tools';
 import { buildIntegratorBlock as buildIntegratorFacts } from '../src/shop/integrator/facts';
+import { countMerchants } from '../src/shop/integrator/merchant-counts';
+import { DEMO_SLUG } from './shop/seed-demo-merchant';
 import { buildLlmsFull } from './llms-full';
 import { categoryOf } from '../src/services/category-summary';
 
@@ -186,21 +188,32 @@ function buildCategoryStats(
 }
 
 /**
- * T-INT-19 (F-3, §14): `merchants_count` is ONE SQL -- shop_merchants WHERE status='active'. In
- * --check mode there is no DB (see sync-counts.sh), so the committed value is the baseline;
- * if the table is unreachable the committed value is kept rather than inventing a 0.
+ * T-0903: the two merchant numbers of mcp.json. `merchants_count` = active merchant accounts without
+ * the team's own wallets (config/autopilot/internal-wallets.json) and the Demo Shop;
+ * `shops_listed_count` = the /shops total by construction (listedMerchantSql). In --check mode there
+ * is no DB (see sync-counts.sh), so the committed values are the baseline; if the table is
+ * unreachable the committed values are kept rather than inventing a 0.
  */
-async function loadMerchantsCount(): Promise<number> {
+async function loadMerchantCounts(): Promise<{ merchants: number; listed: number }> {
   const mcpPath = resolve(ROOT, 'static/.well-known/mcp.json');
   const committed = existsSync(mcpPath)
-    ? (JSON.parse(readFileSync(mcpPath, 'utf8')) as { merchants_count?: unknown }).merchants_count
-    : 0;
-  const keep = typeof committed === 'number' ? committed : 0;
+    ? (JSON.parse(readFileSync(mcpPath, 'utf8')) as {
+        merchants_count?: unknown;
+        shops_listed_count?: unknown;
+      })
+    : {};
+  const keep = {
+    merchants: typeof committed.merchants_count === 'number' ? committed.merchants_count : 0,
+    listed: typeof committed.shops_listed_count === 'number' ? committed.shops_listed_count : 0,
+  };
   if (CHECK_MODE) return keep;
   try {
-    return await prisma.shopMerchant.count({ where: { status: 'active' } });
+    return await countMerchants(prisma as never, DEMO_SLUG);
   } catch (err) {
-    console.warn(`gen-discovery: merchants_count query failed, keeping ${keep}:`, err);
+    console.warn(
+      `gen-discovery: merchant counts query failed, keeping ${JSON.stringify(keep)}:`,
+      err,
+    );
     return keep;
   }
 }
@@ -359,7 +372,7 @@ async function main(): Promise<void> {
     activeIds: new Set(providerOf.keys()),
     shopCount: SHOP_TOOLS,
   });
-  const MERCHANTS = await loadMerchantsCount();
+  const MERCHANT_COUNTS = await loadMerchantCounts();
   const INTEGRATOR = buildIntegratorBlock();
 
   const travel = stats.find((s) => s.category === 'travel');
@@ -399,7 +412,8 @@ async function main(): Promise<void> {
         platform_tools_count: MCP_COUNTS.platform,
         shop_tools_count: SHOP_TOOLS,
         providers_count: PROV,
-        merchants_count: MERCHANTS,
+        merchants_count: MERCHANT_COUNTS.merchants,
+        shops_listed_count: MERCHANT_COUNTS.listed,
         integrator: INTEGRATOR,
         categories_count: CATS,
         price_range_usd: PRICE_RANGE_USD,
