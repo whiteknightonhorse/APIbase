@@ -335,6 +335,8 @@
     "email_verify.check": "healthy",
     "emsc.event_detail": "healthy",
     "emsc.search_earthquakes": "healthy",
+    "ensembl.gene_lookup": "healthy",
+    "ensembl.sequence_region": "healthy",
     "enviroatlas.block_group_metrics": "healthy",
     "enviroatlas.communities": "healthy",
     "enviroatlas.community_summary": "healthy",
@@ -1207,7 +1209,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 398,
+  "providers_count": 399,
   "rails": [
     "x402",
     "mpp",
@@ -1241,7 +1243,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1350,
+      "count": 1352,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1255,6 +1257,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1378,
+  "tools_count": 1380,
   "version": "2.2.0"
 }
