@@ -1099,6 +1099,7 @@ smithsonian.search	smithsonian	0.001
 socrata.dataset_metadata	socrata	0.001
 socrata.dataset_search	socrata	0.002
 socrata.query_dataset	socrata	0.002
+soil.properties	soil	0.001
 solar.bodies	solar	0.001
 solar.body_details	solar	0.001
 spending.agency	spending	0.001

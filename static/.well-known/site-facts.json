@@ -885,6 +885,7 @@
     "socrata.dataset_metadata": "healthy",
     "socrata.dataset_search": "healthy",
     "socrata.query_dataset": "healthy",
+    "soil.properties": "healthy",
     "solar.bodies": "healthy",
     "solar.body_details": "healthy",
     "spending.agency": "healthy",
@@ -1209,7 +1210,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 399,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1243,7 +1244,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1352,
+      "count": 1353,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1257,6 +1258,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1380,
+  "tools_count": 1381,
   "version": "2.2.0"
 }
