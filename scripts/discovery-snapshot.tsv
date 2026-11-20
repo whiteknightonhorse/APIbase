@@ -630,10 +630,6 @@ igdb.platform_info	igdb	0.001
 ilostat.data	ilostat	0.002
 ilostat.dataflows	ilostat	0.001
 ilostat.structure	ilostat	0.001
-imf.current_account	imf	0.001
-imf.fiscal_balance	imf	0.001
-imf.gdp_growth	imf	0.001
-imf.inflation	imf	0.001
 imgflip.caption	imgflip	0.001
 imgflip.memes	imgflip	0.001
 inaturalist.observations_search	inaturalist	0.002

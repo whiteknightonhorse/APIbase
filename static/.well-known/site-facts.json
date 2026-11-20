@@ -517,10 +517,6 @@
     "ilostat.data": "healthy",
     "ilostat.dataflows": "healthy",
     "ilostat.structure": "healthy",
-    "imf.current_account": "healthy",
-    "imf.fiscal_balance": "healthy",
-    "imf.gdp_growth": "healthy",
-    "imf.inflation": "healthy",
     "imgflip.caption": "healthy",
     "imgflip.memes": "healthy",
     "inaturalist.observations_search": "healthy",
@@ -1214,7 +1210,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 401,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1248,7 +1244,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1357,
+      "count": 1353,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1262,6 +1258,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1385,
+  "tools_count": 1381,
   "version": "2.2.0"
 }
