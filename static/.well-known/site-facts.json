@@ -585,6 +585,9 @@
     "lmpr.dairy_product_prices": "healthy",
     "lmpr.hog_slaughter_prices": "healthy",
     "lmpr.lamb_carcass_cutout": "healthy",
+    "loc.collections": "healthy",
+    "loc.item": "healthy",
+    "loc.search": "healthy",
     "macrostrat.columns_search": "healthy",
     "macrostrat.fossils_search": "healthy",
     "macrostrat.geologic_map_units": "healthy",
@@ -1207,7 +1210,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 399,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1241,7 +1244,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1350,
+      "count": 1353,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1255,6 +1258,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1378,
+  "tools_count": 1381,
   "version": "2.2.0"
 }

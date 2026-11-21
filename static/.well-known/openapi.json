@@ -22491,6 +22491,327 @@
         ]
       }
     },
+    "/api/v1/tools/loc.search/call": {
+      "post": {
+        "operationId": "loc_search",
+        "summary": "Search Library of Congress",
+        "description": "Search 415K+ digitized historical items at LOC (photos, manuscripts, maps, newspapers, films, rare books). Filter by online format (image/audio/video/text/web archive) or collection slug. Public domain by US statute (17 USC §105)",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.002000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "2000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "loc.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Free-text search across LOC's 415K+ digitized items (e.g. \"civil war\", \"suffrage\", \"lincoln\").",
+                    "minLength": 1
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "image",
+                      "audio",
+                      "film, video",
+                      "online text",
+                      "web archive"
+                    ],
+                    "description": "Optional filter by online format — image, audio, film/video, online text, or web archive."
+                  },
+                  "collection": {
+                    "type": "string",
+                    "description": "Optional collection slug to scope the search (e.g. \"rosa-parks-papers\")."
+                  },
+                  "page": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Page number for pagination (1-based)."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Results per page (default 20, max 50)."
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/loc.item/call": {
+      "post": {
+        "operationId": "loc_item",
+        "summary": "Get LOC Item Detail",
+        "description": "Get full metadata + asset URLs (image, audio, PDF) for a Library of Congress item by its ID or full LOC URL. Includes rights, contributors, subjects, and digitized resource list. LOC public domain",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "loc.item"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "item_id": {
+                    "type": "string",
+                    "description": "Library of Congress item ID or full LOC URL (e.g. \"item/2003675333\" or \"https://www.loc.gov/item/2003675333/\"). Returns metadata + asset URLs.",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "item_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/loc.collections/call": {
+      "post": {
+        "operationId": "loc_collections",
+        "summary": "List LOC Collections",
+        "description": "Browse Library of Congress digital collections — Civil War Photographs, Geography & Map Division, Rosa Parks Papers, etc. Returns collection slugs needed for filtered search. LOC public domain",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "loc.collections"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 50,
+                    "description": "Max collections to return (default 20, max 50)."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/ukpolice.crimes_near/call": {
       "post": {
         "operationId": "ukpolice_crimes_near",
