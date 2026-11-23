@@ -7,6 +7,7 @@ import { ShopGateError } from '../../src/shop/auth/terms.guard';
 import {
   cancelOrder,
   computeFeeCents,
+  PAY_MARGIN_S,
   countPaidTestOrders24h,
   createQuote,
   getQuote,
@@ -14,6 +15,7 @@ import {
 import { createOrderRouter } from '../../src/shop/routes/order.router';
 import { forMcp } from '../../src/shop/tools/order.tools';
 import { toMicroUsdc } from '../../src/config/x402.config';
+import { PUBLIC_ORIGIN } from '../../src/services/public-receipt.service';
 import { client, dbDescribe, migrate, mkMerchant } from './helpers/shop-db';
 import type { ShopDeps } from '../../src/shop/merchant-lifecycle.service';
 
@@ -403,6 +405,40 @@ dbDescribe('shop quotes', () => {
       expect((await c.json()).state).toBe('CANCELLED');
     });
 
+    it('QT21: POST cancel_url with the Bearer and an empty body -> 200 CANCELLED; another token -> 404; the quote is then not open', async () => {
+      const m = await shop();
+      const sku = await product(m, { stock: 2 });
+      const body = { merchant: await slugOf(m), items: [{ sku, qty: 1 }] };
+      const quote = await (await post('/api/v1/shop/quotes', body)).json();
+      expect(await reserved(m, sku)).toBe(1);
+      const path = new URL(quote.cancel_url).pathname;
+      expect(path).toBe(`/api/v1/shop/orders/${quote.order_id}/cancel`);
+      const other = await fetch(base + path, {
+        method: 'POST',
+        headers: { authorization: `Bearer bt_${'0'.repeat(64)}` },
+      });
+      expect(other.status).toBe(404);
+      const c = await fetch(base + path, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${quote.buyer_token}` },
+      });
+      expect(c.status).toBe(200);
+      expect((await c.json()).state).toBe('CANCELLED');
+      expect(
+        (await row(`SELECT status FROM shop_quotes WHERE quote_id = $1::uuid`, quote.quote_id))
+          .status,
+      ).toBe('cancelled');
+      expect(await reserved(m, sku)).toBe(0);
+      const ev = await row(
+        `SELECT reason FROM shop_order_events WHERE order_id = $1::uuid AND seq = 2`,
+        quote.order_id,
+      );
+      expect(ev.reason).toBe('buyer_cancel');
+      const again = await fetch(`${base}/api/v1/shop/quotes/${quote.quote_id}`);
+      expect(again.status).toBe(409);
+      expect((await again.json()).error_code).toBe('quote_not_open');
+    });
+
     it('QT11: merchant A with the sku of merchant B -> 404', async () => {
       const a = await shop();
       const b = await shop();
@@ -413,6 +449,69 @@ dbDescribe('shop quotes', () => {
       });
       expect(r.status).toBe(404);
     });
+  });
+
+  it('QT20: every quote names pay_before (expires_at - 60 s) and cancel_url on the public origin; also GET, forMcp and the fresh quote of a 410', async () => {
+    expect(PAY_MARGIN_S).toBe(60);
+    const m = await shop();
+    const sku = await product(m);
+    const b = buyer();
+    const r = await q(m, [{ sku }], b);
+    const check = (x: Record<string, any>) => {
+      expect(new Date(x.pay_before).getTime()).toBe(new Date(x.expires_at).getTime() - 60_000);
+      expect(x.cancel_url).toBe(`${PUBLIC_ORIGIN}/api/v1/shop/orders/${x.order_id}/cancel`);
+    };
+    check(r);
+    check(forMcp(r));
+    check(await getQuote(deps, r.quote_id));
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_quotes SET expires_at = now() - interval '1 minute' WHERE quote_id = $1::uuid`,
+      r.quote_id,
+    );
+    const e = await fail(getQuote(deps, r.quote_id, b));
+    expect(e.error_code).toBe('quote_expired');
+    check(e.extra.quote);
+  });
+
+  it('QT22: cancel of a QUOTED order needs no reason (event reason buyer_cancel); a reason over 500 characters is 422', async () => {
+    const m = await shop();
+    const sku = await product(m, { stock: 3 });
+    const b = buyer();
+    const r1 = await q(m, [{ sku }], b);
+    for (const bad of ['x'.repeat(501)]) {
+      const e = await fail(cancelOrder(deps, b, r1.order_id, bad));
+      expect([e.status, e.error_code]).toEqual([422, 'validation_failed']);
+    }
+    expect((await cancelOrder(deps, b, r1.order_id, undefined)).state).toBe('CANCELLED');
+    const ev = await row(
+      `SELECT reason FROM shop_order_events WHERE order_id = $1::uuid AND seq = 2`,
+      r1.order_id,
+    );
+    expect(ev.reason).toBe('buyer_cancel');
+    for (const empty of ['', '   ', 5, null, { a: 1 }]) {
+      const r = await q(m, [{ sku }], b);
+      expect((await cancelOrder(deps, b, r.order_id, empty as never)).state).toBe('CANCELLED');
+    }
+    expect(await reserved(m, sku)).toBe(0);
+  });
+
+  it('QT23: a paid order still needs a reason -> 422 validation_failed with none, empty or non-string', async () => {
+    const m = await shop();
+    const sku = await product(m);
+    const b = buyer();
+    const paid = await q(m, [{ sku }], b);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_orders SET state = 'PAID' WHERE order_id = $1::uuid`,
+      paid.order_id,
+    );
+    for (const none of [undefined, '', '  ', 7]) {
+      const e = await fail(cancelOrder(deps, b, paid.order_id, none as never));
+      expect([e.status, e.error_code]).toEqual([422, 'validation_failed']);
+    }
+    expect(
+      (await row(`SELECT state FROM shop_orders WHERE order_id = $1::uuid`, paid.order_id)).state,
+    ).toBe('PAID');
+    expect((await cancelOrder(deps, b, paid.order_id, 'x')).state).toBe('REFUND_PENDING');
   });
 
   it('QT12: QUOTED order row + one event; fee_disclosed false', async () => {
@@ -493,7 +592,16 @@ dbDescribe('shop quotes', () => {
     );
   /** The fields of a quote that do not depend on its id, time or token. */
   const shape = (x: Record<string, any>) => {
-    const { quote_id: _q, order_id: _o, expires_at: _e, buyer_token: _b, pay, ...rest } = x;
+    const {
+      quote_id: _q,
+      order_id: _o,
+      expires_at: _e,
+      pay_before: _p,
+      cancel_url: _c,
+      buyer_token: _b,
+      pay,
+      ...rest
+    } = x;
     return { ...rest, pay_amount: pay?.x402?.amount, pay_to: pay?.x402?.payTo };
   };
 

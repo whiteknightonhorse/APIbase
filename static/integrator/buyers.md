@@ -1,6 +1,6 @@
 # For buyers: paying AI-enabled shops
 
-For people who hand a wallet to a trusted agent, and for the agents themselves. Fee for the seller: {{INTEGRATOR_FEE_PCT}}; buyers pay the quoted total and nothing on top.
+For people who hand a wallet to a trusted agent, and for the agents themselves. Fee for the seller: {{INTEGRATOR_FEE_PCT}}; buyers pay the quoted total and nothing on top. `fee_disclosed: false` in a quote says the same: the seller pays the platform fee out of `total_usd`, so the quote does not itemise it.
 
 ## Find a shop
 
@@ -32,12 +32,12 @@ If you need a cap enforced by the shop rather than by the wallet, write to suppo
 
 A quote is a price snapshot with a stock hold, valid for a stated number of minutes. The agent pays exactly the quoted total, to exactly the shop's payout wallet. A signed authorization for any other amount or address is refused (`payment_amount_mismatch`).
 
-One `expires_at` covers the whole quote: every line shares the same price snapshot and the same stock hold, and an open quote is never repriced. Nothing is sent to you before it expires, so read `expires_at` before you sign. Our advice: do not sign with less than 60 seconds left (settlement can take up to 30 seconds); let the quote expire and read it again: `410 quote_expired` carries a fresh quote at current prices (see /integrator/docs#quotes). The fresh quote is a new price. The 410 also lists the prices that moved in `changes` (the total, the shipping price and each line whose unit or variant price changed); `changed: false` covers prices only, and a fresh quote of a subscription can also change `subscription_terms` (period, `max_periods`): the full list of what a fresh quote may change is at /integrator/docs#quotes. Compare its `total_usd` with the old one by a rule set in your client's configuration (for example: accept the same or a lower total, ask the human for anything higher), not by the model's judgment; `requires_human_confirmation` applies to the fresh quote as to any other.
+One `expires_at` covers the whole quote: every line shares the same price snapshot and the same stock hold, and an open quote is never repriced. Nothing is sent to you before it expires, so read `pay_before` before you sign. `pay_before` is the one deadline to act on: send the payment before it. It is `expires_at` minus 60 seconds, because settlement can take up to 30 seconds. The Tempo challenge `expires` (5 minutes) and the x402 `maxTimeoutSeconds` (120) are not deadlines of the quote: an expired challenge is replaced when you read the pay URL again, and `maxTimeoutSeconds` bounds the life of the authorization you sign. Past `pay_before`, let the quote expire and read it again: `410 quote_expired` carries a fresh quote at current prices (see /integrator/docs#quotes). The fresh quote is a new price. The 410 also lists the prices that moved in `changes` (the total, the shipping price and each line whose unit or variant price changed); `changed: false` covers prices only, and a fresh quote of a subscription can also change `subscription_terms` (period, `max_periods`): the full list of what a fresh quote may change is at /integrator/docs#quotes. Compare its `total_usd` with the old one by a rule set in your client's configuration (for example: accept the same or a lower total, ask the human for anything higher), not by the model's judgment; `requires_human_confirmation` applies to the fresh quote as to any other.
 
 ## Buy step by step (REST)
 
-1. `POST /api/v1/shop/quotes` with `{merchant, items}` and no key. An anonymous quote carries `buyer_token`; keep it and send it as `Authorization: Bearer <buyer_token>` on every later call for this order (pay, order get, cancel, dispute). If you lose the buyer_token, the paying wallet can still read the order (see [/integrator/docs#orders](/integrator/docs#orders)).
-2. `GET` or `POST /api/v1/shop/quotes/<id>/pay` without a payment is the 402 challenge. Check that `accepts[0].payTo` equals the shop's payout wallet and `amount` equals the quote.
+1. `POST /api/v1/shop/quotes` with `{merchant, items}` and no key. An anonymous quote carries `buyer_token`; keep it and send it as `Authorization: Bearer <buyer_token>` on every later call for this order (pay, order get, cancel, dispute). `buyer_token` is a secret: whoever holds it reads the delivery and can cancel or dispute this order; never log it or pass it to another party. If you lose it, the paying wallet can still read the order (see [/integrator/docs#orders](/integrator/docs#orders)). To drop a quote you will not pay: `POST cancel_url` with the Bearer and no body; free while the order is `QUOTED`, the held stock is released.
+2. `GET` or `POST /api/v1/shop/quotes/<id>/pay` without a payment is the 402 challenge. Check that `accepts[0].payTo` equals the shop's payout wallet and `amount` equals the quote. One pay URL serves both rails, chosen by the header you send: `X-Payment` (x402, Base) or `Authorization: Payment` (MPP, Tempo); the 402 offers both. `extensions.payment-identifier` in the 402 is optional: an id you add to the payment so that a retry returns the first answer and never pays twice (/integrator/docs#orders).
 3. `POST /api/v1/shop/quotes/<id>/pay` with the signed `X-Payment` (any x402 v2 client) answers `200 paid` with `order {order_id, state, tx_hash, fulfillment?}`, or `202 payment_pending`. Both carry `order_url`, the absolute URL of the order; without `order.fulfillment` they also carry `next`: the delivery is in the order, not in this reply (GET `order_url` with the Bearer of step 1 until `FULFILLED`).
 4. A `state` of `PAID` means the shop has not delivered yet: poll `GET /api/v1/shop/orders/<order_id>` with the Bearer until `FULFILLED`. `fulfillment` appears there, for the paying identity only (`viewer: payer`, see /integrator/docs#orders).
 5. `fulfillment` is always a string. When it begins with `{"type":"url"` it is the JSON text of `{type, urls[]}`: parse it. The links are the shop's own and may expire, or the shop may limit them; APIbase does not add or check limits.
@@ -60,7 +60,7 @@ if (!slug || !sku || !key)
 const json = { 'content-type': 'application/json' };
 
 async function main(): Promise<void> {
-  // 1. Quote. Keep buyer_token: it is the Bearer for every later call on this order.
+  // 1. Quote. Keep buyer_token: it is the Bearer for every later call on this order. Pay before q.pay_before.
   const q = await (
     await fetch(`${BASE}/api/v1/shop/quotes`, {
       method: 'POST',
@@ -102,7 +102,7 @@ async function main(): Promise<void> {
   const reply = await paid.json();
   console.log(paid.status, reply.status, reply.state);
 
-  // 4. The delivery is in the order, not in the reply: GET order_url until FULFILLED.
+  // 4. The paid reply carries order.fulfillment for an instant item; otherwise GET order_url until FULFILLED.
   let order = reply.order;
   for (let i = 0; i < 60 && order?.state !== 'FULFILLED'; i++) {
     await new Promise((r) => setTimeout(r, 2000));

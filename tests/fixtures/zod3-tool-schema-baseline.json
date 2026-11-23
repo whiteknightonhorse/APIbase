@@ -881,7 +881,7 @@
     "shop.order.quote": {
       "name": "shop.order.quote",
       "title": "Quote an order",
-      "description": "Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). A subscription item is quoted alone with subscribe: true (422 if the item has no subscription); the quote is period 1. Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.",
+      "description": "Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default; act on pay_before, expires_at minus 60 s), cancel_url (POST it to drop an unpaid quote), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). A subscription item is quoted alone with subscribe: true (422 if the item has no subscription); the quote is period 1. Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -969,6 +969,12 @@
           "expires_at": {
             "type": "string"
           },
+          "pay_before": {
+            "type": "string"
+          },
+          "cancel_url": {
+            "type": "string"
+          },
           "requires_pii": {
             "type": "array",
             "items": {
@@ -1015,7 +1021,7 @@
         "taskSupport": "forbidden"
       },
       "_meta": {
-        "apibase/definition_sha256": "06173303bb667d3d5e8d14c4bb2f400edfd0a52ea0a0e4a4c597bc5f0a42d61b"
+        "apibase/definition_sha256": "27af92f339a020d5a6361e06d89d34e900e2da64dbfd061ae76db3529b87c505"
       }
     },
     "shop.merchant.check": {

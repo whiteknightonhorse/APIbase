@@ -262,6 +262,33 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     ).toBe(1);
   });
 
+  it('T-0944 x402: an all-instant quote with the receipt seen answers 200 paid with order.fulfillment and no next', async () => {
+    const f = await fixture();
+    const r = await pay(f);
+    expect(r.status).toBe(200);
+    expect(r.body.status).toBe('paid');
+    expect((r.body.order as Row).fulfillment).toBe('the-secret-code');
+    expect(r.body.order_url).toBe(`https://apibase.pro/api/v1/shop/orders/${f.quote.order_id}`);
+    expect('next' in r.body).toBe(false);
+  });
+
+  it('T-0944: the 402 on an open QUOTED quote carries pay_before and cancel_url; after PAYMENT_FAILED pay_before only', async () => {
+    const f = await fixture();
+    const open = await pay(f, { header: null });
+    expect(open.status).toBe(402);
+    expect(open.body.pay).toBeDefined();
+    expect(open.body.pay_before).toBe(f.quote.pay_before);
+    expect(open.body.cancel_url).toBe(f.quote.cancel_url);
+    localSettle.mockResolvedValue({ success: false, errorReason: 'transaction_failed' });
+    const failed = await pay(f);
+    expect(failed.status).toBe(402);
+    expect(await states(f)).toEqual(['QUOTED', 'PAYING', 'PAYMENT_FAILED']);
+    const again = await pay(f, { header: null });
+    expect(again.status).toBe(402);
+    expect(again.body.pay_before).toBe(f.quote.pay_before);
+    expect('cancel_url' in again.body).toBe(false);
+  });
+
   it('SE3: waive_withdrawal -> CLOSED at once; the test SKU delivers "test ok"', async () => {
     const f = await fixture();
     const r = await pay(f, { waive: true });

@@ -10,7 +10,7 @@ import { createQuotedOrder, transition } from './order-state';
 import { QuoteError } from './quote.errors';
 import { baseRailDisabled } from './fee-invoice.service';
 import { cancelPaidOrder } from './order-lifecycle.service';
-import { isPayer } from './order-payment.service';
+import { isPayer, orderUrl } from './order-payment.service';
 import { releaseReservation, reserveSlot, reserveStock, takenSlots } from './repository';
 import type { SubscriptionTerms } from './catalog.service';
 import {
@@ -24,6 +24,8 @@ export const QUOTE_RATE_PER_HOUR = 300;
 export const MAX_QUOTE_ITEMS = 50;
 const NEW_MERCHANT_DAYS = 30;
 const NEW_MERCHANT_ORDERS = 10;
+/** T-0944: `pay_before` = `expires_at` minus this; settlement can take up to 30 s, so 60 s is the margin. */
+export const PAY_MARGIN_S = 60;
 const DEFAULT_TTL_S = 900;
 const MIN_TTL_S = 300;
 const MAX_TTL_S = 3600;
@@ -161,6 +163,10 @@ export interface QuoteResponse {
   delivery_slot?: string;
   fee_disclosed: false;
   expires_at: string;
+  /** T-0944: the one deadline to act on: `expires_at` minus PAY_MARGIN_S (ISO 8601). */
+  pay_before: string;
+  /** T-0944: POST it with the buyer_token Bearer to drop this quote; free while the order is QUOTED. */
+  cancel_url: string;
   requires_pii: string[];
   requires_human_confirmation: boolean;
   /** T-INT-21: present when requires_pii is non-empty; encrypt each kind to it (AAD = quote_id). */
@@ -475,6 +481,8 @@ function buildResponse(
       : {}),
     fee_disclosed: false,
     expires_at: q.expires_at.toISOString(),
+    pay_before: new Date(q.expires_at.getTime() - PAY_MARGIN_S * 1000).toISOString(),
+    cancel_url: `${orderUrl(q.order_id)}/cancel`,
     requires_pii: q.requires_pii,
     requires_human_confirmation: q.requires_human_confirmation,
     ...(q.requires_pii.length > 0 ? { merchant_encryption_key: m.encryption_key ?? null } : {}),
@@ -1102,21 +1110,23 @@ export async function getQuote(
 }
 
 /**
- * §6.1 shop.order.cancel. QUOTED: free, the quote is voided. After PAID: UC-13 -- before CONFIRMED
+ * §6.1 shop.order.cancel. QUOTED: free, the quote is voided; `reason` is optional there (`buyer_cancel`). After PAID: UC-13 -- before CONFIRMED
  * always a refund (REFUND_PENDING + a shop_refunds row due in 7 days), later only by the policy.
  */
 export async function cancelOrder(
   d: ShopDeps,
   buyer: Buyer,
   order_id: string,
-  reason: string,
+  reason?: unknown,
 ): Promise<{ order_id: string; state: 'CANCELLED' | 'REFUND_PENDING'; refund_id?: string | null }> {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(order_id ?? '')) {
     throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
   }
-  if (typeof reason !== 'string' || reason.trim() === '' || reason.length > 500) {
+  // T-0944: a QUOTED order needs no reason (it becomes `buyer_cancel` below); every other state does.
+  if (typeof reason === 'string' && reason.length > 500) {
     throw bad('reason is required (up to 500 characters)');
   }
+  const given = typeof reason === 'string' ? reason.trim() : '';
   return d.transaction(async (tx) => {
     const rows = await tx.$queryRawUnsafe<
       Array<{
@@ -1148,6 +1158,8 @@ export async function cancelOrder(
     if (!o || !mine) {
       throw new QuoteError(404, 'not_found', 'order not found', 'use_different_tool');
     }
+    if (o.state !== 'QUOTED' && given === '')
+      throw bad('reason is required (up to 500 characters)');
     if (o.state === 'CANCELLED') return { order_id, state: 'CANCELLED' as const };
     if (o.state !== 'QUOTED') {
       if (['PAYING', 'PAYMENT_FAILED', 'EXPIRED'].includes(o.state)) {
@@ -1159,9 +1171,12 @@ export async function cancelOrder(
           { state: o.state, documentation_url: DOCS },
         );
       }
-      return cancelPaidOrder(tx, { ...o, order_id }, reason.trim(), (d.now ?? Date.now)());
+      return cancelPaidOrder(tx, { ...o, order_id }, given, (d.now ?? Date.now)());
     }
-    await transition(tx, order_id, 'CANCELLED', { actor: 'buyer', reason: reason.trim() });
+    await transition(tx, order_id, 'CANCELLED', {
+      actor: 'buyer',
+      reason: given === '' ? 'buyer_cancel' : given,
+    });
     await tx.$executeRawUnsafe(
       `UPDATE shop_quotes SET status = 'cancelled' WHERE quote_id = $1::uuid AND status = 'open'`,
       o.quote_id,

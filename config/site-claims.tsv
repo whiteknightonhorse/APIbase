@@ -192,3 +192,4 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	wh
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-contain	the button goes straight to the signature	-	T-0943 connect: eth_accounts first with expected_wallet
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	which opens `back_url` (or `site`) in the same tab	-	T-0943 partner view of the connect page
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	the versions are listed at /legal/index.json	-	T-0943 superseded: the connect page names the versions in words
+static/integrator/buyers.md	https://apibase.pro/integrator/buyers.md	must-contain	`pay_before` is the one deadline to act on	-	T-0944

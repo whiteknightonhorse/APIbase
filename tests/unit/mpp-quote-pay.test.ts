@@ -9,6 +9,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import type { Request, Response } from 'express';
 import { createQuote } from '../../src/shop/quote.service';
+import { encryptSecret } from '../../src/services/secret-crypto.service';
 import { payQuote } from '../../src/shop/pay.service';
 import { registerOrderTools } from '../../src/shop/tools/order.tools';
 import { mppMiddleware, quoteMppChallengeHeader } from '../../src/middleware/mpp.middleware';
@@ -463,6 +464,30 @@ dbDescribe('MPP on POST|GET /quotes/:id/pay', () => {
       f.quote.quote_id,
     );
     expect(q.status).toBe('paid');
+  });
+
+  it('T-0944 MPP: an all-instant quote already settled answers 200 paid with order.fulfillment and no next', async () => {
+    const f = await fixture(5);
+    await prisma.$executeRawUnsafe(
+      `UPDATE shop_products SET fulfillment_payload_encrypted = $2
+        WHERE merchant_id = $1::uuid AND fulfillment_mode = 'instant'`,
+      f.m,
+      encryptSecret('mpp-secret', 'k'.repeat(40)),
+    );
+    const o = await run(quotePath(f), credential());
+    expect(o.next).toBe(true);
+    const r = await payQuote(deps, {
+      quote_id: f.quote.quote_id,
+      buyer: f.b,
+      requestId: 'r',
+      host: 'apibase.pro',
+      mpp: o.req.mppPayment,
+    });
+    finish(o);
+    expect(r.status).toBe(200);
+    expect(r.body.status).toBe('paid');
+    expect((r.body.order as Row).fulfillment).toBe('mpp-secret');
+    expect('next' in r.body).toBe(false);
   });
 
   it('MP8: a paid quote + a new credential -> 409 before charge', async () => {

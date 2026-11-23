@@ -202,8 +202,18 @@ async function payQuoteAnswer(deps: ShopDeps, r: PayRequest): Promise<PayRespons
   if (e.code === 402 && binding) {
     // The challenge (and every refusal) is rebuilt from the SERVER binding, never echoed back.
     let pay: unknown;
+    let pay_before: string | undefined;
+    let cancel_url: string | undefined;
     try {
-      pay = (await getQuote(deps, r.quote_id)).pay;
+      const quote = await getQuote(deps, r.quote_id);
+      pay = quote.pay;
+      pay_before = quote.pay_before;
+      // T-0944: the free cancel exists only while the order is QUOTED (not after a failed settle).
+      const st = await deps.db.$queryRawUnsafe<Array<{ state: string }>>(
+        `SELECT state FROM shop_orders WHERE order_id = $1::uuid`,
+        quote.order_id,
+      );
+      if (st[0]?.state === 'QUOTED') cancel_url = quote.cancel_url;
     } catch {
       /* the quote moved on between the lock and now: the accepts[] below is still exact */
     }
@@ -213,7 +223,7 @@ async function payQuoteAnswer(deps: ShopDeps, r: PayRequest): Promise<PayRespons
         ...buildPaymentRequiredResponse(binding, { requestId: r.requestId, host: r.host }),
         ...base,
         ...(e.extra?.replayed === true ? { replayed: true } : {}),
-        ...(pay ? { pay } : {}),
+        ...(pay ? { pay, pay_before, ...(cancel_url ? { cancel_url } : {}) } : {}),
       },
     };
   }

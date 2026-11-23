@@ -11,7 +11,7 @@ if (!slug || !sku || !key)
 const json = { 'content-type': 'application/json' };
 
 async function main(): Promise<void> {
-  // 1. Quote. Keep buyer_token: it is the Bearer for every later call on this order.
+  // 1. Quote. Keep buyer_token: it is the Bearer for every later call on this order. Pay before q.pay_before.
   const q = await (
     await fetch(`${BASE}/api/v1/shop/quotes`, {
       method: 'POST',
@@ -53,7 +53,7 @@ async function main(): Promise<void> {
   const reply = await paid.json();
   console.log(paid.status, reply.status, reply.state);
 
-  // 4. The delivery is in the order, not in the reply: GET order_url until FULFILLED.
+  // 4. The paid reply carries order.fulfillment for an instant item; otherwise GET order_url until FULFILLED.
   let order = reply.order;
   for (let i = 0; i < 60 && order?.state !== 'FULFILLED'; i++) {
     await new Promise((r) => setTimeout(r, 2000));

@@ -86,7 +86,7 @@ export function registerOrderTools(
     {
       title: 'Quote an order',
       description:
-        'Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). A subscription item is quoted alone with subscribe: true (422 if the item has no subscription); the quote is period 1. Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.',
+        'Price snapshot for items of one merchant (slug): total_usd, expiry (15 min by default; act on pay_before, expires_at minus 60 s), cancel_url (POST it to drop an unpaid quote), stock held until then. Pay with x402 using pay.x402 (payTo, amount, network, asset, extra.quote_id). Physical items need shipping_option (an id from the product shipping_options; its price is added as shipping_usd) and, when the product lists delivery_slots, delivery_slot (held until the quote expires). A subscription item is quoted alone with subscribe: true (422 if the item has no subscription); the quote is period 1. Errors: 409 out_of_stock (alternatives), 409 slot_unavailable (alternatives = free slots), 429 test_sku_daily_cap.',
       inputSchema: {
         merchant: z.string().describe('Merchant slug.'),
         items: z
@@ -118,6 +118,8 @@ export function registerOrderTools(
         delivery_slot: z.string().optional(),
         fee_disclosed: z.boolean(),
         expires_at: z.string(),
+        pay_before: z.string().optional(),
+        cancel_url: z.string().optional(),
         requires_pii: z.array(z.string()),
         requires_human_confirmation: z.boolean(),
         merchant_encryption_key: z.unknown().optional(),
@@ -211,8 +213,8 @@ export function registerOrderTools(
     {
       title: 'Cancel an order',
       description:
-        'QUOTED: free cancel, the quote is voided and held stock released. After payment: before the merchant confirms it is always a refund (state REFUND_PENDING, due in 7 days); later only if the merchant accepts returns and the refund window is open, else 409 with the policy. Digital content delivered under waive_withdrawal cannot be cancelled.',
-      inputSchema: { order_id: z.string(), reason: z.string().min(1).max(500) },
+        'QUOTED: free cancel, the quote is voided and held stock released; reason is optional then and required once the order is paid. After payment: before the merchant confirms it is always a refund (state REFUND_PENDING, due in 7 days); later only if the merchant accepts returns and the refund window is open, else 409 with the policy. Digital content delivered under waive_withdrawal cannot be cancelled.',
+      inputSchema: { order_id: z.string(), reason: z.string().min(1).max(500).optional() },
       outputSchema: {
         order_id: z.string(),
         state: z.string(),
@@ -225,7 +227,7 @@ export function registerOrderTools(
         openWorldHint: false,
       },
     },
-    async (a: { order_id: string; reason: string }) => {
+    async (a: { order_id: string; reason?: string }) => {
       try {
         const buyer = await resolveBuyer({ apiKey, session: sessionId });
         return ok({ ...(await cancelOrder(deps, buyer, a.order_id, a.reason)) });
