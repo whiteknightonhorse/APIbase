@@ -13,3 +13,7 @@ prove it's yours — no payment, no gas.
 Continue
 # T-0799: the payout-wallet explanation is printed once above the two fields; the per-field labels are one line.
 (leave empty unless you need a different wallet; a marketplace you sell through may require the payout wallet to equal the signing wallet)
+# T-0943: category options are shown in words (the value sent stays the slug); the "Document versions" block names the versions in words, so the raw path is no longer page text.
+digital-goods digital-content online-courses education software saas-subscriptions consulting design-services development-services clothing footwear sporting-goods furniture electronics books home-goods tours-excursions accommodation-booking services-booking
+loading /legal/index.json ...
+/legal/index.json

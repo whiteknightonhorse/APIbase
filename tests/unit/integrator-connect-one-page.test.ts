@@ -7,7 +7,14 @@ import express from 'express';
 import { webcrypto } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 import { ALLOWED_CATEGORIES } from '../../src/shop/moderation/categories';
-import { createIntegratorRouter, partners } from '../../src/shop/routes/integrator.router';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import {
+  createIntegratorRouter,
+  loadPartners,
+  partners,
+} from '../../src/shop/routes/integrator.router';
 
 jest.mock('../../src/config', () => ({ config: {} }));
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -54,9 +61,18 @@ const pfOf = (html: string) =>
 
 async function boot(
   prefill: Record<string, string>,
-  o: { wallet?: boolean; nonce409?: string; session?: Record<string, string> } = {},
+  o: {
+    wallet?: boolean;
+    nonce409?: string;
+    session?: Record<string, string>;
+    /** T-0943: the answers of /legal/index.json and /legal/index.next.json ('fail': a 503) */
+    legal?: { now: unknown[] | 'fail'; next: unknown[] | 'fail' };
+    /** T-0943: matchMedia('(pointer: coarse)') matches (a touch screen) */
+    coarse?: boolean;
+    html?: string;
+  } = {},
 ) {
-  const html = await render({ prefill, mode: 'register', grant_requested: true });
+  const html = o.html ?? (await render({ prefill, mode: 'register', grant_requested: true }));
   const calls: { url: string; method: string; body: string }[] = [];
   const reqs: string[] = [];
   const navs: string[] = [];
@@ -69,6 +85,7 @@ async function boot(
       Object.defineProperty(w, 'crypto', { value: webcrypto, configurable: true });
       w.TextEncoder = TextEncoder;
       if (o.session) w.sessionStorage.setItem('apibase_connect', JSON.stringify(o.session));
+      w.matchMedia = (q: string) => ({ matches: !!o.coarse && q === '(pointer: coarse)' });
       if (o.wallet !== false)
         w.ethereum = {
           chainId: '0x2105',
@@ -80,7 +97,10 @@ async function boot(
       w.fetch = async (url: string, init: any = {}) => {
         calls.push({ url, method: init.method || 'GET', body: init.body || '' });
         const res = (s: number, d: unknown) => ({ ok: s < 400, status: s, json: async () => d });
-        if (url.startsWith('/legal')) return res(200, []);
+        if (url === '/legal/index.json' || url === '/legal/index.next.json') {
+          const v = o.legal ? o.legal[url === '/legal/index.json' ? 'now' : 'next'] : [];
+          return v === 'fail' ? res(503, { error_code: 'legal_index_unavailable' }) : res(200, v);
+        }
         if (url.startsWith('/api/v1/shop/auth/nonce?purpose=handoff'))
           return o.nonce409
             ? res(409, { error_code: o.nonce409, message: 'taken' })
@@ -181,7 +201,9 @@ describe('T-0869 one-page handoff: page', () => {
         a.compareDocumentPosition(p.$('nx')) & p.w.Node.DOCUMENT_POSITION_FOLLOWING,
       ).toBeTruthy();
     }
-    expect(docs.nextElementSibling.querySelector('#nx')).not.toBeNull(); // directly above the button
+    // T-0943: the line on where to stop the partner sits between the documents line and the button (was: directly above it)
+    expect(docs.nextElementSibling.id).toBe('op-stop');
+    expect(docs.nextElementSibling.nextElementSibling.querySelector('#nx')).not.toBeNull();
     expect(p.$('nx').closest('p').nextElementSibling.textContent).toBe(
       'One free signature. No gas, no money leaves your wallet.',
     );
@@ -251,5 +273,276 @@ describe('T-0869 one-page handoff: page', () => {
     const p = await boot(FULL, { wallet: false });
     expect(p.visible(p.$('nw'))).toBe(true);
     expect(p.$('nx').hidden).toBe(true);
+  });
+});
+
+describe('T-0943 partner view of the connect page', () => {
+  const dom = (html: string) => new JSDOM(html).window.document;
+  /** links whose target is not a new tab: an explicit target other than _blank (the page has <base target="_blank">) */
+  const sameTab = (d: any) =>
+    [...d.querySelectorAll('a')].filter(
+      (a: any) => a.hasAttribute('target') && a.getAttribute('target') !== '_blank',
+    );
+
+  it('live, dead and no handoff: no site navigation, no nav-sub, no footers; one bar with APIbase and Back to Soukbase', async () => {
+    const pages = [
+      await render({ prefill: FULL, mode: 'register', grant_requested: true }),
+      await render({ prefill: FULL, mode: 'register', grant_requested: false }),
+      await render({ prefill: null, mode: 'grant', grant_requested: false }),
+      await render(null), // dead handoff
+      await render(null, '?from=soukbase'),
+    ];
+    for (const h of pages) {
+      const d = dom(h);
+      expect(d.querySelector('.nav-full, .nav-burger')).toBeNull();
+      expect(h).not.toContain('nav-sub');
+      expect(d.querySelector('.site-footer, .footer, .footer-row')).toBeNull();
+      expect(d.getElementById('ft')).toBeNull();
+      expect(h).not.toContain('Registering through an AI agent or the API? See the');
+      expect(d.querySelector('head base').getAttribute('target')).toBe('_blank');
+      expect(d.querySelectorAll('head base')).toHaveLength(1);
+      const bar = d.querySelector('.ho-bar');
+      expect(bar.querySelector('.brand').tagName).toBe('SPAN');
+      expect(bar.querySelector('.brand').textContent).toBe('APIbase');
+      const same = sameTab(d);
+      expect(same.map((a: any) => a.id).sort()).toEqual(['ho-back', 'pt']);
+      const back = d.getElementById('ho-back');
+      expect(back.textContent).toBe('← Back to Soukbase');
+      expect(back.getAttribute('target')).toBe('_self');
+      expect(back.getAttribute('href')).toBe('https://soukbase.com');
+      expect(d.getElementById('pt').getAttribute('target')).toBe('_self');
+      expect(h).toContain('/assets/site-m.css'); // APIbase keeps its own look
+    }
+  });
+
+  it('the plain page keeps the site navigation, the tabs and the footers', async () => {
+    for (const qs of ['', '?from=nobody']) {
+      const h = await render(null, qs);
+      const d = dom(h);
+      expect(d.querySelector('.nav-full')).not.toBeNull();
+      expect(h).toContain('<nav class="nav-sub"');
+      expect(d.querySelector('.site-footer')).not.toBeNull();
+      expect(d.getElementById('ft')).not.toBeNull();
+      expect(d.getElementById('ho-back')).toBeNull();
+      expect(d.querySelector('base')).toBeNull();
+    }
+  });
+
+  it('back_url wins over site; a non-https back_url stops the start', async () => {
+    const reg = [{ ...partners()[0], back_url: 'https://soukbase.com/sell/dashboard' }];
+    const app = express();
+    app.use(createIntegratorRouter({ limit: 10_000, partners: reg }));
+    const srv = app.listen(0);
+    try {
+      const h = await (
+        await fetch(
+          `http://127.0.0.1:${(srv.address() as AddressInfo).port}/integrator/connect?from=soukbase`,
+        )
+      ).text();
+      expect(dom(h).getElementById('ho-back').getAttribute('href')).toBe(
+        'https://soukbase.com/sell/dashboard',
+      );
+    } finally {
+      srv.close();
+    }
+    const dir = mkdtempSync(join(tmpdir(), 'partners-'));
+    try {
+      const f = join(dir, 'partners.json');
+      const base0 = JSON.parse(JSON.stringify(partners()[0]));
+      for (const bad of ['http://soukbase.com/back', '', 7]) {
+        writeFileSync(f, JSON.stringify([{ ...base0, back_url: bad }]));
+        expect(() => loadPartners(f)).toThrow(/back_url|https|Invalid URL/);
+      }
+      writeFileSync(f, JSON.stringify([{ ...base0, back_url: 'https://soukbase.com/b' }]));
+      expect(loadPartners(f)[0].back_url).toBe('https://soukbase.com/b');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('T-0943 More options, #nw, category', () => {
+  it('the fold has no deep link, no "Copy link" and no agent guide link; it stays closed', async () => {
+    const p = await boot(FULL);
+    const more = p.$('more');
+    expect(more.open).toBe(false);
+    expect(more.innerHTML).not.toContain('metamask.app.link');
+    expect(more.innerHTML).not.toContain('go.cb-w.com');
+    expect(more.textContent).not.toContain('Copy link');
+    expect(more.querySelector('a[href="/integrator/agent-guide"]')).toBeNull();
+    expect(more.contains(p.F.support_email)).toBe(true);
+  });
+
+  it('#nw on a fine pointer: the wallet help link only; on a coarse pointer: the heading and the deep links', async () => {
+    const fine = await boot(FULL, { wallet: false });
+    const nw = fine.$('nw');
+    expect(fine.visible(nw)).toBe(true);
+    const shown = (p: any) =>
+      [...p.$('nw').querySelectorAll('a, h3, button')]
+        .filter((e: any) => p.visible(e))
+        .map((e: any) => e.textContent);
+    expect(shown(fine)).toEqual(["Don't have a wallet yet?"]);
+    const coarse = await boot(FULL, { wallet: false, coarse: true });
+    expect(shown(coarse)).toEqual([
+      'Open this page in your wallet app',
+      'Open in MetaMask',
+      'Open in Coinbase Wallet',
+      'Finish on a computer',
+      'Copy link',
+      "Don't have a wallet yet?",
+      'Registering through an AI agent or the API?',
+    ]);
+  });
+
+  it('category: value is the slug, the text is words; the store details line shows the words; the posted body carries the slug', async () => {
+    const p = await boot(FULL);
+    const o = [...p.F.category.options].find((x: any) => x.value === 'digital-goods');
+    expect(o.textContent).toBe('Digital goods');
+    const saas = [...p.F.category.options].find((x: any) => x.value === 'saas-subscriptions');
+    expect(saas.textContent).toBe('SaaS subscriptions');
+    expect(p.F.category.value).toBe('digital-goods');
+    expect(p.d.querySelector('[data-sd=category]').textContent).toBe('Digital goods');
+    await p.press(() => p.navs.length > 0);
+    expect(JSON.parse(p.handoffPosts()[0].body).category).toBe('digital-goods');
+  });
+});
+
+describe('T-0943 document versions in words', () => {
+  const doc = (id: string, v: string, at = '2026-10-12T00:00:00Z') => ({
+    doc_id: id,
+    version: v,
+    sha256: id.slice(0, 2).padEnd(64, '0'),
+    effective_from: at,
+    url: `/legal/${id}`,
+  });
+  const NOW = [
+    doc('refund-framework', '1.0'),
+    doc('merchant-agreement', '1.2'),
+    doc('aup', '1.0'),
+    doc('dpa', '1.1'),
+    { doc_id: 'terms', sha256: 'f'.repeat(64), url: '/terms', registry: false },
+  ];
+  const TODAY =
+    'You accept the versions in force today: Merchant Agreement v1.2, Acceptable Use Policy v1.0, Data Processing Addendum v1.1, Refund Framework v1.0.';
+  const settle = () => new Promise((r) => setTimeout(r, 50));
+  const block = (p: any) => p.$('dv');
+  const noPathLinks = (p: any) =>
+    expect(
+      [...p.d.querySelectorAll('a')].filter((a: any) => a.textContent.trim().startsWith('/')),
+    ).toEqual([]);
+
+  it('the two sentences from the lists; the link and the technical details', async () => {
+    const p = await boot(FULL, {
+      legal: {
+        now: NOW,
+        next: [
+          doc('refund-framework', '1.1', '2026-12-10T00:00:00Z'),
+          doc('merchant-agreement', '1.3', '2026-12-10T00:00:00Z'),
+          { doc_id: 'terms', version: '3', effective_from: '2026-12-01T00:00:00Z' },
+        ],
+      },
+    });
+    await settle();
+    expect(p.$('dvt').textContent).toBe(
+      `${TODAY} New versions take effect on 10 December 2026: Merchant Agreement v1.3, Refund Framework v1.1. Until then the versions above apply.`,
+    );
+    const all = [...block(p).querySelectorAll('a')].find(
+      (a: any) => a.textContent === 'All versions and dates',
+    );
+    expect(all.getAttribute('href')).toBe('/legal');
+    const tech = block(p).querySelector('details');
+    expect(tech.open).toBe(false);
+    expect(tech.querySelector('summary').textContent).toBe('Technical details');
+    expect(p.$('docs').textContent.split('\n')).toEqual([
+      `merchant-agreement v1.2 sha256:${'me'.padEnd(64, '0')}`,
+      `aup v1.0 sha256:${'au'.padEnd(64, '0')}`,
+      `dpa v1.1 sha256:${'dp'.padEnd(64, '0')}`,
+      `refund-framework v1.0 sha256:${'re'.padEnd(64, '0')}`,
+    ]);
+    const ml = [...tech.querySelectorAll('a')].find(
+      (a: any) => a.textContent === 'Machine-readable list',
+    );
+    expect(ml.getAttribute('href')).toBe('/legal/index.json');
+    noPathLinks(p);
+    expect(p.d.body.innerHTML).not.toContain('latest effective');
+  });
+
+  it('one sentence per date', async () => {
+    const p = await boot(FULL, {
+      legal: {
+        now: NOW,
+        next: [
+          doc('dpa', '2.0', '2027-01-05T00:00:00Z'),
+          doc('aup', '1.1', '2026-12-10T00:00:00Z'),
+        ],
+      },
+    });
+    await settle();
+    expect(p.$('dvt').textContent).toBe(
+      `${TODAY} New versions take effect on 10 December 2026: Acceptable Use Policy v1.1. Until then the versions above apply. New versions take effect on 5 January 2027: Data Processing Addendum v2.0. Until then the versions above apply.`,
+    );
+  });
+
+  it('index.next.json empty: no second sentence', async () => {
+    const p = await boot(FULL, { legal: { now: NOW, next: [] } });
+    await settle();
+    expect(p.$('dvt').textContent).toBe(TODAY);
+    noPathLinks(p);
+  });
+
+  it.each([
+    ['index.json', { now: 'fail' as const, next: [] }],
+    ['index.next.json', { now: NOW, next: 'fail' as const }],
+  ])('%s does not load: the fallback line with the link', async (_n, legal) => {
+    const p = await boot(FULL, { legal });
+    await settle();
+    const t = p.$('dvt');
+    expect(t.textContent).toBe('Versions could not be loaded. See all versions and dates.');
+    expect(t.querySelector('a').getAttribute('href')).toBe('/legal');
+    expect(p.$('dva').hidden).toBe(true);
+    noPathLinks(p);
+  });
+
+  it('the plain page carries the same block in step 2', async () => {
+    const h = await render(null, '');
+    const d = new JSDOM(h).window.document;
+    const s2 = d.getElementById('s2');
+    expect(s2.querySelector('#dv')).not.toBeNull();
+    expect(s2.textContent).toContain('Document versions');
+    expect(h).not.toContain('Current versions and hashes');
+    expect(h).not.toContain('latest effective');
+  });
+});
+
+describe('T-0943 where to stop the partner, in words', () => {
+  const SENT = 'You can stop Soukbase any time at apibase.pro/integrator/permissions.';
+  const HREF = '/integrator/permissions?partner=soukbase';
+
+  it('one-page view: one sentence under the documents line, the address links to the partner row', async () => {
+    const p = await boot(FULL);
+    const s = p.$('op-stop');
+    expect(s.textContent).toBe(SENT);
+    expect(s.querySelector('a').getAttribute('href')).toBe(HREF);
+    expect(s.querySelector('a').textContent).toBe('apibase.pro/integrator/permissions');
+    expect(p.visible(s)).toBe(true);
+    expect(p.$('op-docs').nextElementSibling).toBe(s);
+    expect(p.d.body.innerHTML.replace(/<script[\s\S]*?<\/script>/g, '')).not.toContain(
+      '/merchants/me/grants',
+    ); // the API route is not page text
+    expect(p.d.body.textContent.split(SENT)).toHaveLength(2);
+  });
+
+  it('grant view: the sentence in place of "You can revoke it any time." and "Revocable any time."', async () => {
+    const h = await render({ prefill: null, mode: 'grant', grant_requested: false });
+    const d = new JSDOM(h).window.document;
+    const lead = d.querySelector('#hd .lp-sub');
+    expect(lead.textContent).toContain(
+      `It gets no access to payouts, keys, orders or refunds. ${SENT}`,
+    );
+    expect(lead.querySelector('a').getAttribute('href')).toBe(HREF);
+    expect(h).not.toContain('revoke it any time');
+    expect(h).not.toContain('Revocable any time.');
+    expect(h.replace(/<script[\s\S]*?<\/script>/g, '')).not.toContain('/merchants/me/grants');
+    expect(d.body.textContent.split(SENT)).toHaveLength(2);
   });
 });

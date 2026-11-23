@@ -183,8 +183,12 @@ static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	at
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	Next to a fresh quote the 410 carries `changes`	-	T-0905 410 quote_expired carries changes (total, shipping, changed unit prices)
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	`changed` covers prices only	-	T-0905 attempt 2: changes excludes subscription_terms and other non-price fields (R1)
 static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	Listed in the public shop index	-	T-0903
-static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	an account the wallet permitted for apibase.pro earlier is not used without that window	-	T-0912 every press on connect opens the wallet's account window
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-not-contain	is not used without that window	-	T-0943 superseded T-0912: an expected account already permitted goes straight to the signature
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-contain	every time you press it	-	T-0912 every press on connect opens the wallet's account window
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	Choose account in wallet	-	T-0912 superseded button label
 static/integrator/permissions.md	https://apibase.pro/integrator/permissions.md	must-contain	Stopping it takes one free wallet signature	-	T-0942
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	A person does this at [/integrator/permissions](/integrator/permissions)	-	T-0942
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	when the expected one is among them the page goes straight to the signature	-	T-0943 connect: eth_accounts first with expected_wallet
+static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-contain	the button goes straight to the signature	-	T-0943 connect: eth_accounts first with expected_wallet
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	which opens `back_url` (or `site`) in the same tab	-	T-0943 partner view of the connect page
+static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	the versions are listed at /legal/index.json	-	T-0943 superseded: the connect page names the versions in words

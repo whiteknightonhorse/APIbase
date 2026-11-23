@@ -26,7 +26,8 @@ TOKEN_FILES = {
     ],
     "static/integrator/llms.txt": ["INTEGRATOR_FEE_PCT", "MERCHANTS_COUNT", "SHOPS_LISTED_COUNT"],
     "static/integrator/index.md": ["MERCHANTS_COUNT", "SHOPS_LISTED_COUNT", "LEGAL_STATUS"],
-    "static/integrator/connect.html": ["LEGAL_STATUS_HTML"],
+    # T-0943: the connect page names the document versions in words; only the draft sentence is a token
+    "static/integrator/connect.html": ["LEGAL_DRAFT_NOTE"],
     "static/integrator/buyers.md": ["STREAM_CLOSE_GRACE_S"],
 }
 # Homepage surfaces are static files (no request-time tokens): the fee phrase and the merchants line

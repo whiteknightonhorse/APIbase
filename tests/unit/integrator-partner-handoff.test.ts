@@ -413,7 +413,7 @@ dbDescribe('T-0739 partner handoff', () => {
       );
       expect(add).toContain('<h1>One more permission for Soukbase</h1>');
       expect(add).toContain(
-        `<p class="lp-sub">Soukbase already sells for your store. This adds one thing: it may ${GRANT_SCOPE_WORDS['quotes:read']}. Nothing else changes, and you can revoke it any time.</p>`,
+        `<p class="lp-sub">Soukbase already sells for your store. This adds one thing: it may ${GRANT_SCOPE_WORDS['quotes:read']}. Nothing else changes. You can stop Soukbase any time at <a href="/integrator/permissions?partner=soukbase">apibase.pro/integrator/permissions</a>.</p>`, // T-0943 (was: Nothing else changes, and you can revoke it any time.)
       );
       const sig = /<ol class="cn-sig" id="sig">([\s\S]*?)<\/ol>/.exec(add)?.[1] ?? '';
       expect(sig.match(/<li /g)).toHaveLength(1);
@@ -431,10 +431,10 @@ dbDescribe('T-0739 partner handoff', () => {
       );
       expect(grant).toContain('<h1>Allow Soukbase to sell for your store</h1>');
       expect(grant).toContain(
-        '<p class="lp-sub">Soukbase will upload and import your catalog, register its own webhook endpoint and receive your order events, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>',
+        '<p class="lp-sub">Soukbase will upload and import your catalog, register its own webhook endpoint and receive your order events, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. You can stop Soukbase any time at <a href="/integrator/permissions?partner=soukbase">apibase.pro/integrator/permissions</a>.</p>', // T-0943 (was: You can revoke it any time.)
       );
       expect(grant).toContain(
-        '<b>Allow Soukbase to sell for you</b><span>Uploads your catalog and receives your orders. Revocable any time.</span>',
+        '<b>Allow Soukbase to sell for you</b><span>Uploads your catalog and receives your orders.</span>', // T-0943: the lead names where to stop it (was: Revocable any time.)
       );
       expect(grant).not.toContain('One more permission');
       const tpl = CONNECT_HTML;

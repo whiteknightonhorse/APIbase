@@ -27,6 +27,8 @@ export interface IntegratorRouterOptions {
   limit?: number;
   /** T-0739: handoff store for `/integrator/connect?from=<partner>&handoff=<id>` (default: the app database, lazily). */
   db?: ShopTx;
+  /** T-0943: the partner registry (default: config/integrator/partners.json). */
+  partners?: readonly Partner[];
 }
 
 const esc = (s: string) =>
@@ -61,7 +63,15 @@ export interface Partner {
    * Default false; true only with `seller_keys: hidden`.
    */
   partner_page_signature?: boolean;
+  /**
+   * T-0943 (REQ-AB-R7-1 item 2): optional https address of the "Back to <name>" link of the partner
+   * view of the connect page; absent = `site`.
+   */
+  back_url?: string;
 }
+
+/** T-0943: where the "Back to <partner>" link of the partner view goes. */
+export const backUrlOf = (p: Partner): string => p.back_url ?? p.site;
 
 /** T-0728: partner registry for the connect page "Continue on <partner>" button; invalid file = startup error. */
 export function loadPartners(file: string): Partner[] {
@@ -79,6 +89,12 @@ export function loadPartners(file: string): Partner[] {
     if (!/^[0-9a-f]{64}$/.test(p.key_sha256)) throw new Error('partners.json: bad key_sha256');
     for (const u of [p.site, p.return_url])
       if (new URL(u).protocol !== 'https:') throw new Error('partners.json: https required');
+    // T-0943: back_url is optional; when present a non-empty https URL, like site.
+    if (
+      r.back_url !== undefined &&
+      (typeof r.back_url !== 'string' || !r.back_url || new URL(r.back_url).protocol !== 'https:')
+    )
+      throw new Error('partners.json: bad field back_url (https required)');
     // T-0747: grant_mode is required; the delivery fields exist exactly in mode partner.
     if (r.grant_mode === 'key') {
       if (r.delivery_webhook_url !== undefined || r.delivery_events !== undefined)
@@ -138,8 +154,14 @@ const scriptJson = (v: unknown) =>
  * (copy from the card; no new CSS). Each `from` must be in the template: a missing one is a startup
  * bug caught by the tests, never a silent half-rendered page.
  */
-const SIG_ROW = (n: number, partner: string) =>
-  `<li data-n="${n}"><div><b>Allow ${partner} to sell for you</b><span>Uploads your catalog and receives your orders. Revocable any time.</span></div></li>`;
+const SIG_ROW = (n: number, partner: string, revocable = 'Revocable any time.') =>
+  `<li data-n="${n}"><div><b>Allow ${partner} to sell for you</b><span>Uploads your catalog and receives your orders.${revocable ? ` ${revocable}` : ''}</span></div></li>`;
+/**
+ * T-0943 (REQ-AB-R7-1 item 5): where a person stops the partner, in words; the address links to the
+ * partner's row of /integrator/permissions (T-0942). `partner` is already HTML-escaped.
+ */
+export const STOP_LINE = (partner: string, partnerId: string) =>
+  `You can stop ${partner} any time at <a href="/integrator/permissions${partnerId ? `?partner=${encodeURIComponent(partnerId)}` : ''}">apibase.pro/integrator/permissions</a>.`;
 /** T-0802: the statements of the one handoff signature, in the order of the message. */
 const ONE_SIG_ROWS = (partner: string) =>
   [
@@ -157,8 +179,10 @@ export function grantVariant(
   body: string,
   partnerName: string,
   v: { mode: 'register' | 'grant'; grant_requested: boolean; scopes?: string[] | null },
+  partnerId = '',
 ): string {
   const pn = esc(partnerName);
+  const stop = STOP_LINE(pn, partnerId);
   const swap = (s: string, from: string | RegExp, to: string | ((...m: string[]) => string)) => {
     if (typeof from === 'string' ? !s.includes(from) : !from.test(s))
       throw new Error(`connect.html: grant variant anchor missing: ${String(from)}`);
@@ -178,15 +202,15 @@ export function grantVariant(
       b,
       '<p class="lp-sub">Three steps, about five minutes. It costs nothing.</p>',
       add
-        ? `<p class="lp-sub">${pn} already sells for your store. This adds one thing: it may ${add.join('; ')}. Nothing else changes, and you can revoke it any time.</p>`
-        : `<p class="lp-sub">${pn} will ${W['catalog:write']}, ${W['webhooks:write']}, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. You can revoke it any time.</p>`,
+        ? `<p class="lp-sub">${pn} already sells for your store. This adds one thing: it may ${add.join('; ')}. Nothing else changes. ${stop}</p>`
+        : `<p class="lp-sub">${pn} will ${W['catalog:write']}, ${W['webhooks:write']}, and read the outcome of each quote for your products, never who the buyer is. It gets no access to payouts, keys, orders or refunds. ${stop}</p>`,
     );
     b = swap(b, '<ol class="cn-bar" id="bar">', '<ol class="cn-bar" id="bar" hidden>');
     b = swap(b, '<b>3 free signatures</b>', '<b>1 free signature</b>');
     b = swap(
       b,
       SIG_LIST_RE,
-      (_m, a, _rows, c) => `${a}${add ? ADD_ROW(pn) : SIG_ROW(1, pn)}\n${c}`,
+      (_m, a, _rows, c) => `${a}${add ? ADD_ROW(pn) : SIG_ROW(1, pn, '')}\n${c}`, // T-0943: the lead says where to stop it
     );
     b = swap(b, /<div class="cn-cards">.*<\/div>\n/, '');
     b = swap(
@@ -235,6 +259,7 @@ export function onePageVariant(
   body: string,
   partnerName: string,
   expectedWallet: string | null,
+  partnerId = '',
 ): string {
   const pn = esc(partnerName);
   let b = body;
@@ -272,9 +297,7 @@ export function onePageVariant(
     );
   const support = cut(/<label>Support email \(optional\)[^\n]*\n/);
   cut(/<div class="cn-box"><p>You accept these four documents[^\n]*\n<p class="cn-info">[^\n]*\n/);
-  const versions = cut(
-    /<details><summary>Document versions<\/summary>[^\n]*\n<p class="muted">[^\n]*\n/,
-  );
+  const versions = cut(/<div id="dv">[^\n]*\n<p class="muted">[^\n]*\n/);
   cut(/<p>One free signature, no gas:[^\n]*\n/);
   const sig = cut(
     /<details><summary>What the message says<\/summary>\n<ol class="cn-sig" id="sig">\n[\s\S]*?<\/ol>\n<\/details>\n/,
@@ -288,17 +311,6 @@ export function onePageVariant(
     .replace('<details><summary>Use a different payout wallet</summary>\n', '')
     .replace(/<\/details>\n$/, '');
   const wh = cut(/<p class="hint" id="wh">[^\n]*\n/);
-  const nwLinks = [
-    '<p class="btn-row">',
-    '<p><button type="button" class="cn-ghost" data-copy=',
-    '<p><a href="/integrator/agent-guide">',
-  ]
-    .map((s) => new RegExp(`${s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^\n]*\n`).exec(b)?.[0])
-    .map((s) => {
-      if (!s) throw new Error('connect.html: one-page anchor missing: #nw links');
-      return s;
-    })
-    .join('');
   const sd = (t: string, n: string) => `<p class="hint">${t}: <span data-sd="${n}"></span></p>\n`;
   const fold =
     '<details id="more"><summary>More options</summary>\n' +
@@ -307,12 +319,12 @@ export function onePageVariant(
     support +
     `<h3>Payout wallet</h3>\n${payout}` +
     '<div id="wsl"></div>\n' +
-    `${wh}${nwLinks}` +
+    wh + // T-0943: no deep links, copy link or agent guide in the fold; #nw keeps them for a browser without a wallet
     versions +
     '</details>\n';
   swap(
     '<p class="cn-nav">',
-    `<p id="op-docs">By signing you accept the ${DOC_LINKS}.</p>\n<p class="cn-nav">`,
+    `<p id="op-docs">By signing you accept the ${DOC_LINKS}.</p>\n<p class="hint" id="op-stop">${STOP_LINE(pn, partnerId)}</p>\n<p class="cn-nav">`,
   );
   swap(
     /(<p class="cn-nav">[^\n]*<\/p>\n)(<\/form>)/,
@@ -321,6 +333,12 @@ export function onePageVariant(
   );
   return b;
 }
+
+/** T-0943 (REQ-AB-R7-1 item 3): the words of a category slug: dashes to spaces, first letter upper case, SaaS. */
+export const categoryLabel = (slug: string): string => {
+  const t = slug.replace(/-/g, ' ').replace(/\bsaas\b/g, 'SaaS');
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
 
 const mdPage = (md: string, path: string): string =>
   layout({
@@ -335,6 +353,7 @@ const mdPage = (md: string, path: string): string =>
 export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Router {
   const router = Router();
   const dir = opts.dir ?? INTEGRATOR_DIR;
+  const REG = opts.partners ?? PARTNERS;
   const cache = new Map<string, string>();
   const read = (name: string): string => {
     let s = cache.get(name);
@@ -406,11 +425,13 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       res.type('text/markdown; charset=utf-8').send(read('connect.md'));
       return;
     }
-    const options = ALLOWED_CATEGORIES.map((c) => `<option>${esc(c)}</option>`).join('');
+    const options = ALLOWED_CATEGORIES.map(
+      (c) => `<option value="${esc(c)}">${esc(categoryLabel(c))}</option>`,
+    ).join('');
     const from: unknown = req.query.from;
-    const partner = typeof from === 'string' ? PARTNERS.find((p) => p.id === from) : undefined;
+    const partner = typeof from === 'string' ? REG.find((p) => p.id === from) : undefined;
     let partnerHtml = partner
-      ? `<input type="hidden" name="partner" value="${esc(partner.id)}" form="f"><a id="pt" class="lp-cta" data-return="${esc(partner.return_url)}" hidden>Continue on ${esc(partner.name)}</a>`
+      ? `<input type="hidden" name="partner" value="${esc(partner.id)}" form="f"><a id="pt" class="lp-cta" data-return="${esc(partner.return_url)}" target="_self" hidden>Continue on ${esc(partner.name)}</a>`
       : '';
     // T-0739: a handoff link of a known partner. Live -> prefill; anything else -> one hint line, no echo.
     let hint = '';
@@ -464,8 +485,11 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       .replace('{{CATEGORY_OPTIONS}}', () => options)
       .replace('{{HANDOFF_HINT}}', () => hint)
       .replace('{{PARTNER}}', () => partnerHtml);
-    if (partner && grantView) body = grantVariant(body, partner.name, grantView);
-    if (partner && onePage) body = onePageVariant(body, partner.name, onePage.expected_wallet);
+    if (partner && grantView) body = grantVariant(body, partner.name, grantView, partner.id);
+    if (partner && onePage)
+      body = onePageVariant(body, partner.name, onePage.expected_wallet, partner.id);
+    // T-0943: the partner view (live, dead or no handoff) drops the agent line; the shell drops the site menu
+    if (partner) body = body.replace(/<p class="cn-foot" id="ft">[^\n]*\n/, '');
     res.type('html').send(
       layout({
         title: 'Connect AI payment | APIbase Integrator',
@@ -475,6 +499,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
         path: '/integrator/connect',
         body,
         scope: 'ig',
+        ...(partner ? { partner: { name: partner.name, back: backUrlOf(partner) } } : {}),
       }),
     );
   });
@@ -487,8 +512,8 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       return;
     }
     const only: unknown = req.query.partner;
-    const one = typeof only === 'string' ? PARTNERS.filter((p) => p.id === only) : [];
-    const rows = (one.length > 0 ? one : PARTNERS)
+    const one = typeof only === 'string' ? REG.filter((p) => p.id === only) : [];
+    const rows = (one.length > 0 ? one : REG)
       .map(
         (p) =>
           `<li class="pm-row" data-partner="${esc(p.id)}" data-name="${esc(p.name)}"><b>${esc(p.name)}</b><button type="button" class="lp-cta" data-stop>Stop ${esc(p.name)}</button><p class="pm-out" role="status" hidden></p></li>`,

@@ -1207,14 +1207,14 @@ dbDescribe('T-0740 partner grants', () => {
       const t = await page(await handoff({ mode: 'grant' }));
       expect(t).toContain('<h1>Allow Soukbase to sell for your store</h1>');
       expect(t).toContain(
-        'It gets no access to payouts, keys, orders or refunds. You can revoke it any time.',
+        'It gets no access to payouts, keys, orders or refunds. You can stop Soukbase any time at <a href="/integrator/permissions?partner=soukbase">apibase.pro/integrator/permissions</a>.', // T-0943 (was: You can revoke it any time.)
       );
       expect(t).toContain('<ol class="cn-bar" id="bar" hidden>');
       expect(t).toContain('<b>1 free signature</b>');
       const sig = /<ol class="cn-sig" id="sig">([\s\S]*?)<\/ol>/.exec(t)?.[1] ?? '';
       expect(sig.match(/<li /g)).toHaveLength(1);
       expect(sig).toContain(
-        '<b>Allow Soukbase to sell for you</b><span>Uploads your catalog and receives your orders. Revocable any time.</span>',
+        '<b>Allow Soukbase to sell for you</b><span>Uploads your catalog and receives your orders.</span>', // T-0943 (was: Revocable any time.)
       );
       expect(t).not.toContain('Use a different payout wallet');
       expect(t).toContain('"mode":"grant"');

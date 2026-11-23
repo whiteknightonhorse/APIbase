@@ -53,6 +53,8 @@ async function boot(o: {
   pendingNth?: number;
   /** T-0870: a GET to /api/v1/shop/auth/nonce never answers (only its abort signal ends it) */
   hangGet?: boolean;
+  /** T-0943: the accounts the wallet already permits for apibase.pro (what eth_accounts answers; default none) */
+  permitted?: string[];
 }) {
   let html = await (await fetch(`${base}/integrator/connect?from=soukbase`)).text();
   if (o.handoff) {
@@ -80,6 +82,8 @@ async function boot(o: {
   const held: (() => void)[] = [];
   /** T-0870: the accounts each fake returns now; accountsChanged (emit) updates them */
   const acc: Record<string, string[]> = {};
+  /** T-0943: the accounts each fake permits for the page: eth_requestAccounts grants them, a revoke clears them */
+  const perm: Record<string, string[]> = {};
   let nreq = 0;
   const cnt: Record<string, number> = {};
   let doc: any = null;
@@ -87,6 +91,7 @@ async function boot(o: {
     chainId: '0x2105',
     request: async (r: { method: string; params?: unknown }) => {
       acc[f.rdns] ||= f.accounts ?? [f.account];
+      perm[f.rdns] ||= o.permitted ?? [];
       log.push({
         who: f.rdns,
         method: r.method,
@@ -106,6 +111,7 @@ async function boot(o: {
       if ((o.hold && o.hold.rdns === f.rdns && o.hold.method === r.method) || o.hang === r.method)
         await new Promise<void>((res) => held.push(res));
       if (r.method === 'wallet_revokePermissions') {
+        perm[f.rdns] = [];
         // T-0912: a real wallet announces the empty account list after a revoke
         (handlers[f.rdns + 'accountsChanged'] || []).forEach((h) => h([]));
         return null;
@@ -115,8 +121,9 @@ async function boot(o: {
         if (c) acc[f.rdns] = [c];
         return [{ parentCapability: 'eth_accounts' }];
       }
-      if (r.method === 'eth_accounts') return acc[f.rdns];
-      return r.method === 'eth_requestAccounts' ? acc[f.rdns] : '0xsig';
+      if (r.method === 'eth_accounts') return perm[f.rdns];
+      if (r.method === 'eth_requestAccounts') return (perm[f.rdns] = acc[f.rdns]);
+      return '0xsig';
     },
     on: (ev: string, h: (a: string[]) => void) => (
       (handlers[f.rdns + ev] ||= []).push(h),
@@ -217,6 +224,10 @@ async function boot(o: {
     (handlers[rdns + 'accountsChanged'] || []).forEach((h) => h(a));
   };
   const release = () => held.splice(0).forEach((x) => x());
+  /** T-0943: the person permits accounts for apibase.pro in the wallet by hand */
+  const permit = (rdns: string, a: string[]) => {
+    perm[rdns] = a;
+  };
   const press = (label: string) =>
     ([...wc().querySelectorAll('button')] as HTMLElement[])
       .find((b) => b.textContent === label)!
@@ -241,6 +252,7 @@ async function boot(o: {
     emit,
     release,
     press,
+    permit,
   };
 }
 
@@ -289,6 +301,7 @@ describe('T-0800 connect page wallet choice', () => {
       expect(b.textContent).not.toContain('payout');
       expect((p.$('nx') as HTMLButtonElement).disabled).toBe(true);
       expect(p.log.map((l) => l.method)).toEqual([
+        'eth_accounts', // T-0943: a handoff with expected_wallet reads the permitted accounts first
         'wallet_revokePermissions',
         'wallet_requestPermissions',
         'eth_requestAccounts',
@@ -358,6 +371,7 @@ describe('T-0800 connect page wallet choice', () => {
     p.$('nx').click();
     await p.settle();
     expect(p.log.map((x) => x.method)).toEqual([
+      'eth_accounts', // T-0943
       ...['wallet_revokePermissions', 'wallet_requestPermissions', 'eth_requestAccounts'],
       'personal_sign',
     ]); // T-0912
@@ -384,6 +398,7 @@ describe('T-0800 connect page wallet choice', () => {
     p.release();
     await p.settle();
     expect(p.log.filter((x) => x.who === 'io.alpha').map((x) => x.method)).toEqual([
+      'eth_accounts', // T-0943
       'wallet_revokePermissions',
       'wallet_requestPermissions',
       'eth_requestAccounts',
@@ -443,7 +458,8 @@ describe('T-0832 different wallet: next step and account picker', () => {
     p.pickBtn().click();
     await p.settle();
     expect(perms(p)).toHaveLength(2);
-    expect(p.log.slice(n, n + 3).map((l: any) => l.method)).toEqual([
+    expect(p.log.slice(n, n + 4).map((l: any) => l.method)).toEqual([
+      'eth_accounts', // T-0943: the permitted account is the other one: the full sequence follows
       'wallet_revokePermissions',
       'wallet_requestPermissions',
       'eth_requestAccounts',
@@ -559,6 +575,7 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
     p.$('nx').click();
     await p.settle();
     expect(p.log.map((l) => l.method)).toEqual([
+      'eth_accounts', // T-0943
       ...['wallet_revokePermissions', 'wallet_requestPermissions', 'eth_requestAccounts'],
       'personal_sign',
     ]); // T-0912
@@ -726,6 +743,7 @@ describe('T-0870 wallet step: expected account, continue by itself, help line, r
 describe('T-0912 every press opens the account window; the page names the account to choose', () => {
   const C: Fake = { ...B, account: EXP };
   const SEQ = ['wallet_revokePermissions', 'wallet_requestPermissions', 'eth_requestAccounts'];
+  const ES = ['eth_accounts', ...SEQ]; // T-0943: with expected_wallet a press reads the permitted accounts first (none here)
   const ms = (p: any) => p.log.map((l: any) => l.method as string);
   const signs = (p: any) => p.log.filter((l: any) => l.method === 'personal_sign');
   const count = (p: any, m: string) => ms(p).filter((x: string) => x === m).length;
@@ -736,9 +754,9 @@ describe('T-0912 every press opens the account window; the page names the accoun
     p.toStep3();
     p.$('nx').click();
     await p.settle();
-    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
-    expect(p.log[0].params).toEqual([{ eth_accounts: {} }]);
-    expect(p.log[1].params).toEqual([{ eth_accounts: {} }]);
+    expect(ms(p)).toEqual([...ES, 'personal_sign']); // T-0943 (was SEQ)
+    expect(p.log[1].params).toEqual([{ eth_accounts: {} }]); // T-0943 (index +1)
+    expect(p.log[2].params).toEqual([{ eth_accounts: {} }]);
     expect((signs(p)[0].params as string[])[1]).toBe(EXP);
   });
 
@@ -763,7 +781,7 @@ describe('T-0912 every press opens the account window; the page names the accoun
     p.toStep3();
     p.$('nx').click();
     await p.settle();
-    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+    expect(ms(p)).toEqual([...ES, 'personal_sign']); // T-0943 (was SEQ)
     expect(p.$('er').hidden).toBe(true);
   });
 
@@ -777,13 +795,13 @@ describe('T-0912 every press opens the account window; the page names the accoun
     p.toStep3();
     p.$('nx').click();
     await p.settle();
-    expect(ms(p)).toEqual(['wallet_revokePermissions']);
+    expect(ms(p)).toEqual(['eth_accounts', 'wallet_revokePermissions']); // T-0943 (eth_accounts first)
     p.advance(1_999);
     await p.settle();
-    expect(ms(p)).toEqual(['wallet_revokePermissions']);
+    expect(ms(p)).toEqual(['eth_accounts', 'wallet_revokePermissions']);
     p.advance(1);
     await p.settle();
-    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+    expect(ms(p)).toEqual([...ES, 'personal_sign']);
   });
 
   it('the account window refused (4001): "Wallet connection rejected", no eth_requestAccounts; Try again runs the whole sequence again', async () => {
@@ -806,8 +824,10 @@ describe('T-0912 every press opens the account window; the page names the accoun
       .click();
     await p.settle();
     expect(ms(p)).toEqual([
+      'eth_accounts', // T-0943
       'wallet_revokePermissions',
       'wallet_requestPermissions',
+      'eth_accounts',
       'wallet_revokePermissions',
       'wallet_requestPermissions',
     ]);
@@ -824,7 +844,7 @@ describe('T-0912 every press opens the account window; the page names the accoun
     p.toStep3();
     p.$('nx').click();
     await p.settle();
-    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+    expect(ms(p)).toEqual([...ES, 'personal_sign']); // T-0943 (was SEQ)
     expect(p.calls.filter((c: any) => c.method === 'POST')).toHaveLength(1);
     expect(p.$('out').hidden).toBe(false);
   });
@@ -891,7 +911,7 @@ describe('T-0912 every press opens the account window; the page names the accoun
     expect(vis(p.$('wtc'))).toBe(false);
     p.pickBtn().click();
     await p.settle();
-    expect(ms(p)).toEqual([...SEQ, ...SEQ, 'personal_sign']);
+    expect(ms(p)).toEqual([...ES, ...ES, 'personal_sign']); // T-0943 (was SEQ, SEQ)
     expect(signs(p)).toHaveLength(1);
     expect((signs(p)[0].params as string[])[1]).toBe(EXP);
     expect(p.box()).toBeUndefined();
@@ -910,7 +930,11 @@ describe('T-0912 every press opens the account window; the page names the accoun
     await p2.settle();
     p2.advance(0);
     await p2.settle();
-    expect(ms(p2)).toEqual(['wallet_revokePermissions', 'wallet_requestPermissions']);
+    expect(ms(p2)).toEqual([
+      'eth_accounts',
+      'wallet_revokePermissions',
+      'wallet_requestPermissions',
+    ]); // T-0943
     p2.release();
     await p2.settle();
     expect(p2.box()).toBeDefined();
@@ -918,8 +942,148 @@ describe('T-0912 every press opens the account window; the page names the accoun
     await p2.settle();
     p2.advance(0);
     await p2.settle();
-    expect(ms(p2)).toEqual([...SEQ, 'wallet_revokePermissions', 'wallet_requestPermissions']);
+    expect(ms(p2)).toEqual([...ES, ...ES.slice(0, 3)]); // T-0943 (was SEQ, revoke, requestPermissions)
     expect(p2.box()).toBeUndefined();
     expect(signs(p2)).toHaveLength(0);
+  });
+});
+
+describe('T-0943 the expected account already permitted: straight to the signature', () => {
+  const C: Fake = { ...B, account: EXP };
+  const SEQ = ['wallet_revokePermissions', 'wallet_requestPermissions', 'eth_requestAccounts'];
+  const ms = (p: any) => p.log.map((l: any) => l.method as string);
+  const signs = (p: any) => p.log.filter((l: any) => l.method === 'personal_sign');
+
+  it.each([EXP, EXP.toUpperCase().replace('0X', '0x')])(
+    'eth_accounts answers the expected address (%s): eth_accounts, personal_sign; one signature, no second press, no #wtc',
+    async (addr) => {
+      const p = await boot({ wallets: [C], handoff: true, onePage: true, permitted: [addr] });
+      p.toStep3();
+      expect(p.log).toEqual([]); // page load asks nothing
+      p.$('nx').click();
+      await p.settle();
+      expect(ms(p)).toEqual(['eth_accounts', 'personal_sign']);
+      expect(p.log[0].params).toBeUndefined();
+      expect(signs(p)).toHaveLength(1);
+      expect((signs(p)[0].params as string[])[1].toLowerCase()).toBe(EXP);
+      expect(p.calls.filter((c: any) => c.method === 'POST')).toHaveLength(1);
+      expect(p.$('out').hidden).toBe(false);
+      expect(p.$('wtc').textContent).toBe('');
+    },
+  );
+
+  it('the short path shows no account window line while the signature waits', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      permitted: [EXP],
+      hang: 'personal_sign',
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual(['eth_accounts', 'personal_sign']);
+    expect(p.$('wtc').hidden).toBe(true);
+    expect(p.$('wts').hidden).toBe(false);
+  });
+
+  it.each([
+    ['an empty list', { permitted: [] as string[] }],
+    ['another account only', { permitted: [OTHER] }],
+    ['an error', { permitted: [EXP], err: { eth_accounts: -32603 } }],
+  ])('eth_accounts answers %s: the T-0912 sequence follows', async (_n, o) => {
+    const p = await boot({ wallets: [C], handoff: true, onePage: true, ...o });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual(['eth_accounts', ...SEQ, 'personal_sign']);
+    expect(signs(p)).toHaveLength(1);
+  });
+
+  it('eth_accounts never answers: after 2 s the T-0912 sequence follows', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      permitted: [EXP],
+      hang: 'eth_accounts',
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual(['eth_accounts']);
+    p.advance(1_999);
+    await p.settle();
+    expect(ms(p)).toEqual(['eth_accounts']);
+    p.advance(1);
+    await p.settle();
+    expect(ms(p)).toEqual(['eth_accounts', ...SEQ, 'personal_sign']);
+  });
+
+  const tryAgain = (p: any) =>
+    ([...p.$('er').querySelectorAll('button')] as HTMLElement[])
+      .find((b) => b.textContent === 'Try again')!
+      .click();
+
+  it('short path, then personal_sign fails with 4100: the next press starts with wallet_revokePermissions', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      permitted: [EXP],
+      err: { personal_sign: [4100] },
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual(['eth_accounts', 'personal_sign']);
+    expect(p.$('er').hidden).toBe(false);
+    tryAgain(p);
+    await p.settle();
+    expect(ms(p).slice(2)).toEqual([...SEQ, 'personal_sign']);
+    expect(signs(p)).toHaveLength(2);
+    expect(p.$('out').hidden).toBe(false);
+  });
+
+  it('short path, then the signature is rejected (4001): the next press reads the permitted accounts again', async () => {
+    const p = await boot({
+      wallets: [C],
+      handoff: true,
+      onePage: true,
+      permitted: [EXP],
+      err: { personal_sign: [4001] },
+    });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(p.$('er').textContent).toContain('Signature rejected');
+    tryAgain(p);
+    await p.settle();
+    expect(ms(p)).toEqual(['eth_accounts', 'personal_sign', 'eth_accounts', 'personal_sign']);
+  });
+
+  it('no handoff: no eth_accounts, the T-0912 log as today; page load: empty log', async () => {
+    const p = await boot({ wallets: [C], permitted: [EXP], hang: 'personal_sign' });
+    p.toStep3();
+    await p.settle();
+    expect(p.log).toEqual([]);
+    p.$('nx').click();
+    await p.settle();
+    expect(ms(p)).toEqual([...SEQ, 'personal_sign']);
+  });
+
+  it('the button of differ() uses the same rule: the expected account permitted meanwhile goes straight to the signature', async () => {
+    const p = await boot({ wallets: [A], handoff: true, onePage: true, hang: 'personal_sign' });
+    p.toStep3();
+    p.$('nx').click();
+    await p.settle();
+    expect(p.box()).toBeDefined();
+    const n = p.log.length;
+    p.permit('io.alpha', [EXP]);
+    p.pickBtn().click();
+    await p.settle();
+    expect(ms(p).slice(n)).toEqual(['eth_accounts', 'personal_sign']);
+    expect((signs(p)[0].params as string[])[1]).toBe(EXP);
   });
 });

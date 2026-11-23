@@ -59,6 +59,11 @@ function legalStatus(file: string): string {
   return `Current versions and hashes: /legal/index.json (latest effective ${legalLatestEffective()}).`;
 }
 
+/** T-0943: the connect page names the versions itself; it keeps only the draft sentence while unpublished. */
+function legalDraftNote(file: string): string {
+  return isLegalPublished(file).published ? '' : DRAFT_LEGAL_STATUS;
+}
+
 function feeState(): { on: boolean; pct: number } {
   const e = getShopEnv();
   const bps = e.INTEGRATOR_FEE_BPS;
@@ -89,6 +94,7 @@ export function renderTokens(
     .replace(/\{\{MERCHANTS_COUNT\}\}/g, () => merchants)
     .replace(/\{\{SHOPS_LISTED_COUNT\}\}/g, () => shopsListed)
     .replace(/\{\{LEGAL_LATEST_EFFECTIVE\}\}/g, () => legalLatestEffective())
+    .replace(/\{\{LEGAL_DRAFT_NOTE\}\}/g, () => legalDraftNote(legalFile))
     .replace(/\{\{LEGAL_STATUS_HTML\}\}/g, () => autolinkSitePaths(legalStatus(legalFile)))
     .replace(/\{\{LEGAL_STATUS\}\}/g, () => legalStatus(legalFile))
     .replace(/\{\{SANDBOX_STATUS\}\}/g, () => e.SANDBOX_STATUS || DEFAULT_SANDBOX_STATUS);
