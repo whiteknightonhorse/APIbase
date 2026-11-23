@@ -341,6 +341,9 @@
     "emsc.search_earthquakes": "healthy",
     "ensembl.gene_lookup": "healthy",
     "ensembl.sequence_region": "healthy",
+    "enviroatlas.block_group_metrics": "healthy",
+    "enviroatlas.communities": "healthy",
+    "enviroatlas.community_summary": "healthy",
     "eonet.categories": "healthy",
     "eonet.event_detail": "healthy",
     "eonet.events": "healthy",
@@ -1208,7 +1211,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 399,
+  "providers_count": 400,
   "rails": [
     "x402",
     "mpp",
@@ -1242,7 +1245,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1351,
+      "count": 1354,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1256,6 +1259,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1379,
+  "tools_count": 1382,
   "version": "2.2.0"
 }
