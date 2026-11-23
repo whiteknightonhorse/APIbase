@@ -13,7 +13,7 @@ import { hashApiKey } from '../../services/api-key.service';
 import { encryptSecret } from '../../services/secret-crypto.service';
 import { ShopAuthError } from '../auth/errors';
 import { issueKey } from '../auth/merchant-key.service';
-import { verifyGrantSignature } from '../auth/nonce.service';
+import { verifyGrantRevokeSignature, verifyGrantSignature } from '../auth/nonce.service';
 import { reasonBlocks } from '../auth/terms.guard';
 import type { ShopTx } from '../db';
 import type { WebhookDeps } from '../webhook/webhook.service';
@@ -453,6 +453,37 @@ export async function revokeGrant(
     g.map((r) => r.grant_id),
   );
   return { partner, revoked: true };
+}
+
+/**
+ * T-0942 (REQ-AB-R7-1 item 5): POST /merchants/me/grants/:partner/revoke (no Bearer: the wallet
+ * signature, purpose grant_revoke, is the credential). The wallet must be the identity wallet of a
+ * store in any status; then revokeGrant in one transaction, with the effects of DELETE.
+ */
+export async function revokeGrantByWallet(
+  d: Pick<WebhookDeps, 'db' | 'redis' | 'now' | 'transaction'>,
+  partner: unknown,
+  body: unknown,
+): Promise<{ partner: string; revoked: true }> {
+  const b = (body && typeof body === 'object' ? body : {}) as Record<string, unknown>;
+  const { wallet, message, signature } = b;
+  if (typeof wallet !== 'string' || !ADDR_RE.test(wallet)) throw invalid('wallet');
+  const p = await findPartner(partner);
+  if (!p) throw invalid('partner');
+  if (typeof message !== 'string' || typeof signature !== 'string') {
+    throw new ShopAuthError(401, 'wallet signature required', 'sign the grant_revoke message');
+  }
+  await verifyGrantRevokeSignature(
+    { message, signature, expectedAddress: wallet, partner: p },
+    { redis: d.redis, now: d.now },
+  );
+  const rows = await d.db.$queryRawUnsafe<Array<{ merchant_id: string }>>(
+    `SELECT merchant_id::text AS merchant_id FROM shop_merchants WHERE wallet_address = $1`,
+    wallet.toLowerCase(),
+  );
+  const m = rows[0];
+  if (!m) throw notFound('merchant_not_found', 'This wallet has no store on APIbase');
+  return d.transaction((tx) => revokeGrant(tx, m.merchant_id, p.id));
 }
 
 /** Key revoked, endpoints soft-deleted (T-0727 path), undelivered key or secret dropped from the handoff. */

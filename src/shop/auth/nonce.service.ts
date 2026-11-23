@@ -12,7 +12,14 @@ export interface NonceRedis {
 }
 
 export type SignPurpose =
-  'register' | 'accept_terms' | 'rotate_key' | 'payout_change' | 'reissue' | 'owner' | 'grant';
+  | 'register'
+  | 'accept_terms'
+  | 'rotate_key'
+  | 'payout_change'
+  | 'reissue'
+  | 'owner'
+  | 'grant'
+  | 'grant_revoke';
 
 export const NONCE_TTL_S = 300;
 const NONCE_PREFIX = 'shop:nonce:';
@@ -118,6 +125,68 @@ export async function verifyGrantSignature(
     name !== partner.name
   ) {
     throw new ShopAuthError(401, 'grant message does not match address/partner');
+  }
+  return verifyBoundNonceSignature(
+    { message, signature, address: addr, nonce, issuedAt, expected },
+    opts,
+  );
+}
+
+/**
+ * T-0942 (REQ-AB-R7-1 item 5): the exact text a merchant wallet signs to stop a partner (purpose
+ * grant_revoke), built and verified by the server only.
+ */
+export function grantRevokeMessage(p: {
+  partnerName: string;
+  partnerId: string;
+  wallet: string;
+  nonce: string;
+  issuedAt: string;
+}): string {
+  return (
+    `apibase.pro: stop ${p.partnerName} acting for your store\n` +
+    `Address: ${p.wallet}\n` +
+    `Partner: ${p.partnerId}\n` +
+    `Effect: ${p.partnerName} can no longer upload your catalog or receive your order events. Your store, payouts and orders stay.\n` +
+    `Nonce: ${p.nonce}\n` +
+    `Issued At: ${p.issuedAt}`
+  );
+}
+
+const REVOKE_HEAD_RE =
+  /^apibase\.pro: stop [^\n]{1,80} acting for your store\nAddress: (0x[0-9a-fA-F]{40})\n/;
+const REVOKE_TAIL_RE = /\nNonce: ([0-9a-f]+)\nIssued At: (\S+)$/;
+
+/**
+ * T-0942: verify the grant_revoke message as verifyGrantSignature does: the text must equal, byte for
+ * byte, the one built for the partner's registry name and id and `expectedAddress`; then the shared
+ * nonce/freshness/signature tail (EOA and ERC-1271). Any mismatch -> 401.
+ */
+export async function verifyGrantRevokeSignature(
+  args: {
+    message: string;
+    signature: string;
+    expectedAddress: string;
+    partner: { id: string; name: string };
+  },
+  opts: { redis?: NonceRedis; now?: () => number } = {},
+): Promise<{ signer_kind: SignerKind }> {
+  const { message, signature, expectedAddress, partner } = args;
+  const head = REVOKE_HEAD_RE.exec(message);
+  const tail = REVOKE_TAIL_RE.exec(message);
+  if (!head || !tail) throw new ShopAuthError(401, 'malformed grant_revoke message');
+  const [, addr] = head;
+  const [, nonce, issuedAt] = tail;
+  const expected = expectedAddress.toLowerCase();
+  const rebuilt = grantRevokeMessage({
+    partnerName: partner.name,
+    partnerId: partner.id,
+    wallet: addr,
+    nonce,
+    issuedAt,
+  });
+  if (addr.toLowerCase() !== expected || message !== rebuilt) {
+    throw new ShopAuthError(401, 'grant_revoke message does not match address/partner');
   }
   return verifyBoundNonceSignature(
     { message, signature, address: addr, nonce, issuedAt, expected },

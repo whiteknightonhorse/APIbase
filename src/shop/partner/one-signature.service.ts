@@ -37,6 +37,9 @@ const TAIL_RE = /\nNonce: ([0-9a-f]{32})\nIssued At: (\S+)$/;
 /** T-0871: a hex wallet signature (EOA 65 bytes, or a longer contract-wallet signature). */
 const SIG_RE = /^0x[0-9a-fA-F]{2,32768}$/;
 
+/** T-0942: the plain line of both handoff texts that names the page where a seller stops a partner. */
+export const STOP_LINE = 'You can stop this any time at apibase.pro/integrator/permissions.';
+
 /** One statement of a combined message: a heading line and its value lines. */
 export interface Statement {
   heading: string;
@@ -125,7 +128,7 @@ function docNames(): string {
 }
 
 /**
- * T-0868: four plain lines for the person, then "Technical details" and the statements (key,
+ * T-0868: four plain lines for the person (T-0942: five, with STOP_LINE), then "Technical details" and the statements (key,
  * registration, hashes, permission) unchanged, then nonce and time.
  */
 export function handoffMessage(
@@ -138,6 +141,7 @@ export function handoffMessage(
     plain: [
       `I accept the four APIbase documents: ${docNames()}.`,
       `${partner.name} may: ${allows}. It may not touch payouts, keys, orders or refunds.`,
+      STOP_LINE,
       'This is a signature only: no transaction, no payment, no gas.',
     ],
     detailsHeading: 'Technical details',
@@ -531,8 +535,8 @@ export function placeholderEncryptionKey(handoff_id: string): {
 }
 
 /**
- * The text signed on the partner's page: four plain lines for the person (documents with versions,
- * what the partner may do, payouts and the missing decryption key, no transaction), then "Technical
+ * The text signed on the partner's page: plain lines for the person (documents with versions,
+ * what the partner may do, where to stop it (T-0942), payouts and the missing decryption key, no transaction), then "Technical
  * details": registration with the handoff id, document hashes, permission, the placeholder key.
  */
 export function partnerPageMessage(
@@ -551,6 +555,7 @@ export function partnerPageMessage(
     plain: [
       `I accept the four APIbase documents: ${versions}. Texts: https://apibase.pro/legal`,
       `${partner.name} may: ${allows}. It may not touch payouts, keys, orders or refunds.`,
+      STOP_LINE,
       'Payouts go to this wallet. The shop starts without a decryption key.',
       'This is a signature only: no transaction, no payment, no gas.',
     ],

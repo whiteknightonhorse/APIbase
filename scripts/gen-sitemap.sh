@@ -118,14 +118,15 @@ emit() {
 
   # T-0342: app-served pages (nginx proxies /integrator, /shops, /legal to the app). Derived
   # from static/integrator and static/legal so a new page only needs to exist on disk.
-  # Noindex pages are skipped: /integrator/connect, /m/*/p/*, /autopilot/incident. /m/<slug>
+  # Noindex pages are skipped: /integrator/connect, /integrator/permissions (T-0942), /m/*/p/*,
+  # /autopilot/incident. /m/<slug>
   # is NOT listed here: it lives in the app-served shops sitemap (sitemap-shops-index.xml).
   for f in static/integrator/*.html static/integrator/*.md static/integrator/platforms/*.md; do
     [ -f "$f" ] || continue
     rel="${f#static/integrator/}"; rel="${rel%.*}"
     case "$f" in static/integrator/index.md) continue ;; esac  # twin of index.html
     case "$rel" in
-      _*|connect|llms) continue ;;
+      _*|connect|permissions|llms) continue ;;
       index) url="/integrator" ;;
       *) url="/integrator/$rel" ;;
     esac

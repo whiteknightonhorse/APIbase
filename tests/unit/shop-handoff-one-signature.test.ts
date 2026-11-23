@@ -90,7 +90,8 @@ describe('T-0802 the one message (no DB)', () => {
     expect(lines[1]).toBe(
       'I accept the four APIbase documents: Merchant Agreement, Acceptable Use Policy, Data Processing Addendum, Refund Framework.',
     );
-    expect(lines[3]).toBe('This is a signature only: no transaction, no payment, no gas.');
+    expect(lines[3]).toBe('You can stop this any time at apibase.pro/integrator/permissions.');
+    expect(lines[4]).toBe('This is a signature only: no transaction, no payment, no gas.');
     const at = (h: string) => lines.indexOf(h);
     const order = [
       '1. Encryption key of the shop',
@@ -128,16 +129,23 @@ describe('T-0802 the one message (no DB)', () => {
     expect(m.startsWith('apibase.pro: allow')).toBe(false);
   });
 
-  it('T-0868: the first four lines hold no base64, no hash', () => {
-    for (const l of lines.slice(0, 4)) {
+  it('T-0942: the stop line appears once, right after the may line; the Revoke any time line is unchanged', () => {
+    const stop = 'You can stop this any time at apibase.pro/integrator/permissions.';
+    expect(lines.filter((l) => l === stop)).toHaveLength(1);
+    expect(lines.indexOf(stop)).toBe(lines.findIndex((l) => l.startsWith('Soukbase may: ')) + 1);
+    expect(lines).toContain('Revoke any time: DELETE /api/v1/shop/merchants/me/grants/soukbase');
+  });
+
+  it('T-0868: the first five lines (T-0942: with the stop line) hold no base64, no hash', () => {
+    for (const l of lines.slice(0, 5)) {
       expect(l).not.toMatch(/[A-Za-z0-9+/]{43}=/);
       expect(l).not.toMatch(/sha256:/);
       expect(l).not.toMatch(/[0-9a-f]{32,}/i);
     }
   });
 
-  it("T-0868: line 5 is Technical details; the lines up to Nonce are today's statements", () => {
-    expect(lines[4]).toBe('Technical details');
+  it("T-0868: line 6 (T-0942) is Technical details; the lines up to Nonce are today's statements", () => {
+    expect(lines[5]).toBe('Technical details');
     const stmts = [
       encryptionKeyStatement(REC),
       registrationStatement(REC.address),
@@ -145,7 +153,7 @@ describe('T-0802 the one message (no DB)', () => {
       permissionStatement({ id: 'soukbase', name: 'Soukbase' }),
     ];
     const expected = stmts.flatMap((s, i) => [`${i + 1}. ${s.heading}`, ...s.lines]);
-    expect(lines.slice(5, -2)).toEqual(expected);
+    expect(lines.slice(6, -2)).toEqual(expected);
   });
 
   it('T-0868: line 3 carries the grant allows line without its prefix', () => {

@@ -27,7 +27,7 @@ describe('T-0535 integrator .md path twins', () => {
       .map((f) => `platforms/${f}`),
   ];
 
-  it('walks twelve files', () => expect(files).toHaveLength(12));
+  it('walks thirteen files (T-0942: permissions.md)', () => expect(files).toHaveLength(13));
 
   it.each(files)('/integrator/%s is served as Markdown with a canonical Link', async (f) => {
     const s = serve(createIntegratorRouter({ limit: 1000 }));

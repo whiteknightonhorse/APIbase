@@ -1,0 +1,62 @@
+<div class="lp cn">
+<style>
+.ig .cn{max-width:560px;margin:0 auto}
+.ig .cn .cn-eye{margin:var(--s4) 0 var(--s2);font-family:var(--mono);font-size:var(--fs-caption);letter-spacing:.04em;color:var(--ink-3)}
+.ig .cn h1{font-size:clamp(32px,6vw,44px);margin:0 0 var(--s3)}
+.ig .cn .lp-sub{font-size:18px}
+.ig .cn .hint{display:block;margin:var(--s1) 0 0;font-size:var(--fs-small);color:var(--ink-3)}
+.ig .pm-list{list-style:none;margin:var(--s4) 0;padding:0;border:1px solid var(--line-2);border-radius:var(--r-card)}
+.ig .pm-row{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center;justify-content:space-between;margin:0;padding:var(--s3) var(--s4);border-top:1px solid var(--line)}
+.ig .pm-row:first-child{border-top:0}
+.ig .pm-row .lp-cta[disabled]{opacity:.5;cursor:wait}
+.ig .pm-out,.ig .pm-pick{flex-basis:100%;margin:0;color:var(--ink-2)}
+.ig .pm-out.bad{color:var(--bad)}
+.ig .pm-pick button,.ig .pm-out button{margin-right:var(--s2)}
+</style>
+<p class="cn-eye">INTEGRATOR · PERMISSIONS</p>
+<h1>Partners that sell for you</h1>
+<p class="lp-sub">A partner permission lets a marketplace you allowed upload your catalog and receive your order events for your store. Stopping it takes one free wallet signature, no gas; it does not close your store and does not touch your payouts or orders.</p>
+<ul class="pm-list" id="pl">
+{{PARTNER_ROWS}}
+</ul>
+<p class="hint" id="nw" hidden>No wallet in this browser. <a href="/integrator/wallet">Get a wallet, or open this page in your wallet app</a>.</p>
+<details><summary>Technical details</summary>
+<p>With the merchant key the same stop is <code>DELETE /api/v1/shop/merchants/me/grants/&lt;partner&gt;</code> or the MCP tool <code>shop.merchant.grant_revoke</code>. This page signs the message of purpose <code>grant_revoke</code> and sends it to <code>POST /api/v1/shop/merchants/me/grants/&lt;partner&gt;/revoke</code>. See <a href="/integrator/docs#partner-grants">Partner grants</a>.</p>
+</details>
+<script>
+const $ = (id) => document.getElementById(id), WL = [];
+const hex = (m) => '0x' + [...new TextEncoder().encode(m)].map((b) => b.toString(16).padStart(2, '0')).join('');
+const el = (t, c, x) => Object.assign(document.createElement(t), { className: c || '', textContent: x || '' });
+// T-0942: wallets are found by EIP-6963 as on the connect page; discovery only listens, no wallet is asked anything before a press
+window.addEventListener('eip6963:announceProvider', (e) => {
+  const d = e && e.detail, i = d && d.info; if (!d || !i || !d.provider || typeof d.provider.request !== 'function' || typeof i.name !== 'string' || typeof i.uuid !== 'string') return;
+  const nm = i.name.replace(/[\u0000-\u001f\u007f-\u009f]/g, '').trim().slice(0, 40); if (!nm || WL.some((w) => w.u === i.uuid)) return; WL.push({ u: i.uuid, n: nm, p: d.provider });
+});
+window.dispatchEvent(new Event('eip6963:requestProvider'));
+const wallets = () => (WL.length ? WL : window.ethereum && typeof window.ethereum.request === 'function' ? [{ n: 'your wallet', p: window.ethereum }] : []);
+const call = async (u, method, body) => { const r = await fetch(u, { method, headers: { 'content-type': 'application/json' }, body: body && JSON.stringify(body) }); let d = {}; try { d = await r.json(); } catch (x) {} if (!r.ok) throw Object.assign(new Error(d.message || 'APIbase answered ' + r.status), { status: r.status, code: d.error_code }); return d; };
+const say = (row, text, bad, retry) => { const o = row.querySelector('.pm-out'); o.replaceChildren(el('span', '', text)); o.className = 'pm-out' + (bad ? ' bad' : ''); if (retry) { const b = el('button', 'cn-ghost', 'Try again'); b.type = 'button'; b.onclick = () => press(row); o.append(' ', b); } o.hidden = false; };
+// with several wallets the person chooses; with one it is used
+const pick = (row) => new Promise((res) => { const ws = wallets(); if (ws.length < 2) return res(ws[0] || null); const box = el('div', 'pm-pick'); box.append(el('span', 'hint', 'Choose your wallet')); ws.forEach((w) => { const b = el('button', 'cn-ghost', w.n); b.type = 'button'; b.onclick = () => { box.remove(); res(w); }; box.append(b); }); row.querySelector('.pm-out').before(box); });
+const press = async (row) => {
+  const id = row.dataset.partner, nm = row.dataset.name, bt = row.querySelector('[data-stop]'), old = row.querySelector('.pm-pick'); row.querySelector('.pm-out').hidden = true; if (old) old.remove();
+  const w = await pick(row); if (!w) { $('nw').hidden = false; return; }
+  bt.disabled = true; let signing = false;
+  try {
+    const acc = await w.p.request({ method: 'eth_requestAccounts' }), a = Array.isArray(acc) && typeof acc[0] === 'string' ? acc[0] : '';
+    if (!/^0x[0-9a-fA-F]{40}$/.test(a)) throw new Error('The wallet returned no account.');
+    const n = await call('/api/v1/shop/auth/nonce?wallet=' + a + '&purpose=grant_revoke&partner=' + encodeURIComponent(id), 'GET');
+    signing = true; const signature = await w.p.request({ method: 'personal_sign', params: [hex(n.message), a] }); signing = false;
+    await call('/api/v1/shop/merchants/me/grants/' + encodeURIComponent(id) + '/revoke', 'POST', { wallet: a, message: n.message, signature });
+    say(row, nm + ' no longer sells for your store. You can allow it again from ' + nm + '.');
+  } catch (e) {
+    const c = e && e.code;
+    if (c === 'not_found') say(row, 'This wallet has not allowed ' + nm + '.', true);
+    else if (c === 'merchant_not_found') say(row, 'This wallet has no store on APIbase.', true);
+    else if ((signing && (c === 4001 || c === 'ACTION_REJECTED')) || (e && e.status === 401)) say(row, 'Signature rejected. Nothing changed.', true, true);
+    else say(row, (e && e.message) || 'Something went wrong.', true, true);
+  } finally { bt.disabled = false; }
+};
+document.querySelectorAll('#pl [data-stop]').forEach((b) => { b.onclick = () => press(b.closest('li')); });
+</script>
+</div>

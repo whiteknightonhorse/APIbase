@@ -23,9 +23,12 @@ describe('gen-sitemap.sh --print', () => {
     },
   );
 
-  it.each(['/integrator/connect', '/autopilot/incident'])('omits noindex %s', (p) => {
-    expect(locs).not.toContain(p);
-  });
+  it.each(['/integrator/connect', '/integrator/permissions', '/autopilot/incident'])(
+    'omits noindex %s',
+    (p) => {
+      expect(locs).not.toContain(p);
+    },
+  );
 
   it('omits /m/ pages and has no duplicates', () => {
     expect(locs.filter((l) => l.startsWith('/m/'))).toEqual([]);

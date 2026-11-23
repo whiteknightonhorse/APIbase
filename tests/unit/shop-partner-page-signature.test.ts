@@ -72,20 +72,28 @@ describe('T-0871 the partner-page text (no DB)', () => {
   const m = partnerPageMessage(REC, SOUK);
   const lines = m.split('\n');
 
-  it('first line names the host of the partner site; then the four plain lines', () => {
+  it('first line names the host of the partner site; then the five plain lines (T-0942: the stop line)', () => {
     expect(lines[0]).toBe(
       'APIbase (apibase.pro), asked on soukbase.com: open my shop apibase.pro/m/north-shop and let Soukbase sell for it.',
     );
-    expect(lines.slice(1, 5)).toEqual([
+    expect(lines.slice(1, 6)).toEqual([
       'I accept the four APIbase documents: Merchant Agreement v2.1, Acceptable Use Policy v1.5, Data Processing Addendum v1.0, Refund Framework v1.2. Texts: https://apibase.pro/legal',
       `Soukbase may: ${GRANT_ALLOWS_LINE.replace(/^Allows: /, '')}. It may not touch payouts, keys, orders or refunds.`,
+      'You can stop this any time at apibase.pro/integrator/permissions.',
       'Payouts go to this wallet. The shop starts without a decryption key.',
       'This is a signature only: no transaction, no payment, no gas.',
     ]);
   });
 
-  it('lines 2 to 5 carry no base64 and no hash', () => {
-    for (const l of lines.slice(1, 5)) {
+  it('T-0942: the stop line appears once, right after the may line; the Revoke any time line is unchanged', () => {
+    const stop = 'You can stop this any time at apibase.pro/integrator/permissions.';
+    expect(lines.filter((l) => l === stop)).toHaveLength(1);
+    expect(lines[lines.indexOf(stop) - 1].startsWith('Soukbase may: ')).toBe(true);
+    expect(lines).toContain('Revoke any time: DELETE /api/v1/shop/merchants/me/grants/soukbase');
+  });
+
+  it('lines 2 to 6 carry no base64 and no hash', () => {
+    for (const l of lines.slice(1, 6)) {
       expect(l).not.toMatch(/[A-Za-z0-9+/]{43}=/);
       expect(l).not.toMatch(/sha256:/);
       expect(l).not.toMatch(/[0-9a-f]{32,}/i);
@@ -93,7 +101,7 @@ describe('T-0871 the partner-page text (no DB)', () => {
   });
 
   it('Technical details: registration with the handoff, documents, permission, key; then nonce and time', () => {
-    expect(lines[5]).toBe('Technical details');
+    expect(lines[6]).toBe('Technical details');
     const expected = [
       '1. Registration',
       `Address: ${REC.address}`,
@@ -105,7 +113,7 @@ describe('T-0871 the partner-page text (no DB)', () => {
       `Nonce: ${REC.nonce}`,
       `Issued At: ${REC.issued_at}`,
     ];
-    expect(lines.slice(6)).toEqual(expected);
+    expect(lines.slice(7)).toEqual(expected);
   });
 
   it('the placeholder key: kid none-<id>, x25519, pub = base64 sha256 of the fixed text and the lower-case id', () => {

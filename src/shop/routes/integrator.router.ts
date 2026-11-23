@@ -478,6 +478,34 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
       }),
     );
   });
+  // T-0942 (REQ-AB-R7-1 item 5): the seller stops a partner with one wallet signature. One row per
+  // registry partner; `?partner=<id>` of a registry partner shows only that row, any other value is ignored.
+  router.get('/integrator/permissions', limiter, (req, res) => {
+    res.set('Vary', 'Accept').set('Cache-Control', 'public, max-age=300');
+    if (wantsMd(req)) {
+      res.type('text/markdown; charset=utf-8').send(renderTokens(read('permissions.md')));
+      return;
+    }
+    const only: unknown = req.query.partner;
+    const one = typeof only === 'string' ? PARTNERS.filter((p) => p.id === only) : [];
+    const rows = (one.length > 0 ? one : PARTNERS)
+      .map(
+        (p) =>
+          `<li class="pm-row" data-partner="${esc(p.id)}" data-name="${esc(p.name)}"><b>${esc(p.name)}</b><button type="button" class="lp-cta" data-stop>Stop ${esc(p.name)}</button><p class="pm-out" role="status" hidden></p></li>`,
+      )
+      .join('\n');
+    res.type('html').send(
+      layout({
+        title: 'Partners that sell for you | APIbase Integrator',
+        description:
+          'Stop a partner that sells for your store with one wallet signature. Your store, payouts and orders stay.',
+        head: CONNECT_HEAD,
+        path: '/integrator/permissions',
+        body: renderTokens(read('permissions.html')).replace('{{PARTNER_ROWS}}', () => rows),
+        scope: 'ig',
+      }),
+    );
+  });
   router.get('/integrator/docs', limiter, (req, res) =>
     send(req, res, 'docs', (md, path) =>
       layout({
@@ -504,7 +532,7 @@ export function createIntegratorRouter(opts: IntegratorRouterOptions = {}): Rout
   router.get(['/integrator.md', '/integrator/index.md'], limiter, (_req, res) =>
     sendMdTwin(res, 'index.md', '/integrator'),
   );
-  for (const n of ['docs', 'connect', ...GUIDES]) {
+  for (const n of ['docs', 'connect', 'permissions', ...GUIDES]) {
     router.get(`/integrator/${n}.md`, limiter, (_req, res) =>
       sendMdTwin(res, `${n}.md`, `/integrator/${n}`, n !== 'connect'),
     );

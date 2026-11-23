@@ -8,6 +8,7 @@ import { ownerKeyOnly, requireMerchantKey } from '../auth/merchant-key.service';
 import {
   buildSignInMessage,
   grantMessage,
+  grantRevokeMessage,
   issueNonce,
   NONCE_TTL_S,
   type SignPurpose,
@@ -30,7 +31,13 @@ import { merchantRefund } from '../refund.service';
 import { listFeeInvoices, markFeeInvoicePaid } from '../fee-invoice.service';
 import { merchantEnvelopes } from '../pii/pii.service';
 import { deleteWebhook, listEvents, listWebhooks, setWebhook } from '../webhook/webhook.service';
-import { createGrant, findPartner, listGrants, revokeGrant } from '../partner/grant.service';
+import {
+  createGrant,
+  findPartner,
+  listGrants,
+  revokeGrant,
+  revokeGrantByWallet,
+} from '../partner/grant.service';
 import { issueHandoffNonce, registerByHandoff } from '../partner/one-signature.service';
 import {
   confirmMerchantSettled,
@@ -62,6 +69,7 @@ const PURPOSES: readonly SignPurpose[] = [
   'reissue',
   'owner',
   'grant',
+  'grant_revoke',
 ];
 
 export { PROBE_LIMIT_PER_MIN };
@@ -120,8 +128,10 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
           return;
         }
         // T-0740: purpose grant names a registered partner; its message is the grant text.
-        const partner = purpose === 'grant' ? await findPartner(req.query.partner) : undefined;
-        if (purpose === 'grant' && !partner) {
+        // T-0942: so does purpose grant_revoke; its message is the stop text.
+        const named = purpose === 'grant' || purpose === 'grant_revoke';
+        const partner = named ? await findPartner(req.query.partner) : undefined;
+        if (named && !partner) {
           res.status(422).json({
             error: 'validation_failed',
             error_code: 'validation_failed',
@@ -141,7 +151,7 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
                 time: issued_at,
               })
             : partner
-              ? grantMessage({
+              ? (purpose === 'grant_revoke' ? grantRevokeMessage : grantMessage)({
                   partnerName: partner.name,
                   partnerId: partner.id,
                   wallet,
@@ -669,6 +679,20 @@ export function createMerchantRouter(deps: ShopDeps = defaultShopDeps()): Router
       try {
         const merchant_id = req.merchant?.merchant_id ?? '';
         res.json(await deps.transaction((tx) => revokeGrant(tx, merchant_id, req.params.partner)));
+      } catch (err) {
+        send(res, err);
+      }
+    },
+  );
+
+  // T-0942 (REQ-AB-R7-1 item 5): the seller stops a partner with one wallet signature (purpose
+  // grant_revoke), no Bearer; a store in any status may. Same revokeGrant and effects as DELETE.
+  router.post(
+    '/api/v1/shop/merchants/me/grants/:partner/revoke',
+    limiter(60_000, 10),
+    async (req: Request, res: Response) => {
+      try {
+        res.json(await revokeGrantByWallet(deps, req.params.partner, req.body));
       } catch (err) {
         send(res, err);
       }

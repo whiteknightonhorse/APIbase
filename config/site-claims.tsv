@@ -186,3 +186,5 @@ static/integrator/index.md	https://apibase.pro/integrator/index.md	must-contain	
 static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	an account the wallet permitted for apibase.pro earlier is not used without that window	-	T-0912 every press on connect opens the wallet's account window
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-contain	every time you press it	-	T-0912 every press on connect opens the wallet's account window
 static/integrator/connect.md	https://apibase.pro/integrator/connect.md	must-not-contain	Choose account in wallet	-	T-0912 superseded button label
+static/integrator/permissions.md	https://apibase.pro/integrator/permissions.md	must-contain	Stopping it takes one free wallet signature	-	T-0942
+static/integrator/docs.md	https://apibase.pro/integrator/docs.md	must-contain	A person does this at [/integrator/permissions](/integrator/permissions)	-	T-0942
