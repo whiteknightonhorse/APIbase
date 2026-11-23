@@ -92,9 +92,22 @@ const RECORDED_V1_NETWORKS = [
 const MALFORMED_PAYLOAD_REASON: Record<string, string> = {
   '2.29': 'invalid_payload',
   '2.30': 'invalid_exact_evm_payload',
+  // 2.31: unchanged from 2.30
+  '2.31': 'invalid_exact_evm_payload',
 };
 /** 3c0a740 (@x402/core 2.30.0): a header that decodes to non-object JSON now throws. */
-const NON_OBJECT_HEADER_THROWS: Record<string, boolean> = { '2.29': false, '2.30': true };
+const NON_OBJECT_HEADER_THROWS: Record<string, boolean> = {
+  '2.29': false,
+  '2.30': true,
+  // 2.31: unchanged from 2.30
+  '2.31': true,
+};
+/** 4f67451 (@x402/evm 2.31.0): v1 networks hemi and hemi-testnet appended to the v1 list. */
+const V1_NETWORKS_ADDED: Record<string, string[]> = {
+  '2.29': [],
+  '2.30': [],
+  '2.31': ['hemi', 'hemi-testnet'],
+};
 
 const BASE = 'eip155:8453';
 const USDC = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
@@ -280,8 +293,9 @@ describe('T-0859: @x402 real-SDK round trip (exact, Base USDC)', () => {
     // network the SDK knows. Recorded on 2.29.0; any change to this list is a finding.
     const v1 = sup.kinds.filter((k) => k.x402Version === 1);
     expect(v1.every((k) => k.scheme === 'exact')).toBe(true);
-    expect(v1.map((k) => k.network)).toEqual(RECORDED_V1_NETWORKS);
-    expect(sup.kinds).toHaveLength(1 + RECORDED_V1_NETWORKS.length);
+    const v1Expected = [...RECORDED_V1_NETWORKS, ...V1_NETWORKS_ADDED[sdkMinor('evm')]];
+    expect(v1.map((k) => k.network)).toEqual(v1Expected);
+    expect(sup.kinds).toHaveLength(1 + v1Expected.length);
   });
 
   it('(e) server registers exact for Base and Base Sepolia; MCP meta keys', () => {
