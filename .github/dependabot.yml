@@ -51,8 +51,8 @@ updates:
       # they go through a money card (T-0566, T-0704). Patches still flow (T-0703, 2026-11-04).
       - dependency-name: "mppx"
         update-types: ["version-update:semver-minor"]
-      # jsdom >= 30 requires Node >= 22 (engines); CI (test.yml:62) and the image (Dockerfile:1) are on Node 20.
-      # Dev-only, one consumer: tests/unit/dashboard-m-fields.test.ts. Remove with the Node >= 22 image card (T-0749, 2026-11-10).
+      # jsdom >= 30 requires Node >= 22 (engines); the fleet gates run on the host Node, which is 20 until the operator's host switch.
+      # Dev-only, one consumer: tests/unit/dashboard-m-fields.test.ts. Remove with card <B> after the host switch (DEPS-FLEET-1123 ruling-4).
       - dependency-name: "jsdom"
         update-types: ["version-update:semver-major"]
     groups:
