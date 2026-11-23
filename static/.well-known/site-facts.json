@@ -572,8 +572,6 @@
     "lei.lookup": "healthy",
     "lei.relationships": "healthy",
     "lei.search": "healthy",
-    "librivox.book": "healthy",
-    "librivox.search": "healthy",
     "lichess.daily_puzzle": "healthy",
     "lichess.top_players": "healthy",
     "lichess.user_profile": "healthy",
@@ -1207,7 +1205,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 399,
+  "providers_count": 398,
   "rails": [
     "x402",
     "mpp",
@@ -1241,7 +1239,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1350,
+      "count": 1348,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1255,6 +1253,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1378,
+  "tools_count": 1376,
   "version": "2.2.0"
 }
