@@ -440,6 +440,10 @@ exa.find_similar	exa	0.012
 exa.search	exa	0.012
 exchangerate.convert	exchangerate	0.001
 exchangerate.latest	exchangerate	0.001
+f1.races.results	f1	0.001
+f1.races.schedule	f1	0.001
+f1.standings.constructors	f1	0.001
+f1.standings.drivers	f1	0.001
 faostat.food_insecurity	faostat	0.001
 faostat.food_loss	faostat	0.002
 faostat.food_security	faostat	0.001
