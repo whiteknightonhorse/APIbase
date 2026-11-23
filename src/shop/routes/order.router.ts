@@ -193,7 +193,18 @@ export function createOrderRouter(
         mpp: req.method === 'POST' ? req.mppPayment : undefined,
       });
       if (r.status === 402 && Array.isArray(r.body.accepts)) {
-        res.setHeader('PAYMENT-REQUIRED', encodePaymentRequiredHeader(r.body as never));
+        // T-0945: the header carries the x402 object only, not the APIbase fields of the body.
+        const { x402Version, error, resource, accepts, extensions } = r.body;
+        res.setHeader(
+          'PAYMENT-REQUIRED',
+          encodePaymentRequiredHeader({
+            x402Version,
+            error,
+            resource,
+            accepts,
+            extensions,
+          } as never),
+        );
         if ((r.body.pay as { mpp?: unknown } | undefined)?.mpp) {
           const mw = await import('../../middleware/mpp.middleware');
           const base = `https://${req.get('host') ?? ''}/api/v1/shop/quotes/${String(req.params.id)}/pay`;

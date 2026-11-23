@@ -206,7 +206,9 @@ async function payQuoteAnswer(deps: ShopDeps, r: PayRequest): Promise<PayRespons
     let cancel_url: string | undefined;
     try {
       const quote = await getQuote(deps, r.quote_id);
-      pay = quote.pay;
+      // T-0945: the x402 terms are stated once, in accepts[]; the 402 keeps only the other rails.
+      const { x402: _x402, ...rest } = quote.pay as unknown as Record<string, unknown>;
+      pay = Object.keys(rest).length > 0 ? rest : undefined;
       pay_before = quote.pay_before;
       // T-0944: the free cancel exists only while the order is QUOTED (not after a failed settle).
       const st = await deps.db.$queryRawUnsafe<Array<{ state: string }>>(
@@ -223,7 +225,9 @@ async function payQuoteAnswer(deps: ShopDeps, r: PayRequest): Promise<PayRespons
         ...buildPaymentRequiredResponse(binding, { requestId: r.requestId, host: r.host }),
         ...base,
         ...(e.extra?.replayed === true ? { replayed: true } : {}),
-        ...(pay ? { pay, pay_before, ...(cancel_url ? { cancel_url } : {}) } : {}),
+        ...(pay_before ? { pay_before } : {}),
+        ...(pay ? { pay } : {}),
+        ...(cancel_url ? { cancel_url } : {}),
       },
     };
   }
