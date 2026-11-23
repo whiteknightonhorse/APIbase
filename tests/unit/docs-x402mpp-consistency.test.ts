@@ -38,9 +38,7 @@ function surfaces(): string[] {
       'integrator',
       'architecture',
       'self-hosting',
-      'runbook',
       'ROADMAP',
-      'STRATEGY',
     ].map((n) => `docs/${n}.md`),
     ...readdirSync(join(ROOT, 'docs/releases'))
       .filter((f) => f.endsWith('.md'))

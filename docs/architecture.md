@@ -59,6 +59,5 @@ A `family` count written `N+` in `config/pages-to-monitor.txt` is a floor, used 
 CI job that runs it) fails with `STALE_SITE_FACTS` on any drift.
 
 Payment settlement (self-hosted x402 facilitator, MPP dual-rail, auth, error codes): see
-[`payments.md`](payments.md) (Base RPC: public primary with an optional reserve host, see there). Day-2 operations (container management, restarts, backups,
-monitoring): see [`runbook.md`](runbook.md). Self-hosting your own instance: see
+[`payments.md`](payments.md) (Base RPC: public primary with an optional reserve host, see there). Self-hosting your own instance: see
 [`self-hosting.md`](self-hosting.md).

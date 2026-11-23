@@ -445,19 +445,15 @@ STALE_README_PROSE=$(grep -oE "[0-9]{2,4}\+? real-world API tools|[0-9]{2,4}\+? 
 # are dated analyses, a design note, a dated log and the roadmap, whose numbers are historical or
 # thresholds, not live claims; the "As of <date>" snapshots are labelled in place.
 README_NUM_EXEMPT=(
-  "docs/STRATEGY.md"
   "docs/OPERATOR-ACTION-registry-listings.md"
   "docs/OPERATOR-ACTION-smithery-listing-description.md"
   "docs/09-device-mcp-layer.md"
-  "docs/demand-audit-svc2-s0.md"
-  "docs/discoverability-log.md"
   "docs/ROADMAP.md"
 )
 # Ops docs that state the stack shape by design (README points here for exact stage/container
 # counts): held to the tool/provider/schema/... classes, but not to stage/container counts.
 README_NUM_OPS=(
   "docs/architecture.md"
-  "docs/runbook.md"
   "docs/self-hosting.md"
   "docs/x402-facilitator.md"
 )

@@ -33,8 +33,6 @@ docker compose logs api --tail 20
 
 See `.env.example` for all configuration options. Never commit `.env` to git.
 
-For day-2 operations (container management, restarts, backups, monitoring), see [`runbook.md`](runbook.md).
-
 ## Backups
 
 - The `postgres_backup` container (03:00 UTC, runs as uid 1003 `apibase`; its post-backup hook `scripts/backup-hooks/10-sha256` writes a `.sha256` beside each dump at dump time) writes `backups/{daily,last,weekly,monthly}/apibase-YYYYMMDD.sql.gz`. These directories are mode 750 owned by `apibase:apibase`; chown them once after upgrading from a root-owned install.
