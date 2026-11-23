@@ -91,6 +91,24 @@ describe('server.json version source and registry URLs (T-0864)', () => {
     expect(serverJson.packages[0].version).toBe(clientPkg.version);
   });
 
+  it('T-0937: server.json carries title, websiteUrl and one 256x256 PNG icon; description <= 100', () => {
+    const full = JSON.parse(read('server.json')) as {
+      title: string;
+      websiteUrl: string;
+      description: string;
+      icons: Array<{ src: string }>;
+    };
+    expect(full.title).toBe('APIbase');
+    expect(full.websiteUrl).toBe('https://apibase.pro');
+    expect(full.icons).toHaveLength(1);
+    expect(full.icons[0].src).toBe('https://apibase.pro/icon.png');
+    const png = readFileSync(join(repoRoot, 'static/icon.png'));
+    expect(png.subarray(1, 4).toString('latin1')).toBe('PNG');
+    expect(png.readUInt32BE(16)).toBe(256);
+    expect(png.readUInt32BE(20)).toBe(256);
+    expect(full.description.length).toBeLessThanOrEqual(100);
+  });
+
   it('the registry-facing URLs end with /mcp?tools=all', () => {
     expect(serverJson.remotes[0].url).toBe('https://apibase.pro/mcp?tools=all');
     expect(mcpJson.url).toBe('https://apibase.pro/mcp?tools=all');

@@ -2,6 +2,15 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.whiteknightonhorse/apibase",
   "description": "MCP endpoint to APIbase catalog (https://apibase.pro/llms.txt). USDC: x402 Base, MPP Tempo.",
+  "title": "APIbase",
+  "websiteUrl": "https://apibase.pro",
+  "icons": [
+    {
+      "src": "https://apibase.pro/icon.png",
+      "mimeType": "image/png",
+      "sizes": ["256x256"]
+    }
+  ],
   "repository": {
     "url": "https://github.com/whiteknightonhorse/APIbase",
     "source": "github"
