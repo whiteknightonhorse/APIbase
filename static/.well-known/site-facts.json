@@ -719,10 +719,6 @@
     "opencontext.facets": "healthy",
     "opencontext.projects": "healthy",
     "opencontext.search": "healthy",
-    "opendota.match_detail": "healthy",
-    "opendota.player_matches": "healthy",
-    "opendota.player_summary": "healthy",
-    "opendota.pro_teams": "healthy",
     "openfda_devices.adverse_events": "healthy",
     "openfda_devices.classification": "healthy",
     "openfda_devices.clearances_510k": "healthy",
@@ -768,6 +764,8 @@
     "p2pquake.quake_history": "healthy",
     "p2pquake.recent_quakes": "healthy",
     "p2pquake.tsunami_warnings": "healthy",
+    "paleoclimate.study_detail": "healthy",
+    "paleoclimate.study_search": "healthy",
     "pdb.ligand": "healthy",
     "pdb.search": "healthy",
     "pdb.sequence": "healthy",
@@ -1241,7 +1239,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1350,
+      "count": 1348,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1255,6 +1253,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1378,
+  "tools_count": 1376,
   "version": "2.2.0"
 }

@@ -922,10 +922,6 @@ opencontext.detail	opencontext	0.002
 opencontext.facets	opencontext	0.001
 opencontext.projects	opencontext	0.001
 opencontext.search	opencontext	0.001
-opendota.match_detail	opendota	0.002
-opendota.player_matches	opendota	0.002
-opendota.player_summary	opendota	0.001
-opendota.pro_teams	opendota	0.001
 openfda_devices.adverse_events	openfda_devices	0.002
 openfda_devices.classification	openfda_devices	0.001
 openfda_devices.clearances_510k	openfda_devices	0.002
@@ -971,6 +967,8 @@ osv.query	osv	0.001
 p2pquake.quake_history	p2pquake	0.001
 p2pquake.recent_quakes	p2pquake	0.001
 p2pquake.tsunami_warnings	p2pquake	0.001
+paleoclimate.study_detail	paleoclimate	0.001
+paleoclimate.study_search	paleoclimate	0.002
 pdb.ligand	rcsb	0.001
 pdb.search	rcsb	0.001
 pdb.sequence	rcsb	0.001
