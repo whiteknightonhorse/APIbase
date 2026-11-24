@@ -304,6 +304,10 @@ datacite.doi.search	datacite	0.001
 datacite.works.stats	datacite	0.002
 dblp.author	dblp	0.001
 dblp.search	dblp	0.001
+dbnomics.datasets	dbnomics	0.001
+dbnomics.fetch_series	dbnomics	0.002
+dbnomics.providers	dbnomics	0.001
+dbnomics.series	dbnomics	0.001
 delphi.covid_hosp	delphi	0.001
 delphi.covidcast	delphi	0.001
 delphi.flusurv	delphi	0.001
