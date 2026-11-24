@@ -122,6 +122,7 @@ async function executeLedgerWrite(ctx: PipelineContext): ReturnType<Stage['execu
           toolId: ctx.toolId,
           idempotencyKey: ctx.idempotencyKey,
           requestId: ctx.requestId,
+          latencyMs: Date.now() - ctx.startedAtMs,
           cost: ctx.finalCost ?? ctx.toolPrice ?? 0,
           payer: ctx.mppPaid ? (ctx.mppPayer ?? 'tempo-agent') : (ctx.x402Payer ?? 'unknown'),
           asset: ctx.mppPaid ? ctx.mppAsset : undefined,
@@ -160,6 +161,8 @@ async function executeLedgerWrite(ctx: PipelineContext): ReturnType<Stage['execu
       toolId: ctx.toolId,
       idempotencyKey: ctx.idempotencyKey,
       requestId: ctx.requestId,
+      // latency_ms: ms from pipeline context creation to this write (verify, provider call, settle included; response serialisation and network excluded).
+      latencyMs: Date.now() - ctx.startedAtMs,
     };
 
     // Single-flight shared result (§12.144)

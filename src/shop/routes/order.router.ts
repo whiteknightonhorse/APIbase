@@ -108,6 +108,7 @@ export function createOrderRouter(
       // Idempotency is the pipeline's own stage; the buyer identity plays the agent id.
       const ctx: PipelineContext = {
         requestId: req.requestId,
+        startedAtMs: Date.now(),
         method: 'POST',
         path: req.path,
         body: req.body,

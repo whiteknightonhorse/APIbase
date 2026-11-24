@@ -76,6 +76,8 @@ export interface NormalizedResponse {
 export interface PipelineContext {
   // Request metadata
   requestId: string;
+  /** Date.now() at context creation; base for execution_ledger.latency_ms. */
+  startedAtMs: number;
   method: string;
   path: string;
   body: unknown;
@@ -213,6 +215,7 @@ export function createPipelineContext(
 ): PipelineContext {
   return {
     requestId,
+    startedAtMs: Date.now(),
     method,
     path,
     body,

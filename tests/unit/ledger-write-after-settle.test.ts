@@ -143,3 +143,45 @@ it('no money moved -> the throw still propagates', async () => {
   await expect(ledgerWriteStage.execute(ctx)).rejects.toThrow('boom');
   expect(mockOutboxCreate).not.toHaveBeenCalled();
 });
+
+describe('T-0964: execution_ledger.latency_ms', () => {
+  it('paid (x402) and free entries carry an integer latency_ms >= 0', async () => {
+    const started = Date.now() - 25;
+    const paid = {
+      ...base,
+      startedAtMs: started,
+      x402Paid: true,
+      x402Payer: '0xabc',
+      billingStatus: 'PAID',
+      finalCost: 0.001,
+      x402SettleSucceeded: true,
+    } as never;
+    expect((await ledgerWriteStage.execute(paid)).ok).toBe(true);
+    const free = {
+      ...base,
+      startedAtMs: started,
+      toolPrice: 0,
+      cacheHit: false,
+      isLockOwner: true,
+    } as never;
+    expect((await ledgerWriteStage.execute(free)).ok).toBe(true);
+    expect(mockLedgerCreate).toHaveBeenCalledTimes(2);
+    for (const call of mockLedgerCreate.mock.calls) {
+      const v = call[0].data.latency_ms;
+      expect(Number.isInteger(v)).toBe(true);
+      expect(v).toBeGreaterThanOrEqual(25);
+    }
+  });
+
+  it('an entry without latencyMs writes NULL', async () => {
+    const { writeFreeEntry } = await import('../../src/services/ledger.service');
+    await writeFreeEntry({
+      executionId: 'e',
+      agentId: 'a',
+      toolId: 't',
+      requestId: 'r',
+      providerCalled: true,
+    });
+    expect(mockLedgerCreate.mock.calls[0][0].data.latency_ms).toBeNull();
+  });
+});

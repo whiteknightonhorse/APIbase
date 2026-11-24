@@ -40,6 +40,8 @@ export interface LedgerEntryBase {
   toolId: string;
   idempotencyKey?: string;
   requestId: string;
+  /** Milliseconds from pipeline context creation to the ledger write (execution_ledger.latency_ms). */
+  latencyMs?: number;
 }
 
 export interface DirectChargeEntry extends LedgerEntryBase {
@@ -138,6 +140,7 @@ export async function writeDirectCharge(entry: DirectChargeEntry): Promise<numbe
           provider_called: false,
           cache_status: 'HIT',
           idempotency_key: entry.idempotencyKey ?? null,
+          latency_ms: entry.latencyMs ?? null,
         },
       });
     });
@@ -158,6 +161,7 @@ export async function writeDirectCharge(entry: DirectChargeEntry): Promise<numbe
         provider_called: false,
         cache_status: 'HIT',
         idempotency_key: entry.idempotencyKey ?? null,
+        latency_ms: entry.latencyMs ?? null,
       },
     });
   }
@@ -188,6 +192,7 @@ export async function writeFreeEntry(entry: FreeEntry): Promise<void> {
       cache_status: 'MISS',
       provider_latency_ms: entry.providerLatencyMs ?? null,
       idempotency_key: entry.idempotencyKey ?? null,
+      latency_ms: entry.latencyMs ?? null,
       upstream_cost_usd: entry.upstreamCostUsd ?? null,
     },
   });
@@ -221,6 +226,7 @@ export async function writeSharedEntry(entry: SharedEntry): Promise<void> {
       provider_called: false,
       cache_status: 'SHARED',
       idempotency_key: entry.idempotencyKey ?? null,
+      latency_ms: entry.latencyMs ?? null,
     },
   });
 
@@ -270,6 +276,7 @@ export async function writeX402Entry(entry: X402Entry): Promise<void> {
       cache_status: isCacheHit ? 'HIT' : 'MISS',
       provider_latency_ms: isCacheHit || blocked ? null : (entry.providerLatencyMs ?? null),
       idempotency_key: entry.idempotencyKey ?? null,
+      latency_ms: entry.latencyMs ?? null,
       moderation_rule_id: blocked?.ruleId ?? null,
       moderation_category: blocked?.category ?? null,
       moderation_appeal_id: blocked?.appealId ?? null,
