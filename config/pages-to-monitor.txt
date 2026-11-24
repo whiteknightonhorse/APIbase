@@ -1,7 +1,7 @@
 # T-0542: pages crawled by scripts/site-facts.py check-live (copied from site-audit-1024/pages-to-monitor.md).
-# Line shapes: `<url> [expect_status]` or `family <pattern> <count|count+> <sample-url>...`. Default expected status is 200. `count+` is a floor, for families that grow without an apibase commit (guides).
+# Line shapes: `<url> [expect_status]` or `family <pattern> <count|count+> <sample-url>...`. Default expected status is 200. `count+` is a floor, for families that grow without an apibase commit (guides, listed shops).
 # /autopilot/incident is not monitored: it is a per-incident JavaScript view (no static h1, needs ?id=), not in sitemap.xml; the old /autopilot-incident path was replaced by /autopilot/incident (nginx location from 7db8bf77, T-819; sitemap entry swapped in fde0e1e2, T-0217).
-# family /m/<shop-slug> counts verified shops only (GET /api/v1/shop/shops), so the listed count follows that API; T-0536.
+# family /m/<shop-slug> counts listed shops (active and domain-verified, GET /api/v1/shop/shops), so the listed count follows that API; T-0536. The count is a floor because a shop is listed without an apibase commit; the floor of 1 is the demo shop apibase-demo.
 # Machine endpoints are fetched for status and response time only; title/description/canonical/og/h1 apply to HTML pages.
 https://apibase.pro/
 https://apibase.pro/about
@@ -125,7 +125,7 @@ family /integrator/check/<shop-slug> 7 https://apibase.pro/integrator/check/aegi
 family /integrator/platforms/<platform> 10 https://apibase.pro/integrator/platforms/custom https://apibase.pro/integrator/platforms/tilda.md https://apibase.pro/integrator/platforms/woocommerce
 family /m/<shop-slug>/{agent.json,llms.txt,provek.json} 20 https://apibase.pro/m/aegis-verifier/agent.json https://apibase.pro/m/assay-verifier/provek.json https://apibase.pro/m/imperium-workflows/provek.json
 family /m/<shop-slug>/p/<product-slug> 30 https://apibase.pro/m/aegis-verifier/p/aegis-bounty-radar https://apibase.pro/m/apibase-demo/p/demo-tour https://apibase.pro/m/aegis-verifier/p/aegis-wallet-forensics
-family /m/<shop-slug> 0 https://apibase.pro/m/aegis-verifier https://apibase.pro/m/assay-verifier https://apibase.pro/m/x402broker
+family /m/<shop-slug> 1+ https://apibase.pro/m/aegis-verifier https://apibase.pro/m/assay-verifier https://apibase.pro/m/x402broker
 https://provek.dev/
 https://provek.dev/404 404
 https://provek.dev/apply/

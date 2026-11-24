@@ -55,7 +55,7 @@ surface says about those facts; `scripts/site-facts.py check` compares them offl
 (`scripts/live-check-after-deploy.sh`, cron) (claims, page metadata crawl, link and
 GenLayer probes, agent-ready checks). A claims mismatch (`DOCS:drift`) reaches the operator through fleet-check and opens a
 docs-drift card; a page, link, GenLayer or agent-ready finding reaches the operator through fleet-check only (no card).
-A `family` count written `N+` in `config/pages-to-monitor.txt` is a floor, used for page families that grow without a deploy (guides). The offline check is blocking from 2026-11-02: `scripts/sync-counts.sh --check` (and the
+A `family` count written `N+` in `config/pages-to-monitor.txt` is a floor, used for page families that grow without a deploy (guides, listed shops). The offline check is blocking from 2026-11-02: `scripts/sync-counts.sh --check` (and the
 CI job that runs it) fails with `STALE_SITE_FACTS` on any drift.
 
 Payment settlement (self-hosted x402 facilitator, MPP dual-rail, auth, error codes): see
