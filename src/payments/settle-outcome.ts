@@ -46,30 +46,30 @@ export function settleTxHash(result: unknown): string | undefined {
 
 /**
  * T-0658 / T-0883: classify a settle FAILURE (`success:false` or a throw) by what it tells us about
- * the chain. Line numbers are @x402/evm 2.31.0 dist/cjs/exact/facilitator/index.js.
+ * the chain. Line numbers are @x402/evm 2.32.0 dist/cjs/exact/facilitator/index.js.
  * - 'pending': outcome unknown, the chain reconcile (x402-settle-pending job) decides by
  *   authorizationUsed(payer, nonce); an unused authorization becomes x402_settle_failed at validBefore.
  *   a) `invalid_exact_evm_transaction_failed` with NO transaction hash. Sources: the settleEIP3009
- *      catch (:1517-1525, writeContract or the 6492 deploy threw; parseEip3009TransferError
- *      :1028-1047 falls through to this reason for any message it does not recognise) and
- *      invalidBroadcastHashResponse (:568-577 via :1089, the signer returned no valid hash). The tx
+ *      catch (:1531-1539, writeContract or the 6492 deploy threw; parseEip3009TransferError
+ *      :1032-1051 falls through to this reason for any message it does not recognise) and
+ *      invalidBroadcastHashResponse (:572-581 via :1093, the signer returned no valid hash). The tx
  *      may have landed (prod 2026-11-03..05: six such rows, two authorizations USED on chain).
- *      The same reason WITH a hash (reverted receipt :1096-1103, store-persist failure :1131-1139)
+ *      The same reason WITH a hash (reverted receipt :1100-1107, store-persist failure :1135-1143)
  *      is KNOWN failed. No message regex: an unrecognised throw before a hash is unknown by definition.
  *      Two more SDK returns give the bare reason with `transaction: ""`, only when the thrown value is
- *      not an Error: mapSettleError (:1639-1672, Permit2 settle :2154/:2186/:2203) and the v1 scheme
- *      catch (:2494-2501; for an Error it puts the raw message in errorReason, which stays 'failed').
+ *      not an Error: mapSettleError (:1653-1686, Permit2 settle :2175/:2207/:2224) and the v1 scheme
+ *      catch (:2515-2522; for an Error it puts the raw message in errorReason, which stays 'failed').
  *      A Permit2 payload has no `authorization`, so extractAuthorization gives no nonce and a
  *      'pending' row from it carries neither tx_hash nor nonce: the pending job can never close it
  *      (it stays pending, never failed). APIbase does not advertise Permit2 (requirements carry no
  *      assetTransferMethod) and prod logs show no `permit2` line in the 30 days to 2026-11-17.
- *   b) suffixed `invalid_exact_evm_transaction_failed: <message>` from mapSettleError (:1639-1672,
+ *   b) suffixed `invalid_exact_evm_transaction_failed: <message>` from mapSettleError (:1653-1686,
  *      Permit2 path), also an exception while broadcasting/waiting (same no-nonce caveat).
  *   c) a `settle_threw` whose message is a timeout/transport error.
  * - 'retry': a settle-time signature verdict after a verify that passed at ESCROW is an RPC
  *   failure and nothing was broadcast. getCode throw -> `invalid_exact_evm_failed_to_verify_signature`
- *   (classifyErc6492Payer :713-737, returned at :1221-1231); ERC-1271 readContract throw is caught
- *   to false (verifyERC1271 :790-803) -> `invalid_exact_evm_signature` (:1275-1281). One retry is
+ *   (classifyErc6492Payer :717-741, returned at :1225-1235); ERC-1271 readContract throw is caught
+ *   to false (verifyERC1271 :794-807) -> `invalid_exact_evm_signature` (:1279-1285). One retry is
  *   allowed when the validBefore window has >= 15 s left and the failed attempt returned in < 10 s.
  *   Otherwise 'pending'.
  * - 'failed': everything else (the specific reasons parseEip3009TransferError maps to included).

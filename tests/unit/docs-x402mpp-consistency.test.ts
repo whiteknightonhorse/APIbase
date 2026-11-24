@@ -118,7 +118,7 @@ describe('T-0432 docs x402/MPP consistency gate', () => {
         const ok = m[2] === MPPX_VERSION || (m[1] === '>=' && m[2] === MIN_MPP_CLIENT);
         if (!ok) bad.push(`${f}: ${m[0]}`);
       }
-      for (const m of t.matchAll(/@x402\/\w+@?\s*2\.(\d+)/g)) {
+      for (const m of t.matchAll(/@x402\/\w+[`*@\s]*2\.(\d+)/g)) {
         if (m[1] !== X402_MINOR) bad.push(`${f}: ${m[0]}`);
       }
     }

@@ -56,7 +56,6 @@ const sdkMinor = (pkg: string): string =>
 /** Recorded on 2.29.0 (baseline) and 2.30.0. */
 const RECORDED = {
   amountBelow: 'invalid_exact_evm_payload_authorization_value_mismatch',
-  payToMismatch: 'invalid_exact_evm_recipient_mismatch',
   validBeforePast: 'invalid_exact_evm_payload_authorization_valid_before',
   revertedReceipt: 'invalid_exact_evm_transaction_failed',
   writeContractThrew: 'invalid_exact_evm_transaction_failed',
@@ -94,6 +93,16 @@ const MALFORMED_PAYLOAD_REASON: Record<string, string> = {
   '2.30': 'invalid_exact_evm_payload',
   // 2.31: unchanged from 2.30
   '2.31': 'invalid_exact_evm_payload',
+  // 2.32: unchanged from 2.31
+  '2.32': 'invalid_exact_evm_payload',
+};
+/** Recipient mismatch reason, keyed by the installed @x402/evm minor. */
+const PAY_TO_MISMATCH_REASON: Record<string, string> = {
+  '2.29': 'invalid_exact_evm_recipient_mismatch',
+  '2.30': 'invalid_exact_evm_recipient_mismatch',
+  '2.31': 'invalid_exact_evm_recipient_mismatch',
+  // 5511054 (@x402/evm 2.32.0): renamed to the reason the x402 v2 specification lists.
+  '2.32': 'invalid_exact_evm_payload_recipient_mismatch',
 };
 /** 3c0a740 (@x402/core 2.30.0): a header that decodes to non-object JSON now throws. */
 const NON_OBJECT_HEADER_THROWS: Record<string, boolean> = {
@@ -101,12 +110,39 @@ const NON_OBJECT_HEADER_THROWS: Record<string, boolean> = {
   '2.30': true,
   // 2.31: unchanged from 2.30
   '2.31': true,
+  // 2.32: unchanged from 2.31
+  '2.32': true,
 };
 /** 4f67451 (@x402/evm 2.31.0): v1 networks hemi and hemi-testnet appended to the v1 list. */
 const V1_NETWORKS_ADDED: Record<string, string[]> = {
   '2.29': [],
   '2.30': [],
   '2.31': ['hemi', 'hemi-testnet'],
+  // 2.32: unchanged from 2.31
+  '2.32': ['hemi', 'hemi-testnet'],
+};
+/** Case (g): requirement amount -> verify result ('valid', the invalidReason, or 'throws'). */
+const NON_CANONICAL_AMOUNT: Record<string, Record<string, string>> = {
+  // 2.31: no amount rule; verify compares BigInt(authorization.value) with BigInt(amount).
+  '2.31': {
+    '01000': 'valid',
+    '+1000': 'valid',
+    '1000.0': 'throws',
+    '1e3': 'throws',
+    ' 1000': 'valid',
+    '': 'invalid_exact_evm_payload_authorization_value_mismatch',
+    '0': 'valid',
+  },
+  // b38d3be (@x402/evm 2.32.0): verify and settle refuse an amount that is not /^[0-9]{1,78}$/.
+  '2.32': {
+    '01000': 'valid',
+    '+1000': 'invalid_exact_evm_required_amount',
+    '1000.0': 'invalid_exact_evm_required_amount',
+    '1e3': 'invalid_exact_evm_required_amount',
+    ' 1000': 'invalid_exact_evm_required_amount',
+    '': 'invalid_exact_evm_required_amount',
+    '0': 'valid',
+  },
 };
 
 const BASE = 'eip155:8453';
@@ -200,7 +236,10 @@ describe('T-0859: @x402 real-SDK round trip (exact, Base USDC)', () => {
 
     const other = await signPayload(requirement({ payTo: OPERATOR }));
     const r2 = await f.verify({ ...other, accepted: req } as PaymentPayload, req);
-    expect([r2.isValid, r2.invalidReason]).toEqual([false, RECORDED.payToMismatch]);
+    expect([r2.isValid, r2.invalidReason]).toEqual([
+      false,
+      PAY_TO_MISMATCH_REASON[sdkMinor('evm')],
+    ]);
 
     // Signed with validBefore an hour in the past (the client sets validBefore = now + maxTimeout).
     const stale = await signPayload(requirement({ maxTimeoutSeconds: -3600 }));
@@ -320,5 +359,43 @@ describe('T-0859: @x402 real-SDK round trip (exact, Base USDC)', () => {
     // x402.middleware.ts: a throw -> 400 'Invalid x402 payment header'; a parse failure -> 400
     // 'Invalid x402 payment payload'. Same status and code either way.
     expect(threw).toBe(NON_OBJECT_HEADER_THROWS[sdkMinor('core')]);
+  });
+
+  it('(g) b38d3be: our requirement amounts verify; non-canonical amounts give the recorded result', async () => {
+    // The real toMicroUsdc; its module reads env config at import, which is stubbed for it only.
+    let toMicroUsdc!: (usd: number) => string;
+    jest.isolateModules(() => {
+      jest.doMock('../../src/config', () => ({ config: {} }));
+      ({ toMicroUsdc } = jest.requireActual<typeof import('../../src/config/x402.config')>(
+        '../../src/config/x402.config',
+      ));
+    });
+    const f = facilitatorWith(stubSigner());
+    const verdict = async (signedFor: string, amount: string): Promise<string> => {
+      const req = requirement({ amount });
+      try {
+        const p = await signPayload(requirement({ amount: signedFor }));
+        const r = await f.verify({ ...p, accepted: req } as PaymentPayload, req);
+        return r.isValid ? 'valid' : String(r.invalidReason);
+      } catch {
+        return 'throws';
+      }
+    };
+
+    // (i) Catalog prices (tools.price_usd: smallest non-zero 0.0005, largest 29.99), fixed points,
+    // and a fee-split merchant leg built as escrow.stage.ts feeSplitMicro builds it.
+    const merchantLeg = String(BigInt(toMicroUsdc(12.34)) - BigInt(toMicroUsdc(0.1234)));
+    const ours = [0.0005, 29.99, 0.001, 0.01, 1, 1234.56].map(toMicroUsdc).concat(merchantLeg);
+    expect(ours).toEqual(['500', '29990000', '1000', '10000', '1000000', '1234560000', '12216600']);
+    for (const amount of ours)
+      expect([amount, await verdict(amount, amount)]).toEqual([amount, 'valid']);
+
+    // (ii) Signed for '1000', verified against non-canonical requirement amounts; (iii) '0'.
+    const observed: Record<string, string> = {};
+    for (const amount of ['01000', '+1000', '1000.0', '1e3', ' 1000', '']) {
+      observed[amount] = await verdict('1000', amount);
+    }
+    observed['0'] = await verdict('0', '0');
+    expect(observed).toEqual(NON_CANONICAL_AMOUNT[sdkMinor('evm')]);
   });
 });
