@@ -1030,9 +1030,6 @@
     "usdamars.list_corrected": "healthy",
     "usdamars.list_reports": "healthy",
     "usdamars.search_reports": "healthy",
-    "usno.moon_phases": "healthy",
-    "usno.seasons": "healthy",
-    "usno.sun_moon": "healthy",
     "usrealestate.for_sale": "healthy",
     "usrealestate.location_suggest": "healthy",
     "usrealestate.property_detail": "healthy",
@@ -1212,7 +1209,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 400,
+  "providers_count": 399,
   "rails": [
     "x402",
     "mpp",
@@ -1246,7 +1243,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1355,
+      "count": 1352,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1260,6 +1257,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1383,
+  "tools_count": 1380,
   "version": "2.2.0"
 }

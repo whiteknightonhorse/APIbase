@@ -1290,9 +1290,6 @@ usgs-epqs.elevation	usgs-epqs	0.001
 usgs-mrds.search_by_area	usgs-mrds	0.001
 usgs-nationalmap.list_datasets	usgs-nationalmap	0.001
 usgs-nationalmap.search_products	usgs-nationalmap	0.002
-usno.moon_phases	usno	0.001
-usno.seasons	usno	0.001
-usno.sun_moon	usno	0.001
 usrealestate.for_sale	usrealestate	0.002
 usrealestate.location_suggest	usrealestate	0.001
 usrealestate.property_detail	usrealestate	0.003
