@@ -196,13 +196,29 @@ class ScoutProgress(Base):
         self.assertEqual(s["state"], "idle")
         self.assertNotIn("reason", s)
 
-    def test_orchestra_pause_rests_fleet(self):
+    def test_orchestra_pause_rests_only_own_scout(self):
         with open(self.paths["orchestra_pause"], "w") as f:
             f.write(f"{int(NOW) + 3600}\nreason: {CANARY}\nby: x\n")
+        self.door("d.json", {"class": "scout", "state": "working", "started_at": NOW - 5})
+        out = self.build()
+        self.assertFalse(out["fleet_paused"])
+        self.assertNotIn("paused_until_minute", out)
+        by_id = {s["id"]: s for s in out["ships"]}
+        self.assertEqual(by_id["scout-1"]["state"], "resting")
+        self.assertEqual(by_id["scout-1"]["activity_level"], 0)
+        self.assertNotIn("reason", by_id["scout-1"])
+        self.assertEqual(by_id["scout-2"]["state"], "working")
+        self.assertEqual(by_id["builder-1"]["state"], "working")
+        self.assertNotIn(CANARY, json.dumps(out))
+
+    def test_fleet_pause_wins_minute_over_orchestra_pause(self):
+        with open(self.paths["pause"], "w") as f:
+            f.write(f"{int(NOW) + 1800 + 7}\n")
+        with open(self.paths["orchestra_pause"], "w") as f:
+            f.write(f"{int(NOW) + 7200}\n")
         out = self.build()
         self.assertTrue(out["fleet_paused"])
-        self.assertTrue(all(s["state"] == "resting" for s in out["ships"]))
-        self.assertNotIn(CANARY, json.dumps(out))
+        self.assertEqual(out["paused_until_minute"], sea.iso((int(NOW) + 1800 + 7) // 60 * 60))
 
     def test_expired_orchestra_pause_ignored(self):
         with open(self.paths["orchestra_pause"], "w") as f:

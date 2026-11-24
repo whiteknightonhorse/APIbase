@@ -175,6 +175,11 @@ def collect_internal(now, paths, engine_heartbeat_ts):
             raw.append(_ship("builder", tick, now, forced_state="idle"))
     scout = scout_ship(now, paths)
     if scout is not None:
+        if orchestra_paused(paths.get("orchestra_pause"), now):
+            # a pause of this one system rests only its own ship, never the fleet
+            scout["state"] = "resting"
+            scout["activity_level"] = 0
+            scout.pop("reason", None)
         stamps.append(now - scout["since_s"])
         raw.append(scout)
     add("medic", engine_heartbeat_ts)
@@ -218,7 +223,7 @@ def bucket(n):
 
 def build(now, paths, engine_heartbeat_ts, ledger_rows, agents):
     until = read_pause_until(paths["pause"])
-    paused = (until is not None and now < until) or orchestra_paused(paths.get("orchestra_pause"), now)
+    paused = until is not None and now < until
     raw, stamps = collect_internal(now, paths, engine_heartbeat_ts)
     draw, dstamps = collect_doors(now, paths["doors"])
     raw += draw
@@ -253,8 +258,7 @@ def build(now, paths, engine_heartbeat_ts, ledger_rows, agents):
         "honesty": {"last_activity_at": iso(max(stamps)) if stamps else None},
     }
     if paused:
-        ends = [u for u in (until, read_pause_until(paths.get("orchestra_pause"))) if u is not None and now < u]
-        out["paused_until_minute"] = iso(max(ends) - max(ends) % 60)
+        out["paused_until_minute"] = iso(until - until % 60)
     return out
 
 

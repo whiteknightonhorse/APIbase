@@ -27,7 +27,7 @@ Any agent can appear as a ship by writing `~/fleet/heartbeat/<agent-id>.json`:
 `honesty{last_activity_at}`.
 
 Honesty rules: a `generated_at` older than 120 s makes `stale: true` and no ship is `working`;
-a missing key gives `stale: true` and `ships: []`; while paused every ship is `resting`.
+a missing key gives `stale: true` and `ships: []`; while the fleet is paused every ship is `resting`; a pause of one internal system rests only that system's own ship and leaves `fleet_paused` false.
 
 ## What is forbidden
 
