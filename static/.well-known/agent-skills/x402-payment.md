@@ -81,7 +81,7 @@ there is no self-service top-up and no free-trial credit (see <https://apibase.p
 
 - **mppx (MPP):** set `polyfill: false` in the SDK config. Without it the SDK
   intercepts every outbound `fetch`, including x402 calls on other hosts.
-- **x402 client:** use `@x402/fetch` (SDK 2.28) to auto-retry on 402 challenges.
+- **x402 client:** use `@x402/fetch` (SDK 2.32) to auto-retry on 402 challenges.
   Clients on `@x402/fetch` >= 2.23 refuse amounts above $1 by default
   (`spendControls`); tools priced above $1 need `spendControls: false` or an
   explicit cap.
