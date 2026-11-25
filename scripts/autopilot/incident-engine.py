@@ -1485,6 +1485,52 @@ def sync_tool_status():
                 ap.notice(f"tool-status-sync: note_incident failed for {inc_row}: {e}")
 
 
+def retired_tools_statements(limits):
+    """T-0966 (pure, no I/O): [(provider, sql)] for every provider whose
+    provider-limits.json entry carries a truthy `retired` mark. Only demotes:
+    rows already `unavailable` with a manual/NULL source are left alone so
+    status_changed_at stays an audit trail. The mark's free-text `reason` is
+    NOT copied (it may hold non-ASCII text); only `since` and `task` are."""
+    out = []
+    if not isinstance(limits, dict):
+        return out
+    for provider in sorted(limits):
+        entry = limits[provider]
+        mark = entry.get("retired") if isinstance(entry, dict) else None
+        if not mark:
+            continue
+        since = mark.get("since") if isinstance(mark, dict) else None
+        task = mark.get("task") if isinstance(mark, dict) else None
+        reason = f"retired {since or 'unknown'}: {task or 'unknown'} (provider-limits.json retired mark)"
+        out.append((provider,
+            "UPDATE tools SET status='unavailable', status_source='manual', "
+            f"status_changed_at=now(), status_reason={ap.sql_literal(reason)} "
+            f"WHERE provider={ap.sql_literal(provider)} "
+            "AND (status <> 'unavailable' OR status_source IN ('autopilot','seed')) "
+            "RETURNING tool_id"))
+    return out
+
+
+def sync_retired_tools():
+    """T-0966: every tool of a provider marked `retired` in provider-limits.json
+    is unavailable/manual. provider-health.job.ts stops probing a retired
+    provider, so its rows froze at the status of the day of the mark; this
+    converges them every tick. Only demotes: removing a mark revives nothing
+    (back on sale is an operator SQL step). Never raises."""
+    for provider, sql in retired_tools_statements(ap._provider_limits()):
+        try:
+            out, rc = ap.psql(sql)
+        except Exception as e:
+            ap.notice(f"retired-tools-sync: {provider} failed: {e}")
+            continue
+        if rc != 0:
+            ap.notice(f"retired-tools-sync: {provider} failed (rc={rc})")
+            continue
+        n = len(out.splitlines()) if out else 0
+        if n:
+            ap.notice(f"retired-tools-sync: {provider} -> unavailable ({n} tool(s))")
+
+
 def reconcile_sync_counts():
     """T-0174 (2026-09-23, 0173 ruling-1 task B): the ONE sync-counts trigger
     for the whole tick, replacing sync_tool_status()'s old crossed-only
@@ -2190,6 +2236,7 @@ def run():
         return 0
     opened = detect_from_provider_status()
     sync_tool_status()
+    sync_retired_tools()  # T-0966: retired mark -> tools off sale
     opened += merchant_tick()  # T-INT-13: merchant:* sources/actions (before routing, so STOREFRONT_DOWN can queue this tick)
     # T-03: advance_waiting_human() now runs BEFORE route_auto_incidents().
     # Both spend the SAME shared consume_daily_task_slot() budget (I2's
@@ -2603,6 +2650,27 @@ def selftest():
             setattr(ap, _n, _v)
         _shutil_t734.rmtree(_t734_root, ignore_errors=True)
     print("T-0734 (queued card retired when incident moved on): OK")
+
+    # T-0966: retired-tools SQL builder (pure) + call order in run().
+    _r = dict(retired_tools_statements({
+        "alpha": {"retired": {"since": "2026-11-08", "task": "T-0716", "reason": "non-ascii \u00e9 text"}},
+        "o'neil": {"retired": {"since": "2026-11-09", "task": "T-1"}},
+        "live": {"rpm": 5},
+    }))
+    assert sorted(_r) == ["alpha", "o'neil"], _r
+    assert _r["alpha"] == (
+        "UPDATE tools SET status='unavailable', status_source='manual', status_changed_at=now(), "
+        "status_reason='retired 2026-11-08: T-0716 (provider-limits.json retired mark)' "
+        "WHERE provider='alpha' AND (status <> 'unavailable' OR status_source IN ('autopilot','seed')) "
+        "RETURNING tool_id"), _r["alpha"]
+    assert "WHERE provider='o''neil' AND" in _r["o'neil"], _r["o'neil"]
+    assert "\u00e9" not in _r["alpha"], "the mark's free-text reason must not be copied"
+    assert retired_tools_statements({}) == [] and retired_tools_statements(None) == []
+    import inspect as _insp966
+    _src966 = _insp966.getsource(run)
+    assert 0 <= _src966.index("sync_tool_status()") < _src966.index("sync_retired_tools()") \
+        < _src966.index("merchant_tick()"), "T-0966: run() must call sync_retired_tools() right after sync_tool_status()"
+    print("T-0966 (retired-tools SQL builder, call order in run()): OK")
 
     print("incident-engine --selftest: OK")
 
@@ -4743,6 +4811,39 @@ def selftest_db():
         finally:
             ap.tg_send = _orig_tg_send27
         print("world 27 (QUOTA_* stays on HEALTHY; reopen keeps created_at; FLAPPING pages once): OK")
+
+        # World 28 (T-0966): sync_retired_tools() converges every row of a retired provider
+        # to unavailable/manual, only demotes, leaves manual rows and other providers alone.
+        ap.psql(
+            "INSERT INTO tools (tool_id, provider, status, status_source, status_changed_at, status_reason) VALUES "
+            "('ap28-a', 'ap28ret', 'healthy', 'autopilot', NULL, NULL), "
+            "('ap28-b', 'ap28ret', 'degraded', 'seed', NULL, NULL), "
+            "('ap28-c', 'ap28ret', 'unavailable', 'autopilot', NULL, 'DOWN timeout'), "
+            "('ap28-d', 'ap28ret', 'unavailable', 'manual', '2026-11-02 07:09:41+00', 'operator own reason'), "
+            "('ap28-e', 'ap28live', 'healthy', 'autopilot', NULL, NULL)"
+        )
+        _orig28 = ap._provider_limits_cache
+        ap._provider_limits_cache = {"ap28ret": {"retired": {"since": "2026-11-25", "task": "T-9628"}},
+                                     "ap28live": {"rpm": 5}}
+        try:
+            _d_before, _ = ap.psql("SELECT status_changed_at::text FROM tools WHERE tool_id='ap28-d'")
+            sync_retired_tools()
+            _want28 = "retired 2026-11-25: T-9628 (provider-limits.json retired mark)"
+            for _t in ("ap28-a", "ap28-b", "ap28-c"):
+                _r28, _ = ap.psql(f"SELECT status, status_source, status_reason FROM tools WHERE tool_id='{_t}'")
+                assert _r28 == ap.SEP.join(("unavailable", "manual", _want28)), f"world 28: {_t} got {_r28}"
+            _r28d, _ = ap.psql("SELECT status, status_source, status_reason, status_changed_at::text "
+                               "FROM tools WHERE tool_id='ap28-d'")
+            assert _r28d == ap.SEP.join(("unavailable", "manual", "operator own reason", _d_before)), \
+                f"world 28: a manual unavailable row must be left untouched, got {_r28d}"
+            _r28e, _ = ap.psql("SELECT status, status_source FROM tools WHERE tool_id='ap28-e'")
+            assert _r28e == "healthy" + ap.SEP + "autopilot", f"world 28: non-retired row touched: {_r28e}"
+            for _p28, _sql28 in retired_tools_statements(ap._provider_limits()):
+                _o28, _rc28 = ap.psql(_sql28)
+                assert _rc28 == 0 and _o28 == "", f"world 28: second pass must return no rows, got {_o28!r}"
+        finally:
+            ap._provider_limits_cache = _orig28
+        print("world 28 (retired mark -> tools unavailable/manual, manual rows kept, idempotent): OK")
 
         print("selftest-db: ALL WORLDS OK")
         return 0
