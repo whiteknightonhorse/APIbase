@@ -154,7 +154,6 @@ bts.tsi	bts-transport	0.001
 bundesbank-timeseries.data	bundesbank-timeseries	0.002
 bundesbank-timeseries.dataflows	bundesbank-timeseries	0.001
 bundesbank-timeseries.structure	bundesbank-timeseries	0.001
-calendarific.holidays	calendarific	0.002
 canopy.deals	canopy	0.013
 canopy.offers	canopy	0.013
 canopy.product	canopy	0.013
@@ -356,10 +355,6 @@ ea-hydrology.station_search	ea-hydrology	0.001
 earthquake.count	usgs-earthquake	0.001
 earthquake.feed	usgs-earthquake	0.001
 earthquake.search	usgs-earthquake	0.001
-ebi-metagenomics.biome_browse	ebi-metagenomics	0.001
-ebi-metagenomics.sample_list	ebi-metagenomics	0.001
-ebi-metagenomics.study_detail	ebi-metagenomics	0.001
-ebi-metagenomics.study_search	ebi-metagenomics	0.001
 ecb-rates.hicp_inflation	ecb-rates	0.001
 ecb-rates.key_rates	ecb-rates	0.001
 ecb-rates.money_supply	ecb-rates	0.001
@@ -581,13 +576,6 @@ hdx.dataset_detail	hdx	0.002
 hdx.dataset_search	hdx	0.002
 hdx.location_list	hdx	0.001
 hdx.organization_list	hdx	0.001
-health.drug_events	health	0.003
-health.drug_labels	health	0.003
-health.food_details	health	0.003
-health.food_recalls	health	0.002
-health.food_search	health	0.002
-health.supplement_details	health	0.003
-health.supplement_search	health	0.002
 hf.datasets	hf	0.001
 hf.model_details	hf	0.001
 hf.models	hf	0.001
@@ -1093,8 +1081,6 @@ smhi.fire_risk	smhi	0.001
 smhi.forecast	smhi	0.001
 smhi.observations	smhi	0.001
 smhi.warnings	smhi	0.001
-smithsonian.record	smithsonian	0.001
-smithsonian.search	smithsonian	0.001
 socrata.dataset_metadata	socrata	0.001
 socrata.dataset_search	socrata	0.002
 socrata.query_dataset	socrata	0.002

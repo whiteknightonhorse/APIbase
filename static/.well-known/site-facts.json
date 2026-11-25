@@ -146,7 +146,6 @@
     "bts.border_crossings": "healthy",
     "bts.freight_indicators": "healthy",
     "bts.tsi": "healthy",
-    "calendarific.holidays": "healthy",
     "canopy.deals": "healthy",
     "canopy.offers": "healthy",
     "canopy.product": "healthy",
@@ -474,13 +473,6 @@
     "hdx.dataset_search": "healthy",
     "hdx.location_list": "healthy",
     "hdx.organization_list": "healthy",
-    "health.drug_events": "healthy",
-    "health.drug_labels": "healthy",
-    "health.food_details": "healthy",
-    "health.food_recalls": "healthy",
-    "health.food_search": "healthy",
-    "health.supplement_details": "healthy",
-    "health.supplement_search": "healthy",
     "hf.datasets": "healthy",
     "hf.model_details": "healthy",
     "hf.models": "healthy",
@@ -879,8 +871,6 @@
     "smhi.forecast": "healthy",
     "smhi.observations": "healthy",
     "smhi.warnings": "healthy",
-    "smithsonian.record": "healthy",
-    "smithsonian.search": "healthy",
     "socrata.dataset_metadata": "healthy",
     "socrata.dataset_search": "healthy",
     "socrata.query_dataset": "healthy",
@@ -1206,7 +1196,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 398,
+  "providers_count": 394,
   "rails": [
     "x402",
     "mpp",
@@ -1240,7 +1230,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1349,
+      "count": 1335,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1254,6 +1244,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1377,
+  "tools_count": 1363,
   "version": "2.2.0"
 }
