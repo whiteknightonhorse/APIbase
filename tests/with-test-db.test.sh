@@ -8,6 +8,7 @@ FAILS=0
 ok() { echo "ok   $1"; }
 bad() { echo "FAIL $1"; FAILS=$((FAILS + 1)); }
 
+VOLS_BEFORE="$(docker volume ls -qf dangling=true | wc -l)"
 OUT="$($W env 2>&1)"
 echo "$OUT" | grep -q '^TEST_DATABASE_URL=postgresql://test:test@127.0.0.1:[0-9]*/apibase_test$' && ok "1a url on 127.0.0.1" || bad "1a url"
 PGD="$(echo "$OUT" | sed -n 's/^PG_DUMP=//p')"
@@ -23,6 +24,10 @@ echo "$V" | grep -q 'pg_dump (PostgreSQL) 16' && ok "2 shim reports 16 inside wr
 IMG_SCRIPT="$(sed -n 's/^IMAGE="\(.*\)"$/\1/p' scripts/with-test-db.sh)"
 IMG_COMPOSE="$(grep -m1 'image: postgres:' docker-compose.yml | sed 's/.*image: *//')"
 [ -n "$IMG_SCRIPT" ] && [ "$IMG_SCRIPT" = "$IMG_COMPOSE" ] && ok "4 image $IMG_SCRIPT == compose" || bad "4 image '$IMG_SCRIPT' vs '$IMG_COMPOSE'"
+
+$W true
+VOLS_AFTER="$(docker volume ls -qf dangling=true | wc -l)"
+[ "$VOLS_BEFORE" = "$VOLS_AFTER" ] && ok "3c no dangling volume left ($VOLS_BEFORE -> $VOLS_AFTER)" || bad "3c dangling volumes $VOLS_BEFORE -> $VOLS_AFTER"
 
 $W false; RC=$?
 [ "$RC" = 1 ] && ok "5a exit code 1" || bad "5a exit code $RC"

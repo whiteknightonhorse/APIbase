@@ -17,7 +17,7 @@ command -v docker >/dev/null || { echo "with-test-db: docker not found" >&2; exi
 SHIM_DIR=""
 # shellcheck disable=SC2329 # invoked by trap
 cleanup() {
-  docker rm -f "$NAME" >/dev/null 2>&1 || true
+  docker rm -f -v "$NAME" >/dev/null 2>&1 || true
   [ -n "$SHIM_DIR" ] && rm -rf "$SHIM_DIR"
 }
 trap cleanup EXIT
@@ -28,7 +28,7 @@ NOW="$(date +%s)"
 for c in $(docker ps -a --filter name='^apibase-testdb-' --format '{{.Names}}'); do
   created="$(docker inspect -f '{{.Created}}' "$c" 2>/dev/null || true)"
   ts="$(date -d "$created" +%s 2>/dev/null || echo "$NOW")"
-  if [ $((NOW - ts)) -gt 10800 ]; then docker rm -f "$c" >/dev/null 2>&1 || true; fi
+  if [ $((NOW - ts)) -gt 10800 ]; then docker rm -f -v "$c" >/dev/null 2>&1 || true; fi
 done
 
 docker run -d --rm --name "$NAME" -p 127.0.0.1::5432 \

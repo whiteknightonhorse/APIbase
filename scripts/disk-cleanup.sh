@@ -14,6 +14,27 @@ SYSLOG_ROTATE_SIZE_MB=100
 
 log() { echo "[disk-cleanup] $(date -u '+%Y-%m-%dT%H:%M:%SZ') $1"; }
 
+# Remove dangling anonymous volumes (64-hex names) older than 24h; named and younger volumes are never touched.
+prune_stale_anon_volumes() {
+    local now v created ts removed=0
+    now=$(date +%s)
+    for v in $(docker volume ls -qf dangling=true 2>/dev/null || true); do
+        [[ "$v" =~ ^[0-9a-f]{64}$ ]] || continue
+        created=$(docker volume inspect -f '{{.CreatedAt}}' "$v" 2>/dev/null || true)
+        ts=$(date -d "$created" +%s 2>/dev/null || echo "$now")
+        [ $((now - ts)) -gt 86400 ] || continue
+        if docker volume rm "$v" >/dev/null 2>&1; then
+            removed=$((removed + 1))
+        else
+            log "WARN  Could not remove anonymous volume $v"
+        fi
+    done
+    log "INFO  Removed $removed stale anonymous volumes (>24h)"
+}
+
+# When sourced (tests), define the functions only.
+if [ "${BASH_SOURCE[0]}" != "$0" ]; then return 0; fi
+
 # 1) WAL rotation — delete files older than 24h
 if [ -d "$WAL_DIR" ]; then
     count=$(find "$WAL_DIR" -maxdepth 1 -type f -mmin +$((WAL_MAX_AGE_HOURS * 60)) 2>/dev/null | wc -l)
@@ -39,6 +60,9 @@ log "INFO  Docker build cache prune: $cache_pruned"
 old_pruned=$(docker image prune -a --filter "until=48h" --force 2>/dev/null | tail -1)
 log "INFO  Docker old image prune (>48h): $old_pruned"
 
+# 2d) Stale anonymous volumes left by disposable containers
+prune_stale_anon_volumes
+
 # 3) /tmp cleanup — files older than 7 days
 tmp_count=$(find /tmp -type f -mtime +$TMP_MAX_AGE_DAYS 2>/dev/null | wc -l)
 if [ "$tmp_count" -gt 0 ]; then
@@ -61,7 +85,8 @@ if [ "$usage" -ge "$CRIT_THRESHOLD" ]; then
     log "CRIT  Disk usage ${usage}% >= ${CRIT_THRESHOLD}% — running emergency cleanup"
 
     # Emergency: prune ALL unused images (not just >48h)
-    docker image prune -a --force 2>/dev/null | tail -1 | xargs -I{} log "INFO  Emergency image prune: {}" || true
+    emerg_pruned=$(docker image prune -a --force 2>/dev/null | tail -1 || true)
+    log "INFO  Emergency image prune: $emerg_pruned"
 
     # Emergency: clean Docker logs (can grow huge)
     find /var/lib/docker/containers/ -name "*-json.log" -size +50M -exec truncate -s 10M {} \; 2>/dev/null || true

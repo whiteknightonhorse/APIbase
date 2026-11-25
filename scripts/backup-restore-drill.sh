@@ -18,7 +18,7 @@ done
 NAME="apibase-restore-drill-$$"
 ERR="$(mktemp)"
 cleanup() {
-  docker rm -f "$NAME" >/dev/null 2>&1 || true
+  docker rm -f -v "$NAME" >/dev/null 2>&1 || true
   rm -f "$ERR"
 }
 trap cleanup EXIT
