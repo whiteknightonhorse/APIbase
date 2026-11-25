@@ -105,9 +105,26 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
   const tag = () => `${Date.now().toString(36)}s${n++}`;
   const buyer = () => ({ identity: `agent:${tag()}` });
 
+  // T-0967: scheduleFailedAuthorizationChecks arms real (unref'd) timers at +15/+45/+120 s and
+  // validBefore + 60 s. A case that leaves them pending lets one fire after the file has ended
+  // ("require after the Jest environment has been torn down"). Every handle created through
+  // global.setTimeout with a delay >= 15 s during a case is recorded and cleared in afterEach.
+  // The recorder is a plain wrapper assigned to global.setTimeout (not a jest spy), so a case's own
+  // jest.spyOn(global, 'setTimeout') wraps it and its mockRestore() puts the recorder back.
+  const nativeSetTimeout = global.setTimeout;
+  const longTimers = new Set<unknown>();
+
   beforeAll(() => migrate());
-  afterAll(() => prisma.$disconnect());
+  afterAll(async () => {
+    await prisma.$disconnect();
+    expect([...longTimers]).toHaveLength(0);
+  });
   beforeEach(() => {
+    global.setTimeout = ((fn: () => void, ms?: number, ...a: unknown[]) => {
+      const h = nativeSetTimeout(fn, ms, ...a);
+      if (typeof ms === 'number' && ms >= 15_000) longTimers.add(h);
+      return h;
+    }) as never;
     Object.assign(E, {
       INTEGRATOR_FEE_ENABLED: 'false',
       INTEGRATOR_BASE_ORDERS_ENABLED: 'true',
@@ -124,6 +141,11 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     mockClaim.mockClear();
     claimed.clear();
     claimDown = false;
+  });
+  afterEach(() => {
+    global.setTimeout = nativeSetTimeout;
+    for (const h of longTimers) clearTimeout(h as never);
+    longTimers.clear();
   });
 
   async function activate(merchant_id: string) {
@@ -226,6 +248,19 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
         f.quote.order_id,
       )
     ).map((r) => r.to_state);
+
+  const flush = async (until: () => boolean) => {
+    for (let i = 0; i < 200 && !until(); i++) await new Promise((r) => setTimeout(r, 10));
+  };
+  /** Polls an async condition every 20 ms; false when `ms` runs out. */
+  const waitFor = async (cond: () => Promise<boolean>, ms: number) => {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      if (await cond()) return true;
+      await new Promise((r) => setTimeout(r, 20));
+    }
+    return false;
+  };
 
   it('SE3: settle success -> PAID -> CONFIRMED -> FULFILLED, ledger side effects, +14d close_after', async () => {
     const f = await fixture();
@@ -418,8 +453,16 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     expect(localSettle).toHaveBeenCalledTimes(1);
 
     release({ success: true, transaction: '0xlate' });
-    for (let i = 0; i < 50 && (await order(f)).state !== 'FULFILLED'; i++) {
-      await new Promise((res) => realSetTimeout(res, 20));
+    // The late finalization (confirm -> PAID -> CONFIRMED -> FULFILLED) is in flight: wait on state.
+    let last = '';
+    const done = await waitFor(async () => {
+      last = String((await order(f)).state);
+      return last === 'FULFILLED';
+    }, 15_000);
+    if (!done) {
+      throw new Error(
+        `order not FULFILLED within 15 s: state=${last} states=${(await states(f)).join(',')}`,
+      );
     }
     const o = await order(f);
     expect(o.state).toBe('FULFILLED');
@@ -553,18 +596,6 @@ dbDescribe('shop.order.pay: settle before delivery, reconcile', () => {
     }
     return timers;
   }
-  const flush = async (until: () => boolean) => {
-    for (let i = 0; i < 200 && !until(); i++) await new Promise((r) => setTimeout(r, 10));
-  };
-  /** Polls an async condition every 20 ms; false when `ms` runs out. */
-  const waitFor = async (cond: () => Promise<boolean>, ms: number) => {
-    const end = Date.now() + ms;
-    while (Date.now() < end) {
-      if (await cond()) return true;
-      await new Promise((r) => setTimeout(r, 20));
-    }
-    return false;
-  };
   const PAY_STATUS_SQL = `SELECT chain_status FROM shop_payments WHERE payment_id = $1::uuid`;
 
   it('T-0552: a failed settle is re-read at +15 s, +45 s, +120 s and validBefore + 60 s', async () => {
