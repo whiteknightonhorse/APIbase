@@ -21071,6 +21071,219 @@
         ]
       }
     },
+    "/api/v1/tools/librivox.search/call": {
+      "post": {
+        "operationId": "librivox_search",
+        "summary": "Search LibriVox Audiobooks",
+        "description": "Search 20K+ public-domain audiobooks by title, author, or genre. Returns book IDs, descriptions, languages, copyright years, total time, and ZIP download URLs. LibriVox public domain",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "librivox.search"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "Substring search on audiobook title (e.g. \"pride and prejudice\", \"treasure\")."
+                  },
+                  "author": {
+                    "type": "string",
+                    "description": "Author name search (e.g. \"shakespeare\", \"twain\", \"tolstoy\")."
+                  },
+                  "genre": {
+                    "type": "string",
+                    "description": "Genre filter — e.g. \"Adventure\", \"Children's Fiction\", \"Mystery\", \"Plays\", \"Poetry\"."
+                  },
+                  "limit": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "description": "Max results to return (default 25, max 100)."
+                  },
+                  "offset": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Pagination offset for stepping through large result sets."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
+    "/api/v1/tools/librivox.book/call": {
+      "post": {
+        "operationId": "librivox_book",
+        "summary": "Get LibriVox Audiobook Details",
+        "description": "Get full audiobook details by LibriVox ID — includes per-section MP3 URLs (chapter-level streaming), playtimes, authors, and project metadata. LibriVox public domain",
+        "x-payment-info": {
+          "protocols": [
+            "x402",
+            "mpp"
+          ],
+          "pricingMode": "fixed",
+          "price": "0.001000",
+          "offers": [
+            {
+              "method": "tempo",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x20C000000000000000000000b9537d11c60E8b50",
+              "chainId": 4217
+            },
+            {
+              "method": "evm",
+              "intent": "charge",
+              "amount": "1000",
+              "currency": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+              "chainId": 8453
+            }
+          ]
+        },
+        "x-payment-required": true,
+        "parameters": [
+          {
+            "name": "toolId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "librivox.book"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "book_id": {
+                    "type": "integer",
+                    "description": "LibriVox audiobook ID (integer). Use librivox.search first to discover IDs. Returns full chapter list with MP3 URLs.",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "book_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tool execution result"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized — missing or invalid API key"
+          },
+          "402": {
+            "description": "Payment Required"
+          },
+          "404": {
+            "description": "Tool not found"
+          },
+          "429": {
+            "description": "Rate limit exceeded"
+          },
+          "500": {
+            "description": "Internal server error"
+          },
+          "502": {
+            "description": "Provider unavailable"
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          },
+          {
+            "mppPayment": []
+          }
+        ]
+      }
+    },
     "/api/v1/tools/tatoeba.search/call": {
       "post": {
         "operationId": "tatoeba_search",

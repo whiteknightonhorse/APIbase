@@ -701,6 +701,8 @@ launch-library-2.upcoming_launches	launch-library-2	0.002
 lei.lookup	gleif	0.001
 lei.relationships	gleif	0.001
 lei.search	gleif	0.001
+librivox.book	librivox	0.001
+librivox.search	librivox	0.001
 lichess.daily_puzzle	lichess	0.001
 lichess.top_players	lichess	0.001
 lichess.user_profile	lichess	0.001
