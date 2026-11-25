@@ -14,7 +14,7 @@ import { issueKey } from '../../src/shop/auth/merchant-key.service';
 import { registerMerchantTools } from '../../src/shop/tools/merchant.tools';
 import { RETRY_DELAYS_MS } from '../../src/shop/webhook/constants';
 import { deliverDue, redeliver, type DeliveryDeps } from '../../src/shop/webhook/delivery.service';
-import type { WebhookTransport } from '../../src/shop/webhook/transport';
+import { WEBHOOK_TIMEOUT_MS, type WebhookTransport } from '../../src/shop/webhook/transport';
 import {
   deleteWebhook,
   listEvents,
@@ -390,18 +390,47 @@ dbDescribe('merchant webhooks (F-6)', () => {
   it('WH9: a receiver that answers after 11 s is a failure after 10 s', async () => {
     const m = await merchant();
     const ep = await endpoint(m);
+    let sentLate!: () => void;
+    const lateSent = new Promise<void>((r) => {
+      sentLate = r;
+    });
     reply = (_q, res) => {
-      setTimeout(() => res.writeHead(200).end('late'), 11_000).unref();
+      setTimeout(() => {
+        res.writeHead(200).end('late');
+        sentLate();
+      }, 11_000).unref();
     };
     await emit('shop.order.paid', { order_id: randomUUID(), merchant_id: m });
     const t0 = Date.now();
     await run();
     const took = Date.now() - t0;
+    // (a) the delivery waited the whole cap (a lower bound; no upper bound over database work)
     expect(took).toBeGreaterThanOrEqual(9_900);
-    expect(took).toBeLessThan(10_900);
+    // (b) the cap is 10 s
+    expect(WEBHOOK_TIMEOUT_MS).toBe(10_000);
     const d = (await deliveries(ep.id))[0];
     expect(d.status).toBe('retry');
     expect(d.response_excerpt).toMatch(/timeout/);
+    // (c) the 200 that arrives at 11 s changes nothing
+    let limit: NodeJS.Timeout | undefined;
+    try {
+      await Promise.race([
+        lateSent,
+        new Promise<never>((_, rej) => {
+          limit = setTimeout(() => rej(new Error('the late answer was never sent')), 5_000);
+        }),
+      ]);
+    } finally {
+      clearTimeout(limit);
+    }
+    const rows = await deliveries(ep.id);
+    // the failed attempt plus its scheduled retry: no second row from the late answer, none delivered
+    expect(rows.map((r) => [r.attempt, r.status])).toEqual([
+      [1, 'retry'],
+      [2, 'pending'],
+    ]);
+    expect(rows[0].status).toBe('retry');
+    expect(rows[0].response_excerpt).toMatch(/timeout/);
   }, 20_000);
 
   it("WH10: webhook_set with another merchant's endpoint_id is 404 (service and MCP tool); scope enforced", async () => {
