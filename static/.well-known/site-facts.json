@@ -166,10 +166,6 @@
     "cdc_chronic.state_compare": "healthy",
     "cdc_chronic.topics": "healthy",
     "cdc_chronic.trend": "healthy",
-    "celestrak.group": "healthy",
-    "celestrak.intdes": "healthy",
-    "celestrak.search": "healthy",
-    "celestrak.tle": "healthy",
     "census.demographics": "healthy",
     "census.economic": "healthy",
     "census.housing": "healthy",
@@ -1196,7 +1192,7 @@
     "2024-11-05",
     "2024-10-07"
   ],
-  "providers_count": 394,
+  "providers_count": 393,
   "rails": [
     "x402",
     "mpp",
@@ -1230,7 +1226,7 @@
   ],
   "tiers": {
     "micro": {
-      "count": 1335,
+      "count": 1331,
       "max_usd": 0.0091
     },
     "premium": {
@@ -1244,6 +1240,6 @@
     }
   },
   "tiers_counted_over": "healthy tools = rows of scripts/discovery-snapshot.tsv",
-  "tools_count": 1363,
+  "tools_count": 1359,
   "version": "2.2.0"
 }
