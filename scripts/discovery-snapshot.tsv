@@ -174,6 +174,10 @@ cdc_chronic.indicators	cdc-chronic	0.002
 cdc_chronic.state_compare	cdc-chronic	0.002
 cdc_chronic.topics	cdc-chronic	0.001
 cdc_chronic.trend	cdc-chronic	0.002
+celestrak.group	celestrak	0.001
+celestrak.intdes	celestrak	0.001
+celestrak.search	celestrak	0.001
+celestrak.tle	celestrak	0.001
 census.demographics	census	0.001
 census.economic	census	0.001
 census.housing	census	0.001
