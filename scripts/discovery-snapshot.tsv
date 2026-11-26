@@ -695,9 +695,6 @@ jpl.small_body	jpl	0.001
 langbly.detect	langbly	0.001
 langbly.languages	langbly	0.001
 langbly.translate	langbly	0.002
-latvia-statistics.catalog	latvia-statistics	0.001
-latvia-statistics.table_metadata	latvia-statistics	0.002
-latvia-statistics.table_query	latvia-statistics	0.003
 launch-library-2.agency_search	launch-library-2	0.001
 launch-library-2.astronaut_search	launch-library-2	0.001
 launch-library-2.launch_detail	launch-library-2	0.002
